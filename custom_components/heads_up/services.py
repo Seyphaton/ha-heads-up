@@ -17,6 +17,7 @@ from .const import (
     MAX_MESSAGE,
     MAX_TIMEOUT_DAYS,
     MAX_TITLE,
+    MODES,
     SEVERITIES,
 )
 from .manager import BannerManager
@@ -30,6 +31,15 @@ def _timeout(value: timedelta) -> timedelta:
 
 SLUG = vol.All(cv.string, vol.Match(ID_PATTERN))
 
+CONDITION_SCHEMA = vol.Schema(
+    {
+        vol.Required("entity_id"): cv.entity_id,
+        # List first: cv.string would turn a list into its repr.
+        vol.Optional("state", default="on"): vol.Any(vol.All(list, [cv.string]), cv.string),
+        vol.Optional("attribute"): cv.string,
+    }
+)
+
 CREATE_SCHEMA = vol.Schema(
     {
         vol.Optional("id"): SLUG,
@@ -42,6 +52,10 @@ CREATE_SCHEMA = vol.Schema(
         vol.Optional("dismiss_scope"): vol.In(DISMISS_SCOPES),
         vol.Optional("tag"): SLUG,
         # Passed to the card unchanged (D-015).
+        vol.Optional("condition"): CONDITION_SCHEMA,
+        vol.Optional("mode"): vol.In(MODES),
+        vol.Optional("wait_for_condition"): cv.boolean,
+        vol.Optional("people"): vol.All(cv.ensure_list, [cv.entity_domain("person")]),
         vol.Optional("tap_action"): vol.Schema(
             {vol.Required("action"): cv.string}, extra=vol.ALLOW_EXTRA
         ),

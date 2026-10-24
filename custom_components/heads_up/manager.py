@@ -6,15 +6,20 @@ parallel action calls cannot interleave (DESIGN §3, Concurrency).
 
 from __future__ import annotations
 
+import logging
 import secrets
 from collections.abc import Callable, Mapping
 from datetime import datetime, timedelta
 from functools import partial
 from typing import Any
 
-from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
+from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
+from homeassistant.core import CALLBACK_TYPE, Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.exceptions import ServiceValidationError
-from homeassistant.helpers.event import async_track_point_in_utc_time
+from homeassistant.helpers.event import (
+    async_track_point_in_utc_time,
+    async_track_state_change_event,
+)
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
@@ -38,6 +43,9 @@ from .const import (
 )
 from .models import Banner
 
+_LOGGER = logging.getLogger(__name__)
+_NO_STATE = {STATE_UNAVAILABLE, STATE_UNKNOWN}
+
 
 class HeadsUpError(Exception):
     """Error with a WebSocket error code."""
@@ -60,6 +68,8 @@ class BannerManager:
         self._store = banner_store(hass)
         self._timers: dict[str, CALLBACK_TYPE] = {}
         self._listeners: list[Callable[[], None]] = []
+        self.tracked_entities: set[str] = set()
+        self._untrack: CALLBACK_TYPE | None = None
 
     async def async_load(self) -> None:
         data = await self._store.async_load() or {}
@@ -74,6 +84,12 @@ class BannerManager:
                 continue
             self.banners[banner.id] = banner
             self._schedule(banner)
+        # Conditions may have changed while not loaded. Entities that are not loaded yet
+        # evaluate to None and keep their stored result (D-006).
+        for banner in list(self.banners.values()):
+            if banner.condition is not None:
+                dropped |= self._apply_condition(banner)
+        self._refresh_tracking()
         if dropped:
             self._save()
 
@@ -82,6 +98,10 @@ class BannerManager:
             cancel()
         self._timers.clear()
         self._listeners.clear()
+        if self._untrack:
+            self._untrack()
+            self._untrack = None
+        self.tracked_entities = set()
         await self._store.async_save(self._data())
 
     # Mutations -------------------------------------------------------------------------
@@ -91,7 +111,26 @@ class BannerManager:
         now = dt_util.utcnow()
         banner_id = data.get("id") or self._new_id()
         existing = self.banners.get(banner_id)
+        condition: dict[str, Any] | None = data.get("condition")
+        met: bool | None = None
+        if condition is not None:
+            if self.hass.states.get(condition["entity_id"]) is None:
+                raise ServiceValidationError(
+                    translation_domain=DOMAIN,
+                    translation_key="entity_not_found",
+                    translation_placeholders={"entity_id": condition["entity_id"]},
+                )
+            met = self._evaluate(condition)
+            if met is not True and not data.get("wait_for_condition", True):
+                if existing:
+                    # The caller replaced this ID with a banner that must not show (D-038).
+                    self._remove(banner_id, EVENT_CLEARED, reason="condition")
+                    self._changed()
+                return {"id": banner_id, "status": "condition_false"}
+
         result: dict[str, Any] = {"id": banner_id, "status": "updated" if existing else "created"}
+        if condition is not None and met is not True:
+            result["status"] = "waiting"
         if existing is None and len(self.banners) >= self.options[OPT_MAX_BANNERS]:
             result["evicted"] = self._evict_one()
 
@@ -108,6 +147,11 @@ class BannerManager:
             dismiss_scope=data.get("dismiss_scope") or self.options[OPT_DEFAULT_DISMISS_SCOPE],
             tag=data.get("tag"),
             tap_action=data.get("tap_action"),
+            condition=condition,
+            mode=data.get("mode", "once"),
+            people=list(data.get("people", [])),
+            condition_met=met,
+            ever_met=met is True,
             created_at=existing.created_at if existing else now,
             updated_at=now,
             expires_at=now + timeout if timeout > timedelta(0) else None,
@@ -161,11 +205,21 @@ class BannerManager:
     # Reads and subscriptions -----------------------------------------------------------
 
     @callback
+    def is_active(self, banner: Banner) -> bool:
+        return banner.active
+
+    @callback
+    def active_count(self) -> int:
+        return sum(1 for b in self.banners.values() if b.active)
+
+    @callback
     def visible(self, user_id: str, show_all: bool = False) -> list[dict[str, Any]]:
+        # show_all (admin) also returns waiting, dismissed and untargeted banners (D-008).
         return [
             b.to_client(user_id)
             for b in self.banners.values()
-            if show_all or user_id not in b.dismissed_by
+            if show_all
+            or (b.active and user_id not in b.dismissed_by and self._targets(b, user_id))
         ]
 
     @callback
@@ -180,6 +234,82 @@ class BannerManager:
         return unsubscribe
 
     # Internals -------------------------------------------------------------------------
+
+    def _targets(self, banner: Banner, user_id: str) -> bool:
+        if not banner.people:
+            return True
+        # Person entities carry the linked user in their user_id attribute (HA_API_NOTES N-10).
+        for person in banner.people:
+            if (state := self.hass.states.get(person)) and state.attributes.get(
+                "user_id"
+            ) == user_id:
+                return True
+        return False
+
+    def _evaluate(self, condition: Mapping[str, Any]) -> bool | None:
+        state = self.hass.states.get(condition["entity_id"])
+        if state is None or state.state in _NO_STATE:
+            return None
+        if (attribute := condition.get("attribute")) is not None:
+            raw = state.attributes.get(attribute)
+            value = None if raw is None else str(raw)
+        else:
+            value = state.state
+        wanted = condition["state"]
+        return value in ([wanted] if isinstance(wanted, str) else wanted)
+
+    def _apply_condition(self, banner: Banner) -> bool:
+        """Re-evaluate one banner's condition. Returns True if anything changed."""
+        assert banner.condition is not None
+        met = self._evaluate(banner.condition)
+        if met is None or met == banner.condition_met:
+            return False
+        previous, banner.condition_met = banner.condition_met, met
+        if met:
+            if banner.mode == "recurring" and previous is False:
+                banner.dismissed_by.clear()
+            banner.ever_met = True
+        elif banner.mode == "once" and banner.ever_met:
+            self._remove(banner.id, EVENT_CLEARED, reason="condition")
+        return True
+
+    @callback
+    def _on_state_change(self, event: Event[EventStateChangedData]) -> None:
+        entity_id = event.data["entity_id"]
+        old, new = event.data["old_state"], event.data["new_state"]
+        changed = False
+        if entity_id.startswith("person."):
+            old_user = old.attributes.get("user_id") if old else None
+            new_user = new.attributes.get("user_id") if new else None
+            changed = old_user != new_user
+        for banner in list(self.banners.values()):
+            if banner.condition is None or banner.condition["entity_id"] != entity_id:
+                continue
+            if new is None:
+                _LOGGER.warning(
+                    "Condition entity %s was removed; banner %s keeps its visibility",
+                    entity_id,
+                    banner.id,
+                )
+                continue
+            changed |= self._apply_condition(banner)
+        if changed:
+            self._changed()
+
+    def _refresh_tracking(self) -> None:
+        wanted = {b.condition["entity_id"] for b in self.banners.values() if b.condition}
+        wanted |= {p for b in self.banners.values() for p in b.people}
+        if wanted == self.tracked_entities:
+            return
+        if self._untrack:
+            self._untrack()
+            self._untrack = None
+        self.tracked_entities = wanted
+        if wanted:
+            # One listener for all condition and person entities (HA_API_NOTES N-7).
+            self._untrack = async_track_state_change_event(
+                self.hass, list(wanted), self._on_state_change
+            )
 
     def _new_id(self) -> str:
         while (banner_id := f"hu_{secrets.token_hex(5)}") in self.banners:
@@ -235,6 +365,7 @@ class BannerManager:
         self._store.async_delay_save(self._data, SAVE_DELAY)
 
     def _changed(self) -> None:
+        self._refresh_tracking()
         self._save()
         for listener in list(self._listeners):
             listener()

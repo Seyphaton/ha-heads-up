@@ -46,6 +46,26 @@ create_banner:
       example: "laundry"
       selector:
         text:
+    condition:
+      example: '{"entity_id": "binary_sensor.window", "state": "on"}'
+      selector:
+        object:
+    mode:
+      selector:
+        select:
+          options:
+            - once
+            - recurring
+          translation_key: mode
+    wait_for_condition:
+      default: true
+      selector:
+        boolean:
+    people:
+      selector:
+        entity:
+          domain: person
+          multiple: true
     tap_action:
       example: '{"action": "navigate", "navigation_path": "/lovelace/0"}'
       selector:

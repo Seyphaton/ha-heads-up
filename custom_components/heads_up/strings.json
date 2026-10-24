@@ -41,6 +41,12 @@
         "user": "Per user",
         "global": "Everyone"
       }
+    },
+    "mode": {
+      "options": {
+        "once": "Once",
+        "recurring": "Recurring"
+      }
     }
   },
   "entity": {
@@ -56,6 +62,9 @@
     },
     "too_many_banners": {
       "message": "Heads Up already holds {max} banners and none can be evicted."
+    },
+    "entity_not_found": {
+      "message": "Condition entity {entity_id} does not exist."
     }
   },
   "services": {
@@ -98,6 +107,22 @@
         "tag": {
           "name": "Tag",
           "description": "Group name for card filters and for clearing several banners at once."
+        },
+        "condition": {
+          "name": "Condition",
+          "description": "Shows the banner only while an entity matches: entity_id, state (default on, or a list), optional attribute."
+        },
+        "mode": {
+          "name": "Mode",
+          "description": "Once: removed when the condition turns false. Recurring: hidden while false, shown again when true."
+        },
+        "wait_for_condition": {
+          "name": "Wait for condition",
+          "description": "On: a banner whose condition is false now waits until it turns true. Off: nothing is stored and the response status is condition_false."
+        },
+        "people": {
+          "name": "People",
+          "description": "Show only to these people. Empty: everyone."
         },
         "tap_action": {
           "name": "Tap action",

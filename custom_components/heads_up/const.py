@@ -19,6 +19,7 @@ DEFAULT_ICONS: Final = {
     "critical": "mdi:alert-octagon",
 }
 DISMISS_SCOPES: Final = ("user", "global")
+MODES: Final = ("once", "recurring")
 
 ID_PATTERN: Final = re.compile(r"^[a-z0-9_-]{1,64}$")
 MAX_TITLE: Final = 100

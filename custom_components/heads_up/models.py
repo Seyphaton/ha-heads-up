@@ -29,7 +29,18 @@ class Banner:
     icon: str | None = None
     tag: str | None = None
     tap_action: dict[str, Any] | None = None
+    condition: dict[str, Any] | None = None
+    mode: str = "once"
+    people: list[str] = field(default_factory=list)
+    # Last evaluated condition result; None = never evaluated with a real state.
+    condition_met: bool | None = None
+    # Condition was true at least once since the last upsert; drives `once` removal.
+    ever_met: bool = False
     dismissed_by: list[str] = field(default_factory=list)
+
+    @property
+    def active(self) -> bool:
+        return self.condition is None or self.condition_met is True
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
@@ -49,9 +60,11 @@ class Banner:
         )
 
     def to_client(self, user_id: str) -> dict[str, Any]:
-        """Payload for one viewer. Never includes other users' dismissals."""
+        """Payload for one viewer. Never includes dismissals or targeting of other users."""
         data = self.to_dict()
-        del data["dismissed_by"]
+        for key in ("dismissed_by", "people", "condition", "mode", "condition_met", "ever_met"):
+            del data[key]
+        data["active"] = self.active
         data["icon"] = self.icon or DEFAULT_ICONS[self.severity]
         data["dismissed"] = user_id in self.dismissed_by
         return data
