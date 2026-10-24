@@ -159,5 +159,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision: no references to any specific installation, household, device, host, address or tool configuration in tracked files or history. Private notes and local tooling live in gitignored `.private/` and `.claude/local/`.
 - Consequences: git history rebuilt before any publication.
 
+## D-037 English only
+- Date: 2026-10-25.
+- Decision: all UI strings (actions, options flow, exceptions, entity names, card) are English. No German translation ships. Strings stay in HA translation files and one card string table, so another language is a new file, not a code change.
+- Alternatives: English + German (earlier requirement, withdrawn).
+
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
+- 2026-10-25: Phase 1 complete; Phase 2 approved.

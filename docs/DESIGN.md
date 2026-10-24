@@ -18,7 +18,7 @@ MVP (Phases 2–4)
 - Actions `create_banner`, `clear_banner`, `clear_all`; dismiss and admin clear over WebSocket.
 - Fields of §4, entity/state condition with `once`/`recurring`, per-user/global dismiss, person targeting, tag, tap action, timeout, limits with eviction.
 - Count sensor, events, options flow.
-- Card with custom editor, sort/filter options, de/en strings.
+- Card with custom editor, sort/filter options.
 
 Later (recorded in `docs/OPEN_QUESTIONS.md`)
 - Popup for critical banners, template and full HA conditions, absolute expiry input, per-severity binary sensors, persistent-notification mirror, other channels (toasts).
@@ -47,7 +47,7 @@ Non-functional
 | Load | At most 50 banners by default (option), one state listener per distinct condition entity, one timer per banner with a timeout. |
 | Concurrency | Actions run in the event loop and mutate state synchronously (no `await` between read and write), so parallel callers cannot interleave a single upsert. |
 | Accessibility | Severity shown by icon and text label, not color only; `aria-live` region; dismiss button 48×48 px with translated `aria-label`; keyboard reachable. |
-| i18n | Service, config-flow, exception and card UI strings in `en` and `de`. Banner text is caller-supplied and not translated. |
+| i18n | All UI strings in English (D-037), kept in HA translation files (`strings.json`, `translations/en.json`) and one card string table, so languages can be added without code changes. Banner text is caller-supplied and not translated. |
 | Security | Non-admin users can create, clear and dismiss (D-029). `show_all` and admin clear are rejected server-side for non-admins. |
 | Compatibility | HA ≥ 2026.9.0 (D-019). Tested versions are stated only after tests ran. |
 
@@ -85,11 +85,10 @@ All input fields after defaults, plus:
 | `expires_at` | ISO 8601 UTC or null | `updated_at + timeout` |
 | `condition_met` | bool or null | last evaluated result; null = never evaluated with a real state |
 | `ever_met` | bool | condition was true at least once since last upsert (drives `once` removal) |
-| `dismissed_global` | bool | |
 | `dismissed_by` | list of user IDs | per-user dismissals |
 
 ### 4.3 Upsert (D-010)
-`create_banner` with an existing `id`: all input fields replaced, `updated_at` = now, `expires_at` recomputed, `dismissed_global` = false, `dismissed_by` = [], `ever_met` re-evaluated from the current entity state; `created_at` kept. Fires `heads_up_banner_updated`.
+`create_banner` with an existing `id`: all input fields replaced, `updated_at` = now, `expires_at` recomputed, `dismissed_by` = [], `ever_met` re-evaluated from the current entity state; `created_at` kept. Fires `heads_up_banner_updated`.
 
 ### 4.4 Limits and overflow (D-016)
 - `max_banners` option, default 50, range 1–200.
@@ -146,7 +145,7 @@ custom_components/heads_up/
   sensor.py        count sensor
   frontend.py      static path + add_extra_js_url
   config_flow.py   single-instance config flow + options flow
-  const.py, strings.json, translations/{en,de}.json, services.yaml, icons.json, manifest.json
+  const.py, strings.json, translations/en.json, services.yaml, icons.json, manifest.json
   frontend/heads-up-card.js
 ```
 
@@ -175,9 +174,11 @@ WebSocket API (N-4, N-5)
 
 | Type | Auth | Payload | Result |
 |---|---|---|---|
-| `heads_up/subscribe` | user; `show_all: true` requires admin | `show_all?` | result, then events `{banners: [...]}` (full visible list per change) |
-| `heads_up/dismiss` | user | `id` | `{}` or error `not_found` / `not_dismissible` |
-| `heads_up/admin_clear` | admin (`require_admin`) | `id` | `{}` or `not_found` |
+| `heads_up/subscribe` | user; `show_all: true` requires admin (`unauthorized`) | `show_all?` | result, then events `{banners: [...]}` (full visible list per change; each item has `dismissed` for the viewer; `dismissed_by` is never sent; `icon` resolved to the severity default) |
+| `heads_up/dismiss` | user | `banner_id` | `{}` or error `not_found` / `not_dismissible` |
+| `heads_up/admin_clear` | admin (`require_admin`) | `banner_id` | `{}` or `not_found` / `unauthorized` |
+
+Banner IDs travel as `banner_id` because `id` is the WebSocket message ID.
 
 Visibility is computed per connection from `connection.user.id`; the person whose `user_id` equals it decides targeting. Sending the full list (≤ 200 items) per change is chosen over diffs: fewer states to get wrong.
 
@@ -187,7 +188,7 @@ Config flow: one entry, no input (D-026). Options: `max_banners`, `evict`, `defa
 
 | Action | Fields | Response (`SupportsResponse.OPTIONAL`, N-3) | Errors |
 |---|---|---|---|
-| `heads_up.create_banner` | §4.1 | `{id, status}` with `status` `created` \| `updated` \| `waiting` \| `condition_false`; `evicted` ID if any | `invalid_id`, `entity_not_found`, `too_many_banners`, schema errors |
+| `heads_up.create_banner` | §4.1 | `{id, status}` with `status` `created` \| `updated` \| `waiting` \| `condition_false`; `evicted` ID if any | schema errors (`vol.Invalid`), `entity_not_found` (Phase 3), `too_many_banners`, `not_loaded` |
 | `heads_up.clear_banner` | `id` or `tag` (at least one) | `{cleared: n}` | none (unknown id → `cleared: 0`) |
 | `heads_up.clear_all` | none | `{cleared: n}` | none |
 
@@ -254,7 +255,7 @@ Touch and kiosk use: 48 px touch targets; no hover-only controls; `compact` layo
 
 | Case | Behaviour |
 |---|---|
-| Invalid `id`/`tag` characters | `invalid_id`, nothing stored |
+| Invalid `id`/`tag` characters | schema error, nothing stored |
 | `message` > 1000 chars | schema error |
 | Condition entity missing at creation | `entity_not_found` |
 | Condition entity unavailable/unknown | visibility unchanged |

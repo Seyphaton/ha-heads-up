@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 Heads Up (`heads_up`): custom Home Assistant integration + one Lovelace card (`custom:heads-up-card`). Automations call actions (`create_banner`, `clear_banner`, `clear_all`); the card shows banners until dismissed, condition false, or timeout.
-Standalone: no knowledge of any caller. Code, comments, docs in English; end-user UI strings in en + de.
+Standalone: no knowledge of any caller. Everything in English: code, comments, docs and UI strings (D-037).
 
 ## Hard rules
 1. One phase per approval. No work beyond the approved phase.

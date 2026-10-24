@@ -1,4 +1,4 @@
-.PHONY: setup test lint format typecheck hassfest docs-check check dev-up dev-onboard dev-down dev-reset dev-logs
+.PHONY: setup test lint format typecheck hassfest docs-check check dev-up dev-onboard dev-smoke dev-down dev-reset dev-logs
 
 COMPOSE = docker compose -f dev/docker-compose.yml
 
@@ -32,6 +32,12 @@ dev-up:         ## start local throwaway HA on http://127.0.0.1:8124
 
 dev-onboard:    ## first start only: onboarding, dev-admin + dev-user with persons, Heads Up entry
 	uv run python dev/onboard.py
+
+dev-smoke:      ## end-to-end check against dev HA (see dev/smoke.py; restarts the container)
+	uv run python dev/smoke.py create
+	$(COMPOSE) restart homeassistant
+	until curl -sf -o /dev/null http://127.0.0.1:8124/manifest.json; do sleep 2; done; sleep 5
+	uv run python dev/smoke.py verify
 
 dev-down:
 	$(COMPOSE) down
