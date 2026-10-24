@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node (card tooling, if adopted)
+node_modules/
+
+# Local dev Home Assistant instance: runtime state, never committed
+dev/ha-config/.storage/
+dev/ha-config/*.db
+dev/ha-config/*.db-*
+dev/ha-config/*.log*
+dev/ha-config/secrets.yaml
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Claude Code personal overrides
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Local-only tooling and private notes. Never committed.
+.claude/local/
+.claude/hooks/
+.private/
