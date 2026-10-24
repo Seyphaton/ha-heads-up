@@ -158,7 +158,7 @@ Trackers
 
 Schemas: written with `voluptuous`-compatible API via `homeassistant.helpers.config_validation`; on 2026.9+ this runs on probatio (N-1). Tests assert on error codes, not message text (N-1 wording differences).
 
-Entity: `sensor.heads_up_active_banners`, state = number of active banners not globally dismissed (D-013); no attributes beyond defaults.
+Entity: `sensor.heads_up_active_banners`, state = number of active banners (stored, condition true or absent; D-013); no attributes beyond defaults. Globally dismissed banners are removed, so they are not counted.
 
 Events (D-012)
 

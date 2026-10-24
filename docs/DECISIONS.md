@@ -164,6 +164,17 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision: all UI strings (actions, options flow, exceptions, entity names, card) are English. No German translation ships. Strings stay in HA translation files and one card string table, so another language is a new file, not a code change.
 - Alternatives: English + German (earlier requirement, withdrawn).
 
+## D-038 `wait_for_condition: false` on an existing ID removes the old banner
+- Date: 2026-10-25.
+- Decision: when `create_banner` with `wait_for_condition: false` finds the condition false and a banner with that `id` exists, the existing banner is removed (`heads_up_banner_cleared`, reason `condition`) and the response status is `condition_false`.
+- Alternatives: keep the old banner unchanged.
+- Reason: the caller replaced the ID; keeping the old text would show content the caller no longer wants.
+
+## D-039 Targeting and condition data never leave the backend
+- Date: 2026-10-25.
+- Decision: `heads_up/subscribe` payloads omit `people`, `condition`, `mode`, `dismissed_by` and internal condition state. Each item carries `active` and `dismissed` for the viewer.
+
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
 - 2026-10-25: Phase 1 complete; Phase 2 approved.
+- 2026-10-25: Phase 2 complete; Phase 3 approved.

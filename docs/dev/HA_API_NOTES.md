@@ -40,3 +40,5 @@ Note: `developers.home-assistant.io` now 301-redirects to `contributors.home-ass
 | 33 | `websocket_api` does not re-export decorators for mypy strict; import from `websocket_api.decorators`, `.connection`, `.const` | mypy on 2026.9.4 | 2026.9.4 | 2026-10-25 | verified |
 | 34 | `require_admin` rejection is logged by HA at ERROR level (`Error handling message: Unauthorized`) | dev HA log | 2026.9.4 | 2026-10-25 | verified |
 | 35 | `hass.config_entries.async_loaded_entries(domain)` exists | installed `config_entries.py` | 2026.9.4 | 2026-10-25 | verified |
+| 36 | Unsubscribing an `async_track_state_change_event` listener and subscribing a new one from inside its own callback works (no error, no lost events in tests) | `tests/test_conditions.py` | 2026.9.4 | 2026-10-25 | verified by tests |
+| 37 | `cv.entity_domain("person")` validates `person.*` IDs; `cv.ensure_list` accepts a single string | `tests/test_conditions.py::test_invalid_condition_or_people` | 2026.9.4 | 2026-10-25 | verified |

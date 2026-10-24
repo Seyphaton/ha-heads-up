@@ -9,5 +9,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - Banners with a `timeout` disappear after that time, also when Home Assistant restarts in between.
 - When the banner limit (default 50) is reached, the oldest lowest-severity banner is removed; `critical` banners are never removed.
 - Events `heads_up_banner_created`, `_updated`, `_dismissed`, `_expired`, `_cleared`.
-- Sensor `sensor.heads_up_active_banners` with the number of stored banners.
+- Sensor `sensor.heads_up_active_banners` with the number of active banners (not waiting for a condition).
+- `condition`: a banner shows only while an entity matches a state, a list of states or an attribute value. `mode: once` removes it when the entity stops matching; `mode: recurring` hides it and shows it again.
+- `wait_for_condition`: a banner whose condition is false at the time of the call waits for it, or is not stored (`condition_false`).
+- `people`: a banner reaches only the users linked to the listed person entities.
 - Options: maximum banners, eviction on/off, default dismiss scope, default timeout (24 hours).

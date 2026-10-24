@@ -144,4 +144,38 @@ async def verify() -> None:
         print("sensor:", await sensor(s, admin))
 
 
-asyncio.run({"create": create, "verify": verify}[sys.argv[1]]())
+async def toggle(s: aiohttp.ClientSession, tok: str, on: bool) -> None:
+    r = await s.post(
+        f"{BASE}/api/services/input_boolean/{'turn_on' if on else 'turn_off'}",
+        json={"entity_id": "input_boolean.test_window"},
+        headers={"Authorization": f"Bearer {tok}"},
+    )
+    assert r.status == 200
+    await asyncio.sleep(0.5)
+
+
+async def conditions() -> None:
+    """Condition + people targeting against real entities (person.dev_user from dev-onboard)."""
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        await toggle(s, admin, False)
+        data = {
+            "id": "smoke_cond",
+            "message": "Window open",
+            "condition": {"entity_id": "input_boolean.test_window"},
+            "people": ["person.dev_user"],
+        }
+        print("create while off:", (await call(s, admin, "create_banner", data))["status"])
+        print("sensor:", await sensor(s, admin))
+        await toggle(s, admin, True)
+        print("on -> sensor:", await sensor(s, admin))
+        print("admin sees:", [b["id"] for b in await subscribe(await connect(s, admin))])
+        print("user sees:", [b["id"] for b in await subscribe(await connect(s, user))])
+        await toggle(s, admin, False)
+        print("off -> sensor:", await sensor(s, admin))
+        print("user sees:", [b["id"] for b in await subscribe(await connect(s, user))])
+
+
+asyncio.run(
+    {"create": create, "verify": verify, "conditions": conditions}[sys.argv[1]]()
+)
