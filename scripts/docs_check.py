@@ -1,9 +1,8 @@
 """Docs checks. Run with `make docs-check`.
 
 1. Banned words and placeholders in every committed Markdown file.
-2. YAML examples calling heads_up.* validate against the real action schemas (active once
-   custom_components/heads_up/services.py defines SCHEMAS).
-3. Field parity between action schemas and docs/actions.md (active once both exist).
+2. YAML examples in user docs that call heads_up.* validate against the real action schemas.
+3. Field parity: action schema == services.yaml fields == docs/actions.md field tables.
 """
 
 from __future__ import annotations
@@ -11,6 +10,7 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 # Files that quote the banned list on purpose.
@@ -74,19 +74,107 @@ def check_words(files: list[Path]) -> list[str]:
     return errors
 
 
+def human_docs(files: list[Path]) -> list[Path]:
+    """README and user pages; design/dev docs may show planned fields and are not checked."""
+    internal = {"DESIGN.md", "DECISIONS.md", "OPEN_QUESTIONS.md"}
+    return [
+        p
+        for p in files
+        if p == ROOT / "README.md" or (p.parent == ROOT / "docs" and p.name not in internal)
+    ]
+
+
+def _action_calls(node: Any) -> list[dict[str, Any]]:
+    if isinstance(node, list):
+        return [c for item in node for c in _action_calls(item)]
+    if isinstance(node, dict):
+        calls = [node] if str(node.get("action", "")).startswith("heads_up.") else []
+        return calls + [c for v in node.values() for c in _action_calls(v)]
+    return []
+
+
 def check_examples(files: list[Path]) -> tuple[list[str], int]:
-    services = ROOT / "custom_components" / "heads_up" / "services.py"
-    if not services.exists():
-        return [], 0
-    # Activated in Phase 2: import SCHEMAS from services.py and validate each example.
-    return [], 0
+    import voluptuous as vol
+    import yaml
+
+    from custom_components.heads_up.services import SCHEMAS
+
+    errors, count = [], 0
+    for path in human_docs(files):
+        for block in FENCE_RE.findall(path.read_text(encoding="utf-8")):
+            rel = path.relative_to(ROOT)
+            try:
+                parsed = yaml.safe_load(block)
+            except yaml.YAMLError as err:
+                errors.append(f"{rel}: YAML example does not parse: {err}")
+                continue
+            for call in _action_calls(parsed):
+                service = call["action"].removeprefix("heads_up.")
+                count += 1
+                if service not in SCHEMAS:
+                    errors.append(f"{rel}: unknown action {call['action']}")
+                    continue
+                try:
+                    SCHEMAS[service](call.get("data") or {})
+                except vol.Invalid as err:
+                    errors.append(f"{rel}: example for {call['action']} is invalid: {err}")
+    return errors, count
+
+
+def _schema_fields(schema: Any) -> set[str]:
+    while not hasattr(schema, "schema") or not isinstance(schema.schema, dict):
+        schema = schema.validators[0]  # vol.All(Schema, ...)
+    return {str(key) for key in schema.schema}
+
+
+def _documented_fields(page: str, service: str) -> set[str]:
+    """Rows of the "| Field |" table in the `## heads_up.<service>` section."""
+    fields: set[str] = set()
+    in_section = in_table = False
+    for line in page.splitlines():
+        if line.startswith("## "):
+            in_section = line.strip() == f"## `heads_up.{service}`"
+            in_table = False
+        elif in_section and line.startswith("| Field"):
+            in_table = True
+        elif in_table and not line.startswith("|"):
+            in_table = False
+        elif in_table and (m := re.match(r"^\| `([a-z_]+)` \|", line)):
+            fields.add(m.group(1))
+    return fields
+
+
+def check_field_parity() -> list[str]:
+    import yaml
+
+    from custom_components.heads_up.services import SCHEMAS
+
+    actions_md = ROOT / "docs" / "actions.md"
+    services_yaml = ROOT / "custom_components" / "heads_up" / "services.yaml"
+    page = actions_md.read_text(encoding="utf-8")
+    declared = yaml.safe_load(services_yaml.read_text(encoding="utf-8"))
+    errors = []
+    for service, schema in SCHEMAS.items():
+        in_schema = _schema_fields(schema)
+        in_yaml = set((declared.get(service) or {}).get("fields") or {})
+        in_docs = _documented_fields(page, service)
+        for name, found in (("services.yaml", in_yaml), ("docs/actions.md", in_docs)):
+            if found != in_schema:
+                errors.append(
+                    f"{name}: {service} fields differ from schema: "
+                    f"missing {sorted(in_schema - found)}, extra {sorted(found - in_schema)}"
+                )
+    return errors
 
 
 def main() -> int:
+    sys.path.insert(0, str(ROOT))
+    import homeassistant  # noqa: F401  installs the probatio voluptuous shim (HA_API_NOTES N-24)
+
     files = markdown_files()
     errors = check_words(files)
     example_errors, examples = check_examples(files)
-    errors += example_errors
+    errors += example_errors + check_field_parity()
     for e in errors:
         print(e)
     print(f"docs-check: {len(files)} files, {examples} examples validated, {len(errors)} errors")
