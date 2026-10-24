@@ -1,4 +1,4 @@
-.PHONY: setup test lint format typecheck hassfest docs-check check dev-up dev-down dev-reset dev-logs
+.PHONY: setup test lint format typecheck hassfest docs-check check dev-up dev-onboard dev-down dev-reset dev-logs
 
 COMPOSE = docker compose -f dev/docker-compose.yml
 
@@ -19,8 +19,8 @@ format:
 typecheck:
 	uv run mypy
 
-hassfest:       ## validate manifest/translations with HA's hassfest image
-	docker run --rm -v "$(CURDIR)":/github/workspace ghcr.io/home-assistant/hassfest
+hassfest:       ## validate manifest/translations with HA's hassfest image (amd64 only; emulated on arm64)
+	docker run --rm --platform linux/amd64 -v "$(CURDIR)":/github/workspace ghcr.io/home-assistant/hassfest
 
 docs-check:     ## banned words, placeholders, example validation, field parity
 	uv run python scripts/docs_check.py
@@ -29,6 +29,9 @@ check: lint typecheck test docs-check
 
 dev-up:         ## start local throwaway HA on http://127.0.0.1:8124
 	$(COMPOSE) up -d
+
+dev-onboard:    ## first start only: onboarding, dev-admin + dev-user with persons, Heads Up entry
+	uv run python dev/onboard.py
 
 dev-down:
 	$(COMPOSE) down

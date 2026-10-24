@@ -14,7 +14,7 @@ Standalone: no knowledge of any caller. Code, comments, docs in English; end-use
 8. Small reversible steps, one logical change per commit. Ask before anything irreversible or scope-expanding.
 
 ## Phases (one approval each)
-0. Design (done) · 1. Scaffold + dev env (done, Docker steps unverified) · 2. Backend core: store, actions, dismiss, events, count sensor, WebSocket, timeout, restore · 3. Conditions + people · 4. Card · 5. External call paths + examples · 6. Hardening, docs, packaging, release.
+0. Design (done) · 1. Scaffold + dev env (done) · 2. Backend core: store, actions, dismiss, events, count sensor, WebSocket, timeout, restore · 3. Conditions + people · 4. Card · 5. External call paths + examples · 6. Hardening, docs, packaging, release.
 - Read `docs/dev/STATE.md` first; update it at the end of every session.
 - Decisions → `docs/DECISIONS.md` immediately. Out of scope → `docs/OPEN_QUESTIONS.md`.
 - End of phase: summary (done / decided / open / next), then stop and wait.
@@ -23,7 +23,7 @@ Standalone: no knowledge of any caller. Code, comments, docs in English; end-use
 - `make setup` — uv venv, Python 3.14, dev deps
 - `make test` (`ARGS="tests/x.py::test_y"` for one), `make lint`, `make typecheck`, `make docs-check`, `make check` (all four)
 - `make hassfest` — needs Docker
-- `make dev-up` / `dev-down` / `dev-reset` / `dev-logs` — local HA at http://127.0.0.1:8124 (needs Docker)
+- `make dev-up` / `dev-onboard` (first start) / `dev-down` / `dev-reset` / `dev-logs` — local HA at http://127.0.0.1:8124 (needs Docker)
 
 ## Repo map
 - `custom_components/heads_up/` — integration (runtime files only)

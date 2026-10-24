@@ -11,12 +11,9 @@ htmlcov/
 # Node (card tooling, if adopted)
 node_modules/
 
-# Local dev Home Assistant instance: runtime state, never committed
-dev/ha-config/.storage/
-dev/ha-config/*.db
-dev/ha-config/*.db-*
-dev/ha-config/*.log*
-dev/ha-config/secrets.yaml
+# Local dev Home Assistant instance: only configuration.yaml is tracked
+dev/ha-config/*
+!dev/ha-config/configuration.yaml
 
 # Editors / OS
 .DS_Store
@@ -31,3 +28,6 @@ CLAUDE.local.md
 .claude/local/
 .claude/hooks/
 .private/
+
+# Generated dev HA test credentials
+dev/dev-credentials.env
