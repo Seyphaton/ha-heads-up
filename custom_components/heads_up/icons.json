@@ -1,0 +1,20 @@
+{
+  "entity": {
+    "sensor": {
+      "active_banners": {
+        "default": "mdi:message-alert"
+      }
+    }
+  },
+  "services": {
+    "create_banner": {
+      "service": "mdi:message-plus"
+    },
+    "clear_banner": {
+      "service": "mdi:message-minus"
+    },
+    "clear_all": {
+      "service": "mdi:message-off"
+    }
+  }
+}

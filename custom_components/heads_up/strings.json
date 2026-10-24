@@ -8,5 +8,120 @@
     "abort": {
       "single_instance_allowed": "Heads Up is already set up."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "max_banners": "Maximum number of banners",
+          "evict": "Evict the oldest lowest-severity banner when full",
+          "default_dismiss_scope": "Default dismiss scope",
+          "default_timeout": "Default timeout"
+        },
+        "data_description": {
+          "max_banners": "1–200. Critical banners are never evicted.",
+          "evict": "When off, creating a banner beyond the maximum fails with an error.",
+          "default_dismiss_scope": "Used when an action call sets no dismiss_scope.",
+          "default_timeout": "Used when an action call sets no timeout. Warning: if you clear this field, banners without their own timeout stay until they are dismissed or cleared."
+        }
+      }
+    }
+  },
+  "selector": {
+    "severity": {
+      "options": {
+        "success": "Success",
+        "info": "Info",
+        "warning": "Warning",
+        "critical": "Critical"
+      }
+    },
+    "dismiss_scope": {
+      "options": {
+        "user": "Per user",
+        "global": "Everyone"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_banners": {
+        "name": "Active banners"
+      }
+    }
+  },
+  "exceptions": {
+    "not_loaded": {
+      "message": "Heads Up is not set up. Add the integration first."
+    },
+    "too_many_banners": {
+      "message": "Heads Up already holds {max} banners and none can be evicted."
+    }
+  },
+  "services": {
+    "create_banner": {
+      "name": "Create banner",
+      "description": "Shows a banner in every Heads Up card. Calling it again with the same ID replaces the banner.",
+      "fields": {
+        "message": {
+          "name": "Message",
+          "description": "Banner text, 1–1000 characters."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Lowercase letters, digits, - and _; up to 64 characters. Generated and returned when empty."
+        },
+        "title": {
+          "name": "Title",
+          "description": "Up to 100 characters."
+        },
+        "severity": {
+          "name": "Severity",
+          "description": "Sets color, default icon and sort order."
+        },
+        "icon": {
+          "name": "Icon",
+          "description": "Replaces the default icon of the severity."
+        },
+        "timeout": {
+          "name": "Timeout",
+          "description": "The banner disappears after this time, also across restarts. 0 = no timeout. Empty = default from the integration options."
+        },
+        "dismissible": {
+          "name": "Dismissible",
+          "description": "Shows a close button on the banner."
+        },
+        "dismiss_scope": {
+          "name": "Dismiss scope",
+          "description": "Per user: closing hides it only for that user. Everyone: closing removes it for all."
+        },
+        "tag": {
+          "name": "Tag",
+          "description": "Group name for card filters and for clearing several banners at once."
+        },
+        "tap_action": {
+          "name": "Tap action",
+          "description": "Home Assistant action config run when the banner is tapped, e.g. navigate."
+        }
+      }
+    },
+    "clear_banner": {
+      "name": "Clear banner",
+      "description": "Removes banners by ID, by tag, or both. Returns the number removed.",
+      "fields": {
+        "id": {
+          "name": "ID",
+          "description": "ID of the banner to remove."
+        },
+        "tag": {
+          "name": "Tag",
+          "description": "Removes every banner with this tag."
+        }
+      }
+    },
+    "clear_all": {
+      "name": "Clear all banners",
+      "description": "Removes every banner. Returns the number removed."
+    }
   }
 }

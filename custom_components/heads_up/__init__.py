@@ -3,14 +3,48 @@
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.typing import ConfigType
+
+from .const import DOMAIN
+from .manager import BannerManager, banner_store
+from .services import async_setup_services
+from .websocket import async_setup_websocket
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+PLATFORMS = [Platform.SENSOR]
+
+type HeadsUpConfigEntry = ConfigEntry[BannerManager]
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Heads Up from a config entry."""
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    async_setup_services(hass)
+    async_setup_websocket(hass)
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Unload a config entry."""
+async def async_setup_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> bool:
+    manager = BannerManager(hass, entry.options)
+    await manager.async_load()
+    entry.runtime_data = manager
+    entry.async_on_unload(entry.add_update_listener(_async_options_updated))
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
+
+
+async def _async_options_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> None:
+    # Applied to banners created from now on; no reload needed (D-030).
+    entry.runtime_data.options.update(entry.options)
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> bool:
+    unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if unloaded:
+        await entry.runtime_data.async_unload()
+    return unloaded
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> None:
+    await banner_store(hass).async_remove()

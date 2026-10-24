@@ -1,0 +1,65 @@
+create_banner:
+  fields:
+    message:
+      required: true
+      example: "The bedroom window is open."
+      selector:
+        text:
+          multiline: true
+    id:
+      example: "window_bedroom"
+      selector:
+        text:
+    title:
+      example: "Window open"
+      selector:
+        text:
+    severity:
+      default: warning
+      selector:
+        select:
+          options:
+            - success
+            - info
+            - warning
+            - critical
+          translation_key: severity
+    icon:
+      selector:
+        icon:
+    timeout:
+      selector:
+        duration:
+          enable_day: true
+    dismissible:
+      default: true
+      selector:
+        boolean:
+    dismiss_scope:
+      selector:
+        select:
+          options:
+            - user
+            - global
+          translation_key: dismiss_scope
+    tag:
+      example: "laundry"
+      selector:
+        text:
+    tap_action:
+      example: '{"action": "navigate", "navigation_path": "/lovelace/0"}'
+      selector:
+        object:
+
+clear_banner:
+  fields:
+    id:
+      example: "window_bedroom"
+      selector:
+        text:
+    tag:
+      example: "laundry"
+      selector:
+        text:
+
+clear_all:
