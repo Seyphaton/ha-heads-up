@@ -1,0 +1,37 @@
+[project]
+name = "heads-up"
+version = "0.0.0"
+description = "Home Assistant custom integration: dismissible dashboard banners created by actions"
+requires-python = ">=3.14.2"
+license = "MIT"
+
+[dependency-groups]
+dev = [
+    # 0.13.367 pins homeassistant==2026.9.4 (minimum tested version), see docs/dev/HA_API_NOTES.md N-20
+    "pytest-homeassistant-custom-component==0.13.367",
+    # frontend component requirement at HA 2026.9.4; needed because manifest depends on "frontend"
+    "home-assistant-frontend==20260826.7",
+    "ruff",
+    "mypy",
+    "pre-commit",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "ASYNC", "RUF", "SIM", "PTH"]
+
+[tool.mypy]
+python_version = "3.14"
+strict = true
+files = ["custom_components/heads_up"]

@@ -1,0 +1,12 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Add Heads Up. Banners are created by the `heads_up.create_banner` action."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Heads Up is already set up."
+    }
+  }
+}

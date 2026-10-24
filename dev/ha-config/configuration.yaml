@@ -1,0 +1,24 @@
+# Dev-only Home Assistant config. No notify platforms, no real devices.
+homeassistant:
+  name: Heads Up Dev
+  unit_system: metric
+  time_zone: UTC
+
+default_config:
+
+logger:
+  default: info
+  logs:
+    custom_components.heads_up: debug
+
+# Test entities for banner conditions
+input_boolean:
+  test_window:
+    name: Test window open
+  test_leak:
+    name: Test water leak
+
+input_select:
+  test_mode:
+    name: Test mode
+    options: [home, away, night]

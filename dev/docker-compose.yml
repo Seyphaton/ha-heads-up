@@ -1,0 +1,15 @@
+# Throwaway local Home Assistant for development (D-003).
+# Image tag pinned to 2026.9.4 (D-019, HA_API_NOTES N-28).
+services:
+  homeassistant:
+    image: homeassistant/home-assistant:2026.9.4
+    container_name: heads-up-dev
+    ports:
+      # Loopback only; host port 8124.
+      - "127.0.0.1:8124:8123"
+    volumes:
+      - ./ha-config:/config
+      - ../custom_components/heads_up:/config/custom_components/heads_up:ro
+    environment:
+      TZ: UTC
+    restart: "no"
