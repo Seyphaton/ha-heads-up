@@ -28,3 +28,4 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ### Fixed
 - A banner that cannot be read from storage is skipped with an error in the log; the other banners and the integration still load.
+- After an update, browsers could keep showing the previous card because its address did not change. The address now includes a hash of the card file.

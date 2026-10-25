@@ -29,7 +29,7 @@
 | `tests/test_people.py` | targeting per user, users without person, person created later, payload privacy |
 | `tests/test_dismiss_many.py` | `heads_up/dismiss_many`: per-user dismissal in one update, global scope removal, skipped IDs, empty list, `not_loaded` |
 | `tests/test_storage_corruption.py` | a damaged banner entry in readable storage is skipped and logged; the others load (undecodable files: N-45, checked on the dev HA) |
-| `tests/test_frontend.py` | module URL with `?v=<version>` registered, removed on unload and added on reload, file served at `/heads_up/heads-up-card.js` |
+| `tests/test_frontend.py` | module URL with `?v=<version>-<file hash>` registered, changes with the file, removed on unload (the URL that was added) and added on reload, file served at `/heads_up/heads-up-card.js` |
 | `tests/card/heads-up-card.test.js` | `normalizeConfig` (all options), `sortBanners`, `visibleBanners`, `controlsFor`, `retryDelay`, `relativeTime`, `collapse`, `emptyView`, `resolveColors`, `colorParts`, `swipeOutcome`, `clearableIds` (vitest) |
 
 ## Notes

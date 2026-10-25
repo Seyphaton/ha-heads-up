@@ -247,6 +247,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - The card editor shows defaults for unset dropdowns and writes only non-default values.
 - Reason: smallest behaviour that satisfies D-048 and keeps the saved YAML minimal.
 
+## D-050 Card URL carries a content hash
+- Date: 2026-10-25.
+- Decision: the module URL is `/heads_up/heads-up-card.js?v=<manifest version>-<first 8 hex of the file's SHA-256>`. The URL added with `add_extra_js_url` is remembered and the same one is removed on unload.
+- Alternatives: version only (D-042); `Cache-Control: no-cache` on the file.
+- Reason: with the version alone, a build with the same version had the same URL, and a maintainer's Safari kept showing the old card after Phase 7 (screenshot, 2026-10-25). The file is served without `Cache-Control`, only `ETag` and `Last-Modified` (N-52).
+
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
 - 2026-10-25: Phase 1 complete; Phase 2 approved.

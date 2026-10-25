@@ -14,6 +14,10 @@ logger:
 - If it persists, check that the integration is added (Settings > Devices & services). The card is registered only while the integration is loaded.
 - Open `/heads_up/heads-up-card.js` in the browser. It should return JavaScript. Then reload the page without cache.
 
+## The card looks old after an update
+
+Reload the page without cache once. The card address changes with every new version of the card file, so a normal reload loads the new one; a page that was loaded before the update keeps the old card until it is reloaded.
+
 ## The card shows "Heads Up is not available"
 
 The card cannot reach `heads_up/subscribe`. During a Home Assistant start it retries after 1, 2, 5 and 10 seconds and then every 30 seconds, and the banners return by themselves. If the message stays after the start has finished, the integration is not loaded: look for errors from `custom_components.heads_up` in the log.

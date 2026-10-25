@@ -154,7 +154,7 @@ custom_components/heads_up/
   sensor.py        count sensor
   config_flow.py   single-instance config flow + options flow
   const.py, strings.json, translations/en.json, services.yaml, icons.json, manifest.json
-  frontend.py                static path (async_setup) + add_extra_js_url per entry, `?v=<manifest version>`
+  frontend.py                static path (async_setup) + add_extra_js_url per entry, `?v=<manifest version>-<8 hex of the file's SHA-256>` (D-050)
   frontend/heads-up-card.js  card, editor, pure functions (`normalizeConfig`, `visibleBanners`, `sortBanners`, `controlsFor`, `retryDelay`, `CONFIG_KEYS`)
 ```
 
@@ -235,7 +235,7 @@ External call paths (D-022, D-043): REST `POST /api/services/heads_up/create_ban
 
 ## 8. Frontend architecture
 
-- One plain-JS ES module `heads-up-card.js`, no build (D-021). Served at `/heads_up/heads-up-card.js` via `async_register_static_paths` (N-9) and registered with `add_extra_js_url(hass, "/heads_up/heads-up-card.js?v=<manifest version>")` (N-8); the version query busts the browser cache on upgrade. No manual resource step. Not loaded in safe mode (N-8).
+- One plain-JS ES module `heads-up-card.js`, no build (D-021). Served at `/heads_up/heads-up-card.js` via `async_register_static_paths` (N-9) and registered with `add_extra_js_url(hass, "/heads_up/heads-up-card.js?v=<manifest version>-<file hash>")` (N-8); the query changes with the version and with the file's content, which busts the browser cache on upgrade and whenever the file changes (D-050, N-52). No manual resource step. Not loaded in safe mode (N-8).
 - Elements: `heads-up-card` and `heads-up-card-editor` (`getConfigElement`, `config-changed`, N-13); `window.customCards` entry.
 - Data: on `connectedCallback` the card calls `hass.connection.subscribeMessage(cb, {type: "heads_up/subscribe", show_all}, {resubscribe: false})`; unsubscribes in `disconnectedCallback`. `show_all` is sent only when `hass.user.is_admin`. The card listens to the connection event `ready` and subscribes again itself; a failed subscribe shows a one-line error and is retried after 1, 2, 5, 10 and then every 30 s (D-041, N-39, N-40). Stale callbacks of an older subscription are ignored.
 
