@@ -19,6 +19,7 @@ Standalone: no knowledge of any caller. Everything in English: code, comments, d
 - Ask decisions with the AskUserQuestion tool (options, recommended first). Use only core Claude Code tools plus read-only web for HA docs/source (D-028); no connectors or MCP servers.
 - Decisions → `docs/DECISIONS.md` immediately. Out of scope → `docs/OPEN_QUESTIONS.md`.
 - End of phase: summary (done / decided / open / next), then stop and wait.
+- Session prompt and documentation definition of done for every phase: `docs/dev/PHASE_PROMPT.md`. A phase is not done until its checklist is complete.
 
 ## Commands
 - `make setup` — uv venv, Python 3.14, dev deps
@@ -33,7 +34,7 @@ Standalone: no knowledge of any caller. Everything in English: code, comments, d
 - `scripts/docs_check.py` — docs checks
 - `.claude/rules/` — path-scoped rules
 - `docs/DESIGN.md` (requirements + design), `docs/DECISIONS.md`, `docs/OPEN_QUESTIONS.md`
-- `docs/dev/` — HA_API_NOTES, STATE, DEV_ENVIRONMENT, TESTING, RELEASE
+- `docs/dev/` — PHASE_PROMPT, STATE, HA_API_NOTES, DEV_ENVIRONMENT, TESTING, RELEASE
 - `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md`, `docs/*.md` user pages — human docs
 
 ## Docs rules

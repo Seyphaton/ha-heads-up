@@ -1,6 +1,6 @@
 # State
 
-Updated 2026-10-25. Read this first in a new session, then `docs/DESIGN.md` §0 and §8.
+Updated 2026-10-25. Read this first in a new session, then `docs/DESIGN.md` §0 and §8. Start each phase session with the prompt in `docs/dev/PHASE_PROMPT.md`; its documentation checklist is the definition of done.
 
 ## Where we are
 - Phases 0–3 complete (gate log: end of `docs/DECISIONS.md`).
