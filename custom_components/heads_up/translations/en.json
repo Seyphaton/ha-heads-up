@@ -234,7 +234,7 @@
         "state_required": "Enter at least one value."
       },
       "abort": {
-        "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
+        "reconfigure_successful": "Re-configuration was successful."
       }
     }
   }

@@ -76,3 +76,9 @@ async def test_url_changes_when_the_file_changes(
     changed.write_bytes(CARD_FILE.read_bytes() + b"\n// changed\n")
     monkeypatch.setattr(frontend, "CARD_FILE", changed)
     assert await frontend.async_card_url(hass) != before
+
+
+def test_translations_have_no_unresolved_key_references() -> None:
+    # `[%key:...%]` is resolved only for core integrations; a custom one shows it as text.
+    path = Path(__file__).parents[1] / "custom_components" / "heads_up" / "translations" / "en.json"
+    assert "[%key" not in path.read_text()
