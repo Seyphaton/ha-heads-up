@@ -35,6 +35,7 @@ from homeassistant.helpers.selector import (
     TextSelectorConfig,
 )
 
+from .conditions import DEFAULT_OPERATOR, OPERATORS, check_state
 from .const import (
     DEFAULT_OPTIONS,
     DEFAULT_SEVERITY,
@@ -129,6 +130,9 @@ _RULE_SCHEMA = vol.Schema(
     {
         vol.Required("name"): TextSelector(),
         vol.Required("entity_id"): EntitySelector(),
+        vol.Required("operator", default=DEFAULT_OPERATOR): SelectSelector(
+            SelectSelectorConfig(options=list(OPERATORS), translation_key="operator")
+        ),
         vol.Optional("state", default=["on"]): TextSelector(TextSelectorConfig(multiple=True)),
         vol.Optional("attribute"): TextSelector(),
         vol.Required("message"): TextSelector(TextSelectorConfig(multiline=True)),
@@ -146,10 +150,17 @@ _RULE_SCHEMA = vol.Schema(
 )
 
 
+def _states(user_input: dict[str, Any]) -> list[str]:
+    states = [s.strip() for s in user_input.get("state") or [] if s.strip()]
+    if not states and user_input.get("operator", DEFAULT_OPERATOR) in ("equals", "not_equals"):
+        return ["on"]
+    return states
+
+
 def _rule_data(user_input: dict[str, Any]) -> dict[str, Any]:
     """Subentry data: everything but the name; empty optional fields are left out."""
     data = {key: value for key, value in user_input.items() if key != "name"}
-    data["state"] = [s.strip() for s in data.get("state") or [] if s.strip()] or ["on"]
+    data["state"] = _states(user_input)
     data["message"] = data["message"].strip()
     for key in ("attribute", "title", "icon"):
         if not (data.get(key) or "").strip():
@@ -194,6 +205,8 @@ class RuleSubentryFlow(ConfigSubentryFlow):
         errors: dict[str, str] = {}
         if self.hass.states.get(user_input["entity_id"]) is None:
             errors["entity_id"] = "entity_not_found"
+        if error := check_state(user_input.get("operator", DEFAULT_OPERATOR), _states(user_input)):
+            errors["state"] = error
         message = user_input["message"].strip()
         if not message:
             errors["message"] = "message_required"

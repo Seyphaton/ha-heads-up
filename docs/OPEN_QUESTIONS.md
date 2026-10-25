@@ -33,3 +33,8 @@
 - Label-based watching (a label on an entity adds a banner with its name): not built (D-057).
 - Not verified: the rule form in Home Assistant's own UI (wording of "Add watch rule", the multi-value State field, entity pickers; the flow ran through the REST API only), `show_all` rendering of an inactive rule banner, the rule banner layout in the compact layout and at phone width.
 - A rule whose watched entity is also one of its `people` entities is not tested.
+
+## Phase 9: condition operators
+- Not built: `matches regex`, "for at least N minutes", `at_least`/`at_most` (inclusive single bounds; `between` covers the inclusive case), comparing two entities.
+- Not verified: the operator selector and its labels in Home Assistant's own rule form (flow ran through the test harness only), 2026.10, `make dev-smoke` with an operator rule.
+- A numeric `state` such as `25` is stored as text `"25"` in an action condition; compared as a float, so `"25.0"` and `"2.5e1"` also work. Not tested with locale decimal commas (a value `"25,5"` is not a number).

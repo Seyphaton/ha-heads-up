@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from typing import Any
 
 import voluptuous as vol
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
@@ -10,6 +11,7 @@ from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import VolSchemaType
 
+from .conditions import DEFAULT_OPERATOR, OPERATORS, check_state
 from .const import (
     DISMISS_SCOPES,
     DOMAIN,
@@ -31,13 +33,37 @@ def _timeout(value: timedelta) -> timedelta:
 
 SLUG = vol.All(cv.string, vol.Match(ID_PATTERN))
 
-CONDITION_SCHEMA = vol.Schema(
-    {
-        vol.Required("entity_id"): cv.entity_id,
-        # List first: cv.string would turn a list into its repr.
-        vol.Optional("state", default="on"): vol.Any(vol.All(list, [cv.string]), cv.string),
-        vol.Optional("attribute"): cv.string,
-    }
+_STATE_ERRORS = {
+    "state_count": "state needs one number for above and below, two for between",
+    "state_not_numeric": "state must be a number for above, below and between",
+    "state_required": "state is required for contains and not_contains",
+}
+
+
+def _check_condition(condition: dict[str, Any]) -> dict[str, Any]:
+    operator = condition.get("operator", DEFAULT_OPERATOR)
+    if "state" not in condition:
+        if operator not in ("equals", "not_equals"):
+            raise vol.Invalid("state is required for this operator", path=["state"])
+        condition = {**condition, "state": "on"}
+    state = condition["state"]
+    error = check_state(operator, [state] if isinstance(state, str) else state)
+    if error:
+        raise vol.Invalid(_STATE_ERRORS[error], path=["state"])
+    return condition
+
+
+CONDITION_SCHEMA = vol.All(
+    vol.Schema(
+        {
+            vol.Required("entity_id"): cv.entity_id,
+            vol.Optional("operator"): vol.In(OPERATORS),
+            # List first: cv.string would turn a list into its repr.
+            vol.Optional("state"): vol.Any(vol.All(list, [cv.string]), cv.string),
+            vol.Optional("attribute"): cv.string,
+        }
+    ),
+    _check_condition,
 )
 
 CREATE_SCHEMA = vol.Schema(

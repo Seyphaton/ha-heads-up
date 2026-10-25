@@ -3,9 +3,10 @@
 Updated 2026-10-25. Read this first in a new session, then `docs/DESIGN.md` §0 and §8. Start each phase session with the prompt in `docs/dev/PHASE_PROMPT.md`; its documentation checklist is the definition of done.
 
 ## Where we are
-- Phases 0–7 delivered, except the release itself. Everything is committed and pushed, including Phase 7 (card design, D-048, D-049, D-050) and a README with screenshots that was added in a separate session.
+- Phases 0–9 delivered, except the release itself. Everything is committed and pushed, including Phase 7 (card design, D-048, D-049, D-050) and a README with screenshots that was added in a separate session.
 - `main` was pushed to `git@github.com:Seyphaton/ha-heads-up.git` on 2026-10-25 with the maintainer's approval (D-020), again after Phase 8 (head `e1be105` plus this note). All commits carry the author `Seyphaton <23493879+Seyphaton@users.noreply.github.com>`. The repository is private; the CI results are not read yet (no `gh` on the dev machine, the API needs a login for private repositories). No tag, no release.
 - Release 0.1.0 is prepared (see `docs/dev/RELEASE.md`): version, changelog (includes Phase 8), README install steps, `.github/workflows/validate.yml`. Local gates for the release state: `make check`, `make hassfest`, `make dev-smoke` green, 121 tests green on HA 2026.10.4. Tagging, the GitHub release, making the repository public and its settings are the maintainer's steps (D-020).
+- Phase 9 (condition operators, D-060, D-061, `docs/DESIGN.md` §18, `custom_components/heads_up/conditions.py`) is built and checked with `make check` (175 pytest) but not committed. `make hassfest` passes. `make dev-smoke` was not extended or run for this phase. Awaiting review.
 - Phase 8 (watch rules, D-052 to D-059, `docs/DESIGN.md` §17, user page `docs/rules.md`) is built and checked; commit `db50e69`. Two follow-up fixes (no admin clear button on rule banners, equal width for banners without buttons) are not committed. No further phase is planned. Remaining work: "Before the first release" in `docs/dev/RELEASE.md` and `docs/OPEN_QUESTIONS.md`.
 
 ## Verified state

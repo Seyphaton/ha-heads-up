@@ -8,6 +8,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 |---|---|
 | §4 data model, §5 lifecycle, §6 backend, §7 actions, §9 targeting | implemented and tested (Phases 2–3) |
 | §17 watch rules (config subentries, virtual banners) | implemented and tested (Phase 8); card unchanged |
+| §18 condition operators (shared matcher for actions and rules) | implemented and tested (Phase 9); card unchanged |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
 | Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
@@ -401,3 +402,25 @@ Tests are written before the code, in `tests/test_rules.py` unless noted.
 
 ### 17.7 Alternatives not chosen
 Label-based watching (a label on an entity adds a banner with the entity name): not in Phase 8 (D-057), kept in `docs/OPEN_QUESTIONS.md`. Card-level rules: repeated per card. YAML in `configuration.yaml`: needs a reload and breaks D-026.
+
+## 18. Condition operators (Phase 9)
+
+Status: implemented 2026-10-25 (`tests/test_operators.py`). Decisions D-060, D-061. Rule subentries store `operator` (new rules always, `equals` by default); the virtual banner condition carries it only when it is not `equals`. Rule flow error codes: `state_count`, `state_not_numeric`, `state_required`.
+
+### 18.1 Problem
+A condition matches only when the state (or attribute) equals one of the listed values. "State is not on", "temperature above 25" and "message contains error" need an automation with a template, or cannot be expressed in a rule at all.
+
+### 18.2 Design
+- **Field:** `condition.operator`, one of `equals` (default), `not_equals`, `above`, `below`, `between`, `contains`, `not_contains`. The action schema and the rule form both have it. A condition without `operator` is stored and evaluated as before; the key is not added.
+- **State by operator:** `equals`, `not_equals`, `contains`, `not_contains` take a string or a list (default `on` only for `equals` and `not_equals`; `contains` and `not_contains` require a value). `above` and `below` take exactly one number. `between` takes exactly two numbers, low then high, both inclusive. Numbers are accepted as numbers or numeric strings.
+- **Matching:** the value is the state, or the attribute as text. `equals`: in the list. `not_equals`: not in the list. `contains`: any listed text is a substring. `not_contains`: no listed text is a substring. Numeric operators parse the value as a float.
+- **No real value:** `unavailable`, `unknown`, missing entity: not evaluated (unchanged). For the new operators a missing attribute, and for numeric operators a non-numeric value, are also not evaluated (D-061). `equals` with a missing attribute stays false.
+- **Validation:** one function checks the operator against `state` and returns an error code (`state_count`, `state_not_numeric`). The action schema turns it into `vol.Invalid`; the rule flow shows it on the `state` field.
+- **Module:** `custom_components/heads_up/conditions.py` holds `OPERATORS`, `check_state` and `matches`; `Manager._evaluate` calls `matches`. `_build_rule` copies `operator` into the virtual banner's condition.
+- **Card:** no change; conditions are evaluated in the backend.
+
+### 18.3 Blast radius
+Restart: a code update needs the usual restart. Notification path: not touched. Dashboard: none by itself. Existing banners and rules are unchanged (no `operator` means `equals`). New rule field is stored in subentry data; old subentries without it keep working.
+
+### 18.4 Tests
+`tests/test_operators.py`: matcher per operator, boundaries, lists, attribute, text vs number, non-numeric and missing values, unavailable with `not_equals`; action schema accepts and rejects (counts, non-numeric); stored banner with `not_equals` shows and hides; rule flow with operator, error codes, defaults, reconfigure of an old rule.

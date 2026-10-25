@@ -25,6 +25,7 @@ from homeassistant.helpers.event import (
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
+from .conditions import DEFAULT_OPERATOR, matches
 from .const import (
     DEFAULT_OPTIONS,
     DEFAULT_SEVERITY,
@@ -319,6 +320,8 @@ class BannerManager:
             "entity_id": source["entity_id"],
             "state": list(source.get("state") or ["on"]),
         }
+        if source.get("operator", DEFAULT_OPERATOR) != DEFAULT_OPERATOR:
+            condition["operator"] = source["operator"]
         if source.get("attribute"):
             condition["attribute"] = source["attribute"]
         met = self._evaluate(condition) is True
@@ -395,8 +398,7 @@ class BannerManager:
             value = None if raw is None else str(raw)
         else:
             value = state.state
-        wanted = condition["state"]
-        return value in ([wanted] if isinstance(wanted, str) else wanted)
+        return matches(condition, value)
 
     def _apply_condition(self, banner: Banner) -> bool:
         """Re-evaluate one banner's condition. Returns True if anything changed."""

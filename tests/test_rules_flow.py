@@ -29,6 +29,7 @@ async def test_add_rule_with_defaults(hass: HomeAssistant, entry: MockConfigEntr
     assert subentry.subentry_type == "rule" and subentry.title == "Window"
     assert dict(subentry.data) == {
         "entity_id": WINDOW,
+        "operator": "equals",
         "state": ["on"],
         "message": "Window open",
         "severity": "warning",
@@ -45,6 +46,7 @@ async def test_add_rule_with_all_fields(hass: HomeAssistant, entry: MockConfigEn
     given: dict[str, Any] = {
         "name": "Window",
         "entity_id": WINDOW,
+        "operator": "not_equals",
         "state": ["on", "tilted"],
         "attribute": "position",
         "message": "{name} open",

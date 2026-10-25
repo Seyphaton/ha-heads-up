@@ -47,6 +47,17 @@
         "once": "Once",
         "recurring": "Recurring"
       }
+    },
+    "operator": {
+      "options": {
+        "equals": "Equals",
+        "not_equals": "Does not equal",
+        "above": "Above (number)",
+        "below": "Below (number)",
+        "between": "Between (two numbers)",
+        "contains": "Contains text",
+        "not_contains": "Does not contain text"
+      }
     }
   },
   "entity": {
@@ -110,7 +121,7 @@
         },
         "condition": {
           "name": "Condition",
-          "description": "Shows the banner only while an entity matches: entity_id, state (default on, or a list), optional attribute."
+          "description": "Shows the banner only while an entity matches: entity_id, optional operator (equals, not_equals, above, below, between, contains, not_contains), state (default on for equals and not_equals; a list, or numbers for above, below and between), optional attribute."
         },
         "mode": {
           "name": "Mode",
@@ -162,6 +173,7 @@
           "data": {
             "name": "Rule name",
             "entity_id": "Entity",
+            "operator": "Condition",
             "state": "State",
             "attribute": "Attribute",
             "message": "Message",
@@ -174,7 +186,8 @@
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
-            "state": "One or more values. The banner shows while the entity (or its attribute) equals any of them. Default: on.",
+            "operator": "How the entity (or its attribute) is compared with the values below.",
+            "state": "Equals, does not equal, contains and does not contain take one or more values (default: on for equals and does not equal). Above and below take one number; between takes two, low then high, both included.",
             "attribute": "Compare this attribute instead of the state.",
             "title": "Optional heading, up to 100 characters.",
             "people": "Show only to these people. Empty: everyone.",
@@ -188,6 +201,7 @@
           "data": {
             "name": "Rule name",
             "entity_id": "Entity",
+            "operator": "Condition",
             "state": "State",
             "attribute": "Attribute",
             "message": "Message",
@@ -200,7 +214,8 @@
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
-            "state": "One or more values. The banner shows while the entity (or its attribute) equals any of them. Default: on.",
+            "operator": "How the entity (or its attribute) is compared with the values below.",
+            "state": "Equals, does not equal, contains and does not contain take one or more values (default: on for equals and does not equal). Above and below take one number; between takes two, low then high, both included.",
             "attribute": "Compare this attribute instead of the state.",
             "title": "Optional heading, up to 100 characters.",
             "people": "Show only to these people. Empty: everyone.",
@@ -213,7 +228,10 @@
         "entity_not_found": "This entity does not exist.",
         "message_required": "Enter a message.",
         "message_too_long": "The message can have up to 1000 characters.",
-        "title_too_long": "The title can have up to 100 characters."
+        "title_too_long": "The title can have up to 100 characters.",
+        "state_count": "Above and below need one number, between needs two.",
+        "state_not_numeric": "Enter numbers only for this condition.",
+        "state_required": "Enter at least one value."
       },
       "abort": {
         "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"

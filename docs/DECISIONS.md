@@ -306,6 +306,18 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: events at setup; storing rule banners.
 - Reason: smallest behaviour that satisfies D-052 to D-058 and keeps rule banners out of the store.
 
+## D-060 Phase 9: condition operators shared by rules and actions
+- Date: 2026-10-25.
+- Decision: `condition` (action) and watch rules get an optional `operator`: `equals` (default), `not_equals`, `above`, `below`, `between`, `contains`, `not_contains`. One matcher (`custom_components/heads_up/conditions.py`) serves both. `state` stays a string or list: `equals`/`contains` match any value, `not_equals`/`not_contains` match when none matches, `above`/`below` take one number, `between` takes two (inclusive). Without `operator` nothing changes for existing banners and rules.
+- Alternatives: `not_equals` only; full set with regex and "changed in the last N minutes".
+- Reason: maintainer chose equals, not equals and numeric; text `contains` is cheap with the same matcher. Regex and time-based operators widen the phase.
+
+## D-061 Operators and missing values
+- Date: 2026-10-25.
+- Decision: `unavailable`, `unknown` and a missing entity hide the banner for every operator, `not_equals` included (D-053, D-006 stay). For the new operators a missing attribute, and for numeric operators a value that is not a number, count as no real value: the condition is not evaluated. `equals` keeps its current result for a missing attribute (no match).
+- Alternatives: `not_equals` matches unavailable devices.
+- Reason: "is not on" must not fire because a device dropped off the network.
+
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
 - 2026-10-25: Phase 1 complete; Phase 2 approved.
@@ -320,3 +332,5 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - 2026-10-25: `main` pushed to the private repository `Seyphaton/ha-heads-up` (maintainer approval); all commits re-authored to the GitHub noreply identity; no tag or release.
 - 2026-10-25: Phase 8 (watch rules) proposed in DESIGN §17; design choices answered (D-052 to D-058).
 - 2026-10-25: Phase 8 approved; delivered (watch rules, D-059); not committed at the time of writing.
+- 2026-10-25: Phase 9 (condition operators, D-060, D-061) requested and approved by the maintainer.
+- 2026-10-25: Phase 9 delivered (condition operators); `make check` and `make hassfest` green; not committed at the time of writing.

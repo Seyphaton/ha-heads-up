@@ -4,6 +4,9 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Added
+- `condition.operator` for `create_banner` and watch rules: `equals` (default), `not_equals`, `above`, `below`, `between`, `contains`, `not_contains`. Banners and rules without an operator behave as before. See [actions](docs/actions.md#conditions) and [rules](docs/rules.md).
+
 ## [0.1.0] - 2026-10-25
 
 First release. Tested on a local Home Assistant 2026.9.4 instance and, with the test suite only, on 2026.10.4.
