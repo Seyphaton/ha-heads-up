@@ -28,3 +28,8 @@
 - Absolute `expires_at` input (D-024).
 - Per-severity binary sensors (D-013).
 - Other channels under the Heads Up name: toasts, popups (D-004).
+
+## Phase 8: watch rules
+- Label-based watching (a label on an entity adds a banner with its name): not built (D-057).
+- Not verified: the rule form in Home Assistant's own UI (wording of "Add watch rule", the multi-value State field, entity pickers; the flow ran through the REST API only), the card with a rule banner in the browser pane, `show_all` rendering of an inactive rule banner.
+- A rule whose watched entity is also one of its `people` entities is not tested.

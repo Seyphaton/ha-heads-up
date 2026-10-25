@@ -8,11 +8,13 @@ from __future__ import annotations
 
 import logging
 import secrets
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from datetime import datetime, timedelta
 from functools import partial
+from itertools import chain
 from typing import Any
 
+from homeassistant.config_entries import ConfigSubentry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import CALLBACK_TYPE, Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.exceptions import ServiceValidationError
@@ -36,6 +38,9 @@ from .const import (
     OPT_DEFAULT_TIMEOUT,
     OPT_EVICT,
     OPT_MAX_BANNERS,
+    RULE_ID_PREFIX,
+    RULE_SUBENTRY,
+    RULE_TAG,
     SAVE_DELAY,
     SEVERITIES,
     STORAGE_KEY,
@@ -65,6 +70,9 @@ class BannerManager:
         self.hass = hass
         self.options: dict[str, Any] = {**DEFAULT_OPTIONS, **options}
         self.banners: dict[str, Banner] = {}
+        # Watch rules as virtual banners; never stored (DESIGN §17).
+        self.rules: dict[str, Banner] = {}
+        self._rule_sources: dict[str, dict[str, Any]] = {}
         self._store = banner_store(hass)
         self._timers: dict[str, CALLBACK_TYPE] = {}
         self._listeners: list[Callable[[], None]] = []
@@ -105,6 +113,8 @@ class BannerManager:
             cancel()
         self._timers.clear()
         self._listeners.clear()
+        self.rules.clear()
+        self._rule_sources.clear()
         if self._untrack:
             self._untrack()
             self._untrack = None
@@ -214,7 +224,7 @@ class BannerManager:
         return dismissed, len(dict.fromkeys(banner_ids)) - dismissed
 
     def _dismiss_one(self, banner_id: str, user_id: str) -> None:
-        banner = self._get(banner_id)
+        banner = self.rules.get(banner_id) or self._get(banner_id)
         if not banner.dismissible:
             raise HeadsUpError("not_dismissible", f"Banner {banner_id} is not dismissible")
         if banner.dismiss_scope == "global":
@@ -225,6 +235,10 @@ class BannerManager:
 
     @callback
     def admin_clear(self, banner_id: str) -> None:
+        if banner_id in self.rules:
+            raise HeadsUpError(
+                "rule_banner", f"Banner {banner_id} comes from a rule; disable or delete the rule"
+            )
         self._get(banner_id)
         self._remove(banner_id, EVENT_CLEARED, reason="admin")
         self._changed()
@@ -237,14 +251,14 @@ class BannerManager:
 
     @callback
     def active_count(self) -> int:
-        return sum(1 for b in self.banners.values() if b.active)
+        return sum(1 for b in self._all() if b.active)
 
     @callback
     def visible(self, user_id: str, show_all: bool = False) -> list[dict[str, Any]]:
         # show_all (admin) also returns waiting, dismissed and untargeted banners (D-008).
         return [
             b.to_client(user_id)
-            for b in self.banners.values()
+            for b in self._all()
             if show_all
             or (b.active and user_id not in b.dismissed_by and self._targets(b, user_id))
         ]
@@ -260,7 +274,99 @@ class BannerManager:
 
         return unsubscribe
 
+    # Watch rules -----------------------------------------------------------------------
+
+    @callback
+    def sync_rules(self, subentries: Mapping[str, ConfigSubentry], silent: bool = False) -> None:
+        """Make the virtual banners match the enabled rule subentries (DESIGN §17).
+
+        `silent` is used at setup: the state found then fires no events (D-058).
+        """
+        wanted = {
+            f"{RULE_ID_PREFIX}{sub.subentry_id}": sub
+            for sub in subentries.values()
+            if sub.subentry_type == RULE_SUBENTRY and sub.data.get("enabled", True)
+        }
+        changed = False
+        for banner_id in list(self.rules):
+            if banner_id not in wanted:
+                gone = self.rules.pop(banner_id)
+                self._rule_sources.pop(banner_id, None)
+                if gone.condition_met and not silent:
+                    self._fire(EVENT_CLEARED, gone, reason="rule")
+                changed = True
+        for banner_id, sub in wanted.items():
+            source = dict(sub.data)
+            if self._rule_sources.get(banner_id) == source:
+                continue
+            old = self.rules.get(banner_id)
+            self._rule_sources[banner_id] = source
+            banner = self._build_rule(banner_id, source, old)
+            self.rules[banner_id] = banner
+            if not silent and banner.condition_met != bool(old and old.condition_met):
+                if banner.condition_met:
+                    self._fire(EVENT_CREATED, banner, severity=banner.severity)
+                else:
+                    self._fire(EVENT_CLEARED, banner, reason="rule")
+            changed = True
+        self._refresh_tracking()
+        if changed and not silent:
+            self._notify()
+
+    def _build_rule(self, banner_id: str, source: Mapping[str, Any], old: Banner | None) -> Banner:
+        now = dt_util.utcnow()
+        condition: dict[str, Any] = {
+            "entity_id": source["entity_id"],
+            "state": list(source.get("state") or ["on"]),
+        }
+        if source.get("attribute"):
+            condition["attribute"] = source["attribute"]
+        met = self._evaluate(condition) is True
+        return Banner(
+            id=banner_id,
+            message=self._rule_message(source),
+            title=source.get("title") or None,
+            severity=source.get("severity", DEFAULT_SEVERITY),
+            icon=source.get("icon") or None,
+            dismissible=source.get("dismissible", False),
+            dismiss_scope="user",
+            tag=RULE_TAG,
+            condition=condition,
+            mode="recurring",
+            people=list(source.get("people", [])),
+            condition_met=met,
+            ever_met=met,
+            created_at=old.created_at if old else now,
+            updated_at=now,
+        )
+
+    def _rule_message(self, source: Mapping[str, Any]) -> str:
+        # `{name}` is the only placeholder (D-055).
+        state = self.hass.states.get(source["entity_id"])
+        name = (state.attributes.get("friendly_name") if state else None) or source["entity_id"]
+        return str(source["message"]).replace("{name}", str(name))
+
+    def _apply_rule(self, banner: Banner) -> bool:
+        # Unavailable, unknown and removed entities hide the banner (D-053).
+        assert banner.condition is not None
+        met = self._evaluate(banner.condition) is True
+        message = self._rule_message(self._rule_sources[banner.id])
+        changed = message != banner.message
+        banner.message = message
+        if met != banner.condition_met:
+            banner.condition_met = met
+            changed = True
+            if met:
+                self._fire(EVENT_CREATED, banner, severity=banner.severity)
+            else:
+                banner.dismissed_by.clear()  # a dismissal lasts until the condition flips (D-056)
+                self._fire(EVENT_CLEARED, banner, reason="rule")
+        return changed
+
     # Internals -------------------------------------------------------------------------
+
+    def _all(self) -> Iterator[Banner]:
+        return chain(self.banners.values(), self.rules.values())
 
     def _targets(self, banner: Banner, user_id: str) -> bool:
         if not banner.people:
@@ -320,12 +426,16 @@ class BannerManager:
                 )
                 continue
             changed |= self._apply_condition(banner)
+        for banner in list(self.rules.values()):
+            if banner.condition is not None and banner.condition["entity_id"] == entity_id:
+                changed |= self._apply_rule(banner)
         if changed:
             self._changed()
 
     def _refresh_tracking(self) -> None:
         wanted = {b.condition["entity_id"] for b in self.banners.values() if b.condition}
-        wanted |= {p for b in self.banners.values() for p in b.people}
+        wanted |= {b.condition["entity_id"] for b in self.rules.values() if b.condition}
+        wanted |= {p for b in self._all() for p in b.people}
         if wanted == self.tracked_entities:
             return
         if self._untrack:
@@ -392,7 +502,10 @@ class BannerManager:
         self._store.async_delay_save(self._data, SAVE_DELAY)
 
     def _changed(self) -> None:
-        self._refresh_tracking()
         self._save()
+        self._notify()
+
+    def _notify(self) -> None:
+        self._refresh_tracking()
         for listener in list(self._listeners):
             listener()

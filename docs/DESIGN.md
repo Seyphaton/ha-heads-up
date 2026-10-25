@@ -7,6 +7,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | Part | Status |
 |---|---|
 | §4 data model, §5 lifecycle, §6 backend, §7 actions, §9 targeting | implemented and tested (Phases 2–3) |
+| §17 watch rules (config subentries, virtual banners) | implemented and tested (Phase 8); card unchanged |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
 | Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
@@ -147,12 +148,12 @@ History: no stored history; events only (D-012).
 ```
 custom_components/heads_up/
   __init__.py      async_setup: register actions + WebSocket commands; async_setup_entry: load store, start manager, forward sensor platform
-  manager.py       BannerManager: in-memory dict, mutations, condition evaluation, targeting, state tracker, timers, events, subscriber fan-out; banner_store()
+  manager.py       BannerManager: in-memory dict, mutations, condition evaluation, targeting, state tracker, timers, events, subscriber fan-out; banner_store(); watch rules as virtual banners (`sync_rules`, `rules`, §17)
   models.py        Banner dataclass, (de)serialisation, per-viewer payload (to_client)
   services.py      action schemas (SCHEMAS, also used by docs-check) + handlers
   websocket.py     heads_up/subscribe, heads_up/dismiss, heads_up/admin_clear
   sensor.py        count sensor
-  config_flow.py   single-instance config flow + options flow
+  config_flow.py   single-instance config flow + options flow + `RuleSubentryFlow` (watch rules, §17)
   const.py, strings.json, translations/en.json, services.yaml, icons.json, manifest.json
   frontend.py                static path (async_setup) + add_extra_js_url per entry, `?v=<manifest version>-<8 hex of the file's SHA-256>` (D-050)
   frontend/heads-up-card.js  card, editor, pure functions (`normalizeConfig`, `visibleBanners`, `sortBanners`, `controlsFor`, `retryDelay`, `CONFIG_KEYS`)
@@ -188,7 +189,7 @@ WebSocket API (N-4, N-5)
 | `heads_up/subscribe` | user; `show_all: true` requires admin (`unauthorized`) | `show_all?` | result, then events `{banners: [...]}` (full visible list per change; each item has `dismissed` for the viewer; `dismissed_by` is never sent; `icon` resolved to the severity default) |
 | `heads_up/dismiss` | user | `banner_id` | `{}` or error `not_found` / `not_dismissible` |
 | `heads_up/dismiss_many` | user | `banner_ids` (list) | `{dismissed, skipped}`; unknown and non-dismissible IDs count as skipped; one subscriber update for the batch (D-048) |
-| `heads_up/admin_clear` | admin (`require_admin`) | `banner_id` | `{}` or `not_found` / `unauthorized` |
+| `heads_up/admin_clear` | admin (`require_admin`) | `banner_id` | `{}` or `not_found` / `unauthorized` / `rule_banner` (D-056) |
 
 Banner IDs travel as `banner_id` because `id` is the WebSocket message ID.
 
@@ -280,7 +281,7 @@ Touch and kiosk use: 48 px touch targets (the compact row is 40 px, the button k
 | Invalid `id`/`tag` characters | schema error, nothing stored |
 | `message` > 1000 chars | schema error |
 | Condition entity missing at creation | `entity_not_found` |
-| Condition entity unavailable/unknown | visibility unchanged |
+| Condition entity unavailable/unknown | visibility unchanged (stored banners); a rule banner is hidden (D-053) |
 | Person ID in `people` does not exist | accepted; matches nobody until created |
 | Full and no evictable banner | `too_many_banners` |
 | Two parallel `create_banner` with same `id` | serialized in event loop; last call wins; two events |
@@ -352,3 +353,51 @@ HA documentation rules covered: `docs-high-level-description` (README intro), `d
 `docs-check`: banned-word and placeholder grep over all Markdown (done); YAML examples in user docs validated against action schemas (done); field parity schema == `services.yaml` == `docs/actions.md` (done); card config keys (`CONFIG_KEYS` in the card module) vs. the options table in `docs/card.md`, and card YAML examples use only those keys (done).
 
 Adopted style elements: D-002.
+
+## 17. Watch rules (Phase 8)
+
+Status: implemented 2026-10-25 (tests `tests/test_rules.py`, `tests/test_rules_flow.py`; dev HA 2026.9.4 via `dev/smoke.py rules`). Details that §17.3 did not fix: rule banner IDs are `rule_<subentry_id>`; subentry IDs are uppercase ULIDs, which the lowercase `id` pattern of the actions rejects, so no action can overwrite or clear a rule banner (`tests/test_rules.py`). Editing a rule rebuilds its banner (dismissals reset, `created_at` kept); no event fires when an edit leaves the banner active. `show_all` also lists enabled rules whose condition is false (`active: false`), like waiting stored banners. Setup fires no events. Design choices are D-052 to D-058; remaining open details are in `docs/OPEN_QUESTIONS.md` ("Phase 8: watch rules").
+
+### 17.1 Problem
+A banner exists only after `create_banner` ran, and `condition` belongs to a stored banner. "Show a message while entity X is on" therefore needs an automation (§1). Putting the rule in card YAML means repeating it on every card and dashboard. The goal is a rule defined once, shown on every Heads Up card.
+
+### 17.2 Requirements
+| ID | Requirement |
+|---|---|
+| W-1 | A rule names one entity, the state(s) that trigger it (default `on`, optional attribute, same matching as §4.1 `condition`), a message, a severity, and optional person targeting. |
+| W-2 | While the condition is true, every targeted user sees the banner on every Heads Up card, with no card configuration. |
+| W-3 | A rule banner has no timeout. By default it has no X button and no swipe dismissal; a rule with `dismissible: true` can be dismissed per user (D-056). It leaves when the condition is false, the rule is disabled or the rule is deleted. |
+| W-4 | Rules are created, edited and deleted in the integration's UI. No automation, script or YAML. |
+| W-5 | Rules survive restarts without extra storage and need no restart when changed. |
+| W-6 | Purely additive: no other integration, automation or script is touched. |
+
+### 17.3 Design
+- **Storage:** one config subentry per rule (type `rule`) of the single config entry. HA keeps `entry.subentries` in `.core.config_entries`; `.storage/heads_up.banners` is unchanged. Subentry fields: `entity_id`, `state` (string or list, default `on`), `attribute?`, `message`, `title?`, `severity` (default `warning`), `icon?`, `people?` (person entities), `dismissible` (default false, D-056), `enabled` (default true). `message` may contain `{name}` (D-055). The subentry `title` is the rule name shown in the UI. `unique_id` is not set, so two rules may watch the same entity.
+- **Flow:** `HeadsUpConfigFlow.async_get_supported_subentry_types` returns `{"rule": RuleSubentryFlow}`. `RuleSubentryFlow` has `async_step_user` (add) and `async_step_reconfigure` (edit); delete is HA's built-in subentry menu entry. Validation reuses the `condition` rules of §4.1 (entity must exist when the rule is saved). Strings go under `config_subentries.rule` in `strings.json` and `translations/en.json`.
+- **Virtual banners:** the manager builds one in-memory `Banner` per enabled rule with `id = "rule_<subentry_id>"`, `dismissible` from the rule, `dismiss_scope = "user"`, `expires_at = None`, `condition = {entity_id, state, attribute}`, `tag = "rule"`, and `condition_met` evaluated from the live state. They are never written to the store, never evicted and never counted against `max_banners`. They are rebuilt on setup and when the update listener reports a subentry change.
+- **Condition tracking:** `_refresh_tracking` adds the rule entities and rule `people` to its entity set (still one listener, N-7). `_on_state_change` re-evaluates rule banners the same way as stored ones, without the `once` removal branch.
+- **Delivery:** `visible()` returns stored banners plus active rule banners that target the viewer. `to_client` is reused, so the card and the WebSocket payload do not change. `heads_up/dismiss` and `dismiss_many` on a rule ID follow the rule's `dismissible` flag (`not_dismissible` / skipped when false). A dismissal is added to the in-memory `dismissed_by` of the virtual banner and cleared when the condition turns false (D-056); it is not stored. `heads_up/admin_clear` on a rule ID is rejected with a new error `rule_banner` (message: disable or delete the rule). `clear_banner` and `clear_all` do not touch rule banners.
+- **Sensor:** `sensor.heads_up_active_banners` counts active rule banners too (D-054).
+- **Unavailable or unknown entity:** the rule banner is hidden (D-053).
+- **Events:** `heads_up_banner_created` when the condition turns true, `heads_up_banner_cleared` with `reason: rule` when it turns false or the rule is disabled or deleted, `heads_up_banner_dismissed` (`scope: user`) on a dismissal (D-058).
+- **Card:** no change required. Disabled and deleted rules produce no banner, also with `show_all`.
+
+### 17.4 Blast radius
+Restart: not needed for rule changes; a code update needs the usual restart. Notification path: not touched (the banner stream is the same). Dashboard: every Heads Up card shows rule banners once a rule exists. New files: `rule_flow` code in `config_flow.py`, a `Rule` model, changes in `manager.py`, `websocket.py` (error code) and `sensor.py`. Reversible: deleting all rules returns the previous behaviour.
+
+### 17.5 Test plan
+Tests are written before the code, in `tests/test_rules.py` unless noted.
+- Flow: add a rule (defaults), add with all fields, entity missing → `entity_not_found`, reconfigure, delete, second rule on the same entity, abort when the entry is not loaded (`tests/test_config_flow.py`).
+- Visibility: condition true → banner in `visible()` for an untargeted user; false → gone; state list and `attribute`; `people` targeting (user with and without a person, as in `tests/test_people.py`).
+- Lifecycle: disabled rule shows nothing; deleting a rule removes the banner and updates subscribers; editing the message updates it without reload; entity removed or unavailable → hidden; `{name}` replaced; dismissible rule: dismissal hides it for that user only, it returns after the condition goes false and true again, and it returns after a reload; events (created on true, cleared with `reason: rule` on false, disabled and deleted, dismissed).
+- Restart: reload the entry with the entity already on → banner present, nothing written to `.storage/heads_up.banners`.
+- Interplay: stored banners and rule banners in one `visible()` list; `max_banners` eviction ignores rule banners; the count sensor includes active rule banners.
+- WebSocket: payload shape equals a stored non-dismissible banner; `dismiss` and `dismiss_many` on a non-dismissible rule → `not_dismissible` / skipped, on a dismissible rule → dismissed for that user; `admin_clear` → `rule_banner`; `clear_all` and `clear_banner` leave rule banners.
+- Real instance: extend `dev/smoke.py` with a rule on `input_boolean.test_window`: turn on → banner for admin and `dev-user` over WebSocket, no X in the card, turn off → gone, container restart with the helper on → banner returns. Card check in the browser pane on one existing dashboard view (no card edit needed).
+- Gates: `make check`, `make hassfest` (new `config_subentries` strings), `make docs-check` (new user page section and any YAML example).
+
+### 17.6 Documentation to change when built
+`docs/DESIGN.md` §0, §4, §6, §8, §10; `docs/DECISIONS.md`; `docs/dev/HA_API_NOTES.md`; `docs/dev/TESTING.md`; `README.md` and a "Watch rules" section in `docs/examples.md` (set up in the UI); `docs/limitations.md` (rule banners cannot be cleared by admins; dismissals reset on restart); `docs/uninstall.md` (rules are removed with the entry); `CHANGELOG.md`; `docs/dev/STATE.md`.
+
+### 17.7 Alternatives not chosen
+Label-based watching (a label on an entity adds a banner with the entity name): not in Phase 8 (D-057), kept in `docs/OPEN_QUESTIONS.md`. Card-level rules: repeated per card. YAML in `configuration.yaml`: needs a reload and breaks D-026.

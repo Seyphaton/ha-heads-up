@@ -4,6 +4,11 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Added
+- Watch rules: add a rule in Settings > Devices & services > Heads Up, and a banner shows on every Heads Up card while an entity is in a state, without an automation. Rules can be dismissible per user, target people and use `{name}` for the entity name. See [docs/rules.md](docs/rules.md).
+- `heads_up_banner_cleared` has the new `reason` value `rule`.
+- WebSocket error `rule_banner` for `heads_up/admin_clear` on a rule banner.
+
 ## [0.1.0] - 2026-10-25
 
 First release. Tested on a local Home Assistant 2026.9.4 instance and, with the test suite only, on 2026.10.4.

@@ -14,7 +14,7 @@ Standalone: no knowledge of any caller. Everything in English: code, comments, d
 8. Small reversible steps, one logical change per commit. Ask before anything irreversible or scope-expanding.
 
 ## Phases (one approval each)
-0. Design (done) · 1. Scaffold + dev env (done) · 2. Backend core (done) · 3. Conditions + people (done) · 4. Card (done) · 5. External call paths + examples (done) · 6. Hardening, docs, packaging, release (done except release) · 7. Card design (done, awaiting review).
+0. Design (done) · 1. Scaffold + dev env (done) · 2. Backend core (done) · 3. Conditions + people (done) · 4. Card (done) · 5. External call paths + examples (done) · 6. Hardening, docs, packaging, release (done except release) · 7. Card design (done) · 8. Watch rules (done, awaiting review).
 - Read `docs/dev/STATE.md` first: current phase, gate status, setup steps, next plan. Update it at the end of every session.
 - Ask decisions with the AskUserQuestion tool (options, recommended first). Use only core Claude Code tools plus read-only web for HA docs/source (D-028); no connectors or MCP servers.
 - Decisions → `docs/DECISIONS.md` immediately. Out of scope → `docs/OPEN_QUESTIONS.md`.

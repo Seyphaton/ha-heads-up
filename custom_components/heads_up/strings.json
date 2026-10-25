@@ -148,5 +148,76 @@
       "name": "Clear all banners",
       "description": "Removes every banner. Returns the number removed."
     }
+  },
+  "config_subentries": {
+    "rule": {
+      "entry_type": "Watch rule",
+      "initiate_flow": {
+        "user": "Add watch rule"
+      },
+      "step": {
+        "user": {
+          "title": "Add watch rule",
+          "description": "Shows a banner on every Heads Up card while an entity is in a state. {name} in the message is replaced by the entity's name.",
+          "data": {
+            "name": "Rule name",
+            "entity_id": "Entity",
+            "state": "State",
+            "attribute": "Attribute",
+            "message": "Message",
+            "title": "Title",
+            "severity": "Severity",
+            "icon": "Icon",
+            "people": "People",
+            "dismissible": "Dismissible",
+            "enabled": "Enabled"
+          },
+          "data_description": {
+            "name": "Shown in the list of rules only.",
+            "state": "One or more values. The banner shows while the entity (or its attribute) equals any of them. Default: on.",
+            "attribute": "Compare this attribute instead of the state.",
+            "title": "Optional heading, up to 100 characters.",
+            "people": "Show only to these people. Empty: everyone.",
+            "dismissible": "Off: no close button, the banner stays while the condition is true. On: each user can hide it until the condition turns false and true again.",
+            "enabled": "Turn off to hide the banner without deleting the rule."
+          }
+        },
+        "reconfigure": {
+          "title": "Change watch rule",
+          "description": "Shows a banner on every Heads Up card while an entity is in a state. {name} in the message is replaced by the entity's name.",
+          "data": {
+            "name": "Rule name",
+            "entity_id": "Entity",
+            "state": "State",
+            "attribute": "Attribute",
+            "message": "Message",
+            "title": "Title",
+            "severity": "Severity",
+            "icon": "Icon",
+            "people": "People",
+            "dismissible": "Dismissible",
+            "enabled": "Enabled"
+          },
+          "data_description": {
+            "name": "Shown in the list of rules only.",
+            "state": "One or more values. The banner shows while the entity (or its attribute) equals any of them. Default: on.",
+            "attribute": "Compare this attribute instead of the state.",
+            "title": "Optional heading, up to 100 characters.",
+            "people": "Show only to these people. Empty: everyone.",
+            "dismissible": "Off: no close button, the banner stays while the condition is true. On: each user can hide it until the condition turns false and true again.",
+            "enabled": "Turn off to hide the banner without deleting the rule."
+          }
+        }
+      },
+      "error": {
+        "entity_not_found": "This entity does not exist.",
+        "message_required": "Enter a message.",
+        "message_too_long": "The message can have up to 1000 characters.",
+        "title_too_long": "The title can have up to 100 characters."
+      },
+      "abort": {
+        "reconfigure_successful": "[%key:common::config_flow::abort::reconfigure_successful%]"
+      }
+    }
   }
 }

@@ -45,6 +45,10 @@ dev-smoke:      ## end-to-end check against dev HA (see dev/smoke.py; restarts t
 	until curl -sf -o /dev/null http://127.0.0.1:8124/manifest.json; do sleep 2; done; sleep 5
 	uv run python dev/smoke.py verify
 	uv run python dev/smoke.py conditions
+	uv run python dev/smoke.py rules
+	$(COMPOSE) restart homeassistant
+	until curl -sf -o /dev/null http://127.0.0.1:8124/manifest.json; do sleep 2; done; sleep 5
+	uv run python dev/smoke.py rules_verify
 
 dev-down:
 	$(COMPOSE) down

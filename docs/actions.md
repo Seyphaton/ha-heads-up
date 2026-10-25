@@ -163,7 +163,9 @@ Each change fires an event. Use them as automation triggers.
 | `heads_up_banner_updated` | `id`, `severity`, `tag` |
 | `heads_up_banner_dismissed` | `id`, `tag`, `scope` (`user` or `global`), `user_id` |
 | `heads_up_banner_expired` | `id`, `tag` |
-| `heads_up_banner_cleared` | `id`, `tag`, `reason` (`action`, `clear_all`, `condition`, `evicted`, `admin`) |
+| `heads_up_banner_cleared` | `id`, `tag`, `reason` (`action`, `clear_all`, `condition`, `evicted`, `admin`, `rule`) |
+
+Banners from [watch rules](rules.md) fire `created` when the entity enters the state and `cleared` with `reason: rule` when it leaves, or when the rule is disabled or deleted. Their `id` starts with `rule_` and their `tag` is `rule`.
 
 A banner whose timeout passed while Home Assistant was stopped is removed at the next start and fires `heads_up_banner_expired` then.
 

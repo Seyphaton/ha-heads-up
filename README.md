@@ -33,6 +33,8 @@ Heads Up is not in the default HACS list. Add it as a custom repository:
 
 Go to Settings > Devices & services and add the integration Heads Up. It asks for nothing. The card is registered by the integration, so you do not add a dashboard resource.
 
+Banners also come from watch rules: a rule shows a banner while an entity is in a state, set up once in the integration with no automation. See [docs/rules.md](docs/rules.md).
+
 ## 1. Configure the dashboard card
 
 Add the card to a dashboard in the YAML editor. Without options it shows every banner, most severe first:

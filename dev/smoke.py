@@ -4,6 +4,9 @@ Run after `make dev-up` + `make dev-onboard`:
   uv run python dev/smoke.py create   # creates banners, checks sensor, per-user dismiss
   (restart the container)
   uv run python dev/smoke.py verify   # checks the banners survived the restart, then clears
+  uv run python dev/smoke.py rules    # watch rule added through the subentry flow
+  (restart the container)
+  uv run python dev/smoke.py rules_verify
 """
 
 import asyncio
@@ -176,4 +179,82 @@ async def conditions() -> None:
         print("user sees:", [b["id"] for b in await subscribe(await connect(s, user))])
 
 
-asyncio.run({"create": create, "verify": verify, "conditions": conditions}[sys.argv[1]]())
+async def entry_id(s: aiohttp.ClientSession, tok: str) -> str:
+    r = await s.get(
+        f"{BASE}/api/config/config_entries/entry?domain=heads_up",
+        headers={"Authorization": f"Bearer {tok}"},
+    )
+    return str((await r.json())[0]["entry_id"])
+
+
+async def rules() -> None:
+    """Watch rule added through the real subentry flow, then seen by admin and user."""
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        headers = {"Authorization": f"Bearer {admin}"}
+        await toggle(s, admin, False)
+        eid = await entry_id(s, admin)
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow",
+            json={"handler": [eid, "rule"], "show_advanced_options": False},
+            headers=headers,
+        )
+        flow = await r.json()
+        print("flow step:", flow["type"], flow["step_id"])
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow/{flow['flow_id']}",
+            json={
+                "name": "Smoke window",
+                "entity_id": "input_boolean.test_window",
+                "message": "{name} is open",
+                "severity": "critical",
+            },
+            headers=headers,
+        )
+        print("flow result:", (await r.json())["type"])
+        print("off -> admin sees:", [b["id"] for b in await subscribe(await connect(s, admin))])
+        await toggle(s, admin, True)
+        a_ws = await connect(s, admin)
+        banners = await subscribe(a_ws)
+        print("on -> admin sees:", [(b["id"], b["message"], b["dismissible"]) for b in banners])
+        print("on -> user sees:", [b["id"] for b in await subscribe(await connect(s, user))])
+        print("sensor:", await sensor(s, admin))
+        bid = next(b["id"] for b in banners if b["id"].startswith("rule_"))
+        for command in ("dismiss", "admin_clear"):
+            msg_id = await a_ws.send({"type": f"heads_up/{command}", "banner_id": bid})
+            print(command, "->", (await a_ws.recv(msg_id)).get("error", {}).get("code"))
+
+
+async def rules_verify() -> None:
+    """After a restart the banner is back; deleting the rule removes it."""
+    async with aiohttp.ClientSession() as s:
+        admin = await token(s, "ADMIN")
+        ws = await connect(s, admin)
+        print("after restart admin sees:", [b["id"] for b in await subscribe(ws)])
+        eid = await entry_id(s, admin)
+        msg_id = await ws.send({"type": "config_entries/subentries/list", "entry_id": eid})
+        for sub in (await ws.recv(msg_id))["result"]:
+            msg_id = await ws.send(
+                {
+                    "type": "config_entries/subentries/delete",
+                    "entry_id": eid,
+                    "subentry_id": sub["subentry_id"],
+                }
+            )
+            print("delete rule:", (await ws.recv(msg_id))["success"])
+        await asyncio.sleep(0.5)
+        print(
+            "after delete admin sees:", [b["id"] for b in await subscribe(await connect(s, admin))]
+        )
+        await toggle(s, admin, False)
+
+
+asyncio.run(
+    {
+        "create": create,
+        "verify": verify,
+        "conditions": conditions,
+        "rules": rules,
+        "rules_verify": rules_verify,
+    }[sys.argv[1]]()
+)

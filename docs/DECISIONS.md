@@ -258,6 +258,54 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision: version `0.1.0` (not `1.0.0`: the integration ran only on a dev instance); HACS and hassfest checks move to `.github/workflows/validate.yml` (official layout, daily run, hassfest with checkout, N-53, N-54); README offers HACS custom repository and manual install. Tag, release, visibility and repository settings stay with the maintainer (D-020).
 - Alternatives: `1.0.0`; keeping the checks in `ci.yml`.
 
+## D-052 Phase 8 proposal: watch rules as config subentries
+- Date: 2026-10-25.
+- Decision: rules ("show a banner while entity X is in state Y") are config subentries of the single entry, shown as virtual banners built in memory, never stored in `.storage/heads_up.banners`, never evicted, not counted against `max_banners`. Design in `docs/DESIGN.md` §17. Phase 8 is not yet approved.
+- Alternatives: card-level rules (repeated per card); YAML in `configuration.yaml` (reload, breaks D-026); label-based watching (D-057).
+- Reason: one definition, shown on every card for every targeted user, without an automation.
+
+## D-053 Rule banner with unavailable or unknown entity is hidden
+- Date: 2026-10-25.
+- Decision: while the entity state is `unavailable`, `unknown` or missing, the rule banner is not shown.
+- Alternatives: keep the last in-memory result (as D-006 does for stored banners).
+- Reason: nothing is stored for rule banners, so there is no result to keep after a restart; showing only real matches is predictable.
+
+## D-054 Rule banners count in the active-banner sensor
+- Date: 2026-10-25.
+- Decision: `sensor.heads_up_active_banners` counts active rule banners as well. They still do not count against `max_banners`.
+- Alternatives: count stored banners only.
+- Reason: the sensor then matches what the cards show.
+
+## D-055 Rule message supports a `{name}` placeholder
+- Date: 2026-10-25.
+- Decision: a rule has fixed message text plus an optional `{name}`, replaced with the entity's friendly name (entity ID if it has none). No other placeholders or templates (D-005).
+- Alternatives: fixed text only.
+- Reason: one wording can serve several rules.
+
+## D-056 Rule banners: per-rule `dismissible` switch, dismissal until the condition flips
+- Date: 2026-10-25.
+- Decision: each rule has `dismissible` (default `false`). A dismissible rule banner is dismissed per user only (no global scope). The dismissal is held in memory and cleared when the condition turns false, so the banner returns the next time the entity enters the state. A restart also clears dismissals. `heads_up/admin_clear` on any rule banner is rejected with `rule_banner`; disable or delete the rule instead.
+- Alternatives: never dismissible (the original request); dismissals persisted in storage.
+- Reason: maintainer chose the switch; the default keeps the requested non-dismissible behaviour. In-memory dismissals avoid a second store.
+
+## D-057 Label-based watching is not part of Phase 8
+- Date: 2026-10-25.
+- Decision: no label-based watching in Phase 8; the idea stays in `docs/OPEN_QUESTIONS.md`.
+- Alternatives: include it.
+- Reason: a second path with no custom message or severity widens the phase.
+
+## D-058 Rule banners fire created and cleared events
+- Date: 2026-10-25.
+- Decision: rule banners fire `heads_up_banner_created` when the condition turns true and `heads_up_banner_cleared` with `reason: rule` when it turns false or the rule is disabled or deleted. They also fire `heads_up_banner_dismissed` with `scope: user` for a dismissal. Events carry `id` = `rule_<subentry_id>` and `tag` = `rule`. No events are fired for the state found at setup (open detail: Q-W7).
+- Alternatives: no events.
+- Reason: lets automations react to rule banners.
+
+## D-059 Phase 8 implementation details
+- Date: 2026-10-25.
+- Decision: rule banner ID `rule_<subentry_id>` (uppercase ULID, so no action can use it, N-59); `tag` is `rule`; mode is `recurring` internally; editing a rule rebuilds its banner (dismissals reset, no event if it stays active); a rule that is enabled but false is listed with `show_all` as `active: false`; setup fires no events (resolves Q-W7); `{name}` is replaced literally and no escape exists; the flow validates entity existence, non-blank message (max 1000) and title (max 100).
+- Alternatives: events at setup; storing rule banners.
+- Reason: smallest behaviour that satisfies D-052 to D-058 and keeps rule banners out of the store.
+
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
 - 2026-10-25: Phase 1 complete; Phase 2 approved.
@@ -270,3 +318,5 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - 2026-10-25: Phase 6 delivered and committed; Phase 7 (card design, D-048) approved.
 - 2026-10-25: Phase 7 delivered (card design options, `heads_up/dismiss_many`); not committed at the time of writing; no further phase approved.
 - 2026-10-25: `main` pushed to the private repository `Seyphaton/ha-heads-up` (maintainer approval); all commits re-authored to the GitHub noreply identity; no tag or release.
+- 2026-10-25: Phase 8 (watch rules) proposed in DESIGN §17; design choices answered (D-052 to D-058).
+- 2026-10-25: Phase 8 approved; delivered (watch rules, D-059); not committed at the time of writing.

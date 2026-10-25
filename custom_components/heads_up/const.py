@@ -21,6 +21,10 @@ DEFAULT_ICONS: Final = {
 DISMISS_SCOPES: Final = ("user", "global")
 MODES: Final = ("once", "recurring")
 
+RULE_SUBENTRY: Final = "rule"  # subentry type of a watch rule (DESIGN §17)
+RULE_TAG: Final = "rule"
+RULE_ID_PREFIX: Final = "rule_"
+
 ID_PATTERN: Final = re.compile(r"^[a-z0-9_-]{1,64}$")
 MAX_TITLE: Final = 100
 MAX_MESSAGE: Final = 1000
