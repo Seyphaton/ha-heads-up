@@ -21,24 +21,190 @@ Heads Up is not on HACS yet. Install it by hand:
 
 ## Set up
 
-1. Go to Settings > Devices & services and add the integration Heads Up. It asks for nothing.
-2. Add the card to a dashboard in the YAML editor:
+Go to Settings > Devices & services and add the integration Heads Up. It asks for nothing. The card is registered by the integration, so you do not add a dashboard resource.
 
-   ```yaml
-   type: custom:heads-up-card
-   ```
+## 1. Configure the dashboard card
 
-   The card is registered by the integration. You do not add a dashboard resource.
-3. Go to Developer tools > Actions, switch to YAML mode and run:
+Add the card to a dashboard in the YAML editor. Without options it shows every banner, most severe first:
 
-   ```yaml
-   action: heads_up.create_banner
-   data:
-     message: Hello from Heads Up.
-     timeout: 0
-   ```
+```yaml
+type: custom:heads-up-card
+title: House Information
+show_time: true
+show_severity: true
+```
 
-The banner appears in the card without a reload. Close it with the X button, or remove it with `heads_up.clear_all`.
+![Card with four banners: critical, warning, info and success, each with a severity label and the time since it was created](docs/images/card-default.png)
+
+All options are in [docs/card.md](docs/card.md). The card also has a visual editor. These variants change one thing each.
+
+**Without severity label and time.** This is the default. The icon and color show the severity.
+
+```yaml
+type: custom:heads-up-card
+title: House Information
+```
+
+![Card without severity labels and times](docs/images/card-no-label-no-time.png)
+
+**Custom colors.** `colors` sets a color per severity. `colorize: background` colors only the banner background.
+
+```yaml
+type: custom:heads-up-card
+title: House Information (custom colors)
+colorize: background
+colors:
+  critical: "#2d1f33"
+  warning: "#1d2d33"
+  info: "#1c2b2b"
+  success: "#243021"
+```
+
+![Card with custom background colors](docs/images/card-custom-colors.png)
+
+**Only the icon colored.** `colorize: icon` leaves the background neutral. `max_items: 3` hides the fourth banner.
+
+```yaml
+type: custom:heads-up-card
+colorize: icon
+show_severity: true
+max_items: 3
+```
+
+![Card with colored icons and labels on a neutral background](docs/images/card-icon-color.png)
+
+**Collapsed list.** `collapsed_items: 2` shows two banners and a "Show 2 more" button. `clear_all` adds a "Clear all" button that dismisses the banners for you only.
+
+```yaml
+type: custom:heads-up-card
+title: House Information (max 2 shown)
+show_time: true
+collapsed_items: 2
+clear_all: true
+```
+
+![Card showing two of four banners with Show 2 more and Clear all](docs/images/card-show-more.png)
+
+**Compact.** `layout: compact` puts each banner on one line and cuts long text with "…".
+
+```yaml
+type: custom:heads-up-card
+title: House Information (Compact)
+layout: compact
+show_time: true
+show_severity: true
+```
+
+![Card in compact layout](docs/images/card-compact.png)
+
+**Empty.** With `empty_message` the card stays visible when there are no banners. Without it, the card hides itself.
+
+```yaml
+type: custom:heads-up-card
+title: Status
+empty_message: All clear — no notifications
+```
+
+![Card with no banners and the text "All clear — no notifications"](docs/images/card-empty.png)
+
+## 2. Example calls
+
+Run these in Developer tools > Actions (YAML mode) or put them in an automation or script. The banner appears in the card without a reload. Close it with the X button, or remove it with `heads_up.clear_all`. The calls below produce the banners in the first screenshot.
+
+**Critical.** Sorts first and is never removed to make room for new banners. `timeout: 0` keeps it until someone closes it.
+
+```yaml
+action: heads_up.create_banner
+data:
+  id: security_alert
+  title: Security Alert
+  message: A sensor in the living room has been activated while armed.
+  severity: critical
+  icon: mdi:account-alert-outline
+  timeout: 0
+```
+
+**Warning.** The default severity. Without `timeout`, the banner disappears after 24 hours.
+
+```yaml
+action: heads_up.create_banner
+data:
+  id: garage_open
+  title: Warning
+  message: Garage door open after 10pm.
+  severity: warning
+```
+
+**Info.** The icon replaces the default one. The banner disappears after 30 minutes.
+
+```yaml
+action: heads_up.create_banner
+data:
+  title: Dishwasher
+  message: The dishwasher has finished.
+  severity: info
+  icon: mdi:dishwasher
+  timeout:
+    minutes: 30
+```
+
+**Success.** Calling this again with the same `id` replaces the banner instead of adding a second one.
+
+```yaml
+action: heads_up.create_banner
+data:
+  id: pv_status
+  title: PV Information
+  message: Autarky today at almost 100%.
+  severity: success
+```
+
+**Tied to an entity.** The banner shows while the entity is `on` and is removed the first time it stops matching.
+
+```yaml
+action: heads_up.create_banner
+data:
+  id: window_bedroom
+  message: The bedroom window is open.
+  timeout: 0
+  condition:
+    entity_id: binary_sensor.bedroom_window
+    state: "on"
+```
+
+**For one person, not closable.** Only the user linked to the person sees it. Nobody can close it. Remove it with `clear_banner`.
+
+```yaml
+action: heads_up.create_banner
+data:
+  id: water_leak
+  title: Water leak
+  message: Water detected in the basement.
+  severity: critical
+  dismissible: false
+  people:
+    - person.alex
+```
+
+```yaml
+action: heads_up.clear_banner
+data:
+  id: water_leak
+```
+
+**With a tap action.** Tapping the banner opens a dashboard view.
+
+```yaml
+action: heads_up.create_banner
+data:
+  message: Water detected under the dishwasher.
+  severity: critical
+  tap_action:
+    action: navigate
+    navigation_path: /lovelace/kitchen
+```
+
+More examples, including REST and WebSocket calls, are in [docs/examples.md](docs/examples.md).
 
 ## Options
 
