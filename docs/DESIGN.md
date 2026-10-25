@@ -294,7 +294,7 @@ Touch and kiosk use: 48 px touch targets (the compact row is 40 px, the button k
 
 ## 11. Test strategy
 
-Status: Python tests implemented (121, files listed in `docs/dev/TESTING.md`); card pure functions tested (65 vitest tests); CI matrix job for 2026.10.4 written, CI itself not run; the 2026.10.4 run of the Phase 8 tests has not been done.
+Status: Python tests implemented (121, files listed in `docs/dev/TESTING.md`); card pure functions tested (65 vitest tests); CI matrix job for 2026.10.4 written, all 121 tests also pass on HA 2026.10.4 in a throwaway venv (2026-10-25); the CI jobs are not read yet.
 
 - Python: `pytest-homeassistant-custom-component` 0.13.367 = HA 2026.9.4 (N-25); CI runs the same tests on 2026.10.4 (N-46).
 - Lifecycle tests first (Phase 2): upsert, each removal reason, eviction order, limits, response data, events, permission checks for `show_all`/`admin_clear`.

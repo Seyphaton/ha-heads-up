@@ -5,7 +5,7 @@
 | Integration logic | pytest + `pytest-homeassistant-custom-component` 0.13.367 (HA 2026.9.4) | `make test` |
 | One test | | `make test ARGS="tests/test_config_flow.py::test_second_entry_aborts"` |
 | Restart safety | unload + reload entry from persisted store; `freezer` moves time past `expires_at` | `tests/test_restart.py` |
-| Real instance | `dev/smoke.py`: REST actions with response, sensor, per-user dismiss over WebSocket as `dev-admin`/`dev-user`, admin-only clear, container restart, persistence; condition on `input_boolean.test_window` + `people: [person.dev_user]`; watch rule added through the REST subentry flow, seen by both users, `not_dismissible` / `rule_banner`, container restart, rule deleted over WebSocket | `make dev-smoke` |
+| Real instance | `dev/smoke.py`: REST actions with response, sensor, per-user dismiss over WebSocket as `dev-admin`/`dev-user`, admin-only clear, container restart, persistence; condition on `input_boolean.test_window` + `people: [person.dev_user]`; watch rule added through the REST subentry flow, seen by both users, `not_dismissible` / `rule_banner`, container restart, rule deleted over WebSocket | `make dev-smoke` (calls `clear_all`, so it removes every banner on the dev instance; it deletes only the rule named "Smoke window") |
 | Lint / types | ruff, mypy strict on `custom_components/heads_up` | `make lint`, `make typecheck` |
 | Manifest / translations | hassfest Docker image | `make hassfest` (needs Docker) |
 | Docs | banned words, placeholders; YAML examples in user docs validated against action schemas; fields: schema == services.yaml == docs/actions.md; card options: `CONFIG_KEYS` == `docs/card.md` table, card examples use only those | `make docs-check` |

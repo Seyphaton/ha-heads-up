@@ -4,14 +4,6 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
-### Added
-- Watch rules: add a rule in Settings > Devices & services > Heads Up, and a banner shows on every Heads Up card while an entity is in a state, without an automation. Rules can be dismissible per user, target people and use `{name}` for the entity name. See [docs/rules.md](docs/rules.md).
-- `heads_up_banner_cleared` has the new `reason` value `rule`.
-- WebSocket error `rule_banner` for `heads_up/admin_clear` on a rule banner. The card shows no "Clear for everyone" button on rule banners.
-
-### Changed
-- Banners without a button keep the space of the button when other banners in the card have one, so the text and times line up.
-
 ## [0.1.0] - 2026-10-25
 
 First release. Tested on a local Home Assistant 2026.9.4 instance and, with the test suite only, on 2026.10.4.
@@ -34,6 +26,9 @@ First release. Tested on a local Home Assistant 2026.9.4 instance and, with the 
 - Brand icon for the integration.
 - Pages: [troubleshooting](docs/troubleshooting.md), [limitations](docs/limitations.md), [upgrading](docs/upgrading.md), [uninstalling](docs/uninstall.md).
 - The card reconnects after a Home Assistant restart and retries until the integration is loaded.
+- Watch rules: add a rule in Settings > Devices & services > Heads Up, and a banner shows on every Heads Up card while an entity is in a state, without an automation. Rules can be dismissible per user, target people and use `{name}` for the entity name. See [docs/rules.md](docs/rules.md).
+- `heads_up_banner_cleared` has the new `reason` value `rule`.
+- WebSocket error `rule_banner` for `heads_up/admin_clear` on a rule banner. The card shows no "Clear for everyone" button on rule banners.
 
 ### Changed
 - The card no longer shows the severity text label by default. The icon and color still show the severity, and screen readers still get the label. Set `show_severity: true` to show it.

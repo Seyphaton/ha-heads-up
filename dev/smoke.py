@@ -179,6 +179,9 @@ async def conditions() -> None:
         print("user sees:", [b["id"] for b in await subscribe(await connect(s, user))])
 
 
+SMOKE_RULE = "Smoke window"
+
+
 async def entry_id(s: aiohttp.ClientSession, tok: str) -> str:
     r = await s.get(
         f"{BASE}/api/config/config_entries/entry?domain=heads_up",
@@ -204,7 +207,7 @@ async def rules() -> None:
         r = await s.post(
             f"{BASE}/api/config/config_entries/subentries/flow/{flow['flow_id']}",
             json={
-                "name": "Smoke window",
+                "name": SMOKE_RULE,
                 "entity_id": "input_boolean.test_window",
                 "message": "{name} is open",
                 "severity": "critical",
@@ -234,6 +237,8 @@ async def rules_verify() -> None:
         eid = await entry_id(s, admin)
         msg_id = await ws.send({"type": "config_entries/subentries/list", "entry_id": eid})
         for sub in (await ws.recv(msg_id))["result"]:
+            if sub["title"] != SMOKE_RULE:
+                continue  # leave rules the maintainer made on the dev instance alone
             msg_id = await ws.send(
                 {
                     "type": "config_entries/subentries/delete",

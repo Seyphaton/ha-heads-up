@@ -1,6 +1,6 @@
 # Release
 
-Release 0.1.0 is prepared: `manifest.json` says `0.1.0` and `CHANGELOG.md` has a `[0.1.0]` section. Nothing is tagged or released (D-020).
+Release 0.1.0 is prepared: `manifest.json` says `0.1.0` and `CHANGELOG.md` has a `[0.1.0]` section that includes the watch rules of Phase 8. Nothing is tagged or released (D-020).
 
 ## Before the first release (maintainer, on github.com)
 1. CI: open the Actions tab of `Seyphaton/ha-heads-up`. Workflows `CI` (jobs `python`, `python-ha-2026-10`, `card`) and `Validate` (jobs `hacs`, `hassfest`) must be green on `main`. They had never run before the first push.
