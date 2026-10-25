@@ -14,3 +14,6 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - `wait_for_condition`: a banner whose condition is false at the time of the call waits for it, or is not stored (`condition_false`).
 - `people`: a banner reaches only the users linked to the listed person entities.
 - Options: maximum banners, eviction on/off, default dismiss scope, default timeout (24 hours).
+- Card `custom:heads-up-card` with options `severity`, `tag`, `max_items`, `sort`, `layout`, `show_all`, `show_empty` and a visual editor. It loads with the integration; no dashboard resource is needed. See [docs/card.md](docs/card.md).
+- Banners with a `tap_action` are tappable in the card, including `confirmation`.
+- The card reconnects after a Home Assistant restart and retries until the integration is loaded.

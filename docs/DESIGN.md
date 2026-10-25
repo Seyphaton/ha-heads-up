@@ -7,8 +7,8 @@ Living design document: requirements and architecture. Decisions are referenced 
 | Part | Status |
 |---|---|
 | §4 data model, §5 lifecycle, §6 backend, §7 actions, §9 targeting | implemented and tested (Phases 2–3) |
-| §8 frontend (card, editor, serving the JS file) | not started (Phase 4) |
-| Human docs | `docs/actions.md` done; README, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` pending (Phases 4–6) |
+| §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phase 4) |
+| Human docs | `docs/actions.md`, `docs/card.md` done; README, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` pending (Phases 5–6) |
 | Packaging, release, CI run | pending (Phase 6; repo not published, D-020) |
 
 ## 1. Goals, non-goals, scope cut
@@ -154,8 +154,8 @@ custom_components/heads_up/
   sensor.py        count sensor
   config_flow.py   single-instance config flow + options flow
   const.py, strings.json, translations/en.json, services.yaml, icons.json, manifest.json
-  frontend.py                Phase 4: static path + add_extra_js_url
-  frontend/heads-up-card.js  Phase 4
+  frontend.py                static path (async_setup) + add_extra_js_url per entry, `?v=<manifest version>`
+  frontend/heads-up-card.js  card, editor, pure functions (`normalizeConfig`, `visibleBanners`, `sortBanners`, `controlsFor`, `retryDelay`, `CONFIG_KEYS`)
 ```
 
 No `Store` subclass yet: storage is version 1 and has no migration. Add one with `_async_migrate_func` on the first breaking storage change (§13).
@@ -236,7 +236,7 @@ External call paths (D-022): REST `POST /api/services/heads_up/create_banner` (w
 
 - One plain-JS ES module `heads-up-card.js`, no build (D-021). Served at `/heads_up/heads-up-card.js` via `async_register_static_paths` (N-9) and registered with `add_extra_js_url(hass, "/heads_up/heads-up-card.js?v=<manifest version>")` (N-8); the version query busts the browser cache on upgrade. No manual resource step. Not loaded in safe mode (N-8).
 - Elements: `heads-up-card` and `heads-up-card-editor` (`getConfigElement`, `config-changed`, N-13); `window.customCards` entry.
-- Data: on `connectedCallback` the card calls `hass.connection.subscribeMessage(cb, {type: "heads_up/subscribe", show_all})`; unsubscribes in `disconnectedCallback`. Reconnect handling relies on home-assistant-js-websocket re-subscribing (unverified, test in Phase 4).
+- Data: on `connectedCallback` the card calls `hass.connection.subscribeMessage(cb, {type: "heads_up/subscribe", show_all}, {resubscribe: false})`; unsubscribes in `disconnectedCallback`. `show_all` is sent only when `hass.user.is_admin`. The card listens to the connection event `ready` and subscribes again itself; a failed subscribe shows a one-line error and is retried after 1, 2, 5, 10 and then every 30 s (D-041, N-39, N-40). Stale callbacks of an older subscription are ignored.
 
 Card config
 
@@ -251,9 +251,9 @@ Card config
 | `show_all` | bool (admins only; ignored for others) | `false` |
 | `show_empty` | bool | `false` (render nothing) |
 
-Rendering: banner = icon, title, message, optional tap target, X button if dismissible, admin clear button for admins on non-dismissible banners. Colors: `--info-color`, `--success-color`, `--warning-color`, `--error-color` for accent and icon; background tinted from the same variable with `color-mix`; text `--primary-text-color`. Critical banners in an `aria-live="assertive"` region, others `polite`. Tap action: dispatch `hass-action` event with `{config: {tap_action}, action: "tap"}` (pattern used by community cards; unverified against frontend source, Phase 4 spike). Sizing: `getCardSize` = number of rendered banners; `getGridOptions` → `{columns: 12, rows: "auto"}` (N-12). Empty slot in sections view: N-14 unverified; fallback is a visibility condition on `sensor.heads_up_active_banners > 0`, which works on 2026.9 (numeric state) but is global, not per user.
+Rendering: banner = icon, severity label, title, message, optional tap target, X button if dismissible, admin clear button for admins on non-dismissible banners. Banner text is written with `textContent` only. `ha-form` builds the editor. Colors: `--info-color`, `--success-color`, `--warning-color`, `--error-color` for accent and icon; background tinted from the same variable with `color-mix`; text `--primary-text-color`. Critical banners in an `aria-live="assertive"` region, others `polite`. Tap action: dispatch `hass-action` (bubbles, composed) with `{config: {tap_action}, action: "tap"}` only for banners that have a `tap_action`; Home Assistant's `handleAction` runs it and handles `confirmation` (N-38). Sizing: `getCardSize` = number of rendered banners (at least 1); `getGridOptions` → `{columns: 12, rows: "auto"}` (N-12). Empty card: `display: none` on the host; no extra gap in a sections view (N-14, D-040). The count sensor stays available for a global visibility condition.
 
-Touch and kiosk use: 48 px touch targets; no hover-only controls; `compact` layout for narrow viewports; Phase 4 test matrix includes a 768×1024 and a 1280×800 kiosk viewport.
+Touch and kiosk use: 48 px touch targets; no hover-only controls; `compact` layout for narrow viewports; the Phase 4 matrix used 768×1024 and 1280×800 viewports.
 
 ## 9. People and targeting
 
@@ -275,12 +275,12 @@ Touch and kiosk use: 48 px touch targets; no hover-only controls; `compact` layo
 | Two parallel `create_banner` with same `id` | serialized in event loop; last call wins; two events |
 | Clock change / DST | all times UTC; DST has no effect. A manual system-clock jump forward expires banners early (HA timer semantics). |
 | Corrupt storage file | Expected: `Store` load raises, entry setup fails with a log error, other integrations unaffected; user removes the file (troubleshooting doc). Not tested yet (Phase 6). |
-| Card on HA without the integration loaded | Phase 4: card shows a one-line error; `heads_up/subscribe` returns error code `not_loaded`. |
+| Card on HA without the integration loaded, or before it has loaded during a start | card shows "Heads Up is not available…" and retries (D-041); HA answers `unknown_command` until `heads_up` is set up. |
 | Huge `tap_action` | limited by WebSocket message size; not validated beyond being a mapping (R-1). |
 
 ## 11. Test strategy
 
-Status: Python tests implemented (73, files listed in `docs/dev/TESTING.md`); card tests and CI matrix pending.
+Status: Python tests implemented (76, files listed in `docs/dev/TESTING.md`); card pure functions tested (21 vitest tests); CI matrix pending (Phase 6).
 
 - Python: `pytest-homeassistant-custom-component` 0.13.367 = HA 2026.9.4 (N-25); CI matrix adds latest 2026.10.x (Phase 6).
 - Lifecycle tests first (Phase 2): upsert, each removal reason, eviction order, limits, response data, events, permission checks for `show_all`/`admin_clear`.
@@ -288,7 +288,7 @@ Status: Python tests implemented (73, files listed in `docs/dev/TESTING.md`); ca
 - Condition tests (Phase 3): flips, `once` vs `recurring`, `wait_for_condition`, unavailable, entity removed, person `user_id` changes.
 - WebSocket tests with the HA test client: per-user filtering, subscription cleanup on close (N-5).
 - Card: vitest on pure functions extracted into the same module (sorting, filtering, visibility of controls) — exported for tests; DOM checked manually.
-- Manual matrix (Phase 4): sections/masonry/panel, light/dark theme, narrow viewport, non-admin user, reconnect after HA restart.
+- Manual matrix (Phase 4, dev HA 2026.9.4, built-in browser): sections, masonry and panel views; light and dark theme; 1280×800 and 768×1024; admin and `dev-user`; dismiss; tap with `confirmation`; reconnect after a container restart; empty card. Not covered: `show_all` rendering with a banner targeted at another person, the editor's visual appearance, keyboard activation of a tappable banner, screen readers.
 - Docs: `docs-check` validates every YAML example against the real action schemas and compares documented fields with schema fields.
 
 ## 12. Packaging, CI, versioning, runbook
@@ -313,16 +313,16 @@ Status: Python tests implemented (73, files listed in `docs/dev/TESTING.md`); ca
 |---|---|---|
 | R-1 | `tap_action` with `perform-action` runs any action when tapped, including on a shared display (D-015). | Caller responsibility; stated in SECURITY.md and `docs/actions.md`; Phase 4 documents HA's `confirmation` option in `docs/card.md`. |
 | R-2 | Installing requires an HA restart, which pauses all automations, including security-related ones. | Install docs state this before the restart step. |
-| R-3 | Empty card leaves a grid gap in sections view (N-14). | Test in Phase 4; fallback visibility condition (global count). |
+| R-3 | Empty card leaves a grid gap in sections view (N-14). | Checked on 2026.9.4: no extra gap with `display: none` (D-040). Re-check on upgrade. |
 | R-4 | `once` banner with an entity that never turns true and no timeout stays waiting forever. | `default_timeout` ships as 24 h (D-031); clearing it shows a warning in the options form; documented in limitations. |
 | R-5 | HA API drift (probatio switch in 2026.9 shows how fast). | Dev image pinned to the minimum supported minor; monthly release-note check; `stale-check-on-upgrade` rows in HA_API_NOTES. |
-| R-6 | `hass-action` event and websocket re-subscribe behaviour unverified. | Phase 4 spikes before card code depends on them. |
+| R-6 | `hass-action` event and websocket re-subscribe behaviour can change in the frontend. | Verified in the 2026.9.4 bundle and live (N-38, N-39, N-40); `stale-check-on-upgrade`. |
 | R-7 | Domain `heads_up` collision (N-22). | Check the HACS default list before the first release. |
 | R-8 | Per-user dismiss on a shared login hides the banner for everyone on it (D-007). | Documented; callers choose `dismiss_scope`. |
 
 ## 15. Verified facts
 
-All in `docs/dev/HA_API_NOTES.md` with source, version, date, status. Still unverified and needed for Phase 4: N-14 (empty card in sections view), the `hass-action` event for tap actions, WebSocket re-subscribe after reconnect. Unverified but not needed: N-17, N-21. N-22 (domain collision) open until release.
+All in `docs/dev/HA_API_NOTES.md` with source, version, date, status. Phase 4 facts N-14, N-38 to N-41 are verified; N-42 (one failed first load after a restart) has no known cause. Unverified but not needed: N-17, N-21. N-22 (domain collision) open until release.
 
 ## 16. Documentation plan
 
@@ -334,6 +334,6 @@ README screenshots (from dev HA): one image with a warning and a critical banner
 
 HA documentation rules covered: `docs-high-level-description` (README intro), `docs-installation-instructions` (README), `docs-removal-instructions` (`uninstall.md`), `docs-actions` (`actions.md`), `docs-configuration-parameters` (`card.md`, options in README), `docs-installation-parameters` (none: config flow has no input; stated), `docs-examples` (`examples.md`), `docs-known-limitations` (`limitations.md`), `docs-troubleshooting` (`troubleshooting.md`), `docs-use-cases` (`examples.md`), `docs-data-update` (README: push via WebSocket, no polling).
 
-`docs-check`: banned-word and placeholder grep over all Markdown (done); YAML examples in user docs validated against action schemas (done); field parity schema == `services.yaml` == `docs/actions.md` (done); card config keys vs. `docs/card.md` (Phase 4).
+`docs-check`: banned-word and placeholder grep over all Markdown (done); YAML examples in user docs validated against action schemas (done); field parity schema == `services.yaml` == `docs/actions.md` (done); card config keys (`CONFIG_KEYS` in the card module) vs. the options table in `docs/card.md`, and card YAML examples use only those keys (done).
 
 Adopted style elements: D-002.

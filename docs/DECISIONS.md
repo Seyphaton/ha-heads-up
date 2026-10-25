@@ -174,7 +174,27 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Date: 2026-10-25.
 - Decision: `heads_up/subscribe` payloads omit `people`, `condition`, `mode`, `dismissed_by` and internal condition state. Each item carries `active` and `dismissed` for the viewer.
 
+## D-040 Empty card hides its host element
+- Date: 2026-10-25.
+- Decision: with `show_empty: false` the card sets `display: none` on its host element. It does not add a visibility condition or ask users to add one to their dashboard.
+- Alternatives: render an empty `ha-card`; recommend a visibility condition on `sensor.heads_up_active_banners` (global count, not per user).
+- Reason: N-14 spike shows no extra gap in a sections view, and the card knows the per-user list.
+
+## D-041 The card manages its own re-subscribe
+- Date: 2026-10-25.
+- Decision: the card calls `subscribeMessage` with `resubscribe: false`, listens for the connection event `ready` and subscribes again, and retries a failed subscribe after 1, 2, 5, 10 and then every 30 seconds. While it fails it shows a one-line error.
+- Alternatives: rely on the library's re-subscribe (fails when HA accepts clients before `heads_up/subscribe` exists, N-40); register the WebSocket commands earlier (cannot be earlier than integration setup).
+- Reason: observed failure on the dev HA after a container restart.
+
+## D-042 Card serving and tooling
+- Date: 2026-10-25.
+- Decision: `async_register_static_paths` runs once in `async_setup`; `add_extra_js_url` with `?v=<manifest version>` runs per entry and is removed on unload (N-41). Card tests use vitest 3.2.4 from a dev-only root `package.json`; `make test-card` and a CI job run them. `make check` includes `make test-card`. The card passes `{tap_action}` to Home Assistant's `hass-action` event and dispatches only for banners that have one (N-38).
+- Alternatives: register the path per entry (duplicate registration on reload); a vendored test runner.
+- Consequences: Node 22 is needed for card tests, not for running the card.
+
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
 - 2026-10-25: Phase 1 complete; Phase 2 approved.
 - 2026-10-25: Phase 2 complete; Phase 3 approved.
+- 2026-10-25: Phase 3 complete; Phase 4 approved.
+- 2026-10-25: Phase 4 delivered (card, serving, tests, docs); Phase 5 not approved.

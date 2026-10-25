@@ -14,4 +14,6 @@ Open a private security advisory on the GitHub repository.
 
 ## Tap actions
 
-`tap_action` runs the Home Assistant action you configure when someone taps the banner. Any user who can see the banner can trigger it, including on a shared or wall-mounted screen. Heads Up does not restrict which actions you configure.
+`tap_action` runs the Home Assistant action you configure when someone taps the banner. Any user who can see the banner can trigger it, including on a shared or wall-mounted screen. Heads Up does not restrict which actions you configure. Add a `confirmation` to the tap action to show a dialog before it runs; Home Assistant handles the dialog, and its `exemptions` list can skip it for chosen users.
+
+The card writes banner text into the page as plain text, never as HTML.

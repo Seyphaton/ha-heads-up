@@ -3,34 +3,28 @@
 Updated 2026-10-25. Read this first in a new session, then `docs/DESIGN.md` §0 and §8. Start each phase session with the prompt in `docs/dev/PHASE_PROMPT.md`; its documentation checklist is the definition of done.
 
 ## Where we are
-- Phases 0–3 complete (gate log: end of `docs/DECISIONS.md`).
-- Phase 4 (card) is **not approved yet**. Ask the maintainer for explicit approval before writing card code.
-- Nothing pushed or published (D-020). No git remote configured. Working tree clean at handoff.
+- Phases 0–4 delivered (gate log: end of `docs/DECISIONS.md`). Phase 4 (card) is waiting for the maintainer's review.
+- Phase 5 (external call paths + examples) is **not approved yet**. Ask the maintainer for explicit approval before starting it.
+- Nothing pushed or published (D-020). No git remote configured.
+- Phase 4 is committed on `main` in three commits (card and serving; card tests, tooling and `docs/card.md`; notes and docs). Not pushed.
 
 ## Verified state
-- 73 pytest tests green; ruff, mypy strict, hassfest (0 invalid), docs-check (7 examples) clean.
-- `make dev-smoke` passes on the dev HA 2026.9.4: actions over REST with response data, sensor, per-user dismiss, admin-only clear, persistence across container restart, condition on `input_boolean.test_window` with `people: [person.dev_user]`.
-- Not verified on the real instance: condition re-evaluation across a container restart (unit tests `test_condition_survives_restart_and_is_reevaluated`, `test_restart_with_entity_not_yet_loaded_keeps_state` cover it).
+- 76 pytest tests, 21 vitest tests, ruff, mypy strict and docs-check (7 examples, card option parity) are green via `make check`.
+- `make hassfest` (0 invalid integrations) and `make dev-smoke` (restarts the container) pass with the Phase 4 changes.
+- On the dev HA 2026.9.4 (built-in browser, dashboard `hu-test` with sections, masonry and panel views): banners render with icon + label; dismiss; admin clear button only for admins on non-dismissible banners; tap with `navigate` and `confirmation`; empty card leaves no gap; light and dark; 1280×800 and 768×1024; `dev-user` sees no clear button; after `docker restart` the open page shows persisted and new banners without a reload (N-40, D-041).
+- Not verified: `show_all` with a banner for another person; the editor's visual appearance (only its form data and `config-changed` were checked); keyboard activation; screen readers; N-42 (one "Custom element doesn't exist" after a restart, not reproduced).
 
 ## Before starting work
-1. `make setup` (uv, Python 3.14).
+1. `make setup` (uv, Python 3.14). Node 22 for `make test-card`.
 2. Docker Desktop must run. If `docker` is not found: `export PATH="$HOME/.docker/bin:$PATH"`.
-3. `make dev-up`. Dev HA state lives in `dev/ha-config/` (gitignored), credentials in `dev/dev-credentials.env`. After `make dev-reset`, run `make dev-onboard`.
+3. `make dev-up`. Dev HA state lives in `dev/ha-config/` (gitignored), credentials in `dev/dev-credentials.env`. The dev HA currently holds a `hu-test` dashboard and a few banners from the Phase 4 checks; `make dev-reset` + `make dev-onboard` gives a clean instance.
 4. `make check` green before and after each change.
 
-## Phase 4 plan (card), once approved
-Spikes first, against the dev HA; record results in `docs/dev/HA_API_NOTES.md`:
-1. N-14: does a card that renders nothing leave a gap in sections view on 2026.9.4? Decide `show_empty` behaviour and whether docs recommend a visibility condition on `sensor.heads_up_active_banners`.
-2. Tap action: check the `hass-action` event (`{config: {tap_action}, action: "tap"}`, bubbles + composed) and `confirmation` handling in the 2026.9 frontend source (`home-assistant-frontend==20260826.7` is in `.venv`).
-3. Reconnect: does `hass.connection.subscribeMessage` re-subscribe after an HA restart? Restart the container with the card open.
-
-Then build, per DESIGN §8 and `.claude/rules/frontend-card.md`:
-- `custom_components/heads_up/frontend.py`: `async_register_static_paths` + `add_extra_js_url` with `?v=<manifest version>` (N-8, N-9), from `async_setup_entry`, removed on unload.
-- `custom_components/heads_up/frontend/heads-up-card.js`: `heads-up-card` + `heads-up-card-editor`, `window.customCards`, config keys of DESIGN §8; sort/filter as exported pure functions.
-- vitest for those functions (dev-only `package.json`, no runtime npm deps), `make test-card`, CI step.
-- `docs/card.md` (config reference) and card-key parity in `docs-check`.
-- Manual matrix: sections/masonry/panel, light/dark, 768×1024 and 1280×800, admin vs `dev-user`, `show_all`, reconnect.
-- Confirm SECURITY.md "Tap actions" matches what the card does.
+## Phase 5 plan (external call paths + examples), once approved
+- Read `docs/DESIGN.md` §7 (external call paths) and D-022.
+- Verify on the dev HA: REST `POST /api/services/heads_up/create_banner?return_response` (already used by `dev/smoke.py`), WebSocket `call_service`, and one automation and one script calling the actions; blueprint examples only if the maintainer wants them.
+- `docs/examples.md` with YAML validated by `make docs-check`; README quick start; the tap-action and `confirmation` example from `docs/card.md`.
+- Ask the maintainer which example set is wanted before writing (door/window, water leak, per-person, REST).
 
 ## Open items
 `docs/OPEN_QUESTIONS.md`.
