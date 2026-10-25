@@ -7,7 +7,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | Part | Status |
 |---|---|
 | §4 data model, §5 lifecycle, §6 backend, §7 actions, §9 targeting | implemented and tested (Phases 2–3) |
-| §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phase 4) |
+| §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
 | Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
 
@@ -55,7 +55,7 @@ Non-functional
 | Latency | A banner created by an action appears in an open card within one WebSocket round trip (no polling). |
 | Load | At most 50 banners by default (option, max 200), one state listener covering all condition and person entities, one timer per banner with a timeout. |
 | Concurrency | Actions run in the event loop and mutate state synchronously (no `await` between read and write), so parallel callers cannot interleave a single upsert. |
-| Accessibility | Severity shown by icon and text label, not color only; `aria-live` region; dismiss button 48×48 px with translated `aria-label`; keyboard reachable. |
+| Accessibility | Severity shown by icon shape and color; the text label is optional (`show_severity`, D-048) and always present for screen readers; not color only; `aria-live` region; dismiss button 48×48 px with translated `aria-label`; keyboard reachable. |
 | i18n | All UI strings in English (D-037), kept in HA translation files (`strings.json`, `translations/en.json`) and one card string table, so languages can be added without code changes. Banner text is caller-supplied and not translated. |
 | Security | Non-admin users can create, clear and dismiss (D-029). `show_all` and admin clear are rejected server-side for non-admins. |
 | Compatibility | HA ≥ 2026.9.0 (D-019). Tested versions are stated only after tests ran. |
@@ -187,6 +187,7 @@ WebSocket API (N-4, N-5)
 |---|---|---|---|
 | `heads_up/subscribe` | user; `show_all: true` requires admin (`unauthorized`) | `show_all?` | result, then events `{banners: [...]}` (full visible list per change; each item has `dismissed` for the viewer; `dismissed_by` is never sent; `icon` resolved to the severity default) |
 | `heads_up/dismiss` | user | `banner_id` | `{}` or error `not_found` / `not_dismissible` |
+| `heads_up/dismiss_many` | user | `banner_ids` (list) | `{dismissed, skipped}`; unknown and non-dismissible IDs count as skipped; one subscriber update for the batch (D-048) |
 | `heads_up/admin_clear` | admin (`require_admin`) | `banner_id` | `{}` or `not_found` / `unauthorized` |
 
 Banner IDs travel as `banner_id` because `id` is the WebSocket message ID.
@@ -250,10 +251,20 @@ Card config
 | `layout` | `comfortable` \| `compact` | `comfortable` |
 | `show_all` | bool (admins only; ignored for others) | `false` |
 | `show_empty` | bool | `false` (render nothing) |
+| `title` | string | none (header above the banners) |
+| `collapsed_items` | int ≥ 1 | off (D-048) |
+| `show_time` | bool | `false` (relative time from `updated_at`, refreshed every 30 s) |
+| `show_severity` | bool | `false` (hides the text label only) |
+| `colorize` | `all` \| `background` \| `icon` \| `bar` | `all` |
+| `colors` | map severity → CSS color or `var(--x)` | theme variables; invalid values fall back |
+| `clear_all` | bool | `false` ("Clear all" button, `heads_up/dismiss_many` with the shown dismissible IDs) |
+| `swipe_to_dismiss` | bool | `false` (pointer events, `touch-action: pan-y`, 80 px or 30% of width) |
+| `empty_message` | string | none (icon + text when no banner; shows the card) |
+| `empty_icon` | icon | `mdi:bell-check-outline` |
 
-Rendering: banner = icon, severity label, title, message, optional tap target, X button if dismissible, admin clear button for admins on non-dismissible banners. Banner text is written with `textContent` only. `ha-form` builds the editor. Colors: `--info-color`, `--success-color`, `--warning-color`, `--error-color` for accent and icon; background tinted from the same variable with `color-mix`; text `--primary-text-color`. Critical banners in an `aria-live="assertive"` region, others `polite`. Tap action: dispatch `hass-action` (bubbles, composed) with `{config: {tap_action}, action: "tap"}` only for banners that have a `tap_action`; Home Assistant's `handleAction` runs it and handles `confirmation` (N-38). Sizing: `getCardSize` = number of rendered banners (at least 1); `getGridOptions` → `{columns: 12, rows: "auto"}` (N-12). Empty card: `display: none` on the host; no extra gap in a sections view (N-14, D-040). The count sensor stays available for a global visibility condition.
+Rendering: banner = icon, severity label, title, message, optional tap target, X button if dismissible, admin clear button for admins on non-dismissible banners. Banner text is written with `textContent` only. `ha-form` builds the editor. Colors: per severity `colors[severity]` or the theme variable (`--info-color`, `--success-color`, `--warning-color`, `--error-color`) as `--accent`; `colorize` decides whether background (tinted with `color-mix`), icon and label, and left bar use it; uncolored parts use `--secondary-background-color`, `--primary-text-color` and `--secondary-text-color`. The `compact` layout is one truncated line with the full text in the `title` attribute. The severity label is always in the DOM (visually hidden unless `show_severity`). Critical banners in an `aria-live="assertive"` region, others `polite`. Tap action: dispatch `hass-action` (bubbles, composed) with `{config: {tap_action}, action: "tap"}` only for banners that have a `tap_action`; Home Assistant's `handleAction` runs it and handles `confirmation` (N-38). Sizing: `getCardSize` = number of rendered banners (at least 1); `getGridOptions` → `{columns: 12, rows: "auto"}` (N-12). Empty card: `display: none` on the host; no extra gap in a sections view (N-14, D-040). The count sensor stays available for a global visibility condition.
 
-Touch and kiosk use: 48 px touch targets; no hover-only controls; `compact` layout for narrow viewports; the Phase 4 matrix used 768×1024 and 1280×800 viewports.
+Touch and kiosk use: 48 px touch targets (the compact row is 40 px, the button keeps 48 px with a negative margin); no hover-only controls; the Phase 4 matrix used 768×1024 and 1280×800 viewports. A dismissal belongs to the user, so a banner dismissed in one card disappears from all of that user's cards.
 
 ## 9. People and targeting
 
@@ -282,7 +293,7 @@ Touch and kiosk use: 48 px touch targets; no hover-only controls; `compact` layo
 
 ## 11. Test strategy
 
-Status: Python tests implemented (80, files listed in `docs/dev/TESTING.md`); card pure functions tested (21 vitest tests); CI matrix job for 2026.10.4 written and run locally (80 tests pass), CI itself not run.
+Status: Python tests implemented (85, files listed in `docs/dev/TESTING.md`); card pure functions tested (62 vitest tests); CI matrix job for 2026.10.4 written and run locally (80 tests pass), CI itself not run.
 
 - Python: `pytest-homeassistant-custom-component` 0.13.367 = HA 2026.9.4 (N-25); CI runs the same tests on 2026.10.4 (N-46).
 - Lifecycle tests first (Phase 2): upsert, each removal reason, eviction order, limits, response data, events, permission checks for `show_all`/`admin_clear`.
@@ -290,7 +301,7 @@ Status: Python tests implemented (80, files listed in `docs/dev/TESTING.md`); ca
 - Condition tests (Phase 3): flips, `once` vs `recurring`, `wait_for_condition`, unavailable, entity removed, person `user_id` changes.
 - WebSocket tests with the HA test client: per-user filtering, subscription cleanup on close (N-5).
 - Card: vitest on pure functions extracted into the same module (sorting, filtering, visibility of controls) — exported for tests; DOM checked manually.
-- Manual matrix (Phase 4, dev HA 2026.9.4, built-in browser): sections, masonry and panel views; light and dark theme; 1280×800 and 768×1024; admin and `dev-user`; dismiss; tap with `confirmation`; reconnect after a container restart; empty card. Not covered: `show_all` rendering with a banner targeted at another person, the editor's visual appearance, keyboard activation of a tappable banner, screen readers.
+- Manual matrix (Phase 4, dev HA 2026.9.4, built-in browser): sections, masonry and panel views; light and dark theme; 1280×800 and 768×1024; admin and `dev-user`; dismiss; tap with `confirmation`; reconnect after a container restart; empty card. Phase 7 (same setup, one dashboard view with six differently configured cards, admin): default, compact with time and label, title with clear all and collapse, background-only with custom colors, icon-only, empty message; show more; swipe (mouse drag) and cancel on a short drag, no tap action fired; clear all; time text moving from "just now" to "1 min ago"; editor fields, nested colors and minimal saved config. Not covered: `show_all` rendering with a banner targeted at another person, keyboard activation of a tappable banner, screen readers, swipe on a touch screen.
 - Docs: `docs-check` validates every YAML example against the real action schemas and compares documented fields with schema fields.
 
 ## 12. Packaging, CI, versioning, runbook
@@ -322,6 +333,7 @@ Status: Python tests implemented (80, files listed in `docs/dev/TESTING.md`); ca
 | R-7 | Domain `heads_up` collision (N-22). | Check the HACS default list before the first release. |
 | R-8 | Per-user dismiss on a shared login hides the banner for everyone on it (D-007). | Documented; callers choose `dismiss_scope`. |
 | R-9 | A page loaded in the first second after an HA start misses the card (N-42). | Cannot be fixed inside an integration (D-045); documented in limitations and troubleshooting. |
+| R-10 | Swipe to dismiss was tried with a mouse only; on touch screens it may conflict with scrolling or with HA's own swipe gestures. | Off by default (D-048); `touch-action: pan-y`; test on a real touch device before relying on it. |
 
 ## 15. Verified facts
 

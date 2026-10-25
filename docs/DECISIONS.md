@@ -221,6 +221,32 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: `created_at`; default `true`.
 - Consequences: the five card follow-ups in `docs/OPEN_QUESTIONS.md` wait for a phase approval. Implementing `show_severity: false` by default requires changing the wording in DESIGN §3 and `.claude/rules/frontend-card.md`.
 
+## D-048 Card design phase: options and behaviour
+- Date: 2026-10-25.
+- Decision (maintainer's answers):
+  - `layout: compact` is one line per banner: icon, time, title and message on one truncated line, full text as tooltip (`title` attribute). No tap-to-expand, so a tap keeps meaning `tap_action`.
+  - Card option `title`: a header inside the card above the banners; shown with the card only.
+  - `show_time` (default `false`): relative time from `updated_at` (D-047), refreshed every 30 s.
+  - `show_severity` (default `false`, D-047): hides the text label only. A visually hidden label stays for screen readers.
+  - `colors`: map from severity to a CSS color or theme variable; defaults stay the theme variables. `colorize` (dropdown): `all` (background, icon, left bar; today's look, default), `background`, `icon`, `bar`.
+  - `clear_all` (default `false`): a "Clear all" button that dismisses, for the viewer, every dismissible banner the card matches (filters applied, including banners behind "Show more"). New WebSocket command `heads_up/dismiss_many`. Global-scope banners are removed for everyone, as with the X button. No confirmation.
+  - `swipe_to_dismiss` (default `false`): swipe either way dismisses a dismissible banner, no confirmation. Kept only if the browser spike shows no conflict with vertical scrolling and `tap_action`.
+  - `collapsed_items` (default off): show N banners and a "Show N more" / "Show less" button. `max_items` stays the hard cap on the whole list.
+  - `empty_message` and `empty_icon` (default `mdi:bell-check-outline`): when no banner matches and `empty_message` is set, the card shows the icon and the text centered. Without a message, `show_empty` keeps its meaning (D-040).
+- Alternatives: see the answers listed in `docs/OPEN_QUESTIONS.md` before this decision.
+- Consequences: the "severity is never color only" rule now means icon shape plus a screen-reader label; the visible label is optional. DESIGN §3, §8 and `.claude/rules/frontend-card.md` change with the code.
+
+## D-049 Card design details not covered by the answers
+- Date: 2026-10-25.
+- Decision:
+  - `show_time` text: under 1 minute "just now"; then "N min ago" up to 59; "N h ago" up to 23; "1 day ago"; "N days ago". Refreshed every 30 s by a timer that runs while the card is on the page. A time in the future or an unreadable time reads "just now".
+  - Parts that `colorize` leaves uncolored use theme variables: background `--secondary-background-color`, icon `--primary-text-color`, label `--secondary-text-color`, no left bar color.
+  - `colors` values must be non-empty strings without `;`, `{` or `}`, because they go into a CSS custom property. The card also checks them with `CSS.supports("color", value)` and falls back to the theme variable.
+  - Swipe: only when `swipe_to_dismiss` is on and the banner is dismissible; starts after 10 px of horizontal movement; a mostly vertical gesture is left to the browser; dismiss at 80 px or 30% of the banner width, whichever is larger; a swipe suppresses the click that follows it, so the tap action does not run.
+  - `heads_up/dismiss_many` skips unknown and non-dismissible IDs and reports `{dismissed, skipped}`; it needs no admin rights.
+  - The card editor shows defaults for unset dropdowns and writes only non-default values.
+- Reason: smallest behaviour that satisfies D-048 and keeps the saved YAML minimal.
+
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
 - 2026-10-25: Phase 1 complete; Phase 2 approved.
@@ -230,3 +256,5 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - 2026-10-25: Phase 4 reviewed; Phase 5 approved (examples set in D-043).
 - 2026-10-25: Phase 5 delivered (`docs/examples.md`, call paths verified); Phase 6 not approved.
 - 2026-10-25: Phase 5 reviewed; Phase 6 approved (choices in D-044 to D-046).
+- 2026-10-25: Phase 6 delivered and committed; Phase 7 (card design, D-048) approved.
+- 2026-10-25: Phase 7 delivered (card design options, `heads_up/dismiss_many`); not committed at the time of writing; no further phase approved.

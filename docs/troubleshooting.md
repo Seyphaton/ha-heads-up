@@ -30,8 +30,12 @@ Check, in this order:
 2. `sensor.heads_up_active_banners`. Its state counts banners that are stored and not waiting.
 3. People. With `people`, only users linked to those person entities see the banner. A user sees only banners without `people` when no person is linked to them. The link is the person's `user_id` attribute in Developer tools > States.
 4. Dismissal. With `dismiss_scope: user` you do not see a banner you closed. Calling `create_banner` again with the same `id` shows it again.
-5. Card filters `severity`, `tag` and `max_items` in the card configuration.
+5. Card filters `severity`, `tag` and `max_items` in the card configuration. With `collapsed_items`, the rest sits behind "Show N more".
 6. Timeout. The banner may have expired; the event `heads_up_banner_expired` shows it.
+
+## The "Clear all" button is missing
+
+The button appears only when the card shows at least one banner that can be dismissed, and only with `clear_all: true`. Banners with `dismissible: false` are not counted.
 
 ## A banner cannot be closed
 

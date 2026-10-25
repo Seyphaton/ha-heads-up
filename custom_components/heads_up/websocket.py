@@ -64,6 +64,20 @@ def ws_dismiss(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str,
     connection.send_result(msg["id"])
 
 
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/dismiss_many",
+        vol.Required("banner_ids"): [str],
+    }
+)
+@callback
+def ws_dismiss_many(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    dismissed, skipped = manager.dismiss_many(msg["banner_ids"], connection.user.id)
+    connection.send_result(msg["id"], {"dismissed": dismissed, "skipped": skipped})
+
+
 @websocket_command({vol.Required("type"): "heads_up/admin_clear", vol.Required("banner_id"): str})
 @require_admin
 @callback
@@ -80,5 +94,5 @@ def ws_admin_clear(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
 
 @callback
 def async_setup_websocket(hass: HomeAssistant) -> None:
-    for command in (ws_subscribe, ws_dismiss, ws_admin_clear):
+    for command in (ws_subscribe, ws_dismiss, ws_dismiss_many, ws_admin_clear):
         async_register_command(hass, command)

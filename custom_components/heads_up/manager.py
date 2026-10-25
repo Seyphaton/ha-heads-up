@@ -193,6 +193,27 @@ class BannerManager:
 
     @callback
     def dismiss(self, banner_id: str, user_id: str) -> None:
+        self._dismiss_one(banner_id, user_id)
+        self._changed()
+
+    @callback
+    def dismiss_many(self, banner_ids: list[str], user_id: str) -> tuple[int, int]:
+        """Dismiss for one user; unknown and non-dismissible banners are skipped (D-048).
+
+        Subscribers get one update for the whole batch.
+        """
+        dismissed = 0
+        for banner_id in dict.fromkeys(banner_ids):
+            try:
+                self._dismiss_one(banner_id, user_id)
+            except HeadsUpError:
+                continue
+            dismissed += 1
+        if dismissed:
+            self._changed()
+        return dismissed, len(dict.fromkeys(banner_ids)) - dismissed
+
+    def _dismiss_one(self, banner_id: str, user_id: str) -> None:
         banner = self._get(banner_id)
         if not banner.dismissible:
             raise HeadsUpError("not_dismissible", f"Banner {banner_id} is not dismissible")
@@ -201,7 +222,6 @@ class BannerManager:
         elif user_id not in banner.dismissed_by:
             banner.dismissed_by.append(user_id)
             self._fire(EVENT_DISMISSED, banner, scope="user", user_id=user_id)
-        self._changed()
 
     @callback
     def admin_clear(self, banner_id: str) -> None:

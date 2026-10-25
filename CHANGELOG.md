@@ -17,9 +17,14 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - Card `custom:heads-up-card` with options `severity`, `tag`, `max_items`, `sort`, `layout`, `show_all`, `show_empty` and a visual editor. It loads with the integration; no dashboard resource is needed. See [docs/card.md](docs/card.md).
 - Banners with a `tap_action` are tappable in the card, including `confirmation`.
 - Examples for an open window, a critical alert for one person, a tap action with confirmation, and REST and WebSocket calls: [docs/examples.md](docs/examples.md).
+- Card options `title`, `show_time`, `collapsed_items` ("Show N more"), `clear_all`, `swipe_to_dismiss`, `colors`, `colorize`, `empty_message` and `empty_icon`. The `compact` layout now shows each banner on one line.
+- WebSocket command `heads_up/dismiss_many`, used by the "Clear all" button.
 - Brand icon for the integration.
 - Pages: [troubleshooting](docs/troubleshooting.md), [limitations](docs/limitations.md), [upgrading](docs/upgrading.md), [uninstalling](docs/uninstall.md).
 - The card reconnects after a Home Assistant restart and retries until the integration is loaded.
+
+### Changed
+- The card no longer shows the severity text label by default. The icon and color still show the severity, and screen readers still get the label. Set `show_severity: true` to show it.
 
 ### Fixed
 - A banner that cannot be read from storage is skipped with an error in the log; the other banners and the integration still load.
