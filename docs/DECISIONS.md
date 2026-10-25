@@ -192,9 +192,17 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: register the path per entry (duplicate registration on reload); a vendored test runner.
 - Consequences: Node 22 is needed for card tests, not for running the card.
 
+## D-043 Phase 5 examples and scope
+- Date: 2026-10-25.
+- Decision: `docs/examples.md` covers four examples: an open window with a condition (automation), a critical alert for one person (script), a tap action with confirmation, and REST and WebSocket calls for external systems. No blueprint ships in this phase. Every YAML example is validated by `make docs-check` and was run on the dev HA.
+- Alternatives: one blueprint (entity state to banner); no REST/WebSocket page.
+- Reason: actions are the only contract (D-022); plain YAML is enough and a blueprint adds a second surface to keep stable.
+
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
 - 2026-10-25: Phase 1 complete; Phase 2 approved.
 - 2026-10-25: Phase 2 complete; Phase 3 approved.
 - 2026-10-25: Phase 3 complete; Phase 4 approved.
 - 2026-10-25: Phase 4 delivered (card, serving, tests, docs); Phase 5 not approved.
+- 2026-10-25: Phase 4 reviewed; Phase 5 approved (examples set in D-043).
+- 2026-10-25: Phase 5 delivered (`docs/examples.md`, call paths verified); Phase 6 not approved.

@@ -32,6 +32,8 @@ docs-check:     ## banned words, placeholders, example validation, field parity
 check: lint typecheck test docs-check test-card
 
 dev-up:         ## start local throwaway HA on http://127.0.0.1:8124
+	@test -f dev/ha-config/automations.yaml || echo '[]' > dev/ha-config/automations.yaml
+	@test -f dev/ha-config/scripts.yaml || echo '{}' > dev/ha-config/scripts.yaml
 	$(COMPOSE) up -d
 
 dev-onboard:    ## first start only: onboarding, dev-admin + dev-user with persons, Heads Up entry

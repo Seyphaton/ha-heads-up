@@ -6,6 +6,11 @@ homeassistant:
 
 default_config:
 
+# Automations and scripts for trying the documented examples. The files are gitignored;
+# `make dev-up` creates them empty when missing.
+automation: !include automations.yaml
+script: !include scripts.yaml
+
 logger:
   default: info
   logs:

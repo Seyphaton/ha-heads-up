@@ -16,4 +16,5 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - Options: maximum banners, eviction on/off, default dismiss scope, default timeout (24 hours).
 - Card `custom:heads-up-card` with options `severity`, `tag`, `max_items`, `sort`, `layout`, `show_all`, `show_empty` and a visual editor. It loads with the integration; no dashboard resource is needed. See [docs/card.md](docs/card.md).
 - Banners with a `tap_action` are tappable in the card, including `confirmation`.
+- Examples for an open window, a critical alert for one person, a tap action with confirmation, and REST and WebSocket calls: [docs/examples.md](docs/examples.md).
 - The card reconnects after a Home Assistant restart and retries until the integration is loaded.

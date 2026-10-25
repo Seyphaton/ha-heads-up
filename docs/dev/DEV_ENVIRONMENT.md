@@ -16,6 +16,7 @@
 - Config: `dev/ha-config/configuration.yaml` (committed). Runtime state (`.storage`, DB, logs) is gitignored.
 - The integration is mounted read-only from `custom_components/heads_up`. After a Python change: `docker restart heads-up-dev`. The card file is read from disk on each request; reload the dashboard after editing `heads-up-card.js`.
 - To try the card by hand, create a dashboard with `type: custom:heads-up-card` (admin WebSocket `lovelace/dashboards/create`, then `lovelace/config/save`) and create banners with `heads_up.create_banner`. For the browser pane, log in as a dev user and set `hassTokens` in localStorage instead of typing the password.
+- `automation:` and `script:` load `dev/ha-config/automations.yaml` and `scripts.yaml` (gitignored; `make dev-up` creates them empty). Use them to run the examples from `docs/examples.md`.
 - Test entities: `input_boolean.test_window`, `input_boolean.test_leak`, `input_select.test_mode`.
 - First start: `make dev-onboard` runs onboarding via the HA API, creates `dev-admin` (admin) and `dev-user` (non-admin), links a person to each, and adds the Heads Up entry through its config flow. Generated passwords go to `dev/dev-credentials.env` (gitignored).
 - `make dev-reset` deletes runtime state; run `make dev-onboard` again after the next start.

@@ -8,8 +8,8 @@ Living design document: requirements and architecture. Decisions are referenced 
 |---|---|
 | §4 data model, §5 lifecycle, §6 backend, §7 actions, §9 targeting | implemented and tested (Phases 2–3) |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phase 4) |
-| Human docs | `docs/actions.md`, `docs/card.md` done; README, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` pending (Phases 5–6) |
-| Packaging, release, CI run | pending (Phase 6; repo not published, D-020) |
+| Human docs | `docs/actions.md`, `docs/card.md`, `docs/examples.md` done; README quick start, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` pending (Phase 6) |
+| Packaging, release, CI run | pending (Phase 6; repo not published, D-020). Still missing: `brand/icon.png`, README quick start and screenshots, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md`, CI matrix with 2026.10 |
 
 ## 1. Goals, non-goals, scope cut
 
@@ -230,7 +230,7 @@ Examples (illustration only; the validated user examples are in `docs/actions.md
 - action: heads_up.clear_banner
   data: {tag: laundry}
 ```
-External call paths (D-022): REST `POST /api/services/heads_up/create_banner` (with `?return_response` for response data) and WebSocket `call_service` work through HA core; no own endpoints.
+External call paths (D-022, D-043): REST `POST /api/services/heads_up/create_banner` (with `?return_response` for response data: `{"changed_states": [], "service_response": {...}}`; without it `[]`) and WebSocket `call_service` with `return_response: true` (data under `result.response`) work through HA core; no own endpoints. An invalid field gives REST `400: Bad Request` and WebSocket `success: false`, `error.code: invalid_format` (N-43). Both verified on the dev HA; examples in `docs/examples.md` ran there (N-44).
 
 ## 8. Frontend architecture
 
