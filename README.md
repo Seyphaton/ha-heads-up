@@ -7,7 +7,7 @@ Heads Up shows banners inside a Home Assistant dashboard. Automations, scripts a
 
 Banners stay until someone closes them, a condition on an entity stops matching, a timeout passes, or an action clears them. They survive a Home Assistant restart.
 
-Status: version 0.1.0, the first release. It was tested on a local development instance of Home Assistant only. Make a backup before you install it.
+Status: version 0.2.1. It was tested on a local development instance of Home Assistant only. Make a backup before you install it.
 
 ## Requirements
 

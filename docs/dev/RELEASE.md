@@ -28,7 +28,7 @@ Release 0.1.0 is prepared: `manifest.json` says `0.1.0` and `CHANGELOG.md` has a
 Custom-repository installs work without this. For the default list (N-54): the repository is public, the HACS Action and hassfest pass without ignores, a full GitHub release exists. Then fork `hacs/default`, create a branch from `master`, add `Seyphaton/ha-heads-up` to the file `integration` in alphabetical order, and open a pull request from a personal account with the template filled in.
 
 ## Later releases
-1. Update `version` in `custom_components/heads_up/manifest.json` (SemVer) and `CHANGELOG.md` (Keep a Changelog, from real commits).
+1. Update `version` in `custom_components/heads_up/manifest.json` (SemVer) and `CHANGELOG.md` (Keep a Changelog, from real commits), and commit and push that before tagging. The tag must point at a commit whose manifest has the same version (0.2.0 was tagged without it, so 0.2.1 exists).
 2. `make check`, `make hassfest` and `make dev-smoke` green; CI green.
 3. Commit, tag `vX.Y.Z`, push the tag, create the GitHub release.
 4. The card URL carries `?v=<manifest version>-<file hash>`, so browsers fetch the new card after the HA restart, even if the version was not bumped (D-050).

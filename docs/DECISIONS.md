@@ -318,6 +318,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: `not_equals` matches unavailable devices.
 - Reason: "is not on" must not fire because a device dropped off the network.
 
+## D-062 Release 0.2.1 instead of moving the v0.2.0 tag
+- Date: 2026-10-25.
+- Decision: `v0.2.0` was published from `c3ed219` with `manifest.json` still at `0.1.0` and no `[0.2.0]` changelog section. The tag stays; `0.2.1` carries the manifest and changelog fix. RELEASE.md now says to commit and push the version bump before tagging.
+- Alternatives: move the published tag and republish.
+- Reason: a published tag is not rewritten.
+
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
 - 2026-10-25: Phase 1 complete; Phase 2 approved.
@@ -334,3 +340,4 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - 2026-10-25: Phase 8 approved; delivered (watch rules, D-059); not committed at the time of writing.
 - 2026-10-25: Phase 9 (condition operators, D-060, D-061) requested and approved by the maintainer.
 - 2026-10-25: Phase 9 delivered (condition operators); `make check` and `make hassfest` green; not committed at the time of writing.
+- 2026-10-25: `v0.2.0` published by the maintainer; `0.2.1` prepared (D-062).

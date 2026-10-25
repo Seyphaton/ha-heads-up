@@ -4,8 +4,19 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-25
+
+### Fixed
+- Home Assistant showed version 0.1.0 for the 0.2.0 release because `manifest.json` was not updated. It now matches the release. No other change from 0.2.0.
+
+## [0.2.0] - 2026-10-25
+
 ### Added
 - `condition.operator` for `create_banner` and watch rules: `equals` (default), `not_equals`, `above`, `below`, `between`, `contains`, `not_contains`. Banners and rules without an operator behave as before. See [actions](docs/actions.md#conditions) and [rules](docs/rules.md).
+- README section with watch rule examples and a screenshot of the rule form.
+
+### Fixed
+- The "Add watch rule" form no longer shows a translation error in its description.
 
 ## [0.1.0] - 2026-10-25
 
