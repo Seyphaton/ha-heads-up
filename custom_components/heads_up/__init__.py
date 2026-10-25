@@ -9,6 +9,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN
+from .frontend import async_add_card, async_register_card_path, async_remove_card
 from .manager import BannerManager, banner_store
 from .services import async_setup_services
 from .websocket import async_setup_websocket
@@ -22,6 +23,7 @@ type HeadsUpConfigEntry = ConfigEntry[BannerManager]
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     async_setup_services(hass)
     async_setup_websocket(hass)
+    await async_register_card_path(hass)
     return True
 
 
@@ -31,6 +33,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> b
     entry.runtime_data = manager
     entry.async_on_unload(entry.add_update_listener(_async_options_updated))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    await async_add_card(hass)
     return True
 
 
@@ -42,6 +45,7 @@ async def _async_options_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry)
 async def async_unload_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> bool:
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:
+        await async_remove_card(hass)
         await entry.runtime_data.async_unload()
     return unloaded
 
