@@ -22,6 +22,10 @@ jobs:
 
   hassfest:
     runs-on: ubuntu-latest
+    # The workflow-level `permissions: {}` leaves the job without a token, and checkout needs
+    # one to read the repository.
+    permissions:
+      contents: read
     steps:
       # hassfest mounts the checked-out workspace into its container, so it needs the files.
       - uses: actions/checkout@v4
