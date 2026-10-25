@@ -253,6 +253,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: version only (D-042); `Cache-Control: no-cache` on the file.
 - Reason: with the version alone, a build with the same version had the same URL, and a maintainer's Safari kept showing the old card after Phase 7 (screenshot, 2026-10-25). The file is served without `Cache-Control`, only `ETag` and `Last-Modified` (N-52).
 
+## D-051 First release prepared as 0.1.0
+- Date: 2026-10-25.
+- Decision: version `0.1.0` (not `1.0.0`: the integration ran only on a dev instance); HACS and hassfest checks move to `.github/workflows/validate.yml` (official layout, daily run, hassfest with checkout, N-53, N-54); README offers HACS custom repository and manual install. Tag, release, visibility and repository settings stay with the maintainer (D-020).
+- Alternatives: `1.0.0`; keeping the checks in `ci.yml`.
+
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
 - 2026-10-25: Phase 1 complete; Phase 2 approved.

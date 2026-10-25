@@ -4,6 +4,10 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-25
+
+First release. Tested on a local Home Assistant 2026.9.4 instance and, with the test suite only, on 2026.10.4.
+
 ### Added
 - Actions `heads_up.create_banner`, `heads_up.clear_banner` and `heads_up.clear_all` with response data.
 - Banners with a `timeout` disappear after that time, also when Home Assistant restarts in between.

@@ -4,7 +4,7 @@ Heads Up shows dismissible banners inside a Home Assistant dashboard. Automation
 
 Banners stay until someone closes them, a condition on an entity stops matching, a timeout passes, or an action clears them. They survive a Home Assistant restart.
 
-Status: in development. There is no release and the repository is not published yet.
+Status: version 0.1.0, the first release. It was tested on a local development instance of Home Assistant only. Make a backup before you install it.
 
 ## Requirements
 
@@ -13,11 +13,21 @@ Status: in development. There is no release and the repository is not published 
 
 ## Install
 
-Heads Up is not on HACS yet. Install it by hand:
+Make a backup first. Installing needs a Home Assistant restart, which pauses all automations until it has finished.
 
-1. Make a backup.
-2. Copy the folder `custom_components/heads_up` of this repository to `custom_components/heads_up` in your Home Assistant configuration folder.
-3. Restart Home Assistant. A restart pauses all automations until it has finished.
+### With HACS
+
+Heads Up is not in the default HACS list. Add it as a custom repository:
+
+1. In HACS, click the three dots in the top right corner and choose "Custom repositories".
+2. Enter `https://github.com/Seyphaton/ha-heads-up` and select the type "Integration".
+3. Click "Add", then find Heads Up in HACS and download it.
+4. Restart Home Assistant.
+
+### By hand
+
+1. Copy the folder `custom_components/heads_up` of this repository to `custom_components/heads_up` in your Home Assistant configuration folder.
+2. Restart Home Assistant.
 
 ## Set up
 

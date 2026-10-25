@@ -5,7 +5,7 @@ Updated 2026-10-25. Read this first in a new session, then `docs/DESIGN.md` §0 
 ## Where we are
 - Phases 0–7 delivered, except the release itself. Everything is committed and pushed, including Phase 7 (card design, D-048, D-049, D-050) and a README with screenshots that was added in a separate session.
 - `main` (21 commits) was pushed on 2026-10-25 to `git@github.com:Seyphaton/ha-heads-up.git` with the maintainer's approval (D-020). All commits carry the author `Seyphaton <23493879+Seyphaton@users.noreply.github.com>`; the history was rewritten for that before the push. An unauthenticated lookup of the repository returns "Not Found", so it is private. No tag, no release.
-- The first release is still the maintainer's call (D-020).
+- Release 0.1.0 is prepared (see `docs/dev/RELEASE.md`): version, changelog, README install steps, `.github/workflows/validate.yml`. Tagging, the GitHub release, making the repository public and its settings are the maintainer's steps (D-020).
 - No further phase is planned. Remaining work: "Before the first release" in `docs/dev/RELEASE.md` and `docs/OPEN_QUESTIONS.md`.
 
 ## Verified state

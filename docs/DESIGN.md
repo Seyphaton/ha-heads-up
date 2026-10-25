@@ -309,7 +309,7 @@ Status: Python tests implemented (85, files listed in `docs/dev/TESTING.md`); ca
 - Public GitHub repo (D-020); layout `custom_components/heads_up/` with `brand/icon.png` inside it (N-47), `hacs.json` `{name: "Heads Up", homeassistant: "2026.9.0"}` (N-18, N-19).
 - manifest: `domain`, `name`, `version`, `documentation`, `issue_tracker`, `codeowners`, `config_flow: true`, `integration_type: service`, `iot_class: local_push`, `dependencies: [frontend, http, person]`, `single_config_entry: true` (verified, N-27).
 - SemVer; CHANGELOG (Keep a Changelog); GitHub releases, not only tags (N-18).
-- CI (D-027): ruff, mypy, pytest, hassfest, HACS action, vitest, docs-check.
+- CI (D-027): `ci.yml` runs ruff, mypy, pytest (HA 2026.9.4 and 2026.10.4), vitest and docs-check; `validate.yml` runs hassfest and the HACS action, also daily and on demand (D-051).
 - Dev environment: Docker `homeassistant/home-assistant:2026.9.4` (verified, N-28), config from `dev/ha-config/`, no notify services; see `docs/dev/DEV_ENVIRONMENT.md`.
 - Install runbook (Phase 6, for users): backup, HACS custom repo install, restart (all automations pause for the restart duration), add integration, open dashboard, smoke test with one `create_banner`, rollback = remove integration + HACS uninstall + restart.
 

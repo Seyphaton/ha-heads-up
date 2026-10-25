@@ -1,0 +1,28 @@
+name: Validate
+
+# HACS and hassfest checks. The schedule catches changes in the checks themselves (HACS docs,
+# "GitHub Action"); workflow_dispatch runs them on demand from the Actions tab.
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  hacs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: HACS validation
+        uses: hacs/action@main
+        with:
+          category: integration
+
+  hassfest:
+    runs-on: ubuntu-latest
+    steps:
+      # hassfest mounts the checked-out workspace into its container, so it needs the files.
+      - uses: actions/checkout@v4
+      - uses: home-assistant/actions/hassfest@master

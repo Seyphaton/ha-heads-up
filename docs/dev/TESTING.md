@@ -34,6 +34,6 @@
 
 ## Notes
 
-`make check` runs lint, types, pytest, docs-check and `make test-card`. CI (`.github/workflows/ci.yml`) runs python checks, the same pytest on HA 2026.10.4 (`python-ha-2026-10`; locally: throwaway venv with `pytest-homeassistant-custom-component==0.13.375` and `home-assistant-frontend==20260930.5`), the card tests (`npm ci`, vitest), hassfest and the HACS action on push/PR. Not run yet: the repo is not on GitHub.
+`make check` runs lint, types, pytest, docs-check and `make test-card`. CI (`.github/workflows/ci.yml`) runs python checks, the same pytest on HA 2026.10.4 (`python-ha-2026-10`; locally: throwaway venv with `pytest-homeassistant-custom-component==0.13.375` and `home-assistant-frontend==20260930.5`), the card tests (`npm ci`, vitest); `.github/workflows/validate.yml` runs hassfest (with checkout) and the HACS action on push, pull request, daily and on demand. The repository is on GitHub (private); the first workflow results have not been read yet.
 
 HA logs an `ERROR ... Unauthorized` line when a non-admin calls `heads_up/admin_clear`; that is HA's `require_admin` behaviour, not a failure.
