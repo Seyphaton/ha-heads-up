@@ -21,7 +21,7 @@ Shows a banner in every Heads Up card. Calling it again with the same `id` repla
 | `mode` | `once`, `recurring` | `once` | What happens when the condition turns false. Ignored without `condition`. |
 | `wait_for_condition` | boolean | `true` | What happens when the condition is false at the time of the call. Ignored without `condition`. |
 | `people` | list of person entities | everyone | Show the banner only to the users linked to these people. See [People](#people). |
-| `tap_action` | object with `action` | none | Home Assistant action config run when the banner is tapped. Passed to the card unchanged. |
+| `tap_action` | object with `action` | none | Home Assistant action config run when the banner is tapped. Passed to the card unchanged. Anyone who sees the banner can trigger it; see [SECURITY.md](../SECURITY.md). |
 
 Response data:
 

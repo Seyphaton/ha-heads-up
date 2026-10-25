@@ -1,6 +1,15 @@
 # Design: Heads Up
 
-Phase 0 design document. Decisions are referenced as D-nnn (`docs/DECISIONS.md`), API facts as N-nn (row in `docs/dev/HA_API_NOTES.md`), risks as R-n (§14).
+Living design document: requirements and architecture. Decisions are referenced as D-nnn (`docs/DECISIONS.md`), API facts as N-nn (row in `docs/dev/HA_API_NOTES.md`), risks as R-n (§14). Where code and this document disagree, fix one of them in the same commit.
+
+## 0. Implementation status (2026-10-25)
+
+| Part | Status |
+|---|---|
+| §4 data model, §5 lifecycle, §6 backend, §7 actions, §9 targeting | implemented and tested (Phases 2–3) |
+| §8 frontend (card, editor, serving the JS file) | not started (Phase 4) |
+| Human docs | `docs/actions.md` done; README, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` pending (Phases 4–6) |
+| Packaging, release, CI run | pending (Phase 6; repo not published, D-020) |
 
 ## 1. Goals, non-goals, scope cut
 
@@ -44,7 +53,7 @@ Non-functional
 |---|---|
 | Restart safety | Banners, dismissals and `expires_at` persist in `.storage/heads_up.banners`. Banners that expired while HA was down are removed on start and fire `heads_up_banner_expired`. |
 | Latency | A banner created by an action appears in an open card within one WebSocket round trip (no polling). |
-| Load | At most 50 banners by default (option), one state listener per distinct condition entity, one timer per banner with a timeout. |
+| Load | At most 50 banners by default (option, max 200), one state listener covering all condition and person entities, one timer per banner with a timeout. |
 | Concurrency | Actions run in the event loop and mutate state synchronously (no `await` between read and write), so parallel callers cannot interleave a single upsert. |
 | Accessibility | Severity shown by icon and text label, not color only; `aria-live` region; dismiss button 48×48 px with translated `aria-label`; keyboard reachable. |
 | i18n | All UI strings in English (D-037), kept in HA translation files (`strings.json`, `translations/en.json`) and one card string table, so languages can be added without code changes. Banner text is caller-supplied and not translated. |
@@ -126,7 +135,7 @@ Semantics
 | User dismiss | User ID added to `dismissed_by`; fires `dismissed` with `user_id`. |
 | `dismissible: false` | Card shows no X; WebSocket dismiss rejected with `not_dismissible`. Admin clear still works (D-011). |
 | Condition entity `unavailable` / `unknown` | `condition_met` unchanged (D-006). |
-| Condition entity removed after creation | Treated like `unavailable`; banner kept; timeout still applies. Logged at warning level once. |
+| Condition entity removed after creation | Treated like `unavailable`; banner kept; timeout still applies. Logged at warning level. |
 | HA was down past `expires_at` | Removed during setup, `expired` event fired. |
 | Restart with condition | Re-evaluated when the entity reports a state other than `unavailable`/`unknown`; until then `condition_met` keeps its stored value. |
 | `once` banner, condition never becomes true | Removed by the 24 h default timeout unless the caller passed `timeout: 0` or the option was cleared (R-4, D-031). |
@@ -137,17 +146,19 @@ History: no stored history; events only (D-012).
 
 ```
 custom_components/heads_up/
-  __init__.py      async_setup: register actions + WebSocket commands; async_setup_entry: load store, start manager, register frontend
-  manager.py       BannerManager: in-memory dict, mutations, visibility rules, listeners, timers, events, subscriber fan-out
-  store.py         Store subclass (version/migration), serialisation
-  services.py      action schemas + handlers
+  __init__.py      async_setup: register actions + WebSocket commands; async_setup_entry: load store, start manager, forward sensor platform
+  manager.py       BannerManager: in-memory dict, mutations, condition evaluation, targeting, state tracker, timers, events, subscriber fan-out; banner_store()
+  models.py        Banner dataclass, (de)serialisation, per-viewer payload (to_client)
+  services.py      action schemas (SCHEMAS, also used by docs-check) + handlers
   websocket.py     heads_up/subscribe, heads_up/dismiss, heads_up/admin_clear
   sensor.py        count sensor
-  frontend.py      static path + add_extra_js_url
   config_flow.py   single-instance config flow + options flow
   const.py, strings.json, translations/en.json, services.yaml, icons.json, manifest.json
-  frontend/heads-up-card.js
+  frontend.py                Phase 4: static path + add_extra_js_url
+  frontend/heads-up-card.js  Phase 4
 ```
+
+No `Store` subclass yet: storage is version 1 and has no migration. Add one with `_async_migrate_func` on the first breaking storage change (§13).
 
 Data flow: action → `BannerManager` mutates dict synchronously → `Store.async_delay_save(…, 1)` (D-023, N-6) → fires event → notifies WebSocket subscribers and the sensor.
 
@@ -188,13 +199,13 @@ Config flow: one entry, no input (D-026). Options: `max_banners`, `evict`, `defa
 
 | Action | Fields | Response (`SupportsResponse.OPTIONAL`, N-3) | Errors |
 |---|---|---|---|
-| `heads_up.create_banner` | §4.1 | `{id, status}` with `status` `created` \| `updated` \| `waiting` \| `condition_false`; `evicted` ID if any | schema errors (`vol.Invalid`), `entity_not_found` (Phase 3), `too_many_banners`, `not_loaded` |
+| `heads_up.create_banner` | §4.1 | `{id, status}` with `status` `created` \| `updated` \| `waiting` \| `condition_false`; `evicted` ID if any | schema errors (`vol.Invalid`), `entity_not_found`, `too_many_banners`, `not_loaded` |
 | `heads_up.clear_banner` | `id` or `tag` (at least one) | `{cleared: n}` | none (unknown id → `cleared: 0`) |
 | `heads_up.clear_all` | none | `{cleared: n}` | none |
 
 Errors are `ServiceValidationError` with translation keys in `strings.json`. Actions are registered in `async_setup`; called without a loaded config entry they fail with `not_loaded`.
 
-Examples (validated by `docs-check` from Phase 1 on)
+Examples (illustration only; the validated user examples are in `docs/actions.md`)
 ```yaml
 # automation action: warning until window closes
 - action: heads_up.create_banner
@@ -263,13 +274,15 @@ Touch and kiosk use: 48 px touch targets; no hover-only controls; `compact` layo
 | Full and no evictable banner | `too_many_banners` |
 | Two parallel `create_banner` with same `id` | serialized in event loop; last call wins; two events |
 | Clock change / DST | all times UTC; DST has no effect. A manual system-clock jump forward expires banners early (HA timer semantics). |
-| Corrupt storage file | `Store` load raises; integration setup fails with a log error, other integrations unaffected; user can remove the file (troubleshooting doc). Stricter probatio validation of stored data on load (N-1) is covered by a test. |
-| Card on HA without the integration loaded | card shows a one-line error "Heads Up integration not loaded". |
+| Corrupt storage file | Expected: `Store` load raises, entry setup fails with a log error, other integrations unaffected; user removes the file (troubleshooting doc). Not tested yet (Phase 6). |
+| Card on HA without the integration loaded | Phase 4: card shows a one-line error; `heads_up/subscribe` returns error code `not_loaded`. |
 | Huge `tap_action` | limited by WebSocket message size; not validated beyond being a mapping (R-1). |
 
 ## 11. Test strategy
 
-- Python: `pytest-homeassistant-custom-component` pinned to the release matching HA 2026.9.4 (N-20); CI matrix adds latest 2026.10.x.
+Status: Python tests implemented (73, files listed in `docs/dev/TESTING.md`); card tests and CI matrix pending.
+
+- Python: `pytest-homeassistant-custom-component` 0.13.367 = HA 2026.9.4 (N-25); CI matrix adds latest 2026.10.x (Phase 6).
 - Lifecycle tests first (Phase 2): upsert, each removal reason, eviction order, limits, response data, events, permission checks for `show_all`/`admin_clear`.
 - Restart tests: create → unload/reload entry with persisted store → assert banners, dismissals, `expires_at`; freeze time past expiry across restart → `expired` event.
 - Condition tests (Phase 3): flips, `once` vs `recurring`, `wait_for_condition`, unavailable, entity removed, person `user_id` changes.
@@ -281,10 +294,10 @@ Touch and kiosk use: 48 px touch targets; no hover-only controls; `compact` layo
 ## 12. Packaging, CI, versioning, runbook
 
 - Public GitHub repo (D-020); layout `custom_components/heads_up/`, `brand/icon.png`, `hacs.json` `{name: "Heads Up", homeassistant: "2026.9.0"}` (N-18, N-19).
-- manifest: `domain`, `name`, `version`, `documentation`, `issue_tracker`, `codeowners`, `config_flow: true`, `integration_type: service`, `iot_class: local_push`, `dependencies: [frontend, http, person]`, `single_config_entry: true` (key existence to verify in Phase 1).
+- manifest: `domain`, `name`, `version`, `documentation`, `issue_tracker`, `codeowners`, `config_flow: true`, `integration_type: service`, `iot_class: local_push`, `dependencies: [frontend, http, person]`, `single_config_entry: true` (verified, N-27).
 - SemVer; CHANGELOG (Keep a Changelog); GitHub releases, not only tags (N-18).
 - CI (D-027): ruff, mypy, pytest, hassfest, HACS action, vitest, docs-check.
-- Dev environment: Docker `ghcr.io/home-assistant/home-assistant:2026.9.4` (tag to verify in Phase 1), config from `dev/ha-config/`, no notify services.
+- Dev environment: Docker `homeassistant/home-assistant:2026.9.4` (verified, N-28), config from `dev/ha-config/`, no notify services; see `docs/dev/DEV_ENVIRONMENT.md`.
 - Install runbook (Phase 6, for users): backup, HACS custom repo install, restart (all automations pause for the restart duration), add integration, open dashboard, smoke test with one `create_banner`, rollback = remove integration + HACS uninstall + restart.
 
 ## 13. External callability and API stability
@@ -298,18 +311,18 @@ Touch and kiosk use: 48 px touch targets; no hover-only controls; `compact` layo
 
 | ID | Risk | Mitigation |
 |---|---|---|
-| R-1 | `tap_action` with `perform-action` runs any action when tapped, including on a shared display (D-015). | Caller responsibility; stated in SECURITY.md and `docs/actions.md`; HA's own `confirmation` option documented in the example. |
+| R-1 | `tap_action` with `perform-action` runs any action when tapped, including on a shared display (D-015). | Caller responsibility; stated in SECURITY.md and `docs/actions.md`; Phase 4 documents HA's `confirmation` option in `docs/card.md`. |
 | R-2 | Installing requires an HA restart, which pauses all automations, including security-related ones. | Install docs state this before the restart step. |
 | R-3 | Empty card leaves a grid gap in sections view (N-14). | Test in Phase 4; fallback visibility condition (global count). |
 | R-4 | `once` banner with an entity that never turns true and no timeout stays waiting forever. | `default_timeout` ships as 24 h (D-031); clearing it shows a warning in the options form; documented in limitations. |
 | R-5 | HA API drift (probatio switch in 2026.9 shows how fast). | Dev image pinned to the minimum supported minor; monthly release-note check; `stale-check-on-upgrade` rows in HA_API_NOTES. |
 | R-6 | `hass-action` event and websocket re-subscribe behaviour unverified. | Phase 4 spikes before card code depends on them. |
-| R-7 | Domain `heads_up` collision (N-22). | Re-check before Phase 1 scaffold. |
+| R-7 | Domain `heads_up` collision (N-22). | Check the HACS default list before the first release. |
 | R-8 | Per-user dismiss on a shared login hides the banner for everyone on it (D-007). | Documented; callers choose `dismiss_scope`. |
 
 ## 15. Verified facts
 
-All in `docs/dev/HA_API_NOTES.md` with source, version, date, status. Unverified items that affect design: N-14 (empty card in sections), N-21 (not needed), N-22 (domain collision), `single_config_entry` manifest key, `hass-action` event, websocket re-subscribe on reconnect, Docker image tag. Rows checked on `dev` must be re-checked at tag 2026.9.4 in Phase 1 (N-6–N-10).
+All in `docs/dev/HA_API_NOTES.md` with source, version, date, status. Still unverified and needed for Phase 4: N-14 (empty card in sections view), the `hass-action` event for tap actions, WebSocket re-subscribe after reconnect. Unverified but not needed: N-17, N-21. N-22 (domain collision) open until release.
 
 ## 16. Documentation plan
 
@@ -321,6 +334,6 @@ README screenshots (from dev HA): one image with a warning and a critical banner
 
 HA documentation rules covered: `docs-high-level-description` (README intro), `docs-installation-instructions` (README), `docs-removal-instructions` (`uninstall.md`), `docs-actions` (`actions.md`), `docs-configuration-parameters` (`card.md`, options in README), `docs-installation-parameters` (none: config flow has no input; stated), `docs-examples` (`examples.md`), `docs-known-limitations` (`limitations.md`), `docs-troubleshooting` (`troubleshooting.md`), `docs-use-cases` (`examples.md`), `docs-data-update` (README: push via WebSocket, no polling).
 
-`docs-check` (Phase 1): banned-word grep over human docs; YAML examples validated against action schemas; field parity between `services.yaml`/schemas and `docs/actions.md`; card config keys vs. `docs/card.md`.
+`docs-check`: banned-word and placeholder grep over all Markdown (done); YAML examples in user docs validated against action schemas (done); field parity schema == `services.yaml` == `docs/actions.md` (done); card config keys vs. `docs/card.md` (Phase 4).
 
 Adopted style elements: D-002.
