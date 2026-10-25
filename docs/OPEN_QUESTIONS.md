@@ -1,13 +1,17 @@
 # Open questions
 
-## Before Phase 2
-- Domain `heads_up` collision: web search found none (N-22); HACS default list not checked yet; do before the first release.
+## Phase 4 spikes (see `docs/dev/STATE.md`)
 - Sections view (N-14): does a card that renders nothing leave a visible grid gap? If yes, document a visibility condition on the count sensor as workaround.
-- Person `user_id` resolution when a person entity changes or is removed while banners target it.
-
-## Phase 4 spikes
-- `hass-action` event for tap actions.
+- `hass-action` event for tap actions, including `confirmation`.
 - WebSocket re-subscribe after reconnect.
+
+## Before the first release
+- Domain `heads_up` collision: web search found none (N-22); HACS default list not checked yet.
+- Corrupt storage file behaviour (DESIGN §10): untested.
+- Publishing the repo needs the maintainer's approval (D-020).
+
+## Resolved
+- Person `user_id` changes while banners target it: re-filtered on every change of a referenced person's `user_id`; a removed person matches nobody (Phase 3, `tests/test_people.py`).
 
 ## Deferred ideas (out of MVP scope)
 - Popup/modal for critical banners (D-018).
