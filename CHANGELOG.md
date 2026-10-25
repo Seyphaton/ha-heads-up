@@ -7,7 +7,10 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ### Added
 - Watch rules: add a rule in Settings > Devices & services > Heads Up, and a banner shows on every Heads Up card while an entity is in a state, without an automation. Rules can be dismissible per user, target people and use `{name}` for the entity name. See [docs/rules.md](docs/rules.md).
 - `heads_up_banner_cleared` has the new `reason` value `rule`.
-- WebSocket error `rule_banner` for `heads_up/admin_clear` on a rule banner.
+- WebSocket error `rule_banner` for `heads_up/admin_clear` on a rule banner. The card shows no "Clear for everyone" button on rule banners.
+
+### Changed
+- Banners without a button keep the space of the button when other banners in the card have one, so the text and times line up.
 
 ## [0.1.0] - 2026-10-25
 

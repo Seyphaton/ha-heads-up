@@ -52,7 +52,8 @@ empty_message: All clear
 - An icon, the title (if set) and the message. The severity is shown by the icon and its color; `show_severity: true` adds the text label. When the label is hidden, screen readers still get it.
 - With `show_time`, the time since the banner was created or replaced. It updates every 30 seconds.
 - A dismiss button (48×48 px) when the banner is dismissible. What it does depends on `dismiss_scope` (see [actions](actions.md)).
-- For administrators, a "Clear for everyone" button on banners that are not dismissible.
+- For administrators, a "Clear for everyone" button on banners that are not dismissible. Banners from [watch rules](rules.md) have none; disable or delete the rule.
+- When some banners in a card have a button and others do not, the others keep an empty space of the same width, so the text and times line up.
 
 Critical banners sit in an `aria-live="assertive"` region, the others in a `polite` one.
 

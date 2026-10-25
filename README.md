@@ -1,6 +1,6 @@
 # Heads Up
 
-Heads Up shows dismissible banners inside a Home Assistant dashboard. Automations, scripts and external programs create and clear banners with actions. The dashboard holds no message text.
+Heads Up shows banners inside a Home Assistant dashboard. Automations, scripts and external programs create and clear banners with actions. Watch rules show a banner while an entity is in a state, without an automation. The dashboard holds no message text.
 
 Banners stay until someone closes them, a condition on an entity stops matching, a timeout passes, or an action clears them. They survive a Home Assistant restart.
 
@@ -33,7 +33,7 @@ Heads Up is not in the default HACS list. Add it as a custom repository:
 
 Go to Settings > Devices & services and add the integration Heads Up. It asks for nothing. The card is registered by the integration, so you do not add a dashboard resource.
 
-Banners also come from watch rules: a rule shows a banner while an entity is in a state, set up once in the integration with no automation. See [docs/rules.md](docs/rules.md).
+Banners also come from watch rules: a rule shows a banner while an entity is in a state. You set it up once in the integration (Settings > Devices & services > Heads Up), without an automation, and every Heads Up card shows it. See [docs/rules.md](docs/rules.md).
 
 ## 1. Configure the dashboard card
 
@@ -231,12 +231,13 @@ Open the integration and choose Configure. Changes apply to banners created afte
 
 ## How it works
 
-The card receives banners over the Home Assistant WebSocket connection and updates when a banner changes. It does not poll. The integration creates one entity, `sensor.heads_up_active_banners`, with the number of active banners.
+The card receives banners over the Home Assistant WebSocket connection and updates when a banner changes. It does not poll. The integration creates one entity, `sensor.heads_up_active_banners`, with the number of active banners, including active watch-rule banners.
 
 ## Documentation
 
 - [Actions](docs/actions.md): fields, responses, conditions, people, events.
 - [Card](docs/card.md): options and behaviour.
+- [Watch rules](docs/rules.md): banners from an entity state, without an automation.
 - [Examples](docs/examples.md): window with a condition, alert for one person, tap action, REST and WebSocket.
 - [Troubleshooting](docs/troubleshooting.md)
 - [Limitations](docs/limitations.md)

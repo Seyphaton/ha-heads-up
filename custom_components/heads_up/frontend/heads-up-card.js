@@ -268,13 +268,23 @@ export function retryDelay(attempt) {
   return [1000, 2000, 5000, 10000, 30000][Math.min(attempt, 4)];
 }
 
-// Which buttons a banner gets for a viewer. Admin clear exists for banners nobody can dismiss (D-011).
+// Which buttons a banner gets for a viewer. Admin clear exists for banners nobody can dismiss (D-011),
+// except rule banners, which an admin disables or deletes in the integration instead (D-056).
 export function controlsFor(banner, isAdmin) {
   return {
     dismiss: banner.dismissible !== false,
-    adminClear: isAdmin && banner.dismissible === false,
+    adminClear: isAdmin && banner.dismissible === false && !banner.rule,
     tap: Boolean(banner.tap_action),
   };
+}
+
+// True when some shown banner has a button, so banners without one keep the same text width
+// and their time lines up with the others.
+export function reservesActionSpace(banners, isAdmin) {
+  return banners.some((banner) => {
+    const controls = controlsFor(banner, isAdmin);
+    return controls.dismiss || controls.adminClear;
+  });
 }
 
 const STYLE = `
@@ -320,6 +330,8 @@ const STYLE = `
   .compact .meta { flex: none; gap: 6px; }
   .compact .title { flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; }
   .compact .message { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .action-space { flex: none; width: 48px; }
+  .compact .action-space { margin: -4px 0; height: 48px; }
   button.action {
     flex: none; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%;
     background: transparent; color: var(--primary-text-color); cursor: pointer;
@@ -586,7 +598,7 @@ class HeadsUpCard extends Base {
     );
   }
 
-  _bannerNode(banner, isAdmin, colors) {
+  _bannerNode(banner, isAdmin, colors, reserveSpace) {
     const cfg = this._config;
     const controls = controlsFor(banner, isAdmin);
     const parts = colorParts(cfg.colorize);
@@ -654,6 +666,11 @@ class HeadsUpCard extends Base {
     if (controls.dismiss) node.append(button("mdi:close", STRINGS.dismiss, () => this._dismiss(banner)));
     if (controls.adminClear) {
       node.append(button("mdi:delete-outline", STRINGS.clear, () => this._adminClear(banner)));
+    }
+    if (reserveSpace && !controls.dismiss && !controls.adminClear) {
+      const space = el("div", "action-space");
+      space.setAttribute("aria-hidden", "true");
+      node.append(space);
     }
     return node;
   }
@@ -726,9 +743,10 @@ class HeadsUpCard extends Base {
     assertive.setAttribute("aria-live", "assertive");
     const polite = el("div", "region");
     polite.setAttribute("aria-live", "polite");
+    const reserveSpace = reservesActionSpace(shown, isAdmin);
     for (const banner of shown) {
       (banner.severity === "critical" ? assertive : polite).append(
-        this._bannerNode(banner, isAdmin, colors),
+        this._bannerNode(banner, isAdmin, colors, reserveSpace),
       );
     }
     list.append(assertive, polite);

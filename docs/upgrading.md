@@ -6,7 +6,7 @@
 4. Restart Home Assistant. A restart pauses all automations until it has finished.
 5. Reload open dashboards. The card address contains the integration version and a hash of the card file, so a browser that reloads the page loads the new card file. If a dashboard still looks old, reload the page without cache once.
 
-Banners, closed states and timeouts are kept across the restart. Options keep their values.
+Banners, closed states and timeouts are kept across the restart. Options keep their values. Watch rules are part of the integration entry and stay too; a closed rule banner returns after the restart.
 
 ## Versions
 

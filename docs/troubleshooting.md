@@ -37,6 +37,8 @@ Check, in this order:
 5. Card filters `severity`, `tag` and `max_items` in the card configuration. With `collapsed_items`, the rest sits behind "Show N more".
 6. Timeout. The banner may have expired; the event `heads_up_banner_expired` shows it.
 
+For a banner from a watch rule, see [A watch rule shows no banner](#a-watch-rule-shows-no-banner).
+
 ## The "Clear all" button is missing
 
 The button appears only when the card shows at least one banner that can be dismissed, and only with `clear_all: true`. Banners with `dismissible: false` are not counted.
@@ -44,6 +46,19 @@ The button appears only when the card shows at least one banner that can be dism
 ## A banner cannot be closed
 
 It was created with `dismissible: false`. An administrator sees a "Clear for everyone" button. `heads_up.clear_banner` with its `id` or `tag` also removes it.
+
+A banner from a watch rule has no button for anyone unless the rule is dismissible. `clear_banner` does not remove it. Disable or delete the rule in Settings > Devices & services > Heads Up.
+
+## A watch rule shows no banner
+
+Check, in this order:
+
+1. The rule is enabled.
+2. The entity state or attribute equals one of the rule's states. The comparison is text, so `on` and `On` differ.
+3. The entity is not `unavailable` or `unknown`, and it exists. Rule banners are hidden in those cases.
+4. People. With `people` set, only users linked to those person entities see it.
+5. Dismissal. A dismissible rule hides the banner for the user who closed it until the entity leaves the state and enters it again. A restart also brings it back.
+6. The card filters `severity`, `tag` and `max_items`. Rule banners have the tag `rule`.
 
 ## The log says "Skipping unreadable banner"
 

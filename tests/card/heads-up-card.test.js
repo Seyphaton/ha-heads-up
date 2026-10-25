@@ -7,6 +7,7 @@ import {
   controlsFor,
   emptyView,
   normalizeConfig,
+  reservesActionSpace,
   relativeTime,
   resolveColors,
   retryDelay,
@@ -149,9 +150,27 @@ describe("controlsFor", () => {
     expect(controlsFor(b, false)).toMatchObject({ dismiss: false, adminClear: false });
   });
 
+  it("gives no admin clear button on rule banners", () => {
+    const b = banner({ dismissible: false, rule: true });
+    expect(controlsFor(b, true)).toMatchObject({ dismiss: false, adminClear: false });
+  });
+
   it("marks banners with a tap action as tappable", () => {
     const b = banner({ tap_action: { action: "navigate", navigation_path: "/lovelace/0" } });
     expect(controlsFor(b, false).tap).toBe(true);
+  });
+});
+
+describe("reservesActionSpace", () => {
+  it("is true when any banner has a button", () => {
+    const list = [banner({ dismissible: false, rule: true }), banner()];
+    expect(reservesActionSpace(list, false)).toBe(true);
+  });
+
+  it("is false when no banner has a button", () => {
+    const list = [banner({ dismissible: false, rule: true }), banner({ dismissible: false })];
+    expect(reservesActionSpace(list, false)).toBe(false);
+    expect(reservesActionSpace([banner({ dismissible: false, rule: true })], true)).toBe(false);
   });
 });
 

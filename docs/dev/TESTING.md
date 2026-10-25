@@ -9,7 +9,7 @@
 | Lint / types | ruff, mypy strict on `custom_components/heads_up` | `make lint`, `make typecheck` |
 | Manifest / translations | hassfest Docker image | `make hassfest` (needs Docker) |
 | Docs | banned words, placeholders; YAML examples in user docs validated against action schemas; fields: schema == services.yaml == docs/actions.md; card options: `CONFIG_KEYS` == `docs/card.md` table, card examples use only those | `make docs-check` |
-| Card logic | vitest 3.2.4 on the card module's exported pure functions (62 tests; needs Node 22, `npm install` runs inside the target) | `make test-card` |
+| Card logic | vitest 3.2.4 on the card module's exported pure functions (65 tests; needs Node 22, `npm install` runs inside the target) | `make test-card` |
 | Documented examples | the YAML of `docs/examples.md` is installed on the dev HA through the config API (entity IDs swapped for `input_boolean.test_window`, `person.dev_user`), run, and the banners checked per user; REST and WebSocket calls with a dev token. Not scripted in the repo | manual, see N-43, N-44 |
 | Card in browser | manual matrix against dev HA (sections/masonry/panel, light/dark, 768×1024 and 1280×800, admin and `dev-user`, dismiss, tap with confirmation, restart, empty card); results in DESIGN §11; a six-card dashboard view on the dev HA covers the Phase 7 options | manual |
 

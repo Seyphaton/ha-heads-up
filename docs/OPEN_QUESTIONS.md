@@ -31,5 +31,5 @@
 
 ## Phase 8: watch rules
 - Label-based watching (a label on an entity adds a banner with its name): not built (D-057).
-- Not verified: the rule form in Home Assistant's own UI (wording of "Add watch rule", the multi-value State field, entity pickers; the flow ran through the REST API only), the card with a rule banner in the browser pane, `show_all` rendering of an inactive rule banner.
+- Not verified: the rule form in Home Assistant's own UI (wording of "Add watch rule", the multi-value State field, entity pickers; the flow ran through the REST API only), `show_all` rendering of an inactive rule banner, the rule banner layout in the compact layout and at phone width.
 - A rule whose watched entity is also one of its `people` entities is not tested.

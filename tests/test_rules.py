@@ -66,6 +66,7 @@ async def test_banner_shows_while_condition_is_true(
     assert item["dismissible"] is False and item["expires_at"] is None
     assert item["icon"] == "mdi:alert" and item["tag"] == "rule"
     assert "condition" not in item and "dismissed_by" not in item
+    assert item["rule"] is True  # tells the card to hide "Clear for everyone"
 
     await set_state(hass, "off")
     assert shown(entry) == []
@@ -406,3 +407,15 @@ async def test_websocket_payload_and_errors(
 
     await set_state(hass, "off")
     assert (await client.receive_json())["event"]["banners"] == []
+
+
+async def test_only_rule_banners_carry_the_rule_flag(
+    hass: HomeAssistant, entry: MockConfigEntry, create: CreateBanner
+) -> None:
+    await set_state(hass, "on")
+    add_rule(hass, entry)
+    await create(id="a", message="x", dismissible=False)
+    await hass.async_block_till_done()
+    flags = {b["id"]: b.get("rule") for b in entry.runtime_data.visible(USER)}
+    assert flags["a"] is None
+    assert [v for k, v in flags.items() if k != "a"] == [True]

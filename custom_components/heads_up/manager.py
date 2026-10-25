@@ -257,7 +257,7 @@ class BannerManager:
     def visible(self, user_id: str, show_all: bool = False) -> list[dict[str, Any]]:
         # show_all (admin) also returns waiting, dismissed and untargeted banners (D-008).
         return [
-            b.to_client(user_id)
+            self._client(b, user_id)
             for b in self._all()
             if show_all
             or (b.active and user_id not in b.dismissed_by and self._targets(b, user_id))
@@ -364,6 +364,13 @@ class BannerManager:
         return changed
 
     # Internals -------------------------------------------------------------------------
+
+    def _client(self, banner: Banner, user_id: str) -> dict[str, Any]:
+        data = banner.to_client(user_id)
+        if banner.id in self.rules:
+            # The card hides "Clear for everyone": a rule banner is disabled or deleted instead.
+            data["rule"] = True
+        return data
 
     def _all(self) -> Iterator[Banner]:
         return chain(self.banners.values(), self.rules.values())
