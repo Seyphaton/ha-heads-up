@@ -229,7 +229,7 @@ A watch rule shows a banner while an entity matches a condition. It needs no aut
 
 <img src="docs/images/watch-rule.png" width="500" alt="The Add watch rule form: rule name, entity, condition, state">
 
-Examples, as filled into the form. `{name}` in the message becomes the entity's name.
+Examples, as filled into the form. `{name}` in the message becomes the entity's name. The message may also contain a Home Assistant template such as `{{ states('input_text.reason') }}`; it updates when the entities it reads change (not for `now()`).
 
 | Goal | Entity | Condition | State | Message | Severity |
 |---|---|---|---|---|---|

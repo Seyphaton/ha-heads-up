@@ -23,6 +23,7 @@ from homeassistant.helpers.event import (
     async_track_state_change_event,
 )
 from homeassistant.helpers.storage import Store
+from homeassistant.helpers.template import Template
 from homeassistant.util import dt as dt_util
 
 from .conditions import DEFAULT_OPERATOR, matches
@@ -74,6 +75,8 @@ class BannerManager:
         # Watch rules as virtual banners; never stored (DESIGN §17).
         self.rules: dict[str, Banner] = {}
         self._rule_sources: dict[str, dict[str, Any]] = {}
+        # Entities a rule's message template reads, so state changes re-render it (D-063).
+        self._rule_template_entities: dict[str, set[str]] = {}
         self._store = banner_store(hass)
         self._timers: dict[str, CALLBACK_TYPE] = {}
         self._listeners: list[Callable[[], None]] = []
@@ -116,6 +119,7 @@ class BannerManager:
         self._listeners.clear()
         self.rules.clear()
         self._rule_sources.clear()
+        self._rule_template_entities.clear()
         if self._untrack:
             self._untrack()
             self._untrack = None
@@ -293,6 +297,7 @@ class BannerManager:
             if banner_id not in wanted:
                 gone = self.rules.pop(banner_id)
                 self._rule_sources.pop(banner_id, None)
+                self._rule_template_entities.pop(banner_id, None)
                 if gone.condition_met and not silent:
                     self._fire(EVENT_CLEARED, gone, reason="rule")
                 changed = True
@@ -327,7 +332,7 @@ class BannerManager:
         met = self._evaluate(condition) is True
         return Banner(
             id=banner_id,
-            message=self._rule_message(source),
+            message=self._rule_message(banner_id, source),
             title=source.get("title") or None,
             severity=source.get("severity", DEFAULT_SEVERITY),
             icon=source.get("icon") or None,
@@ -343,17 +348,26 @@ class BannerManager:
             updated_at=now,
         )
 
-    def _rule_message(self, source: Mapping[str, Any]) -> str:
-        # `{name}` is the only placeholder (D-055).
+    def _rule_message(self, banner_id: str, source: Mapping[str, Any]) -> str:
+        # `{name}` first, then the template (D-055, D-063).
         state = self.hass.states.get(source["entity_id"])
         name = (state.attributes.get("friendly_name") if state else None) or source["entity_id"]
-        return str(source["message"]).replace("{name}", str(name))
+        message = str(source["message"]).replace("{name}", str(name))
+        self._rule_template_entities.pop(banner_id, None)
+        if not any(token in message for token in ("{{", "{%", "{#")):
+            return message
+        info = Template(message, self.hass).async_render_to_info(parse_result=False)
+        if info.exception:
+            _LOGGER.warning("Rule message of %s failed to render: %s", banner_id, info.exception)
+            return message
+        self._rule_template_entities[banner_id] = set(info.entities)
+        return str(info.result())
 
     def _apply_rule(self, banner: Banner) -> bool:
         # Unavailable, unknown and removed entities hide the banner (D-053).
         assert banner.condition is not None
         met = self._evaluate(banner.condition) is True
-        message = self._rule_message(self._rule_sources[banner.id])
+        message = self._rule_message(banner.id, self._rule_sources[banner.id])
         changed = message != banner.message
         banner.message = message
         if met != banner.condition_met:
@@ -436,7 +450,9 @@ class BannerManager:
                 continue
             changed |= self._apply_condition(banner)
         for banner in list(self.rules.values()):
-            if banner.condition is not None and banner.condition["entity_id"] == entity_id:
+            if (
+                banner.condition is not None and banner.condition["entity_id"] == entity_id
+            ) or entity_id in self._rule_template_entities.get(banner.id, ()):
                 changed |= self._apply_rule(banner)
         if changed:
             self._changed()
@@ -444,6 +460,7 @@ class BannerManager:
     def _refresh_tracking(self) -> None:
         wanted = {b.condition["entity_id"] for b in self.banners.values() if b.condition}
         wanted |= {b.condition["entity_id"] for b in self.rules.values() if b.condition}
+        wanted |= {e for entities in self._rule_template_entities.values() for e in entities}
         wanted |= {p for b in self._all() for p in b.people}
         if wanted == self.tracked_entities:
             return

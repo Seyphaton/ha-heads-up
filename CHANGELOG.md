@@ -4,6 +4,9 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Fixed
+- Watch rule messages now render Home Assistant templates. Before, `{{ states('...') }}` appeared as literal text.
+
 ## [0.2.1] - 2026-10-25
 
 ### Fixed

@@ -91,6 +91,15 @@ async def test_blank_message_is_an_error(hass: HomeAssistant, entry: MockConfigE
     assert result["errors"] == {"message": "message_required"}
 
 
+async def test_invalid_template_is_an_error(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    hass.states.async_set(WINDOW, "off")
+    flow_id = await start(hass, entry)
+    result = await hass.config_entries.subentries.async_configure(
+        flow_id, {"name": "Window", "entity_id": WINDOW, "message": "{{ states( }}"}
+    )
+    assert result["errors"] == {"message": "message_template_invalid"}
+
+
 async def test_empty_state_list_falls_back_to_on(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:

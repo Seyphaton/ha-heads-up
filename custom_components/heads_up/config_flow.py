@@ -18,6 +18,7 @@ from homeassistant.config_entries import (
     SubentryFlowResult,
 )
 from homeassistant.core import callback
+from homeassistant.exceptions import TemplateError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.selector import (
     BooleanSelector,
@@ -34,6 +35,7 @@ from homeassistant.helpers.selector import (
     TextSelector,
     TextSelectorConfig,
 )
+from homeassistant.helpers.template import Template
 
 from .conditions import DEFAULT_OPERATOR, OPERATORS, check_state
 from .const import (
@@ -214,6 +216,11 @@ class RuleSubentryFlow(ConfigSubentryFlow):
             errors["message"] = "message_required"
         elif len(message) > MAX_MESSAGE:
             errors["message"] = "message_too_long"
+        else:
+            try:
+                Template(message, self.hass).ensure_valid()
+            except TemplateError:
+                errors["message"] = "message_template_invalid"
         if len(user_input.get("title") or "") > MAX_TITLE:
             errors["title"] = "title_too_long"
         return errors

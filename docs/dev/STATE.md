@@ -27,3 +27,5 @@ Follow `docs/dev/RELEASE.md`, "Before the first release". Needs the maintainer: 
 
 ## Open items
 `docs/OPEN_QUESTIONS.md`.
+
+- 2026-10-26: watch rule messages render HA templates (D-063, fix for a rule showing a literal `{{ states(...) }}`). `make check` green (181 tests incl. 4 new). Not verified on the dev HA instance or in the rule form UI. Not committed. Blast radius: changes what rule banners show; no restart needed beyond the usual integration reload.

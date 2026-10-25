@@ -419,3 +419,35 @@ async def test_only_rule_banners_carry_the_rule_flag(
     flags = {b["id"]: b.get("rule") for b in entry.runtime_data.visible(USER)}
     assert flags["a"] is None
     assert [v for k, v in flags.items() if k != "a"] == [True]
+
+
+async def test_message_template_is_rendered_and_follows_its_entities(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    await set_state(hass, "on")
+    hass.states.async_set("input_text.reason", "Door open")
+    add_rule(hass, entry, message="Alarm: {{ states('input_text.reason') }}")
+    await hass.async_block_till_done()
+    assert entry.runtime_data.visible(USER)[0]["message"] == "Alarm: Door open"
+
+    hass.states.async_set("input_text.reason", "Window open")
+    await hass.async_block_till_done()
+    assert entry.runtime_data.visible(USER)[0]["message"] == "Alarm: Window open"
+
+
+async def test_name_placeholder_and_template_combine(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    await set_state(hass, "on", friendly_name="Kitchen window")
+    add_rule(hass, entry, message="{name}: {{ 1 + 1 }}")
+    await hass.async_block_till_done()
+    assert entry.runtime_data.visible(USER)[0]["message"] == "Kitchen window: 2"
+
+
+async def test_failing_template_shows_the_raw_text(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    await set_state(hass, "on")
+    add_rule(hass, entry, message="{{ 1 / 0 }}")
+    await hass.async_block_till_done()
+    assert entry.runtime_data.visible(USER)[0]["message"] == "{{ 1 / 0 }}"

@@ -15,7 +15,7 @@ A watch rule shows a banner while an entity is in a state. You set it up once in
 | Condition | Equals | How to compare: equals, does not equal, above, below, between, contains text, does not contain text. |
 | State | `on` for equals and does not equal | The values to compare with. Above and below take one number, between takes two (low, high). |
 | Attribute | none | Compare this attribute instead of the state. The value is compared as text; numeric conditions need a number. |
-| Message | – | Banner text, up to 1000 characters. `{name}` becomes the entity's name. |
+| Message | – | Banner text, up to 1000 characters. `{name}` becomes the entity's name. Home Assistant templates such as `{{ states('input_text.reason') }}` are rendered; the text updates when the entities the template reads change (not for `now()`). |
 | Title | none | Up to 100 characters. |
 | Severity | `warning` | Color, icon and sort order, as for [actions](actions.md). |
 | Icon | severity icon | Replaces the default icon. |

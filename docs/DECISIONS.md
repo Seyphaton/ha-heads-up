@@ -324,6 +324,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: move the published tag and republish.
 - Reason: a published tag is not rewritten.
 
+## D-063 Rule messages render Home Assistant templates
+- Date: 2026-10-26.
+- Decision: a rule message is rendered as a Home Assistant template (`{{ states('...') }}`), after `{name}` is replaced. Entities the template reads are tracked, so the text updates when they change; time-based functions such as `now()` are not refreshed. An invalid template is refused by the rule form (`message_template_invalid`); a template that fails at render time shows the unrendered text and logs a warning. This changes D-055 ("no other placeholders or templates"); `create_banner` is unchanged (HA renders its data before the call, D-017).
+- Alternatives: reject templates in the form; a state placeholder without Jinja.
+- Reason: a maintainer rule used `{{ states(...) }}` and showed the raw text. Maintainer chose rendering.
+
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
 - 2026-10-25: Phase 1 complete; Phase 2 approved.
