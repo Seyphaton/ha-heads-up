@@ -93,51 +93,51 @@
         },
         "title": {
           "name": "Title",
-          "description": "Up to 100 characters."
+          "description": "Up to 100 characters. Default: no title."
         },
         "severity": {
           "name": "Severity",
-          "description": "Sets color, default icon and sort order."
+          "description": "Sets color, default icon and sort order. Default: Warning."
         },
         "icon": {
           "name": "Icon",
-          "description": "Replaces the default icon of the severity."
+          "description": "Replaces the default icon of the severity. Default: the icon of the severity."
         },
         "timeout": {
           "name": "Timeout",
-          "description": "The banner disappears after this time, also across restarts. 0 = no timeout. Empty = default from the integration options."
+          "description": "The banner disappears after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
         },
         "dismissible": {
           "name": "Dismissible",
-          "description": "Shows a close button on the banner."
+          "description": "Shows a close button on the banner. Default: on."
         },
         "dismiss_scope": {
           "name": "Dismiss scope",
-          "description": "Per user: closing hides it only for that user. Everyone: closing removes it for all."
+          "description": "Per user: closing hides it only for that user. Everyone: closing removes it for all. Default: the setting from the integration options (per user unless changed)."
         },
         "tag": {
           "name": "Tag",
-          "description": "Group name for card filters and for clearing several banners at once."
+          "description": "Group name for card filters and for clearing several banners at once. Default: no tag."
         },
         "condition": {
           "name": "Condition",
-          "description": "Shows the banner only while an entity matches: entity_id, optional operator (equals, not_equals, above, below, between, contains, not_contains), state (default on for equals and not_equals; a list, or numbers for above, below and between), optional attribute."
+          "description": "Shows the banner only while an entity matches: entity_id, optional operator (equals, not_equals, above, below, between, contains, not_contains), state (default on for equals and not_equals; a list, or numbers for above, below and between), optional attribute. Default: no condition, the banner always shows."
         },
         "mode": {
           "name": "Mode",
-          "description": "Once: removed when the condition turns false. Recurring: hidden while false, shown again when true."
+          "description": "Once: removed when the condition turns false. Recurring: hidden while false, shown again when true. Default: Once."
         },
         "wait_for_condition": {
           "name": "Wait for condition",
-          "description": "On: a banner whose condition is false now waits until it turns true. Off: nothing is stored and the response status is condition_false."
+          "description": "On: a banner whose condition is false now waits until it turns true. Off: nothing is stored and the response status is condition_false. Default: on. Ignored without a condition."
         },
         "people": {
           "name": "People",
-          "description": "Show only to these people. Empty: everyone."
+          "description": "Show only to these people. Default: everyone."
         },
         "tap_action": {
           "name": "Tap action",
-          "description": "Home Assistant action config run when the banner is tapped, e.g. navigate."
+          "description": "Home Assistant action config run when the banner is tapped, e.g. navigate. Default: none."
         }
       }
     },
