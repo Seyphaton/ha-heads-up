@@ -176,6 +176,4 @@ async def conditions() -> None:
         print("user sees:", [b["id"] for b in await subscribe(await connect(s, user))])
 
 
-asyncio.run(
-    {"create": create, "verify": verify, "conditions": conditions}[sys.argv[1]]()
-)
+asyncio.run({"create": create, "verify": verify, "conditions": conditions}[sys.argv[1]]())

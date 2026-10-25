@@ -1,0 +1,12 @@
+{
+  "name": "heads-up-card-dev",
+  "private": true,
+  "type": "module",
+  "description": "Dev tooling only. The card has no runtime npm dependencies (D-021).",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "3.2.4"
+  }
+}

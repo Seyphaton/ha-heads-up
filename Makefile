@@ -1,4 +1,4 @@
-.PHONY: setup test lint format typecheck hassfest docs-check check dev-up dev-onboard dev-smoke dev-down dev-reset dev-logs
+.PHONY: setup test test-card lint format typecheck hassfest docs-check check dev-up dev-onboard dev-smoke dev-down dev-reset dev-logs
 
 COMPOSE = docker compose -f dev/docker-compose.yml
 
@@ -7,6 +7,10 @@ setup:          ## install Python 3.14 venv and dev dependencies
 
 test:           ## run pytest (pass ARGS="-k name" for a single test)
 	uv run pytest $(ARGS)
+
+test-card:      ## run vitest on the card's pure functions (needs npm install once)
+	npm install --no-audit --no-fund
+	npx vitest run
 
 lint:           ## ruff lint + format check
 	uv run ruff check .
@@ -25,7 +29,7 @@ hassfest:       ## validate manifest/translations with HA's hassfest image (amd6
 docs-check:     ## banned words, placeholders, example validation, field parity
 	uv run python scripts/docs_check.py
 
-check: lint typecheck test docs-check
+check: lint typecheck test docs-check test-card
 
 dev-up:         ## start local throwaway HA on http://127.0.0.1:8124
 	$(COMPOSE) up -d

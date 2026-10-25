@@ -3,6 +3,8 @@
 1. Banned words and placeholders in every committed Markdown file.
 2. YAML examples in user docs that call heads_up.* validate against the real action schemas.
 3. Field parity: action schema == services.yaml fields == docs/actions.md field tables.
+4. Card option parity: CONFIG_KEYS in the card module == docs/card.md options table; card YAML
+   examples use only those options.
 """
 
 from __future__ import annotations
@@ -167,6 +169,58 @@ def check_field_parity() -> list[str]:
     return errors
 
 
+CARD_JS = ROOT / "custom_components" / "heads_up" / "frontend" / "heads-up-card.js"
+CARD_TYPE = "custom:heads-up-card"
+
+
+def check_card_options(files: list[Path]) -> list[str]:
+    import yaml
+
+    match = re.search(r"export const CONFIG_KEYS = \[(.*?)\];", CARD_JS.read_text(), re.DOTALL)
+    if not match:
+        return [f"{CARD_JS.relative_to(ROOT)}: CONFIG_KEYS not found"]
+    in_card = set(re.findall(r'"([a-z_]+)"', match.group(1)))
+
+    page = (ROOT / "docs" / "card.md").read_text(encoding="utf-8")
+    in_docs: set[str] = set()
+    in_table = False
+    for line in page.splitlines():
+        if line.startswith("| Option"):
+            in_table = True
+        elif in_table and not line.startswith("|"):
+            in_table = False
+        elif in_table and (m := re.match(r"^\| `([a-z_]+)` \|", line)):
+            in_docs.add(m.group(1))
+    errors = []
+    if in_docs != in_card:
+        errors.append(
+            "docs/card.md: options differ from CONFIG_KEYS: "
+            f"missing {sorted(in_card - in_docs)}, extra {sorted(in_docs - in_card)}"
+        )
+
+    for path in human_docs(files):
+        for block in FENCE_RE.findall(path.read_text(encoding="utf-8")):
+            try:
+                parsed = yaml.safe_load(block)
+            except yaml.YAMLError:
+                continue  # reported by check_examples
+            for card in _card_configs(parsed):
+                unknown = set(card) - in_card - {"type"}
+                if unknown:
+                    rel = path.relative_to(ROOT)
+                    errors.append(f"{rel}: card example uses unknown options {sorted(unknown)}")
+    return errors
+
+
+def _card_configs(node: Any) -> list[dict[str, Any]]:
+    if isinstance(node, list):
+        return [c for item in node for c in _card_configs(item)]
+    if isinstance(node, dict):
+        found = [node] if node.get("type") == CARD_TYPE else []
+        return found + [c for v in node.values() for c in _card_configs(v)]
+    return []
+
+
 def main() -> int:
     sys.path.insert(0, str(ROOT))
     import homeassistant  # noqa: F401  installs the probatio voluptuous shim (HA_API_NOTES N-24)
@@ -174,7 +228,7 @@ def main() -> int:
     files = markdown_files()
     errors = check_words(files)
     example_errors, examples = check_examples(files)
-    errors += example_errors + check_field_parity()
+    errors += example_errors + check_field_parity() + check_card_options(files)
     for e in errors:
         print(e)
     print(f"docs-check: {len(files)} files, {examples} examples validated, {len(errors)} errors")
