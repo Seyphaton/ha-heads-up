@@ -36,5 +36,5 @@
 
 ## Phase 9: condition operators
 - Not built: `matches regex`, "for at least N minutes", `at_least`/`at_most` (inclusive single bounds; `between` covers the inclusive case), comparing two entities.
-- Not verified: the operator selector and its labels in Home Assistant's own rule form (flow ran through the test harness only), 2026.10, `make dev-smoke` with an operator rule.
+- Verified in the browser pane (admin, dev HA 2026.9.4, 2026-10-25): the rule form shows the Condition dropdown and the description without a translation error. Not verified: submitting a rule with an operator in the UI, 2026.10, `make dev-smoke` with an operator rule.
 - A numeric `state` such as `25` is stored as text `"25"` in an action condition; compared as a float, so `"25.0"` and `"2.5e1"` also work. Not tested with locale decimal commas (a value `"25,5"` is not a number).

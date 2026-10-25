@@ -169,7 +169,7 @@
       "step": {
         "user": {
           "title": "Add watch rule",
-          "description": "Shows a banner on every Heads Up card while an entity is in a state. {name} in the message is replaced by the entity's name.",
+          "description": "Shows a banner on every Heads Up card while an entity is in a state. {name_token} in the message is replaced by the entity's name.",
           "data": {
             "name": "Rule name",
             "entity_id": "Entity",
@@ -197,7 +197,7 @@
         },
         "reconfigure": {
           "title": "Change watch rule",
-          "description": "Shows a banner on every Heads Up card while an entity is in a state. {name} in the message is replaced by the entity's name.",
+          "description": "Shows a banner on every Heads Up card while an entity is in a state. {name_token} in the message is replaced by the entity's name.",
           "data": {
             "name": "Rule name",
             "entity_id": "Entity",

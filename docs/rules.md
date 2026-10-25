@@ -25,6 +25,30 @@ A watch rule shows a banner while an entity is in a state. You set it up once in
 
 To change or delete a rule, open it from the same page. Changes apply at once; no restart is needed.
 
+<img src="images/watch-rule.png" width="500" alt="The Add watch rule form: rule name, entity, condition, state">
+
+## Examples
+
+Each row is one rule. `{name}` in the message becomes the entity's name. The condition columns are what you enter in "Condition" and "State".
+
+| Goal | Entity | Attribute | Condition | State | Message | Severity |
+|---|---|---|---|---|---|---|
+| Window open | `binary_sensor.bedroom_window` | none | Equals | `on` | `{name} is open.` | warning |
+| Door not locked | `lock.front_door` | none | Does not equal | `locked` | `{name} is not locked.` | critical |
+| Dishwasher not idle or off | `sensor.dishwasher_status` | none | Does not equal | `idle`, `off` | `{name} is running.` | info |
+| Room too warm | `sensor.living_room_temperature` | none | Above | `25` | `The living room is warmer than 25 °C.` | info |
+| Room too cold | `sensor.living_room_temperature` | none | Below | `16` | `The living room is colder than 16 °C.` | warning |
+| Battery low | `sensor.phone_battery` | none | Between | `5`, `15` | `The phone battery is low.` | warning |
+| Printer reports a problem | `sensor.printer_status` | none | Contains text | `error`, `jam` | `The printer reports a problem.` | warning |
+| Garage door not closed | `cover.garage_door` | `current_position` | Above | `0` | `{name} is open.` | warning |
+
+Notes:
+
+- "Does not equal" with several values matches when the value equals none of them.
+- "Above" and "below" take one number and exclude it. "Between" takes two numbers, low then high, and includes both.
+- "Contains text" matches when any of the values is part of the state. "Does not contain text" matches when none is.
+- The value is compared as text for equals, does not equal and contains. The numeric conditions need a number in the state or attribute.
+
 ## What you see
 
 - The banner shows while the condition is true and goes away when it is false. It has no timeout.

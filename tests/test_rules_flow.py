@@ -18,6 +18,15 @@ async def start(hass: HomeAssistant, entry: MockConfigEntry) -> str:
     return str(result["flow_id"])
 
 
+async def test_form_passes_name_token_for_description(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await hass.config_entries.subentries.async_init(
+        (entry.entry_id, "rule"), context={"source": config_entries.SOURCE_USER}
+    )
+    assert result["description_placeholders"] == {"name_token": "{name}"}
+
+
 async def test_add_rule_with_defaults(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     hass.states.async_set(WINDOW, "off")
     flow_id = await start(hass, entry)

@@ -38,7 +38,7 @@ Heads Up is not in the default HACS list. Add it as a custom repository:
 
 Go to Settings > Devices & services and add the integration Heads Up. It asks for nothing. The card is registered by the integration, so you do not add a dashboard resource.
 
-Banners also come from watch rules: a rule shows a banner while an entity is in a state. You set it up once in the integration (Settings > Devices & services > Heads Up), without an automation, and every Heads Up card shows it. See [docs/rules.md](docs/rules.md).
+Banners also come from watch rules: a rule shows a banner while an entity matches a condition. See [section 3](#3-watch-rules) and [docs/rules.md](docs/rules.md).
 
 ## 1. Configure the dashboard card
 
@@ -223,6 +223,23 @@ data:
 
 More examples, including REST and WebSocket calls, are in [docs/examples.md](docs/examples.md).
 
+## 3. Watch rules
+
+A watch rule shows a banner while an entity matches a condition. It needs no automation and no card setting. Go to Settings > Devices & services > Heads Up and choose "Add watch rule".
+
+<img src="docs/images/watch-rule.png" width="500" alt="The Add watch rule form: rule name, entity, condition, state">
+
+Examples, as filled into the form. `{name}` in the message becomes the entity's name.
+
+| Goal | Entity | Condition | State | Message | Severity |
+|---|---|---|---|---|---|
+| Window open | `binary_sensor.bedroom_window` | Equals | `on` | `{name} is open.` | warning |
+| Door not locked | `lock.front_door` | Does not equal | `locked` | `{name} is not locked.` | critical |
+| Room too warm | `sensor.living_room_temperature` | Above | `25` | `The living room is warmer than 25 °C.` | info |
+| Battery low | `sensor.phone_battery` | Between | `5` and `15` | `The phone battery is low.` | warning |
+
+Conditions: equals, does not equal, above, below, between, contains text, does not contain text. A rule banner has no close button unless you turn on "Dismissible", and it goes away when the condition is false. The same conditions work in `heads_up.create_banner` through `condition.operator`. See [docs/rules.md](docs/rules.md) for every field and more examples.
+
 ## Options
 
 Open the integration and choose Configure. Changes apply to banners created afterwards.
@@ -242,7 +259,7 @@ The card receives banners over the Home Assistant WebSocket connection and updat
 
 - [Actions](docs/actions.md): fields, responses, conditions, people, events.
 - [Card](docs/card.md): options and behaviour.
-- [Watch rules](docs/rules.md): banners from an entity state, without an automation.
+- [Watch rules](docs/rules.md): banners from an entity state or value, without an automation.
 - [Examples](docs/examples.md): window with a condition, alert for one person, tap action, REST and WebSocket.
 - [Troubleshooting](docs/troubleshooting.md)
 - [Limitations](docs/limitations.md)

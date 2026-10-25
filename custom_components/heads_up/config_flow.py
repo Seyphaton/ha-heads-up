@@ -199,6 +199,8 @@ class RuleSubentryFlow(ConfigSubentryFlow):
             step_id=step_id,
             data_schema=self.add_suggested_values_to_schema(_RULE_SCHEMA, suggested),
             errors=errors,
+            # The frontend reads a literal {name} in a translation as a missing placeholder.
+            description_placeholders={"name_token": "{name}"},
         )
 
     def _validate(self, user_input: dict[str, Any]) -> dict[str, str]:
