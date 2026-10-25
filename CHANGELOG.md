@@ -4,8 +4,10 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-10-26
+
 ### Fixed
-- Watch rule messages now render Home Assistant templates. Before, `{{ states('...') }}` appeared as literal text.
+- Watch rule messages now render Home Assistant templates. Before, `{{ states('...') }}` appeared as literal text. The text updates when the entities the template reads change, not for time functions such as `now()`. The rule form refuses an invalid template; a template that fails at render time shows its raw text and logs a warning.
 
 ## [0.2.1] - 2026-10-25
 
