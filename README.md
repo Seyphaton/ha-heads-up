@@ -1,5 +1,8 @@
 # Heads Up
 
+[![Open your Home Assistant instance and open this repository in the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Seyphaton&repository=ha-heads-up&category=integration)
+[![Open your Home Assistant instance and start setting up the Heads Up integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=heads_up)
+
 Heads Up shows banners inside a Home Assistant dashboard. Automations, scripts and external programs create and clear banners with actions. Watch rules show a banner while an entity is in a state, without an automation. The dashboard holds no message text.
 
 Banners stay until someone closes them, a condition on an entity stops matching, a timeout passes, or an action clears them. They survive a Home Assistant restart.
@@ -16,6 +19,8 @@ Status: version 0.1.0, the first release. It was tested on a local development i
 Make a backup first. Installing needs a Home Assistant restart, which pauses all automations until it has finished.
 
 ### With HACS
+
+The first button at the top opens the repository in HACS on your Home Assistant. It works once the repository is public. The second button opens the setup dialog of the integration after it is installed.
 
 Heads Up is not in the default HACS list. Add it as a custom repository:
 
