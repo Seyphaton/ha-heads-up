@@ -10,8 +10,8 @@
 - Domain `heads_up` collision: no hit in the HACS default list or in core (N-48); an unlisted custom repository with the same domain cannot be excluded.
 - README screenshots (light, dark, GIF of a banner disappearing) are missing; they must come from the dev HA (D-046).
 - HACS install steps for the README, once the repository is public.
-- Publishing the repo, the first tag and the GitHub release need the maintainer's approval (D-020).
-- The CI jobs, including `python-ha-2026-10`, have never run.
+- `main` is pushed to a private repository. Making it public, the first tag and the GitHub release need the maintainer's approval (D-020).
+- The CI jobs, including `python-ha-2026-10`, start with the first push; their results are not read yet.
 - mypy and the dev HA were not run on 2026.10.
 
 ## Resolved

@@ -3,14 +3,15 @@
 Updated 2026-10-25. Read this first in a new session, then `docs/DESIGN.md` §0 and §8. Start each phase session with the prompt in `docs/dev/PHASE_PROMPT.md`; its documentation checklist is the definition of done.
 
 ## Where we are
-- Phases 0–7 delivered, except the release itself. Phases 0–6 are committed. Phase 7 (card design, D-048, D-049) is in the working tree, **not committed**.
-- The first release is the maintainer's call (D-020): nothing is pushed, tagged or published, and there is no remote.
+- Phases 0–7 delivered, except the release itself. Everything is committed and pushed, including Phase 7 (card design, D-048, D-049, D-050) and a README with screenshots that was added in a separate session.
+- `main` (21 commits) was pushed on 2026-10-25 to `git@github.com:Seyphaton/ha-heads-up.git` with the maintainer's approval (D-020). All commits carry the author `Seyphaton <23493879+Seyphaton@users.noreply.github.com>`; the history was rewritten for that before the push. An unauthenticated lookup of the repository returns "Not Found", so it is private. No tag, no release.
+- The first release is still the maintainer's call (D-020).
 - No further phase is planned. Remaining work: "Before the first release" in `docs/dev/RELEASE.md` and `docs/OPEN_QUESTIONS.md`.
 
 ## Verified state
 - `make check`: 85 pytest, 62 vitest, ruff, mypy strict, docs-check (11 YAML examples, card option parity for 17 options). `make hassfest` and `make dev-smoke` pass.
 - Phase 7 on the dev HA 2026.9.4 (browser pane, admin, dashboard `hu-test`, view `design` with six cards): compact one-liners, time text and its 30 s refresh, title, `show_severity` default off, `colorize` and `colors`, clear all, collapsed items, swipe with a mouse (and cancel on a short drag, no tap action), empty message, editor fields with defaults and nested colors. The same 80 tests as before pass on HA 2026.10.4 (not re-run for Phase 7).
-- Not verified: swipe on a touch screen (R-10), keyboard activation, screen readers, compact layout at phone width, `show_all` rendering with another person's banner, the editor inside HA's own card dialog (checked as a floating element), CI (never run), mypy and the dev HA on 2026.10, UI wording in README and troubleshooting (Settings > Devices & services, Configure, Delete), an unlisted custom repository with the domain `heads_up`.
+- Not verified: swipe on a touch screen (R-10), keyboard activation, screen readers, compact layout at phone width, `show_all` rendering with another person's banner, the editor inside HA's own card dialog (checked as a floating element), CI (the jobs start with the first push; results not read yet), mypy and the dev HA on 2026.10, UI wording in README and troubleshooting (Settings > Devices & services, Configure, Delete), an unlisted custom repository with the domain `heads_up`.
 
 ## Before starting work
 1. `make setup` (uv, Python 3.14). Node 22 for `make test-card`.

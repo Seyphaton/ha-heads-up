@@ -264,3 +264,4 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - 2026-10-25: Phase 5 reviewed; Phase 6 approved (choices in D-044 to D-046).
 - 2026-10-25: Phase 6 delivered and committed; Phase 7 (card design, D-048) approved.
 - 2026-10-25: Phase 7 delivered (card design options, `heads_up/dismiss_many`); not committed at the time of writing; no further phase approved.
+- 2026-10-25: `main` pushed to the private repository `Seyphaton/ha-heads-up` (maintainer approval); all commits re-authored to the GitHub noreply identity; no tag or release.

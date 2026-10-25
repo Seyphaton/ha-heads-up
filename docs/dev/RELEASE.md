@@ -9,7 +9,7 @@
 Compatibility policy: DESIGN.md §13.
 
 Before the first release (maintainer's decisions, D-020):
-- Create the public GitHub repository, set the remote, push. Make sure the repository has a description and topics (N-18).
+- The repository exists and `main` is pushed (private). Make it public, and give it a description and topics (N-18).
 - Replace the placeholders in `manifest.json` (`documentation`, `issue_tracker`, `codeowners`) and `hacs.json` if the repository address differs.
 - Add the README screenshots and the HACS install steps.
 - Check the HACS action output; the brands check reads `custom_components/heads_up/brand/icon.png` (N-47).
