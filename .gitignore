@@ -31,3 +31,4 @@ CLAUDE.local.md
 
 # Generated dev HA test credentials
 dev/dev-credentials.env
+.venv-ha/

@@ -8,8 +8,8 @@ Living design document: requirements and architecture. Decisions are referenced 
 |---|---|
 | §4 data model, §5 lifecycle, §6 backend, §7 actions, §9 targeting | implemented and tested (Phases 2–3) |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phase 4) |
-| Human docs | `docs/actions.md`, `docs/card.md`, `docs/examples.md` done; README quick start, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` pending (Phase 6) |
-| Packaging, release, CI run | pending (Phase 6; repo not published, D-020). Still missing: `brand/icon.png`, README quick start and screenshots, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md`, CI matrix with 2026.10 |
+| Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
+| Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
 
 ## 1. Goals, non-goals, scope cut
 
@@ -274,15 +274,17 @@ Touch and kiosk use: 48 px touch targets; no hover-only controls; `compact` layo
 | Full and no evictable banner | `too_many_banners` |
 | Two parallel `create_banner` with same `id` | serialized in event loop; last call wins; two events |
 | Clock change / DST | all times UTC; DST has no effect. A manual system-clock jump forward expires banners early (HA timer semantics). |
-| Corrupt storage file | Expected: `Store` load raises, entry setup fails with a log error, other integrations unaffected; user removes the file (troubleshooting doc). Not tested yet (Phase 6). |
+| Corrupt storage file (undecodable) | HA's `Store` renames it to `.corrupt.<time>`, logs an error and returns no data; Heads Up starts empty (N-45, D-044). Checked on the dev HA, not unit-tested. |
+| Storage file readable, one banner damaged | that banner is skipped with an error log naming its `id`; the others load; the file is rewritten (`tests/test_storage_corruption.py`). |
+| Page loaded in the first second after an HA start | `index.html` has no card URL yet; the page shows "Custom element doesn't exist" until reloaded (N-42, D-045). |
 | Card on HA without the integration loaded, or before it has loaded during a start | card shows "Heads Up is not available…" and retries (D-041); HA answers `unknown_command` until `heads_up` is set up. |
 | Huge `tap_action` | limited by WebSocket message size; not validated beyond being a mapping (R-1). |
 
 ## 11. Test strategy
 
-Status: Python tests implemented (76, files listed in `docs/dev/TESTING.md`); card pure functions tested (21 vitest tests); CI matrix pending (Phase 6).
+Status: Python tests implemented (80, files listed in `docs/dev/TESTING.md`); card pure functions tested (21 vitest tests); CI matrix job for 2026.10.4 written and run locally (80 tests pass), CI itself not run.
 
-- Python: `pytest-homeassistant-custom-component` 0.13.367 = HA 2026.9.4 (N-25); CI matrix adds latest 2026.10.x (Phase 6).
+- Python: `pytest-homeassistant-custom-component` 0.13.367 = HA 2026.9.4 (N-25); CI runs the same tests on 2026.10.4 (N-46).
 - Lifecycle tests first (Phase 2): upsert, each removal reason, eviction order, limits, response data, events, permission checks for `show_all`/`admin_clear`.
 - Restart tests: create → unload/reload entry with persisted store → assert banners, dismissals, `expires_at`; freeze time past expiry across restart → `expired` event.
 - Condition tests (Phase 3): flips, `once` vs `recurring`, `wait_for_condition`, unavailable, entity removed, person `user_id` changes.
@@ -293,7 +295,7 @@ Status: Python tests implemented (76, files listed in `docs/dev/TESTING.md`); ca
 
 ## 12. Packaging, CI, versioning, runbook
 
-- Public GitHub repo (D-020); layout `custom_components/heads_up/`, `brand/icon.png`, `hacs.json` `{name: "Heads Up", homeassistant: "2026.9.0"}` (N-18, N-19).
+- Public GitHub repo (D-020); layout `custom_components/heads_up/` with `brand/icon.png` inside it (N-47), `hacs.json` `{name: "Heads Up", homeassistant: "2026.9.0"}` (N-18, N-19).
 - manifest: `domain`, `name`, `version`, `documentation`, `issue_tracker`, `codeowners`, `config_flow: true`, `integration_type: service`, `iot_class: local_push`, `dependencies: [frontend, http, person]`, `single_config_entry: true` (verified, N-27).
 - SemVer; CHANGELOG (Keep a Changelog); GitHub releases, not only tags (N-18).
 - CI (D-027): ruff, mypy, pytest, hassfest, HACS action, vitest, docs-check.
@@ -319,6 +321,7 @@ Status: Python tests implemented (76, files listed in `docs/dev/TESTING.md`); ca
 | R-6 | `hass-action` event and websocket re-subscribe behaviour can change in the frontend. | Verified in the 2026.9.4 bundle and live (N-38, N-39, N-40); `stale-check-on-upgrade`. |
 | R-7 | Domain `heads_up` collision (N-22). | Check the HACS default list before the first release. |
 | R-8 | Per-user dismiss on a shared login hides the banner for everyone on it (D-007). | Documented; callers choose `dismiss_scope`. |
+| R-9 | A page loaded in the first second after an HA start misses the card (N-42). | Cannot be fixed inside an integration (D-045); documented in limitations and troubleshooting. |
 
 ## 15. Verified facts
 

@@ -76,7 +76,14 @@ class BannerManager:
         now = dt_util.utcnow()
         dropped = False
         for raw in data.get("banners", []):
-            banner = Banner.from_dict(raw)
+            try:
+                banner = Banner.from_dict(raw)
+            except (TypeError, KeyError, ValueError, AttributeError) as err:
+                # One damaged entry must not take the other banners or the integration down.
+                banner_id = raw.get("id") if isinstance(raw, dict) else None
+                _LOGGER.error("Skipping unreadable banner %r in storage: %s", banner_id, err)
+                dropped = True
+                continue
             if banner.expires_at is not None and banner.expires_at <= now:
                 # Expired while HA was down (D-023).
                 self._fire(EVENT_EXPIRED, banner)

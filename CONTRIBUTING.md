@@ -3,8 +3,9 @@
 ## Run the tests
 
 1. Install [uv](https://docs.astral.sh/uv/).
-2. Run `make setup`.
-3. Run `make check`.
+2. Install Node 22 (for the card tests).
+3. Run `make setup`.
+4. Run `make check`. It runs lint, types, pytest, docs checks and the card tests (`make test-card`).
 
 ## Report a bug
 
