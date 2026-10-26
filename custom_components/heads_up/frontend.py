@@ -22,7 +22,7 @@ async def async_register_card_path(hass: HomeAssistant) -> None:
     """Serve the module. Static paths cannot be removed, so this runs once per HA run.
 
     Cached by the browser: the URL carries a hash of the file, so a changed file has a new URL
-    (D-063).
+    (D-064).
     """
     await hass.http.async_register_static_paths(
         [StaticPathConfig(CARD_URL_PATH, str(CARD_FILE), cache_headers=True)]

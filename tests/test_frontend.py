@@ -48,7 +48,7 @@ async def test_module_is_served(
     assert response.status == 200
     body = await response.text()
     assert 'customElements.define("heads-up-card"' in body
-    # Cached by the browser; the hashed URL makes that safe (D-063).
+    # Cached by the browser; the hashed URL makes that safe (D-064).
     assert "max-age" in response.headers["Cache-Control"]
 
 
