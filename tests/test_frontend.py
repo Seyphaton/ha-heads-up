@@ -48,6 +48,8 @@ async def test_module_is_served(
     assert response.status == 200
     body = await response.text()
     assert 'customElements.define("heads-up-card"' in body
+    # Cached by the browser; the hashed URL makes that safe (D-063).
+    assert "max-age" in response.headers["Cache-Control"]
 
 
 async def test_unload_removes_the_url_that_was_added_even_if_the_file_changed(

@@ -251,7 +251,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Date: 2026-10-25.
 - Decision: the module URL is `/heads_up/heads-up-card.js?v=<manifest version>-<first 8 hex of the file's SHA-256>`. The URL added with `add_extra_js_url` is remembered and the same one is removed on unload.
 - Alternatives: version only (D-042); `Cache-Control: no-cache` on the file.
-- Reason: with the version alone, a build with the same version had the same URL, and a maintainer's Safari kept showing the old card after Phase 7 (screenshot, 2026-10-25). The file is served without `Cache-Control`, only `ETag` and `Last-Modified` (N-52).
+- Reason: with the version alone, a build with the same version had the same URL, and a maintainer's Safari kept showing the old card after Phase 7 (screenshot, 2026-10-25). The file was first served without `Cache-Control`, only `ETag` and `Last-Modified` (N-52); D-063 changes that.
 
 ## D-051 First release prepared as 0.1.0
 - Date: 2026-10-25.
@@ -323,6 +323,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision: `v0.2.0` was published from `c3ed219` with `manifest.json` still at `0.1.0` and no `[0.2.0]` changelog section. The tag stays; `0.2.1` carries the manifest and changelog fix. RELEASE.md now says to commit and push the version bump before tagging.
 - Alternatives: move the published tag and republish.
 - Reason: a published tag is not rewritten.
+
+
+## D-063 Card file is cached by the browser
+- Date: 2026-10-26.
+- Decision: `/heads_up/heads-up-card.js` is registered with `cache_headers=True`, so it is served with `Cache-Control` (long `max-age`). Partly supersedes D-050, which kept it uncached.
+- Alternatives: keep revalidating on every load (D-050).
+- Reason: intermittent "Custom element doesn't exist: heads-up-card" on plain page reloads with no restart. HA loads the module with an unordered `import()` and a dashboard that renders the card before it arrives waits about 2 s before giving up; a fetch on every reload makes that miss possible. The URL contains the file hash (D-050), so a changed file is a new URL and a cached copy is never stale. The cause is inferred from HA's frontend behaviour, not reproduced.
 
 ## D-063 Rule messages render Home Assistant templates
 - Date: 2026-10-26.
