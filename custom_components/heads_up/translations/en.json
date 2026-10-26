@@ -121,7 +121,7 @@
         },
         "condition": {
           "name": "Condition",
-          "description": "Shows the banner only while an entity matches: entity_id, optional operator (equals, not_equals, above, below, between, contains, not_contains), state (default on for equals and not_equals; a list, or numbers for above, below and between), optional attribute. Default: no condition, the banner always shows."
+          "description": "Shows the banner only while the condition holds. Either entity_id with optional operator (equals, not_equals, above, below, between, contains, not_contains), state (default on for equals and not_equals; a list, or numbers for above, below and between) and attribute; or template, a Home Assistant template that is true (cannot be combined with the entity fields). Optional for: how long it must hold, for example 5 minutes, up to 24 hours. Default: no condition, the banner always shows."
         },
         "mode": {
           "name": "Mode",
@@ -176,6 +176,7 @@
             "operator": "Condition",
             "state": "State",
             "attribute": "Attribute",
+            "for": "Condition must hold for",
             "message": "Message",
             "title": "Title",
             "severity": "Severity",
@@ -189,6 +190,7 @@
             "operator": "How the entity (or its attribute) is compared with the values below.",
             "state": "Equals, does not equal, contains and does not contain take one or more values (default: on for equals and does not equal). Above and below take one number; between takes two, low then high, both included.",
             "attribute": "Compare this attribute instead of the state.",
+            "for": "Optional. The banner appears only after the condition has held this long without a break, up to 24 hours. Empty: right away. After a restart the wait starts again.",
             "title": "Optional heading, up to 100 characters.",
             "people": "Show only to these people. Empty: everyone.",
             "dismissible": "Off: no close button, the banner stays while the condition is true. On: each user can hide it until the condition turns false and true again.",
@@ -204,6 +206,7 @@
             "operator": "Condition",
             "state": "State",
             "attribute": "Attribute",
+            "for": "Condition must hold for",
             "message": "Message",
             "title": "Title",
             "severity": "Severity",
@@ -217,6 +220,7 @@
             "operator": "How the entity (or its attribute) is compared with the values below.",
             "state": "Equals, does not equal, contains and does not contain take one or more values (default: on for equals and does not equal). Above and below take one number; between takes two, low then high, both included.",
             "attribute": "Compare this attribute instead of the state.",
+            "for": "Optional. The banner appears only after the condition has held this long without a break, up to 24 hours. Empty: right away. After a restart the wait starts again.",
             "title": "Optional heading, up to 100 characters.",
             "people": "Show only to these people. Empty: everyone.",
             "dismissible": "Off: no close button, the banner stays while the condition is true. On: each user can hide it until the condition turns false and true again.",
@@ -232,7 +236,8 @@
         "title_too_long": "The title can have up to 100 characters.",
         "state_count": "Above and below need one number, between needs two.",
         "state_not_numeric": "Enter numbers only for this condition.",
-        "state_required": "Enter at least one value."
+        "state_required": "Enter at least one value.",
+        "for_too_long": "Use 24 hours or less."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

@@ -4,7 +4,7 @@
 
 - It does not send push, voice or mobile notifications. It only shows banners in dashboards.
 - It keeps no history. Each change fires an event; see [actions](actions.md#events).
-- A condition watches one entity: its state or one attribute, compared as text. There are no templates.
+- A watch rule watches one entity: its state or one attribute, compared as text. The `create_banner` action can use a template condition instead, rules cannot yet.
 - Banner text is shown as you write it. The card's own labels are English only.
 
 ## Access

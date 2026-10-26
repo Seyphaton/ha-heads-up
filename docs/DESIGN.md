@@ -9,6 +9,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §4 data model, §5 lifecycle, §6 backend, §7 actions, §9 targeting | implemented and tested (Phases 2–3) |
 | §17 watch rules (config subentries, virtual banners) | implemented and tested (Phase 8); card unchanged |
 | §18 condition operators (shared matcher for actions and rules) | implemented and tested (Phase 9); card unchanged |
+| §19 condition `for` and template conditions | implemented and tested (Phase 10); card unchanged |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
 | Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
@@ -424,3 +425,28 @@ Restart: a code update needs the usual restart. Notification path: not touched. 
 
 ### 18.4 Tests
 `tests/test_operators.py`: matcher per operator, boundaries, lists, attribute, text vs number, non-numeric and missing values, unavailable with `not_equals`; action schema accepts and rejects (counts, non-numeric); stored banner with `not_equals` shows and hides; rule flow with operator, error codes, defaults, reconfigure of an old rule.
+
+## 19. Condition `for` and template conditions (Phase 10)
+
+Status: implemented 2026-10-26 (`tests/test_for_template.py`). Decisions D-066, D-067. Not built: `at_least` and `at_most` operators (dropped by the maintainer, D-066).
+
+### 19.1 Problem
+A condition reacts the moment an entity matches. "Door open for 5 minutes" needs an automation with a timer. A condition on several entities, or on time of day, needs an automation as well.
+
+### 19.2 Design
+- **`for`:** optional on a condition. Action input is any time period (dict, `HH:MM:SS`, seconds), stored as whole seconds; 0 is dropped; the maximum is 24 hours (`MAX_FOR_SECONDS`). A watch rule stores `for` in its subentry data as seconds; its form uses a duration selector.
+- **Wait:** `_effective` turns a true result into "not yet" and starts an `async_call_later` timer per banner or rule (`_for_timers`). A false result cancels the timer. A true result while the timer runs, or while the banner is already shown, changes nothing, so attribute updates do not restart the wait. When the timer fires, the condition is evaluated again; only a still true, real result shows the banner (`elapsed`). An unavailable entity at that moment shows nothing and the wait restarts at the next matching state.
+- **Where the timer is cancelled:** the banner is replaced, cleared, expires or is evicted (`_remove`); the manager unloads; a rule is rebuilt or removed.
+- **Restart:** timers are not stored. A banner stored as shown stays shown. A waiting banner, and a rule that is true at setup, start the wait again (D-066). A rule that becomes true after its wait fires `heads_up_banner_created` and sets `updated_at` then. Setup finds the state without events (D-058), the later flip is an event.
+- **Rules and unavailable:** a rule treats an unreadable result as false (D-053), so it also cancels the wait.
+- **`create_banner` response:** a banner whose condition is true but still waiting has status `waiting`. With `wait_for_condition: false` it is not stored (`condition_false`).
+- **Template condition:** `condition.template` (string, not empty, must parse) replaces `entity_id`, `operator`, `state` and `attribute`; mixing them is a validation error. The result is the template's boolean (`result_as_boolean`). `for` can be added. A render error gives no result: unchanged, like an unavailable entity (D-061). The entity-exists check of `create` applies to `entity_id` conditions only.
+- **Tracking:** `async_track_template_result` per banner with a template condition (`_template_trackers`), set up in `create` and `async_load`, removed with the banner. It re-evaluates when entities read by the template change and for time functions, which the state listener could not do (D-067). Rule messages keep their own entity tracking (D-063).
+- **Card and payloads:** unchanged; `condition` is never sent to the card.
+
+### 19.3 Blast radius
+Restart: a code update needs the usual restart. Notification path: not touched. Dashboard: banners with `for` or a template condition appear later or by other rules than before; nothing existing changes (no `for` and no `template` behave as before). Storage: stored banners may contain `template` and `for` in `condition`; older versions of the integration would fail on a banner without `entity_id` (a downgrade after using templates should clear them).
+
+### 19.4 Tests
+`tests/test_for_template.py`: schema (seconds, text, zero, limits, template rules), wait and restart of the wait, reload with a shown banner, replace, clear, `once` mode, operators with `for`; template show/hide, recurring, several entities, errors, `for`, reload, tracking stops; rules with `for` (wait, time, cancel, setup, delete, edit); rule flow (`for` as seconds, omitted, zero, too long).
+

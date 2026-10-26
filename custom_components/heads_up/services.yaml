@@ -47,7 +47,7 @@ create_banner:
       selector:
         text:
     condition:
-      example: '{"entity_id": "binary_sensor.window", "state": "on"}'
+      example: '{"entity_id": "binary_sensor.window", "state": "on", "for": {"minutes": 5}}'
       selector:
         object:
     mode:

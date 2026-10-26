@@ -10,12 +10,14 @@ from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, Supp
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import VolSchemaType
+from jinja2 import Environment, TemplateSyntaxError
 
 from .conditions import DEFAULT_OPERATOR, OPERATORS, check_state
 from .const import (
     DISMISS_SCOPES,
     DOMAIN,
     ID_PATTERN,
+    MAX_FOR_SECONDS,
     MAX_MESSAGE,
     MAX_TIMEOUT_DAYS,
     MAX_TITLE,
@@ -40,7 +42,23 @@ _STATE_ERRORS = {
 }
 
 
+def _for_seconds(value: timedelta) -> int:
+    seconds = round(value.total_seconds())
+    if seconds < 0 or seconds > MAX_FOR_SECONDS:
+        raise vol.Invalid("for must be between 1 second and 24 hours")
+    return seconds
+
+
 def _check_condition(condition: dict[str, Any]) -> dict[str, Any]:
+    if condition.get("for") == 0:
+        condition = {k: v for k, v in condition.items() if k != "for"}
+    if "template" in condition:
+        for key in ("entity_id", "operator", "state", "attribute"):
+            if key in condition:
+                raise vol.Invalid(f"{key} cannot be used together with template", path=[key])
+        return condition
+    if "entity_id" not in condition:
+        raise vol.Invalid("a condition needs entity_id or template", path=["entity_id"])
     operator = condition.get("operator", DEFAULT_OPERATOR)
     if "state" not in condition:
         if operator not in ("equals", "not_equals"):
@@ -53,14 +71,25 @@ def _check_condition(condition: dict[str, Any]) -> dict[str, Any]:
     return condition
 
 
+def _template_text(value: str) -> str:
+    # Syntax only, so the schema needs no running Home Assistant (also used by docs-check).
+    try:
+        Environment().parse(value)
+    except TemplateSyntaxError as err:
+        raise vol.Invalid(f"template is not valid: {err.message}") from err
+    return value
+
+
 CONDITION_SCHEMA = vol.All(
     vol.Schema(
         {
-            vol.Required("entity_id"): cv.entity_id,
+            vol.Optional("entity_id"): cv.entity_id,
+            vol.Optional("template"): vol.All(cv.string, vol.Length(min=1), _template_text),
             vol.Optional("operator"): vol.In(OPERATORS),
             # List first: cv.string would turn a list into its repr.
             vol.Optional("state"): vol.Any(vol.All(list, [cv.string]), cv.string),
             vol.Optional("attribute"): cv.string,
+            vol.Optional("for"): vol.All(cv.time_period, _for_seconds),
         }
     ),
     _check_condition,

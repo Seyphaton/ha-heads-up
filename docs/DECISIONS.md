@@ -338,6 +338,19 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: leave `updated_at` and let the card use a new field.
 - Reason: the card's time text means "since it appeared"; for a rule that is the flip. A message change while the condition stays true does not restart the time.
 
+
+## D-066 Condition `for`, no `at_least` and `at_most`
+- Date: 2026-10-26. Phase 10 requested and approved by the maintainer.
+- Decision: a condition (action and watch rule) takes an optional `for`, 1 second to 24 hours, stored as seconds. The condition must be true for the whole time before the banner shows. After a restart or reload a banner that was shown stays; waits start again (timers are not stored). An unavailable entity when the wait ends shows nothing. `at_least` and `at_most` are not built.
+- Alternatives: count from the entity's `last_changed` (wrong for numeric operators and attributes); store the start of the wait (needs storage for rules, D-058); `at_least` and `at_most` as inclusive single bounds (the maintainer saw them as redundant next to `for`; `between` covers the inclusive case).
+- Reason: the smallest rule that never shows a banner early and works for every operator. The maintainer chose "timer restarts" and "skip at_least/at_most" (2026-10-26).
+
+## D-067 Template conditions in `create_banner`
+- Date: 2026-10-26.
+- Decision: `condition.template` replaces `entity_id`, `operator`, `state` and `attribute` (mixing them is a validation error); `for` may be added. Tracked with `async_track_template_result`, so time functions such as `now()` also re-evaluate. A render error leaves the banner as it was. Templates are not available in watch rules (maintainer scope). Partly resolves D-005.
+- Alternatives: a template next to `entity_id` as an extra condition; tracking only the entities found at render time (as D-063 does for rule messages, which cannot follow `now()`).
+- Reason: one clear shape per condition; the tracker helper is the supported way to follow a template (N-60).
+
 ## D-063 Rule messages render Home Assistant templates
 - Date: 2026-10-26.
 - Decision: a rule message is rendered as a Home Assistant template (`{{ states('...') }}`), after `{name}` is replaced. Entities the template reads are tracked, so the text updates when they change; time-based functions such as `now()` are not refreshed. An invalid template is refused by the rule form (`message_template_invalid`); a template that fails at render time shows the unrendered text and logs a warning. This changes D-055 ("no other placeholders or templates"); `create_banner` is unchanged (HA renders its data before the call, D-017).
@@ -361,3 +374,4 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - 2026-10-25: Phase 9 (condition operators, D-060, D-061) requested and approved by the maintainer.
 - 2026-10-25: Phase 9 delivered (condition operators); `make check` and `make hassfest` green; not committed at the time of writing.
 - 2026-10-25: `v0.2.0` published by the maintainer; `0.2.1` prepared (D-062).
+- 2026-10-26: Phase 10 (condition `for`, template conditions, D-066, D-067) requested and approved by the maintainer; delivered; not committed at the time of writing.

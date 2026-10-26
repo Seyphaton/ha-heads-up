@@ -43,6 +43,7 @@ from .const import (
     DEFAULT_SEVERITY,
     DISMISS_SCOPES,
     DOMAIN,
+    MAX_FOR_SECONDS,
     MAX_MESSAGE,
     MAX_TITLE,
     OPT_DEFAULT_DISMISS_SCOPE,
@@ -137,6 +138,7 @@ _RULE_SCHEMA = vol.Schema(
         ),
         vol.Optional("state", default=["on"]): TextSelector(TextSelectorConfig(multiple=True)),
         vol.Optional("attribute"): TextSelector(),
+        vol.Optional("for"): DurationSelector(DurationSelectorConfig(enable_day=True)),
         vol.Required("message"): TextSelector(TextSelectorConfig(multiline=True)),
         vol.Optional("title"): TextSelector(),
         vol.Required("severity", default=DEFAULT_SEVERITY): SelectSelector(
@@ -167,7 +169,19 @@ def _rule_data(user_input: dict[str, Any]) -> dict[str, Any]:
     for key in ("attribute", "title", "icon"):
         if not (data.get(key) or "").strip():
             data.pop(key, None)
+    # The duration selector gives a dict; the rule stores seconds, none when empty (D-066).
+    seconds = _for_seconds(data.pop("for", None))
+    if seconds:
+        data["for"] = seconds
     return data
+
+
+def _for_seconds(value: Any) -> int:
+    if not value:
+        return 0
+    if isinstance(value, dict):
+        return int(cv.time_period_dict(value).total_seconds())
+    return int(value)
 
 
 class RuleSubentryFlow(ConfigSubentryFlow):
@@ -197,6 +211,8 @@ class RuleSubentryFlow(ConfigSubentryFlow):
         suggested = user_input or (
             {"name": subentry.title, **subentry.data} if subentry is not None else None
         )
+        if suggested and isinstance(suggested.get("for"), int):
+            suggested = {**suggested, "for": _seconds_to_duration(suggested["for"])}
         return self.async_show_form(
             step_id=step_id,
             data_schema=self.add_suggested_values_to_schema(_RULE_SCHEMA, suggested),
@@ -221,6 +237,8 @@ class RuleSubentryFlow(ConfigSubentryFlow):
                 Template(message, self.hass).ensure_valid()
             except TemplateError:
                 errors["message"] = "message_template_invalid"
+        if _for_seconds(user_input.get("for")) > MAX_FOR_SECONDS:
+            errors["for"] = "for_too_long"
         if len(user_input.get("title") or "") > MAX_TITLE:
             errors["title"] = "title_too_long"
         return errors

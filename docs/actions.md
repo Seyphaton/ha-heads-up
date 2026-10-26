@@ -17,7 +17,7 @@ Shows a banner in every Heads Up card. Calling it again with the same `id` repla
 | `dismissible` | boolean | `true` | Shows a close button. |
 | `dismiss_scope` | `user`, `global` | integration option, shipped as `user` | `user`: closing hides the banner only for that user. `global`: closing removes it for everyone. |
 | `tag` | text | none | Group name, same character rules as `id`. Used by card filters and by `clear_banner`. |
-| `condition` | object | none | Show the banner only while an entity matches. See [Conditions](#conditions). |
+| `condition` | object | none | Show the banner only while an entity matches or a template is true, optionally for a set time. See [Conditions](#conditions). |
 | `mode` | `once`, `recurring` | `once` | What happens when the condition turns false. Ignored without `condition`. |
 | `wait_for_condition` | boolean | `true` | What happens when the condition is false at the time of the call. Ignored without `condition`. |
 | `people` | list of person entities | everyone | Show the banner only to the users linked to these people. See [People](#people). |
@@ -65,11 +65,13 @@ When Heads Up is full (option, default 50 banners), it removes the oldest banner
 
 ### Conditions
 
-`condition` takes four keys:
+`condition` takes these keys. Use either `entity_id` (with `operator`, `state` and `attribute`) or `template`, not both. `for` works with both.
 
 | Key | Required / default | Meaning |
 |---|---|---|
-| `entity_id` | required | Entity to watch. It must exist when you call the action. |
+| `entity_id` | required unless `template` is set | Entity to watch. It must exist when you call the action. |
+| `template` | none | A Home Assistant template. The condition holds while it renders true (`true`, `on`, `yes`, `1`). It cannot be combined with `entity_id`, `operator`, `state` or `attribute`. |
+| `for` | none | How long the condition must hold without a break before the banner shows, for example `{minutes: 5}` or `"00:05:00"`. From 1 second to 24 hours. See below. |
 | `operator` | `equals` | How to compare. See the table below. |
 | `state` | `"on"` for `equals` and `not_equals`; required for the others | Value or values to compare with. |
 | `attribute` | none | Compare this attribute instead of the state. The attribute value is compared as text. |
@@ -93,6 +95,21 @@ What you see:
 - `above`, `below` and `between` do not change anything while the value is not a number. The other new operators do not change anything while the attribute is missing.
 - If the entity does not match when you call the action, the banner waits and shows when the entity matches. With `wait_for_condition: false`, nothing is stored and the response status is `condition_false`. A banner that already had this `id` is removed.
 - The `timeout` keeps running while a banner waits.
+
+#### `for`: hold for a while
+
+- The banner shows only after the condition has been true for the whole `for` time. If it turns false first, the wait starts again the next time it is true. While it waits the response status is `waiting`.
+- Once shown, the banner follows the condition as usual: `mode: once` removes it, `mode: recurring` hides it and waits `for` again the next time.
+- After a Home Assistant restart or an integration reload, a banner that was already shown stays. A banner that was still waiting starts its wait again from the restart.
+- If the entity is `unavailable` or `unknown` when the wait ends, nothing is shown; the wait starts again when it has a matching state.
+- `for` is not combined with `wait_for_condition: false`: with a true condition the banner would have to wait, so nothing is stored.
+- Keep `for` shorter than `timeout`, which keeps running during the wait.
+
+#### `template`: any condition you can write
+
+- The template is checked when you call the action. A template that does not render yet (for example a missing entity) leaves the banner waiting.
+- Home Assistant re-evaluates it when an entity it reads changes, and for time functions such as `now()` on their own schedule.
+- A template that fails to render later leaves the banner as it was and logs a message at debug level.
 
 ```yaml
 - action: heads_up.create_banner
@@ -127,6 +144,31 @@ What you see:
       entity_id: sensor.living_room_temperature
       operator: above
       state: 25
+```
+
+```yaml
+- action: heads_up.create_banner
+  data:
+    id: garage_open
+    message: The garage door has been open for 10 minutes.
+    mode: recurring
+    timeout: 0
+    condition:
+      entity_id: cover.garage_door
+      state: "open"
+      for:
+        minutes: 10
+```
+
+```yaml
+- action: heads_up.create_banner
+  data:
+    id: evening_window
+    message: A window is open in the evening.
+    mode: recurring
+    timeout: 0
+    condition:
+      template: "{{ is_state('binary_sensor.bedroom_window', 'on') and now().hour >= 20 }}"
 ```
 
 ### People
@@ -176,6 +218,7 @@ Removes every banner, including banners that cannot be closed. No fields. Respon
 | Heads Up is not set up. Add the integration first. | The integration is not added or is disabled. |
 | Heads Up already holds N banners and none can be evicted. | The limit is reached and every banner is `critical`, or eviction is turned off. |
 | Condition entity X does not exist. | `condition.entity_id` names an entity Home Assistant does not know. |
+| Validation error on `template`, `for` or an entity field | The template does not parse, `for` is over 24 hours, or `template` is combined with `entity_id`, `operator`, `state` or `attribute`. |
 | Validation error naming the field | A field breaks the rules in the tables above. Nothing is stored. |
 
 ## Events

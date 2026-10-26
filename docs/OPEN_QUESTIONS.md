@@ -34,6 +34,13 @@
 - A rule whose watched entity is also one of its `people` entities is not tested.
 
 ## Phase 9: condition operators
-- Not built: `matches regex`, "for at least N minutes", `at_least`/`at_most` (inclusive single bounds; `between` covers the inclusive case), comparing two entities.
+- Not built: `matches regex`, `at_least`/`at_most` (inclusive single bounds; `between` covers the inclusive case; dropped in D-066), comparing two entities. "For at least N minutes" is built (D-066).
 - Verified in the browser pane (admin, dev HA 2026.9.4, 2026-10-25): the rule form shows the Condition dropdown and the description without a translation error. Not verified: submitting a rule with an operator in the UI, 2026.10, `make dev-smoke` with an operator rule.
 - A numeric `state` such as `25` is stored as text `"25"` in an action condition; compared as a float, so `"25.0"` and `"2.5e1"` also work. Not tested with locale decimal commas (a value `"25,5"` is not a number).
+
+## Phase 10: `for` and template conditions
+- Not verified on the dev HA or in the rule form UI: the "Condition must hold for" field (duration selector wording, validation message), a real wait over several minutes, a template condition through the REST action. `make dev-smoke` was not extended.
+- Templates in watch rules are not built (maintainer scope: `create_banner` only).
+- A waiting banner (or a rule true at setup) restarts its wait after a restart; storing the start of the wait would avoid the delay (D-066).
+- A downgrade to a version without `condition.template` fails to load stored banners with a template condition (DESIGN §19.3).
+

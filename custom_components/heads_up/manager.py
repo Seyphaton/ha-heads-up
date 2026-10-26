@@ -17,13 +17,18 @@ from typing import Any
 from homeassistant.config_entries import ConfigSubentry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import CALLBACK_TYPE, Event, EventStateChangedData, HomeAssistant, callback
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.exceptions import ServiceValidationError, TemplateError
 from homeassistant.helpers.event import (
+    TrackTemplate,
+    TrackTemplateResult,
+    TrackTemplateResultInfo,
+    async_call_later,
     async_track_point_in_utc_time,
     async_track_state_change_event,
+    async_track_template_result,
 )
 from homeassistant.helpers.storage import Store
-from homeassistant.helpers.template import Template
+from homeassistant.helpers.template import Template, result_as_boolean
 from homeassistant.util import dt as dt_util
 
 from .conditions import DEFAULT_OPERATOR, matches
@@ -82,6 +87,9 @@ class BannerManager:
         self._listeners: list[Callable[[], None]] = []
         self.tracked_entities: set[str] = set()
         self._untrack: CALLBACK_TYPE | None = None
+        # Pending `for` waits and template trackers, by banner or rule ID (DESIGN §19).
+        self._for_timers: dict[str, CALLBACK_TYPE] = {}
+        self._template_trackers: dict[str, TrackTemplateResultInfo] = {}
 
     async def async_load(self) -> None:
         data = await self._store.async_load() or {}
@@ -107,6 +115,7 @@ class BannerManager:
         # evaluate to None and keep their stored result (D-006).
         for banner in list(self.banners.values()):
             if banner.condition is not None:
+                self._track_template(banner)
                 dropped |= self._apply_condition(banner)
         self._refresh_tracking()
         if dropped:
@@ -116,6 +125,9 @@ class BannerManager:
         for cancel in self._timers.values():
             cancel()
         self._timers.clear()
+        for banner_id in [*self._for_timers, *self._template_trackers]:
+            self._cancel_wait(banner_id)
+            self._untrack_template(banner_id)
         self._listeners.clear()
         self.rules.clear()
         self._rule_sources.clear()
@@ -135,14 +147,19 @@ class BannerManager:
         existing = self.banners.get(banner_id)
         condition: dict[str, Any] | None = data.get("condition")
         met: bool | None = None
+        waits = False
         if condition is not None:
-            if self.hass.states.get(condition["entity_id"]) is None:
+            if "entity_id" in condition and self.hass.states.get(condition["entity_id"]) is None:
                 raise ServiceValidationError(
                     translation_domain=DOMAIN,
                     translation_key="entity_not_found",
                     translation_placeholders={"entity_id": condition["entity_id"]},
                 )
             met = self._evaluate(condition)
+            # A true result waits `for` seconds before it counts (D-066).
+            waits = met is True and bool(condition.get("for"))
+            if waits:
+                met = False
             if met is not True and not data.get("wait_for_condition", True):
                 if existing:
                     # The caller replaced this ID with a banner that must not show (D-038).
@@ -150,6 +167,8 @@ class BannerManager:
                     self._changed()
                 return {"id": banner_id, "status": "condition_false"}
 
+        self._cancel_wait(banner_id)
+        self._untrack_template(banner_id)
         result: dict[str, Any] = {"id": banner_id, "status": "updated" if existing else "created"}
         if condition is not None and met is not True:
             result["status"] = "waiting"
@@ -180,6 +199,9 @@ class BannerManager:
         )
         self.banners[banner_id] = banner
         self._schedule(banner)
+        if waits:
+            self._start_wait(banner)
+        self._track_template(banner)
         self._fire(EVENT_UPDATED if existing else EVENT_CREATED, banner, severity=banner.severity)
         self._changed()
         return result
@@ -296,6 +318,7 @@ class BannerManager:
         for banner_id in list(self.rules):
             if banner_id not in wanted:
                 gone = self.rules.pop(banner_id)
+                self._cancel_wait(banner_id)
                 self._rule_sources.pop(banner_id, None)
                 self._rule_template_entities.pop(banner_id, None)
                 if gone.condition_met and not silent:
@@ -329,7 +352,14 @@ class BannerManager:
             condition["operator"] = source["operator"]
         if source.get("attribute"):
             condition["attribute"] = source["attribute"]
+        if source.get("for"):
+            condition["for"] = int(source["for"])
+        self._cancel_wait(banner_id)
         met = self._evaluate(condition) is True
+        if met and condition.get("for"):
+            # True now, but it counts only after `for` seconds; the timer restarts on load (D-066).
+            met = False
+            self._start_wait_for(banner_id, condition["for"])
         return Banner(
             id=banner_id,
             message=self._rule_message(banner_id, source),
@@ -363,10 +393,13 @@ class BannerManager:
         self._rule_template_entities[banner_id] = set(info.entities)
         return str(info.result())
 
-    def _apply_rule(self, banner: Banner) -> bool:
+    def _apply_rule(self, banner: Banner, elapsed: bool = False) -> bool:
         # Unavailable, unknown and removed entities hide the banner (D-053).
         assert banner.condition is not None
-        met = self._evaluate(banner.condition) is True
+        raw = self._evaluate(banner.condition) is True
+        met = self._effective(banner, raw, elapsed)
+        if met is None:
+            met = banner.condition_met is True
         message = self._rule_message(banner.id, self._rule_sources[banner.id])
         changed = message != banner.message
         banner.message = message
@@ -405,6 +438,8 @@ class BannerManager:
         return False
 
     def _evaluate(self, condition: Mapping[str, Any]) -> bool | None:
+        if "template" in condition:
+            return self._render_condition(condition["template"])
         state = self.hass.states.get(condition["entity_id"])
         if state is None or state.state in _NO_STATE:
             return None
@@ -415,10 +450,39 @@ class BannerManager:
             value = state.state
         return matches(condition, value)
 
-    def _apply_condition(self, banner: Banner) -> bool:
+    def _render_condition(self, source: str) -> bool | None:
+        """Truth of a template condition; None if it cannot be rendered (D-067)."""
+        try:
+            return result_as_boolean(Template(source, self.hass).async_render())
+        except TemplateError as err:
+            _LOGGER.debug("Condition template failed: %s", err)
+            return None
+
+    def _effective(self, banner: Banner, raw: bool | None, elapsed: bool) -> bool | None:
+        """Result to apply now, or None for no change. Handles the `for` wait (D-066).
+
+        A true result with `for` first reports False (never evaluated) or nothing (already
+        false) and starts a timer; the timer's own call comes back with `elapsed`.
+        """
+        assert banner.condition is not None
+        delay = banner.condition.get("for")
+        if raw is None:
+            return None
+        if not delay or raw is False:
+            self._cancel_wait(banner.id)
+            return raw
+        if elapsed:
+            return True
+        if banner.condition_met is True:
+            return None
+        if banner.id not in self._for_timers:
+            self._start_wait(banner)
+        return False if banner.condition_met is None else None
+
+    def _apply_condition(self, banner: Banner, elapsed: bool = False) -> bool:
         """Re-evaluate one banner's condition. Returns True if anything changed."""
         assert banner.condition is not None
-        met = self._evaluate(banner.condition)
+        met = self._effective(banner, self._evaluate(banner.condition), elapsed)
         if met is None or met == banner.condition_met:
             return False
         previous, banner.condition_met = banner.condition_met, met
@@ -440,7 +504,7 @@ class BannerManager:
             new_user = new.attributes.get("user_id") if new else None
             changed = old_user != new_user
         for banner in list(self.banners.values()):
-            if banner.condition is None or banner.condition["entity_id"] != entity_id:
+            if banner.condition is None or banner.condition.get("entity_id") != entity_id:
                 continue
             if new is None:
                 _LOGGER.warning(
@@ -452,15 +516,23 @@ class BannerManager:
             changed |= self._apply_condition(banner)
         for banner in list(self.rules.values()):
             if (
-                banner.condition is not None and banner.condition["entity_id"] == entity_id
+                banner.condition is not None and banner.condition.get("entity_id") == entity_id
             ) or entity_id in self._rule_template_entities.get(banner.id, ()):
                 changed |= self._apply_rule(banner)
         if changed:
             self._changed()
 
     def _refresh_tracking(self) -> None:
-        wanted = {b.condition["entity_id"] for b in self.banners.values() if b.condition}
-        wanted |= {b.condition["entity_id"] for b in self.rules.values() if b.condition}
+        wanted = {
+            b.condition["entity_id"]
+            for b in self.banners.values()
+            if b.condition and "entity_id" in b.condition
+        }
+        wanted |= {
+            b.condition["entity_id"]
+            for b in self.rules.values()
+            if b.condition and "entity_id" in b.condition
+        }
         wanted |= {e for entities in self._rule_template_entities.values() for e in entities}
         wanted |= {p for b in self._all() for p in b.people}
         if wanted == self.tracked_entities:
@@ -501,7 +573,61 @@ class BannerManager:
         banner = self.banners.pop(banner_id)
         if cancel := self._timers.pop(banner_id, None):
             cancel()
+        self._cancel_wait(banner_id)
+        self._untrack_template(banner_id)
         self._fire(event, banner, **extra)
+
+    def _start_wait(self, banner: Banner) -> None:
+        assert banner.condition is not None
+        self._start_wait_for(banner.id, banner.condition["for"])
+
+    def _start_wait_for(self, banner_id: str, seconds: float) -> None:
+        self._cancel_wait(banner_id)
+        self._for_timers[banner_id] = async_call_later(
+            self.hass, seconds, partial(self._for_elapsed, banner_id)
+        )
+
+    def _cancel_wait(self, banner_id: str) -> None:
+        if cancel := self._for_timers.pop(banner_id, None):
+            cancel()
+
+    @callback
+    def _for_elapsed(self, banner_id: str, _now: datetime) -> None:
+        self._for_timers.pop(banner_id, None)
+        if banner_id in self.banners:
+            changed = self._apply_condition(self.banners[banner_id], elapsed=True)
+        elif banner_id in self.rules:
+            changed = self._apply_rule(self.rules[banner_id], elapsed=True)
+        else:
+            return
+        if changed:
+            self._changed()
+
+    def _track_template(self, banner: Banner) -> None:
+        """Re-evaluate a template condition when what it reads changes (HA_API_NOTES N-67)."""
+        if banner.condition is None or "template" not in banner.condition:
+            return
+        self._untrack_template(banner.id)
+        template = Template(banner.condition["template"], self.hass)
+        self._template_trackers[banner.id] = async_track_template_result(
+            self.hass,
+            [TrackTemplate(template, None)],
+            partial(self._template_changed, banner.id),
+        )
+
+    def _untrack_template(self, banner_id: str) -> None:
+        if tracker := self._template_trackers.pop(banner_id, None):
+            tracker.async_remove()
+
+    @callback
+    def _template_changed(
+        self,
+        banner_id: str,
+        _event: Event[EventStateChangedData] | None,
+        _updates: list[TrackTemplateResult],
+    ) -> None:
+        if (banner := self.banners.get(banner_id)) is not None and self._apply_condition(banner):
+            self._changed()
 
     def _schedule(self, banner: Banner) -> None:
         if cancel := self._timers.pop(banner.id, None):

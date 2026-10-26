@@ -238,7 +238,7 @@ Examples, as filled into the form. `{name}` in the message becomes the entity's 
 | Room too warm | `sensor.living_room_temperature` | Above | `25` | `The living room is warmer than 25 °C.` | info |
 | Battery low | `sensor.phone_battery` | Between | `5` and `15` | `The phone battery is low.` | warning |
 
-Conditions: equals, does not equal, above, below, between, contains text, does not contain text. A rule banner has no close button unless you turn on "Dismissible", and it goes away when the condition is false. The same conditions work in `heads_up.create_banner` through `condition.operator`. See [docs/rules.md](docs/rules.md) for every field and more examples.
+Conditions: equals, does not equal, above, below, between, contains text, does not contain text. A rule banner has no close button unless you turn on "Dismissible", and it goes away when the condition is false. The same conditions work in `heads_up.create_banner` through `condition.operator`, and both accept a duration ("for at least 5 minutes"). `create_banner` also accepts a template as its condition. See [docs/rules.md](docs/rules.md) for every field and more examples.
 
 ## Options
 

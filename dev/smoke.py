@@ -179,6 +179,37 @@ async def conditions() -> None:
         print("user sees:", [b["id"] for b in await subscribe(await connect(s, user))])
 
 
+async def for_template() -> None:
+    """Condition `for` and a template condition on the real test_window (D-066, D-067)."""
+    async with aiohttp.ClientSession() as s:
+        admin = await token(s, "ADMIN")
+        await toggle(s, admin, False)
+        entity = "input_boolean.test_window"
+        waits = {"id": "smoke_for", "message": "Open", "condition": {"entity_id": entity, "for": 4}}
+        templ = {
+            "id": "smoke_tpl",
+            "message": "Template",
+            "mode": "recurring",
+            "condition": {"template": "{{ is_state('" + entity + "', 'on') }}"},
+        }
+        print("create for:", (await call(s, admin, "create_banner", waits))["status"])
+        print("create template:", (await call(s, admin, "create_banner", templ))["status"])
+        await toggle(s, admin, True)
+        seen = [b["id"] for b in await subscribe(await connect(s, admin))]
+        assert seen == ["smoke_tpl"], seen
+        print("on, right away:", seen)
+        await asyncio.sleep(5)
+        seen = sorted(b["id"] for b in await subscribe(await connect(s, admin)))
+        assert seen == ["smoke_for", "smoke_tpl"], seen
+        print("after 5 s:", seen)
+        await toggle(s, admin, False)
+        seen = [b["id"] for b in await subscribe(await connect(s, admin))]
+        assert seen == [], seen
+        print("off:", seen)
+        for banner_id in ("smoke_for", "smoke_tpl"):
+            await call(s, admin, "clear_banner", {"id": banner_id})
+
+
 SMOKE_RULE = "Smoke window"
 
 
@@ -259,6 +290,7 @@ asyncio.run(
         "create": create,
         "verify": verify,
         "conditions": conditions,
+        "for_template": for_template,
         "rules": rules,
         "rules_verify": rules_verify,
     }[sys.argv[1]]()
