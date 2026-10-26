@@ -374,6 +374,7 @@ class BannerManager:
             banner.condition_met = met
             changed = True
             if met:
+                banner.updated_at = dt_util.utcnow()  # the card's "time ago" counts from the flip
                 self._fire(EVENT_CREATED, banner, severity=banner.severity)
             else:
                 banner.dismissed_by.clear()  # a dismissal lasts until the condition flips (D-056)

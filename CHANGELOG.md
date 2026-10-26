@@ -5,6 +5,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ## [Unreleased]
 
 ### Fixed
+- A watch rule banner's "time ago" counts from the moment its condition turned true. Before, it counted from when Home Assistant started or the rule was edited.
 - The card file is now cached by the browser (its address already changes with the file). This avoids the occasional "Custom element doesn't exist: heads-up-card" on page reloads when the file loads too slowly.
 
 ## [0.2.2] - 2026-10-26

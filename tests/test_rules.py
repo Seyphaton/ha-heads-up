@@ -1,12 +1,15 @@
 """Watch rules: virtual banners built from config subentries (DESIGN §17, D-052 to D-058)."""
 
+from datetime import timedelta
 from typing import Any
 
 import pytest
 import voluptuous as vol
+from freezegun.api import FrozenDateTimeFactory
 from homeassistant.auth.models import User
 from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
+from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_capture_events
 from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
@@ -333,6 +336,18 @@ async def test_admin_clear_is_rejected(hass: HomeAssistant, entry: MockConfigEnt
         entry.runtime_data.admin_clear(rule_id(subentry))
     assert err.value.code == "rule_banner"
     assert shown(entry) == [rule_id(subentry)]
+
+
+async def test_time_restarts_when_the_condition_turns_true(
+    hass: HomeAssistant, entry: MockConfigEntry, freezer: FrozenDateTimeFactory
+) -> None:
+    await set_state(hass, "off")
+    add_rule(hass, entry)
+    await hass.async_block_till_done()
+    freezer.tick(timedelta(hours=15))
+    await set_state(hass, "on")
+    item = entry.runtime_data.visible(USER)[0]
+    assert item["updated_at"] == dt_util.utcnow().isoformat()
 
 
 async def test_events_follow_the_condition_and_the_rule(

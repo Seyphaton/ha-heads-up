@@ -332,6 +332,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Reason: intermittent "Custom element doesn't exist: heads-up-card" on plain page reloads with no restart. HA loads the module with an unordered `import()` and a dashboard that renders the card before it arrives waits about 2 s before giving up; a fetch on every reload makes that miss possible. The URL contains the file hash (D-050), so a changed file is a new URL and a cached copy is never stale. The cause is inferred from HA's frontend behaviour, not reproduced.
 
 
+## D-065 A rule banner's time restarts when its condition turns true
+- Date: 2026-10-26.
+- Decision: when a watch rule's condition flips to true, the banner's `updated_at` is set to that moment. Before, it stayed at the time the rule was loaded (HA start or rule edit), so `show_time` read "15 h ago" for a banner that had just appeared. Part of D-047: `updated_at` is the time of the trigger.
+- Alternatives: leave `updated_at` and let the card use a new field.
+- Reason: the card's time text means "since it appeared"; for a rule that is the flip. A message change while the condition stays true does not restart the time.
+
 ## D-063 Rule messages render Home Assistant templates
 - Date: 2026-10-26.
 - Decision: a rule message is rendered as a Home Assistant template (`{{ states('...') }}`), after `{name}` is replaced. Entities the template reads are tracked, so the text updates when they change; time-based functions such as `now()` are not refreshed. An invalid template is refused by the rule form (`message_template_invalid`); a template that fails at render time shows the unrendered text and logs a warning. This changes D-055 ("no other placeholders or templates"); `create_banner` is unchanged (HA renders its data before the call, D-017).
