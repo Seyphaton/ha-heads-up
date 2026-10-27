@@ -12,6 +12,7 @@ import {
   resolveColors,
   retryDelay,
   sortBanners,
+  snoozeLabel,
   swipeOutcome,
   visibleBanners,
 } from "../../custom_components/heads_up/frontend/heads-up-card.js";
@@ -141,7 +142,13 @@ describe("retryDelay", () => {
 
 describe("controlsFor", () => {
   it("gives dismissible banners a dismiss button and no admin clear", () => {
-    expect(controlsFor(banner(), true)).toEqual({ dismiss: true, adminClear: false, tap: false });
+    expect(controlsFor(banner(), true)).toEqual({
+      dismiss: true,
+      adminClear: false,
+      tap: false,
+      snooze: false,
+      actions: [],
+    });
   });
 
   it("gives admins a clear button on banners nobody can dismiss", () => {
@@ -158,6 +165,38 @@ describe("controlsFor", () => {
   it("marks banners with a tap action as tappable", () => {
     const b = banner({ tap_action: { action: "navigate", navigation_path: "/lovelace/0" } });
     expect(controlsFor(b, false).tap).toBe(true);
+  });
+});
+
+describe("controlsFor snooze and buttons", () => {
+  it("offers snooze on a snoozable, dismissible banner with choices", () => {
+    expect(controlsFor(banner({ snoozable: true, snooze_options: [900] }), false).snooze).toBe(true);
+  });
+
+  it("offers no snooze without the flag, choices or dismissibility", () => {
+    expect(controlsFor(banner({ snooze_options: [900] }), false).snooze).toBe(false);
+    expect(controlsFor(banner({ snoozable: true, snooze_options: [] }), false).snooze).toBe(false);
+    const b = banner({ snoozable: true, snooze_options: [900], dismissible: false });
+    expect(controlsFor(b, false).snooze).toBe(false);
+  });
+
+  it("passes the banner's buttons through", () => {
+    const actions = [{ key: "ack", label: "Got it", dismiss: true }];
+    expect(controlsFor(banner({ actions }), false).actions).toEqual(actions);
+  });
+});
+
+describe("snoozeLabel", () => {
+  it("formats minutes, hours and days", () => {
+    expect([300, 900, 3600, 14400, 5400, 86400, 172800].map(snoozeLabel)).toEqual([
+      "5 min",
+      "15 min",
+      "1 h",
+      "4 h",
+      "90 min",
+      "1 d",
+      "2 d",
+    ]);
   });
 });
 
@@ -321,6 +360,12 @@ describe("swipeOutcome", () => {
     expect(swipeOutcome(-90, 4, 200)).toBe("dismiss");
     expect(swipeOutcome(90, 4, 600)).toBe("cancel"); // 30% of 600 is 180
     expect(swipeOutcome(-200, 4, 600)).toBe("dismiss");
+  });
+  it("opens the snooze choices on a right swipe of a snoozable banner only", () => {
+    expect(swipeOutcome(90, 4, 200, true)).toBe("snooze");
+    expect(swipeOutcome(-90, 4, 200, true)).toBe("dismiss");
+    expect(swipeOutcome(90, 4, 200, false)).toBe("dismiss");
+    expect(swipeOutcome(30, 4, 200, true)).toBe("cancel");
   });
 });
 

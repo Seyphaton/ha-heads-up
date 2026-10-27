@@ -53,6 +53,9 @@ export const STRINGS = {
     success: "Success",
   },
   dismiss: "Dismiss",
+  snooze: "Snooze",
+  snooze_choices: "Snooze for",
+  duration: { minute: "{n} min", hour: "{n} h", day: "{n} d" },
   clear: "Clear for everyone",
   clear_all: "Clear all",
   show_more: "Show {n} more",
@@ -252,9 +255,19 @@ export function colorParts(colorize) {
 }
 
 // Swipe to dismiss (D-048): mostly horizontal, and at least 80 px or 30% of the banner width.
-export function swipeOutcome(dx, dy, width) {
+// A right swipe on a snoozable banner opens the snooze choices instead (D-070).
+export function swipeOutcome(dx, dy, width, canSnooze = false) {
   if (Math.abs(dx) <= Math.abs(dy)) return "cancel";
-  return Math.abs(dx) >= Math.max(80, width * 0.3) ? "dismiss" : "cancel";
+  if (Math.abs(dx) < Math.max(80, width * 0.3)) return "cancel";
+  return dx > 0 && canSnooze ? "snooze" : "dismiss";
+}
+
+// "15 min", "1 h", "2 d" for a snooze choice given in seconds.
+export function snoozeLabel(seconds) {
+  const d = STRINGS.duration;
+  if (seconds % 86400 === 0) return d.day.replace("{n}", seconds / 86400);
+  if (seconds % 3600 === 0) return d.hour.replace("{n}", seconds / 3600);
+  return d.minute.replace("{n}", Math.round(seconds / 60));
 }
 
 // IDs the "Clear all" button dismisses: every dismissible banner of the list.
@@ -275,6 +288,13 @@ export function controlsFor(banner, isAdmin) {
     dismiss: banner.dismissible !== false,
     adminClear: isAdmin && banner.dismissible === false && !banner.rule,
     tap: Boolean(banner.tap_action),
+    // Snooze needs a dismissible banner and at least one choice (D-069).
+    snooze:
+      banner.snoozable === true &&
+      banner.dismissible !== false &&
+      Array.isArray(banner.snooze_options) &&
+      banner.snooze_options.length > 0,
+    actions: Array.isArray(banner.actions) ? banner.actions : [],
   };
 }
 
@@ -283,7 +303,7 @@ export function controlsFor(banner, isAdmin) {
 export function reservesActionSpace(banners, isAdmin) {
   return banners.some((banner) => {
     const controls = controlsFor(banner, isAdmin);
-    return controls.dismiss || controls.adminClear;
+    return controls.dismiss || controls.adminClear || controls.snooze;
   });
 }
 
@@ -330,6 +350,13 @@ const STYLE = `
   .compact .meta { flex: none; gap: 6px; }
   .compact .title { flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; }
   .compact .message { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .compact .buttons { display: none; }
+  .snooze-menu {
+    flex: 1 0 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+    padding-inline-start: 32px; color: var(--secondary-text-color);
+  }
+  .banner.menu-open { flex-wrap: wrap; }
   .action-space { flex: none; width: 48px; }
   .compact .action-space { margin: -4px 0; height: 48px; }
   button.action {
@@ -383,6 +410,7 @@ class HeadsUpCard extends Base {
     this._banners = [];
     this._error = false;
     this._expanded = false;
+    this._menuFor = null; // ID of the banner whose snooze choices are open
     this._timeNodes = [];
     this._timeTimer = null;
     this._unsub = null;
@@ -514,6 +542,37 @@ class HeadsUpCard extends Base {
     this._hass.callWS({ type: "heads_up/dismiss_many", banner_ids: ids }).catch(() => {});
   }
 
+  _snooze(banner, seconds) {
+    this._menuFor = null;
+    this._hass
+      .callWS({ type: "heads_up/snooze", banner_id: banner.id, seconds })
+      .catch(() => {})
+      .then(() => this._render());
+  }
+
+  _toggleMenu(banner, open) {
+    this._menuFor = (open ?? this._menuFor !== banner.id) ? banner.id : null;
+    this._render();
+  }
+
+  _press(banner, button) {
+    // The event and a dismissal happen in the backend; the button's own action runs here like
+    // tap_action, so it handles confirmation and the viewer's permissions (D-070).
+    this._hass
+      .callWS({ type: "heads_up/action", banner_id: banner.id, key: button.key })
+      .then(() => {
+        if (!button.action) return;
+        this.dispatchEvent(
+          new CustomEvent("hass-action", {
+            bubbles: true,
+            composed: true,
+            detail: { config: { tap_action: button.action }, action: "tap" },
+          }),
+        );
+      })
+      .catch(() => {});
+  }
+
   _adminClear(banner) {
     this._hass.callWS({ type: "heads_up/admin_clear", banner_id: banner.id }).catch(() => {});
   }
@@ -575,11 +634,18 @@ class HeadsUpCard extends Base {
       if (!wasSwiping) return;
       suppressClick = true; // the click that follows a drag must not run the tap action
       setTimeout(() => (suppressClick = false), 0);
-      if (ev.type === "pointerup" && swipeOutcome(dx, dy, node.offsetWidth) === "dismiss") {
+      const outcome =
+        ev.type === "pointerup"
+          ? swipeOutcome(dx, dy, node.offsetWidth, controlsFor(banner, false).snooze)
+          : "cancel";
+      if (outcome === "dismiss") {
         node.style.transition = "transform 0.15s, opacity 0.15s";
         node.style.transform = `translateX(${dx < 0 ? "-" : ""}${node.offsetWidth}px)`;
         node.style.opacity = "0";
         this._dismiss(banner);
+      } else if (outcome === "snooze") {
+        reset(true);
+        this._toggleMenu(banner, true);
       } else {
         reset(true);
       }
@@ -634,6 +700,19 @@ class HeadsUpCard extends Base {
     text.append(meta);
     if (banner.title) text.append(el("div", "title", banner.title));
     text.append(el("div", "message", banner.message));
+    if (controls.actions.length > 0) {
+      const buttons = el("div", "buttons");
+      for (const action of controls.actions) {
+        const b = el("button", "text-button", action.label);
+        b.type = "button";
+        b.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          this._press(banner, action);
+        });
+        buttons.append(b);
+      }
+      text.append(buttons);
+    }
     node.append(text);
 
     if (controls.tap) {
@@ -663,6 +742,9 @@ class HeadsUpCard extends Base {
       });
       return b;
     };
+    if (controls.snooze) {
+      node.append(button("mdi:alarm-snooze", STRINGS.snooze, () => this._toggleMenu(banner)));
+    }
     if (controls.dismiss) node.append(button("mdi:close", STRINGS.dismiss, () => this._dismiss(banner)));
     if (controls.adminClear) {
       node.append(button("mdi:delete-outline", STRINGS.clear, () => this._adminClear(banner)));
@@ -671,6 +753,24 @@ class HeadsUpCard extends Base {
       const space = el("div", "action-space");
       space.setAttribute("aria-hidden", "true");
       node.append(space);
+    }
+    if (controls.snooze && this._menuFor === banner.id) {
+      node.classList.add("menu-open");
+      const menu = el("div", "snooze-menu");
+      menu.setAttribute("role", "group");
+      menu.setAttribute("aria-label", STRINGS.snooze_choices);
+      menu.addEventListener("click", (ev) => ev.stopPropagation());
+      menu.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") this._toggleMenu(banner, false);
+      });
+      menu.append(el("span", "", STRINGS.snooze_choices));
+      for (const seconds of banner.snooze_options) {
+        const b = el("button", "text-button", snoozeLabel(seconds));
+        b.type = "button";
+        b.addEventListener("click", () => this._snooze(banner, seconds));
+        menu.append(b);
+      }
+      node.append(menu);
     }
     return node;
   }
