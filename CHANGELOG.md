@@ -4,6 +4,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-27
+
 ### Added
 - Watch rules got the features that actions have: Buttons and Tap action (YAML fields in the rule form, same format as `actions` and `tap_action`), Dismiss scope (per user or everyone) and a Template in place of an entity. A rule without a dismiss scope stays per user.
 - German, French and Spanish: the integration's screens and the card follow your Home Assistant language. Other languages show English. The texts are not reviewed by native speakers.

@@ -230,7 +230,7 @@ actions:
 
 A button can also run a Home Assistant action in the card, like a tap action. Add `action:` to the button, for example `action: {action: navigate, navigation_path: /lovelace/garage}`.
 
-The snooze button opens the choices you gave in `snooze_options` (15 min, 1 h, 4 h here). The banner then hides for that time and returns. `snooze_scope: global` hides it for everyone instead of only you. With `swipe_to_dismiss: true` on the card, a right swipe opens the choices and a left swipe dismisses. Details: [card.md](card.md#snooze-and-buttons) and [actions.md](actions.md#buttons-and-snooze).
+The snooze button opens the choices you gave in `snooze_options` (15 min, 1 h, 4 h here). The banner then hides for that time and returns. `snooze_scope: global` hides it for everyone instead of only you. With `swipe_to_dismiss: true` on the card, a right swipe opens the choices and a left swipe dismisses. With `show_snoozed: true` on the card, a "Snoozed (n)" button lists your snoozed banners with the time left and a **Show now** button that ends the snooze early. Details: [card.md](card.md#snooze-and-buttons) and [actions.md](actions.md#buttons-and-snooze).
 
 ## 4. Watch rules
 

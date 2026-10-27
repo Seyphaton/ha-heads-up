@@ -15,7 +15,7 @@ Standalone: no knowledge of any caller. Everything in English: code, comments, d
 9. Parity: banners from actions and from watch rules offer the same features to viewers and producers. A new banner feature ships for both in the same phase, or its absence for one source is a listed exception with a decision number in `docs/DESIGN.md` §22.
 
 ## Phases (one approval each)
-0. Design (done) · 1. Scaffold + dev env (done) · 2. Backend core (done) · 3. Conditions + people (done) · 4. Card (done) · 5. External call paths + examples (done) · 6. Hardening, docs, packaging, release (done except release) · 7. Card design (done) · 8. Watch rules (done) · 9. Condition operators (done) · 10. Condition `for` + template conditions (done) · 11. `empty`/`not_empty` operators + rule form State (done) · 12. Banner buttons + snooze (done, awaiting review).
+0. Design (done) · 1. Scaffold + dev env (done) · 2. Backend core (done) · 3. Conditions + people (done) · 4. Card (done) · 5. External call paths + examples (done) · 6. Hardening, docs, packaging, release (done except release) · 7. Card design (done) · 8. Watch rules (done) · 9. Condition operators (done) · 10. Condition `for` + template conditions (done) · 11. `empty`/`not_empty` operators + rule form State (done) · 12. Banner buttons + snooze (done, released in 0.4.0).
 - Read `docs/dev/STATE.md` first: current phase, gate status, setup steps, next plan. Update it at the end of every session.
 - Ask decisions with the AskUserQuestion tool (options, recommended first). Use only core Claude Code tools plus read-only web for HA docs/source (D-028); no connectors or MCP servers.
 - Decisions → `docs/DECISIONS.md` immediately. Out of scope → `docs/OPEN_QUESTIONS.md`.
