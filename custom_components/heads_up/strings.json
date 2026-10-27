@@ -151,19 +151,19 @@
         },
         "snooze_options": {
           "name": "Snooze choices",
-          "description": "Up to 6 snooze durations, 1 minute to 7 days.\n\nExample:\n- minutes: 15\n- hours: 4"
+          "description": "Up to 6 snooze durations, 1 minute to 7 days.\n\nExample:\n```yaml\n- minutes: 15\n- hours: 4\n```"
         },
         "actions": {
           "name": "Buttons",
-          "description": "Up to 3 buttons with key, label, optional dismiss and action.\n\nExample:\n- key: ack\n  label: Got it\n  dismiss: true"
+          "description": "Up to 3 buttons with key, label, optional dismiss and action.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
         },
         "tag": {
           "name": "Tag",
-          "description": "Group name for card filters and for clearing several banners at once. Default: no tag."
+          "description": "Group name for card filters and for clearing several banners at once. Lowercase letters, digits, - and _, up to 64 characters, no spaces. Example: laundry. Default: no tag."
         },
         "condition": {
           "name": "Condition",
-          "description": "Show the banner only while an entity matches or a template is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5"
+          "description": "Show the banner only while an entity matches or a template is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Mode",
@@ -179,7 +179,7 @@
         },
         "tap_action": {
           "name": "Tap action",
-          "description": "Home Assistant action run when the banner is tapped.\n\nExample:\naction: navigate\nnavigation_path: /lovelace/0"
+          "description": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         }
       }
     },

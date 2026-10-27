@@ -32,14 +32,16 @@ from .const import (
 )
 from .manager import BannerManager
 
+SLUG = vol.All(
+    cv.string,
+    vol.Match(ID_PATTERN, msg="must be 1 to 64 characters: lowercase letters a-z, digits, _ or -"),
+)
+
 
 def _timeout(value: timedelta) -> timedelta:
     if value < timedelta(0) or value > timedelta(days=MAX_TIMEOUT_DAYS):
         raise vol.Invalid(f"timeout must be 0 or between 1 second and {MAX_TIMEOUT_DAYS} days")
     return value
-
-
-SLUG_KEY = vol.All(cv.string, vol.Match(ID_PATTERN))
 
 
 def _snooze_seconds(value: timedelta) -> int:
@@ -67,7 +69,7 @@ def _check_actions(value: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 ACTION_SCHEMA = vol.Schema(
     {
-        vol.Required("key"): SLUG_KEY,
+        vol.Required("key"): SLUG,
         vol.Required("label"): vol.All(cv.string, vol.Length(min=1, max=MAX_ACTION_LABEL)),
         vol.Optional("action"): vol.Schema(
             {vol.Required("action"): cv.string}, extra=vol.ALLOW_EXTRA
@@ -89,8 +91,6 @@ def _check_create(data: dict[str, Any]) -> dict[str, Any]:
         )
     return data
 
-
-SLUG = vol.All(cv.string, vol.Match(ID_PATTERN))
 
 _STATE_ERRORS = {
     "state_count": "state needs one number for above and below, two for between",
