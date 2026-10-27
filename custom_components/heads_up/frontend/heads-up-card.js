@@ -411,6 +411,7 @@ class HeadsUpCard extends Base {
     this._error = false;
     this._expanded = false;
     this._menuFor = null; // ID of the banner whose snooze choices are open
+    this._focusAfter = null;
     this._timeNodes = [];
     this._timeTimer = null;
     this._unsub = null;
@@ -552,6 +553,9 @@ class HeadsUpCard extends Base {
 
   _toggleMenu(banner, open) {
     this._menuFor = (open ?? this._menuFor !== banner.id) ? banner.id : null;
+    // The render below rebuilds every node, so keyboard focus is put back by hand: into the
+    // choices when they open, onto the snooze button when they close.
+    this._focusAfter = { id: banner.id, target: this._menuFor ? "choice" : "snooze" };
     this._render();
   }
 
@@ -743,7 +747,9 @@ class HeadsUpCard extends Base {
       return b;
     };
     if (controls.snooze) {
-      node.append(button("mdi:alarm-snooze", STRINGS.snooze, () => this._toggleMenu(banner)));
+      const snooze = button("mdi:alarm-snooze", STRINGS.snooze, () => this._toggleMenu(banner));
+      snooze.dataset.snooze = banner.id;
+      node.append(snooze);
     }
     if (controls.dismiss) node.append(button("mdi:close", STRINGS.dismiss, () => this._dismiss(banner)));
     if (controls.adminClear) {
@@ -767,6 +773,7 @@ class HeadsUpCard extends Base {
       for (const seconds of banner.snooze_options) {
         const b = el("button", "text-button", snoozeLabel(seconds));
         b.type = "button";
+        b.dataset.choice = banner.id;
         b.addEventListener("click", () => this._snooze(banner, seconds));
         menu.append(b);
       }
@@ -867,6 +874,20 @@ class HeadsUpCard extends Base {
       card.append(more);
     }
     root.append(card);
+    this._restoreFocus();
+  }
+
+  _restoreFocus() {
+    const wanted = this._focusAfter;
+    this._focusAfter = null;
+    if (!wanted) return;
+    const key = wanted.target === "choice" ? "choice" : "snooze";
+    // ha-card is created anew on every render and builds its slot a moment later; slotted
+    // buttons cannot take focus before that, so wait for the next frame.
+    // The ID sits in a quoted attribute value; banner IDs hold no quote or backslash.
+    requestAnimationFrame(() =>
+      this.shadowRoot.querySelector(`button[data-${key}="${wanted.id}"]`)?.focus(),
+    );
   }
 }
 
