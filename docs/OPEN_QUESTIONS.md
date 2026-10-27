@@ -49,9 +49,15 @@
 - Not built: a trigger for the moment a value changes (conditions describe a state, not a change).
 
 ## Roadmap candidates (maintainer-chosen order, none approved yet)
-- Phase 12 candidate: buttons on a banner that call a Home Assistant action and/or fire an event; snooze for a duration, banner returns afterwards, snooze survives a restart; store the start of a condition `for` wait so a restart does not restart it (D-066).
+- Still open from the Phase 12 idea: store the start of a condition `for` wait so a restart does not restart it (D-066). Buttons and snooze are built (Phase 12, below).
 - Phase 13 candidate: bounded, restart-safe history of created, cleared, dismissed, expired and snoozed banners, readable over WebSocket and optionally shown in the card.
 - Phase 14 candidate: watch rules by label, area or entity filter (reopens D-057); open: one banner per match or one aggregated banner.
 - Phase 15 candidate (design only): notification hub. Named recipient groups (people and their devices) mapped to severity levels by a routing table, so devices change without touching rules. Delivery to the Companion app per group (tag to replace and clear, Android channel, iOS interruption level, action buttons). Popups as a further channel, optional per dashboard or global; any resource loaded on every page must be minimal. Needs a new decision on the non-goal "no push delivery" (§1).
 - Adoption candidates: GIF of a banner disappearing, translations, HACS default review feedback, repository settings and topics (`docs/dev/RELEASE.md` steps 3 to 5), the unchecked items listed above.
 - Parked: mirroring persistent notifications as banners (D-022), low value for the maintainer.
+
+## Phase 12: buttons and snooze
+- Not verified: swipe on a touch screen, keyboard use of the snooze row, screen readers, phone width, the compact layout with the snooze row open, the options flow and the rule form in Home Assistant's UI (only through the flow APIs in tests), Home Assistant 2026.10. Checked in the browser pane (admin, dev HA 2026.9.4) with a mouse: snooze button and row, a choice hides the banner in every card, a button with `dismiss`, right swipe opens the row, left swipe dismisses.
+- Not tested on the dev HA: pressing a button with an `action` (navigation, confirmation), a global snooze with a second user in the card, a snooze ending in a real wait.
+- Not built: buttons on watch rules, a snooze choice entered by the viewer, an event when a snooze ends, a way to end a snooze early from the card, snooze state of rules over a restart (D-069).
+- A button's `action` runs with the viewer's permissions in the card, so it does nothing for a client that is not a card (D-070).

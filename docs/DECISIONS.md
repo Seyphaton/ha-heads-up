@@ -375,6 +375,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - 2026-10-25: Phase 9 delivered (condition operators); `make check` and `make hassfest` green; not committed at the time of writing.
 - 2026-10-25: `v0.2.0` published by the maintainer; `0.2.1` prepared (D-062).
 - 2026-10-26: Phase 10 (condition `for`, template conditions, D-066, D-067) requested and approved by the maintainer; delivered; not committed at the time of writing.
+- 2026-10-27: Phase 12 (banner buttons and snooze, D-069, D-070) requested and approved by the maintainer; delivered and committed; not pushed.
 
 ## D-068 `empty` and `not_empty` operators; State is not prefilled
 - Date: 2026-10-27. Phase 11 requested and approved by the maintainer.
@@ -382,4 +383,19 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: allow an empty string in the State list (a blank entry is easy to leave by accident); `not_equals` with `""` only (undiscoverable in the form); treating a missing attribute as no result (D-061).
 - Reason: "has a value" is a common condition. Treating a missing attribute as empty matches what a user means by "no value". Keeping `on` as the fallback for equals and does not equal keeps old rules and the documented default.
 - 2026-10-27: Phase 11 delivered; not committed at the time of writing.
+
+## D-069 Snooze: opt-in, per user or global, fixed choices
+- Date: 2026-10-27. Phase 12 requested and approved by the maintainer; scope and swipe behaviour answered by the maintainer.
+- Decision: a banner is snoozable only if it says so (`snoozable`, default off through the option `default_snoozable`). Scope (`user` or `global`) and the offered durations are banner fields with integration-wide defaults, like `dismiss_scope`. The viewer picks one of the offered durations; the backend rejects any other. Banners with `dismissible: false` cannot be snoozable. A snooze ends on its time, on upsert, when a recurring condition turns false and true again, or when the banner goes. Snoozes are stored; a rule's snoozes are not. The condition `for` wait is not stored in this phase.
+- Alternatives: snoozable by default (every dashboard would change after an update); one fixed duration per banner (no choice for the viewer); any duration from the client (no limit on what a viewer can hide); critical banners never snoozable (not chosen by the maintainer).
+- Reason: the default keeps existing dashboards unchanged. A fixed list keeps the stored data and the check simple.
+- Swipe: with `swipe_to_dismiss`, a right swipe on a snoozable banner opens the choices, a left swipe dismisses. The choices appear in a row under the banner instead of behind it, so the same row serves the snooze button and keyboard users.
+
+## D-070 Banner buttons: an event, an optional dismissal, an action run by the card
+- Date: 2026-10-27. Phase 12.
+- Decision: up to 3 buttons per banner (`actions`). Pressing one calls `heads_up/action`, which fires `heads_up_banner_action` and, with `dismiss`, dismisses for that user. A button's `action` runs in the card through `hass-action`, as `tap_action` does, after the call succeeded. The backend runs no action itself. Rule banners have no buttons.
+- Alternatives: run the action in the backend (it would run with no user context and needs its own permission rules); event only (every button needs an automation); no limit on buttons (the row would not fit a phone).
+- Reason: the event lets automations react without new code; running the action in the card reuses HA's confirmation and permission handling. The limit of 3 keeps the row short; phone width was not checked.
+- Open: the permission model is as for dismissals: any user who can see a banner can press its buttons (D-029).
+- 2026-10-27: Phase 12 delivered; commits `45baa6d`, `0905d7e`, `d9f36d4`, `bb76969` and the documentation commit.
 

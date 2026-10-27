@@ -64,3 +64,4 @@ Notes:
 - Rule banners do not count against the banner limit and are never evicted. `sensor.heads_up_active_banners` counts them.
 - `heads_up.clear_banner` and `heads_up.clear_all` do not remove them, and administrators cannot clear them in the card. Disable or delete the rule instead.
 - Events: see [actions](actions.md#events).
+- "Snoozable" needs "Dismissible". It adds a snooze button to the banner. "Snooze scope" and "Snooze choices" are optional; when empty, the integration options apply (per user; 15 minutes, 1 hour, 4 hours). A snooze ends when the time passes or when the entity leaves the state, and a restart ends it too. Rules have no buttons.

@@ -67,6 +67,39 @@ When Heads Up is full (option, default 50 banners), it removes the oldest banner
   response_variable: banner
 ```
 
+### Buttons and snooze
+
+A banner that can be snoozed for 30 minutes or 2 hours, with one button that closes it for the user who pressed it and fires an event:
+
+```yaml
+action: heads_up.create_banner
+data:
+  id: laundry_done
+  message: The washing machine has finished.
+  severity: info
+  snoozable: true
+  snooze_options:
+    - minutes: 30
+    - hours: 2
+  actions:
+    - key: ack
+      label: Got it
+      dismiss: true
+```
+
+An automation can react to the button:
+
+```yaml
+triggers:
+  - trigger: event
+    event_type: heads_up_banner_action
+    event_data:
+      id: laundry_done
+      key: ack
+```
+
+Snooze needs `dismissible: true`. A new call with the same `id`, or a recurring condition turning false and true again, ends all snoozes. The card runs a button's `action` itself, so a button that opens a dashboard works only where a card is open.
+
 ### Conditions
 
 `condition` takes these keys. Use either `entity_id` (with `operator`, `state` and `attribute`) or `template`, not both. `for` works with both.
@@ -249,6 +282,8 @@ Each change fires an event. Use them as automation triggers.
 | `heads_up_banner_created` | `id`, `severity`, `tag` |
 | `heads_up_banner_updated` | `id`, `severity`, `tag` |
 | `heads_up_banner_dismissed` | `id`, `tag`, `scope` (`user` or `global`), `user_id` |
+| `heads_up_banner_snoozed` | `id`, `tag`, `scope` (`user` or `global`), `user_id`, `until` |
+| `heads_up_banner_action` | `id`, `tag`, `key`, `user_id` |
 | `heads_up_banner_expired` | `id`, `tag` |
 | `heads_up_banner_cleared` | `id`, `tag`, `reason` (`action`, `clear_all`, `condition`, `evicted`, `admin`, `rule`) |
 

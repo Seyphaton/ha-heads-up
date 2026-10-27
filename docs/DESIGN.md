@@ -11,6 +11,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §18 condition operators (shared matcher for actions and rules) | implemented and tested (Phase 9); card unchanged |
 | §19 condition `for` and template conditions | implemented and tested (Phase 10); card unchanged |
 | §20 `empty` and `not_empty` operators, rule form without a prefilled State | implemented and tested (Phase 11); card unchanged |
+| §21 banner buttons and snooze | implemented and tested (Phase 12); card checked on the dev HA with a mouse |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
 | Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
@@ -470,3 +471,25 @@ Restart: the usual one after a code update. Notification path: not touched. Dash
 ### 20.4 Tests
 `tests/test_empty_operators.py`: matcher, schema, banners (shows, hides, unavailable, attribute, `for`), rules (state, attribute), rule form (no prefilled State, no stored state, `equals` default kept, reconfigure).
 
+## 21. Banner buttons and snooze (Phase 12)
+
+Status: implemented 2026-10-27 (`tests/test_snooze.py`, `tests/test_actions.py`, vitest, `dev/smoke.py snooze`). Decisions D-069, D-070.
+
+### 21.1 Problem
+A viewer could only close a banner for good, and a banner could not lead to anything an automation could react to. "Remind me later" and "I did it" had no form.
+
+### 21.2 Design
+- **Snooze fields:** `snoozable` (bool), `snooze_scope` (`user` or `global`), `snooze_options` (1 to 6 durations, 1 minute to 7 days, stored as seconds). Defaults come from the integration options `default_snoozable` (off), `default_snooze_scope` (`user`) and `default_snooze_options` (15 min, 1 h, 4 h). A banner that is not dismissible is never snoozable: an explicit `snoozable: true` with `dismissible: false` is a validation error, and the option default is ignored for it.
+- **Snooze state:** `snoozed_until` maps a user ID, or `*` for a global snooze, to an end time. It is stored with the banner. `Banner.snoozed_for(user_id)` gives the end that hides the banner from that user. `visible()` leaves a snoozed banner out (not with `show_all`, which flags it with `snoozed`). One `async_track_point_in_utc_time` timer per entry removes it and updates the cards; setup drops ended entries and re-arms the rest.
+- **What ends a snooze:** its end time; an upsert (the new banner has none, like `dismissed_by`, D-010); a recurring condition turning false and true again; removal of the banner. For a rule, the condition turning false. The timeout and the condition keep running while a banner is snoozed.
+- **WebSocket `heads_up/snooze`** (`banner_id`, `seconds`): `seconds` must be one of the banner's options (`invalid_snooze`), the banner must be snoozable (`not_snoozable`). Any user can call it, like a dismissal (D-029). Fires `heads_up_banner_snoozed` with `id`, `tag`, `scope`, `user_id`, `until`.
+- **Buttons:** field `actions`, up to 3 entries `{key, label, dismiss?, action?}`. `key` follows the ID pattern and is unique in the banner, `label` has 1 to 40 characters, `action` is a mapping with an `action` key (as `tap_action`), `dismiss` defaults to false and is rejected with `dismissible: false`. The card receives the whole list.
+- **WebSocket `heads_up/action`** (`banner_id`, `key`): fires `heads_up_banner_action` with `id`, `tag`, `key`, `user_id`; with `dismiss` it then dismisses for that user. Errors: `unknown_action`, `not_found` (also for a banner targeted at other people). The backend never runs `action`; the card does, after the call succeeds, with the same `hass-action` event as the tap action, so HA handles confirmation and the viewer's permissions (N-38).
+- **Watch rules:** the rule form has Snoozable, Snooze scope and Snooze choices (minutes in the form, seconds in the subentry); unset fields use the option defaults; Snoozable needs Dismissible (`snoozable_needs_dismissible`). Rules have no buttons. A rule's snoozes are not stored, like its dismissals.
+- **Card:** no new config key. A banner with `snoozable` and choices gets a snooze button (48 px, `aria-label`) that opens a row of choices under the banner; Escape closes it. With `swipe_to_dismiss`, a right swipe on a snoozable banner opens the same row and a left swipe dismisses; on other banners both directions dismiss as before (`swipeOutcome`). Buttons are text buttons under the message; the compact layout hides them. The card sends only `snoozable`, `snooze_options`, `snoozed` and `actions`; `snooze_scope` and `snoozed_until` stay server-side.
+
+### 21.3 Blast radius
+Restart: the usual one after a code update. Notification path: not touched. Dashboard: nothing changes for existing banners (`snoozable` is off by default, no buttons). Banners that set the new fields show a snooze button or text buttons. Options: three new keys, filled with defaults when missing. Storage: stored banners gain `snoozable`, `snooze_scope`, `snooze_options`, `snoozed_until` and `actions`; an older version of the integration would fail to load them (a downgrade after using these fields should clear the banners). New events: `heads_up_banner_snoozed`, `heads_up_banner_action`.
+
+### 21.4 Tests
+`tests/test_snooze.py`: default off, per-user and global scope, expiry timer, choices, not-dismissible rules, limits, upsert, recurring flip, restart, snooze ended during downtime, `show_all` flag, options flow. `tests/test_actions.py`: payload, event, dismiss button, unknown key, targeted banner, upsert, invalid input, restart. `tests/test_rules.py` and `tests/test_rules_flow.py`: rule snooze and form. vitest: `controlsFor`, `snoozeLabel`, `swipeOutcome`. `dev/smoke.py snooze` and `snooze_verify`: per-user snooze, dismiss button and persistence over a container restart on the dev HA.

@@ -275,6 +275,50 @@ async def empty_operators() -> None:
         await s.delete(f"{BASE}/api/states/{entity}", headers=headers)
 
 
+async def ids(ws: WS) -> list[str]:
+    return [b["id"] for b in await subscribe(ws) if b["id"] == "smoke_snooze"]
+
+
+async def snooze() -> None:
+    """Dismiss button and a per-user snooze that survives the restart (D-069, D-070)."""
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        data = {
+            "id": "smoke_snooze",
+            "message": "Snooze me",
+            "timeout": 0,
+            "snoozable": True,
+            "actions": [{"key": "ack", "label": "Got it", "dismiss": True}],
+        }
+        print("create:", (await call(s, admin, "create_banner", data))["status"])
+        ws_user = await connect(s, user)
+        first = [b for b in await subscribe(ws_user) if b["id"] == "smoke_snooze"]
+        assert first[0]["snoozable"] is True and first[0]["actions"][0]["key"] == "ack", first
+        msg_id = await ws_user.send(
+            {"type": "heads_up/snooze", "banner_id": "smoke_snooze", "seconds": 3600}
+        )
+        assert (await ws_user.recv(msg_id))["success"]
+        assert await ids(await connect(s, user)) == []
+        assert await ids(await connect(s, admin)) == ["smoke_snooze"]
+        print("snoozed for dev-user only")
+        ws_admin = await connect(s, admin)
+        msg_id = await ws_admin.send(
+            {"type": "heads_up/action", "banner_id": "smoke_snooze", "key": "ack"}
+        )
+        assert (await ws_admin.recv(msg_id))["success"]
+        assert await ids(await connect(s, admin)) == []
+        print("dismiss button hid it for the admin")
+
+
+async def snooze_verify() -> None:
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        assert await ids(await connect(s, user)) == []
+        assert await ids(await connect(s, admin)) == []
+        await call(s, admin, "clear_banner", {"id": "smoke_snooze"})
+        print("snooze and dismissal survived the restart")
+
+
 SMOKE_RULE = "Smoke window"
 
 
@@ -359,5 +403,7 @@ asyncio.run(
         "empty_operators": empty_operators,
         "rules": rules,
         "rules_verify": rules_verify,
+        "snooze": snooze,
+        "snooze_verify": snooze_verify,
     }[sys.argv[1]]()
 )
