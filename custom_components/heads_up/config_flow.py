@@ -191,6 +191,17 @@ _RULE_SCHEMA = vol.Schema(
             EntitySelectorConfig(domain="person", multiple=True)
         ),
         vol.Required("dismissible", default=False): BooleanSelector(),
+        vol.Optional("snoozable"): BooleanSelector(),
+        vol.Optional("snooze_scope"): SelectSelector(
+            SelectSelectorConfig(options=list(SNOOZE_SCOPES), translation_key="snooze_scope")
+        ),
+        vol.Optional("snooze_options"): SelectSelector(
+            SelectSelectorConfig(
+                options=[str(m) for m in SNOOZE_PRESET_MINUTES],
+                multiple=True,
+                translation_key="snooze_minutes",
+            )
+        ),
         vol.Required("enabled", default=True): BooleanSelector(),
     }
 )
@@ -221,6 +232,9 @@ def _rule_data(user_input: dict[str, Any]) -> dict[str, Any]:
     seconds = _for_seconds(data.pop("for", None))
     if seconds:
         data["for"] = seconds
+    # The form offers minutes; the rule stores seconds. Unset fields use the option defaults.
+    if minutes := data.pop("snooze_options", None):
+        data["snooze_options"] = _snooze_seconds(minutes)
     return data
 
 
@@ -259,6 +273,11 @@ class RuleSubentryFlow(ConfigSubentryFlow):
         suggested = user_input or (
             {"name": subentry.title, **subentry.data} if subentry is not None else None
         )
+        if suggested and suggested.get("snooze_options"):
+            suggested = {
+                **suggested,
+                "snooze_options": [str(s // 60) for s in suggested["snooze_options"]],
+            }
         if suggested and isinstance(suggested.get("for"), int):
             suggested = {**suggested, "for": _seconds_to_duration(suggested["for"])}
         return self.async_show_form(
@@ -287,6 +306,8 @@ class RuleSubentryFlow(ConfigSubentryFlow):
                 errors["message"] = "message_template_invalid"
         if _for_seconds(user_input.get("for")) > MAX_FOR_SECONDS:
             errors["for"] = "for_too_long"
+        if user_input.get("snoozable") and not user_input.get("dismissible"):
+            errors["snoozable"] = "snoozable_needs_dismissible"
         if len(user_input.get("title") or "") > MAX_TITLE:
             errors["title"] = "title_too_long"
         return errors

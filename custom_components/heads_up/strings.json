@@ -225,7 +225,10 @@
             "icon": "Icon",
             "people": "People",
             "dismissible": "Dismissible",
-            "enabled": "Enabled"
+            "enabled": "Enabled",
+            "snoozable": "Snoozable",
+            "snooze_scope": "Snooze scope",
+            "snooze_options": "Snooze choices"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -236,7 +239,10 @@
             "title": "Optional heading, up to 100 characters.",
             "people": "Show only to these people. Empty: everyone.",
             "dismissible": "Off: no close button, the banner stays while the condition is true. On: each user can hide it until the condition turns false and true again.",
-            "enabled": "Turn off to hide the banner without deleting the rule."
+            "enabled": "Turn off to hide the banner without deleting the rule.",
+            "snoozable": "On: viewers can hide the banner for a while; it returns afterwards. Needs Dismissible. Empty: the setting from the integration options.",
+            "snooze_scope": "Per user or everyone. Empty: the setting from the integration options.",
+            "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options."
           }
         },
         "reconfigure": {
@@ -255,7 +261,10 @@
             "icon": "Icon",
             "people": "People",
             "dismissible": "Dismissible",
-            "enabled": "Enabled"
+            "enabled": "Enabled",
+            "snoozable": "Snoozable",
+            "snooze_scope": "Snooze scope",
+            "snooze_options": "Snooze choices"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -266,7 +275,10 @@
             "title": "Optional heading, up to 100 characters.",
             "people": "Show only to these people. Empty: everyone.",
             "dismissible": "Off: no close button, the banner stays while the condition is true. On: each user can hide it until the condition turns false and true again.",
-            "enabled": "Turn off to hide the banner without deleting the rule."
+            "enabled": "Turn off to hide the banner without deleting the rule.",
+            "snoozable": "On: viewers can hide the banner for a while; it returns afterwards. Needs Dismissible. Empty: the setting from the integration options.",
+            "snooze_scope": "Per user or everyone. Empty: the setting from the integration options.",
+            "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options."
           }
         }
       },
@@ -279,7 +291,8 @@
         "state_count": "Above and below need one number, between needs two.",
         "state_not_numeric": "Enter numbers only for this condition.",
         "state_required": "Enter at least one value.",
-        "for_too_long": "Use 24 hours or less."
+        "for_too_long": "Use 24 hours or less.",
+        "snoozable_needs_dismissible": "Snoozable needs Dismissible to be on."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

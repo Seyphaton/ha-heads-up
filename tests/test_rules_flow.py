@@ -150,3 +150,37 @@ async def test_reconfigure_changes_data_and_title(
     assert result["type"] is FlowResultType.ABORT and result["reason"] == "reconfigure_successful"
     assert subentry.title == "New"
     assert subentry.data["message"] == "new" and subentry.data["severity"] == "info"
+
+
+async def test_snooze_fields_are_stored_in_seconds(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(WINDOW, "off")
+    flow_id = await start(hass, entry)
+    result = await hass.config_entries.subentries.async_configure(
+        flow_id,
+        {
+            "name": "Window",
+            "entity_id": WINDOW,
+            "message": "x",
+            "dismissible": True,
+            "snoozable": True,
+            "snooze_scope": "global",
+            "snooze_options": ["15", "60"],
+        },
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (subentry,) = entry.subentries.values()
+    assert subentry.data["snoozable"] is True and subentry.data["snooze_scope"] == "global"
+    assert subentry.data["snooze_options"] == [900, 3600]
+
+
+async def test_snoozable_needs_dismissible(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    hass.states.async_set(WINDOW, "off")
+    flow_id = await start(hass, entry)
+    result = await hass.config_entries.subentries.async_configure(
+        flow_id,
+        {"name": "Window", "entity_id": WINDOW, "message": "x", "snoozable": True},
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"snoozable": "snoozable_needs_dismissible"}

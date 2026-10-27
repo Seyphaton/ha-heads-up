@@ -10,7 +10,11 @@ from homeassistant.auth.models import User
 from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
-from pytest_homeassistant_custom_component.common import MockConfigEntry, async_capture_events
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    async_capture_events,
+    async_fire_time_changed,
+)
 from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
 from custom_components.heads_up.const import DOMAIN
@@ -466,3 +470,40 @@ async def test_failing_template_shows_the_raw_text(
     add_rule(hass, entry, message="{{ 1 / 0 }}")
     await hass.async_block_till_done()
     assert entry.runtime_data.visible(USER)[0]["message"] == "{{ 1 / 0 }}"
+
+
+async def test_snoozed_rule_banner_returns_when_the_snooze_ends(
+    hass: HomeAssistant, entry: MockConfigEntry, freezer: FrozenDateTimeFactory
+) -> None:
+    await set_state(hass, "on")
+    subentry = add_rule(hass, entry, dismissible=True, snoozable=True, snooze_options=[600])
+    await hass.async_block_till_done()
+    manager = entry.runtime_data
+    manager.snooze(rule_id(subentry), USER, 600)
+    assert shown(entry) == []
+
+    freezer.tick(timedelta(seconds=601))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    assert shown(entry) == [rule_id(subentry)]
+
+
+async def test_rule_snooze_ends_when_the_condition_turns_false(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    await set_state(hass, "on")
+    subentry = add_rule(hass, entry, dismissible=True, snoozable=True)
+    await hass.async_block_till_done()
+    entry.runtime_data.snooze(rule_id(subentry), USER, 900)
+    await set_state(hass, "off")
+    await set_state(hass, "on")
+    assert shown(entry) == [rule_id(subentry)]
+
+
+async def test_rule_is_not_snoozable_unless_dismissible(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    await set_state(hass, "on")
+    subentry = add_rule(hass, entry, dismissible=False, snoozable=True)
+    await hass.async_block_till_done()
+    assert entry.runtime_data.rules[rule_id(subentry)].snoozable is False
