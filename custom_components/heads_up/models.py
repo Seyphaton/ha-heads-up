@@ -40,6 +40,8 @@ class Banner:
     snoozable: bool = False
     snooze_scope: str = "user"
     # Choices offered to the viewer, in seconds.
+    # Buttons: {key, label, dismiss, action?}; `action` is run by the card (DESIGN §21).
+    actions: list[dict[str, Any]] = field(default_factory=list)
     snooze_options: list[int] = field(default_factory=list)
     # Snooze end by user ID, or GLOBAL_SNOOZE_KEY for everyone (D-069).
     snoozed_until: dict[str, datetime] = field(default_factory=dict)

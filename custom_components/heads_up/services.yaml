@@ -56,6 +56,10 @@ create_banner:
       example: '[{"minutes": 15}, {"hours": 1}, {"hours": 4}]'
       selector:
         object:
+    actions:
+      example: '[{"key": "ack", "label": "Got it", "dismiss": true}]'
+      selector:
+        object:
     tag:
       example: "laundry"
       selector:

@@ -153,6 +153,10 @@
           "name": "Snooze choices",
           "description": "Up to 6 durations from 1 minute to 7 days offered to the viewer. Default: the setting from the integration options (15 minutes, 1 hour, 4 hours)."
         },
+        "actions": {
+          "name": "Buttons",
+          "description": "Up to 3 buttons. Each has a key, a label and optionally dismiss and an action. Pressing one fires the event heads_up_banner_action; the card also runs its action, like tap_action. Default: no buttons."
+        },
         "tag": {
           "name": "Tag",
           "description": "Group name for card filters and for clearing several banners at once. Default: no tag."

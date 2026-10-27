@@ -17,6 +17,8 @@ from .const import (
     DISMISS_SCOPES,
     DOMAIN,
     ID_PATTERN,
+    MAX_ACTION_LABEL,
+    MAX_ACTIONS,
     MAX_FOR_SECONDS,
     MAX_MESSAGE,
     MAX_SNOOZE_OPTIONS,
@@ -37,6 +39,9 @@ def _timeout(value: timedelta) -> timedelta:
     return value
 
 
+SLUG_KEY = vol.All(cv.string, vol.Match(ID_PATTERN))
+
+
 def _snooze_seconds(value: timedelta) -> int:
     seconds = round(value.total_seconds())
     if seconds < MIN_SNOOZE_SECONDS or seconds > MAX_SNOOZE_SECONDS:
@@ -51,7 +56,32 @@ def _snooze_options(value: list[int]) -> list[int]:
     return unique
 
 
+def _check_actions(value: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    if len(value) > MAX_ACTIONS:
+        raise vol.Invalid(f"at most {MAX_ACTIONS} buttons")
+    keys = [a["key"] for a in value]
+    if len(set(keys)) != len(keys):
+        raise vol.Invalid("button keys must be unique")
+    return value
+
+
+ACTION_SCHEMA = vol.Schema(
+    {
+        vol.Required("key"): SLUG_KEY,
+        vol.Required("label"): vol.All(cv.string, vol.Length(min=1, max=MAX_ACTION_LABEL)),
+        vol.Optional("action"): vol.Schema(
+            {vol.Required("action"): cv.string}, extra=vol.ALLOW_EXTRA
+        ),
+        vol.Optional("dismiss", default=False): cv.boolean,
+    }
+)
+
+
 def _check_create(data: dict[str, Any]) -> dict[str, Any]:
+    if data.get("dismissible") is False and any(a["dismiss"] for a in data.get("actions", [])):
+        raise vol.Invalid(
+            "a button cannot dismiss a banner that is not dismissible", path=["actions"]
+        )
     # An unhideable banner cannot be snoozed either (D-069).
     if data.get("snoozable") and data.get("dismissible") is False:
         raise vol.Invalid(
@@ -146,6 +176,7 @@ CREATE_SCHEMA = vol.All(
             vol.Optional("mode"): vol.In(MODES),
             vol.Optional("wait_for_condition"): cv.boolean,
             vol.Optional("people"): vol.All(cv.ensure_list, [cv.entity_domain("person")]),
+            vol.Optional("actions"): vol.All(cv.ensure_list, [ACTION_SCHEMA], _check_actions),
             vol.Optional("tap_action"): vol.Schema(
                 {vol.Required("action"): cv.string}, extra=vol.ALLOW_EXTRA
             ),

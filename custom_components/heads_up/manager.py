@@ -36,6 +36,7 @@ from .const import (
     DEFAULT_OPTIONS,
     DEFAULT_SEVERITY,
     DOMAIN,
+    EVENT_ACTION,
     EVENT_CLEARED,
     EVENT_CREATED,
     EVENT_DISMISSED,
@@ -206,6 +207,7 @@ class BannerManager:
             ),
             tag=data.get("tag"),
             tap_action=data.get("tap_action"),
+            actions=[dict(a) for a in data.get("actions", [])],
             condition=condition,
             mode=data.get("mode", "once"),
             people=list(data.get("people", [])),
@@ -277,6 +279,20 @@ class BannerManager:
         elif user_id not in banner.dismissed_by:
             banner.dismissed_by.append(user_id)
             self._fire(EVENT_DISMISSED, banner, scope="user", user_id=user_id)
+
+    @callback
+    def press(self, banner_id: str, user_id: str, key: str) -> None:
+        """A viewer pressed a banner button: fire the event, then dismiss if the button says so."""
+        banner = self.rules.get(banner_id) or self._get(banner_id)
+        button = next((a for a in banner.actions if a["key"] == key), None)
+        if button is None:
+            raise HeadsUpError("unknown_action", f"Banner {banner_id} has no button {key}")
+        if not self._targets(banner, user_id):
+            raise HeadsUpError("not_found", f"Banner {banner_id} not found")
+        self._fire(EVENT_ACTION, banner, key=key, user_id=user_id)
+        if button["dismiss"]:
+            self._dismiss_one(banner_id, user_id)
+            self._changed()
 
     @callback
     def snooze(self, banner_id: str, user_id: str, seconds: int) -> None:
