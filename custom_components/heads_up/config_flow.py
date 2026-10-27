@@ -30,6 +30,7 @@ from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
+    ObjectSelector,
     SelectSelector,
     SelectSelectorConfig,
     TextSelector,
@@ -59,6 +60,7 @@ from .const import (
     SNOOZE_PRESET_MINUTES,
     SNOOZE_SCOPES,
 )
+from .services import ACTIONS_SCHEMA, TAP_ACTION_SCHEMA
 
 
 class HeadsUpConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -173,13 +175,16 @@ class HeadsUpOptionsFlow(OptionsFlow):
 _RULE_SCHEMA = vol.Schema(
     {
         vol.Required("name"): TextSelector(),
-        vol.Required("entity_id"): EntitySelector(),
+        # Exactly one of entity_id and template (DESIGN §22).
+        vol.Optional("entity_id"): EntitySelector(),
         vol.Required("operator", default=DEFAULT_OPERATOR): SelectSelector(
             SelectSelectorConfig(options=list(OPERATORS), translation_key="operator")
         ),
         # No prefilled value: an empty field means "on" for equals and not_equals (D-068).
         vol.Optional("state"): TextSelector(TextSelectorConfig(multiple=True)),
         vol.Optional("attribute"): TextSelector(),
+        # Plain text, not TemplateSelector: that one rejects a bad template before our own error.
+        vol.Optional("template"): TextSelector(TextSelectorConfig(multiline=True)),
         vol.Optional("for"): DurationSelector(DurationSelectorConfig(enable_day=True)),
         vol.Required("message"): TextSelector(TextSelectorConfig(multiline=True)),
         vol.Optional("title"): TextSelector(),
@@ -191,6 +196,9 @@ _RULE_SCHEMA = vol.Schema(
             EntitySelectorConfig(domain="person", multiple=True)
         ),
         vol.Required("dismissible", default=False): BooleanSelector(),
+        vol.Optional("dismiss_scope"): SelectSelector(
+            SelectSelectorConfig(options=list(DISMISS_SCOPES), translation_key="dismiss_scope")
+        ),
         vol.Optional("snoozable"): BooleanSelector(),
         vol.Optional("snooze_scope"): SelectSelector(
             SelectSelectorConfig(options=list(SNOOZE_SCOPES), translation_key="snooze_scope")
@@ -202,6 +210,8 @@ _RULE_SCHEMA = vol.Schema(
                 translation_key="snooze_minutes",
             )
         ),
+        vol.Optional("actions"): ObjectSelector(),
+        vol.Optional("tap_action"): ObjectSelector(),
         vol.Required("enabled", default=True): BooleanSelector(),
     }
 )
@@ -220,7 +230,13 @@ def _states(user_input: dict[str, Any]) -> list[str]:
 def _rule_data(user_input: dict[str, Any]) -> dict[str, Any]:
     """Subentry data: everything but the name; empty optional fields are left out."""
     data = {key: value for key, value in user_input.items() if key != "name"}
-    if states := _states(user_input):
+    template = (data.pop("template", None) or "").strip()
+    if template:
+        # A template replaces the entity and everything compared on it.
+        for key in ("entity_id", "operator", "state", "attribute"):
+            data.pop(key, None)
+        data["template"] = template
+    elif states := _states(user_input):
         data["state"] = states
     else:
         data.pop("state", None)
@@ -228,6 +244,15 @@ def _rule_data(user_input: dict[str, Any]) -> dict[str, Any]:
     for key in ("attribute", "title", "icon"):
         if not (data.get(key) or "").strip():
             data.pop(key, None)
+    # Buttons and tap action go through the same schemas as the action (DESIGN §22).
+    if data.get("actions"):
+        data["actions"] = ACTIONS_SCHEMA(data["actions"])
+    else:
+        data.pop("actions", None)
+    if data.get("tap_action"):
+        data["tap_action"] = TAP_ACTION_SCHEMA(data["tap_action"])
+    else:
+        data.pop("tap_action", None)
     # The duration selector gives a dict; the rule stores seconds, none when empty (D-066).
     seconds = _for_seconds(data.pop("for", None))
     if seconds:
@@ -290,10 +315,23 @@ class RuleSubentryFlow(ConfigSubentryFlow):
 
     def _validate(self, user_input: dict[str, Any]) -> dict[str, str]:
         errors: dict[str, str] = {}
-        if self.hass.states.get(user_input["entity_id"]) is None:
-            errors["entity_id"] = "entity_not_found"
-        if error := check_state(user_input.get("operator", DEFAULT_OPERATOR), _states(user_input)):
-            errors["state"] = error
+        template = (user_input.get("template") or "").strip()
+        entity_id = user_input.get("entity_id")
+        if entity_id and template:
+            errors["template"] = "entity_and_template"
+        elif template:
+            try:
+                Template(template, self.hass).ensure_valid()
+            except TemplateError:
+                errors["template"] = "template_invalid"
+        elif not entity_id:
+            errors["entity_id"] = "entity_or_template_required"
+        else:
+            if self.hass.states.get(entity_id) is None:
+                errors["entity_id"] = "entity_not_found"
+            operator = user_input.get("operator", DEFAULT_OPERATOR)
+            if error := check_state(operator, _states(user_input)):
+                errors["state"] = error
         message = user_input["message"].strip()
         if not message:
             errors["message"] = "message_required"
@@ -308,6 +346,16 @@ class RuleSubentryFlow(ConfigSubentryFlow):
             errors["for"] = "for_too_long"
         if user_input.get("snoozable") and not user_input.get("dismissible"):
             errors["snoozable"] = "snoozable_needs_dismissible"
+        for field, schema in (("actions", ACTIONS_SCHEMA), ("tap_action", TAP_ACTION_SCHEMA)):
+            if user_input.get(field):
+                try:
+                    checked = schema(user_input[field])
+                except vol.Invalid:
+                    errors[field] = f"{field}_invalid"
+                    continue
+                dismisses = field == "actions" and any(button["dismiss"] for button in checked)
+                if dismisses and not user_input.get("dismissible"):
+                    errors[field] = "actions_dismiss_needs_dismissible"
         if len(user_input.get("title") or "") > MAX_TITLE:
             errors["title"] = "title_too_long"
         return errors

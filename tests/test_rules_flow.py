@@ -184,3 +184,87 @@ async def test_snoozable_needs_dismissible(hass: HomeAssistant, entry: MockConfi
     )
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {"snoozable": "snoozable_needs_dismissible"}
+
+
+async def _submit(hass: HomeAssistant, entry: MockConfigEntry, **fields: Any) -> Any:
+    flow_id = await start(hass, entry)
+    return await hass.config_entries.subentries.async_configure(
+        flow_id, {"name": "Rule", "message": "x", **fields}
+    )
+
+
+async def test_template_rule_is_stored_without_entity_fields(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await _submit(
+        hass, entry, template=" {{ is_state('sun.sun', 'below_horizon') }} ", operator="above"
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (subentry,) = entry.subentries.values()
+    assert subentry.data["template"] == "{{ is_state('sun.sun', 'below_horizon') }}"
+    for key in ("entity_id", "operator", "state", "attribute"):
+        assert key not in subentry.data
+
+
+async def test_rule_needs_exactly_one_of_entity_and_template(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(WINDOW, "off")
+    both = await _submit(hass, entry, entity_id=WINDOW, template="{{ true }}")
+    assert both["errors"] == {"template": "entity_and_template"}
+    neither = await _submit(hass, entry)
+    assert neither["errors"] == {"entity_id": "entity_or_template_required"}
+
+
+async def test_invalid_rule_template_is_an_error(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await _submit(hass, entry, template="{{ states('x' }}")
+    assert result["errors"] == {"template": "template_invalid"}
+
+
+async def test_buttons_and_tap_action_are_stored_like_the_action_stores_them(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(WINDOW, "off")
+    result = await _submit(
+        hass,
+        entry,
+        entity_id=WINDOW,
+        dismissible=True,
+        dismiss_scope="global",
+        actions=[{"key": "ack", "label": "Got it", "dismiss": True}, {"key": "x", "label": "X"}],
+        tap_action={"action": "navigate", "navigation_path": "/a"},
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (subentry,) = entry.subentries.values()
+    assert subentry.data["actions"] == [
+        {"key": "ack", "label": "Got it", "dismiss": True},
+        {"key": "x", "label": "X", "dismiss": False},
+    ]
+    assert subentry.data["tap_action"] == {"action": "navigate", "navigation_path": "/a"}
+    assert subentry.data["dismiss_scope"] == "global"
+
+
+async def test_invalid_buttons_and_tap_action_are_errors(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(WINDOW, "off")
+    result = await _submit(
+        hass,
+        entry,
+        entity_id=WINDOW,
+        actions=[{"key": "Bad Key", "label": "x"}],
+        tap_action={"navigation_path": "/a"},
+    )
+    assert result["errors"] == {"actions": "actions_invalid", "tap_action": "tap_action_invalid"}
+
+
+async def test_dismiss_button_needs_a_dismissible_rule(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(WINDOW, "off")
+    result = await _submit(
+        hass, entry, entity_id=WINDOW, actions=[{"key": "ack", "label": "Got it", "dismiss": True}]
+    )
+    assert result["errors"] == {"actions": "actions_dismiss_needs_dismissible"}

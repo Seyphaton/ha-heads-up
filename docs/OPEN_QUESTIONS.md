@@ -66,7 +66,7 @@
 ## Phase 12: buttons and snooze
 - Not verified: swipe on a real touch screen, screen readers, the options flow and the rule form in Home Assistant's UI (only through the flow APIs in tests), Home Assistant 2026.10. Phone width, the compact layout with the snooze row and keyboard use are checked (see the card follow-ups above). Checked in the browser pane (admin, dev HA 2026.9.4) with a mouse: snooze button and row, a choice hides the banner in every card, a button with `dismiss`, right swipe opens the row, left swipe dismisses.
 - Not tested on the dev HA: pressing a button with an `action` (navigation, confirmation), a global snooze with a second user in the card, a snooze ending in a real wait.
-- Not built: buttons on watch rules, a snooze choice entered by the viewer, an event when a snooze ends, a way to end a snooze early from the card, snooze state of rules over a restart (D-069).
+- Not built: a snooze choice entered by the viewer, an event when a snooze ends, a way to end a snooze early from the card, snooze state of rules over a restart (D-069).
 - A button's `action` runs with the viewer's permissions in the card, so it does nothing for a client that is not a card (D-070).
 
 ## Card registration (D-072)

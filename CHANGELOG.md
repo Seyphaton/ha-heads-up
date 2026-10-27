@@ -5,6 +5,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ## [Unreleased]
 
 ### Added
+- Watch rules got the features that actions have: Buttons and Tap action (YAML fields in the rule form, same format as `actions` and `tap_action`), Dismiss scope (per user or everyone) and a Template in place of an entity. A rule without a dismiss scope stays per user.
 - German, French and Spanish: the integration's screens and the card follow your Home Assistant language. Other languages show English. The texts are not reviewed by native speakers.
 - Snooze: `snoozable`, `snooze_scope` and `snooze_options` in `heads_up.create_banner`, and a Snoozable option in the watch rule form. The card shows a snooze button; with `swipe_to_dismiss`, a right swipe opens the choices. New options `default_snoozable`, `default_snooze_scope`, `default_snooze_options`. New event `heads_up_banner_snoozed`.
 - Banner buttons: `actions` in `heads_up.create_banner` (up to 3 buttons with `key`, `label`, `dismiss` and an optional `action`). New event `heads_up_banner_action`.

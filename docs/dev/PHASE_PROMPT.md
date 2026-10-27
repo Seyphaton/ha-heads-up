@@ -30,6 +30,7 @@ You are continuing the Heads Up (`heads_up`) Home Assistant integration in this 
 The phase is not finished until every item below is true. Check each one and report it in the phase summary.
 
 Claude-facing docs
+- [ ] Parity (`docs/DESIGN.md` §22): every banner feature the phase adds or changes works for banners from actions and from watch rules, or the exception is in the §22 table with a decision number. A test covers each source.
 - [ ] `docs/DESIGN.md` matches the code: §0 status table, module list, schemas, lifecycle, WebSocket API, edge cases. No section describes behaviour the code does not have.
 - [ ] `docs/DECISIONS.md` has an entry for every decision made in this phase, and a gate-log line for the phase.
 - [ ] `docs/dev/HA_API_NOTES.md` has a row for every HA API the phase uses, with status `verified` or a stated reason why not.

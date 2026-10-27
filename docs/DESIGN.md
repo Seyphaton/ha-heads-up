@@ -12,6 +12,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §19 condition `for` and template conditions | implemented and tested (Phase 10); card unchanged |
 | §20 `empty` and `not_empty` operators, rule form without a prefilled State | implemented and tested (Phase 11); card unchanged |
 | §21 banner buttons and snooze | implemented and tested (Phase 12); card checked on the dev HA with a mouse |
+| §22 parity of banner sources, rule buttons, tap action, dismiss scope and template conditions | implemented and tested (Phase 12 follow-up) |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
 | Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
@@ -485,7 +486,7 @@ A viewer could only close a banner for good, and a banner could not lead to anyt
 - **WebSocket `heads_up/snooze`** (`banner_id`, `seconds`): `seconds` must be one of the banner's options (`invalid_snooze`), the banner must be snoozable (`not_snoozable`). Any user can call it, like a dismissal (D-029). Fires `heads_up_banner_snoozed` with `id`, `tag`, `scope`, `user_id`, `until`.
 - **Buttons:** field `actions`, up to 3 entries `{key, label, dismiss?, action?}`. `key` follows the ID pattern and is unique in the banner, `label` has 1 to 40 characters, `action` is a mapping with an `action` key (as `tap_action`), `dismiss` defaults to false and is rejected with `dismissible: false`. The card receives the whole list.
 - **WebSocket `heads_up/action`** (`banner_id`, `key`): fires `heads_up_banner_action` with `id`, `tag`, `key`, `user_id`; with `dismiss` it then dismisses for that user. Errors: `unknown_action`, `not_found` (also for a banner targeted at other people). The backend never runs `action`; the card does, after the call succeeds, with the same `hass-action` event as the tap action, so HA handles confirmation and the viewer's permissions (N-38).
-- **Watch rules:** the rule form has Snoozable, Snooze scope and Snooze choices (minutes in the form, seconds in the subentry); unset fields use the option defaults; Snoozable needs Dismissible (`snoozable_needs_dismissible`). Rules have no buttons. A rule's snoozes are not stored, like its dismissals.
+- **Watch rules:** the rule form has Snoozable, Snooze scope and Snooze choices (minutes in the form, seconds in the subentry); unset fields use the option defaults; Snoozable needs Dismissible (`snoozable_needs_dismissible`). Rules got buttons and a tap action in §22. A rule's snoozes are not stored, like its dismissals.
 - **Card:** no new config key. A banner with `snoozable` and choices gets a snooze button (48 px, `aria-label`) that opens a row of choices under the banner; Escape closes it. With `swipe_to_dismiss`, a right swipe on a snoozable banner opens the same row and a left swipe dismisses; on other banners both directions dismiss as before (`swipeOutcome`). Buttons are text buttons under the message; the compact layout hides them. The card sends only `snoozable`, `snooze_options`, `snoozed` and `actions`; `snooze_scope` and `snoozed_until` stay server-side.
 
 ### 21.3 Blast radius
@@ -493,3 +494,43 @@ Restart: the usual one after a code update. Notification path: not touched. Dash
 
 ### 21.4 Tests
 `tests/test_snooze.py`: default off, per-user and global scope, expiry timer, choices, not-dismissible rules, limits, upsert, recurring flip, restart, snooze ended during downtime, `show_all` flag, options flow. `tests/test_actions.py`: payload, event, dismiss button, unknown key, targeted banner, upsert, invalid input, restart. `tests/test_rules.py` and `tests/test_rules_flow.py`: rule snooze and form. vitest: `controlsFor`, `snoozeLabel`, `swipeOutcome`. `dev/smoke.py snooze` and `snooze_verify`: per-user snooze, dismiss button and persistence over a container restart on the dev HA.
+
+## 22. Parity of banner sources (rule, D-073)
+
+Status: implemented 2026-10-27 (`tests/test_rule_parity.py`, `tests/test_rules_flow.py`). Decision D-073.
+
+### 22.1 Rule
+A banner comes from one of two sources: the action `create_banner` (stored) and a watch rule (virtual, §17). Both must offer the same features to the viewer and the producer. A phase that adds or changes a banner feature ships it for both sources, or lists the missing side as an exception below with a decision number. `docs/dev/PHASE_PROMPT.md` checks this at the end of every phase, and the card never needs to know the source (only `rule: true` hides "Clear for everyone").
+
+How both sources stay equal:
+- The rule form validates input with the schemas of the action (`ACTIONS_SCHEMA`, `TAP_ACTION_SCHEMA` in `services.py`), so a button or tap action means the same thing in both.
+- Rule banners are built by `_build_rule` into the same `Banner` model; the manager methods for dismissal, snooze, button presses and delivery (`dismiss`, `snooze`, `press`, `visible`) work on `rules` and `banners` alike.
+- Each source has a test for every feature in the table.
+
+### 22.2 Feature table
+| Banner feature | Action | Rule |
+|---|---|---|
+| message (`{name}` and templates in rules, D-055, D-063), title, severity, icon, people | yes | yes |
+| dismissible | yes | yes |
+| dismiss scope | `user` or `global`, option default | `user` or `global`; a rule without the field stays `user`, whatever the option says (D-073) |
+| snooze (flag, scope, choices) | yes | yes |
+| buttons (`actions`) | yes | yes (Buttons field, YAML) |
+| tap action | yes | yes (Tap action field, YAML) |
+| condition on an entity (operators, `for`) | yes | yes |
+| template condition | yes | yes (Template field; replaces the entity) |
+| `id`, `tag`, `timeout`, `mode`, `wait_for_condition` | yes | exception: a rule's lifetime is its condition; its tag is `rule`; its mode is recurring (D-052, D-056) |
+| clear by action or by an admin | yes | exception: the rule is disabled or deleted instead (D-056) |
+| stored over a restart (banner, dismissals, snoozes) | yes | exception: a rule is rebuilt from its subentry; dismissals and snoozes are not kept (D-056, D-069) |
+
+### 22.3 Details of the rule additions
+- **Buttons and tap action:** subentry fields `actions` (list, up to 3, normalized with `dismiss: false` defaults) and `tap_action`. A rule's button presses fire `heads_up_banner_action` with `id = rule_<subentry_id>` and `tag = rule`. A button with `dismiss` needs a dismissible rule (`actions_dismiss_needs_dismissible`).
+- **Dismiss scope:** `global` on a rule keeps the banner hidden for everyone until its condition turns false, because a rule banner cannot be removed. The marker is `*` in `dismissed_by`, as `*` is the global key of snoozes; it is cleared with the other dismissals when the condition flips. `heads_up_banner_dismissed` fires with `scope: global`.
+- **Template condition:** subentry field `template` replaces `entity_id`, `operator`, `state` and `attribute` (the form accepts exactly one of entity and template). `for` works with it. The manager tracks it with `async_track_template_result` (`_template_trackers`) like a template condition of an action; `_template_changed` re-evaluates a rule through `_apply_rule`. An unreadable result hides the banner (D-053). `{name}` in the message is the rule name when there is no entity. The subentry title reaches the manager as `rule_name` in the rule source.
+- **Form errors:** `entity_and_template`, `entity_or_template_required`, `template_invalid`, `actions_invalid`, `tap_action_invalid`, `actions_dismiss_needs_dismissible`. The Template field is plain multiline text, not the template selector, because the selector rejects a bad template before our error message.
+
+### 22.4 Blast radius
+Restart: the usual one after a code update. Notification path: not touched. Dashboard: existing rules look the same (new fields are optional; an unset dismiss scope is `user`). Subentries with a template have no `entity_id`; an older version of the integration would fail to build them, and a downgrade after using these fields should delete such rules. Same for rules with buttons: older versions ignore the field.
+
+### 22.5 Tests
+`tests/test_rule_parity.py`: rule payload with buttons and tap action, button event and dismissal, unknown key, global dismissal until the condition flips, default scope, template rule (follows, `{name}`, `for`, tracking removed on delete). `tests/test_rules_flow.py`: template stored without entity fields, one of entity and template, invalid template, buttons and tap action stored as the action stores them, invalid input, dismiss button needs a dismissible rule.
+

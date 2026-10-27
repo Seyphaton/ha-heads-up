@@ -218,6 +218,7 @@
             "operator": "Condition",
             "state": "État",
             "attribute": "Attribut",
+            "template": "Modèle",
             "for": "La condition doit durer",
             "message": "Message",
             "title": "Titre",
@@ -225,24 +226,32 @@
             "icon": "Icône",
             "people": "Personnes",
             "dismissible": "Fermable",
+            "dismiss_scope": "Portée de fermeture",
             "enabled": "Activée",
             "snoozable": "Reportable",
             "snooze_scope": "Portée du report",
-            "snooze_options": "Durées de report"
+            "snooze_options": "Durées de report",
+            "actions": "Boutons",
+            "tap_action": "Action au toucher"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
+            "entity_id": "Entité à surveiller. Utilisez-la ou un modèle, pas les deux.",
             "operator": "Comment l'entité (ou son attribut) est comparée aux valeurs ci-dessous.",
             "state": "« Est égal à », « N'est pas égal à », « Contient » et « Ne contient pas » acceptent une ou plusieurs valeurs (par défaut : on pour égal et différent). « Supérieur » et « Inférieur » acceptent un nombre ; « Entre » en accepte deux, le plus bas puis le plus haut, tous deux inclus. « Est vide » et « N'est pas vide » n'ont pas besoin de valeur.",
             "attribute": "Comparer cet attribut au lieu de l'état.",
+            "template": "À la place d'une entité : un modèle Home Assistant vrai tant que la bannière doit s'afficher. Laissez Condition, État et Attribut vides.",
             "for": "Facultatif. La bannière n'apparaît qu'après que la condition a duré ce temps sans interruption, jusqu'à 24 heures. Vide : tout de suite. Après un redémarrage, l'attente recommence.",
             "title": "Titre facultatif, 100 caractères au maximum.",
             "people": "Afficher seulement à ces personnes. Vide : tout le monde.",
             "dismissible": "Désactivé : pas de bouton de fermeture, la bannière reste tant que la condition est vraie. Activé : chaque utilisateur peut la masquer jusqu'à ce que la condition devienne fausse puis vraie à nouveau.",
+            "dismiss_scope": "Par utilisateur : fermer la masque pour cet utilisateur jusqu'à ce que la condition devienne fausse puis vraie à nouveau. Tout le monde : la fermeture la masque pour tous jusque-là. Vide : par utilisateur.",
             "enabled": "Désactivez pour masquer la bannière sans supprimer la règle.",
             "snoozable": "Activé : les utilisateurs peuvent masquer la bannière un moment ; elle revient ensuite. Nécessite « Fermable ». Vide : le réglage des options de l'intégration.",
             "snooze_scope": "Par utilisateur ou tout le monde. Vide : le réglage des options de l'intégration.",
-            "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration."
+            "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration.",
+            "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
+            "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
           }
         },
         "reconfigure": {
@@ -254,6 +263,7 @@
             "operator": "Condition",
             "state": "État",
             "attribute": "Attribut",
+            "template": "Modèle",
             "for": "La condition doit durer",
             "message": "Message",
             "title": "Titre",
@@ -261,24 +271,32 @@
             "icon": "Icône",
             "people": "Personnes",
             "dismissible": "Fermable",
+            "dismiss_scope": "Portée de fermeture",
             "enabled": "Activée",
             "snoozable": "Reportable",
             "snooze_scope": "Portée du report",
-            "snooze_options": "Durées de report"
+            "snooze_options": "Durées de report",
+            "actions": "Boutons",
+            "tap_action": "Action au toucher"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
+            "entity_id": "Entité à surveiller. Utilisez-la ou un modèle, pas les deux.",
             "operator": "Comment l'entité (ou son attribut) est comparée aux valeurs ci-dessous.",
             "state": "« Est égal à », « N'est pas égal à », « Contient » et « Ne contient pas » acceptent une ou plusieurs valeurs (par défaut : on pour égal et différent). « Supérieur » et « Inférieur » acceptent un nombre ; « Entre » en accepte deux, le plus bas puis le plus haut, tous deux inclus. « Est vide » et « N'est pas vide » n'ont pas besoin de valeur.",
             "attribute": "Comparer cet attribut au lieu de l'état.",
+            "template": "À la place d'une entité : un modèle Home Assistant vrai tant que la bannière doit s'afficher. Laissez Condition, État et Attribut vides.",
             "for": "Facultatif. La bannière n'apparaît qu'après que la condition a duré ce temps sans interruption, jusqu'à 24 heures. Vide : tout de suite. Après un redémarrage, l'attente recommence.",
             "title": "Titre facultatif, 100 caractères au maximum.",
             "people": "Afficher seulement à ces personnes. Vide : tout le monde.",
             "dismissible": "Désactivé : pas de bouton de fermeture, la bannière reste tant que la condition est vraie. Activé : chaque utilisateur peut la masquer jusqu'à ce que la condition devienne fausse puis vraie à nouveau.",
+            "dismiss_scope": "Par utilisateur : fermer la masque pour cet utilisateur jusqu'à ce que la condition devienne fausse puis vraie à nouveau. Tout le monde : la fermeture la masque pour tous jusque-là. Vide : par utilisateur.",
             "enabled": "Désactivez pour masquer la bannière sans supprimer la règle.",
             "snoozable": "Activé : les utilisateurs peuvent masquer la bannière un moment ; elle revient ensuite. Nécessite « Fermable ». Vide : le réglage des options de l'intégration.",
             "snooze_scope": "Par utilisateur ou tout le monde. Vide : le réglage des options de l'intégration.",
-            "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration."
+            "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration.",
+            "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
+            "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
           }
         }
       },
@@ -292,7 +310,13 @@
         "state_not_numeric": "Saisissez uniquement des nombres pour cette condition.",
         "state_required": "Saisissez au moins une valeur.",
         "for_too_long": "Utilisez 24 heures ou moins.",
-        "snoozable_needs_dismissible": "« Reportable » nécessite que « Fermable » soit activé."
+        "snoozable_needs_dismissible": "« Reportable » nécessite que « Fermable » soit activé.",
+        "entity_and_template": "Utilisez une entité ou un modèle, pas les deux.",
+        "entity_or_template_required": "Choisissez une entité ou saisissez un modèle.",
+        "template_invalid": "Le modèle n'est pas valide.",
+        "actions_invalid": "Les boutons ne sont pas valides. Chacun a besoin d'une key et d'un label, 3 au maximum.",
+        "tap_action_invalid": "L'action au toucher a besoin d'une clé action.",
+        "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."

@@ -218,6 +218,7 @@
             "operator": "Condición",
             "state": "Estado",
             "attribute": "Atributo",
+            "template": "Plantilla",
             "for": "La condición debe cumplirse durante",
             "message": "Mensaje",
             "title": "Título",
@@ -225,24 +226,32 @@
             "icon": "Icono",
             "people": "Personas",
             "dismissible": "Se puede cerrar",
+            "dismiss_scope": "Ámbito de cierre",
             "enabled": "Activada",
             "snoozable": "Se puede posponer",
             "snooze_scope": "Ámbito de posposición",
-            "snooze_options": "Opciones de posposición"
+            "snooze_options": "Opciones de posposición",
+            "actions": "Botones",
+            "tap_action": "Acción al tocar"
           },
           "data_description": {
             "name": "Solo se muestra en la lista de reglas.",
+            "entity_id": "Entidad que se vigila. Usa esta o una plantilla, no ambas.",
             "operator": "Cómo se compara la entidad (o su atributo) con los valores de abajo.",
             "state": "«Es igual a», «No es igual a», «Contiene» y «No contiene» aceptan uno o más valores (predeterminado: on para igual y distinto). «Por encima» y «Por debajo» aceptan un número; «Entre» acepta dos, primero el menor y luego el mayor, ambos incluidos. «Está vacío» y «No está vacío» no necesitan valor.",
             "attribute": "Comparar este atributo en lugar del estado.",
+            "template": "En lugar de una entidad: una plantilla de Home Assistant que es verdadera mientras el aviso deba mostrarse. Deja Condición, Estado y Atributo vacíos.",
             "for": "Opcional. El aviso aparece solo después de que la condición se cumpla este tiempo sin interrupción, hasta 24 horas. Vacío: de inmediato. Tras un reinicio, la espera empieza de nuevo.",
             "title": "Encabezado opcional, hasta 100 caracteres.",
             "people": "Mostrar solo a estas personas. Vacío: a todos.",
             "dismissible": "Desactivado: sin botón de cierre, el aviso permanece mientras la condición sea verdadera. Activado: cada usuario puede ocultarlo hasta que la condición pase a falsa y vuelva a ser verdadera.",
+            "dismiss_scope": "Por usuario: cerrarlo lo oculta para ese usuario hasta que la condición pase a falsa y vuelva a ser verdadera. Todos: cerrarlo lo oculta para todos hasta entonces. Vacío: por usuario.",
             "enabled": "Desactívalo para ocultar el aviso sin eliminar la regla.",
             "snoozable": "Activado: los usuarios pueden ocultar el aviso un tiempo; después vuelve. Requiere «Se puede cerrar». Vacío: el ajuste de las opciones de la integración.",
             "snooze_scope": "Por usuario o todos. Vacío: el ajuste de las opciones de la integración.",
-            "snooze_options": "Duraciones que se ofrecen al usuario. Vacío: el ajuste de las opciones de la integración."
+            "snooze_options": "Duraciones que se ofrecen al usuario. Vacío: el ajuste de las opciones de la integración.",
+            "actions": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action. «dismiss» requiere «Se puede cerrar».\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
+            "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
           }
         },
         "reconfigure": {
@@ -254,6 +263,7 @@
             "operator": "Condición",
             "state": "Estado",
             "attribute": "Atributo",
+            "template": "Plantilla",
             "for": "La condición debe cumplirse durante",
             "message": "Mensaje",
             "title": "Título",
@@ -261,24 +271,32 @@
             "icon": "Icono",
             "people": "Personas",
             "dismissible": "Se puede cerrar",
+            "dismiss_scope": "Ámbito de cierre",
             "enabled": "Activada",
             "snoozable": "Se puede posponer",
             "snooze_scope": "Ámbito de posposición",
-            "snooze_options": "Opciones de posposición"
+            "snooze_options": "Opciones de posposición",
+            "actions": "Botones",
+            "tap_action": "Acción al tocar"
           },
           "data_description": {
             "name": "Solo se muestra en la lista de reglas.",
+            "entity_id": "Entidad que se vigila. Usa esta o una plantilla, no ambas.",
             "operator": "Cómo se compara la entidad (o su atributo) con los valores de abajo.",
             "state": "«Es igual a», «No es igual a», «Contiene» y «No contiene» aceptan uno o más valores (predeterminado: on para igual y distinto). «Por encima» y «Por debajo» aceptan un número; «Entre» acepta dos, primero el menor y luego el mayor, ambos incluidos. «Está vacío» y «No está vacío» no necesitan valor.",
             "attribute": "Comparar este atributo en lugar del estado.",
+            "template": "En lugar de una entidad: una plantilla de Home Assistant que es verdadera mientras el aviso deba mostrarse. Deja Condición, Estado y Atributo vacíos.",
             "for": "Opcional. El aviso aparece solo después de que la condición se cumpla este tiempo sin interrupción, hasta 24 horas. Vacío: de inmediato. Tras un reinicio, la espera empieza de nuevo.",
             "title": "Encabezado opcional, hasta 100 caracteres.",
             "people": "Mostrar solo a estas personas. Vacío: a todos.",
             "dismissible": "Desactivado: sin botón de cierre, el aviso permanece mientras la condición sea verdadera. Activado: cada usuario puede ocultarlo hasta que la condición pase a falsa y vuelva a ser verdadera.",
+            "dismiss_scope": "Por usuario: cerrarlo lo oculta para ese usuario hasta que la condición pase a falsa y vuelva a ser verdadera. Todos: cerrarlo lo oculta para todos hasta entonces. Vacío: por usuario.",
             "enabled": "Desactívalo para ocultar el aviso sin eliminar la regla.",
             "snoozable": "Activado: los usuarios pueden ocultar el aviso un tiempo; después vuelve. Requiere «Se puede cerrar». Vacío: el ajuste de las opciones de la integración.",
             "snooze_scope": "Por usuario o todos. Vacío: el ajuste de las opciones de la integración.",
-            "snooze_options": "Duraciones que se ofrecen al usuario. Vacío: el ajuste de las opciones de la integración."
+            "snooze_options": "Duraciones que se ofrecen al usuario. Vacío: el ajuste de las opciones de la integración.",
+            "actions": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action. «dismiss» requiere «Se puede cerrar».\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
+            "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
           }
         }
       },
@@ -292,7 +310,13 @@
         "state_not_numeric": "Introduce solo números para esta condición.",
         "state_required": "Introduce al menos un valor.",
         "for_too_long": "Usa 24 horas o menos.",
-        "snoozable_needs_dismissible": "«Se puede posponer» requiere que «Se puede cerrar» esté activado."
+        "snoozable_needs_dismissible": "«Se puede posponer» requiere que «Se puede cerrar» esté activado.",
+        "entity_and_template": "Usa una entidad o una plantilla, no ambas.",
+        "entity_or_template_required": "Elige una entidad o introduce una plantilla.",
+        "template_invalid": "La plantilla no es válida.",
+        "actions_invalid": "Los botones no son válidos. Cada uno necesita key y label, como máximo 3.",
+        "tap_action_invalid": "La acción al tocar necesita una clave action.",
+        "actions_dismiss_needs_dismissible": "Un botón con dismiss requiere que «Se puede cerrar» esté activado."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguración se realizó correctamente."

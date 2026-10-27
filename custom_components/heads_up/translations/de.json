@@ -218,6 +218,7 @@
             "operator": "Bedingung",
             "state": "Zustand",
             "attribute": "Attribut",
+            "template": "Vorlage",
             "for": "Bedingung muss gelten für",
             "message": "Nachricht",
             "title": "Titel",
@@ -225,24 +226,32 @@
             "icon": "Symbol",
             "people": "Personen",
             "dismissible": "Schließbar",
+            "dismiss_scope": "Bereich beim Schließen",
             "enabled": "Aktiviert",
             "snoozable": "Zurückstellbar",
             "snooze_scope": "Bereich beim Zurückstellen",
-            "snooze_options": "Auswahl beim Zurückstellen"
+            "snooze_options": "Auswahl beim Zurückstellen",
+            "actions": "Schaltflächen",
+            "tap_action": "Tipp-Aktion"
           },
           "data_description": {
             "name": "Wird nur in der Liste der Regeln angezeigt.",
+            "entity_id": "Zu überwachende Entität. Verwende sie oder eine Vorlage, nicht beides.",
             "operator": "Wie die Entität (oder ihr Attribut) mit den Werten unten verglichen wird.",
             "state": "„Ist gleich“, „Ist ungleich“, „Enthält“ und „Enthält nicht“ nehmen einen oder mehrere Werte (Standard: on für „Ist gleich“ und „Ist ungleich“). „Über“ und „Unter“ nehmen eine Zahl; „Zwischen“ nimmt zwei, erst niedrig, dann hoch, beide eingeschlossen. „Ist leer“ und „Ist nicht leer“ brauchen keinen Wert.",
             "attribute": "Dieses Attribut statt des Zustands vergleichen.",
+            "template": "Statt einer Entität: eine Home-Assistant-Vorlage, die wahr ist, solange das Banner erscheinen soll. Lass Bedingung, Zustand und Attribut leer.",
             "for": "Optional. Das Banner erscheint erst, nachdem die Bedingung so lange ohne Unterbrechung gegolten hat, bis zu 24 Stunden. Leer: sofort. Nach einem Neustart beginnt die Wartezeit neu.",
             "title": "Optionale Überschrift, bis 100 Zeichen.",
             "people": "Nur diesen Personen zeigen. Leer: allen.",
             "dismissible": "Aus: keine Schließen-Schaltfläche, das Banner bleibt, solange die Bedingung wahr ist. An: Jeder Benutzer kann es ausblenden, bis die Bedingung falsch und wieder wahr wird.",
+            "dismiss_scope": "Pro Benutzer: Schließen blendet es für diesen Benutzer aus, bis die Bedingung falsch und wieder wahr wird. Alle: Schließen blendet es bis dahin für alle aus. Leer: pro Benutzer.",
             "enabled": "Ausschalten, um das Banner auszublenden, ohne die Regel zu löschen.",
             "snoozable": "An: Betrachter können das Banner eine Weile ausblenden; danach kehrt es zurück. Benötigt „Schließbar“. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_scope": "Pro Benutzer oder alle. Leer: die Einstellung aus den Integrationsoptionen.",
-            "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen."
+            "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen.",
+            "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
+            "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
           }
         },
         "reconfigure": {
@@ -254,6 +263,7 @@
             "operator": "Bedingung",
             "state": "Zustand",
             "attribute": "Attribut",
+            "template": "Vorlage",
             "for": "Bedingung muss gelten für",
             "message": "Nachricht",
             "title": "Titel",
@@ -261,24 +271,32 @@
             "icon": "Symbol",
             "people": "Personen",
             "dismissible": "Schließbar",
+            "dismiss_scope": "Bereich beim Schließen",
             "enabled": "Aktiviert",
             "snoozable": "Zurückstellbar",
             "snooze_scope": "Bereich beim Zurückstellen",
-            "snooze_options": "Auswahl beim Zurückstellen"
+            "snooze_options": "Auswahl beim Zurückstellen",
+            "actions": "Schaltflächen",
+            "tap_action": "Tipp-Aktion"
           },
           "data_description": {
             "name": "Wird nur in der Liste der Regeln angezeigt.",
+            "entity_id": "Zu überwachende Entität. Verwende sie oder eine Vorlage, nicht beides.",
             "operator": "Wie die Entität (oder ihr Attribut) mit den Werten unten verglichen wird.",
             "state": "„Ist gleich“, „Ist ungleich“, „Enthält“ und „Enthält nicht“ nehmen einen oder mehrere Werte (Standard: on für „Ist gleich“ und „Ist ungleich“). „Über“ und „Unter“ nehmen eine Zahl; „Zwischen“ nimmt zwei, erst niedrig, dann hoch, beide eingeschlossen. „Ist leer“ und „Ist nicht leer“ brauchen keinen Wert.",
             "attribute": "Dieses Attribut statt des Zustands vergleichen.",
+            "template": "Statt einer Entität: eine Home-Assistant-Vorlage, die wahr ist, solange das Banner erscheinen soll. Lass Bedingung, Zustand und Attribut leer.",
             "for": "Optional. Das Banner erscheint erst, nachdem die Bedingung so lange ohne Unterbrechung gegolten hat, bis zu 24 Stunden. Leer: sofort. Nach einem Neustart beginnt die Wartezeit neu.",
             "title": "Optionale Überschrift, bis 100 Zeichen.",
             "people": "Nur diesen Personen zeigen. Leer: allen.",
             "dismissible": "Aus: keine Schließen-Schaltfläche, das Banner bleibt, solange die Bedingung wahr ist. An: Jeder Benutzer kann es ausblenden, bis die Bedingung falsch und wieder wahr wird.",
+            "dismiss_scope": "Pro Benutzer: Schließen blendet es für diesen Benutzer aus, bis die Bedingung falsch und wieder wahr wird. Alle: Schließen blendet es bis dahin für alle aus. Leer: pro Benutzer.",
             "enabled": "Ausschalten, um das Banner auszublenden, ohne die Regel zu löschen.",
             "snoozable": "An: Betrachter können das Banner eine Weile ausblenden; danach kehrt es zurück. Benötigt „Schließbar“. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_scope": "Pro Benutzer oder alle. Leer: die Einstellung aus den Integrationsoptionen.",
-            "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen."
+            "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen.",
+            "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
+            "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
           }
         }
       },
@@ -292,7 +310,13 @@
         "state_not_numeric": "Gib für diese Bedingung nur Zahlen ein.",
         "state_required": "Gib mindestens einen Wert ein.",
         "for_too_long": "Verwende 24 Stunden oder weniger.",
-        "snoozable_needs_dismissible": "„Zurückstellbar“ benötigt, dass „Schließbar“ an ist."
+        "snoozable_needs_dismissible": "„Zurückstellbar“ benötigt, dass „Schließbar“ an ist.",
+        "entity_and_template": "Verwende eine Entität oder eine Vorlage, nicht beides.",
+        "entity_or_template_required": "Wähle eine Entität oder gib eine Vorlage ein.",
+        "template_invalid": "Die Vorlage ist ungültig.",
+        "actions_invalid": "Die Schaltflächen sind ungültig. Jede braucht key und label, höchstens 3.",
+        "tap_action_invalid": "Die Tipp-Aktion braucht einen action-Schlüssel.",
+        "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."

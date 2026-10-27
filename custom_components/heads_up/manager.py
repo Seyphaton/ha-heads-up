@@ -274,7 +274,13 @@ class BannerManager:
         banner = self.rules.get(banner_id) or self._get(banner_id)
         if not banner.dismissible:
             raise HeadsUpError("not_dismissible", f"Banner {banner_id} is not dismissible")
-        if banner.dismiss_scope == "global":
+        if banner.dismiss_scope == "global" and banner_id in self.rules:
+            # A rule banner cannot be removed: it stays hidden for everyone until its condition
+            # turns false, like a per-user dismissal (D-056, D-073).
+            if GLOBAL_SNOOZE_KEY not in banner.dismissed_by:
+                banner.dismissed_by.append(GLOBAL_SNOOZE_KEY)
+                self._fire(EVENT_DISMISSED, banner, scope="global", user_id=user_id)
+        elif banner.dismiss_scope == "global":
             self._remove(banner_id, EVENT_DISMISSED, scope="global", user_id=user_id)
         elif user_id not in banner.dismissed_by:
             banner.dismissed_by.append(user_id)
@@ -346,6 +352,7 @@ class BannerManager:
             or (
                 b.active
                 and user_id not in b.dismissed_by
+                and GLOBAL_SNOOZE_KEY not in b.dismissed_by
                 and b.snoozed_for(user_id) is None
                 and self._targets(b, user_id)
             )
@@ -381,19 +388,22 @@ class BannerManager:
                 gone = self.rules.pop(banner_id)
                 self._cancel_wait(banner_id)
                 self._cancel_snoozes(banner_id)
+                self._untrack_template(banner_id)
                 self._rule_sources.pop(banner_id, None)
                 self._rule_template_entities.pop(banner_id, None)
                 if gone.condition_met and not silent:
                     self._fire(EVENT_CLEARED, gone, reason="rule")
                 changed = True
         for banner_id, sub in wanted.items():
-            source = dict(sub.data)
+            # The rule name stands in for {name} when there is no entity (template rules).
+            source = {**sub.data, "rule_name": sub.title}
             if self._rule_sources.get(banner_id) == source:
                 continue
             old = self.rules.get(banner_id)
             self._rule_sources[banner_id] = source
             banner = self._build_rule(banner_id, source, old)
             self.rules[banner_id] = banner
+            self._track_template(banner)
             if not silent and banner.condition_met != bool(old and old.condition_met):
                 if banner.condition_met:
                     self._fire(EVENT_CREATED, banner, severity=banner.severity)
@@ -406,17 +416,22 @@ class BannerManager:
 
     def _build_rule(self, banner_id: str, source: Mapping[str, Any], old: Banner | None) -> Banner:
         now = dt_util.utcnow()
-        condition: dict[str, Any] = {"entity_id": source["entity_id"]}
-        if source.get("operator", DEFAULT_OPERATOR) not in NO_STATE_OPERATORS:
-            condition["state"] = list(source.get("state") or ["on"])
-        if source.get("operator", DEFAULT_OPERATOR) != DEFAULT_OPERATOR:
-            condition["operator"] = source["operator"]
-        if source.get("attribute"):
-            condition["attribute"] = source["attribute"]
+        condition: dict[str, Any]
+        if source.get("template"):
+            condition = {"template": source["template"]}
+        else:
+            condition = {"entity_id": source["entity_id"]}
+            if source.get("operator", DEFAULT_OPERATOR) not in NO_STATE_OPERATORS:
+                condition["state"] = list(source.get("state") or ["on"])
+            if source.get("operator", DEFAULT_OPERATOR) != DEFAULT_OPERATOR:
+                condition["operator"] = source["operator"]
+            if source.get("attribute"):
+                condition["attribute"] = source["attribute"]
         if source.get("for"):
             condition["for"] = int(source["for"])
         self._cancel_wait(banner_id)
         self._cancel_snoozes(banner_id)
+        self._untrack_template(banner_id)
         met = self._evaluate(condition) is True
         if met and condition.get("for"):
             # True now, but it counts only after `for` seconds; the timer restarts on load (D-066).
@@ -430,7 +445,11 @@ class BannerManager:
             severity=source.get("severity", DEFAULT_SEVERITY),
             icon=source.get("icon") or None,
             dismissible=dismissible,
-            dismiss_scope="user",
+            # A rule without the field keeps the per-user dismissal of earlier versions, whatever
+            # the option default says (D-073).
+            dismiss_scope=source.get("dismiss_scope") or "user",
+            actions=[{"dismiss": False, **a} for a in source.get("actions", [])],
+            tap_action=source.get("tap_action"),
             snoozable=dismissible and source.get("snoozable", self.options[OPT_DEFAULT_SNOOZABLE]),
             snooze_scope=source.get("snooze_scope") or self.options[OPT_DEFAULT_SNOOZE_SCOPE],
             snooze_options=list(
@@ -448,8 +467,11 @@ class BannerManager:
 
     def _rule_message(self, banner_id: str, source: Mapping[str, Any]) -> str:
         # `{name}` first, then the template (D-055, D-063).
-        state = self.hass.states.get(source["entity_id"])
-        name = (state.attributes.get("friendly_name") if state else None) or source["entity_id"]
+        entity_id = source.get("entity_id")
+        state = self.hass.states.get(entity_id) if entity_id else None
+        name = (state.attributes.get("friendly_name") if state else None) or (
+            entity_id or source.get("rule_name", "")
+        )
         message = str(source["message"]).replace("{name}", str(name))
         self._rule_template_entities.pop(banner_id, None)
         if not any(token in message for token in ("{{", "{%", "{#")):
@@ -698,7 +720,13 @@ class BannerManager:
         _event: Event[EventStateChangedData] | None,
         _updates: list[TrackTemplateResult],
     ) -> None:
-        if (banner := self.banners.get(banner_id)) is not None and self._apply_condition(banner):
+        if (banner := self.banners.get(banner_id)) is not None:
+            changed = self._apply_condition(banner)
+        elif (rule := self.rules.get(banner_id)) is not None:
+            changed = self._apply_rule(rule)
+        else:
+            return
+        if changed:
             self._changed()
 
     def _schedule(self, banner: Banner) -> None:

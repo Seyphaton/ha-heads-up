@@ -67,16 +67,18 @@ def _check_actions(value: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return value
 
 
+# Also used by the watch rule form, so both banner sources accept the same input (DESIGN §22).
+TAP_ACTION_SCHEMA = vol.Schema({vol.Required("action"): cv.string}, extra=vol.ALLOW_EXTRA)
+
 ACTION_SCHEMA = vol.Schema(
     {
         vol.Required("key"): SLUG,
         vol.Required("label"): vol.All(cv.string, vol.Length(min=1, max=MAX_ACTION_LABEL)),
-        vol.Optional("action"): vol.Schema(
-            {vol.Required("action"): cv.string}, extra=vol.ALLOW_EXTRA
-        ),
+        vol.Optional("action"): TAP_ACTION_SCHEMA,
         vol.Optional("dismiss", default=False): cv.boolean,
     }
 )
+ACTIONS_SCHEMA = vol.All(cv.ensure_list, [ACTION_SCHEMA], _check_actions)
 
 
 def _check_create(data: dict[str, Any]) -> dict[str, Any]:
@@ -176,10 +178,8 @@ CREATE_SCHEMA = vol.All(
             vol.Optional("mode"): vol.In(MODES),
             vol.Optional("wait_for_condition"): cv.boolean,
             vol.Optional("people"): vol.All(cv.ensure_list, [cv.entity_domain("person")]),
-            vol.Optional("actions"): vol.All(cv.ensure_list, [ACTION_SCHEMA], _check_actions),
-            vol.Optional("tap_action"): vol.Schema(
-                {vol.Required("action"): cv.string}, extra=vol.ALLOW_EXTRA
-            ),
+            vol.Optional("actions"): ACTIONS_SCHEMA,
+            vol.Optional("tap_action"): TAP_ACTION_SCHEMA,
         }
     ),
     _check_create,

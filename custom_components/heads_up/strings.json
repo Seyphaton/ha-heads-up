@@ -218,6 +218,7 @@
             "operator": "Condition",
             "state": "State",
             "attribute": "Attribute",
+            "template": "Template",
             "for": "Condition must hold for",
             "message": "Message",
             "title": "Title",
@@ -225,24 +226,32 @@
             "icon": "Icon",
             "people": "People",
             "dismissible": "Dismissible",
+            "dismiss_scope": "Dismiss scope",
             "enabled": "Enabled",
             "snoozable": "Snoozable",
             "snooze_scope": "Snooze scope",
-            "snooze_options": "Snooze choices"
+            "snooze_options": "Snooze choices",
+            "actions": "Buttons",
+            "tap_action": "Tap action"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
+            "entity_id": "Entity to watch. Use this or a template, not both.",
             "operator": "How the entity (or its attribute) is compared with the values below.",
             "state": "Equals, does not equal, contains and does not contain take one or more values (default: on for equals and does not equal). Above and below take one number; between takes two, low then high, both included. Is empty and is not empty need no value.",
             "attribute": "Compare this attribute instead of the state.",
+            "template": "Instead of an entity: a Home Assistant template that is true while the banner should show. Leave Condition, State and Attribute empty.",
             "for": "Optional. The banner appears only after the condition has held this long without a break, up to 24 hours. Empty: right away. After a restart the wait starts again.",
             "title": "Optional heading, up to 100 characters.",
             "people": "Show only to these people. Empty: everyone.",
             "dismissible": "Off: no close button, the banner stays while the condition is true. On: each user can hide it until the condition turns false and true again.",
+            "dismiss_scope": "Per user: closing hides it for that user until the condition turns false and true again. Everyone: closing hides it for all until then. Empty: per user.",
             "enabled": "Turn off to hide the banner without deleting the rule.",
             "snoozable": "On: viewers can hide the banner for a while; it returns afterwards. Needs Dismissible. Empty: the setting from the integration options.",
             "snooze_scope": "Per user or everyone. Empty: the setting from the integration options.",
-            "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options."
+            "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options.",
+            "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
+            "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
           }
         },
         "reconfigure": {
@@ -254,6 +263,7 @@
             "operator": "Condition",
             "state": "State",
             "attribute": "Attribute",
+            "template": "Template",
             "for": "Condition must hold for",
             "message": "Message",
             "title": "Title",
@@ -261,24 +271,32 @@
             "icon": "Icon",
             "people": "People",
             "dismissible": "Dismissible",
+            "dismiss_scope": "Dismiss scope",
             "enabled": "Enabled",
             "snoozable": "Snoozable",
             "snooze_scope": "Snooze scope",
-            "snooze_options": "Snooze choices"
+            "snooze_options": "Snooze choices",
+            "actions": "Buttons",
+            "tap_action": "Tap action"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
+            "entity_id": "Entity to watch. Use this or a template, not both.",
             "operator": "How the entity (or its attribute) is compared with the values below.",
             "state": "Equals, does not equal, contains and does not contain take one or more values (default: on for equals and does not equal). Above and below take one number; between takes two, low then high, both included. Is empty and is not empty need no value.",
             "attribute": "Compare this attribute instead of the state.",
+            "template": "Instead of an entity: a Home Assistant template that is true while the banner should show. Leave Condition, State and Attribute empty.",
             "for": "Optional. The banner appears only after the condition has held this long without a break, up to 24 hours. Empty: right away. After a restart the wait starts again.",
             "title": "Optional heading, up to 100 characters.",
             "people": "Show only to these people. Empty: everyone.",
             "dismissible": "Off: no close button, the banner stays while the condition is true. On: each user can hide it until the condition turns false and true again.",
+            "dismiss_scope": "Per user: closing hides it for that user until the condition turns false and true again. Everyone: closing hides it for all until then. Empty: per user.",
             "enabled": "Turn off to hide the banner without deleting the rule.",
             "snoozable": "On: viewers can hide the banner for a while; it returns afterwards. Needs Dismissible. Empty: the setting from the integration options.",
             "snooze_scope": "Per user or everyone. Empty: the setting from the integration options.",
-            "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options."
+            "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options.",
+            "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
+            "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
           }
         }
       },
@@ -292,7 +310,13 @@
         "state_not_numeric": "Enter numbers only for this condition.",
         "state_required": "Enter at least one value.",
         "for_too_long": "Use 24 hours or less.",
-        "snoozable_needs_dismissible": "Snoozable needs Dismissible to be on."
+        "snoozable_needs_dismissible": "Snoozable needs Dismissible to be on.",
+        "entity_and_template": "Use an entity or a template, not both.",
+        "entity_or_template_required": "Choose an entity or enter a template.",
+        "template_invalid": "The template is not valid.",
+        "actions_invalid": "The buttons are not valid. Each needs a key and a label, up to 3.",
+        "tap_action_invalid": "The tap action needs an action key.",
+        "actions_dismiss_needs_dismissible": "A button with dismiss needs Dismissible to be on."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

@@ -11,10 +11,11 @@ A watch rule shows a banner while an entity is in a state. You set it up once in
 | Field | Default | Meaning |
 |---|---|---|
 | Rule name | – | Shown in the list of rules only. |
-| Entity | – | The entity to watch. It must exist when you save. |
+| Entity | – | The entity to watch. It must exist when you save. Use this or Template. |
 | Condition | Equals | How to compare: equals, does not equal, above, below, between, contains text, does not contain text, is empty, is not empty. |
 | State | empty; `on` is used for equals and does not equal | The values to compare with. Above and below take one number, between takes two (low, high). Is empty and is not empty need no value; one you enter is not saved. |
 | Attribute | none | Compare this attribute instead of the state. The value is compared as text; numeric conditions need a number. |
+| Template | none | Use instead of Entity: a Home Assistant template that is true while the banner should show. Leave Condition, State and Attribute empty. `{name}` in the message is then the rule name. |
 | Condition must hold for | none | Optional, up to 24 hours. The banner appears only after the condition has held this long without a break. After a restart the wait starts again. |
 | Message | – | Banner text, up to 1000 characters. `{name}` becomes the entity's name. Home Assistant templates such as `{{ states('input_text.reason') }}` are rendered; the text updates when the entities the template reads change (not for `now()`). |
 | Title | none | Up to 100 characters. |
@@ -22,6 +23,9 @@ A watch rule shows a banner while an entity is in a state. You set it up once in
 | Icon | severity icon | Replaces the default icon. |
 | People | everyone | Show only to users linked to these person entities. |
 | Dismissible | off | Off: no close button. On: each user can hide the banner. |
+| Dismiss scope | per user | Per user: closing hides it for that user until the condition turns false and true again. Everyone: it hides for all until then. |
+| Buttons | none | Up to 3 buttons, as YAML in the same format as `actions` in [actions](actions.md). Pressing one fires the event `heads_up_banner_action`, with `id` starting with `rule_` and `tag` `rule`. A button with `dismiss: true` needs Dismissible. |
+| Tap action | none | A Home Assistant action run when the banner is tapped, same format as `tap_action` in [actions](actions.md). |
 | Enabled | on | Off hides the banner without deleting the rule. |
 
 To change or delete a rule, open it from the same page. Changes apply at once; no restart is needed.
@@ -64,4 +68,4 @@ Notes:
 - Rule banners do not count against the banner limit and are never evicted. `sensor.heads_up_active_banners` counts them.
 - `heads_up.clear_banner` and `heads_up.clear_all` do not remove them, and administrators cannot clear them in the card. Disable or delete the rule instead.
 - Events: see [actions](actions.md#events).
-- "Snoozable" needs "Dismissible". It adds a snooze button to the banner. "Snooze scope" and "Snooze choices" are optional; when empty, the integration options apply (per user; 15 minutes, 1 hour, 4 hours). A snooze ends when the time passes or when the entity leaves the state, and a restart ends it too. Rules have no buttons.
+- "Snoozable" needs "Dismissible". It adds a snooze button to the banner. "Snooze scope" and "Snooze choices" are optional; when empty, the integration options apply (per user; 15 minutes, 1 hour, 4 hours). A snooze ends when the time passes or when the entity leaves the state, and a restart ends it too. Buttons are set in the Buttons field.

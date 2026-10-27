@@ -12,6 +12,7 @@ Standalone: no knowledge of any caller. Everything in English: code, comments, d
 6. Tracked files stay installation-independent: no hosts, addresses, device names, household details or tool configuration (D-036). Local-only material goes to `.private/` or `.claude/local/` (gitignored).
 7. Nothing is pushed or published without explicit maintainer approval (D-020).
 8. Small reversible steps, one logical change per commit. Ask before anything irreversible or scope-expanding.
+9. Parity: banners from actions and from watch rules offer the same features to viewers and producers. A new banner feature ships for both in the same phase, or its absence for one source is a listed exception with a decision number in `docs/DESIGN.md` §22.
 
 ## Phases (one approval each)
 0. Design (done) · 1. Scaffold + dev env (done) · 2. Backend core (done) · 3. Conditions + people (done) · 4. Card (done) · 5. External call paths + examples (done) · 6. Hardening, docs, packaging, release (done except release) · 7. Card design (done) · 8. Watch rules (done) · 9. Condition operators (done) · 10. Condition `for` + template conditions (done) · 11. `empty`/`not_empty` operators + rule form State (done) · 12. Banner buttons + snooze (done, awaiting review).

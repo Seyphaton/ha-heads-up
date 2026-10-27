@@ -99,6 +99,6 @@ class Banner:
             del data[key]
         data["active"] = self.active
         data["icon"] = self.icon or DEFAULT_ICONS[self.severity]
-        data["dismissed"] = user_id in self.dismissed_by
+        data["dismissed"] = user_id in self.dismissed_by or GLOBAL_SNOOZE_KEY in self.dismissed_by
         data["snoozed"] = self.snoozed_for(user_id) is not None
         return data
