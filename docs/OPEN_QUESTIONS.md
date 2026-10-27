@@ -9,7 +9,7 @@
 ## Before the first release
 - Maintainer reported on 2026-10-26: CI is green, the repository is public, the integration runs on their own Home Assistant, and no other HACS integration uses the name "Heads Up" (checked by the maintainer; this supersedes the partial check in N-48).
 - Not checked: the HACS install steps in the README after "Add" (download step) against the now public repository; the repository description, topics, issues and private vulnerability reporting settings (`docs/dev/RELEASE.md` steps 3 to 5).
-- The README has seven screenshots; a GIF of a banner disappearing is not made.
+- The README has eight screenshots. A GIF of a banner disappearing is not planned (maintainer, 2026-10-27); a produced video is on the deferred list.
 - mypy and the dev HA were not run on 2026.10.
 
 ## Resolved
@@ -27,6 +27,7 @@
 - Absolute `expires_at` input (D-024).
 - Per-severity binary sensors (D-013).
 - Other channels under the Heads Up name: toasts, popups (D-004).
+- A produced demo video of the card and the banner lifecycle (long list, maintainer 2026-10-27).
 
 ## Phase 8: watch rules
 - Label-based watching (a label on an entity adds a banner with its name): not built (D-057).
@@ -53,8 +54,12 @@
 - Phase 13 candidate: bounded, restart-safe history of created, cleared, dismissed, expired and snoozed banners, readable over WebSocket and optionally shown in the card.
 - Phase 14 candidate: watch rules by label, area or entity filter (reopens D-057); open: one banner per match or one aggregated banner.
 - Phase 15 candidate (design only): notification hub. Named recipient groups (people and their devices) mapped to severity levels by a routing table, so devices change without touching rules. Delivery to the Companion app per group (tag to replace and clear, Android channel, iOS interruption level, action buttons). Popups as a further channel, optional per dashboard or global; any resource loaded on every page must be minimal. Needs a new decision on the non-goal "no push delivery" (§1).
-- Adoption candidates: GIF of a banner disappearing, translations, HACS default review feedback, repository settings and topics (`docs/dev/RELEASE.md` steps 3 to 5), the unchecked items listed above.
+- Adoption candidates: translations, HACS default review feedback, repository settings and topics (`docs/dev/RELEASE.md` steps 3 to 5), the unchecked items listed above.
 - Parked: mirroring persistent notifications as banners (D-022), low value for the maintainer.
+
+## Translations (D-071)
+- The German, French and Spanish texts need review by native speakers. Checked: HA loads all three files (`frontend/get_translations`), the card shows German on the dev HA. Not checked: the options flow and the rule form in each language in HA's UI, long texts in the narrow card editor.
+- `tests/test_translations.py` and a vitest case check that every key and placeholder exists in each language.
 
 ## Phase 12: buttons and snooze
 - Not verified: swipe on a touch screen, keyboard use of the snooze row, screen readers, phone width, the compact layout with the snooze row open, the options flow and the rule form in Home Assistant's UI (only through the flow APIs in tests), Home Assistant 2026.10. Checked in the browser pane (admin, dev HA 2026.9.4) with a mouse: snooze button and row, a choice hides the banner in every card, a button with `dismiss`, right swipe opens the row, left swipe dismisses.

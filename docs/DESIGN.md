@@ -61,7 +61,7 @@ Non-functional
 | Load | At most 50 banners by default (option, max 200), one state listener covering all condition and person entities, one timer per banner with a timeout. |
 | Concurrency | Actions run in the event loop and mutate state synchronously (no `await` between read and write), so parallel callers cannot interleave a single upsert. |
 | Accessibility | Severity shown by icon shape and color; the text label is optional (`show_severity`, D-048) and always present for screen readers; not color only; `aria-live` region; dismiss button 48×48 px with translated `aria-label`; keyboard reachable. |
-| i18n | All UI strings in English (D-037), kept in HA translation files (`strings.json`, `translations/en.json`) and one card string table, so languages can be added without code changes. Banner text is caller-supplied and not translated. |
+| i18n | English is the source (D-037). German, French and Spanish are added files (D-071): `translations/de.json`, `fr.json`, `es.json` for the integration, and a `TRANSLATIONS` table in the card chosen by `hass.language` (`setLanguage`). Missing keys fall back to English. Banner text is caller-supplied and not translated. |
 | Security | Non-admin users can create, clear and dismiss (D-029). `show_all` and admin clear are rejected server-side for non-admins. |
 | Compatibility | HA ≥ 2026.9.0 (D-019). Tested versions are stated only after tests ran. |
 

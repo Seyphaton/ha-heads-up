@@ -399,3 +399,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Open: the permission model is as for dismissals: any user who can see a banner can press its buttons (D-029).
 - 2026-10-27: Phase 12 delivered; commits `45baa6d`, `0905d7e`, `d9f36d4`, `bb76969` and the documentation commit.
 
+## D-071 German, French and Spanish translations
+- Date: 2026-10-27. Requested by the maintainer as part of the adoption work.
+- Decision: English stays the source language of code, comments, docs and `strings.json` (D-037). Added: `translations/de.json`, `fr.json`, `es.json` (the same keys as `strings.json`, placeholders unchanged) and a `TRANSLATIONS` table in the card, applied by `setLanguage(hass.language)`. A language code with a region (`fr-CA`) uses its base language; other languages and missing keys show English. Banner text is never translated. Code samples inside descriptions stay unchanged.
+- Alternatives: separate translation files for the card (the card is one file without a build, D-021); more languages now.
+- Reason: the card and the forms are what a household sees. A table in the card file keeps the no-build rule.
+- Open: the texts were written without review by native speakers. A string added to `strings.json` or the card needs a line in each language, or it shows English there.
+

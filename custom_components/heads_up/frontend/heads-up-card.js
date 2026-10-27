@@ -44,7 +44,7 @@ const DEFAULT_EMPTY_ICON = "mdi:bell-check-outline";
 const TIME_REFRESH_MS = 30000;
 const SWIPE_START_PX = 10;
 
-// One table so other languages can be added later (D-037). Banner text is never translated.
+// One table for English; translations follow below (D-037, D-071). Banner text is never translated.
 export const STRINGS = {
   severity: {
     critical: "Critical",
@@ -96,6 +96,194 @@ export const STRINGS = {
     colorize_bar: "Left bar only",
   },
 };
+
+// Translations of the card, by language code. Missing keys fall back to English (setLanguage).
+export const TRANSLATIONS = {
+  de: {
+    "severity": {
+      "critical": "Kritisch",
+      "warning": "Warnung",
+      "info": "Info",
+      "success": "Erfolg"
+    },
+    "dismiss": "Schließen",
+    "snooze": "Zurückstellen",
+    "snooze_choices": "Zurückstellen für",
+    "duration": {
+      "minute": "{n} Min.",
+      "hour": "{n} Std.",
+      "day": "{n} T."
+    },
+    "clear": "Für alle entfernen",
+    "clear_all": "Alle schließen",
+    "show_more": "{n} weitere anzeigen",
+    "show_less": "Weniger anzeigen",
+    "time": {
+      "just_now": "gerade eben",
+      "minute": "vor {n} Min.",
+      "hour": "vor {n} Std.",
+      "day": "vor 1 Tag",
+      "days": "vor {n} Tagen"
+    },
+    "error": "Heads Up ist nicht verfügbar. Prüfe, ob die Integration geladen ist.",
+    "editor": {
+      "severity": "Dringlichkeiten (leer = alle)",
+      "tag": "Tags (leer = alle)",
+      "max_items": "Maximale Anzahl Banner",
+      "sort": "Sortierung",
+      "layout": "Layout",
+      "show_all": "Banner aller Benutzer zeigen (nur Admins)",
+      "show_empty": "Karte zeigen, wenn es keine Banner gibt",
+      "title": "Kartentitel",
+      "show_time": "Zeigen, vor wie langer Zeit ein Banner erstellt oder ersetzt wurde",
+      "show_severity": "Dringlichkeitsbezeichnung zeigen",
+      "colors": "Farben je Dringlichkeit (CSS-Farbe oder Theme-Variable)",
+      "colorize": "Einfärben",
+      "clear_all": "Schaltfläche „Alle schließen“ zeigen",
+      "swipe_to_dismiss": "Banner durch Wischen schließen",
+      "collapsed_items": "Nur so viele Banner zeigen, dann eine Schaltfläche „Mehr anzeigen“",
+      "empty_message": "Nachricht, wenn es keine Banner gibt (zeigt die Karte)",
+      "empty_icon": "Symbol für diese Nachricht",
+      "sort_severity": "Dringlichkeit, dann neueste",
+      "sort_time": "Neueste zuerst",
+      "layout_comfortable": "Komfortabel",
+      "layout_compact": "Kompakt (eine Zeile)",
+      "colorize_all": "Hintergrund, Symbol und linker Balken",
+      "colorize_background": "Nur Hintergrund",
+      "colorize_icon": "Nur Symbol und Bezeichnung",
+      "colorize_bar": "Nur linker Balken"
+    }
+  },
+  fr: {
+    "severity": {
+      "critical": "Critique",
+      "warning": "Avertissement",
+      "info": "Info",
+      "success": "Succès"
+    },
+    "dismiss": "Fermer",
+    "snooze": "Reporter",
+    "snooze_choices": "Reporter de",
+    "duration": {
+      "minute": "{n} min",
+      "hour": "{n} h",
+      "day": "{n} j"
+    },
+    "clear": "Supprimer pour tout le monde",
+    "clear_all": "Tout fermer",
+    "show_more": "Afficher {n} de plus",
+    "show_less": "Afficher moins",
+    "time": {
+      "just_now": "à l'instant",
+      "minute": "il y a {n} min",
+      "hour": "il y a {n} h",
+      "day": "il y a 1 jour",
+      "days": "il y a {n} jours"
+    },
+    "error": "Heads Up n'est pas disponible. Vérifiez que l'intégration est chargée.",
+    "editor": {
+      "severity": "Gravités (vide = toutes)",
+      "tag": "Étiquettes (vide = toutes)",
+      "max_items": "Nombre maximal de bannières",
+      "sort": "Tri",
+      "layout": "Disposition",
+      "show_all": "Afficher les bannières de tous les utilisateurs (administrateurs uniquement)",
+      "show_empty": "Afficher la carte quand il n'y a aucune bannière",
+      "title": "Titre de la carte",
+      "show_time": "Afficher depuis quand une bannière a été créée ou remplacée",
+      "show_severity": "Afficher le libellé de gravité",
+      "colors": "Couleurs par gravité (couleur CSS ou variable de thème)",
+      "colorize": "Colorisation",
+      "clear_all": "Afficher un bouton « Tout fermer »",
+      "swipe_to_dismiss": "Fermer une bannière en la faisant glisser",
+      "collapsed_items": "Afficher seulement ce nombre de bannières, puis un bouton « Afficher plus »",
+      "empty_message": "Message quand il n'y a aucune bannière (affiche la carte)",
+      "empty_icon": "Icône pour ce message",
+      "sort_severity": "Gravité, puis les plus récentes",
+      "sort_time": "Les plus récentes d'abord",
+      "layout_comfortable": "Confortable",
+      "layout_compact": "Compact (une ligne)",
+      "colorize_all": "Arrière-plan, icône et barre de gauche",
+      "colorize_background": "Arrière-plan uniquement",
+      "colorize_icon": "Icône et libellé uniquement",
+      "colorize_bar": "Barre de gauche uniquement"
+    }
+  },
+  es: {
+    "severity": {
+      "critical": "Crítico",
+      "warning": "Advertencia",
+      "info": "Información",
+      "success": "Éxito"
+    },
+    "dismiss": "Cerrar",
+    "snooze": "Posponer",
+    "snooze_choices": "Posponer",
+    "duration": {
+      "minute": "{n} min",
+      "hour": "{n} h",
+      "day": "{n} d"
+    },
+    "clear": "Eliminar para todos",
+    "clear_all": "Cerrar todos",
+    "show_more": "Mostrar {n} más",
+    "show_less": "Mostrar menos",
+    "time": {
+      "just_now": "ahora mismo",
+      "minute": "hace {n} min",
+      "hour": "hace {n} h",
+      "day": "hace 1 día",
+      "days": "hace {n} días"
+    },
+    "error": "Heads Up no está disponible. Comprueba que la integración esté cargada.",
+    "editor": {
+      "severity": "Gravedades (vacío = todas)",
+      "tag": "Etiquetas (vacío = todas)",
+      "max_items": "Número máximo de avisos",
+      "sort": "Orden",
+      "layout": "Diseño",
+      "show_all": "Mostrar avisos de todos los usuarios (solo administradores)",
+      "show_empty": "Mostrar la tarjeta cuando no hay avisos",
+      "title": "Título de la tarjeta",
+      "show_time": "Mostrar hace cuánto se creó o reemplazó un aviso",
+      "show_severity": "Mostrar la etiqueta de gravedad",
+      "colors": "Colores por gravedad (color CSS o variable del tema)",
+      "colorize": "Colorear",
+      "clear_all": "Mostrar un botón «Cerrar todos»",
+      "swipe_to_dismiss": "Cerrar un aviso deslizándolo",
+      "collapsed_items": "Mostrar solo este número de avisos y luego un botón «Mostrar más»",
+      "empty_message": "Mensaje cuando no hay avisos (muestra la tarjeta)",
+      "empty_icon": "Icono para ese mensaje",
+      "sort_severity": "Gravedad y luego los más recientes",
+      "sort_time": "Los más recientes primero",
+      "layout_comfortable": "Cómodo",
+      "layout_compact": "Compacto (una línea)",
+      "colorize_all": "Fondo, icono y barra izquierda",
+      "colorize_background": "Solo el fondo",
+      "colorize_icon": "Solo icono y etiqueta",
+      "colorize_bar": "Solo la barra izquierda"
+    }
+  },
+};
+
+const ENGLISH = JSON.parse(JSON.stringify(STRINGS));
+
+function assign(target, source) {
+  for (const [key, value] of Object.entries(source)) {
+    if (value !== null && typeof value === "object") assign(target[key], value);
+    else target[key] = value;
+  }
+}
+
+// Switches STRINGS to the user's language (a code such as "de" or "de-AT"). Unknown languages and
+// missing keys stay English. The table is shared by all cards on a page, which all follow the
+// same user language. Banner text is never translated.
+export function setLanguage(language) {
+  const code = String(language ?? "en").toLowerCase().split(/[-_]/)[0];
+  assign(STRINGS, ENGLISH);
+  if (TRANSLATIONS[code]) assign(STRINGS, TRANSLATIONS[code]);
+  return TRANSLATIONS[code] ? code : "en";
+}
 
 function toList(value, key) {
   if (value === undefined || value === null) return [];
@@ -435,6 +623,11 @@ class HeadsUpCard extends Base {
   set hass(hass) {
     const first = !this._hass;
     this._hass = hass;
+    if (hass?.language !== this._language) {
+      this._language = hass?.language;
+      setLanguage(this._language);
+      if (this._config && !first) this._render();
+    }
     if (first && this._connected) this._subscribe();
   }
 
@@ -899,6 +1092,10 @@ class HeadsUpCardEditor extends Base {
 
   set hass(hass) {
     this._hass = hass;
+    if (hass?.language !== this._language) {
+      this._language = hass?.language;
+      setLanguage(this._language);
+    }
     this._update();
   }
 

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   clearableIds,
   collapse,
@@ -12,7 +12,10 @@ import {
   resolveColors,
   retryDelay,
   sortBanners,
+  setLanguage,
   snoozeLabel,
+  STRINGS,
+  TRANSLATIONS,
   swipeOutcome,
   visibleBanners,
 } from "../../custom_components/heads_up/frontend/heads-up-card.js";
@@ -373,5 +376,50 @@ describe("clearableIds", () => {
   it("lists only dismissible banners", () => {
     const list = [banner({ id: "a" }), banner({ id: "b", dismissible: false }), banner({ id: "c" })];
     expect(clearableIds(list)).toEqual(["a", "c"]);
+  });
+});
+
+describe("setLanguage", () => {
+  afterEach(() => setLanguage("en"));
+
+  it("switches the card strings to German and back", () => {
+    expect(setLanguage("de")).toBe("de");
+    expect(STRINGS.dismiss).toBe("Schließen");
+    expect(STRINGS.severity.critical).toBe("Kritisch");
+    expect(relativeTime(new Date(Date.now() - 5 * 60000).toISOString())).toBe("vor 5 Min.");
+    expect(setLanguage("en")).toBe("en");
+    expect(STRINGS.dismiss).toBe("Dismiss");
+  });
+
+  it("reads a regional code and falls back to English for unknown languages", () => {
+    expect(setLanguage("fr-CA")).toBe("fr");
+    expect(STRINGS.snooze).toBe("Reporter");
+    expect(setLanguage("xx")).toBe("en");
+    expect(STRINGS.snooze).toBe("Snooze");
+    expect(setLanguage(undefined)).toBe("en");
+  });
+
+  it("translates every key of the English table, with the same placeholders", () => {
+    const flat = (o, path = []) =>
+      Object.entries(o).flatMap(([k, v]) =>
+        v !== null && typeof v === "object" ? flat(v, [...path, k]) : [[[...path, k].join("."), v]],
+      );
+    setLanguage("en");
+    const english = new Map(flat(STRINGS));
+    const tokens = (text) => (text.match(/\{[a-z]+\}/g) ?? []).sort().join();
+    for (const [code, table] of Object.entries(TRANSLATIONS)) {
+      const translated = new Map(flat(table));
+      expect([...translated.keys()].sort(), code).toEqual([...english.keys()].sort());
+      for (const [key, text] of translated) expect(tokens(text), `${code} ${key}`).toBe(tokens(english.get(key)));
+    }
+  });
+
+  it("keeps the placeholders of every translated string", () => {
+    for (const code of ["de", "fr", "es"]) {
+      setLanguage(code);
+      expect(STRINGS.show_more).toContain("{n}");
+      expect(STRINGS.time.minute).toContain("{n}");
+      expect(STRINGS.duration.hour).toContain("{n}");
+    }
   });
 });

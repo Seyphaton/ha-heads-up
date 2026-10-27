@@ -1,0 +1,302 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Heads Up hinzufügen. Banner werden mit der Aktion `heads_up.create_banner` erstellt."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Heads Up ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "max_banners": "Maximale Anzahl Banner",
+          "evict": "Ältestes Banner mit der niedrigsten Dringlichkeit entfernen, wenn voll",
+          "default_dismiss_scope": "Standard-Bereich beim Schließen",
+          "default_timeout": "Standard-Zeitlimit",
+          "default_snoozable": "Banner sind standardmäßig zurückstellbar",
+          "default_snooze_scope": "Standard-Bereich beim Zurückstellen",
+          "default_snooze_options": "Standard-Auswahl beim Zurückstellen"
+        },
+        "data_description": {
+          "max_banners": "1–200. Kritische Banner werden nie entfernt.",
+          "evict": "Wenn aus, schlägt das Erstellen eines Banners über dem Maximum mit einem Fehler fehl.",
+          "default_dismiss_scope": "Gilt, wenn ein Aktionsaufruf kein dismiss_scope angibt.",
+          "default_timeout": "Gilt, wenn ein Aktionsaufruf kein timeout angibt. Achtung: Wenn du dieses Feld leerst, bleiben Banner ohne eigenes Zeitlimit, bis sie geschlossen oder entfernt werden.",
+          "default_snoozable": "Gilt, wenn ein Aktionsaufruf kein snoozable angibt. Banner, die nicht schließbar sind, sind nie zurückstellbar.",
+          "default_snooze_scope": "Gilt, wenn ein Aktionsaufruf kein snooze_scope angibt.",
+          "default_snooze_options": "Gilt, wenn ein Aktionsaufruf kein snooze_options angibt. Leer lassen für 15 Minuten, 1 Stunde und 4 Stunden."
+        }
+      }
+    }
+  },
+  "selector": {
+    "severity": {
+      "options": {
+        "success": "Erfolg",
+        "info": "Info",
+        "warning": "Warnung",
+        "critical": "Kritisch"
+      }
+    },
+    "dismiss_scope": {
+      "options": {
+        "user": "Pro Benutzer",
+        "global": "Alle"
+      }
+    },
+    "mode": {
+      "options": {
+        "once": "Einmal",
+        "recurring": "Wiederkehrend"
+      }
+    },
+    "operator": {
+      "options": {
+        "equals": "Ist gleich",
+        "not_equals": "Ist ungleich",
+        "above": "Über (Zahl)",
+        "below": "Unter (Zahl)",
+        "between": "Zwischen (zwei Zahlen)",
+        "contains": "Enthält Text",
+        "not_contains": "Enthält Text nicht",
+        "empty": "Ist leer",
+        "not_empty": "Ist nicht leer"
+      }
+    },
+    "snooze_scope": {
+      "options": {
+        "user": "Pro Benutzer",
+        "global": "Alle"
+      }
+    },
+    "snooze_minutes": {
+      "options": {
+        "5": "5 Minuten",
+        "15": "15 Minuten",
+        "30": "30 Minuten",
+        "60": "1 Stunde",
+        "120": "2 Stunden",
+        "240": "4 Stunden",
+        "480": "8 Stunden",
+        "1440": "24 Stunden"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_banners": {
+        "name": "Aktive Banner"
+      }
+    }
+  },
+  "exceptions": {
+    "not_loaded": {
+      "message": "Heads Up ist nicht eingerichtet. Füge zuerst die Integration hinzu."
+    },
+    "too_many_banners": {
+      "message": "Heads Up enthält bereits {max} Banner und keines kann entfernt werden."
+    },
+    "entity_not_found": {
+      "message": "Die Bedingungs-Entität {entity_id} existiert nicht."
+    }
+  },
+  "services": {
+    "create_banner": {
+      "name": "Banner erstellen",
+      "description": "Zeigt ein Banner in jeder Heads-Up-Karte. Ein erneuter Aufruf mit derselben ID ersetzt das Banner.",
+      "fields": {
+        "message": {
+          "name": "Nachricht",
+          "description": "Bannertext, 1–1000 Zeichen."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
+        },
+        "title": {
+          "name": "Titel",
+          "description": "Bis 100 Zeichen. Standard: kein Titel."
+        },
+        "severity": {
+          "name": "Dringlichkeit",
+          "description": "Legt Farbe, Standardsymbol und Sortierung fest. Standard: Warnung."
+        },
+        "icon": {
+          "name": "Symbol",
+          "description": "Ersetzt das Standardsymbol der Dringlichkeit. Standard: das Symbol der Dringlichkeit."
+        },
+        "timeout": {
+          "name": "Zeitlimit",
+          "description": "Das Banner verschwindet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
+        },
+        "dismissible": {
+          "name": "Schließbar",
+          "description": "Zeigt eine Schließen-Schaltfläche am Banner. Standard: an."
+        },
+        "dismiss_scope": {
+          "name": "Bereich beim Schließen",
+          "description": "Pro Benutzer: Schließen blendet es nur für diesen Benutzer aus. Alle: Schließen entfernt es für alle. Standard: die Einstellung aus den Integrationsoptionen (pro Benutzer, sofern nicht geändert)."
+        },
+        "snoozable": {
+          "name": "Zurückstellbar",
+          "description": "Erlaubt es, das Banner für eine Weile auszublenden; danach kehrt es zurück. Zusammen mit „Schließbar“ aus ist es ein Fehler. Standard: die Einstellung aus den Integrationsoptionen (aus, sofern nicht geändert)."
+        },
+        "snooze_scope": {
+          "name": "Bereich beim Zurückstellen",
+          "description": "Pro Benutzer: Zurückstellen blendet es nur für diesen Benutzer aus. Alle: es wird für alle ausgeblendet. Standard: die Einstellung aus den Integrationsoptionen (pro Benutzer, sofern nicht geändert)."
+        },
+        "snooze_options": {
+          "name": "Auswahl beim Zurückstellen",
+          "description": "Bis zu 6 Zeitspannen zum Zurückstellen, 1 Minute bis 7 Tage.\n\nBeispiel:\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "actions": {
+          "name": "Schaltflächen",
+          "description": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Tag",
+          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Banner. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
+        },
+        "condition": {
+          "name": "Bedingung",
+          "description": "Das Banner nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+        },
+        "mode": {
+          "name": "Modus",
+          "description": "Einmal: wird entfernt, wenn die Bedingung falsch wird. Wiederkehrend: ausgeblendet, solange sie falsch ist, und wieder gezeigt, wenn sie wahr wird. Standard: Einmal."
+        },
+        "wait_for_condition": {
+          "name": "Auf Bedingung warten",
+          "description": "An: Ein Banner, dessen Bedingung jetzt falsch ist, wartet, bis sie wahr wird. Aus: nichts wird gespeichert und der Antwortstatus ist condition_false. Standard: an. Ohne Bedingung wirkungslos."
+        },
+        "people": {
+          "name": "Personen",
+          "description": "Nur diesen Personen zeigen. Standard: allen."
+        },
+        "tap_action": {
+          "name": "Tipp-Aktion",
+          "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        }
+      }
+    },
+    "clear_banner": {
+      "name": "Banner entfernen",
+      "description": "Entfernt Banner nach ID, nach Tag oder nach beidem. Gibt die Anzahl der entfernten Banner zurück.",
+      "fields": {
+        "id": {
+          "name": "ID",
+          "description": "ID des zu entfernenden Banners."
+        },
+        "tag": {
+          "name": "Tag",
+          "description": "Entfernt jedes Banner mit diesem Tag."
+        }
+      }
+    },
+    "clear_all": {
+      "name": "Alle Banner entfernen",
+      "description": "Entfernt alle Banner. Gibt die Anzahl der entfernten Banner zurück."
+    }
+  },
+  "config_subentries": {
+    "rule": {
+      "entry_type": "Überwachungsregel",
+      "initiate_flow": {
+        "user": "Überwachungsregel hinzufügen"
+      },
+      "step": {
+        "user": {
+          "title": "Überwachungsregel hinzufügen",
+          "description": "Zeigt ein Banner auf jeder Heads-Up-Karte, solange sich eine Entität in einem Zustand befindet. {name_token} in der Nachricht wird durch den Namen der Entität ersetzt. Die Nachricht kann auch Home-Assistant-Vorlagen enthalten.",
+          "data": {
+            "name": "Name der Regel",
+            "entity_id": "Entität",
+            "operator": "Bedingung",
+            "state": "Zustand",
+            "attribute": "Attribut",
+            "for": "Bedingung muss gelten für",
+            "message": "Nachricht",
+            "title": "Titel",
+            "severity": "Dringlichkeit",
+            "icon": "Symbol",
+            "people": "Personen",
+            "dismissible": "Schließbar",
+            "enabled": "Aktiviert",
+            "snoozable": "Zurückstellbar",
+            "snooze_scope": "Bereich beim Zurückstellen",
+            "snooze_options": "Auswahl beim Zurückstellen"
+          },
+          "data_description": {
+            "name": "Wird nur in der Liste der Regeln angezeigt.",
+            "operator": "Wie die Entität (oder ihr Attribut) mit den Werten unten verglichen wird.",
+            "state": "„Ist gleich“, „Ist ungleich“, „Enthält“ und „Enthält nicht“ nehmen einen oder mehrere Werte (Standard: on für „Ist gleich“ und „Ist ungleich“). „Über“ und „Unter“ nehmen eine Zahl; „Zwischen“ nimmt zwei, erst niedrig, dann hoch, beide eingeschlossen. „Ist leer“ und „Ist nicht leer“ brauchen keinen Wert.",
+            "attribute": "Dieses Attribut statt des Zustands vergleichen.",
+            "for": "Optional. Das Banner erscheint erst, nachdem die Bedingung so lange ohne Unterbrechung gegolten hat, bis zu 24 Stunden. Leer: sofort. Nach einem Neustart beginnt die Wartezeit neu.",
+            "title": "Optionale Überschrift, bis 100 Zeichen.",
+            "people": "Nur diesen Personen zeigen. Leer: allen.",
+            "dismissible": "Aus: keine Schließen-Schaltfläche, das Banner bleibt, solange die Bedingung wahr ist. An: Jeder Benutzer kann es ausblenden, bis die Bedingung falsch und wieder wahr wird.",
+            "enabled": "Ausschalten, um das Banner auszublenden, ohne die Regel zu löschen.",
+            "snoozable": "An: Betrachter können das Banner eine Weile ausblenden; danach kehrt es zurück. Benötigt „Schließbar“. Leer: die Einstellung aus den Integrationsoptionen.",
+            "snooze_scope": "Pro Benutzer oder alle. Leer: die Einstellung aus den Integrationsoptionen.",
+            "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen."
+          }
+        },
+        "reconfigure": {
+          "title": "Überwachungsregel ändern",
+          "description": "Zeigt ein Banner auf jeder Heads-Up-Karte, solange sich eine Entität in einem Zustand befindet. {name_token} in der Nachricht wird durch den Namen der Entität ersetzt. Die Nachricht kann auch Home-Assistant-Vorlagen enthalten.",
+          "data": {
+            "name": "Name der Regel",
+            "entity_id": "Entität",
+            "operator": "Bedingung",
+            "state": "Zustand",
+            "attribute": "Attribut",
+            "for": "Bedingung muss gelten für",
+            "message": "Nachricht",
+            "title": "Titel",
+            "severity": "Dringlichkeit",
+            "icon": "Symbol",
+            "people": "Personen",
+            "dismissible": "Schließbar",
+            "enabled": "Aktiviert",
+            "snoozable": "Zurückstellbar",
+            "snooze_scope": "Bereich beim Zurückstellen",
+            "snooze_options": "Auswahl beim Zurückstellen"
+          },
+          "data_description": {
+            "name": "Wird nur in der Liste der Regeln angezeigt.",
+            "operator": "Wie die Entität (oder ihr Attribut) mit den Werten unten verglichen wird.",
+            "state": "„Ist gleich“, „Ist ungleich“, „Enthält“ und „Enthält nicht“ nehmen einen oder mehrere Werte (Standard: on für „Ist gleich“ und „Ist ungleich“). „Über“ und „Unter“ nehmen eine Zahl; „Zwischen“ nimmt zwei, erst niedrig, dann hoch, beide eingeschlossen. „Ist leer“ und „Ist nicht leer“ brauchen keinen Wert.",
+            "attribute": "Dieses Attribut statt des Zustands vergleichen.",
+            "for": "Optional. Das Banner erscheint erst, nachdem die Bedingung so lange ohne Unterbrechung gegolten hat, bis zu 24 Stunden. Leer: sofort. Nach einem Neustart beginnt die Wartezeit neu.",
+            "title": "Optionale Überschrift, bis 100 Zeichen.",
+            "people": "Nur diesen Personen zeigen. Leer: allen.",
+            "dismissible": "Aus: keine Schließen-Schaltfläche, das Banner bleibt, solange die Bedingung wahr ist. An: Jeder Benutzer kann es ausblenden, bis die Bedingung falsch und wieder wahr wird.",
+            "enabled": "Ausschalten, um das Banner auszublenden, ohne die Regel zu löschen.",
+            "snoozable": "An: Betrachter können das Banner eine Weile ausblenden; danach kehrt es zurück. Benötigt „Schließbar“. Leer: die Einstellung aus den Integrationsoptionen.",
+            "snooze_scope": "Pro Benutzer oder alle. Leer: die Einstellung aus den Integrationsoptionen.",
+            "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen."
+          }
+        }
+      },
+      "error": {
+        "entity_not_found": "Diese Entität existiert nicht.",
+        "message_required": "Gib eine Nachricht ein.",
+        "message_too_long": "Die Nachricht darf bis zu 1000 Zeichen haben.",
+        "message_template_invalid": "Die Nachricht enthält eine ungültige Vorlage.",
+        "title_too_long": "Der Titel darf bis zu 100 Zeichen haben.",
+        "state_count": "„Über“ und „Unter“ brauchen eine Zahl, „Zwischen“ braucht zwei.",
+        "state_not_numeric": "Gib für diese Bedingung nur Zahlen ein.",
+        "state_required": "Gib mindestens einen Wert ein.",
+        "for_too_long": "Verwende 24 Stunden oder weniger.",
+        "snoozable_needs_dismissible": "„Zurückstellbar“ benötigt, dass „Schließbar“ an ist."
+      },
+      "abort": {
+        "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
+      }
+    }
+  }
+}

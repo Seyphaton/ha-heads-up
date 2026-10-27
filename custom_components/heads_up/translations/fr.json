@@ -1,0 +1,302 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Ajouter Heads Up. Les bannières sont créées par l'action `heads_up.create_banner`."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Heads Up est déjà configuré."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "max_banners": "Nombre maximal de bannières",
+          "evict": "Supprimer la plus ancienne bannière de moindre gravité quand la limite est atteinte",
+          "default_dismiss_scope": "Portée de fermeture par défaut",
+          "default_timeout": "Délai d'expiration par défaut",
+          "default_snoozable": "Les bannières peuvent être reportées par défaut",
+          "default_snooze_scope": "Portée du report par défaut",
+          "default_snooze_options": "Durées de report par défaut"
+        },
+        "data_description": {
+          "max_banners": "1–200. Les bannières critiques ne sont jamais supprimées.",
+          "evict": "Désactivé : créer une bannière au-delà du maximum échoue avec une erreur.",
+          "default_dismiss_scope": "Utilisé quand l'appel d'action ne définit pas dismiss_scope.",
+          "default_timeout": "Utilisé quand l'appel d'action ne définit pas timeout. Attention : si vous videz ce champ, les bannières sans délai propre restent jusqu'à leur fermeture ou suppression.",
+          "default_snoozable": "Utilisé quand l'appel d'action ne définit pas snoozable. Les bannières non fermables ne sont jamais reportables.",
+          "default_snooze_scope": "Utilisé quand l'appel d'action ne définit pas snooze_scope.",
+          "default_snooze_options": "Utilisé quand l'appel d'action ne définit pas snooze_options. Laisser vide pour 15 minutes, 1 heure et 4 heures."
+        }
+      }
+    }
+  },
+  "selector": {
+    "severity": {
+      "options": {
+        "success": "Succès",
+        "info": "Info",
+        "warning": "Avertissement",
+        "critical": "Critique"
+      }
+    },
+    "dismiss_scope": {
+      "options": {
+        "user": "Par utilisateur",
+        "global": "Tout le monde"
+      }
+    },
+    "mode": {
+      "options": {
+        "once": "Une fois",
+        "recurring": "Récurrent"
+      }
+    },
+    "operator": {
+      "options": {
+        "equals": "Est égal à",
+        "not_equals": "N'est pas égal à",
+        "above": "Supérieur à (nombre)",
+        "below": "Inférieur à (nombre)",
+        "between": "Entre (deux nombres)",
+        "contains": "Contient le texte",
+        "not_contains": "Ne contient pas le texte",
+        "empty": "Est vide",
+        "not_empty": "N'est pas vide"
+      }
+    },
+    "snooze_scope": {
+      "options": {
+        "user": "Par utilisateur",
+        "global": "Tout le monde"
+      }
+    },
+    "snooze_minutes": {
+      "options": {
+        "5": "5 minutes",
+        "15": "15 minutes",
+        "30": "30 minutes",
+        "60": "1 heure",
+        "120": "2 heures",
+        "240": "4 heures",
+        "480": "8 heures",
+        "1440": "24 heures"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_banners": {
+        "name": "Bannières actives"
+      }
+    }
+  },
+  "exceptions": {
+    "not_loaded": {
+      "message": "Heads Up n'est pas configuré. Ajoutez d'abord l'intégration."
+    },
+    "too_many_banners": {
+      "message": "Heads Up contient déjà {max} bannières et aucune ne peut être supprimée."
+    },
+    "entity_not_found": {
+      "message": "L'entité de condition {entity_id} n'existe pas."
+    }
+  },
+  "services": {
+    "create_banner": {
+      "name": "Créer une bannière",
+      "description": "Affiche une bannière dans chaque carte Heads Up. Un nouvel appel avec le même ID remplace la bannière.",
+      "fields": {
+        "message": {
+          "name": "Message",
+          "description": "Texte de la bannière, 1 à 1000 caractères."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
+        },
+        "title": {
+          "name": "Titre",
+          "description": "100 caractères au maximum. Par défaut : aucun titre."
+        },
+        "severity": {
+          "name": "Gravité",
+          "description": "Définit la couleur, l'icône par défaut et l'ordre de tri. Par défaut : Avertissement."
+        },
+        "icon": {
+          "name": "Icône",
+          "description": "Remplace l'icône par défaut de la gravité. Par défaut : l'icône de la gravité."
+        },
+        "timeout": {
+          "name": "Délai d'expiration",
+          "description": "La bannière disparaît après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
+        },
+        "dismissible": {
+          "name": "Fermable",
+          "description": "Affiche un bouton de fermeture sur la bannière. Par défaut : activé."
+        },
+        "dismiss_scope": {
+          "name": "Portée de fermeture",
+          "description": "Par utilisateur : fermer la masque seulement pour cet utilisateur. Tout le monde : fermer la supprime pour tous. Par défaut : le réglage des options de l'intégration (par utilisateur sauf modification)."
+        },
+        "snoozable": {
+          "name": "Reportable",
+          "description": "Permet de masquer la bannière un moment ; elle revient ensuite. Erreur avec « Fermable » désactivé. Par défaut : le réglage des options de l'intégration (désactivé sauf modification)."
+        },
+        "snooze_scope": {
+          "name": "Portée du report",
+          "description": "Par utilisateur : le report ne masque que pour cet utilisateur. Tout le monde : masquée pour tous. Par défaut : le réglage des options de l'intégration (par utilisateur sauf modification)."
+        },
+        "snooze_options": {
+          "name": "Durées de report",
+          "description": "Jusqu'à 6 durées de report, de 1 minute à 7 jours.\n\nExemple :\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "actions": {
+          "name": "Boutons",
+          "description": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action.\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Étiquette",
+          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs bannières à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
+        },
+        "condition": {
+          "name": "Condition",
+          "description": "Afficher la bannière seulement tant qu'une entité correspond ou qu'un modèle est vrai. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+        },
+        "mode": {
+          "name": "Mode",
+          "description": "Une fois : supprimée quand la condition devient fausse. Récurrent : masquée tant qu'elle est fausse, réaffichée quand elle redevient vraie. Par défaut : Une fois."
+        },
+        "wait_for_condition": {
+          "name": "Attendre la condition",
+          "description": "Activé : une bannière dont la condition est fausse attend qu'elle devienne vraie. Désactivé : rien n'est enregistré et le statut de la réponse est condition_false. Par défaut : activé. Ignoré sans condition."
+        },
+        "people": {
+          "name": "Personnes",
+          "description": "Afficher seulement à ces personnes. Par défaut : tout le monde."
+        },
+        "tap_action": {
+          "name": "Action au toucher",
+          "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        }
+      }
+    },
+    "clear_banner": {
+      "name": "Supprimer une bannière",
+      "description": "Supprime des bannières par ID, par étiquette ou les deux. Renvoie le nombre supprimé.",
+      "fields": {
+        "id": {
+          "name": "ID",
+          "description": "ID de la bannière à supprimer."
+        },
+        "tag": {
+          "name": "Étiquette",
+          "description": "Supprime toutes les bannières ayant cette étiquette."
+        }
+      }
+    },
+    "clear_all": {
+      "name": "Supprimer toutes les bannières",
+      "description": "Supprime toutes les bannières. Renvoie le nombre supprimé."
+    }
+  },
+  "config_subentries": {
+    "rule": {
+      "entry_type": "Règle de surveillance",
+      "initiate_flow": {
+        "user": "Ajouter une règle de surveillance"
+      },
+      "step": {
+        "user": {
+          "title": "Ajouter une règle de surveillance",
+          "description": "Affiche une bannière sur chaque carte Heads Up tant qu'une entité est dans un état. {name_token} dans le message est remplacé par le nom de l'entité. Le message peut aussi contenir des modèles Home Assistant.",
+          "data": {
+            "name": "Nom de la règle",
+            "entity_id": "Entité",
+            "operator": "Condition",
+            "state": "État",
+            "attribute": "Attribut",
+            "for": "La condition doit durer",
+            "message": "Message",
+            "title": "Titre",
+            "severity": "Gravité",
+            "icon": "Icône",
+            "people": "Personnes",
+            "dismissible": "Fermable",
+            "enabled": "Activée",
+            "snoozable": "Reportable",
+            "snooze_scope": "Portée du report",
+            "snooze_options": "Durées de report"
+          },
+          "data_description": {
+            "name": "Affiché uniquement dans la liste des règles.",
+            "operator": "Comment l'entité (ou son attribut) est comparée aux valeurs ci-dessous.",
+            "state": "« Est égal à », « N'est pas égal à », « Contient » et « Ne contient pas » acceptent une ou plusieurs valeurs (par défaut : on pour égal et différent). « Supérieur » et « Inférieur » acceptent un nombre ; « Entre » en accepte deux, le plus bas puis le plus haut, tous deux inclus. « Est vide » et « N'est pas vide » n'ont pas besoin de valeur.",
+            "attribute": "Comparer cet attribut au lieu de l'état.",
+            "for": "Facultatif. La bannière n'apparaît qu'après que la condition a duré ce temps sans interruption, jusqu'à 24 heures. Vide : tout de suite. Après un redémarrage, l'attente recommence.",
+            "title": "Titre facultatif, 100 caractères au maximum.",
+            "people": "Afficher seulement à ces personnes. Vide : tout le monde.",
+            "dismissible": "Désactivé : pas de bouton de fermeture, la bannière reste tant que la condition est vraie. Activé : chaque utilisateur peut la masquer jusqu'à ce que la condition devienne fausse puis vraie à nouveau.",
+            "enabled": "Désactivez pour masquer la bannière sans supprimer la règle.",
+            "snoozable": "Activé : les utilisateurs peuvent masquer la bannière un moment ; elle revient ensuite. Nécessite « Fermable ». Vide : le réglage des options de l'intégration.",
+            "snooze_scope": "Par utilisateur ou tout le monde. Vide : le réglage des options de l'intégration.",
+            "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration."
+          }
+        },
+        "reconfigure": {
+          "title": "Modifier la règle de surveillance",
+          "description": "Affiche une bannière sur chaque carte Heads Up tant qu'une entité est dans un état. {name_token} dans le message est remplacé par le nom de l'entité. Le message peut aussi contenir des modèles Home Assistant.",
+          "data": {
+            "name": "Nom de la règle",
+            "entity_id": "Entité",
+            "operator": "Condition",
+            "state": "État",
+            "attribute": "Attribut",
+            "for": "La condition doit durer",
+            "message": "Message",
+            "title": "Titre",
+            "severity": "Gravité",
+            "icon": "Icône",
+            "people": "Personnes",
+            "dismissible": "Fermable",
+            "enabled": "Activée",
+            "snoozable": "Reportable",
+            "snooze_scope": "Portée du report",
+            "snooze_options": "Durées de report"
+          },
+          "data_description": {
+            "name": "Affiché uniquement dans la liste des règles.",
+            "operator": "Comment l'entité (ou son attribut) est comparée aux valeurs ci-dessous.",
+            "state": "« Est égal à », « N'est pas égal à », « Contient » et « Ne contient pas » acceptent une ou plusieurs valeurs (par défaut : on pour égal et différent). « Supérieur » et « Inférieur » acceptent un nombre ; « Entre » en accepte deux, le plus bas puis le plus haut, tous deux inclus. « Est vide » et « N'est pas vide » n'ont pas besoin de valeur.",
+            "attribute": "Comparer cet attribut au lieu de l'état.",
+            "for": "Facultatif. La bannière n'apparaît qu'après que la condition a duré ce temps sans interruption, jusqu'à 24 heures. Vide : tout de suite. Après un redémarrage, l'attente recommence.",
+            "title": "Titre facultatif, 100 caractères au maximum.",
+            "people": "Afficher seulement à ces personnes. Vide : tout le monde.",
+            "dismissible": "Désactivé : pas de bouton de fermeture, la bannière reste tant que la condition est vraie. Activé : chaque utilisateur peut la masquer jusqu'à ce que la condition devienne fausse puis vraie à nouveau.",
+            "enabled": "Désactivez pour masquer la bannière sans supprimer la règle.",
+            "snoozable": "Activé : les utilisateurs peuvent masquer la bannière un moment ; elle revient ensuite. Nécessite « Fermable ». Vide : le réglage des options de l'intégration.",
+            "snooze_scope": "Par utilisateur ou tout le monde. Vide : le réglage des options de l'intégration.",
+            "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration."
+          }
+        }
+      },
+      "error": {
+        "entity_not_found": "Cette entité n'existe pas.",
+        "message_required": "Saisissez un message.",
+        "message_too_long": "Le message peut contenir jusqu'à 1000 caractères.",
+        "message_template_invalid": "Le message contient un modèle non valide.",
+        "title_too_long": "Le titre peut contenir jusqu'à 100 caractères.",
+        "state_count": "« Supérieur » et « Inférieur » demandent un nombre, « Entre » en demande deux.",
+        "state_not_numeric": "Saisissez uniquement des nombres pour cette condition.",
+        "state_required": "Saisissez au moins une valeur.",
+        "for_too_long": "Utilisez 24 heures ou moins.",
+        "snoozable_needs_dismissible": "« Reportable » nécessite que « Fermable » soit activé."
+      },
+      "abort": {
+        "reconfigure_successful": "La reconfiguration a réussi."
+      }
+    }
+  }
+}

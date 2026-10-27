@@ -1,0 +1,302 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Añadir Heads Up. Los avisos se crean con la acción `heads_up.create_banner`."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Heads Up ya está configurado."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "max_banners": "Número máximo de avisos",
+          "evict": "Eliminar el aviso más antiguo de menor gravedad cuando se llena",
+          "default_dismiss_scope": "Ámbito de cierre predeterminado",
+          "default_timeout": "Tiempo de caducidad predeterminado",
+          "default_snoozable": "Los avisos se pueden posponer de forma predeterminada",
+          "default_snooze_scope": "Ámbito de posposición predeterminado",
+          "default_snooze_options": "Opciones de posposición predeterminadas"
+        },
+        "data_description": {
+          "max_banners": "1–200. Los avisos críticos nunca se eliminan.",
+          "evict": "Si está desactivado, crear un aviso por encima del máximo falla con un error.",
+          "default_dismiss_scope": "Se usa cuando la llamada a la acción no define dismiss_scope.",
+          "default_timeout": "Se usa cuando la llamada a la acción no define timeout. Atención: si vacías este campo, los avisos sin tiempo propio permanecen hasta que se cierran o se eliminan.",
+          "default_snoozable": "Se usa cuando la llamada a la acción no define snoozable. Los avisos que no se pueden cerrar nunca se pueden posponer.",
+          "default_snooze_scope": "Se usa cuando la llamada a la acción no define snooze_scope.",
+          "default_snooze_options": "Se usa cuando la llamada a la acción no define snooze_options. Déjalo vacío para 15 minutos, 1 hora y 4 horas."
+        }
+      }
+    }
+  },
+  "selector": {
+    "severity": {
+      "options": {
+        "success": "Éxito",
+        "info": "Información",
+        "warning": "Advertencia",
+        "critical": "Crítico"
+      }
+    },
+    "dismiss_scope": {
+      "options": {
+        "user": "Por usuario",
+        "global": "Todos"
+      }
+    },
+    "mode": {
+      "options": {
+        "once": "Una vez",
+        "recurring": "Recurrente"
+      }
+    },
+    "operator": {
+      "options": {
+        "equals": "Es igual a",
+        "not_equals": "No es igual a",
+        "above": "Por encima de (número)",
+        "below": "Por debajo de (número)",
+        "between": "Entre (dos números)",
+        "contains": "Contiene el texto",
+        "not_contains": "No contiene el texto",
+        "empty": "Está vacío",
+        "not_empty": "No está vacío"
+      }
+    },
+    "snooze_scope": {
+      "options": {
+        "user": "Por usuario",
+        "global": "Todos"
+      }
+    },
+    "snooze_minutes": {
+      "options": {
+        "5": "5 minutos",
+        "15": "15 minutos",
+        "30": "30 minutos",
+        "60": "1 hora",
+        "120": "2 horas",
+        "240": "4 horas",
+        "480": "8 horas",
+        "1440": "24 horas"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "active_banners": {
+        "name": "Avisos activos"
+      }
+    }
+  },
+  "exceptions": {
+    "not_loaded": {
+      "message": "Heads Up no está configurado. Añade primero la integración."
+    },
+    "too_many_banners": {
+      "message": "Heads Up ya contiene {max} avisos y ninguno se puede eliminar."
+    },
+    "entity_not_found": {
+      "message": "La entidad de condición {entity_id} no existe."
+    }
+  },
+  "services": {
+    "create_banner": {
+      "name": "Crear aviso",
+      "description": "Muestra un aviso en cada tarjeta Heads Up. Llamar de nuevo con el mismo ID reemplaza el aviso.",
+      "fields": {
+        "message": {
+          "name": "Mensaje",
+          "description": "Texto del aviso, de 1 a 1000 caracteres."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
+        },
+        "title": {
+          "name": "Título",
+          "description": "Hasta 100 caracteres. Predeterminado: sin título."
+        },
+        "severity": {
+          "name": "Gravedad",
+          "description": "Define el color, el icono predeterminado y el orden. Predeterminado: Advertencia."
+        },
+        "icon": {
+          "name": "Icono",
+          "description": "Sustituye el icono predeterminado de la gravedad. Predeterminado: el icono de la gravedad."
+        },
+        "timeout": {
+          "name": "Tiempo de caducidad",
+          "description": "El aviso desaparece tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
+        },
+        "dismissible": {
+          "name": "Se puede cerrar",
+          "description": "Muestra un botón de cierre en el aviso. Predeterminado: activado."
+        },
+        "dismiss_scope": {
+          "name": "Ámbito de cierre",
+          "description": "Por usuario: cerrarlo lo oculta solo para ese usuario. Todos: cerrarlo lo elimina para todos. Predeterminado: el ajuste de las opciones de la integración (por usuario salvo cambios)."
+        },
+        "snoozable": {
+          "name": "Se puede posponer",
+          "description": "Permite ocultar el aviso un tiempo; después vuelve. Es un error junto con «Se puede cerrar» desactivado. Predeterminado: el ajuste de las opciones de la integración (desactivado salvo cambios)."
+        },
+        "snooze_scope": {
+          "name": "Ámbito de posposición",
+          "description": "Por usuario: posponerlo lo oculta solo para ese usuario. Todos: se oculta para todos. Predeterminado: el ajuste de las opciones de la integración (por usuario salvo cambios)."
+        },
+        "snooze_options": {
+          "name": "Opciones de posposición",
+          "description": "Hasta 6 duraciones de posposición, de 1 minuto a 7 días.\n\nEjemplo:\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "actions": {
+          "name": "Botones",
+          "description": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action.\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Etiqueta",
+          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios avisos a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
+        },
+        "condition": {
+          "name": "Condición",
+          "description": "Mostrar el aviso solo mientras una entidad coincida o una plantilla sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+        },
+        "mode": {
+          "name": "Modo",
+          "description": "Una vez: se elimina cuando la condición pasa a falsa. Recurrente: oculto mientras es falsa y visible de nuevo cuando vuelve a ser verdadera. Predeterminado: Una vez."
+        },
+        "wait_for_condition": {
+          "name": "Esperar a la condición",
+          "description": "Activado: un aviso cuya condición es falsa espera hasta que sea verdadera. Desactivado: no se guarda nada y el estado de la respuesta es condition_false. Predeterminado: activado. Se ignora sin condición."
+        },
+        "people": {
+          "name": "Personas",
+          "description": "Mostrar solo a estas personas. Predeterminado: a todos."
+        },
+        "tap_action": {
+          "name": "Acción al tocar",
+          "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        }
+      }
+    },
+    "clear_banner": {
+      "name": "Eliminar aviso",
+      "description": "Elimina avisos por ID, por etiqueta o por ambos. Devuelve el número eliminado.",
+      "fields": {
+        "id": {
+          "name": "ID",
+          "description": "ID del aviso que se eliminará."
+        },
+        "tag": {
+          "name": "Etiqueta",
+          "description": "Elimina todos los avisos con esta etiqueta."
+        }
+      }
+    },
+    "clear_all": {
+      "name": "Eliminar todos los avisos",
+      "description": "Elimina todos los avisos. Devuelve el número eliminado."
+    }
+  },
+  "config_subentries": {
+    "rule": {
+      "entry_type": "Regla de vigilancia",
+      "initiate_flow": {
+        "user": "Añadir regla de vigilancia"
+      },
+      "step": {
+        "user": {
+          "title": "Añadir regla de vigilancia",
+          "description": "Muestra un aviso en cada tarjeta Heads Up mientras una entidad está en un estado. {name_token} en el mensaje se sustituye por el nombre de la entidad. El mensaje también puede usar plantillas de Home Assistant.",
+          "data": {
+            "name": "Nombre de la regla",
+            "entity_id": "Entidad",
+            "operator": "Condición",
+            "state": "Estado",
+            "attribute": "Atributo",
+            "for": "La condición debe cumplirse durante",
+            "message": "Mensaje",
+            "title": "Título",
+            "severity": "Gravedad",
+            "icon": "Icono",
+            "people": "Personas",
+            "dismissible": "Se puede cerrar",
+            "enabled": "Activada",
+            "snoozable": "Se puede posponer",
+            "snooze_scope": "Ámbito de posposición",
+            "snooze_options": "Opciones de posposición"
+          },
+          "data_description": {
+            "name": "Solo se muestra en la lista de reglas.",
+            "operator": "Cómo se compara la entidad (o su atributo) con los valores de abajo.",
+            "state": "«Es igual a», «No es igual a», «Contiene» y «No contiene» aceptan uno o más valores (predeterminado: on para igual y distinto). «Por encima» y «Por debajo» aceptan un número; «Entre» acepta dos, primero el menor y luego el mayor, ambos incluidos. «Está vacío» y «No está vacío» no necesitan valor.",
+            "attribute": "Comparar este atributo en lugar del estado.",
+            "for": "Opcional. El aviso aparece solo después de que la condición se cumpla este tiempo sin interrupción, hasta 24 horas. Vacío: de inmediato. Tras un reinicio, la espera empieza de nuevo.",
+            "title": "Encabezado opcional, hasta 100 caracteres.",
+            "people": "Mostrar solo a estas personas. Vacío: a todos.",
+            "dismissible": "Desactivado: sin botón de cierre, el aviso permanece mientras la condición sea verdadera. Activado: cada usuario puede ocultarlo hasta que la condición pase a falsa y vuelva a ser verdadera.",
+            "enabled": "Desactívalo para ocultar el aviso sin eliminar la regla.",
+            "snoozable": "Activado: los usuarios pueden ocultar el aviso un tiempo; después vuelve. Requiere «Se puede cerrar». Vacío: el ajuste de las opciones de la integración.",
+            "snooze_scope": "Por usuario o todos. Vacío: el ajuste de las opciones de la integración.",
+            "snooze_options": "Duraciones que se ofrecen al usuario. Vacío: el ajuste de las opciones de la integración."
+          }
+        },
+        "reconfigure": {
+          "title": "Cambiar regla de vigilancia",
+          "description": "Muestra un aviso en cada tarjeta Heads Up mientras una entidad está en un estado. {name_token} en el mensaje se sustituye por el nombre de la entidad. El mensaje también puede usar plantillas de Home Assistant.",
+          "data": {
+            "name": "Nombre de la regla",
+            "entity_id": "Entidad",
+            "operator": "Condición",
+            "state": "Estado",
+            "attribute": "Atributo",
+            "for": "La condición debe cumplirse durante",
+            "message": "Mensaje",
+            "title": "Título",
+            "severity": "Gravedad",
+            "icon": "Icono",
+            "people": "Personas",
+            "dismissible": "Se puede cerrar",
+            "enabled": "Activada",
+            "snoozable": "Se puede posponer",
+            "snooze_scope": "Ámbito de posposición",
+            "snooze_options": "Opciones de posposición"
+          },
+          "data_description": {
+            "name": "Solo se muestra en la lista de reglas.",
+            "operator": "Cómo se compara la entidad (o su atributo) con los valores de abajo.",
+            "state": "«Es igual a», «No es igual a», «Contiene» y «No contiene» aceptan uno o más valores (predeterminado: on para igual y distinto). «Por encima» y «Por debajo» aceptan un número; «Entre» acepta dos, primero el menor y luego el mayor, ambos incluidos. «Está vacío» y «No está vacío» no necesitan valor.",
+            "attribute": "Comparar este atributo en lugar del estado.",
+            "for": "Opcional. El aviso aparece solo después de que la condición se cumpla este tiempo sin interrupción, hasta 24 horas. Vacío: de inmediato. Tras un reinicio, la espera empieza de nuevo.",
+            "title": "Encabezado opcional, hasta 100 caracteres.",
+            "people": "Mostrar solo a estas personas. Vacío: a todos.",
+            "dismissible": "Desactivado: sin botón de cierre, el aviso permanece mientras la condición sea verdadera. Activado: cada usuario puede ocultarlo hasta que la condición pase a falsa y vuelva a ser verdadera.",
+            "enabled": "Desactívalo para ocultar el aviso sin eliminar la regla.",
+            "snoozable": "Activado: los usuarios pueden ocultar el aviso un tiempo; después vuelve. Requiere «Se puede cerrar». Vacío: el ajuste de las opciones de la integración.",
+            "snooze_scope": "Por usuario o todos. Vacío: el ajuste de las opciones de la integración.",
+            "snooze_options": "Duraciones que se ofrecen al usuario. Vacío: el ajuste de las opciones de la integración."
+          }
+        }
+      },
+      "error": {
+        "entity_not_found": "Esta entidad no existe.",
+        "message_required": "Introduce un mensaje.",
+        "message_too_long": "El mensaje puede tener hasta 1000 caracteres.",
+        "message_template_invalid": "El mensaje contiene una plantilla no válida.",
+        "title_too_long": "El título puede tener hasta 100 caracteres.",
+        "state_count": "«Por encima» y «Por debajo» necesitan un número, «Entre» necesita dos.",
+        "state_not_numeric": "Introduce solo números para esta condición.",
+        "state_required": "Introduce al menos un valor.",
+        "for_too_long": "Usa 24 horas o menos.",
+        "snoozable_needs_dismissible": "«Se puede posponer» requiere que «Se puede cerrar» esté activado."
+      },
+      "abort": {
+        "reconfigure_successful": "La reconfiguración se realizó correctamente."
+      }
+    }
+  }
+}

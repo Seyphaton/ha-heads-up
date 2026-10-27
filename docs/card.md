@@ -105,5 +105,5 @@ When Home Assistant restarts, the card reconnects by itself. It shows "Heads Up 
 
 ## Not supported
 
-- Banner text is shown as written; it is not translated. The card's own labels are English.
+- Banner text is shown as written; it is not translated. The card's own labels follow the language of your Home Assistant user: English, German, French or Spanish; other languages show English.
 - There is no per-card setting for the dismiss behaviour: it comes from the banner.
