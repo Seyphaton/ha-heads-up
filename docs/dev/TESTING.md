@@ -28,6 +28,7 @@
 | `tests/test_conditions.py` | once/recurring, `wait_for_condition`, unavailable, removed entity, state list/attribute, restart re-evaluation, tracker release |
 | `tests/test_people.py` | targeting per user, users without person, person created later, payload privacy |
 | `tests/test_rules.py` | watch rules: visibility, state list/attribute, unavailable/removed, disabled, edit/delete, `{name}`, people, reload without store writes, limits and sensor, clear actions, dismissal rules, `rule_banner`, events, no events at setup, WebSocket |
+| `tests/test_empty_operators.py` | `empty` and `not_empty`: matcher, schema, banners and rules (attribute, unavailable, `for`), rule form without a prefilled State |
 | `tests/test_for_template.py` | condition `for` (schema, wait, reset, reload, replace, clear, operators) and template conditions (show/hide, recurring, errors, `now()`, reload, tracking), rules with `for`, rule flow `for` |
 | `tests/test_operators.py` | condition operators: matcher per operator and boundary, `check_state` codes, action schema (defaults, rejections), stored banners and rules with `not_equals`, numeric on attribute, unavailable, old rule without `operator`, rule flow with operator and error codes |
 | `tests/test_rules_flow.py` | rule subentry flow: defaults, all fields, `entity_not_found`, blank message, empty state list, same entity twice, reconfigure |

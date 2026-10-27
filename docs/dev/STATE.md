@@ -1,9 +1,9 @@
 # State
 
-Updated 2026-10-26. Read this first in a new session, then `docs/DESIGN.md` §0 and §8. Start each phase session with the prompt in `docs/dev/PHASE_PROMPT.md`; its documentation checklist is the definition of done.
+Updated 2026-10-27. Read this first in a new session, then `docs/DESIGN.md` §0 and §8. Start each phase session with the prompt in `docs/dev/PHASE_PROMPT.md`; its documentation checklist is the definition of done.
 
 ## Where we are
-- Phases 0–10 delivered, except the release itself. Everything is committed and pushed, including Phase 7 (card design, D-048, D-049, D-050) and a README with screenshots that was added in a separate session.
+- Phases 0–11 delivered, except the release itself. Everything is committed and pushed, including Phase 7 (card design, D-048, D-049, D-050) and a README with screenshots that was added in a separate session.
 - `main` was pushed to `git@github.com:Seyphaton/ha-heads-up.git` on 2026-10-25 with the maintainer's approval (D-020), again after Phase 8 (head `e1be105` plus this note). All commits carry the author `Seyphaton <23493879+Seyphaton@users.noreply.github.com>`. The repository is private; the CI results are not read yet (no `gh` on the dev machine, the API needs a login for private repositories). No tag, no release.
 - Published by the maintainer: `v0.1.0` (`204985b`) and `v0.2.0` (`c3ed219`, manifest still said 0.1.0). 0.2.1 (manifest and changelog fix, D-062) is committed, not pushed or tagged; tagging stays the maintainer's step (D-020).
 - Release 0.1.0 was prepared (see `docs/dev/RELEASE.md`): version, changelog (includes Phase 8), README install steps, `.github/workflows/validate.yml`. Local gates for the release state: `make check`, `make hassfest`, `make dev-smoke` green, 121 tests green on HA 2026.10.4. Tagging, the GitHub release, making the repository public and its settings are the maintainer's steps (D-020).
@@ -32,3 +32,4 @@ Follow `docs/dev/RELEASE.md`, "Before the first release". Needs the maintainer: 
 - 2026-10-26: maintainer reported CI green on `main`, repository public, integration running on their own HA, and no HACS name clash. Recorded in `docs/OPEN_QUESTIONS.md`. Not committed.
 - 2026-10-26: release 0.3.0 prepared (manifest, changelog, README status); pushed with the maintainer's approval; tag and GitHub release are the maintainer's step (D-020).
 - 2026-10-26: Phase 10 (condition `for`, template conditions in `create_banner`, D-066, D-067, `docs/DESIGN.md` §19, `tests/test_for_template.py`) built; `at_least`/`at_most` dropped by the maintainer. `make check` green (226 pytest, 65 vitest). Not verified on the dev HA or in the rule form UI; `make dev-smoke` not extended. Not committed. Blast radius: new optional condition fields; existing banners and rules unchanged; usual restart after an update.
+- 2026-10-27: Phase 11 (`empty` and `not_empty` operators, rule form without a prefilled State, D-068, `docs/DESIGN.md` §20, `tests/test_empty_operators.py`) built; `make check` green. Not verified in the rule form UI on the dev HA. Not committed. Blast radius: new optional operators; the form no longer prefills State; usual restart after an update. A pull request to `hacs/default` was opened by the maintainer on 2026-10-26 (not tracked here).

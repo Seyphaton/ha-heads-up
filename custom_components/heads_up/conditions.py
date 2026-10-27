@@ -14,9 +14,13 @@ OPERATORS: Final = (
     "between",
     "contains",
     "not_contains",
+    "empty",
+    "not_empty",
 )
 DEFAULT_OPERATOR: Final = "equals"
 _NUMERIC_COUNT: Final = {"above": 1, "below": 1, "between": 2}
+# Operators that look at the value only; a `state` given with them is ignored (D-068).
+NO_STATE_OPERATORS: Final = ("empty", "not_empty")
 
 
 def _number(text: str) -> float | None:
@@ -45,6 +49,10 @@ def matches(condition: Mapping[str, Any], value: str | None) -> bool | None:
     None means there is no real value to judge (D-061): the caller leaves the result unchanged.
     """
     operator = condition.get("operator", DEFAULT_OPERATOR)
+    if operator in NO_STATE_OPERATORS:
+        # A missing attribute has no value, so it is empty (D-068).
+        is_empty = value is None or not value.strip()
+        return is_empty is (operator == "empty")
     wanted = condition["state"]
     wanted = [wanted] if isinstance(wanted, str) else list(wanted)
     if operator == "equals":

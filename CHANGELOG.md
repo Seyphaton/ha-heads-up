@@ -4,6 +4,12 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Added
+- Conditions `empty` and `not_empty` ("Is empty", "Is not empty" in the rule form) for `heads_up.create_banner` and watch rules. They need no `state`.
+
+### Fixed
+- The watch rule form no longer fills the State field with `on`. A rule with equals or does not equal and no value still uses `on`.
+
 ## [0.3.0] - 2026-10-26
 
 ### Added

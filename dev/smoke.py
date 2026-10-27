@@ -210,6 +210,71 @@ async def for_template() -> None:
             await call(s, admin, "clear_banner", {"id": banner_id})
 
 
+async def empty_operators() -> None:
+    """`not_empty` in an action and in a rule made through the real form without a State (D-068)."""
+    async with aiohttp.ClientSession() as s:
+        admin = await token(s, "ADMIN")
+        headers = {"Authorization": f"Bearer {admin}"}
+        entity = "sensor.smoke_note"
+
+        async def put(state: str) -> None:
+            r = await s.post(f"{BASE}/api/states/{entity}", json={"state": state}, headers=headers)
+            assert r.status in (200, 201)
+            await asyncio.sleep(0.5)
+
+        async def seen() -> list[str]:
+            return sorted(b["id"] for b in await subscribe(await connect(s, admin)))
+
+        await put("")
+        data = {
+            "id": "smoke_note",
+            "message": "Note",
+            "mode": "recurring",
+            "condition": {"entity_id": entity, "operator": "not_empty"},
+        }
+        print("create:", (await call(s, admin, "create_banner", data))["status"])
+        eid = await entry_id(s, admin)
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow",
+            json={"handler": [eid, "rule"], "show_advanced_options": False},
+            headers=headers,
+        )
+        flow = await r.json()
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow/{flow['flow_id']}",
+            json={
+                "name": "Smoke note rule",
+                "entity_id": entity,
+                "operator": "not_empty",
+                "message": "{name} has text",
+            },
+            headers=headers,
+        )
+        print("rule flow:", (await r.json())["type"])
+        assert await seen() == [], await seen()
+        await put("hello")
+        shown = await seen()
+        assert "smoke_note" in shown and len(shown) == 2, shown
+        print("with text:", shown)
+        await put("")
+        assert await seen() == [], await seen()
+        print("empty again: []")
+        await call(s, admin, "clear_banner", {"id": "smoke_note"})
+        ws = await connect(s, admin)
+        msg_id = await ws.send({"type": "config_entries/subentries/list", "entry_id": eid})
+        for sub in (await ws.recv(msg_id))["result"]:
+            if sub["title"] == "Smoke note rule":
+                msg_id = await ws.send(
+                    {
+                        "type": "config_entries/subentries/delete",
+                        "entry_id": eid,
+                        "subentry_id": sub["subentry_id"],
+                    }
+                )
+                await ws.recv(msg_id)
+        await s.delete(f"{BASE}/api/states/{entity}", headers=headers)
+
+
 SMOKE_RULE = "Smoke window"
 
 
@@ -291,6 +356,7 @@ asyncio.run(
         "verify": verify,
         "conditions": conditions,
         "for_template": for_template,
+        "empty_operators": empty_operators,
         "rules": rules,
         "rules_verify": rules_verify,
     }[sys.argv[1]]()

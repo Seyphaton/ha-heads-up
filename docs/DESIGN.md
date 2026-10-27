@@ -10,6 +10,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §17 watch rules (config subentries, virtual banners) | implemented and tested (Phase 8); card unchanged |
 | §18 condition operators (shared matcher for actions and rules) | implemented and tested (Phase 9); card unchanged |
 | §19 condition `for` and template conditions | implemented and tested (Phase 10); card unchanged |
+| §20 `empty` and `not_empty` operators, rule form without a prefilled State | implemented and tested (Phase 11); card unchanged |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
 | Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
@@ -449,4 +450,23 @@ Restart: a code update needs the usual restart. Notification path: not touched. 
 
 ### 19.4 Tests
 `tests/test_for_template.py`: schema (seconds, text, zero, limits, template rules), wait and restart of the wait, reload with a shown banner, replace, clear, `once` mode, operators with `for`; template show/hide, recurring, several entities, errors, `for`, reload, tracking stops; rules with `for` (wait, time, cancel, setup, delete, edit); rule flow (`for` as seconds, omitted, zero, too long).
+
+## 20. `empty` and `not_empty` operators (Phase 11)
+
+Status: implemented 2026-10-27 (`tests/test_empty_operators.py`). Decision D-068.
+
+### 20.1 Problem
+"The entity has some value" had no direct form. `not_equals` with `state: ""` worked in an action, but the rule form replaced an empty State with `on` (schema default and fallback) and dropped blank entries, so a rule could not express it.
+
+### 20.2 Design
+- **Operators:** `empty` and `not_empty` (`NO_STATE_OPERATORS` in `conditions.py`). They look at the value only; `state` is not required and is dropped from the stored condition if given (action schema, rule form).
+- **Value:** the state, or the attribute as text. Empty means no text after stripping spaces. A missing (`None`) attribute and an empty list, object or tuple count as empty. `unavailable`, `unknown` and a missing entity give no result, as for every operator (D-061); the missing attribute is the one case with a result, because an absent value is what `empty` asks about.
+- **Rule form:** the State field has no prefilled value. For `equals` and `not_equals`, an empty field (or blanks) still means `on` (D-068); for `empty` and `not_empty` nothing is stored under `state`. The virtual banner's condition carries no `state` for them.
+- **Compatibility:** stored rules and banners are unchanged. `for` and templates are not affected.
+
+### 20.3 Blast radius
+Restart: the usual one after a code update. Notification path: not touched. Dashboard: none by itself. Rule subentries with these operators have no `state` key; an older version of the integration would fail to build them (a downgrade after using them should delete such rules).
+
+### 20.4 Tests
+`tests/test_empty_operators.py`: matcher, schema, banners (shows, hides, unavailable, attribute, `for`), rules (state, attribute), rule form (no prefilled State, no stored state, `equals` default kept, reconfigure).
 

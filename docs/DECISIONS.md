@@ -375,3 +375,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - 2026-10-25: Phase 9 delivered (condition operators); `make check` and `make hassfest` green; not committed at the time of writing.
 - 2026-10-25: `v0.2.0` published by the maintainer; `0.2.1` prepared (D-062).
 - 2026-10-26: Phase 10 (condition `for`, template conditions, D-066, D-067) requested and approved by the maintainer; delivered; not committed at the time of writing.
+
+## D-068 `empty` and `not_empty` operators; State is not prefilled
+- Date: 2026-10-27. Phase 11 requested and approved by the maintainer.
+- Decision: two operators, `empty` and `not_empty`, ignore `state`. A value is empty when it has no text after stripping spaces; a missing attribute and an empty list or object count as empty. `unavailable` and `unknown` still change nothing. The rule form's State field has no default value; an empty field still means `on` for equals and does not equal, and is stored as nothing for the new operators.
+- Alternatives: allow an empty string in the State list (a blank entry is easy to leave by accident); `not_equals` with `""` only (undiscoverable in the form); treating a missing attribute as no result (D-061).
+- Reason: "has a value" is a common condition. Treating a missing attribute as empty matches what a user means by "no value". Keeping `on` as the fallback for equals and does not equal keeps old rules and the documented default.
+- 2026-10-27: Phase 11 delivered; not committed at the time of writing.
+

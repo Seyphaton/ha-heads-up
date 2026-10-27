@@ -12,7 +12,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import VolSchemaType
 from jinja2 import Environment, TemplateSyntaxError
 
-from .conditions import DEFAULT_OPERATOR, OPERATORS, check_state
+from .conditions import DEFAULT_OPERATOR, NO_STATE_OPERATORS, OPERATORS, check_state
 from .const import (
     DISMISS_SCOPES,
     DOMAIN,
@@ -60,6 +60,8 @@ def _check_condition(condition: dict[str, Any]) -> dict[str, Any]:
     if "entity_id" not in condition:
         raise vol.Invalid("a condition needs entity_id or template", path=["entity_id"])
     operator = condition.get("operator", DEFAULT_OPERATOR)
+    if operator in NO_STATE_OPERATORS:
+        return {k: v for k, v in condition.items() if k != "state"}
     if "state" not in condition:
         if operator not in ("equals", "not_equals"):
             raise vol.Invalid("state is required for this operator", path=["state"])

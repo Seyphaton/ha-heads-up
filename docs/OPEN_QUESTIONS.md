@@ -44,3 +44,6 @@
 - A waiting banner (or a rule true at setup) restarts its wait after a restart; storing the start of the wait would avoid the delay (D-066).
 - A downgrade to a version without `condition.template` fails to load stored banners with a template condition (DESIGN §19.3).
 
+## Phase 11: empty operators
+- Not verified in the rule form on the dev HA: the blank State field, the new operator labels, saving a rule with `not_empty`.
+- Not built: a trigger for the moment a value changes (conditions describe a state, not a change).

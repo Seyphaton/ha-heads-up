@@ -56,7 +56,9 @@
         "below": "Below (number)",
         "between": "Between (two numbers)",
         "contains": "Contains text",
-        "not_contains": "Does not contain text"
+        "not_contains": "Does not contain text",
+        "empty": "Is empty",
+        "not_empty": "Is not empty"
       }
     }
   },
@@ -121,7 +123,7 @@
         },
         "condition": {
           "name": "Condition",
-          "description": "Shows the banner only while the condition holds. Either entity_id with optional operator (equals, not_equals, above, below, between, contains, not_contains), state (default on for equals and not_equals; a list, or numbers for above, below and between) and attribute; or template, a Home Assistant template that is true (cannot be combined with the entity fields). Optional for: how long it must hold, for example 5 minutes, up to 24 hours. Default: no condition, the banner always shows."
+          "description": "Shows the banner only while the condition holds. Either entity_id with optional operator (equals, not_equals, above, below, between, contains, not_contains, empty, not_empty), state (default on for equals and not_equals; not used for empty and not_empty; a list, or numbers for above, below and between) and attribute; or template, a Home Assistant template that is true (cannot be combined with the entity fields). Optional for: how long it must hold, for example 5 minutes, up to 24 hours. Default: no condition, the banner always shows."
         },
         "mode": {
           "name": "Mode",
@@ -188,7 +190,7 @@
           "data_description": {
             "name": "Shown in the list of rules only.",
             "operator": "How the entity (or its attribute) is compared with the values below.",
-            "state": "Equals, does not equal, contains and does not contain take one or more values (default: on for equals and does not equal). Above and below take one number; between takes two, low then high, both included.",
+            "state": "Equals, does not equal, contains and does not contain take one or more values (default: on for equals and does not equal). Above and below take one number; between takes two, low then high, both included. Is empty and is not empty need no value.",
             "attribute": "Compare this attribute instead of the state.",
             "for": "Optional. The banner appears only after the condition has held this long without a break, up to 24 hours. Empty: right away. After a restart the wait starts again.",
             "title": "Optional heading, up to 100 characters.",
@@ -218,7 +220,7 @@
           "data_description": {
             "name": "Shown in the list of rules only.",
             "operator": "How the entity (or its attribute) is compared with the values below.",
-            "state": "Equals, does not equal, contains and does not contain take one or more values (default: on for equals and does not equal). Above and below take one number; between takes two, low then high, both included.",
+            "state": "Equals, does not equal, contains and does not contain take one or more values (default: on for equals and does not equal). Above and below take one number; between takes two, low then high, both included. Is empty and is not empty need no value.",
             "attribute": "Compare this attribute instead of the state.",
             "for": "Optional. The banner appears only after the condition has held this long without a break, up to 24 hours. Empty: right away. After a restart the wait starts again.",
             "title": "Optional heading, up to 100 characters.",

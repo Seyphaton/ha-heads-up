@@ -12,8 +12,8 @@ A watch rule shows a banner while an entity is in a state. You set it up once in
 |---|---|---|
 | Rule name | – | Shown in the list of rules only. |
 | Entity | – | The entity to watch. It must exist when you save. |
-| Condition | Equals | How to compare: equals, does not equal, above, below, between, contains text, does not contain text. |
-| State | `on` for equals and does not equal | The values to compare with. Above and below take one number, between takes two (low, high). |
+| Condition | Equals | How to compare: equals, does not equal, above, below, between, contains text, does not contain text, is empty, is not empty. |
+| State | empty; `on` is used for equals and does not equal | The values to compare with. Above and below take one number, between takes two (low, high). Is empty and is not empty need no value; one you enter is not saved. |
 | Attribute | none | Compare this attribute instead of the state. The value is compared as text; numeric conditions need a number. |
 | Condition must hold for | none | Optional, up to 24 hours. The banner appears only after the condition has held this long without a break. After a restart the wait starts again. |
 | Message | – | Banner text, up to 1000 characters. `{name}` becomes the entity's name. Home Assistant templates such as `{{ states('input_text.reason') }}` are rendered; the text updates when the entities the template reads change (not for `now()`). |
@@ -41,6 +41,7 @@ Each row is one rule. `{name}` in the message becomes the entity's name. The con
 | Room too cold | `sensor.living_room_temperature` | none | Below | `16` | `The living room is colder than 16 °C.` | warning |
 | Battery low | `sensor.phone_battery` | none | Between | `5`, `15` | `The phone battery is low.` | warning |
 | Printer reports a problem | `sensor.printer_status` | none | Contains text | `error`, `jam` | `The printer reports a problem.` | warning |
+| Note left on the door | `input_text.door_note` | none | Is not empty | – | `Note: {{ states('input_text.door_note') }}` | info |
 | Garage door not closed | `cover.garage_door` | `current_position` | Above | `0` | `{name} is open.` | warning |
 | Door open too long | `binary_sensor.front_door` | none | Equals | `on` | `{name} has been open for 5 minutes.` | warning |
 
@@ -49,6 +50,7 @@ Notes:
 - "Does not equal" with several values matches when the value equals none of them.
 - "Above" and "below" take one number and exclude it. "Between" takes two numbers, low then high, and includes both.
 - "Contains text" matches when any of the values is part of the state. "Does not contain text" matches when none is.
+- "Is empty" matches an empty state or attribute, or one with only spaces. A missing attribute counts as empty, so "is not empty" does not match it.
 - The value is compared as text for equals, does not equal and contains. The numeric conditions need a number in the state or attribute.
 
 ## What you see

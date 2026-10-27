@@ -37,7 +37,7 @@ from homeassistant.helpers.selector import (
 )
 from homeassistant.helpers.template import Template
 
-from .conditions import DEFAULT_OPERATOR, OPERATORS, check_state
+from .conditions import DEFAULT_OPERATOR, NO_STATE_OPERATORS, OPERATORS, check_state
 from .const import (
     DEFAULT_OPTIONS,
     DEFAULT_SEVERITY,
@@ -136,7 +136,8 @@ _RULE_SCHEMA = vol.Schema(
         vol.Required("operator", default=DEFAULT_OPERATOR): SelectSelector(
             SelectSelectorConfig(options=list(OPERATORS), translation_key="operator")
         ),
-        vol.Optional("state", default=["on"]): TextSelector(TextSelectorConfig(multiple=True)),
+        # No prefilled value: an empty field means "on" for equals and not_equals (D-068).
+        vol.Optional("state"): TextSelector(TextSelectorConfig(multiple=True)),
         vol.Optional("attribute"): TextSelector(),
         vol.Optional("for"): DurationSelector(DurationSelectorConfig(enable_day=True)),
         vol.Required("message"): TextSelector(TextSelectorConfig(multiline=True)),
@@ -155,8 +156,11 @@ _RULE_SCHEMA = vol.Schema(
 
 
 def _states(user_input: dict[str, Any]) -> list[str]:
+    operator = user_input.get("operator", DEFAULT_OPERATOR)
+    if operator in NO_STATE_OPERATORS:
+        return []
     states = [s.strip() for s in user_input.get("state") or [] if s.strip()]
-    if not states and user_input.get("operator", DEFAULT_OPERATOR) in ("equals", "not_equals"):
+    if not states and operator in ("equals", "not_equals"):
         return ["on"]
     return states
 
@@ -164,7 +168,10 @@ def _states(user_input: dict[str, Any]) -> list[str]:
 def _rule_data(user_input: dict[str, Any]) -> dict[str, Any]:
     """Subentry data: everything but the name; empty optional fields are left out."""
     data = {key: value for key, value in user_input.items() if key != "name"}
-    data["state"] = _states(user_input)
+    if states := _states(user_input):
+        data["state"] = states
+    else:
+        data.pop("state", None)
     data["message"] = data["message"].strip()
     for key in ("attribute", "title", "icon"):
         if not (data.get(key) or "").strip():

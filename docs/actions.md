@@ -73,7 +73,7 @@ When Heads Up is full (option, default 50 banners), it removes the oldest banner
 | `template` | none | A Home Assistant template. The condition holds while it renders true (`true`, `on`, `yes`, `1`). It cannot be combined with `entity_id`, `operator`, `state` or `attribute`. |
 | `for` | none | How long the condition must hold without a break before the banner shows, for example `{minutes: 5}` or `"00:05:00"`. From 1 second to 24 hours. See below. |
 | `operator` | `equals` | How to compare. See the table below. |
-| `state` | `"on"` for `equals` and `not_equals`; required for the others | Value or values to compare with. |
+| `state` | `"on"` for `equals` and `not_equals`; required for the others except `empty` and `not_empty`, which ignore it | Value or values to compare with. |
 | `attribute` | none | Compare this attribute instead of the state. The attribute value is compared as text. |
 
 | `operator` | `state` | Matches when |
@@ -85,6 +85,8 @@ When Heads Up is full (option, default 50 banners), it removes the oldest banner
 | `between` | two numbers, low then high | The value is from low to high, both included. |
 | `contains` | text or list | The value contains any of the texts. |
 | `not_contains` | text or list | The value contains none of the texts. |
+| `empty` | not used | The value is empty or only spaces. A missing attribute counts as empty. |
+| `not_empty` | not used | The value has text other than spaces. A missing attribute does not match. |
 
 What you see:
 
@@ -92,6 +94,7 @@ What you see:
 - `mode: once`: the first time the entity stops matching, the banner is removed for good. The event `heads_up_banner_cleared` has `reason: condition`.
 - `mode: recurring`: the banner hides while the entity does not match and shows again when it matches. Users who closed it see it again.
 - `unavailable` and `unknown` do not change anything, for every operator. `not_equals: "on"` does not match an unavailable entity. A banner stays as it was until the entity has a real state again. This also applies while Home Assistant starts and entities are not loaded yet.
+- `empty` and `not_empty` work on the state or the attribute. An empty list or object counts as empty. `unavailable` and `unknown` still change nothing.
 - `above`, `below` and `between` do not change anything while the value is not a number. The other new operators do not change anything while the attribute is missing.
 - If the entity does not match when you call the action, the banner waits and shows when the entity matches. With `wait_for_condition: false`, nothing is stored and the response status is `condition_false`. A banner that already had this `id` is removed.
 - The `timeout` keeps running while a banner waits.
@@ -144,6 +147,18 @@ What you see:
       entity_id: sensor.living_room_temperature
       operator: above
       state: 25
+```
+
+```yaml
+- action: heads_up.create_banner
+  data:
+    id: note_set
+    message: A note was left.
+    mode: recurring
+    timeout: 0
+    condition:
+      entity_id: input_text.door_note
+      operator: not_empty
 ```
 
 ```yaml

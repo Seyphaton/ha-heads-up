@@ -31,7 +31,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.template import Template, result_as_boolean
 from homeassistant.util import dt as dt_util
 
-from .conditions import DEFAULT_OPERATOR, matches
+from .conditions import DEFAULT_OPERATOR, NO_STATE_OPERATORS, matches
 from .const import (
     DEFAULT_OPTIONS,
     DEFAULT_SEVERITY,
@@ -344,10 +344,9 @@ class BannerManager:
 
     def _build_rule(self, banner_id: str, source: Mapping[str, Any], old: Banner | None) -> Banner:
         now = dt_util.utcnow()
-        condition: dict[str, Any] = {
-            "entity_id": source["entity_id"],
-            "state": list(source.get("state") or ["on"]),
-        }
+        condition: dict[str, Any] = {"entity_id": source["entity_id"]}
+        if source.get("operator", DEFAULT_OPERATOR) not in NO_STATE_OPERATORS:
+            condition["state"] = list(source.get("state") or ["on"])
         if source.get("operator", DEFAULT_OPERATOR) != DEFAULT_OPERATOR:
             condition["operator"] = source["operator"]
         if source.get("attribute"):
@@ -445,7 +444,8 @@ class BannerManager:
             return None
         if (attribute := condition.get("attribute")) is not None:
             raw = state.attributes.get(attribute)
-            value = None if raw is None else str(raw)
+            # None and empty containers have no value; everything else is compared as text.
+            value = None if raw is None else "" if raw in ([], {}, ()) else str(raw)
         else:
             value = state.state
         return matches(condition, value)
