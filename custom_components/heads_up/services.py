@@ -19,10 +19,14 @@ from .const import (
     ID_PATTERN,
     MAX_FOR_SECONDS,
     MAX_MESSAGE,
+    MAX_SNOOZE_OPTIONS,
+    MAX_SNOOZE_SECONDS,
     MAX_TIMEOUT_DAYS,
     MAX_TITLE,
+    MIN_SNOOZE_SECONDS,
     MODES,
     SEVERITIES,
+    SNOOZE_SCOPES,
 )
 from .manager import BannerManager
 
@@ -31,6 +35,29 @@ def _timeout(value: timedelta) -> timedelta:
     if value < timedelta(0) or value > timedelta(days=MAX_TIMEOUT_DAYS):
         raise vol.Invalid(f"timeout must be 0 or between 1 second and {MAX_TIMEOUT_DAYS} days")
     return value
+
+
+def _snooze_seconds(value: timedelta) -> int:
+    seconds = round(value.total_seconds())
+    if seconds < MIN_SNOOZE_SECONDS or seconds > MAX_SNOOZE_SECONDS:
+        raise vol.Invalid("a snooze choice must be between 1 minute and 7 days")
+    return seconds
+
+
+def _snooze_options(value: list[int]) -> list[int]:
+    unique = list(dict.fromkeys(value))
+    if len(unique) > MAX_SNOOZE_OPTIONS:
+        raise vol.Invalid(f"at most {MAX_SNOOZE_OPTIONS} snooze choices")
+    return unique
+
+
+def _check_create(data: dict[str, Any]) -> dict[str, Any]:
+    # An unhideable banner cannot be snoozed either (D-069).
+    if data.get("snoozable") and data.get("dismissible") is False:
+        raise vol.Invalid(
+            "a banner that is not dismissible cannot be snoozable", path=["snoozable"]
+        )
+    return data
 
 
 SLUG = vol.All(cv.string, vol.Match(ID_PATTERN))
@@ -97,26 +124,34 @@ CONDITION_SCHEMA = vol.All(
     _check_condition,
 )
 
-CREATE_SCHEMA = vol.Schema(
-    {
-        vol.Optional("id"): SLUG,
-        vol.Required("message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
-        vol.Optional("title"): vol.All(cv.string, vol.Length(max=MAX_TITLE)),
-        vol.Optional("severity"): vol.In(SEVERITIES),
-        vol.Optional("icon"): cv.icon,
-        vol.Optional("timeout"): vol.All(cv.time_period, _timeout),
-        vol.Optional("dismissible"): cv.boolean,
-        vol.Optional("dismiss_scope"): vol.In(DISMISS_SCOPES),
-        vol.Optional("tag"): SLUG,
-        # Passed to the card unchanged (D-015).
-        vol.Optional("condition"): CONDITION_SCHEMA,
-        vol.Optional("mode"): vol.In(MODES),
-        vol.Optional("wait_for_condition"): cv.boolean,
-        vol.Optional("people"): vol.All(cv.ensure_list, [cv.entity_domain("person")]),
-        vol.Optional("tap_action"): vol.Schema(
-            {vol.Required("action"): cv.string}, extra=vol.ALLOW_EXTRA
-        ),
-    }
+CREATE_SCHEMA = vol.All(
+    vol.Schema(
+        {
+            vol.Optional("id"): SLUG,
+            vol.Required("message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
+            vol.Optional("title"): vol.All(cv.string, vol.Length(max=MAX_TITLE)),
+            vol.Optional("severity"): vol.In(SEVERITIES),
+            vol.Optional("icon"): cv.icon,
+            vol.Optional("timeout"): vol.All(cv.time_period, _timeout),
+            vol.Optional("dismissible"): cv.boolean,
+            vol.Optional("dismiss_scope"): vol.In(DISMISS_SCOPES),
+            vol.Optional("snoozable"): cv.boolean,
+            vol.Optional("snooze_scope"): vol.In(SNOOZE_SCOPES),
+            vol.Optional("snooze_options"): vol.All(
+                cv.ensure_list, [vol.All(cv.time_period, _snooze_seconds)], _snooze_options
+            ),
+            vol.Optional("tag"): SLUG,
+            # Passed to the card unchanged (D-015).
+            vol.Optional("condition"): CONDITION_SCHEMA,
+            vol.Optional("mode"): vol.In(MODES),
+            vol.Optional("wait_for_condition"): cv.boolean,
+            vol.Optional("people"): vol.All(cv.ensure_list, [cv.entity_domain("person")]),
+            vol.Optional("tap_action"): vol.Schema(
+                {vol.Required("action"): cv.string}, extra=vol.ALLOW_EXTRA
+            ),
+        }
+    ),
+    _check_create,
 )
 CLEAR_SCHEMA = vol.All(
     vol.Schema({vol.Optional("id"): SLUG, vol.Optional("tag"): SLUG}),

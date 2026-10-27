@@ -20,6 +20,14 @@ DEFAULT_ICONS: Final = {
 }
 DISMISS_SCOPES: Final = ("user", "global")
 MODES: Final = ("once", "recurring")
+SNOOZE_SCOPES: Final = ("user", "global")
+GLOBAL_SNOOZE_KEY: Final = "*"  # key in `snoozed_until` for a snooze that hides the banner for all
+MIN_SNOOZE_SECONDS: Final = 60
+MAX_SNOOZE_SECONDS: Final = 7 * 86400
+MAX_SNOOZE_OPTIONS: Final = 6
+# Choices of the options flow, in minutes (D-069).
+DEFAULT_SNOOZE_SECONDS: Final = (900, 3600, 14400)  # 15 min, 1 h, 4 h
+SNOOZE_PRESET_MINUTES: Final = (5, 15, 30, 60, 120, 240, 480, 1440)
 
 RULE_SUBENTRY: Final = "rule"  # subentry type of a watch rule (DESIGN §17)
 RULE_TAG: Final = "rule"
@@ -35,11 +43,17 @@ OPT_MAX_BANNERS: Final = "max_banners"
 OPT_EVICT: Final = "evict"
 OPT_DEFAULT_DISMISS_SCOPE: Final = "default_dismiss_scope"
 OPT_DEFAULT_TIMEOUT: Final = "default_timeout"  # seconds; 0 = none
+OPT_DEFAULT_SNOOZABLE: Final = "default_snoozable"
+OPT_DEFAULT_SNOOZE_SCOPE: Final = "default_snooze_scope"
+OPT_DEFAULT_SNOOZE_OPTIONS: Final = "default_snooze_options"  # seconds
 DEFAULT_OPTIONS: Final = {
     OPT_MAX_BANNERS: 50,
     OPT_EVICT: True,
     OPT_DEFAULT_DISMISS_SCOPE: "user",
     OPT_DEFAULT_TIMEOUT: 24 * 3600,  # D-031
+    OPT_DEFAULT_SNOOZABLE: False,  # existing dashboards look the same after an update (D-069)
+    OPT_DEFAULT_SNOOZE_SCOPE: "user",
+    OPT_DEFAULT_SNOOZE_OPTIONS: list(DEFAULT_SNOOZE_SECONDS),
 }
 
 EVENT_CREATED: Final = f"{DOMAIN}_banner_created"
@@ -47,3 +61,4 @@ EVENT_UPDATED: Final = f"{DOMAIN}_banner_updated"
 EVENT_DISMISSED: Final = f"{DOMAIN}_banner_dismissed"
 EVENT_EXPIRED: Final = f"{DOMAIN}_banner_expired"
 EVENT_CLEARED: Final = f"{DOMAIN}_banner_cleared"
+EVENT_SNOOZED: Final = f"{DOMAIN}_banner_snoozed"

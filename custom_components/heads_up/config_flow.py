@@ -41,17 +41,23 @@ from .conditions import DEFAULT_OPERATOR, NO_STATE_OPERATORS, OPERATORS, check_s
 from .const import (
     DEFAULT_OPTIONS,
     DEFAULT_SEVERITY,
+    DEFAULT_SNOOZE_SECONDS,
     DISMISS_SCOPES,
     DOMAIN,
     MAX_FOR_SECONDS,
     MAX_MESSAGE,
     MAX_TITLE,
     OPT_DEFAULT_DISMISS_SCOPE,
+    OPT_DEFAULT_SNOOZABLE,
+    OPT_DEFAULT_SNOOZE_OPTIONS,
+    OPT_DEFAULT_SNOOZE_SCOPE,
     OPT_DEFAULT_TIMEOUT,
     OPT_EVICT,
     OPT_MAX_BANNERS,
     RULE_SUBENTRY,
     SEVERITIES,
+    SNOOZE_PRESET_MINUTES,
+    SNOOZE_SCOPES,
 )
 
 
@@ -86,6 +92,12 @@ def _seconds_to_duration(seconds: int) -> dict[str, int]:
     return {"days": days, "hours": hours, "minutes": minutes, "seconds": secs}
 
 
+def _snooze_seconds(minutes: list[str] | None) -> list[int]:
+    # An empty choice falls back to the defaults, so a snoozable banner always has a menu.
+    chosen = sorted({int(m) * 60 for m in minutes or []})
+    return chosen or list(DEFAULT_SNOOZE_SECONDS)
+
+
 class HeadsUpOptionsFlow(OptionsFlow):
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
@@ -98,6 +110,15 @@ class HeadsUpOptionsFlow(OptionsFlow):
                     OPT_EVICT: user_input[OPT_EVICT],
                     OPT_DEFAULT_DISMISS_SCOPE: user_input[OPT_DEFAULT_DISMISS_SCOPE],
                     OPT_DEFAULT_TIMEOUT: seconds,
+                    OPT_DEFAULT_SNOOZABLE: user_input.get(
+                        OPT_DEFAULT_SNOOZABLE, DEFAULT_OPTIONS[OPT_DEFAULT_SNOOZABLE]
+                    ),
+                    OPT_DEFAULT_SNOOZE_SCOPE: user_input.get(
+                        OPT_DEFAULT_SNOOZE_SCOPE, DEFAULT_OPTIONS[OPT_DEFAULT_SNOOZE_SCOPE]
+                    ),
+                    OPT_DEFAULT_SNOOZE_OPTIONS: _snooze_seconds(
+                        user_input.get(OPT_DEFAULT_SNOOZE_OPTIONS)
+                    ),
                 }
             )
 
@@ -124,6 +145,26 @@ class HeadsUpOptionsFlow(OptionsFlow):
                     )
                 ),
                 timeout_field: DurationSelector(DurationSelectorConfig(enable_day=True)),
+                vol.Required(
+                    OPT_DEFAULT_SNOOZABLE, default=current[OPT_DEFAULT_SNOOZABLE]
+                ): BooleanSelector(),
+                vol.Required(
+                    OPT_DEFAULT_SNOOZE_SCOPE, default=current[OPT_DEFAULT_SNOOZE_SCOPE]
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=list(SNOOZE_SCOPES), translation_key="snooze_scope"
+                    )
+                ),
+                vol.Required(
+                    OPT_DEFAULT_SNOOZE_OPTIONS,
+                    default=[str(s // 60) for s in current[OPT_DEFAULT_SNOOZE_OPTIONS]],
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=[str(m) for m in SNOOZE_PRESET_MINUTES],
+                        multiple=True,
+                        translation_key="snooze_minutes",
+                    )
+                ),
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema)

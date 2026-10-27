@@ -40,8 +40,13 @@ from .const import (
     EVENT_CREATED,
     EVENT_DISMISSED,
     EVENT_EXPIRED,
+    EVENT_SNOOZED,
     EVENT_UPDATED,
+    GLOBAL_SNOOZE_KEY,
     OPT_DEFAULT_DISMISS_SCOPE,
+    OPT_DEFAULT_SNOOZABLE,
+    OPT_DEFAULT_SNOOZE_OPTIONS,
+    OPT_DEFAULT_SNOOZE_SCOPE,
     OPT_DEFAULT_TIMEOUT,
     OPT_EVICT,
     OPT_MAX_BANNERS,
@@ -90,6 +95,8 @@ class BannerManager:
         # Pending `for` waits and template trackers, by banner or rule ID (DESIGN §19).
         self._for_timers: dict[str, CALLBACK_TYPE] = {}
         self._template_trackers: dict[str, TrackTemplateResultInfo] = {}
+        # One timer per snooze, by (banner ID, user ID or GLOBAL_SNOOZE_KEY) (DESIGN §21).
+        self._snooze_timers: dict[tuple[str, str], CALLBACK_TYPE] = {}
 
     async def async_load(self) -> None:
         data = await self._store.async_load() or {}
@@ -111,6 +118,7 @@ class BannerManager:
                 continue
             self.banners[banner.id] = banner
             self._schedule(banner)
+            dropped |= self._restore_snoozes(banner, now)
         # Conditions may have changed while not loaded. Entities that are not loaded yet
         # evaluate to None and keep their stored result (D-006).
         for banner in list(self.banners.values()):
@@ -125,6 +133,9 @@ class BannerManager:
         for cancel in self._timers.values():
             cancel()
         self._timers.clear()
+        for cancel in self._snooze_timers.values():
+            cancel()
+        self._snooze_timers.clear()
         for banner_id in [*self._for_timers, *self._template_trackers]:
             self._cancel_wait(banner_id)
             self._untrack_template(banner_id)
@@ -178,14 +189,21 @@ class BannerManager:
         timeout: timedelta | None = data.get("timeout")
         if timeout is None:
             timeout = timedelta(seconds=self.options[OPT_DEFAULT_TIMEOUT])
+        self._cancel_snoozes(banner_id)  # an upsert starts from no snoozes, like dismissals (D-010)
+        dismissible = data.get("dismissible", True)
         banner = Banner(
             id=banner_id,
             message=data["message"],
             title=data.get("title"),
             severity=data.get("severity", DEFAULT_SEVERITY),
             icon=data.get("icon"),
-            dismissible=data.get("dismissible", True),
+            dismissible=dismissible,
             dismiss_scope=data.get("dismiss_scope") or self.options[OPT_DEFAULT_DISMISS_SCOPE],
+            snoozable=dismissible and data.get("snoozable", self.options[OPT_DEFAULT_SNOOZABLE]),
+            snooze_scope=data.get("snooze_scope") or self.options[OPT_DEFAULT_SNOOZE_SCOPE],
+            snooze_options=list(
+                data.get("snooze_options") or self.options[OPT_DEFAULT_SNOOZE_OPTIONS]
+            ),
             tag=data.get("tag"),
             tap_action=data.get("tap_action"),
             condition=condition,
@@ -261,6 +279,28 @@ class BannerManager:
             self._fire(EVENT_DISMISSED, banner, scope="user", user_id=user_id)
 
     @callback
+    def snooze(self, banner_id: str, user_id: str, seconds: int) -> None:
+        banner = self.rules.get(banner_id) or self._get(banner_id)
+        if not banner.snoozable:
+            raise HeadsUpError("not_snoozable", f"Banner {banner_id} cannot be snoozed")
+        if seconds not in banner.snooze_options:
+            raise HeadsUpError(
+                "invalid_snooze", f"{seconds} s is not a choice of banner {banner_id}"
+            )
+        key = GLOBAL_SNOOZE_KEY if banner.snooze_scope == "global" else user_id
+        until = dt_util.utcnow() + timedelta(seconds=seconds)
+        banner.snoozed_until[key] = until
+        self._schedule_snooze(banner.id, key, until)
+        self._fire(
+            EVENT_SNOOZED,
+            banner,
+            scope=banner.snooze_scope,
+            user_id=user_id,
+            until=until.isoformat(),
+        )
+        self._changed()
+
+    @callback
     def admin_clear(self, banner_id: str) -> None:
         if banner_id in self.rules:
             raise HeadsUpError(
@@ -287,7 +327,12 @@ class BannerManager:
             self._client(b, user_id)
             for b in self._all()
             if show_all
-            or (b.active and user_id not in b.dismissed_by and self._targets(b, user_id))
+            or (
+                b.active
+                and user_id not in b.dismissed_by
+                and b.snoozed_for(user_id) is None
+                and self._targets(b, user_id)
+            )
         ]
 
     @callback
@@ -319,6 +364,7 @@ class BannerManager:
             if banner_id not in wanted:
                 gone = self.rules.pop(banner_id)
                 self._cancel_wait(banner_id)
+                self._cancel_snoozes(banner_id)
                 self._rule_sources.pop(banner_id, None)
                 self._rule_template_entities.pop(banner_id, None)
                 if gone.condition_met and not silent:
@@ -354,19 +400,26 @@ class BannerManager:
         if source.get("for"):
             condition["for"] = int(source["for"])
         self._cancel_wait(banner_id)
+        self._cancel_snoozes(banner_id)
         met = self._evaluate(condition) is True
         if met and condition.get("for"):
             # True now, but it counts only after `for` seconds; the timer restarts on load (D-066).
             met = False
             self._start_wait_for(banner_id, condition["for"])
+        dismissible = source.get("dismissible", False)
         return Banner(
             id=banner_id,
             message=self._rule_message(banner_id, source),
             title=source.get("title") or None,
             severity=source.get("severity", DEFAULT_SEVERITY),
             icon=source.get("icon") or None,
-            dismissible=source.get("dismissible", False),
+            dismissible=dismissible,
             dismiss_scope="user",
+            snoozable=dismissible and source.get("snoozable", self.options[OPT_DEFAULT_SNOOZABLE]),
+            snooze_scope=source.get("snooze_scope") or self.options[OPT_DEFAULT_SNOOZE_SCOPE],
+            snooze_options=list(
+                source.get("snooze_options") or self.options[OPT_DEFAULT_SNOOZE_OPTIONS]
+            ),
             tag=RULE_TAG,
             condition=condition,
             mode="recurring",
@@ -410,6 +463,7 @@ class BannerManager:
                 self._fire(EVENT_CREATED, banner, severity=banner.severity)
             else:
                 banner.dismissed_by.clear()  # a dismissal lasts until the condition flips (D-056)
+                self._cancel_snoozes(banner.id)
                 self._fire(EVENT_CLEARED, banner, reason="rule")
         return changed
 
@@ -489,6 +543,7 @@ class BannerManager:
         if met:
             if banner.mode == "recurring" and previous is False:
                 banner.dismissed_by.clear()
+                self._cancel_snoozes(banner.id)
             banner.ever_met = True
         elif banner.mode == "once" and banner.ever_met:
             self._remove(banner.id, EVENT_CLEARED, reason="condition")
@@ -574,6 +629,7 @@ class BannerManager:
         if cancel := self._timers.pop(banner_id, None):
             cancel()
         self._cancel_wait(banner_id)
+        self._cancel_snoozes(banner_id)
         self._untrack_template(banner_id)
         self._fire(event, banner, **extra)
 
@@ -644,6 +700,37 @@ class BannerManager:
         if banner_id in self.banners:
             self._remove(banner_id, EVENT_EXPIRED)
             self._changed()
+
+    def _schedule_snooze(self, banner_id: str, key: str, until: datetime) -> None:
+        if cancel := self._snooze_timers.pop((banner_id, key), None):
+            cancel()
+        # HA_API_NOTES N-7
+        self._snooze_timers[(banner_id, key)] = async_track_point_in_utc_time(
+            self.hass, partial(self._snooze_elapsed, banner_id, key), until
+        )
+
+    @callback
+    def _snooze_elapsed(self, banner_id: str, key: str, _now: datetime) -> None:
+        self._snooze_timers.pop((banner_id, key), None)
+        banner = self.banners.get(banner_id) or self.rules.get(banner_id)
+        if banner is not None and banner.snoozed_until.pop(key, None) is not None:
+            self._changed()
+
+    def _cancel_snoozes(self, banner_id: str) -> None:
+        for timer_key in [k for k in self._snooze_timers if k[0] == banner_id]:
+            self._snooze_timers.pop(timer_key)()
+        banner = self.banners.get(banner_id) or self.rules.get(banner_id)
+        if banner is not None:
+            banner.snoozed_until.clear()
+
+    def _restore_snoozes(self, banner: Banner, now: datetime) -> bool:
+        """Re-arm stored snoozes; returns True if ended ones were dropped."""
+        ended = [key for key, until in banner.snoozed_until.items() if until <= now]
+        for key in ended:
+            del banner.snoozed_until[key]
+        for key, until in banner.snoozed_until.items():
+            self._schedule_snooze(banner.id, key, until)
+        return bool(ended)
 
     def _fire(self, event: str, banner: Banner, **extra: Any) -> None:
         self.hass.bus.async_fire(event, {"id": banner.id, "tag": banner.tag, **extra})

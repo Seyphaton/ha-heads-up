@@ -49,6 +49,9 @@ async def test_options_flow_sets_defaults_for_new_banners(
         "evict": False,
         "default_dismiss_scope": "global",
         "default_timeout": 3600,
+        "default_snoozable": False,
+        "default_snooze_scope": "user",
+        "default_snooze_options": [900, 3600, 14400],
     }
 
     await create(id="after", message="x")

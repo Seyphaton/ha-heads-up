@@ -47,3 +47,11 @@
 ## Phase 11: empty operators
 - Not verified in the rule form on the dev HA: the blank State field, the new operator labels, saving a rule with `not_empty`.
 - Not built: a trigger for the moment a value changes (conditions describe a state, not a change).
+
+## Roadmap candidates (maintainer-chosen order, none approved yet)
+- Phase 12 candidate: buttons on a banner that call a Home Assistant action and/or fire an event; snooze for a duration, banner returns afterwards, snooze survives a restart; store the start of a condition `for` wait so a restart does not restart it (D-066).
+- Phase 13 candidate: bounded, restart-safe history of created, cleared, dismissed, expired and snoozed banners, readable over WebSocket and optionally shown in the card.
+- Phase 14 candidate: watch rules by label, area or entity filter (reopens D-057); open: one banner per match or one aggregated banner.
+- Phase 15 candidate (design only): notification hub. Named recipient groups (people and their devices) mapped to severity levels by a routing table, so devices change without touching rules. Delivery to the Companion app per group (tag to replace and clear, Android channel, iOS interruption level, action buttons). Popups as a further channel, optional per dashboard or global; any resource loaded on every page must be minimal. Needs a new decision on the non-goal "no push delivery" (§1).
+- Adoption candidates: GIF of a banner disappearing, translations, HACS default review feedback, repository settings and topics (`docs/dev/RELEASE.md` steps 3 to 5), the unchecked items listed above.
+- Parked: mirroring persistent notifications as banners (D-022), low value for the maintainer.

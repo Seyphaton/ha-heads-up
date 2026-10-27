@@ -16,6 +16,9 @@ Shows a banner in every Heads Up card. Calling it again with the same `id` repla
 | `timeout` | seconds or duration | integration option, shipped as 24 hours | The banner disappears after this time, also across restarts. `0` means no timeout. Maximum 365 days. |
 | `dismissible` | boolean | `true` | Shows a close button. |
 | `dismiss_scope` | `user`, `global` | integration option, shipped as `user` | `user`: closing hides the banner only for that user. `global`: closing removes it for everyone. |
+| `snoozable` | `true`, `false` | integration option, shipped as `false` | `true`: the card offers a snooze button and, with `swipe_to_dismiss`, a right swipe with quick choices. The banner hides for the chosen time and then returns. Rejected together with `dismissible: false`. |
+| `snooze_scope` | `user`, `global` | integration option, shipped as `user` | `user`: a snooze hides the banner only for that user. `global`: for everyone. |
+| `snooze_options` | list of durations, 1 minute to 7 days, at most 6 | integration option, shipped as 15 minutes, 1 hour, 4 hours | The choices the viewer gets. The timeout and the condition keep running while a banner is snoozed. Creating the banner again with the same `id`, or a recurring condition turning false and true again, ends all snoozes. |
 | `tag` | text | none | Group name, same character rules as `id`. Used by card filters and by `clear_banner`. |
 | `condition` | object | none | Show the banner only while an entity matches or a template is true, optionally for a set time. See [Conditions](#conditions). |
 | `mode` | `once`, `recurring` | `once` | What happens when the condition turns false. Ignored without `condition`. |

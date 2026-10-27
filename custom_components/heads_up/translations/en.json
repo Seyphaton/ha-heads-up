@@ -16,13 +16,19 @@
           "max_banners": "Maximum number of banners",
           "evict": "Evict the oldest lowest-severity banner when full",
           "default_dismiss_scope": "Default dismiss scope",
-          "default_timeout": "Default timeout"
+          "default_timeout": "Default timeout",
+          "default_snoozable": "Banners can be snoozed by default",
+          "default_snooze_scope": "Default snooze scope",
+          "default_snooze_options": "Default snooze choices"
         },
         "data_description": {
           "max_banners": "1–200. Critical banners are never evicted.",
           "evict": "When off, creating a banner beyond the maximum fails with an error.",
           "default_dismiss_scope": "Used when an action call sets no dismiss_scope.",
-          "default_timeout": "Used when an action call sets no timeout. Warning: if you clear this field, banners without their own timeout stay until they are dismissed or cleared."
+          "default_timeout": "Used when an action call sets no timeout. Warning: if you clear this field, banners without their own timeout stay until they are dismissed or cleared.",
+          "default_snoozable": "Used when an action call sets no snoozable. Banners that are not dismissible are never snoozable.",
+          "default_snooze_scope": "Used when an action call sets no snooze_scope.",
+          "default_snooze_options": "Used when an action call sets no snooze_options. Leave empty for 15 minutes, 1 hour and 4 hours."
         }
       }
     }
@@ -59,6 +65,24 @@
         "not_contains": "Does not contain text",
         "empty": "Is empty",
         "not_empty": "Is not empty"
+      }
+    },
+    "snooze_scope": {
+      "options": {
+        "user": "Per user",
+        "global": "Everyone"
+      }
+    },
+    "snooze_minutes": {
+      "options": {
+        "5": "5 minutes",
+        "15": "15 minutes",
+        "30": "30 minutes",
+        "60": "1 hour",
+        "120": "2 hours",
+        "240": "4 hours",
+        "480": "8 hours",
+        "1440": "24 hours"
       }
     }
   },
@@ -116,6 +140,18 @@
         "dismiss_scope": {
           "name": "Dismiss scope",
           "description": "Per user: closing hides it only for that user. Everyone: closing removes it for all. Default: the setting from the integration options (per user unless changed)."
+        },
+        "snoozable": {
+          "name": "Snoozable",
+          "description": "Lets viewers hide the banner for a while; it returns afterwards. Ignored (error) together with dismissible off. Default: the setting from the integration options (off unless changed)."
+        },
+        "snooze_scope": {
+          "name": "Snooze scope",
+          "description": "Per user: snoozing hides it only for that user. Everyone: it hides for all. Default: the setting from the integration options (per user unless changed)."
+        },
+        "snooze_options": {
+          "name": "Snooze choices",
+          "description": "Up to 6 durations from 1 minute to 7 days offered to the viewer. Default: the setting from the integration options (15 minutes, 1 hour, 4 hours)."
         },
         "tag": {
           "name": "Tag",

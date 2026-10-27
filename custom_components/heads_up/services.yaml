@@ -42,6 +42,20 @@ create_banner:
             - user
             - global
           translation_key: dismiss_scope
+    snoozable:
+      selector:
+        boolean:
+    snooze_scope:
+      selector:
+        select:
+          options:
+            - user
+            - global
+          translation_key: snooze_scope
+    snooze_options:
+      example: '[{"minutes": 15}, {"hours": 1}, {"hours": 4}]'
+      selector:
+        object:
     tag:
       example: "laundry"
       selector:

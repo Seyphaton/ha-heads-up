@@ -66,6 +66,25 @@ def ws_dismiss(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str,
 
 @websocket_command(
     {
+        vol.Required("type"): "heads_up/snooze",
+        vol.Required("banner_id"): str,
+        vol.Required("seconds"): vol.All(int, vol.Range(min=1)),
+    }
+)
+@callback
+def ws_snooze(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    try:
+        manager.snooze(msg["banner_id"], connection.user.id, msg["seconds"])
+    except HeadsUpError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    connection.send_result(msg["id"])
+
+
+@websocket_command(
+    {
         vol.Required("type"): "heads_up/dismiss_many",
         vol.Required("banner_ids"): [str],
     }
@@ -94,5 +113,5 @@ def ws_admin_clear(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
 
 @callback
 def async_setup_websocket(hass: HomeAssistant) -> None:
-    for command in (ws_subscribe, ws_dismiss, ws_dismiss_many, ws_admin_clear):
+    for command in (ws_subscribe, ws_dismiss, ws_dismiss_many, ws_snooze, ws_admin_clear):
         async_register_command(hass, command)
