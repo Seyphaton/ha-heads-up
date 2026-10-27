@@ -16,6 +16,7 @@ import {
   snoozeLabel,
   STRINGS,
   TRANSLATIONS,
+  whenFrontendReady,
   swipeOutcome,
   visibleBanners,
 } from "../../custom_components/heads_up/frontend/heads-up-card.js";
@@ -421,5 +422,57 @@ describe("setLanguage", () => {
       expect(STRINGS.time.minute).toContain("{n}");
       expect(STRINGS.duration.hour).toContain("{n}");
     }
+  });
+});
+
+describe("whenFrontendReady", () => {
+  const fakeClock = () => {
+    let time = 0;
+    const queue = [];
+    return {
+      now: () => time,
+      wait: (fn, ms) => queue.push({ fn, at: time + ms }),
+      advance(ms) {
+        time += ms;
+        for (const job of queue.splice(0).sort((a, b) => a.at - b.at)) {
+          if (job.at <= time) job.fn();
+          else queue.push(job);
+        }
+      },
+    };
+  };
+
+  it("resolves only after the frontend element is defined", async () => {
+    const defined = new Set();
+    const clock = fakeClock();
+    let done = false;
+    whenFrontendReady(() => ({ get: (tag) => defined.has(tag) }), clock.wait, 10000, clock.now).then(() => (done = true));
+    clock.advance(100);
+    await Promise.resolve();
+    expect(done).toBe(false);
+    defined.add("home-assistant");
+    clock.advance(25);
+    await Promise.resolve();
+    expect(done).toBe(true);
+  });
+
+  it("asks the registry that is current at each check, not the one from the first call", async () => {
+    const clock = fakeClock();
+    let registry = { get: () => undefined };
+    let done = false;
+    whenFrontendReady(() => registry, clock.wait, 10000, clock.now).then(() => (done = true));
+    registry = { get: (tag) => tag === "home-assistant" }; // the polyfill replaced it
+    clock.advance(25);
+    await Promise.resolve();
+    expect(done).toBe(true);
+  });
+
+  it("gives up after the limit so the card is still defined", async () => {
+    const clock = fakeClock();
+    let done = false;
+    whenFrontendReady(() => ({ get: () => undefined }), clock.wait, 1000, clock.now).then(() => (done = true));
+    for (let i = 0; i < 50; i++) clock.advance(25);
+    await Promise.resolve();
+    expect(done).toBe(true);
   });
 });

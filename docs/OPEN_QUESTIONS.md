@@ -68,3 +68,7 @@
 - Not tested on the dev HA: pressing a button with an `action` (navigation, confirmation), a global snooze with a second user in the card, a snooze ending in a real wait.
 - Not built: buttons on watch rules, a snooze choice entered by the viewer, an event when a snooze ends, a way to end a snooze early from the card, snooze state of rules over a restart (D-069).
 - A button's `action` runs with the viewer's permissions in the card, so it does nothing for a client that is not a card (D-070).
+
+## Card registration (D-072)
+- The fix is not confirmed on the maintainer's iPhone: it needs a release, an update of the integration and several reopens of the dashboard in the Companion app. If the error still appears, the next steps are a loader that retries under a new URL and a look at the frontend source for the registry swap.
+

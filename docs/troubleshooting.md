@@ -11,7 +11,7 @@ logger:
 ## The card shows "Custom element doesn't exist: heads-up-card"
 
 - Reload the page. If the page loaded in the first second after Home Assistant started, it can miss the card. A reload fixes it.
-- If it happens on some reloads without a restart, the card file arrived too late for the dashboard (slow connection or proxy). Since 0.3.0 the browser keeps the file after the first load, so later reloads do not fetch it again.
+- Version 0.3.0 and earlier could show this on some reloads without a restart, mostly on iPhone and iPad (Safari and the Companion app). The card registered itself before Home Assistant's own scripts had finished loading, and Home Assistant then ignored it until the page was reloaded. The card now waits for Home Assistant, see the changelog. Update the integration, then reload the page.
 - If it persists, check that the integration is added (Settings > Devices & services). The card is registered only while the integration is loaded.
 - Open `/heads_up/heads-up-card.js` in the browser. It should return JavaScript. Then reload the page without cache.
 

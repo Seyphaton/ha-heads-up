@@ -1185,14 +1185,39 @@ class HeadsUpCardEditor extends Base {
   }
 }
 
-if (typeof customElements !== "undefined") {
-  customElements.define("heads-up-card", HeadsUpCard);
-  customElements.define("heads-up-card-editor", HeadsUpCardEditor);
-  window.customCards = window.customCards || [];
-  window.customCards.push({
-    type: "heads-up-card",
-    name: "Heads Up",
-    description: "Banners created by the Heads Up integration.",
-    documentationURL: "https://github.com/Seyphaton/ha-heads-up",
+// The frontend's app bundle replaces window.customElements with a scoped-registry polyfill on
+// browsers without a native one. An extra module that defines its element before that swap
+// defines it on the old registry, which the polyfill never sees: Lovelace then shows "Custom
+// element doesn't exist" until the page is reloaded. A cached module (since 0.3.0) can win that
+// race, so the elements are defined only once the frontend itself is defined (D-072).
+const FRONTEND_TAG = "home-assistant";
+
+export function whenFrontendReady(getRegistry, wait = setTimeout, maxMs = 10000, now = Date.now) {
+  return new Promise((resolve) => {
+    const start = now();
+    const check = () => {
+      if (getRegistry().get(FRONTEND_TAG) || now() - start >= maxMs) resolve();
+      else wait(check, 25);
+    };
+    check();
   });
+}
+
+function registerElements() {
+  const registry = window.customElements; // read now: the polyfill may have replaced it
+  if (!registry.get("heads-up-card")) registry.define("heads-up-card", HeadsUpCard);
+  if (!registry.get("heads-up-card-editor")) registry.define("heads-up-card-editor", HeadsUpCardEditor);
+  window.customCards = window.customCards || [];
+  if (!window.customCards.some((card) => card.type === "heads-up-card")) {
+    window.customCards.push({
+      type: "heads-up-card",
+      name: "Heads Up",
+      description: "Banners created by the Heads Up integration.",
+      documentationURL: "https://github.com/Seyphaton/ha-heads-up",
+    });
+  }
+}
+
+if (typeof customElements !== "undefined") {
+  whenFrontendReady(() => window.customElements).then(registerElements);
 }
