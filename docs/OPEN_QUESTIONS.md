@@ -1,14 +1,16 @@
 # Open questions
 
 ## Card follow-ups (found in Phase 4)
-- Not checked: `show_all` with a banner targeted at another person, keyboard activation (Enter, Space) of a tappable banner, screen readers, swipe to dismiss on a real touch screen (R-10), the compact layout on a phone-width viewport, and the card editor inside HA's own card dialog (only as a floating element).
+- Checked 2026-10-27 in the browser pane (admin, dev HA 2026.9.4, 375×812 emulation): both layouts at phone width, Enter on a tappable banner, keyboard use of the snooze button and its choices (Enter, Escape, focus), right swipe with a mouse and with synthetic touch pointer events. Banner buttons wrap to a second line at 375 px; text buttons are 40 px high, the icon buttons 48 px.
+- Not checked: `show_all` with a banner targeted at another person, Space on a tappable banner, screen readers (only the DOM was read: live regions, hidden severity labels, `aria-label`s), swipe on a real touch screen (R-10; `touch-action: pan-y` is untested), and the card editor inside HA's own card dialog (only as a floating element).
 - Contrast of custom `colors` is not checked by the card (D-048); a contrast hint in the editor is an idea, not planned.
 - `clear_all` always dismisses without a confirmation (D-048). A `confirm_clear_all` option is an idea for shared wall displays.
 - N-14 was checked on one layout (one grid section, 1280×800). Other column counts are not compared.
 
 ## Before the first release
 - Maintainer reported on 2026-10-26: CI is green, the repository is public, the integration runs on their own Home Assistant, and no other HACS integration uses the name "Heads Up" (checked by the maintainer; this supersedes the partial check in N-48).
-- Not checked: the HACS install steps in the README after "Add" (download step) against the now public repository; the repository description, topics, issues and private vulnerability reporting settings (`docs/dev/RELEASE.md` steps 3 to 5).
+- Read from the public GitHub API on 2026-10-27: description and topics are set, issues are on, the license is MIT, releases `v0.1.0` to `v0.3.0` exist. Private vulnerability reporting cannot be read without a login (the security page shows a "Report a vulnerability" button). The pull request to `hacs/default` (number 12746) is open in the review queue with one bot comment, no requested changes and a clean merge state; the bot asks submitters not to comment on it.
+- Not checked: the HACS install steps in the README after "Add" (download step) against the now public repository; private vulnerability reporting (`docs/dev/RELEASE.md` step 5).
 - The README has eight screenshots. A GIF of a banner disappearing is not planned (maintainer, 2026-10-27); a produced video is on the deferred list.
 - mypy and the dev HA were not run on 2026.10.
 
@@ -62,7 +64,7 @@
 - `tests/test_translations.py` and a vitest case check that every key and placeholder exists in each language.
 
 ## Phase 12: buttons and snooze
-- Not verified: swipe on a touch screen, keyboard use of the snooze row, screen readers, phone width, the compact layout with the snooze row open, the options flow and the rule form in Home Assistant's UI (only through the flow APIs in tests), Home Assistant 2026.10. Checked in the browser pane (admin, dev HA 2026.9.4) with a mouse: snooze button and row, a choice hides the banner in every card, a button with `dismiss`, right swipe opens the row, left swipe dismisses.
+- Not verified: swipe on a real touch screen, screen readers, the options flow and the rule form in Home Assistant's UI (only through the flow APIs in tests), Home Assistant 2026.10. Phone width, the compact layout with the snooze row and keyboard use are checked (see the card follow-ups above). Checked in the browser pane (admin, dev HA 2026.9.4) with a mouse: snooze button and row, a choice hides the banner in every card, a button with `dismiss`, right swipe opens the row, left swipe dismisses.
 - Not tested on the dev HA: pressing a button with an `action` (navigation, confirmation), a global snooze with a second user in the card, a snooze ending in a real wait.
 - Not built: buttons on watch rules, a snooze choice entered by the viewer, an event when a snooze ends, a way to end a snooze early from the card, snooze state of rules over a restart (D-069).
 - A button's `action` runs with the viewer's permissions in the card, so it does nothing for a client that is not a card (D-070).
