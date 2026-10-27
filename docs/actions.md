@@ -283,6 +283,7 @@ Each change fires an event. Use them as automation triggers.
 | `heads_up_banner_updated` | `id`, `severity`, `tag` |
 | `heads_up_banner_dismissed` | `id`, `tag`, `scope` (`user` or `global`), `user_id` |
 | `heads_up_banner_snoozed` | `id`, `tag`, `scope` (`user` or `global`), `user_id`, `until` |
+| `heads_up_banner_unsnoozed` | `id`, `tag`, `user_id` |
 | `heads_up_banner_action` | `id`, `tag`, `key`, `user_id` |
 | `heads_up_banner_expired` | `id`, `tag` |
 | `heads_up_banner_cleared` | `id`, `tag`, `reason` (`action`, `clear_all`, `condition`, `evicted`, `admin`, `rule`) |

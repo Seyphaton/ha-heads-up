@@ -420,3 +420,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Reason: a viewer should not see a different banner depending on how it was made; one schema per input keeps both sources from drifting.
 - Supersedes: the part of D-067 that kept templates out of watch rules (maintainer's decision on 2026-10-27).
 
+## D-074 Ending a snooze early from the card
+- Date: 2026-10-27. Requested by the maintainer as an optional feature ("show snoozed button").
+- Decision: WebSocket `heads_up/unsnooze` ends the snooze that hides a banner from the caller (a global one for everyone) and fires `heads_up_banner_unsnoozed`. `heads_up/subscribe` takes `show_snoozed`; the card option `show_snoozed` (off by default) sets it and shows a "Snoozed (n)" list with the time left and a Show now button. `snoozed_until` is now sent to the viewer, for their own snooze only.
+- Alternatives: always sending snoozed banners (older cached cards would show them again); a button only on the banner (it is hidden while snoozed); a service for automations (not requested).
+- Reason: without it a mistaken snooze could not be undone before it ended. Off by default keeps existing dashboards unchanged.

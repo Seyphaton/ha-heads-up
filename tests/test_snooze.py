@@ -237,7 +237,7 @@ async def test_snoozed_banner_is_flagged_for_show_all(
     assert (await snooze(client, "a", 900))["success"]
     _, shown = await subscribe(client, show_all=True)
     assert shown[0]["snoozed"] is True
-    assert "snoozed_until" not in shown[0]
+    assert shown[0]["snoozed_until"] is not None
 
 
 async def test_snooze_choices_come_from_the_options(
@@ -284,3 +284,77 @@ async def test_create_without_response_still_validates_snooze_scope(
 ) -> None:
     with pytest.raises((ServiceValidationError, Exception)):
         await create(id="a", message="x", snooze_scope="nobody")
+
+
+async def test_show_snoozed_adds_the_viewers_snoozed_banners_flagged(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    create: CreateBanner,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_access_token: str,
+) -> None:
+    await create(id="a", message="x", snoozable=True)
+    admin = await hass_ws_client(hass)
+    other = await hass_ws_client(hass, hass_read_only_access_token)
+    assert (await snooze(admin, "a", 900))["success"]
+    _, plain = await subscribe(admin)
+    _, with_snoozed = await subscribe(admin, show_snoozed=True)
+    _, others = await subscribe(other, show_snoozed=True)
+    assert plain == []
+    assert with_snoozed[0]["snoozed"] is True and with_snoozed[0]["snoozed_until"]
+    assert others[0]["snoozed"] is False and others[0]["snoozed_until"] is None
+
+
+async def test_unsnooze_brings_the_banner_back_and_fires_an_event(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    create: CreateBanner,
+    hass_ws_client: WebSocketGenerator,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    await create(id="a", message="x", snoozable=True)
+    events = async_capture_events(hass, f"{DOMAIN}_banner_unsnoozed")
+    client = await hass_ws_client(hass)
+    assert (await snooze(client, "a", 900))["success"]
+    await subscribe(client)
+
+    await client.send_json_auto_id({"type": "heads_up/unsnooze", "banner_id": "a"})
+    assert [b["id"] for b in (await client.receive_json())["event"]["banners"]] == ["a"]
+    assert (await client.receive_json())["success"]
+    assert banners(entry)["a"].snoozed_until == {}
+    assert events[0].data["id"] == "a" and events[0].data["user_id"]
+
+    # The cancelled timer must not fire a second change later.
+    await tick(hass, freezer, 901)
+    assert len(events) == 1
+
+
+async def test_unsnooze_of_a_global_snooze_ends_it_for_everyone(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    create: CreateBanner,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_access_token: str,
+) -> None:
+    await create(id="a", message="x", snoozable=True, snooze_scope="global")
+    admin = await hass_ws_client(hass)
+    other = await hass_ws_client(hass, hass_read_only_access_token)
+    assert (await snooze(admin, "a", 900))["success"]
+    await other.send_json_auto_id({"type": "heads_up/unsnooze", "banner_id": "a"})
+    assert (await other.receive_json())["success"]
+    _, seen = await subscribe(admin)
+    assert [b["id"] for b in seen] == ["a"]
+
+
+async def test_unsnooze_needs_a_snooze(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    create: CreateBanner,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    await create(id="a", message="x", snoozable=True)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "heads_up/unsnooze", "banner_id": "a"})
+    assert (await client.receive_json())["error"]["code"] == "not_snoozed"
+    await client.send_json_auto_id({"type": "heads_up/unsnooze", "banner_id": "nope"})
+    assert (await client.receive_json())["error"]["code"] == "not_found"

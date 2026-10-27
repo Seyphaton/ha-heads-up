@@ -42,6 +42,7 @@ from .const import (
     EVENT_DISMISSED,
     EVENT_EXPIRED,
     EVENT_SNOOZED,
+    EVENT_UNSNOOZED,
     EVENT_UPDATED,
     GLOBAL_SNOOZE_KEY,
     OPT_DEFAULT_DISMISS_SCOPE,
@@ -323,6 +324,20 @@ class BannerManager:
         self._changed()
 
     @callback
+    def unsnooze(self, banner_id: str, user_id: str) -> None:
+        """Ends the snooze that hides the banner from this user (a global one ends for all)."""
+        banner = self.rules.get(banner_id) or self._get(banner_id)
+        if banner.snoozed_for(user_id) is None:
+            raise HeadsUpError("not_snoozed", f"Banner {banner_id} is not snoozed")
+        for key in (user_id, GLOBAL_SNOOZE_KEY):
+            if banner.snoozed_until.pop(key, None) is not None and (
+                cancel := self._snooze_timers.pop((banner.id, key), None)
+            ):
+                cancel()
+        self._fire(EVENT_UNSNOOZED, banner, user_id=user_id)
+        self._changed()
+
+    @callback
     def admin_clear(self, banner_id: str) -> None:
         if banner_id in self.rules:
             raise HeadsUpError(
@@ -343,8 +358,12 @@ class BannerManager:
         return sum(1 for b in self._all() if b.active)
 
     @callback
-    def visible(self, user_id: str, show_all: bool = False) -> list[dict[str, Any]]:
+    def visible(
+        self, user_id: str, show_all: bool = False, show_snoozed: bool = False
+    ) -> list[dict[str, Any]]:
         # show_all (admin) also returns waiting, dismissed and untargeted banners (D-008).
+        # show_snoozed adds the viewer's snoozed banners, flagged, so the card can offer to end
+        # the snooze (D-074).
         return [
             self._client(b, user_id)
             for b in self._all()
@@ -353,7 +372,7 @@ class BannerManager:
                 b.active
                 and user_id not in b.dismissed_by
                 and GLOBAL_SNOOZE_KEY not in b.dismissed_by
-                and b.snoozed_for(user_id) is None
+                and (show_snoozed or b.snoozed_for(user_id) is None)
                 and self._targets(b, user_id)
             )
         ]

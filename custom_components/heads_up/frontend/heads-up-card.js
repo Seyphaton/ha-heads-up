@@ -26,6 +26,7 @@ export const CONFIG_KEYS = [
   "colorize",
   "clear_all",
   "swipe_to_dismiss",
+  "show_snoozed",
   "collapsed_items",
   "empty_message",
   "empty_icon",
@@ -60,6 +61,9 @@ export const STRINGS = {
   clear_all: "Clear all",
   show_more: "Show {n} more",
   show_less: "Show less",
+  snoozed: "Snoozed ({n})",
+  show_now: "Show now",
+  back_in: "back in {t}",
   time: {
     just_now: "just now",
     minute: "{n} min ago",
@@ -83,6 +87,7 @@ export const STRINGS = {
     colorize: "Colorize",
     clear_all: "Show a Clear all button",
     swipe_to_dismiss: "Swipe a banner to dismiss it",
+    show_snoozed: "List snoozed banners with a Show now button",
     collapsed_items: "Show only this many banners, then a Show more button",
     empty_message: "Message when there are no banners (shows the card)",
     empty_icon: "Icon for that message",
@@ -118,6 +123,9 @@ export const TRANSLATIONS = {
     "clear_all": "Alle schließen",
     "show_more": "{n} weitere anzeigen",
     "show_less": "Weniger anzeigen",
+    "snoozed": "Zurückgestellt ({n})",
+    "show_now": "Jetzt anzeigen",
+    "back_in": "zurück in {t}",
     "time": {
       "just_now": "gerade eben",
       "minute": "vor {n} Min.",
@@ -141,6 +149,7 @@ export const TRANSLATIONS = {
       "colorize": "Einfärben",
       "clear_all": "Schaltfläche „Alle schließen“ zeigen",
       "swipe_to_dismiss": "Banner durch Wischen schließen",
+      "show_snoozed": "Zurückgestellte Banner mit „Jetzt anzeigen“ auflisten",
       "collapsed_items": "Nur so viele Banner zeigen, dann eine Schaltfläche „Mehr anzeigen“",
       "empty_message": "Nachricht, wenn es keine Banner gibt (zeigt die Karte)",
       "empty_icon": "Symbol für diese Nachricht",
@@ -173,6 +182,9 @@ export const TRANSLATIONS = {
     "clear_all": "Tout fermer",
     "show_more": "Afficher {n} de plus",
     "show_less": "Afficher moins",
+    "snoozed": "Reportées ({n})",
+    "show_now": "Afficher maintenant",
+    "back_in": "de retour dans {t}",
     "time": {
       "just_now": "à l'instant",
       "minute": "il y a {n} min",
@@ -196,6 +208,7 @@ export const TRANSLATIONS = {
       "colorize": "Colorisation",
       "clear_all": "Afficher un bouton « Tout fermer »",
       "swipe_to_dismiss": "Fermer une bannière en la faisant glisser",
+      "show_snoozed": "Lister les bannières reportées avec un bouton Afficher maintenant",
       "collapsed_items": "Afficher seulement ce nombre de bannières, puis un bouton « Afficher plus »",
       "empty_message": "Message quand il n'y a aucune bannière (affiche la carte)",
       "empty_icon": "Icône pour ce message",
@@ -228,6 +241,9 @@ export const TRANSLATIONS = {
     "clear_all": "Cerrar todos",
     "show_more": "Mostrar {n} más",
     "show_less": "Mostrar menos",
+    "snoozed": "Pospuestos ({n})",
+    "show_now": "Mostrar ahora",
+    "back_in": "vuelve en {t}",
     "time": {
       "just_now": "ahora mismo",
       "minute": "hace {n} min",
@@ -251,6 +267,7 @@ export const TRANSLATIONS = {
       "colorize": "Colorear",
       "clear_all": "Mostrar un botón «Cerrar todos»",
       "swipe_to_dismiss": "Cerrar un aviso deslizándolo",
+      "show_snoozed": "Listar los avisos pospuestos con un botón Mostrar ahora",
       "collapsed_items": "Mostrar solo este número de avisos y luego un botón «Mostrar más»",
       "empty_message": "Mensaje cuando no hay avisos (muestra la tarjeta)",
       "empty_icon": "Icono para ese mensaje",
@@ -368,6 +385,7 @@ export function normalizeConfig(config) {
     colorize,
     clear_all: toBool(config.clear_all),
     swipe_to_dismiss: toBool(config.swipe_to_dismiss),
+    show_snoozed: toBool(config.show_snoozed),
     collapsed_items: collapsed,
     empty_message: toText(config.empty_message, "empty_message"),
     empty_icon: emptyIcon,
@@ -392,11 +410,36 @@ export function visibleBanners(banners, config) {
     (b) =>
       b.active &&
       !b.dismissed &&
+      !b.snoozed &&
       (config.severity.length === 0 || config.severity.includes(b.severity)) &&
       (config.tag.length === 0 || config.tag.includes(b.tag)),
   );
   const sorted = sortBanners(shown, config.sort);
   return config.max_items === null ? sorted : sorted.slice(0, config.max_items);
+}
+
+// Snoozed banners of the viewer for the "Snoozed" list: same filters, soonest return first.
+export function snoozedBanners(banners, config) {
+  return (banners ?? [])
+    .filter(
+      (b) =>
+        b.snoozed &&
+        b.active &&
+        !b.dismissed &&
+        (config.severity.length === 0 || config.severity.includes(b.severity)) &&
+        (config.tag.length === 0 || config.tag.includes(b.tag)),
+    )
+    .sort((a, b) => Date.parse(a.snoozed_until) - Date.parse(b.snoozed_until));
+}
+
+// "back in 12 min": time left of a snooze, rounded up. Anything unreadable reads "back in 1 min".
+export function backInLabel(iso, now = Date.now()) {
+  const d = STRINGS.duration;
+  const minutes = Math.max(1, Math.ceil((Date.parse(iso) - now) / 60000) || 1);
+  let t = d.minute.replace("{n}", minutes);
+  if (minutes >= 60 * 24) t = d.day.replace("{n}", Math.ceil(minutes / (60 * 24)));
+  else if (minutes >= 60) t = d.hour.replace("{n}", Math.ceil(minutes / 60));
+  return STRINGS.back_in.replace("{t}", t);
 }
 
 // "just now", "50 min ago", "3 h ago", "1 day ago", "2 days ago". Anything unreadable or in the
@@ -560,6 +603,11 @@ const STYLE = `
   }
   button.text-button:focus-visible { outline: 2px solid var(--primary-color); }
   .more { display: flex; justify-content: center; padding: 0 8px 8px; }
+  .snoozed { padding: 0 8px 8px; color: var(--secondary-text-color); }
+  .snoozed-row { display: flex; align-items: center; gap: 12px; padding: 4px 8px; }
+  .snoozed-text { flex: 1; min-width: 0; }
+  .snoozed-text .message { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .snoozed-text .time { font-size: 0.85em; }
   .empty {
     display: flex; align-items: center; justify-content: center; gap: 12px;
     padding: 24px 16px; color: var(--secondary-text-color);
@@ -598,6 +646,7 @@ class HeadsUpCard extends Base {
     this._banners = [];
     this._error = false;
     this._expanded = false;
+    this._snoozedOpen = false;
     this._menuFor = null; // ID of the banner whose snooze choices are open
     this._focusAfter = null;
     this._timeNodes = [];
@@ -663,7 +712,9 @@ class HeadsUpCard extends Base {
     if (this._timeTimer) return;
     this._timeTimer = setInterval(() => {
       const now = Date.now();
-      for (const { node, iso } of this._timeNodes) node.textContent = relativeTime(iso, now);
+      for (const { node, iso, format = relativeTime } of this._timeNodes) {
+        node.textContent = format(iso, now);
+      }
     }, TIME_REFRESH_MS);
   }
 
@@ -698,9 +749,10 @@ class HeadsUpCard extends Base {
       this._connection = connection;
     }
     const showAll = this._config.show_all && this._hass.user?.is_admin === true;
-    if (this._subscribeKey === showAll) return;
+    const key = `${showAll}/${this._config.show_snoozed}`;
+    if (this._subscribeKey === key) return;
     this._unsubscribe();
-    this._subscribeKey = showAll;
+    this._subscribeKey = key;
     const generation = this._generation;
     const promise = connection.subscribeMessage(
       (event) => {
@@ -709,7 +761,11 @@ class HeadsUpCard extends Base {
         this._banners = event.banners;
         this._render();
       },
-      { type: "heads_up/subscribe", show_all: showAll },
+      {
+        type: "heads_up/subscribe",
+        show_all: showAll,
+        show_snoozed: this._config.show_snoozed,
+      },
       { resubscribe: false },
     );
     this._unsub = promise;
@@ -742,6 +798,10 @@ class HeadsUpCard extends Base {
       .callWS({ type: "heads_up/snooze", banner_id: banner.id, seconds })
       .catch(() => {})
       .then(() => this._render());
+  }
+
+  _unsnooze(banner) {
+    this._hass.callWS({ type: "heads_up/unsnooze", banner_id: banner.id }).catch(() => {});
   }
 
   _toggleMenu(banner, open) {
@@ -975,6 +1035,37 @@ class HeadsUpCard extends Base {
     return node;
   }
 
+  // Footer with the viewer's snoozed banners; each row has a button that ends the snooze.
+  _snoozedNode(list) {
+    const wrap = el("div", "snoozed");
+    const toggle = el("button", "text-button", STRINGS.snoozed.replace("{n}", list.length));
+    toggle.type = "button";
+    toggle.setAttribute("aria-expanded", String(this._snoozedOpen));
+    toggle.addEventListener("click", () => {
+      this._snoozedOpen = !this._snoozedOpen;
+      this._render();
+    });
+    wrap.append(toggle);
+    if (!this._snoozedOpen) return wrap;
+    for (const banner of list) {
+      const row = el("div", "snoozed-row");
+      const icon = document.createElement("ha-icon");
+      icon.setAttribute("icon", "mdi:alarm-snooze");
+      icon.setAttribute("aria-hidden", "true");
+      const text = el("div", "snoozed-text");
+      text.append(el("div", "message", banner.title || banner.message));
+      const back = el("div", "time", backInLabel(banner.snoozed_until));
+      this._timeNodes.push({ node: back, iso: banner.snoozed_until, format: backInLabel });
+      text.append(back);
+      const show = el("button", "text-button", STRINGS.show_now);
+      show.type = "button";
+      show.addEventListener("click", () => this._unsnooze(banner));
+      row.append(icon, text, show);
+      wrap.append(row);
+    }
+    return wrap;
+  }
+
   _header(clearable) {
     const cfg = this._config;
     const showClear = cfg.clear_all && clearable.length > 0;
@@ -1008,7 +1099,8 @@ class HeadsUpCard extends Base {
 
     const cfg = this._config;
     const all = this._shown();
-    if (all.length === 0) {
+    const snoozed = cfg.show_snoozed ? snoozedBanners(this._banners, cfg) : [];
+    if (all.length === 0 && snoozed.length === 0) {
       const view = emptyView(cfg);
       if (view === "hidden") {
         this.style.display = "none";
@@ -1050,7 +1142,7 @@ class HeadsUpCard extends Base {
       );
     }
     list.append(assertive, polite);
-    card.append(list);
+    if (all.length > 0) card.append(list);
     if (hidden > 0) {
       const more = el("div", "more");
       const b = el(
@@ -1066,6 +1158,7 @@ class HeadsUpCard extends Base {
       more.append(b);
       card.append(more);
     }
+    if (snoozed.length > 0) card.append(this._snoozedNode(snoozed));
     root.append(card);
     this._restoreFocus();
   }
@@ -1138,6 +1231,7 @@ class HeadsUpCardEditor extends Base {
       },
       { name: "clear_all", selector: { boolean: {} } },
       { name: "swipe_to_dismiss", selector: { boolean: {} } },
+      { name: "show_snoozed", selector: { boolean: {} } },
       { name: "show_all", selector: { boolean: {} } },
       { name: "show_empty", selector: { boolean: {} } },
       { name: "empty_message", selector: { text: {} } },

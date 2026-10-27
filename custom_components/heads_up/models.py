@@ -97,8 +97,10 @@ class Banner:
             "snooze_scope",
         ):
             del data[key]
+        snoozed_until = self.snoozed_for(user_id)
+        data["snoozed_until"] = snoozed_until.isoformat() if snoozed_until else None
         data["active"] = self.active
         data["icon"] = self.icon or DEFAULT_ICONS[self.severity]
         data["dismissed"] = user_id in self.dismissed_by or GLOBAL_SNOOZE_KEY in self.dismissed_by
-        data["snoozed"] = self.snoozed_for(user_id) is not None
+        data["snoozed"] = snoozed_until is not None
         return data

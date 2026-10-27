@@ -14,6 +14,8 @@ import {
   sortBanners,
   setLanguage,
   snoozeLabel,
+  snoozedBanners,
+  backInLabel,
   STRINGS,
   TRANSLATIONS,
   whenFrontendReady,
@@ -474,5 +476,46 @@ describe("whenFrontendReady", () => {
     for (let i = 0; i < 50; i++) clock.advance(25);
     await Promise.resolve();
     expect(done).toBe(true);
+  });
+});
+
+describe("snoozed banners", () => {
+  const config = normalizeConfig({});
+  const mk = (id, until, extra = {}) => ({
+    id,
+    active: true,
+    dismissed: false,
+    snoozed: true,
+    snoozed_until: until,
+    severity: "info",
+    updated_at: "2026-01-01T00:00:00Z",
+    ...extra,
+  });
+
+  it("keeps snoozed banners out of the main list and lists them by return time", () => {
+    const banners = [mk("late", "2026-01-01T02:00:00Z"), mk("soon", "2026-01-01T01:00:00Z")];
+    expect(visibleBanners(banners, config)).toEqual([]);
+    expect(snoozedBanners(banners, config).map((b) => b.id)).toEqual(["soon", "late"]);
+  });
+
+  it("applies the card filters and ignores banners that are not snoozed", () => {
+    const filtered = normalizeConfig({ severity: ["critical"] });
+    const banners = [mk("a", "2026-01-01T01:00:00Z"), mk("b", "x", { snoozed: false })];
+    expect(snoozedBanners(banners, filtered)).toEqual([]);
+    expect(snoozedBanners(banners, config).map((b) => b.id)).toEqual(["a"]);
+  });
+
+  it("reads the time left, rounded up", () => {
+    const now = Date.parse("2026-01-01T00:00:00Z");
+    expect(backInLabel("2026-01-01T00:00:10Z", now)).toBe("back in 1 min");
+    expect(backInLabel("2026-01-01T00:12:00Z", now)).toBe("back in 12 min");
+    expect(backInLabel("2026-01-01T01:30:00Z", now)).toBe("back in 2 h");
+    expect(backInLabel("2026-01-02T12:00:00Z", now)).toBe("back in 2 d");
+    expect(backInLabel("nonsense", now)).toBe("back in 1 min");
+  });
+
+  it("show_snoozed is off by default and must be a boolean", () => {
+    expect(config.show_snoozed).toBe(false);
+    expect(normalizeConfig({ show_snoozed: true }).show_snoozed).toBe(true);
   });
 });

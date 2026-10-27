@@ -30,7 +30,11 @@ def _manager(
 
 
 @websocket_command(
-    {vol.Required("type"): "heads_up/subscribe", vol.Optional("show_all", default=False): bool}
+    {
+        vol.Required("type"): "heads_up/subscribe",
+        vol.Optional("show_all", default=False): bool,
+        vol.Optional("show_snoozed", default=False): bool,
+    }
 )
 @callback
 def ws_subscribe(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
@@ -40,11 +44,14 @@ def ws_subscribe(hass: HomeAssistant, connection: ActiveConnection, msg: dict[st
     if show_all and not connection.user.is_admin:
         connection.send_error(msg["id"], ERR_UNAUTHORIZED, "show_all requires admin")
         return
+    show_snoozed: bool = msg["show_snoozed"]
     user_id = connection.user.id
 
     @callback
     def forward() -> None:
-        connection.send_event(msg["id"], {"banners": manager.visible(user_id, show_all)})
+        connection.send_event(
+            msg["id"], {"banners": manager.visible(user_id, show_all, show_snoozed)}
+        )
 
     connection.subscriptions[msg["id"]] = manager.subscribe(forward)
     connection.send_result(msg["id"])
@@ -102,6 +109,19 @@ def ws_snooze(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, 
     connection.send_result(msg["id"])
 
 
+@websocket_command({vol.Required("type"): "heads_up/unsnooze", vol.Required("banner_id"): str})
+@callback
+def ws_unsnooze(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    try:
+        manager.unsnooze(msg["banner_id"], connection.user.id)
+    except HeadsUpError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    connection.send_result(msg["id"])
+
+
 @websocket_command(
     {
         vol.Required("type"): "heads_up/dismiss_many",
@@ -137,6 +157,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_dismiss,
         ws_dismiss_many,
         ws_snooze,
+        ws_unsnooze,
         ws_action,
         ws_admin_clear,
     ):
