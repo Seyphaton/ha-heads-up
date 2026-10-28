@@ -376,3 +376,50 @@ Edited in this phase (docs only): `docs/DESIGN.md`, `docs/DECISIONS.md`, `docs/O
 
 ## Verification of this phase
 `make check` green; every requirement H-n traces to a planned test; every HA fact has a verified/unverified row; no section claims implemented behavior; staged-diff grep finds no product names, hosts or personal data; the maintainer can walk journeys C6.1–C6.8 against the design and find each step specified.
+
+---
+
+## API DESIGN SESSION (2026-10-28), answers so far
+| # | Topic | Answer |
+|---|---|---|
+| A1 | Action shape | One generic action plus per-channel shortcuts (like `create_banner`) |
+| A2 | Generic action name | `heads_up.notify` |
+| A3 | Shortcuts besides `create_banner` | `push`, `popup`, `speak` (no persistent shortcut) |
+| A4 | Lifecycle across channels | One id per message for all channels; clearing and re-sending the same id applies to every channel |
+| A5 | Generic clear | One generic clear is enough for now; no separate acknowledge, snooze or dismiss actions |
+| A6 | Push buttons | Dismiss and Snooze buttons are added automatically when the message allows them, handled by the hub with no automation; the message's own buttons come first |
+| A7 | Shortcut behavior | Fixed channel, optional audience, no escalation steps |
+| A8 | Routing fields on `notify` | `policy` and `channels`; per-call `audience` is allowed, but a call defines either channels or audience, not both (exact meaning to be confirmed) |
+| A9 | Text | One shared text (message, title) for all written channels (banner, push, persistent, popup); speech gets an optional separate spoken text; no generic per-channel content block |
+| A10 | Watch rules | Same behavior as `notify`; where rules live (source of truth) is open, review below |
+
+## SOURCE-OF-TRUTH REVIEW: automations, hub page, or watch rules
+Question: where do "when", "what" and "who/how" live so each fact has exactly one home, follows Home Assistant conventions and stays easy for UI-first users?
+
+Three concerns:
+1. **When** (trigger and lifecycle): an automation, or a watch rule's condition.
+2. **What** (message content): text, title, severity, buttons, tag.
+3. **Who and how** (delivery): audiences and policies (hub objects, D-079).
+
+### Option 1: separate automations only (rules removed or frozen)
+- For: Home Assistant's own place for triggers; full trigger power (events, time, webhooks); traces; YAML, blueprints, version control; no duplicated trigger logic.
+- Against: UI users must write an automation plus a clear path; "show while the condition holds" is already solved by `create_banner` with `condition`, but needs an automation to call it; rules shipped in 0.4.0 and are documented, so removal breaks users; no single screen listing all watched conditions.
+- Verdict: right for complex triggers, wrong as the only path.
+
+### Option 2: hub page (panel) as the home of rules
+- For: one screen for audiences, policies and rules; best UX for live preview and trace.
+- Against: a custom panel is a UI, not a data store. If it keeps its own storage it leaves Home Assistant's conventions (config entries, subentries, backups, diagnostics); if it edits subentries it is only a front end; a second editor for the same objects must stay in sync; heavier to maintain (no build step, i18n, accessibility).
+- Verdict: good as the editor, not as a separate source of truth.
+
+### Option 3: watch rules as config subentries (today)
+- For: native (Devices & services, backups, forms with selectors, reload on change); exists, tested, documented; same pipeline as actions (D-073).
+- Against: a rule couples trigger, content and delivery in one form; every new delivery feature grows the form; content fields duplicate `notify`.
+- Verdict: keep as the UI path for simple conditions, but thin it.
+
+### Recommendation (to confirm)
+- **Policies and audiences:** hub-owned config subentries. Single home of "who and how".
+- **Rules:** stay subentries as *message sources*: trigger (entity or template, operator, `for`) plus message fields, plus `policy` and `channels` like `notify`. They carry no delivery logic of their own; they call the same pipeline as `notify`.
+- **Automations:** keep calling `notify`, the shortcuts and `create_banner` for anything a rule cannot express.
+- **Panel:** an editor and viewer over the same subentries (rules, audiences, policies, trace, preview). No second store.
+- **Rule of single source:** when = rule or automation; what = the source's message fields; who and how = policy and audience, referenced by name. A change of phone or household member touches only audiences.
+- **Open check:** whether a rule's message fields should be shared with `notify` through one schema (as D-073 already does for buttons and tap action).
