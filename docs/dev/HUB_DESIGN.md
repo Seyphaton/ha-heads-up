@@ -423,3 +423,32 @@ Three concerns:
 - **Panel:** an editor and viewer over the same subentries (rules, audiences, policies, trace, preview). No second store.
 - **Rule of single source:** when = rule or automation; what = the source's message fields; who and how = policy and audience, referenced by name. A change of phone or household member touches only audiences.
 - **Open check:** whether a rule's message fields should be shared with `notify` through one schema (as D-073 already does for buttons and tap action).
+
+---
+
+## NOTIFY SHAPE AND SOURCE OF TRUTH (maintainer, 2026-10-28)
+`heads_up.notify` states, and nothing else:
+1. **Content:** title, message, optional text for speech.
+2. **Primary channel:** banner, push, and so on.
+3. **Audience OR direct recipients, never both:** a predefined audience (possibly dynamic, such as last to leave for push) or a group of speakers for speech; what is allowed depends on the channel.
+4. **Policy:** the rules around delivery (quiet hours, escalation, and so on).
+
+Watch rules also call `notify`: a rule is a stored `notify` call plus a trigger.
+
+### Single source of truth (proposed answer)
+| Fact | Single home |
+|---|---|
+| When a message exists (trigger, lifecycle) | The producer: an automation, or a watch rule's trigger and `for` |
+| What is said (content, severity, tag, buttons) | The producer's `notify` call; for a rule, its stored `notify` arguments |
+| Who can be reached (audiences, recipient groups, device mapping) | Hub subentries `audience` |
+| How and when, escalation, quiet hours | Hub subentries `policy` |
+| The live state of a message (dismissed, snoozed, acknowledged, deliveries) | The hub's message store and delivery ledger, one record per id |
+
+Consequences:
+- A rule holds the same fields as `notify` (one shared schema, as D-073 does for buttons) plus its trigger; parity between rules and actions follows from the schema.
+- Replacing a phone or a household member touches audiences only.
+- The panel is an editor and viewer over the same subentries; it keeps no store of its own.
+
+### Open
+- Whether a policy step may add channels beyond the call's primary channel (escalation to another channel), and how that reads with "primary channel".
+- How the existing `create_banner` and `condition` map onto the `notify` content and trigger split.
