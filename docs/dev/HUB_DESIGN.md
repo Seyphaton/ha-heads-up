@@ -452,3 +452,24 @@ Consequences:
 ### Open
 - Whether a policy step may add channels beyond the call's primary channel (escalation to another channel), and how that reads with "primary channel".
 - How the existing `create_banner` and `condition` map onto the `notify` content and trigger split.
+
+---
+
+## ESCALATION CHANNELS AND CONDITIONS (maintainer, 2026-10-28)
+
+### Policy steps may add channels and audiences
+The call's primary channel and audience are step 0. Later steps or fallbacks may use other channels and other audiences. Examples from the maintainer:
+- a) Primary channel banner. By policy: escalate to push, then push to admins, then speech.
+- b) Primary channel push to the last leavers. By policy: fallback to all not at home.
+This also fixes how decision 28 (fallback audiences and channels) reads: fallbacks and escalations are policy steps.
+
+### Conditions: a design session is needed (new)
+Not covered so far in the hub design. Today's conditions: a message-level condition (entity with operators or a template, optional `for`), modes once and recurring, `wait_for_condition`, and the rule trigger. The hub adds places where a condition could matter:
+1. **Lifecycle:** the message exists while a condition holds (today's behavior, must keep working).
+2. **Trigger:** when a message is created (rule or automation).
+3. **Policy gate:** the whole policy applies only if (quiet hours, someone home, any entity).
+4. **Step gate:** a step runs only if (not acknowledged, entity state, time of day).
+5. **Channel or recipient gate:** speak only if, push only to recipients for whom.
+6. **Mid-flight changes:** a condition flips while escalation runs (stop, pause, restart, continue).
+7. **One condition model or several:** reuse operators, `for` and templates everywhere, and whether conditions can be named and reused like audiences.
+Open until the session: which levels get conditions, the shared schema, named conditions, flip behavior.

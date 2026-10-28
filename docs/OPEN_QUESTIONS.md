@@ -83,3 +83,5 @@
 - HA facts not verified yet: notify service model in 2026.9 and 2026.10, device to person mapping for Companion devices, action event context, announce actions for speakers and satellites, soft dependencies in the manifest, a second extra JS URL, behaviour of an older version with an unknown subentry type.
 - README material for later: problem statement, vocabulary and end-to-end journeys in `docs/dev/HUB_DESIGN.md` (marked).
 - Build phasing is delayed until the design is final. Hub status (build or not, §1 non-goal) is undecided.
+- Conditions in the hub need their own design session (levels: lifecycle, trigger, policy gate, step gate, channel or recipient gate; shared schema; named conditions; behaviour when a condition flips during escalation). See `docs/dev/HUB_DESIGN.md`.
+- Policy steps may add channels and audiences (escalation, fallback); wording of "primary channel" in `notify` to settle in the API session.
