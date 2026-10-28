@@ -55,7 +55,7 @@
 - Still open from the Phase 12 idea: store the start of a condition `for` wait so a restart does not restart it (D-066). Buttons and snooze are built (Phase 12, below).
 - Phase 13 candidate: bounded, restart-safe history of created, cleared, dismissed, expired and snoozed banners, readable over WebSocket and optionally shown in the card.
 - Phase 14 candidate: watch rules by label, area or entity filter (reopens D-057); open: one banner per match or one aggregated banner.
-- Phase 15 candidate (design only): notification hub. Named recipient groups (people and their devices) mapped to severity levels by a routing table, so devices change without touching rules. Delivery to the Companion app per group (tag to replace and clear, Android channel, iOS interruption level, action buttons). Popups as a further channel, optional per dashboard or global; any resource loaded on every page must be minimal. Needs a new decision on the non-goal "no push delivery" (§1).
+- Phase 15 (design only, branch `design/notification-hub`, not merged): notification hub. Decisions D-075 to D-082, full record in `docs/dev/HUB_DESIGN.md`. Open items are listed under "Phase 15: notification hub" below.
 - Adoption candidates: translations, HACS default review feedback, repository settings and topics (`docs/dev/RELEASE.md` steps 3 to 5), the unchecked items listed above.
 - Parked: mirroring persistent notifications as banners (D-022), low value for the maintainer.
 
@@ -72,3 +72,14 @@
 ## Card registration (D-072)
 - The fix is not confirmed on the maintainer's iPhone: it needs a release, an update of the integration and several reopens of the dashboard in the Companion app. If the error still appears, the next steps are a loader that retries under a new URL and a look at the frontend source for the registry swap.
 
+
+## Phase 15: notification hub (design only, on branch `design/notification-hub`)
+- Dedicated API design session before any implementation: which actions and arguments exist; one generic notify action versus per-channel actions like `create_banner`; how a caller names a policy, audience and channels (create_banner takes no channel argument, D-077).
+- Shape of per-channel content overrides (for example text for speech).
+- How a dashboard session learns its room (HA area) for room-targeted popups.
+- Technical, proposed in the design for review: push identity with an install token, a delivery ledger store, a transition seam in the manager (the manager has no event for every moment a message becomes visible).
+- Whether the unit is called "message" in docs and API, while `create_banner` stays.
+- The admin panel under the no-build-step rule (D-021): serving and build approach.
+- HA facts not verified yet: notify service model in 2026.9 and 2026.10, device to person mapping for Companion devices, action event context, announce actions for speakers and satellites, soft dependencies in the manifest, a second extra JS URL, behaviour of an older version with an unknown subentry type.
+- README material for later: problem statement, vocabulary and end-to-end journeys in `docs/dev/HUB_DESIGN.md` (marked).
+- Build phasing is delayed until the design is final. Hub status (build or not, §1 non-goal) is undecided.

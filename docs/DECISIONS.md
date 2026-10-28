@@ -425,3 +425,38 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision: WebSocket `heads_up/unsnooze` ends the snooze that hides a banner from the caller (a global one for everyone) and fires `heads_up_banner_unsnoozed`. `heads_up/subscribe` takes `show_snoozed`; the card option `show_snoozed` (off by default) sets it and shows a "Snoozed (n)" list with the time left and a Show now button. `snoozed_until` is now sent to the viewer, for their own snooze only.
 - Alternatives: always sending snoozed banners (older cached cards would show them again); a button only on the banner (it is hidden while snoozed); a service for automations (not requested).
 - Reason: without it a mistaken snooze could not be undone before it ended. Off by default keeps existing dashboards unchanged.
+
+## D-075 Notification hub: direction, status undecided
+- Date: 2026-10-28. Phase 15 (design only) on branch `design/notification-hub`; full record in `docs/dev/HUB_DESIGN.md`.
+- Decision: the maintainer sees the integration as the central notification hub, with the dashboard banner as one channel. Whether the hub is built, and the amendment of the §1 non-goal "no push delivery", are not decided. Nothing of this reaches `main` without the maintainer's explicit go.
+- Reason: today's banner delivery is the foundation; the hub extends it to more channels and features.
+
+## D-076 Everything existing works without the hub
+- Date: 2026-10-28.
+- Decision: `create_banner`, `clear_banner`, `clear_all`, watch rules and the card keep working unchanged without any use of the hub. The hub is additive; without a policy a message is delivered to the dashboard channel only.
+
+## D-077 Banner is one channel; the unit is a message
+- Date: 2026-10-28.
+- Decision: the unit a producer creates is a message with a lifecycle. Dashboard banner, Companion push, popup, speech and persistent notification are equal channels, each selectable per policy step. `create_banner` is the banner channel's action and takes no `channel` argument. Banner-only special fields are avoided.
+- Open: the real action and argument set (one generic `notify` action versus per-channel actions) is decided in a dedicated API design session before any implementation.
+
+## D-078 Banner and its notifications are one linked message
+- Date: 2026-10-28.
+- Decision: state changes on one surface (clear, expire, condition, dismiss, snooze, acknowledge) apply to all channels of the same message. A snooze clears the user's push, pauses their repeats and re-notifies at its end.
+
+## D-079 Mental model: audiences and policies
+- Date: 2026-10-28.
+- Decision: an audience says who (flat, no set operations), a policy says how: up to 4 timed steps, each with audience, channels and per-channel profile; quiet hours; an acknowledgement rule. A policy applies by a list of severities and a list of tags (a banner keeps its single tag; `tag` gains routing as a third use next to the card filter and `clear_banner`). Caller may choose a policy and replace step 0's audience and channels; later steps, quiet hours and ack rule stay the policy's. Fallback audiences and channels are configurable per step, or none.
+
+## D-080 Audience semantics
+- Date: 2026-10-28.
+- Decision: presence audiences: at home, not home, last to leave, first home, in or not in a zone. Membership is a snapshot when a step fires; a step may deliver on arrival to people not yet home. Companion devices are found from the person automatically, with manual override; all devices of a person are notified (same tag). Unknown presence: critical notifies anyway, lower severities skip with a trace.
+
+## D-081 Acknowledgement, escalation, severity change
+- Date: 2026-10-28.
+- Decision: any recipient acknowledging stops escalation; whether a dismissal counts as acknowledgement is a policy setting. Quiet hours downgrade, critical bypasses unless the policy says otherwise. A severity change while active restarts the timeline with the policy of the new severity. After a restart an overdue step fires once if the message is still active and unacknowledged. Swiping a push away means nothing.
+
+## D-082 Channels and admin UX
+- Date: 2026-10-28.
+- Decision: channels: banner, Companion push, popup (global on all dashboards, policy decides severities), speech (media players, Assist satellites, targeted speakers; rooms are HA areas with assigned speakers and displays, no occupancy sensors), persistent notification (targets everyone, no special handling). Lock-screen text is a policy setting, default full text. Admin surface: an own admin panel from the start (overview and editors, live preview, delivery trace, test send, first-run wizard).
+- Open: build phasing is delayed until the design is final.
