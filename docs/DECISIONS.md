@@ -507,3 +507,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - A fallback (audience or channels) applies when the audience resolves to nobody, when all deliveries of the step failed, and when nobody acknowledged in time (escalation).
 - Alternatives: delay after the previous step; explicit priority numbers; all matching policies running; any overlap being an error.
 - Open: exact meaning of "stop completely" (ends delivery only, the banner stays; or ends the message), field names of a step and of a gate.
+
+## D-090 Channels: recipient kinds, push levels, speech text, popup
+- Date: 2026-10-29. API design session on branch `design/notification-hub`.
+- Decision:
+  - Recipient kinds per channel. Banner: audience, or persons (empty means everyone). Push: audience, or persons and notify targets or devices. Popup: audience, or persons and areas (displays). Speak: recipients only (recipient groups, media players, Assist satellites, areas), no audience. Persistent notification: none, it targets everyone.
+  - Push level by severity: success and info passive, warning normal, critical time-sensitive (iOS) with matching Android importance. True iOS critical is an opt-in in the policy profile, because it needs app permission and cannot be replaced or grouped. Push must use the legacy `notify.mobile_app_*` services (N-61).
+  - Speech text when `tts_message` is missing: the title if set, else the message, shortened to a length limit.
+  - Popup by default: a non-blocking card in a corner for warning and lower, a centered modal for critical; one at a time in a queue, buttons as in the card, closes when the message is resolved.
+- Alternatives: speak with an audience as a presence gate; critical push defaulting to iOS critical; all default levels; message spoken in full; nothing spoken without `tts_message`; always a modal.

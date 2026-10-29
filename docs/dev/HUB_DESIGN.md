@@ -499,3 +499,14 @@ Shortcuts `push`, `popup`, `speak`: fire and forget, tracked only when an `id` i
 - Matching: most specific wins; identical matches refused at creation of the second policy.
 - Fallback applies on empty audience, all deliveries failed, no acknowledgement in time.
 - Open: whether "stop completely" ends delivery only or the whole message.
+
+### Channels (decided 2026-10-29, D-090)
+| Channel | audience | recipients |
+|---|---|---|
+| banner | yes | persons (empty = everyone) |
+| push | yes | persons, notify targets or devices |
+| popup | yes | persons, areas (displays) |
+| speak | no | recipient groups, media players, Assist satellites, areas |
+| persistent | no | none (targets everyone) |
+
+Push levels: success/info passive, warning normal, critical time-sensitive; iOS critical is a policy opt-in. Speech fallback text: title if set, else message, shortened. Popup: corner card up to warning, centered modal for critical.
