@@ -636,6 +636,7 @@ A separate integration consuming events (events lack recipients and silent trans
 ### 23.14 Gate and profile fields (D-095)
 - Gates: `time_window` (`from`, `to`, `days`, `bypass_severity`), `presence` (`who`, `state`: `any_home`, `none_home`, `all_home`), `acknowledgement` (`state`), `severity_tag` (`severities`, `tags`), `named_condition` (`name`, `state`); each with `type` and `outcome`.
 - Profiles: push (`level`, `privacy`, `sticky`, `buttons`, `channel_id`), popup (`style`), speak (`language`, `announce`).
+- Step setting `deliver_on_arrival` (D-080): people not home yet get the step's delivery when they arrive, while the message is active.
 - `stop` ends delivery only. Downgrade: push passive without sound, speak skipped, popup corner card.
 
 ### 23.15 Open

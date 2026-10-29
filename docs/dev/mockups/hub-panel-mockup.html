@@ -89,6 +89,7 @@ th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line
     </div>
     <label for="f-who" id="f-who-label">Audience</label>
     <select id="f-who"></select>
+    <p class="note" id="f-who-help"></p>
     <p class="note">Audience or direct recipients, never both. Speech takes recipients only; persistent notification has no recipients.</p>
   </div>
   <div class="card">
@@ -194,6 +195,7 @@ data:
       <button class="chip" id="p-who-rec" aria-pressed="false">Direct recipients</button>
     </div>
     <select id="p-who" style="margin-top:8px"></select>
+    <p class="note" id="p-who-help"></p>
     <label for="p-pol">Policy</label>
     <select id="p-pol"></select>
   </div>
@@ -270,6 +272,31 @@ $("f-pol").addEventListener("change", render);
 const policies = ["matched automatically", "critical_water", "critical_default", "warning_default", "none (no policy behavior)"];
 policies.forEach((p) => { const o = document.createElement("option"); o.textContent = p; $("f-pol").appendChild(o); });
 
+
+// ---------- explanations for the who selectors ----------
+const whoInfo = {
+  "Everyone": "Every person with a recipient profile gets it now.",
+  "Admins": "Persons whose user is an admin. Typical for escalation steps.",
+  "At home": "Persons at home when the step runs (checked once). People away do not get it unless 'deliver on arrival' is on.",
+  "Not home": "Persons away when the step runs (checked once). Typical for 'someone left something open'.",
+  "Last to leave": "The person whose departure emptied the house. Empty while anyone is home.",
+  "First home": "The first person home after the house was empty. Empty if nobody is home when the step runs.",
+  "Parents": "The persons in your Parents audience.",
+  "Ground floor speakers (group)": "All speakers in this group announce. The hub does not change their volume.",
+  "Kitchen speaker": "Speaks on this media player; uses announce if the player supports it.",
+  "Hall satellite": "Announces on this Assist satellite.",
+  "Anna's phone": "Push to this one device only.",
+  "Ben's phone": "Push to this one device only."
+};
+function whoHelp(name, mode) {
+  let t = whoInfo[name] || "";
+  if (mode === "aud") {
+    const m = audienceMembers(name);
+    t += " Right now: " + (m.length ? m.join(", ") : "nobody") + ".";
+  }
+  return t;
+}
+
 function fillWho() {
   const list = whoMode === "aud" ? audiences : recipients;
   const cur = $("f-who").value;
@@ -298,6 +325,7 @@ function render() {
     ? (sev === "critical" && tag === "water" ? "critical_water" : sev === "critical" ? "critical_default" : sev === "warning" ? "warning_default" : "none")
     : pol.startsWith("none") ? "none" : pol;
   const who = $("f-who").value;
+  $("f-who-help").textContent = whoHelp(who, whoMode);
 
   const lines = [];
   lines.push(`<div class="step"><span class="when">Now:</span> ${ch.join(", ") || "nothing"} to ${who}${matched === "critical_water" ? " (push is passive between 22:00 and 07:00)" : ""}.</div>`);
@@ -383,6 +411,7 @@ function preview() {
   $("p-who-aud").setAttribute("aria-pressed", pWho === "aud");
   $("p-who-rec").setAttribute("aria-pressed", pWho === "rec");
   const who = $("p-who").value;
+  $("p-who-help").textContent = whoHelp(who, pWho);
   const ch = [...pChannels];
   const nightGate = pol === "critical_water" && night;
 
@@ -494,6 +523,8 @@ function stepHtml(st, si) {
   <label>Channels</label>${chips(channelNames, st.channels, k + " data-ch")}
   <label>Who</label><div class="row"><button class="chip" ${k} data-mode="aud" aria-pressed="${aud}">Audience</button><button class="chip" ${k} data-mode="rec" aria-pressed="${!aud}">Direct recipients</button></div>
   <select ${k} data-p="who" style="margin-top:8px">${(aud ? audiences : recipients).map((o) => `<option${o === st.who ? " selected" : ""}>${esc(o)}</option>`).join("")}</select>
+  <p class="note">${esc(whoHelp(st.who, st.whoMode))}</p>
+  <label><input type="checkbox" ${st.arrival ? "checked" : ""} ${k} data-p="arrival"> Deliver on arrival to people not home yet (waits while the message is active)</label>
   ${prof}
   <h3>Gates (checks before this step runs)</h3>${st.gates.map((g, gi) => gateHtml(g, si, gi)).join("") || '<p class="note">No gates: the step always runs.</p>'}
   <div class="row" style="margin-top:8px"><button class="ghost" data-ag="${si}">Add gate</button></div>
@@ -516,6 +547,7 @@ function sentence(q) {
       if (g.type === "severity_tag") t += ` (only for ${g.severities || "any severity"}${g.tags ? " tagged " + g.tags : ""}: otherwise ${o})`;
       if (g.type === "named_condition") t += ` (needs "${g.name}" to be ${g.state}: otherwise ${o})`;
     });
+    if (st.arrival) t += "; people not home yet get it when they arrive";
     if (st.fallback) t += `; if nobody can be reached, ${st.fallback}`;
     parts.push(t + ".");
   });
@@ -560,6 +592,7 @@ function yamlOf(q) {
         y.push(`        - {type: ${g.type}, ${d}, outcome: ${g.outcome}}`);
       });
     }
+    if (st.arrival) y.push("      deliver_on_arrival: true");
     if (st.fallback) y.push(`      fallback: {audience: ${st.fallback}}`);
   });
   return y.join("\n");
