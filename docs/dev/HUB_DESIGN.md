@@ -476,3 +476,12 @@ Open until the session: which levels get conditions, the shared schema, named co
 
 ### Conditions: decisions (2026-10-28), see D-086
 Generic condition only for the message lifecycle. Gates (policy, step, channel, recipient) are predefined: time window or quiet hours, presence, acknowledgement state, severity or tag. Escape hatch: named conditions as hub subentries holding the generic schema, usable as a gate and as a lifecycle condition. Lifecycle false ends the message; gates are checked when a step is due and a closed gate skips the step with a trace entry. Examples used to decide: guest mode on, alarm disarmed, freezer temperature above a limit for 10 minutes.
+
+### notify field list (decided 2026-10-29, D-087)
+| Group | Fields |
+|---|---|
+| Content | `message` (required), `title`, `icon`, `severity`, `actions`, `tap_action`, `tts_message` |
+| Lifecycle | `id`, `tag`, `timeout`, `condition`, `mode`, `wait_for_condition`, `dismissible`, `dismiss_scope`, `snoozable`, `snooze_scope`, `snooze_options` |
+| Delivery | `channels` (required list), `audience` XOR `recipients`, `policy` (omitted: matched by severity and tag; `none`: no policy behavior) |
+
+Shortcuts `push`, `popup`, `speak`: fire and forget, tracked only when an `id` is given. `create_banner` is unchanged and keeps `people`. Return value: `id`, `status`, per-channel summary.

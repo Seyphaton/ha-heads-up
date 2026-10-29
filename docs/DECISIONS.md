@@ -479,3 +479,15 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision: the generic condition (entity with operators and `for`, or template) is used for the message lifecycle, as today. Policy, step, channel and recipient gates use predefined types: time window or quiet hours, presence, acknowledgement state, severity or tag. One extra gate type, a named condition, refers to a hub subentry that holds the generic condition schema; named conditions can also serve as lifecycle conditions. If the lifecycle condition turns false the message ends and all channels are cleared; gates are evaluated when a step is due, and a closed gate skips the step with a trace entry.
 - Alternatives: predefined gates only (closed list); an inline single-entity gate (not reusable).
 - Reason: simple forms for common gates, one escape hatch for the rest, one place for each generic definition.
+
+## D-087 `notify` field list
+- Date: 2026-10-29. API design session on branch `design/notification-hub`.
+- Decision:
+  - Content: `message` (required), `title`, `icon`, `severity`, `actions`, `tap_action`, `tts_message` (optional text for speech).
+  - Lifecycle, same meaning as in `create_banner`: `id`, `tag`, `timeout`, `condition`, `mode`, `wait_for_condition`, `dismissible`, `dismiss_scope`, `snoozable`, `snooze_scope`, `snooze_options`.
+  - Delivery: `channels` (required list; step 0 of the delivery), `audience` (name) or `recipients` (list of entities by kind: person, notify target or device, media player, assist satellite, area), never both, allowed kinds depend on the channel; `policy` (name; omitted: matched by severity and tag per D-079; `none` skips all policy behavior).
+  - `create_banner` keeps its fields including `people`; in `notify` the same idea is `recipients`.
+  - Shortcuts `push`, `popup`, `speak` are fire and forget without an `id`; with an `id` they are full messages (update, clear, expire).
+  - `notify` returns `id`, `status` and a per-channel summary; delivery detail stays in the trace.
+- Alternatives: single `channel`; one field `to` for audience and recipients; keeping `people` in `notify`; `spoken` or `speech` as the text name; default channel banner when `channels` is omitted.
+- Open: validation details per channel (which recipient kinds each channel accepts), `tts_message` fallback when omitted, exact status values.
