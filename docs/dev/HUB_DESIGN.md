@@ -485,3 +485,10 @@ Generic condition only for the message lifecycle. Gates (policy, step, channel, 
 | Delivery | `channels` (required list), `audience` XOR `recipients`, `policy` (omitted: matched by severity and tag; `none`: no policy behavior) |
 
 Shortcuts `push`, `popup`, `speak`: fire and forget, tracked only when an `id` is given. `create_banner` is unchanged and keeps `people`. Return value: `id`, `status`, per-channel summary.
+
+### Audience and recipient model (decided 2026-10-29, D-088)
+- Audience: people-based, channel-neutral (persons or a presence kind). Recipient group: named explicit targets (speakers, satellites, areas, notify targets), tied to channels.
+- `audience` takes an audience name; `recipients` takes entities or a recipient group name.
+- Person profile (hub subentry): detected devices, manual overrides, primary device, accepted channels.
+- Built-ins: Everyone, Admins, At home, Not home, Last to leave, First home.
+- No usable device: skipped on push with a trace entry, shown in the panel with a fix link.

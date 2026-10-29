@@ -491,3 +491,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - `notify` returns `id`, `status` and a per-channel summary; delivery detail stays in the trace.
 - Alternatives: single `channel`; one field `to` for audience and recipients; keeping `people` in `notify`; `spoken` or `speech` as the text name; default channel banner when `channels` is omitted.
 - Open: validation details per channel (which recipient kinds each channel accepts), `tts_message` fallback when omitted, exact status values.
+
+## D-088 Audience, recipient group and person profile
+- Date: 2026-10-29. API design session on branch `design/notification-hub`.
+- Decision: two object types answer "who". An audience is people-based and channel-neutral: persons, or a presence kind (D-080). A recipient group is a named set of explicit targets (media players, Assist satellites, areas, notify targets) tied to the channels it fits. `audience` takes the first, `recipients` takes entities or the name of a recipient group. Per-person device handling lives in a new hub subentry, the person profile: auto-detected devices, manual add and remove, a primary device, accepted channels; audiences reference persons only. Built-in audiences without setup: Everyone, Admins, At home, Not home, Last to leave, First home. A person with no usable device is skipped on push with a trace entry and shown in the panel with a fix link; banner and popup still work.
+- Alternatives: one audience type for everything; speakers only as direct recipients; overrides inside each audience or in a global options table; failing at save; falling back to the banner.
+- Open: the shape of the person profile in the Home Assistant UI (name clash with the core person entity), which recipient kinds each channel accepts exactly, area-to-speaker assignment.
