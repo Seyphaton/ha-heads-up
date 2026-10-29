@@ -633,5 +633,10 @@ Fake notify, tts, media player and persistent notification services; the lifecyc
 ### 23.13 Alternatives not chosen
 A separate integration consuming events (events lack recipients and silent transitions); automations only for delivery; one action per channel only; audiences with set operations; policy matching by explicit priority; the panel with its own storage.
 
-### 23.14 Open
-Exact fields of each gate type and channel profile; whether `stop` ends delivery only or the whole message; panel registration and serving; the recent-messages list across restarts; the unit name in public docs; verification of the person-to-device path, the action event user, announce behavior and 2026.10; popup area recipients (not built); build phasing (delayed until the design is final). See `docs/OPEN_QUESTIONS.md`.
+### 23.14 Gate and profile fields (D-095)
+- Gates: `time_window` (`from`, `to`, `days`, `bypass_severity`), `presence` (`who`, `state`: `any_home`, `none_home`, `all_home`), `acknowledgement` (`state`), `severity_tag` (`severities`, `tags`), `named_condition` (`name`, `state`); each with `type` and `outcome`.
+- Profiles: push (`level`, `privacy`, `sticky`, `buttons`, `channel_id`), popup (`style`), speak (`language`, `announce`).
+- `stop` ends delivery only. Downgrade: push passive without sound, speak skipped, popup corner card.
+
+### 23.15 Open
+Panel component contract and manifest listing for a custom panel (N-69); the recent-messages list across restarts; the unit name in public docs; verification of the person-to-device path, the action event user, announce behavior and 2026.10; popup area recipients (not built); build phasing (delayed until the design is final). See `docs/OPEN_QUESTIONS.md`.

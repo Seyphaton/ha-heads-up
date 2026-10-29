@@ -554,3 +554,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - `notify` response: message status `created`, `updated`, `waiting` or `condition_false` (as today), plus per channel counts of `sent`, `held`, `skipped` and `failed`.
   - Policy layout: `name`, `match` (severities, tags), `acknowledge`, `steps`; a step has `after` (seconds from message start), `audience` or `recipients`, `channels`, `profile`, `gates`, `fallback`; a gate has `type` and `outcome`. Accepted by the maintainer on 2026-10-29 ("Ok") after reading the sketch in `docs/dev/HUB_DESIGN.md`.
 - Open: the exact fields of each gate type and of each channel profile.
+
+## D-095 Gate and channel profile fields; `stop` meaning
+- Date: 2026-10-29. API design session on branch `design/notification-hub`; accepted by the maintainer after reading the proposal file.
+- Decision:
+  - Gate fields: `time_window` (`from`, `to`, `days`, `bypass_severity`), `presence` (`who` as an audience, `state` as `any_home`, `none_home` or `all_home`), `acknowledgement` (`state` as `acknowledged` or `not_acknowledged`), `severity_tag` (`severities`, `tags`), `named_condition` (`name`, `state` as `true` or `false`). Every gate also has `type` and `outcome`.
+  - Channel profile fields: push (`level`, `privacy`, `sticky`, `buttons`, `channel_id`), popup (`style`), speak (`language`, `announce`); banner and persistent notification have none.
+  - `stop` ends delivery only; the message and its banner stay until their normal end.
+  - Downgrade: push becomes passive without sound, speak is skipped, popup becomes a corner card, banner and persistent notification are unchanged.
