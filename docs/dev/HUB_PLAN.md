@@ -22,9 +22,9 @@ Today's implementation sets the foundation for how notifications (right now: ban
 - Audience: people-based and channel-neutral. Persons, or a presence kind. Built in: Everyone, Admins, At home, Not home, Last to leave, First home.
 - Recipient group: a named set of explicit targets (speakers, Assist satellites, areas, notify targets).
 - Recipient profile: per person, the detected devices, manual overrides, primary device and accepted channels.
-- Policy: match (severities and tags), acknowledgement rule, up to 4 timed steps.
-- Gate: a check on a step. Types: time_window, presence, acknowledgement, severity_tag, named_condition. Outcomes: skip, delay, downgrade, stop.
+- Policy: one small typed rule with a trigger and an effect (D-097). Types: Escalation, Quiet hours, Fallback, Reminder, Away, Summarize. Each can apply to severities and tags and carry an optional "only if" named condition.
 - Named condition: a reusable generic condition (entity with operators and `for`, or template).
+- Channel settings: one page with defaults by severity (push level, lock-screen text, buttons, popup style, speech language).
 
 ## 4. How a producer calls it
 - `heads_up.notify`: content (message, title, icon, severity, buttons, tap action, tts_message), lifecycle (id, tag, timeout, condition, mode, dismiss and snooze fields), delivery (channels, audience or recipients, policy).
@@ -37,20 +37,20 @@ Today's implementation sets the foundation for how notifications (right now: ban
 - banner: audience, or persons; empty means everyone.
 - push: audience, or persons and notify targets.
 - popup: audience, or persons (persons only in the first version).
-- speak: recipients only (groups, media players, satellites, areas). A step or call has one who, so speech and people channels go in separate steps (D-096).
+- speak: recipients only (groups, media players, satellites, areas). A call has one who, so speech and people channels need separate calls or separate escalation policies (D-096).
 - persistent notification: no recipients, it targets everyone.
 
 ## 6. What happens over time
-- Step 0 goes out at once. Later steps run at offsets from the message start (for example 5 minutes), each with its own audience, channels and gates.
+- The call's channels and audience go out at once. All policies that apply are active together: escalations and reminders run from the message start, quiet hours, away and fallback act on every delivery, summarize collects messages into one summary.
 - Any recipient acknowledging stops escalation. Whether a dismissal counts is a policy setting.
 - Snooze clears the user's push, pauses their repeats and notifies again when it ends.
-- A fallback audience or channel applies when the audience is empty, all deliveries failed, or nobody acknowledged in time.
-- If the lifecycle condition ends the message, every channel is cleared. Gates are checked when a step is due.
+- A fallback policy applies when the audience is empty or sending failed.
+- If the lifecycle condition ends the message, every channel is cleared and its policies stop.
 - A severity change restarts the timeline with the policy of the new severity.
 - After a restart an overdue step fires once if the message is still active and unacknowledged.
 
 ## 7. Channel behavior
-- push: legacy notify services only. Passive for success and info, normal for warning, time-sensitive for critical. Buttons: the message's own, then Dismiss and Snooze, and Acknowledge if the step sets it. Swiping a push away changes nothing.
+- push: legacy notify services only. Passive for success and info, normal for warning, time-sensitive for critical. Buttons: the message's own, then Dismiss and Snooze, and Acknowledge when an escalation or reminder policy applies. Swiping a push away changes nothing.
 - popup: tiny global loader, lazy popup code. Corner card up to warning, centered modal for critical.
 - speak: announce when the player supports it, else the current volume. No volume changes, no all-clear.
 - persistent notification: create and dismiss by message id.
@@ -66,7 +66,7 @@ Today's implementation sets the foundation for how notifications (right now: ban
 ## 9. Build phasing (draft, delayed until the design is final)
 - 15a: core push, audiences and one-step policies, delivery store, trace, test send.
 - 15b: presence audiences, quiet hours, deliver on arrival, snooze with remind.
-- 15c: acknowledgement, escalation steps, push buttons.
+- 15c: acknowledgement, escalation and reminder policies, push buttons.
 - 15d: popup.
 - 15e: speak.
 - 15f: persistent notification and the admin panel.

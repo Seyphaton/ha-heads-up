@@ -549,3 +549,15 @@ policy:
         - {type: acknowledgement, state: not_acknowledged, outcome: skip}
 ```
 Correction 2026-10-29 (D-096): the first accepted sketch had push and speak in one step with an audience. A step has one "who"; speech and people channels go in separate steps.
+
+
+---
+
+## SIMPLER POLICIES (maintainer, 2026-10-29, D-097): supersedes the bundled policy model above
+Everything in this file that describes a policy with steps, gates, outcomes or channel profiles (Part E, the "Policy mechanics", "Policy layout", gate field and profile field sections, and the policy layout sketches) is superseded by D-097. The consolidated description is `docs/DESIGN.md` section 23.6 and 23.14.
+
+Why: in the mockup, one policy with steps, gates and per-channel settings was too complex to understand and edit.
+
+New model: a policy is one small typed rule with a trigger and an effect. Types: Escalation, Quiet hours, Fallback, Reminder, Away, Summarize. Common fields: name, type, applies to (severities and tags), only if (named condition), enabled. Channel settings (push level, lock-screen text, buttons, popup style, speech language) are one settings page with defaults by severity. Summarize holds all channels of matching messages and sends one summary (count and titles, resolved marked, cut at 10) every N minutes or at a fixed time; critical may be summarized if the policy says so.
+
+Open: banner held while a summary waits; summary severity, channels and lifetime; Default delivery by severity; final precedence order.

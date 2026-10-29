@@ -560,9 +560,9 @@ Automations hard-code notify services, speaker entities, quiet-hour templates an
 | Audience | People-based, channel-neutral, flat (D-079): persons, or a presence kind. Built in: Everyone, Admins, At home, Not home, Last to leave, First home. |
 | Recipient group | A named set of explicit targets (speakers, Assist satellites, areas, notify targets), tied to channels (D-088). |
 | Recipient profile | Per person: detected devices, manual overrides, primary device, accepted channels (D-088). |
-| Policy | How a message is delivered: match, acknowledgement rule and up to 4 timed steps (D-079, D-089, D-094). |
-| Gate | A predefined condition on a step or policy: `time_window`, `presence`, `acknowledgement`, `severity_tag`, `named_condition`; outcome `skip`, `delay`, `downgrade` or `stop` (D-086, D-094). |
-| Named condition | A hub subentry holding the generic condition (entity with operators and `for`, or template); usable as a gate and as a lifecycle condition (D-086). |
+| Policy | One small typed rule (D-097): Escalation, Quiet hours, Fallback, Reminder, Away or Summarize, with a trigger and an effect, an optional "Applies to" (severities, tags) and an optional "Only if" named condition. |
+| Named condition | A hub subentry holding the generic condition (entity with operators and `for`, or template); usable as "Only if" on a policy and as a lifecycle condition. |
+| Channel settings | One settings page with defaults by severity: push level and lock-screen text, buttons, popup style, speech language. |
 | Delivery | One message, one recipient, one channel, with a state: planned, held, sent, skipped, failed, cleared. |
 
 ### 23.4 Actions and fields (D-083, D-087)
@@ -580,44 +580,38 @@ Automations hard-code notify services, speaker entities, quiet-hour templates an
 | speak | no | recipient groups, media players, Assist satellites, areas |
 | persistent | no | none (targets everyone) |
 
-### 23.6 Policy (D-079, D-081, D-089, D-094)
+### 23.6 Policies (D-097)
+A policy is one rule: type, When, Then. All policies that apply to a message (by severity and tag) are active together.
+
+| Type | When | Then |
+|---|---|---|
+| Escalation | nobody acknowledged within X minutes | also notify an audience or recipients on channels; setting: dismissing counts as acknowledging |
+| Quiet hours | a message is sent between two times (days selectable) | wait until the end, send quietly, or drop; setting: critical passes |
+| Fallback | the audience is empty or sending failed | send to an audience or recipients on channels instead |
+| Reminder | still not acknowledged | repeat every X minutes, up to N times |
+| Away | a recipient is not home | send when they arrive, while the message is active |
+| Summarize | messages arrive | hold all channels, send one summary every N minutes or at a fixed time (count, titles, resolved marked, cut at 10) |
+
 ```yaml
 policy:
-  name: Critical water
-  match: {severities: [critical], tags: [water]}
-  acknowledge: {dismiss_counts: true}
-  steps:
-    - after: 0
-      audience: Everyone
-      channels: [banner, push, popup]
-      profile: {push: {level: time-sensitive}}
-      gates:
-        - {type: time_window, from: "22:00", to: "07:00", outcome: downgrade}
-    - after: 300
-      audience: Admins
-      channels: [push]
-      gates:
-        - {type: acknowledgement, state: not_acknowledged, outcome: skip}
-      fallback: {audience: Everyone}
-    - after: 600
-      recipients: [Ground floor speakers]
-      channels: [speak]
-      gates:
-        - {type: acknowledgement, state: not_acknowledged, outcome: skip}
+  name: Water escalation
+  type: escalation
+  applies_to: {severities: [critical], tags: [water]}
+  after: 5
+  notify: {audience: Admins, channels: [push]}
+  dismiss_counts: true
 ```
-- A step has one "who": people channels (banner, push, popup) take an audience or persons, speech takes speakers, so speech and people channels go in separate steps (D-096).
-- Matching: the most specific policy wins (tag before severity only); two policies with identical matches are refused. A caller's `audience`, `recipients` or `channels` define step 0; later steps come from the policy.
-- Steps: up to 4; `after` is an offset from the message start with stored due times; an overdue step fires once after a restart if the message is active and unacknowledged.
-- Fallback applies when the audience resolves to nobody, all deliveries failed, or nobody acknowledged in time.
-- A severity change on an active message restarts the timeline with the policy of the new severity.
-- Acknowledgement: any recipient stops escalation; whether a dismissal counts is a policy setting. Snooze clears the user's push, pauses their repeats and notifies again when it ends.
-- Conditions: the lifecycle condition ending the message clears every channel; gates are checked when a step is due and a closed gate applies its outcome with a trace entry.
+- Common fields: `name`, `type`, `applies_to` (empty means all), `only_if` (named condition), `enabled`.
+- A second policy of the same type with identical `applies_to` and trigger is refused. Precedence on one delivery: Summarize, Quiet hours, Away, Fallback; escalations and reminders create later deliveries that pass through the same rules.
+- Step 0 (who and channels of the first delivery) always comes from the call. A step or call has one "who": people channels take an audience or persons, speech takes speakers, so speech and people channels need separate escalation policies (D-096).
+- Acknowledgement: any recipient stops escalation and reminders. Snooze clears the user's push, pauses their reminders and notifies again when it ends. A severity change restarts escalation and reminders with the policies of the new severity. An overdue escalation fires once after a restart if the message is active and unacknowledged.
+- The lifecycle condition ending the message clears every channel and cancels all policies for it.
 
 ### 23.7 Audiences and devices (D-080, D-088)
 Presence audiences read the person state (`None`, `unknown` and `unavailable` count as unknown, N-63). Membership is a snapshot when a step fires; a step may deliver on arrival to people not yet home. Companion devices are found from the person's trackers with manual override (the path is inferred, N-64); all devices of a person are notified under one tag. Unknown presence: critical notifies, lower severities skip with a trace entry. A person without a usable device is skipped on push and flagged in the panel.
 
 ### 23.8 Channels (D-090, D-091, D-092)
-- Push: legacy `notify.mobile_app_*` services only (N-61); tag `hu-<install token>-<message id>`; clear with `clear_notification`; severity maps to passive, normal, time-sensitive (iOS critical is a policy opt-in); buttons are the message's own, then Dismiss and Snooze when allowed, and Acknowledge when the step sets it; button ids `hu:<message>:<recipient>:<action>`; Snooze uses the first snooze option; swiping a push away changes nothing.
+- Push: legacy `notify.mobile_app_*` services only (N-61); tag `hu-<install token>-<message id>`; clear with `clear_notification`; severity maps to passive, normal, time-sensitive (iOS critical is a policy opt-in); buttons are the message's own, then Dismiss and Snooze when allowed, and Acknowledge when an escalation or reminder policy applies; button ids `hu:<message>:<recipient>:<action>`; Snooze uses the first snooze option; swiping a push away changes nothing.
 - Popup: global loader under 1 KB, lazy popup code; corner card up to warning, centered modal for critical; one at a time.
 - Speak: announce when supported, else the current volume; no volume changes, no all-clear; text is `tts_message`, else the title or the message, shortened.
 - Persistent notification: `persistent_notification.create` and `dismiss` with an id derived from the message.
@@ -634,16 +628,20 @@ Admin-only sidebar panel with own forms (`ha-form`) that save through the subent
 Restart: the usual one after a code update. Notification path: touched for the first time (calls to notify, tts, media player and persistent notification services of other integrations; nothing of theirs is modified). Dashboard: nothing changes until a policy or channels are used. Storage: new subentry types and a deliveries store; a downgrade must be checked for unknown subentry types. Manifest: optional integrations as `after_dependencies` (N-68).
 
 ### 23.12 Tests (later)
-Fake notify, tts, media player and persistent notification services; the lifecycle × channel × source matrix; restart and overdue-step tests; presence and debounce with the time freezer; gate outcomes; policy matching conflicts; button round trip with stale ids; loader size budget; translation parity; `dev/smoke.py` with stub services.
+Fake notify, tts, media player and persistent notification services; the lifecycle × channel × source matrix; restart and overdue-step tests; presence and debounce with the time freezer; each policy type and their precedence; summary collection and resolved marking; button round trip with stale ids; loader size budget; translation parity; `dev/smoke.py` with stub services.
 
 ### 23.13 Alternatives not chosen
 A separate integration consuming events (events lack recipients and silent transitions); automations only for delivery; one action per channel only; audiences with set operations; policy matching by explicit priority; the panel with its own storage.
 
-### 23.14 Gate and profile fields (D-095)
-- Gates: `time_window` (`from`, `to`, `days`, `bypass_severity`), `presence` (`who`, `state`: `any_home`, `none_home`, `all_home`), `acknowledgement` (`state`), `severity_tag` (`severities`, `tags`), `named_condition` (`name`, `state`); each with `type` and `outcome`.
-- Profiles: push (`level`, `privacy`, `sticky`, `buttons`, `channel_id`), popup (`style`), speak (`language`, `announce`).
-- Step setting `deliver_on_arrival` (D-080): people not home yet get the step's delivery when they arrive, while the message is active.
-- `stop` ends delivery only. Downgrade: push passive without sound, speak skipped, popup corner card.
+### 23.14 Policy fields and channel settings (D-097)
+- Escalation: `after` (minutes), `notify` (`audience` or `recipients`, `channels`), `dismiss_counts`.
+- Quiet hours: `from`, `to`, `days`, `action` (`wait`, `quiet`, `drop`), `critical_passes`.
+- Fallback: `when` (`no_audience`, `failed`, `both`), `notify` as above.
+- Reminder: `every` (minutes), `max`.
+- Away: `max_wait` (default: the message lifetime).
+- Summarize: `every` (minutes) or `at` (time of day), `include_critical` (default false; policy decides).
+- Channel settings by severity: push `level`, `privacy`, `sticky`, `channel_id`; buttons Snooze and Dismiss, with Acknowledge when an escalation or reminder policy applies; popup `style`; speak `language`, `announce`.
+- Quiet hours "quiet": push passive without sound, speech skipped, popup as a corner card.
 
 ### 23.15 Open
 Panel component contract and manifest listing for a custom panel (N-69); the recent-messages list across restarts; the unit name in public docs; verification of the person-to-device path, the action event user, announce behavior and 2026.10; popup area recipients (not built); build phasing (delayed until the design is final). See `docs/OPEN_QUESTIONS.md`.

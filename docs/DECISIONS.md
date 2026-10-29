@@ -567,3 +567,18 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Date: 2026-10-29. Found while building the mockup; corrects the example in D-094 and DESIGN §23.6.
 - Decision: a step (and a `notify` call) has one audience or recipients value. Banner, push and popup take an audience or persons (push also phones); speech takes speakers, groups or satellites. A step that mixes speech with a people channel is invalid (`notify` returns a validation error; the panel blocks it). Escalation to speech is a separate step, as in the maintainer's example (push to admins, then speech).
 - Alternatives: separate "who" per channel inside a step (more fields, harder to explain); speech reading an audience through a room mapping (rejected earlier, D-082).
+
+## D-097 Typed policies replace bundled policies
+- Date: 2026-10-29. Requested by the maintainer after trying the mockup ("way too complex"). Supersedes D-079 (a policy as up to 4 steps), D-086 and D-095 (gate list and gate types), the step and gate parts of D-089, and the layout of D-094. Everything else in D-075 to D-096 stands.
+- Decision: a policy is one small rule with a type, a trigger ("When") and an effect ("Then"). Every policy has a name, an optional "Applies to" (severities and tags, empty means all), an optional "Only if" (a named condition) and can be disabled. Types in the first version:
+  - Escalation: when nobody acknowledged within X minutes, also notify an audience or recipients on channels. Setting: dismissing counts as acknowledging. Several escalation policies form a chain.
+  - Quiet hours: when a message is sent between two times (days selectable), wait until the end, send quietly (passive push, no speech, popup as card), or drop it. Setting: critical passes anyway.
+  - Fallback: when the audience is empty or sending failed, send to an audience or recipients on channels instead.
+  - Reminder: while not acknowledged, repeat every X minutes, up to N times.
+  - Away: when a recipient is not home, send when they arrive, while the message is active.
+  - Summarize: collect matching messages and send one summary, every N minutes or at a fixed time of day; nothing is sent individually while a message waits (all channels); the summary lists a count and titles, marks resolved ones and cuts at 10 with "and N more"; nothing is sent when nothing was collected; critical may be summarized if the policy says so, with a warning in the form.
+- All policies that apply to a message are active at the same time. A second policy of the same type with the same "Applies to" and the same trigger is refused. Precedence when several act on one delivery: Summarize, then Quiet hours, then Away, then Fallback; Escalation and Reminder create later deliveries that pass through the same rules.
+- Channel settings move out of policies to one settings page with defaults by severity: push level and lock-screen text, push buttons (Snooze and Dismiss; Acknowledge is added when an escalation or reminder policy applies, replacing the per-step switch of D-092), popup style, speech language and announce.
+- The call stays as decided in D-087: `policy` names one policy, omitted means all that apply; `none` skips all.
+- Alternatives: keep the bundled policy with steps and gates (too complex to edit and understand); a "Limit" type that drops or bundles (replaced by Summarize).
+- Open: whether the dashboard banner is also held while a summary waits (as decided, all channels wait, so the message is not visible on the dashboard until the summary); severity, channels and lifetime of the summary message; whether "Default delivery" by severity is needed because step 0 always comes from the call; the final precedence order.
