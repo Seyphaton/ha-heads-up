@@ -60,7 +60,7 @@ Today's implementation sets the foundation for how notifications (right now: ban
 - Admin-only sidebar panel with own forms; storage stays in config subentries.
 - First version: overview and editors, live preview (who would be notified now), per-message delivery trace, recent messages, test send.
 - First-run wizard as a panel stepper and as a config flow entry. Presets: Quiet, Balanced, Loud.
-- A standalone mockup of the panel is in `docs/dev/mockups/hub-panel-mockup.html` (not part of the integration).
+- A standalone mockup of the panel is in `docs/dev/mockups/hub-panel-mockup.html` (not part of the integration). Tabs: Overview, New notification, Preview, Trace, Audiences, Recipients (profiles and groups), Policies, Rules, Channels (settings by severity), Wizard, Settings, Examples and FAQ. All data in it is sample data and nothing is saved.
 
 ## 9. Build phasing (draft, delayed until the design is final)
 - 15a: core push, audiences and one-step policies, delivery store, trace, test send.

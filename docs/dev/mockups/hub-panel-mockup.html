@@ -178,39 +178,42 @@ data:
 </section>
 
 <section id="tab-hub" hidden>
-  <div class="banner-note">First run: a 4-step wizard creates the objects below from presets. Everything stays editable.</div>
-  <div class="card">
-    <h2>Setup wizard</h2>
-    <ol class="plain">
-      <li><b>People:</b> pick who lives here.</li>
-      <li><b>Devices:</b> check the detected phones, add speakers.</li>
-      <li><b>Loudness:</b> Quiet, Balanced or Loud.</li>
-      <li><b>Test:</b> send a test and see per recipient what happened.</li>
-    </ol>
-    <p class="note">Result of "Balanced" for a household of two: 2 recipient profiles, 1 recipient group, 3 policies (one escalation, one quiet hours, one summarize).</p>
-    <button class="ghost" id="wiz-btn">Preview the wizard result</button>
-    <div id="wiz-out"></div>
-  </div>
-  <div class="card">
-    <h2>Audiences</h2>
-    <table><tr><th>Name</th><th>Kind</th><th>Right now</th></tr>
-      <tr><td>Everyone</td><td>built in</td><td>Anna, Ben</td></tr>
-      <tr><td>Admins</td><td>built in</td><td>Anna</td></tr>
-      <tr><td>At home</td><td>presence</td><td>Ben</td></tr>
-      <tr><td>Last to leave</td><td>presence</td><td>Anna</td></tr>
-      <tr><td>Parents</td><td>persons</td><td>Anna, Ben</td></tr>
-    </table>
-  </div>
-  <div class="card">
-    <h2>Recipient groups and profiles</h2>
-    <ul class="plain">
-      <li>Group <b>Ground floor speakers</b>: kitchen speaker, hall satellite</li>
-      <li>Profile <b>Anna</b>: phone (detected), tablet (added), primary: phone</li>
-      <li>Profile <b>Ben</b>: phone (detected), no other devices</li>
-      <li>Profile <b>Guest</b>: no usable device <span class="badge warn">skipped on push</span></li>
-    </ul>
-  </div>
-  
+  <div class="card"><h2>Overview</h2><div id="ov-counts"></div><div class="row" style="margin-top:10px"><button class="primary" data-go="wiz">Run the setup wizard</button><button class="ghost" data-go="send">New notification</button><button class="ghost" data-go="prev">Preview</button></div></div>
+  <div class="card"><h2>Policies in words</h2><div id="ov-pols"></div></div>
+  <div class="card"><h2>Needs attention</h2><div id="ov-warn"></div></div>
+</section>
+
+<section id="tab-aud" hidden>
+  <div class="banner-note">An audience says who: persons, or a presence kind that changes over time. Built-in audiences cannot be edited.</div>
+  <div class="card"><h2>Audiences</h2><div id="aud-list"></div><div class="row" style="margin-top:10px"><button class="ghost" id="aud-new">New audience</button></div></div>
+  <div id="aud-editor"></div>
+</section>
+
+<section id="tab-rec" hidden>
+  <div class="banner-note">Recipient profiles say which devices belong to a person. Recipient groups are named sets of speakers, satellites and areas.</div>
+  <div class="card"><h2>Recipient profiles</h2><div id="prof-list"></div></div>
+  <div class="card"><h2>Recipient groups</h2><div id="grp-list"></div><div class="row" style="margin-top:10px"><button class="ghost" id="grp-new">New group</button></div></div>
+</section>
+
+<section id="tab-rul" hidden>
+  <div class="banner-note">A watch rule is a stored notify call plus a trigger. It shows its message while the condition holds.</div>
+  <div class="card"><h2>Watch rules</h2><div id="rul-list"></div><div class="row" style="margin-top:10px"><button class="ghost" id="rul-new">New rule</button></div></div>
+  <div id="rul-editor"></div>
+</section>
+
+<section id="tab-chs" hidden>
+  <div class="banner-note">How each channel behaves, by severity. Policies decide who and when; this page decides how it looks and sounds.</div>
+  <div id="chs-body"></div>
+</section>
+
+<section id="tab-wiz" hidden>
+  <div class="banner-note">First-run wizard: four steps create the first recipient profiles and policies from a preset. Everything stays editable afterwards.</div>
+  <div class="card"><div id="wiz-body"></div></div>
+</section>
+
+<section id="tab-set" hidden>
+  <div class="banner-note">Hub settings. Limits protect devices from floods of notifications.</div>
+  <div id="set-body"></div>
 </section>
 
 <section id="tab-pol" hidden>
@@ -239,7 +242,8 @@ data:
     <select id="p-pol"></select>
   </div>
   <div class="card">
-    <h2>The house right now</h2>
+    <h2>Simulate the house</h2>
+    <p class="note">Only in this mockup: you set the time and who is home. The real preview reads the clock and real presence.</p>
     <label for="p-time">Time</label>
     <select id="p-time"><option value="day">Day, 14:00</option><option value="night">Night, 23:00 (quiet hours)</option></select>
     <label>Presence (tap to toggle)</label>
@@ -280,50 +284,79 @@ data:
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const tabs = [["send","New notification"],["ex","Examples & FAQ"],["hub","Hub"],["pol","Policies"],["prev","Preview"],["trace","Trace"]];
+const tabs = [["hub","Overview"],["send","New notification"],["prev","Preview"],["trace","Trace"],["aud","Audiences"],["rec","Recipients"],["pol","Policies"],["rul","Rules"],["chs","Channels"],["wiz","Wizard"],["set","Settings"],["ex","Examples & FAQ"]];
 const nav = $("tabs");
+function goto(id) {
+  tabs.forEach(([t]) => { $("tab-" + t).hidden = t !== id; });
+  [...nav.children].forEach((c) => c.setAttribute("aria-selected", c.dataset.id === id));
+  if (id === "hub") renderOverview();
+  window.scrollTo(0, 0);
+}
 tabs.forEach(([id, name], i) => {
   const b = document.createElement("button");
-  b.textContent = name; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", i === 0);
-  b.onclick = () => { tabs.forEach(([t]) => { $("tab-" + t).hidden = t !== id; }); [...nav.children].forEach((c) => c.setAttribute("aria-selected", c === b)); };
+  b.textContent = name; b.dataset.id = id; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", i === 0);
+  b.onclick = () => goto(id);
   nav.appendChild(b);
 });
+document.addEventListener("click", (e) => { const g = e.target.closest("[data-go]"); if (g) goto(g.dataset.go); });
+tabs.forEach(([t], i) => { $("tab-" + t).hidden = i !== 0; });
 
 // ---------- shared data ----------
 const channelNames = ["banner", "push", "popup", "speak", "persistent"];
 const sevs = ["success", "info", "warning", "critical"];
-const audiences = ["Everyone", "Admins", "At home", "Not home", "Last to leave", "First home", "Parents"];
-const speakTargets = ["Ground floor speakers (group)", "Kitchen speaker", "Hall satellite"];
-const personRecs = ["Anna", "Ben", "Guest"];
-const pushRecs = ["Anna", "Ben", "Guest", "Anna's phone", "Ben's phone"];
-const people = { Anna: { devices: 2, home: true }, Ben: { devices: 1, home: true }, Guest: { devices: 0, home: false } };
-const whoInfo = {
-  "Everyone": "Every person with a recipient profile.", "Admins": "Persons whose user is an admin. Typical for escalation.",
-  "At home": "Persons at home when it is sent (checked once).", "Not home": "Persons away when it is sent (checked once).",
-  "Last to leave": "The person whose departure emptied the house. Empty while anyone is home.",
-  "First home": "The first person home after the house was empty. Empty if nobody is home.", "Parents": "The persons in your Parents audience.",
-  "Ground floor speakers (group)": "All speakers in this group announce. Volume is not changed.",
-  "Kitchen speaker": "Speaks on this media player; uses announce if supported.", "Hall satellite": "Announces on this Assist satellite.",
-  "Anna": "This person.", "Ben": "This person.", "Guest": "This person; has no device, so push cannot be sent.",
-  "Anna's phone": "Push to this one device only.", "Ben's phone": "Push to this one device only."
+const people = { Anna: { home: true }, Ben: { home: true }, Guest: { home: false } };
+const zoneOf = (n) => (people[n].home ? "home" : "work");
+const profiles = {
+  Anna: { devices: [{ name: "Anna's phone", src: "detected" }, { name: "Anna's tablet", src: "manual" }], primary: "Anna's phone", channels: ["banner", "push", "popup"] },
+  Ben: { devices: [{ name: "Ben's phone", src: "detected" }], primary: "Ben's phone", channels: ["banner", "push", "popup"] },
+  Guest: { devices: [], primary: "", channels: ["banner", "popup"] },
 };
+const devCount = (n) => (profiles[n] && profiles[n].channels.includes("push") ? profiles[n].devices.length : 0);
+const allDevices = () => Object.values(profiles).flatMap((p) => p.devices.map((d) => d.name));
+const ownerOf = (dev) => Object.keys(profiles).find((n) => profiles[n].devices.some((d) => d.name === dev));
+const speakers = ["Kitchen speaker", "Hall satellite", "Living room TV", "Bedroom speaker"];
+let groups = [{ name: "Ground floor speakers", members: ["Kitchen speaker", "Hall satellite"] }];
+const speakTargets = () => groups.map((g) => g.name + " (group)").concat(speakers);
+const personRecs = () => Object.keys(people);
+const pushRecs = () => Object.keys(people).concat(allDevices());
+const audDefs = [
+  { name: "Everyone", kind: "builtin", info: "Every person with a recipient profile." },
+  { name: "Admins", kind: "builtin", info: "Persons whose user is an admin. Typical for escalation." },
+  { name: "At home", kind: "builtin", info: "Persons at home when it is sent (checked once)." },
+  { name: "Not home", kind: "builtin", info: "Persons away when it is sent (checked once)." },
+  { name: "Last to leave", kind: "builtin", info: "The person whose departure emptied the house. Empty while anyone is home." },
+  { name: "First home", kind: "builtin", info: "The first person home after the house was empty. Empty if nobody is home." },
+  { name: "Parents", kind: "persons", persons: ["Anna", "Ben"] },
+];
+let audiences = audDefs.map((a) => a.name);
+const presenceKinds = { at_home: "At home", not_home: "Not home", last_to_leave: "Last to leave", first_home: "First home", in_zone: "In a zone", not_in_zone: "Not in a zone" };
+function presenceMembers(kind, zone) {
+  const all = Object.keys(people), home = all.filter((n) => people[n].home), away = all.filter((n) => !people[n].home);
+  return ({ at_home: home, not_home: away, last_to_leave: home.length ? [] : ["Anna"], first_home: home.length ? [home[0]] : [], in_zone: all.filter((n) => zoneOf(n) === zone), not_in_zone: all.filter((n) => zoneOf(n) !== zone) })[kind] || [];
+}
 function audienceMembers(name) {
-  const home = Object.keys(people).filter((n) => people[n].home), away = Object.keys(people).filter((n) => !people[n].home);
-  return ({ "Everyone": Object.keys(people), "Admins": ["Anna"], "Parents": ["Anna", "Ben"], "At home": home, "Not home": away, "Last to leave": home.length ? [] : ["Anna"], "First home": home.length ? [home[0]] : [] })[name] || [];
+  const d = audDefs.find((a) => a.name === name);
+  if (!d) return [];
+  if (d.kind === "persons") return d.persons;
+  if (d.kind === "presence") return presenceMembers(d.presence, d.zone);
+  if (name === "Everyone") return Object.keys(people);
+  if (name === "Admins") return ["Anna"];
+  return presenceMembers({ "At home": "at_home", "Not home": "not_home", "Last to leave": "last_to_leave", "First home": "first_home" }[name]);
 }
 function whoHelp(name, mode) {
-  let t = whoInfo[name] || "";
-  if (mode === "aud") { const m = audienceMembers(name); t += " Right now: " + (m.length ? m.join(", ") : "nobody") + "."; }
-  return t;
+  if (mode === "aud") { const d = audDefs.find((a) => a.name === name); const m = audienceMembers(name); return (d && d.info ? d.info + " " : d && d.kind === "persons" ? "A fixed list of persons. " : d && d.kind === "presence" ? presenceKinds[d.presence] + (d.zone ? " " + d.zone : "") + ". " : "") + "Right now: " + (m.length ? m.join(", ") : "nobody") + "."; }
+  if (/\(group\)$/.test(name)) { const g = groups.find((x) => x.name + " (group)" === name); return "All speakers in this group announce" + (g ? ": " + g.members.join(", ") : "") + ". Volume is not changed."; }
+  if (speakers.includes(name)) return name === "Hall satellite" ? "Announces on this Assist satellite." : "Speaks on this media player; uses announce if supported.";
+  if (people[name]) return profiles[name].devices.length ? "This person, on their devices." : "This person; has no device, so push cannot be sent.";
+  return "Push to this one device only.";
 }
-// what each channel accepts as a target
 function chSpec(c) {
   if (c === "persistent") return { none: true, note: "No target: it goes to everyone." };
-  if (c === "speak") return { modes: ["rec"], rec: speakTargets, note: "Speakers, groups or satellites. No audience." };
-  if (c === "push") return { modes: ["aud", "rec"], rec: pushRecs, note: "An audience, or persons and phones. Never both." };
-  return { modes: ["aud", "rec"], rec: personRecs, note: c === "banner" ? "An audience, or persons. Never both." : "An audience, or persons. Never both." };
+  if (c === "speak") return { modes: ["rec"], rec: speakTargets(), note: "Speakers, groups or satellites. No audience." };
+  if (c === "push") return { modes: ["aud", "rec"], rec: pushRecs(), note: "An audience, or persons and phones. Never both." };
+  return { modes: ["aud", "rec"], rec: personRecs(), note: "An audience, or persons. Never both." };
 }
-const defTarget = (c) => (c === "speak" ? { mode: "rec", who: "Ground floor speakers (group)" } : { mode: "aud", who: c === "push" ? "Admins" : "Everyone" });
+const defTarget = (c) => (c === "speak" ? { mode: "rec", who: speakTargets()[0] } : { mode: "aud", who: c === "push" ? "Admins" : "Everyone" });
 function normTarget(t, c) {
   const sp = chSpec(c);
   if (sp.none) return null;
@@ -333,7 +366,6 @@ function normTarget(t, c) {
   if (!list.includes(t.who)) t.who = list[0];
   return t;
 }
-// renders one target row per channel into el; targets is an object channel -> {mode, who}
 function renderTargets(el, chs, targets, onChange) {
   if (!chs.length) { el.innerHTML = '<p class="note">Pick a channel first.</p>'; return; }
   el.innerHTML = chs.map((c) => {
@@ -350,6 +382,17 @@ function renderTargets(el, chs, targets, onChange) {
   el.querySelectorAll("select[data-w]").forEach((e) => (e.onchange = () => { targets[e.dataset.c].who = e.value; onChange(); }));
 }
 const targetsYaml = (chs, targets, ind) => chs.filter((c) => !chSpec(c).none && targets[c]).map((c) => `${ind}${c}: {${targets[c].mode === "aud" ? "audience: " + targets[c].who : "recipients: [" + targets[c].who + "]"}}`);
+const sel = (opts, val, attr) => `<select ${attr}>` + opts.map((o) => `<option${o === val ? " selected" : ""}>${esc(o)}</option>`).join("") + "</select>";
+const chips = (opts, on, attr) => '<div class="row">' + opts.map((o) => `<button class="chip" ${attr}="${o}" aria-pressed="${on.includes(o)}">${o}</button>`).join("") + "</div>";
+const toggle = (arr, v) => (arr.includes(v) ? arr.filter((x) => x !== v) : arr.concat(v));
+
+// ---------- channel settings ----------
+const chSettings = {
+  push: { levels: { success: "passive", info: "passive", warning: "normal", critical: "time-sensitive" }, privacy: "full", sticky: false, buttons: ["snooze", "dismiss"], channelId: "heads_up" },
+  popup: { styles: { success: "card", info: "card", warning: "card", critical: "modal" } },
+  speak: { language: "en", announce: true },
+};
+const settings = { enabled: true, perDevice: 10, global: 60, dedupe: 30, logSize: 500, recent: 100 };
 
 // ---------- policies (typed rules) ----------
 const typeNames = { escalation: "Escalation", quiet: "Quiet hours", fallback: "Fallback", reminder: "Reminder", away: "Away", summarize: "Summarize" };
@@ -366,9 +409,9 @@ let pols = [
   base({ name: "Evening summary", type: "summarize", sev: ["info", "success"], summaryMode: "at", summaryAt: "20:00" }),
 ];
 const tagList = (q) => q.tags.split(",").map((t) => t.trim()).filter(Boolean);
-function applicable(sev, tag, sel) {
-  if (sel === "none") return [];
-  if (sel && sel !== "all that apply") return pols.filter((q) => q.enabled && q.name === sel);
+function applicable(sev, tag, sel2) {
+  if (sel2 === "none") return [];
+  if (sel2 && sel2 !== "all that apply") return pols.filter((q) => q.enabled && q.name === sel2);
   return pols.filter((q) => q.enabled && (!q.sev.length || q.sev.includes(sev)) && (!tagList(q).length || tagList(q).includes(tag)));
 }
 const toText = (q) => q.channels.map((c) => { const sp = chSpec(c); if (sp.none) return c + " (everyone)"; const t = q.targets[c]; return c + " to " + (t ? t.who : "?"); }).join(", ") || "no channel";
@@ -412,10 +455,10 @@ function render() {
   A.forEach((q) => lines.push(`<div class="step note"><b>${esc(q.name)}</b>: ${esc(line(q))}</div>`));
   $("timeline").innerHTML = lines.join("");
   const y = ["action: heads_up.notify", "data:"];
-  const t = $("f-title").value.trim(), m = $("f-message").value.trim(), s = $("f-tts").value.trim();
+  const t = $("f-title").value.trim(), m = $("f-message").value.trim(), sp = $("f-tts").value.trim();
   if (t) y.push(`  title: ${t}`);
   y.push(`  message: ${m || "..."}`);
-  if (s) y.push(`  tts_message: ${s}`);
+  if (sp) y.push(`  tts_message: ${sp}`);
   y.push(`  severity: ${sev}`);
   if (tag) y.push(`  tag: ${tag}`);
   y.push(`  channels: [${ch.join(", ")}]`);
@@ -423,13 +466,12 @@ function render() {
   if (ty.length) { y.push("  to:"); ty.forEach((l) => y.push(l)); }
   if (polSel !== "all that apply") y.push(`  policy: ${polSel === "none" ? "none" : polSel}`);
   $("yaml").textContent = y.join("\n");
-  const fields = [t, m, s, tag, ch.length, ty.length, polSel !== "all that apply"].filter(Boolean).length;
+  const fields = [t, m, sp, tag, ch.length, ty.length, polSel !== "all that apply"].filter(Boolean).length;
   $("meter").style.width = Math.min(100, fields * 100 / 8) + "%";
   $("effort-text").textContent = `${fields} of 8 settings used. Required: message and channels, plus a target for push, popup and speak. Everything else has a default or comes from the policies that apply.`;
 }
 $("test-send").onclick = () => { $("test-result").textContent = "Test (simulated): see the Preview tab for the full result per recipient. Nothing was sent."; };
 $("copy").onclick = () => { navigator.clipboard && navigator.clipboard.writeText($("yaml").textContent).catch(() => {}); $("copy").textContent = "Copied"; setTimeout(() => ($("copy").textContent = "Copy call"), 1200); };
-$("wiz-btn").onclick = () => { $("wiz-out").innerHTML = '<ul class="plain"><li>Recipient profiles: Anna (phone, tablet), Ben (phone)</li><li>Recipient group: Ground floor speakers</li><li>Policies: Night quiet (quiet hours), Water escalation (escalation), Evening summary (summarize)</li><li>Balanced: warning pushes to people at home; critical pushes to everyone and shows a popup; no speech</li></ul>'; };
 
 // ---------- Preview tab ----------
 const pChannels = new Set(["banner", "push", "popup"]);
@@ -450,9 +492,9 @@ Object.keys(people).forEach((n) => {
 function personsOf(t) {
   if (!t) return [];
   if (t.mode === "aud") return audienceMembers(t.who);
-  return /Anna/.test(t.who) ? ["Anna"] : /Ben/.test(t.who) ? ["Ben"] : /Guest/.test(t.who) ? ["Guest"] : [];
+  if (people[t.who]) return [t.who];
+  const o = ownerOf(t.who); return o ? [o] : [];
 }
-// deliver channels with their targets; ctx carries summarize / quiet / away
 function deliver(chs, targets, ctx, prefix) {
   const rows = [], failed = [];
   const add = (w, c, res, cls, why) => rows.push([w, c, res, cls, (prefix || "") + why]);
@@ -469,15 +511,16 @@ function deliver(chs, targets, ctx, prefix) {
     if (c === "banner") { const w = persons.join(", ") || (t && t.mode === "aud" ? "nobody" : "everyone"); if (!held(w, c)) { if (t && t.mode === "aud" && !persons.length) { add("nobody", c, "skipped", "warn", "audience is empty"); failed.push("empty"); } else add(w, c, "shown", "ok", "visible to the audience"); } }
     if (c === "push") {
       if (t.mode === "aud" && !persons.length) { add("nobody", c, "skipped", "warn", "audience is empty"); failed.push("empty"); }
-      persons.forEach((n) => { const pp = people[n]; if (held(n, c)) return;
-        if (!pp.devices) { add(n, c, "skipped", "warn", "no usable device"); failed.push(n); }
-        else if (ctx.away && !pp.home && t.mode === "aud") add(n, c, "held", "warn", "away: sends when they arrive");
-        else if (quiet) add(n, c, "sent", "warn", pp.devices + " device(s), quiet: passive, no sound");
-        else add(n, c, "sent", "ok", pp.devices + " device(s), level " + (ctx.sev === "critical" ? "time-sensitive" : ctx.sev === "warning" ? "normal" : "passive")); });
+      persons.forEach((n) => { if (held(n, c)) return;
+        const dc = people[t.who] || t.mode === "aud" ? devCount(n) : (profiles[n].channels.includes("push") ? 1 : 0);
+        if (!dc) { add(n, c, "skipped", "warn", profiles[n].channels.includes("push") ? "no usable device" : "this person does not accept push"); failed.push(n); }
+        else if (ctx.away && !people[n].home && t.mode === "aud") add(n, c, "held", "warn", "away: sends when they arrive");
+        else if (quiet) add(n, c, "sent", "warn", dc + " device(s), quiet: passive, no sound");
+        else add(n, c, "sent", "ok", dc + " device(s), level " + chSettings.push.levels[ctx.sev] + ", lock screen: " + chSettings.push.privacy); });
     }
     if (c === "popup") { if (t.mode === "aud" && !persons.length) add("nobody", c, "skipped", "warn", "audience is empty");
-      persons.forEach((n) => { if (!held(n, c)) add(n, c, "sent", quiet ? "warn" : "ok", quiet ? "corner card (quiet)" : ctx.sev === "critical" ? "centered modal" : "corner card"); }); }
-    if (c === "speak") { if (!held(t.who, c)) { if (quiet) add(t.who, c, "skipped", "warn", "quiet: speech skipped"); else add(t.who, c, "sent", "ok", "announce, current volume"); } }
+      persons.forEach((n) => { if (held(n, c)) return; if (!profiles[n].channels.includes("popup")) { add(n, c, "skipped", "warn", "this person does not accept popups"); return; } const st = quiet ? "card" : chSettings.popup.styles[ctx.sev]; add(n, c, "sent", quiet ? "warn" : "ok", (st === "modal" ? "centered modal" : "corner card") + (quiet ? " (quiet)" : "")); }); }
+    if (c === "speak") { if (!held(t.who, c)) { if (quiet) add(t.who, c, "skipped", "warn", "quiet: speech skipped"); else add(t.who, c, "sent", "ok", (chSettings.speak.announce ? "announce" : "plain playback") + ", language " + chSettings.speak.language + ", current volume"); } }
     if (c === "persistent") { if (!held("everyone", c)) add("everyone", c, "sent", "ok", "created for everyone"); }
   });
   return { rows, failed };
@@ -487,13 +530,13 @@ function preview() {
   const ch = channelNames.filter((c) => pChannels.has(c));
   renderTargets($("p-targets"), ch, pTargets, preview);
   if (!ch.length) { $("p-issues").innerHTML = '<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">Pick at least one channel (channels is required).</div>'; $("p-summary").textContent = ""; $("p-out").innerHTML = ""; $("p-later").innerHTML = ""; return; }
-  $("p-issues").innerHTML = "";
-  const A = applicable(sev, tag, polSel);
+  $("p-issues").innerHTML = settings.enabled ? "" : '<div class="banner-note" style="background:transparent;border:1px solid var(--warn);color:var(--warn)">The hub is switched off in Settings: only the banner would be shown.</div>';
+  const A = settings.enabled ? applicable(sev, tag, polSel) : [];
   const summ = A.find((q) => q.type === "summarize" && (sev !== "critical" || q.inclCrit));
   const quiet = night ? A.find((q) => q.type === "quiet" && !(sev === "critical" && q.critPass)) : null;
   const away = A.find((q) => q.type === "away");
   const ctx = { sev, summ, quiet, away };
-  const main = deliver(ch, pTargets, ctx);
+  const main = deliver(settings.enabled ? ch : ch.filter((c) => c === "banner"), pTargets, ctx);
   let rows = main.rows.slice();
   const fb = A.find((q) => q.type === "fallback");
   if (fb && !summ) {
@@ -512,8 +555,6 @@ function preview() {
 // ---------- Policies tab ----------
 let cur = 0;
 const P = () => pols[cur];
-const sel = (opts, val, attr) => `<select ${attr}>` + opts.map((o) => `<option${o === val ? " selected" : ""}>${esc(o)}</option>`).join("") + "</select>";
-const chips = (opts, on, attr) => '<div class="row">' + opts.map((o) => `<button class="chip" ${attr}="${o}" aria-pressed="${on.includes(o)}">${o}</button>`).join("") + "</div>";
 function listPols() {
   $("pol-list").innerHTML = '<table><tr><th>Name</th><th>Type</th><th>Applies to</th><th></th></tr>' + pols.map((q, i) =>
     `<tr style="${q.enabled ? "" : "opacity:.5"}"><td><b>${esc(q.name)}</b></td><td><span class="badge">${typeNames[q.type]}</span></td><td>${esc(appliesText(q))}</td><td><button class="${i === cur ? "primary" : "ghost"}" data-edit="${i}">${i === cur ? "Editing" : "Edit"}</button></td></tr>`).join("") + "</table>";
@@ -539,7 +580,7 @@ function typeFields(q) {
     <p class="note">Nothing is sent individually while a message waits, on any channel. The summary shows the count and the titles, marks resolved ones and cuts at 10 ("and N more"). Nothing is sent if nothing was collected.</p>
     <label><input type="checkbox" ${q.inclCrit ? "checked" : ""} data-f="inclCrit"> Include critical messages</label>${q.inclCrit ? '<p class="note" style="color:var(--warn)">Critical messages will not be delivered individually. Check this is what you want.</p>' : ""}`;
 }
-function problems(q) {
+function polProblems(q) {
   const out = [];
   if (!q.name.trim()) out.push("Name is required.");
   if (["escalation", "fallback"].includes(q.type) && !q.channels.length) out.push("Pick at least one channel.");
@@ -550,7 +591,7 @@ function problems(q) {
   pols.forEach((o, i) => { if (i !== cur && key(o) === key(q)) out.push(`Refused: "${o.name}" is the same type with the same applies to and trigger.`); });
   return out;
 }
-function yamlOf(q) {
+function polYaml(q) {
   const y = ["policy:", `  name: ${q.name}`, `  type: ${q.type}`];
   if (q.sev.length || tagList(q).length) y.push(`  applies_to: {${[q.sev.length ? "severities: [" + q.sev.join(", ") + "]" : "", tagList(q).length ? "tags: [" + tagList(q).join(", ") + "]" : ""].filter(Boolean).join(", ")}}`);
   const notify = () => { y.push("  notify:", `    channels: [${q.channels.join(", ")}]`); const ty = targetsYaml(q.channels, q.targets, "      "); if (ty.length) { y.push("    to:"); ty.forEach((l) => y.push(l)); } };
@@ -565,7 +606,7 @@ function yamlOf(q) {
 function renderPol() {
   listPols(); fillPolicySelects();
   const q = P(); q.channels.forEach((c) => { if (!chSpec(c).none) q.targets[c] = normTarget(q.targets[c], c); });
-  const probs = problems(q);
+  const probs = polProblems(q);
   $("pol-editor").innerHTML = `<div class="card"><h2>Edit policy</h2>
     <label>Name</label><input type="text" value="${esc(q.name)}" data-f="name">
     <label>Type</label>${sel(Object.keys(typeNames).map((k) => typeNames[k]), typeNames[q.type], "data-type")}
@@ -576,25 +617,198 @@ function renderPol() {
   <div class="card"><h2>What this policy does</h2>
     <div class="banner-note" style="margin:0 0 10px">${esc(line(q))} Applies to ${esc(appliesText(q))}.</div>
     ${probs.length ? probs.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${esc(t)}</div>`).join("") : '<div class="note"><span class="badge ok">valid</span> No problems found.</div>'}
-    <h3>Stored as</h3><pre>${esc(yamlOf(q))}</pre>
+    <h3>Stored as</h3><pre>${esc(polYaml(q))}</pre>
     <div class="row" style="margin-top:10px"><button class="primary" id="pol-save" ${probs.length ? "disabled" : ""}>Save</button><button class="ghost" id="pol-del" ${pols.length < 2 ? "disabled" : ""}>Delete policy</button></div>
     <p class="note" id="pol-msg"></p></div>`;
   const root = $("pol-editor");
   if ($("pol-targets")) renderTargets($("pol-targets"), q.channels, q.targets, renderPol);
   root.querySelectorAll("[data-f]").forEach((e) => (e.onchange = () => { q[e.dataset.f] = e.type === "checkbox" ? e.checked : e.value; renderPol(); }));
   root.querySelectorAll("[data-type]").forEach((e) => (e.onchange = () => { const k = Object.keys(typeNames).find((x) => typeNames[x] === e.value); Object.assign(q, base({ name: q.name, type: k, sev: q.sev, tags: q.tags, enabled: q.enabled })); renderPol(); }));
-  root.querySelectorAll("[data-sev]").forEach((e) => (e.onclick = () => { const v = e.dataset.sev; q.sev = q.sev.includes(v) ? q.sev.filter((x) => x !== v) : q.sev.concat(v); renderPol(); }));
-  root.querySelectorAll("button[data-ch]").forEach((e) => (e.onclick = () => { const v = e.dataset.ch; q.channels = q.channels.includes(v) ? q.channels.filter((x) => x !== v) : q.channels.concat(v); renderPol(); }));
+  root.querySelectorAll("[data-sev]").forEach((e) => (e.onclick = () => { q.sev = toggle(q.sev, e.dataset.sev); renderPol(); }));
+  root.querySelectorAll("button[data-ch]").forEach((e) => (e.onclick = () => { q.channels = toggle(q.channels, e.dataset.ch); renderPol(); }));
   $("pol-save").onclick = () => { $("pol-msg").textContent = "Saved (simulated). In the real panel this writes the policy subentry."; };
   $("pol-del").onclick = () => { pols.splice(cur, 1); cur = 0; renderPol(); };
   render(); preview();
+}
+
+// ---------- Audiences tab ----------
+let acur = 6;
+function renderAud() {
+  audiences = audDefs.map((a) => a.name);
+  const kindText = (a) => (a.kind === "builtin" ? "built in" : a.kind === "persons" ? "persons" : "presence");
+  $("aud-list").innerHTML = '<table><tr><th>Name</th><th>Kind</th><th>Right now</th><th></th></tr>' + audDefs.map((a, i) => `<tr><td><b>${esc(a.name)}</b></td><td><span class="badge">${kindText(a)}</span></td><td>${esc(audienceMembers(a.name).join(", ") || "nobody")}</td><td>${a.kind === "builtin" ? "" : `<button class="${i === acur ? "primary" : "ghost"}" data-ae="${i}">${i === acur ? "Editing" : "Edit"}</button>`}</td></tr>`).join("") + "</table>";
+  $("aud-list").querySelectorAll("[data-ae]").forEach((b) => (b.onclick = () => { acur = +b.dataset.ae; renderAud(); }));
+  const a = audDefs[acur];
+  if (!a || a.kind === "builtin") { $("aud-editor").innerHTML = '<div class="card"><p class="note">Select a custom audience to edit it, or create a new one.</p></div>'; fillAll(); return; }
+  const used = pols.filter((q) => Object.values(q.targets).some((t) => t && t.mode === "aud" && t.who === a.name)).map((q) => q.name);
+  const probs = [];
+  if (!a.name.trim()) probs.push("Name is required.");
+  if (audDefs.some((o, i) => i !== acur && o.name === a.name)) probs.push("Another audience already has this name.");
+  if (a.kind === "persons" && !a.persons.length) probs.push("Pick at least one person.");
+  $("aud-editor").innerHTML = `<div class="card"><h2>Edit audience</h2>
+    <label>Name</label><input type="text" value="${esc(a.name)}" data-af="name">
+    <label>Kind</label>${sel(["Persons", "Presence"], a.kind === "persons" ? "Persons" : "Presence", "data-akind")}
+    ${a.kind === "persons" ? `<label>Persons</label>${chips(Object.keys(people), a.persons, "data-ap")}` : `<label>Presence</label>${sel(Object.values(presenceKinds), presenceKinds[a.presence], "data-apres")}${/zone/.test(a.presence) ? `<label>Zone</label>${sel(["work", "school", "home"], a.zone || "work", "data-azone")}` : ""}`}
+    <p class="note">Right now: ${esc(audienceMembers(a.name).join(", ") || "nobody")}. Membership is checked once when a message is sent.</p>
+    <p class="note">${used.length ? "Used by policies: " + esc(used.join(", ")) + "." : "Not used by any policy."}</p>
+    ${probs.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${esc(t)}</div>`).join("")}
+    <div class="row" style="margin-top:10px"><button class="primary" id="aud-save" ${probs.length ? "disabled" : ""}>Save</button><button class="ghost" id="aud-del" ${used.length ? "disabled" : ""}>Delete</button></div>
+    <p class="note" id="aud-msg"></p></div>`;
+  const root = $("aud-editor");
+  root.querySelectorAll("[data-af]").forEach((e) => (e.onchange = () => { a.name = e.value; renderAud(); }));
+  root.querySelectorAll("[data-akind]").forEach((e) => (e.onchange = () => { if (e.value === "Persons") { a.kind = "persons"; a.persons = a.persons || []; } else { a.kind = "presence"; a.presence = a.presence || "at_home"; } renderAud(); }));
+  root.querySelectorAll("[data-ap]").forEach((e) => (e.onclick = () => { a.persons = toggle(a.persons, e.dataset.ap); renderAud(); }));
+  root.querySelectorAll("[data-apres]").forEach((e) => (e.onchange = () => { a.presence = Object.keys(presenceKinds).find((k) => presenceKinds[k] === e.value); if (/zone/.test(a.presence) && !a.zone) a.zone = "work"; renderAud(); }));
+  root.querySelectorAll("[data-azone]").forEach((e) => (e.onchange = () => { a.zone = e.value; renderAud(); }));
+  $("aud-save").onclick = () => { $("aud-msg").textContent = "Saved (simulated)."; };
+  $("aud-del").onclick = () => { audDefs.splice(acur, 1); acur = 0; renderAud(); };
+  fillAll();
+}
+$("aud-new").onclick = () => { audDefs.push({ name: "New audience", kind: "persons", persons: [] }); acur = audDefs.length - 1; renderAud(); };
+function fillAll() { render(); preview(); }
+
+// ---------- Recipients tab ----------
+function renderRec() {
+  $("prof-list").innerHTML = Object.keys(profiles).map((n) => {
+    const p = profiles[n];
+    return `<div class="level" style="margin-bottom:10px"><b>${esc(n)}</b>${p.devices.length ? "" : ' <span class="badge warn">no usable device: skipped on push</span>'}
+      <table style="margin-top:6px">${p.devices.map((d, i) => `<tr><td>${esc(d.name)}</td><td><span class="badge">${d.src}</span></td><td><label style="margin:0"><input type="radio" name="prim-${n}" data-prim="${n}:${esc(d.name)}" ${p.primary === d.name ? "checked" : ""}> primary</label></td><td><button class="ghost" data-rd="${n}:${i}">Remove</button></td></tr>`).join("") || '<tr><td class="note">No devices.</td></tr>'}</table>
+      <div class="row" style="margin-top:6px"><input type="text" placeholder="Add a device by name" data-nd="${n}" style="max-width:260px"><button class="ghost" data-ad="${n}">Add</button></div>
+      <label>Accepts</label>${chips(["banner", "push", "popup"], p.channels, `data-pc="${n}" data-ch2`)}</div>`;
+  }).join("");
+  const R = $("prof-list");
+  R.querySelectorAll("[data-prim]").forEach((e) => (e.onchange = () => { const [n, d] = e.dataset.prim.split(":"); profiles[n].primary = d; renderRec(); }));
+  R.querySelectorAll("[data-rd]").forEach((e) => (e.onclick = () => { const [n, i] = e.dataset.rd.split(":"); const d = profiles[n].devices.splice(+i, 1)[0]; if (profiles[n].primary === d.name) profiles[n].primary = (profiles[n].devices[0] || {}).name || ""; renderRec(); fillAll(); }));
+  R.querySelectorAll("[data-ad]").forEach((e) => (e.onclick = () => { const n = e.dataset.ad; const inp = R.querySelector(`[data-nd="${n}"]`); if (inp.value.trim()) { profiles[n].devices.push({ name: inp.value.trim(), src: "manual" }); if (!profiles[n].primary) profiles[n].primary = inp.value.trim(); } renderRec(); fillAll(); }));
+  R.querySelectorAll("[data-ch2]").forEach((e) => (e.onclick = () => { const n = e.dataset.pc; profiles[n].channels = toggle(profiles[n].channels, e.getAttribute("data-ch2")); renderRec(); fillAll(); }));
+  $("grp-list").innerHTML = groups.map((g, gi) => `<div class="level" style="margin-bottom:10px"><div class="row" style="justify-content:space-between"><b>${esc(g.name)}</b><button class="ghost" data-dg="${gi}">Delete group</button></div>
+    <label>Name</label><input type="text" value="${esc(g.name)}" data-gn="${gi}"><label>Members (speakers, satellites)</label>${chips(speakers, g.members, `data-gm="${gi}" data-ch3`)}
+    <p class="note">${g.members.length} member(s). Used in calls as "${esc(g.name)} (group)". Volume is not changed.</p></div>`).join("") || '<p class="note">No groups.</p>';
+  const G = $("grp-list");
+  G.querySelectorAll("[data-gn]").forEach((e) => (e.onchange = () => { groups[+e.dataset.gn].name = e.value; renderRec(); fillAll(); }));
+  G.querySelectorAll("[data-ch3]").forEach((e) => (e.onclick = () => { const g = groups[+e.dataset.gm]; g.members = toggle(g.members, e.getAttribute("data-ch3")); renderRec(); }));
+  G.querySelectorAll("[data-dg]").forEach((e) => (e.onclick = () => { groups.splice(+e.dataset.dg, 1); renderRec(); fillAll(); }));
+}
+$("grp-new").onclick = () => { groups.push({ name: "New group", members: [] }); renderRec(); };
+
+// ---------- Rules tab ----------
+const ops = ["is", "is not", "above", "below", "between", "empty", "not_empty"];
+let rules = [
+  { name: "Freezer warm", entity: "sensor.freezer_temperature", operator: "above", state: "-10", forMin: 10, message: "Freezer is too warm", title: "Freezer", severity: "warning", tag: "kitchen", channels: ["banner", "push"], targets: { push: { mode: "aud", who: "Parents" } }, dismissible: true, snoozable: true, enabled: true },
+  { name: "Window open", entity: "binary_sensor.window", operator: "is", state: "on", forMin: 0, message: "Window is open", title: "", severity: "info", tag: "", channels: ["banner"], targets: {}, dismissible: true, snoozable: false, enabled: true },
+];
+let rcur = 0;
+function ruleProblems(r) { const out = []; if (!r.name.trim()) out.push("Name is required."); if (!/^[a-z_]+\.[a-z0-9_]+$/.test(r.entity)) out.push("Entity must look like domain.name."); if (!r.message.trim()) out.push("Message is required."); if (!r.channels.length) out.push("Pick at least one channel."); if (r.snoozable && !r.dismissible) out.push("Snoozable needs dismissible."); return out; }
+function ruleYaml(r) {
+  const y = ["rule:", `  name: ${r.name}`, `  trigger: {entity_id: ${r.entity}, operator: ${r.operator}${["empty", "not_empty"].includes(r.operator) ? "" : ", state: " + r.state}${+r.forMin ? ", for: " + r.forMin * 60 : ""}}`, "  notify:", `    message: ${r.message}`];
+  if (r.title) y.push(`    title: ${r.title}`);
+  y.push(`    severity: ${r.severity}`); if (r.tag) y.push(`    tag: ${r.tag}`);
+  y.push(`    dismissible: ${r.dismissible}`, `    snoozable: ${r.snoozable}`, `    channels: [${r.channels.join(", ")}]`);
+  const ty = targetsYaml(r.channels, r.targets, "      "); if (ty.length) { y.push("    to:"); ty.forEach((l) => y.push(l)); }
+  if (!r.enabled) y.push("  enabled: false");
+  return y.join("\n");
+}
+function renderRules() {
+  $("rul-list").innerHTML = '<table><tr><th>Name</th><th>When</th><th>Channels</th><th></th></tr>' + rules.map((r, i) => `<tr style="${r.enabled ? "" : "opacity:.5"}"><td><b>${esc(r.name)}</b></td><td>${esc(r.entity + " " + r.operator + (["empty", "not_empty"].includes(r.operator) ? "" : " " + r.state))}</td><td>${esc(r.channels.join(", "))}</td><td><button class="${i === rcur ? "primary" : "ghost"}" data-re="${i}">${i === rcur ? "Editing" : "Edit"}</button></td></tr>`).join("") + "</table>";
+  $("rul-list").querySelectorAll("[data-re]").forEach((b) => (b.onclick = () => { rcur = +b.dataset.re; renderRules(); }));
+  const r = rules[rcur]; if (!r) { $("rul-editor").innerHTML = ""; return; }
+  r.channels.forEach((c) => { if (!chSpec(c).none) r.targets[c] = normTarget(r.targets[c], c); });
+  const probs = ruleProblems(r);
+  $("rul-editor").innerHTML = `<div class="card"><h2>Edit rule</h2>
+    <label>Name</label><input type="text" value="${esc(r.name)}" data-rf="name">
+    <h3>When (trigger)</h3><label>Entity</label><input type="text" value="${esc(r.entity)}" data-rf="entity">
+    <div class="row"><div><label>Condition</label>${sel(ops, r.operator, 'data-rf="operator"')}</div>${["empty", "not_empty"].includes(r.operator) ? "" : `<div><label>Value</label><input type="text" value="${esc(r.state)}" data-rf="state" style="width:120px"></div>`}<div><label>For (minutes)</label><input type="text" value="${r.forMin}" data-rf="forMin" style="width:90px"></div></div>
+    <h3>Then (notify)</h3><label>Message</label><input type="text" value="${esc(r.message)}" data-rf="message"><label>Title (optional)</label><input type="text" value="${esc(r.title)}" data-rf="title">
+    <div class="row"><div><label>Severity</label>${sel(sevs, r.severity, 'data-rf="severity"')}</div><div><label>Tag</label><input type="text" value="${esc(r.tag)}" data-rf="tag" style="width:140px"></div></div>
+    <label>Channels</label>${chips(channelNames, r.channels, "data-rc")}<div id="rul-targets"></div>
+    <label><input type="checkbox" ${r.dismissible ? "checked" : ""} data-rf="dismissible"> Dismissible</label><label><input type="checkbox" ${r.snoozable ? "checked" : ""} data-rf="snoozable"> Snoozable</label>
+    <label><input type="checkbox" ${r.enabled ? "checked" : ""} data-rf="enabled"> Enabled</label></div>
+  <div class="card"><h2>Stored as</h2>${probs.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${esc(t)}</div>`).join("") || '<div class="note"><span class="badge ok">valid</span> No problems found.</div>'}<pre>${esc(ruleYaml(r))}</pre>
+    <p class="note">The rule shows its message while the condition holds, clears it when it stops, and the policies that match its severity and tag apply as for any message.</p>
+    <div class="row" style="margin-top:10px"><button class="primary" id="rul-save" ${probs.length ? "disabled" : ""}>Save</button><button class="ghost" id="rul-del">Delete rule</button></div><p class="note" id="rul-msg"></p></div>`;
+  renderTargets($("rul-targets"), r.channels, r.targets, renderRules);
+  const root = $("rul-editor");
+  root.querySelectorAll("[data-rf]").forEach((e) => (e.onchange = () => { r[e.dataset.rf] = e.type === "checkbox" ? e.checked : e.value; renderRules(); }));
+  root.querySelectorAll("[data-rc]").forEach((e) => (e.onclick = () => { r.channels = toggle(r.channels, e.dataset.rc); renderRules(); }));
+  $("rul-save").onclick = () => { $("rul-msg").textContent = "Saved (simulated). In the real panel this writes the rule subentry."; };
+  $("rul-del").onclick = () => { rules.splice(rcur, 1); rcur = 0; renderRules(); };
+}
+$("rul-new").onclick = () => { rules.push({ name: "New rule", entity: "sensor.example", operator: "above", state: "0", forMin: 0, message: "Something happened", title: "", severity: "info", tag: "", channels: ["banner"], targets: {}, dismissible: true, snoozable: false, enabled: true }); rcur = rules.length - 1; renderRules(); };
+
+// ---------- Channel settings tab ----------
+function renderChannelSettings() {
+  const lv = chSettings.push.levels, st = chSettings.popup.styles;
+  $("chs-body").innerHTML = `<div class="card"><h2>By severity</h2><table><tr><th>Severity</th><th>Push level</th><th>Popup style</th></tr>${sevs.map((v) => `<tr><td><b>${v}</b></td><td>${sel(["passive", "normal", "time-sensitive", "critical"], lv[v], `data-lv="${v}"`)}</td><td>${sel(["card", "modal"], st[v], `data-st="${v}"`)}</td></tr>`).join("")}</table>
+    <p class="note">iOS critical bypasses silent mode but needs app permission and cannot be replaced or grouped. Use it with care.</p></div>
+  <div class="card"><h2>Push</h2><label>Lock screen text</label>${sel(["full", "title_only", "generic"], chSettings.push.privacy, 'data-pp="privacy"')}
+    <label>Buttons (Acknowledge is added when an escalation or reminder policy applies)</label>${chips(["snooze", "dismiss"], chSettings.push.buttons, "data-pb")}
+    <label><input type="checkbox" ${chSettings.push.sticky ? "checked" : ""} data-pp="sticky"> Sticky (stays until dismissed)</label>
+    <label>Android channel id</label><input type="text" value="${esc(chSettings.push.channelId)}" data-pp="channelId" style="width:200px"><p class="note">Android keeps the first importance of a channel; lowering it later works.</p></div>
+  <div class="card"><h2>Speech</h2><label>Language</label><input type="text" value="${esc(chSettings.speak.language)}" data-sp="language" style="width:100px">
+    <label><input type="checkbox" ${chSettings.speak.announce ? "checked" : ""} data-sp="announce"> Use announce when the player supports it</label><p class="note">Volume is never changed or restored by the hub.</p></div>
+  <div class="card"><div class="row"><button class="primary" id="chs-save">Save</button></div><p class="note" id="chs-msg"></p></div>`;
+  const R = $("chs-body");
+  R.querySelectorAll("[data-lv]").forEach((e) => (e.onchange = () => { lv[e.dataset.lv] = e.value; preview(); }));
+  R.querySelectorAll("[data-st]").forEach((e) => (e.onchange = () => { st[e.dataset.st] = e.value; preview(); }));
+  R.querySelectorAll("[data-pp]").forEach((e) => (e.onchange = () => { chSettings.push[e.dataset.pp] = e.type === "checkbox" ? e.checked : e.value; preview(); }));
+  R.querySelectorAll("[data-sp]").forEach((e) => (e.onchange = () => { chSettings.speak[e.dataset.sp] = e.type === "checkbox" ? e.checked : e.value; preview(); }));
+  R.querySelectorAll("[data-pb]").forEach((e) => (e.onclick = () => { chSettings.push.buttons = toggle(chSettings.push.buttons, e.dataset.pb); renderChannelSettings(); }));
+  $("chs-save").onclick = () => { $("chs-msg").textContent = "Saved (simulated). The Preview tab already uses these values."; };
+}
+
+// ---------- Settings tab ----------
+function renderSettings() {
+  $("set-body").innerHTML = `<div class="card"><h2>Hub</h2><label><input type="checkbox" ${settings.enabled ? "checked" : ""} data-sf="enabled"> Hub enabled</label>
+    <p class="note">Off: messages only reach the dashboard banner, exactly as before the hub existed.</p></div>
+  <div class="card"><h2>Limits</h2><div class="row"><div><label>Pushes per device per minute</label><input type="text" value="${settings.perDevice}" data-sf="perDevice" style="width:100px"></div><div><label>Deliveries per minute, all devices</label><input type="text" value="${settings.global}" data-sf="global" style="width:100px"></div><div><label>Ignore identical updates for (seconds)</label><input type="text" value="${settings.dedupe}" data-sf="dedupe" style="width:100px"></div></div>
+    <p class="note">Suppressed deliveries are counted in the trace.</p></div>
+  <div class="card"><h2>History</h2><div class="row"><div><label>Trace entries kept</label><input type="text" value="${settings.logSize}" data-sf="logSize" style="width:100px"></div><div><label>Recent messages kept</label><input type="text" value="${settings.recent}" data-sf="recent" style="width:100px"></div></div></div>
+  <div class="card"><h2>Identity</h2><label>Install token (used in push tags so several Home Assistant servers do not collide)</label><input type="text" value="a7f3c2" disabled style="width:140px"></div>
+  <div class="card"><div class="row"><button class="primary" id="set-save">Save</button></div><p class="note" id="set-msg"></p></div>`;
+  $("set-body").querySelectorAll("[data-sf]").forEach((e) => (e.onchange = () => { settings[e.dataset.sf] = e.type === "checkbox" ? e.checked : +e.value || e.value; preview(); }));
+  $("set-save").onclick = () => { $("set-msg").textContent = "Saved (simulated)."; };
+}
+
+// ---------- Wizard ----------
+const wiz = { step: 0, persons: { Anna: true, Ben: true, Guest: false }, devices: { Anna: { "Anna's phone": true, "Anna's tablet": true }, Ben: { "Ben's phone": true }, Guest: {} }, preset: "Balanced" };
+const presets = { Quiet: ["Night quiet"], Balanced: ["Night quiet", "Water escalation", "Evening summary"], Loud: ["Night quiet", "Water escalation", "Warning reminders", "Evening summary", "Push failed fallback"] };
+const presetText = { Quiet: "Banner only for most things; quiet hours; nothing is pushed unless you add policies.", Balanced: "Quiet at night, a critical escalation to admins, an evening summary for info.", Loud: "Balanced, plus reminders for warnings and a fallback if a push fails." };
+function renderWizard() {
+  const steps = ["People", "Devices", "Loudness", "Test"];
+  const bar = `<div class="row" style="margin-bottom:12px">${steps.map((t, i) => `<span class="badge ${i === wiz.step ? "ok" : ""}">${i + 1}. ${t}</span>`).join("")}</div>`;
+  let body = "";
+  const chosen = Object.keys(wiz.persons).filter((n) => wiz.persons[n]);
+  if (wiz.step === 0) body = `<h2>Who lives here?</h2><p class="note">Pick the people who should receive notifications. Each gets a recipient profile.</p>${chips(Object.keys(wiz.persons), chosen, "data-wp")}`;
+  if (wiz.step === 1) body = `<h2>Check the devices</h2><p class="note">Detected phones are listed per person. Untick a device to leave it out.</p>${chosen.map((n) => `<div class="level" style="margin-bottom:8px"><b>${esc(n)}</b>${Object.keys(wiz.devices[n]).length ? Object.keys(wiz.devices[n]).map((d) => `<label style="margin:6px 0"><input type="checkbox" data-wd="${n}:${esc(d)}" ${wiz.devices[n][d] ? "checked" : ""}> ${esc(d)}</label>`).join("") : '<p class="note">No device detected. This person will only get banners and popups until a device is added.</p>'}</div>`).join("") || '<p class="note">Pick at least one person first.</p>'}`;
+  if (wiz.step === 2) body = `<h2>How loud?</h2>${["Quiet", "Balanced", "Loud"].map((p) => `<div class="level" style="margin-bottom:8px"><label style="margin:0"><input type="radio" name="preset" data-wpre="${p}" ${wiz.preset === p ? "checked" : ""}> <b>${p}</b></label><p class="note">${presetText[p]}</p><p class="note">Creates: ${presets[p].join(", ")}.</p></div>`).join("")}`;
+  if (wiz.step === 3) { const lines = chosen.map((n) => { const d = Object.keys(wiz.devices[n]).filter((x) => wiz.devices[n][x]).length; return `<tr><td>${esc(n)}</td><td>push</td><td><span class="badge ${d ? "ok" : "warn"}">${d ? "sent" : "skipped"}</span></td><td>${d ? d + " device(s)" : "no usable device"}</td></tr>`; }).join(""); body = `<h2>Test</h2><p class="note">A test message with the preset "${wiz.preset}" would do this (simulated):</p><table><tr><th>Person</th><th>Channel</th><th>Result</th><th>Why</th></tr>${lines || '<tr><td colspan="4" class="note">No person selected.</td></tr>'}</table>
+    <h3>The wizard will create</h3><ul class="plain">${chosen.map((n) => `<li>Recipient profile: ${esc(n)}</li>`).join("")}${presets[wiz.preset].map((n) => `<li>Policy: ${esc(n)}</li>`).join("")}</ul><p class="note" id="wiz-done"></p>`; }
+  $("wiz-body").innerHTML = bar + body + `<div class="row" style="margin-top:14px"><button class="ghost" id="wiz-back" ${wiz.step === 0 ? "disabled" : ""}>Back</button><button class="primary" id="wiz-next">${wiz.step === 3 ? "Create" : "Next"}</button></div>`;
+  const W = $("wiz-body");
+  W.querySelectorAll("[data-wp]").forEach((e) => (e.onclick = () => { wiz.persons[e.dataset.wp] = !wiz.persons[e.dataset.wp]; renderWizard(); }));
+  W.querySelectorAll("[data-wd]").forEach((e) => (e.onchange = () => { const [n, d] = e.dataset.wd.split(":"); wiz.devices[n][d] = e.checked; }));
+  W.querySelectorAll("[data-wpre]").forEach((e) => (e.onchange = () => { wiz.preset = e.dataset.wpre; renderWizard(); }));
+  $("wiz-back").onclick = () => { wiz.step--; renderWizard(); };
+  $("wiz-next").onclick = () => { if (wiz.step < 3) { wiz.step++; renderWizard(); } else { $("wiz-done").textContent = "Created (simulated). The profiles and policies now appear under Recipients and Policies, where you can edit them."; } };
+}
+
+// ---------- Overview ----------
+function renderOverview() {
+  const warn = [];
+  Object.keys(profiles).forEach((n) => { if (!profiles[n].devices.length) warn.push(`${n} has no usable device: push is skipped for them. <a href="#" data-go="rec">Fix in Recipients</a>`); });
+  if (!settings.enabled) warn.push('The hub is switched off: only banners are shown. <a href="#" data-go="set">Settings</a>');
+  const crit = pols.filter((q) => q.enabled && q.type === "escalation" && (!q.sev.length || q.sev.includes("critical")));
+  if (!crit.length) warn.push("No escalation policy covers critical messages.");
+  $("ov-counts").innerHTML = `<table><tr><td>Audiences</td><td><b>${audDefs.length}</b> (${audDefs.filter((a) => a.kind !== "builtin").length} custom)</td></tr><tr><td>Recipient profiles</td><td><b>${Object.keys(profiles).length}</b></td></tr><tr><td>Recipient groups</td><td><b>${groups.length}</b></td></tr><tr><td>Policies</td><td><b>${pols.length}</b> (${pols.filter((q) => q.enabled).length} enabled)</td></tr><tr><td>Watch rules</td><td><b>${rules.length}</b></td></tr><tr><td>Hub</td><td><span class="badge ${settings.enabled ? "ok" : "warn"}">${settings.enabled ? "on" : "off"}</span></td></tr></table>`;
+  $("ov-pols").innerHTML = pols.map((q) => `<p class="note" style="${q.enabled ? "" : "opacity:.5"}"><b>${esc(q.name)}</b> (${esc(appliesText(q))}): ${esc(line(q))}</p>`).join("");
+  $("ov-warn").innerHTML = warn.length ? '<ul class="plain">' + warn.map((w) => `<li>${w}</li>`).join("") + "</ul>" : '<p class="note"><span class="badge ok">ok</span> Nothing needs attention.</p>';
 }
 
 // ---------- Trace tab ----------
 const msgs = [["Water leak", "critical", "acknowledged by Ben"], ["Window open", "warning", "ended: condition false"], ["Doorbell", "info", "expired"], ["Washer done", "info", "in the 20:00 summary"]];
 $("msgs").innerHTML = '<tr><th>Message</th><th>Severity</th><th>Outcome</th></tr>' + msgs.map((m) => `<tr><td>${m[0]}</td><td>${m[1]}</td><td>${m[2]}</td></tr>`).join("");
 
-fillPolicySelects(); render(); preview(); renderPol();
+fillPolicySelects(); renderAud(); renderRec(); renderRules(); renderChannelSettings(); renderSettings(); renderWizard(); renderPol(); renderOverview();
 </script>
 </body>
 </html>
