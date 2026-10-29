@@ -545,3 +545,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - First panel covers: live preview (who would be notified now), per-message delivery trace, a list of recent messages, and a test send.
 - Alternatives: panel only shows and native dialogs edit; panel with its own storage; wizard in one place only; read-only access for all users.
 - Open: whether the recent-messages list survives a restart (relates to the history idea in OPEN_QUESTIONS, Phase 13 candidate); the panel registration API and serving under the no-build rule (D-021), to verify; the panel's strings in four languages.
+
+## D-094 Naming, gate types, response values and policy layout
+- Date: 2026-10-29. API design session on branch `design/notification-hub`.
+- Decision:
+  - The per-person hub object (D-088) is called a recipient profile.
+  - Gate types: `time_window`, `presence`, `acknowledgement`, `severity_tag`, `named_condition`; gate outcomes: `skip`, `delay`, `downgrade`, `stop`.
+  - `notify` response: message status `created`, `updated`, `waiting` or `condition_false` (as today), plus per channel counts of `sent`, `held`, `skipped` and `failed`.
+  - Policy layout: `name`, `match` (severities, tags), `acknowledge`, `steps`; a step has `after` (seconds from message start), `audience` or `recipients`, `channels`, `profile`, `gates`, `fallback`; a gate has `type` and `outcome`. Accepted by the maintainer on 2026-10-29 ("Ok") after reading the sketch in `docs/dev/HUB_DESIGN.md`.
+- Open: the exact fields of each gate type and of each channel profile.
