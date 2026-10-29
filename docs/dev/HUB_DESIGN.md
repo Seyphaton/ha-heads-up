@@ -567,3 +567,9 @@ Open: banner held while a summary waits; summary severity, channels and lifetime
 
 ## TARGETS PER CHANNEL (maintainer, 2026-10-29, D-098): supersedes D-096
 One call must be able to send push, speech and persistent notification together. `notify` takes `channels` and `to`, a mapping from channel to its own target (audience or recipients, never both; kinds depend on the channel). Policies (Escalation, Fallback) use the same shape. The earlier rule "a step or call has one who" is withdrawn. See DESIGN section 23.4 and 23.6.
+
+
+---
+
+## NO "ONLY IF" (maintainer, 2026-10-29, D-099)
+Policies have no "only if" field and the hub has no named conditions in the first version. This removes the named condition escape hatch (D-086) and the "only if" part of D-097. Earlier text in this file about named conditions and gates is superseded.

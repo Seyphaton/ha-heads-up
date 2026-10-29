@@ -140,7 +140,7 @@ data:
       <li><b>Loudness:</b> Quiet, Balanced or Loud.</li>
       <li><b>Test:</b> send a test and see per recipient what happened.</li>
     </ol>
-    <p class="note">Result of "Balanced" for a household of two: 2 recipient profiles, 1 recipient group, 3 policies (one escalation, one quiet hours, one summarize), 0 named conditions.</p>
+    <p class="note">Result of "Balanced" for a household of two: 2 recipient profiles, 1 recipient group, 3 policies (one escalation, one quiet hours, one summarize).</p>
     <button class="ghost" id="wiz-btn">Preview the wizard result</button>
     <div id="wiz-out"></div>
   </div>
@@ -163,10 +163,7 @@ data:
       <li>Profile <b>Guest</b>: no usable device <span class="badge warn">skipped on push</span></li>
     </ul>
   </div>
-  <div class="card">
-    <h2>Named conditions</h2>
-    <ul class="plain"><li><b>Guests staying</b>: guest mode is on</li><li><b>House disarmed</b>: alarm is not armed</li></ul>
-  </div>
+  
 </section>
 
 <section id="tab-pol" hidden>
@@ -309,7 +306,7 @@ const targetsYaml = (chs, targets, ind) => chs.filter((c) => !chSpec(c).none && 
 
 // ---------- policies (typed rules) ----------
 const typeNames = { escalation: "Escalation", quiet: "Quiet hours", fallback: "Fallback", reminder: "Reminder", away: "Away", summarize: "Summarize" };
-const base = (o) => Object.assign({ name: "New policy", type: "escalation", sev: [], tags: "", onlyIf: "(none)", enabled: true,
+const base = (o) => Object.assign({ name: "New policy", type: "escalation", sev: [], tags: "", enabled: true,
   after: 5, channels: ["push"], targets: {}, dismissCounts: true,
   from: "22:00", to: "07:00", days: "all", action: "quiet", critPass: true,
   when: "both", every: 30, max: 3, summaryMode: "every", summaryEvery: 60, summaryAt: "20:00", inclCrit: false }, o);
@@ -509,7 +506,6 @@ function problems(q) {
 function yamlOf(q) {
   const y = ["policy:", `  name: ${q.name}`, `  type: ${q.type}`];
   if (q.sev.length || tagList(q).length) y.push(`  applies_to: {${[q.sev.length ? "severities: [" + q.sev.join(", ") + "]" : "", tagList(q).length ? "tags: [" + tagList(q).join(", ") + "]" : ""].filter(Boolean).join(", ")}}`);
-  if (q.onlyIf !== "(none)") y.push(`  only_if: ${q.onlyIf}`);
   const notify = () => { y.push("  notify:", `    channels: [${q.channels.join(", ")}]`); const ty = targetsYaml(q.channels, q.targets, "      "); if (ty.length) { y.push("    to:"); ty.forEach((l) => y.push(l)); } };
   if (q.type === "escalation") { y.push(`  after: ${q.after}`); notify(); y.push(`  dismiss_counts: ${q.dismissCounts}`); }
   if (q.type === "quiet") y.push(`  from: "${q.from}"`, `  to: "${q.to}"`, `  days: ${q.days}`, `  action: ${q.action}`, `  critical_passes: ${q.critPass}`);
@@ -529,10 +525,9 @@ function renderPol() {
     ${typeFields(q)}
     <h3>Applies to</h3><label>Severities (none selected means any)</label>${chips(sevs, q.sev, "data-sev")}
     <label>Tags (comma separated, empty means any tag)</label><input type="text" value="${esc(q.tags)}" data-f="tags">
-    <label>Only if (optional named condition)</label>${sel(["(none)", "Guests staying", "House disarmed"], q.onlyIf, 'data-f="onlyIf"')}
     <label><input type="checkbox" ${q.enabled ? "checked" : ""} data-f="enabled"> Enabled</label></div>
   <div class="card"><h2>What this policy does</h2>
-    <div class="banner-note" style="margin:0 0 10px">${esc(line(q))} Applies to ${esc(appliesText(q))}${q.onlyIf !== "(none)" ? ", only if " + esc(q.onlyIf) : ""}.</div>
+    <div class="banner-note" style="margin:0 0 10px">${esc(line(q))} Applies to ${esc(appliesText(q))}.</div>
     ${probs.length ? probs.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${esc(t)}</div>`).join("") : '<div class="note"><span class="badge ok">valid</span> No problems found.</div>'}
     <h3>Stored as</h3><pre>${esc(yamlOf(q))}</pre>
     <div class="row" style="margin-top:10px"><button class="primary" id="pol-save" ${probs.length ? "disabled" : ""}>Save</button><button class="ghost" id="pol-del" ${pols.length < 2 ? "disabled" : ""}>Delete policy</button></div>
@@ -540,7 +535,7 @@ function renderPol() {
   const root = $("pol-editor");
   if ($("pol-targets")) renderTargets($("pol-targets"), q.channels, q.targets, renderPol);
   root.querySelectorAll("[data-f]").forEach((e) => (e.onchange = () => { q[e.dataset.f] = e.type === "checkbox" ? e.checked : e.value; renderPol(); }));
-  root.querySelectorAll("[data-type]").forEach((e) => (e.onchange = () => { const k = Object.keys(typeNames).find((x) => typeNames[x] === e.value); Object.assign(q, base({ name: q.name, type: k, sev: q.sev, tags: q.tags, onlyIf: q.onlyIf, enabled: q.enabled })); renderPol(); }));
+  root.querySelectorAll("[data-type]").forEach((e) => (e.onchange = () => { const k = Object.keys(typeNames).find((x) => typeNames[x] === e.value); Object.assign(q, base({ name: q.name, type: k, sev: q.sev, tags: q.tags, enabled: q.enabled })); renderPol(); }));
   root.querySelectorAll("[data-sev]").forEach((e) => (e.onclick = () => { const v = e.dataset.sev; q.sev = q.sev.includes(v) ? q.sev.filter((x) => x !== v) : q.sev.concat(v); renderPol(); }));
   root.querySelectorAll("button[data-ch]").forEach((e) => (e.onclick = () => { const v = e.dataset.ch; q.channels = q.channels.includes(v) ? q.channels.filter((x) => x !== v) : q.channels.concat(v); renderPol(); }));
   $("pol-save").onclick = () => { $("pol-msg").textContent = "Saved (simulated). In the real panel this writes the policy subentry."; };

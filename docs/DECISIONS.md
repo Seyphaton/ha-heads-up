@@ -600,3 +600,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   ```
 - Alternatives: one audience plus a separate `speakers` field; mixed recipient groups (fixed lists, no dynamic audiences).
 - Open: whether `notify` also accepts a top-level default target for all people channels.
+
+## D-099 No "Only if" and no named conditions for now
+- Date: 2026-10-29. Requested by the maintainer after asking where "Only if" came from; it had no editor in the mockup.
+- Decision: policies have no "Only if" field and the hub has no named conditions in the first version. This removes the escape hatch of D-086 and the "Only if" part of D-097. The generic condition stays where it is today: the message lifecycle condition of `notify` and `create_banner`. Cases such as "only while guest mode is on" are handled by the producer (an automation condition) or by disabling a policy.
+- Alternatives: a named conditions screen and subentry type (reusable, one more concept); an inline single-entity condition on a policy.
+- Reason: fewer concepts for the first version; the need is unproven. Recorded as an idea in `docs/OPEN_QUESTIONS.md`.

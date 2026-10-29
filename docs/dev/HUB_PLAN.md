@@ -22,8 +22,7 @@ Today's implementation sets the foundation for how notifications (right now: ban
 - Audience: people-based and channel-neutral. Persons, or a presence kind. Built in: Everyone, Admins, At home, Not home, Last to leave, First home.
 - Recipient group: a named set of explicit targets (speakers, Assist satellites, areas, notify targets).
 - Recipient profile: per person, the detected devices, manual overrides, primary device and accepted channels.
-- Policy: one small typed rule with a trigger and an effect (D-097). Types: Escalation, Quiet hours, Fallback, Reminder, Away, Summarize. Each can apply to severities and tags and carry an optional "only if" named condition.
-- Named condition: a reusable generic condition (entity with operators and `for`, or template).
+- Policy: one small typed rule with a trigger and an effect (D-097). Types: Escalation, Quiet hours, Fallback, Reminder, Away, Summarize. Each can apply to severities and tags. There are no named conditions in the first version (D-099).
 - Channel settings: one page with defaults by severity (push level, lock-screen text, buttons, popup style, speech language).
 
 ## 4. How a producer calls it

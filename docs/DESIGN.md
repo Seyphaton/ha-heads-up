@@ -560,8 +560,7 @@ Automations hard-code notify services, speaker entities, quiet-hour templates an
 | Audience | People-based, channel-neutral, flat (D-079): persons, or a presence kind. Built in: Everyone, Admins, At home, Not home, Last to leave, First home. |
 | Recipient group | A named set of explicit targets (speakers, Assist satellites, areas, notify targets), tied to channels (D-088). |
 | Recipient profile | Per person: detected devices, manual overrides, primary device, accepted channels (D-088). |
-| Policy | One small typed rule (D-097): Escalation, Quiet hours, Fallback, Reminder, Away or Summarize, with a trigger and an effect, an optional "Applies to" (severities, tags) and an optional "Only if" named condition. |
-| Named condition | A hub subentry holding the generic condition (entity with operators and `for`, or template); usable as "Only if" on a policy and as a lifecycle condition. |
+| Policy | One small typed rule (D-097): Escalation, Quiet hours, Fallback, Reminder, Away or Summarize, with a trigger and an effect and an optional "Applies to" (severities, tags). |
 | Channel settings | One settings page with defaults by severity: push level and lock-screen text, buttons, popup style, speech language. |
 | Delivery | One message, one recipient, one channel, with a state: planned, held, sent, skipped, failed, cleared. |
 
@@ -605,7 +604,7 @@ policy:
       speak: {recipients: [Ground floor speakers]}
   dismiss_counts: true
 ```
-- Common fields: `name`, `type`, `applies_to` (empty means all), `only_if` (named condition), `enabled`.
+- Common fields: `name`, `type`, `applies_to` (empty means all), `enabled`. There is no "only if" condition and there are no named conditions in the first version (D-099).
 - A second policy of the same type with identical `applies_to` and trigger is refused. Precedence on one delivery: Summarize, Quiet hours, Away, Fallback; escalations and reminders create later deliveries that pass through the same rules.
 - The first delivery (channels and a target per channel) always comes from the call. Escalation and Fallback name their own channels and a target for each (D-098).
 - Acknowledgement: any recipient stops escalation and reminders. Snooze clears the user's push, pauses their reminders and notifies again when it ends. A severity change restarts escalation and reminders with the policies of the new severity. An overdue escalation fires once after a restart if the message is active and unacknowledged.
