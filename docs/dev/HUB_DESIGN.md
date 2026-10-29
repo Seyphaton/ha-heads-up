@@ -573,3 +573,9 @@ One call must be able to send push, speech and persistent notification together.
 
 ## NO "ONLY IF" (maintainer, 2026-10-29, D-099)
 Policies have no "only if" field and the hub has no named conditions in the first version. This removes the named condition escape hatch (D-086) and the "only if" part of D-097. Earlier text in this file about named conditions and gates is superseded.
+
+
+---
+
+## WATCH RULES ARE FROZEN (maintainer, 2026-10-30, D-100)
+Rules keep working as released and get no hub fields; the panel lists them read-only. Policies apply to rule messages by severity and tag. This supersedes the earlier statements in this file that watch rules are stored notify calls. See DESIGN section 22.2 for the parity exception.

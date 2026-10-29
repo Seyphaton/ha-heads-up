@@ -523,6 +523,7 @@ How both sources stay equal:
 | `id`, `tag`, `timeout`, `mode`, `wait_for_condition` | yes | exception: a rule's lifetime is its condition; its tag is `rule`; its mode is recurring (D-052, D-056) |
 | clear by action or by an admin | yes | exception: the rule is disabled or deleted instead (D-056) |
 | stored over a restart (banner, dismissals, snoozes) | yes | exception: a rule is rebuilt from its subentry; dismissals and snoozes are not kept (D-056, D-069) |
+| hub delivery (channels, a target per channel, a named policy) | yes (`notify`) | exception: rules stay banner-channel messages; policies apply by severity and tag (D-100) |
 
 ### 22.3 Details of the rule additions
 - **Buttons and tap action:** subentry fields `actions` (list, up to 3, normalized with `dismiss: false` defaults) and `tap_action`. A rule's button presses fire `heads_up_banner_action` with `id = rule_<subentry_id>` and `tag = rule`. A button with `dismiss` needs a dismissible rule (`actions_dismiss_needs_dismissible`).
@@ -568,7 +569,7 @@ Automations hard-code notify services, speaker entities, quiet-hour templates an
 - `heads_up.notify`: content `message` (required), `title`, `icon`, `severity`, `actions`, `tap_action`, `tts_message`; lifecycle `id`, `tag`, `timeout`, `condition`, `mode`, `wait_for_condition`, `dismissible`, `dismiss_scope`, `snoozable`, `snooze_scope`, `snooze_options`; delivery `channels` (required list), `to` (a target per channel: `audience` or `recipients`, never both, kinds depend on the channel, D-098), `policy` (omitted: all that apply; `none`: no policy behavior).
 - Shortcuts `push`, `popup`, `speak`: fixed channel, optional audience or recipients, no escalation; fire and forget without an `id`, a tracked message with one. `create_banner` is unchanged and keeps `people`.
 - One generic clear removes a message from every channel. Response: `id`, `status` (`created`, `updated`, `waiting`, `condition_false`) and per channel counts of `sent`, `held`, `skipped`, `failed`.
-- Watch rules are stored `notify` calls plus a trigger and share the schema.
+- Watch rules are frozen (D-100): they keep working as released, deliver to the banner channel and get no channels or targets. Policies still apply to their messages by severity and tag.
 
 ### 23.5 Recipients per channel (D-090, D-091)
 | Channel | `audience` | `recipients` |

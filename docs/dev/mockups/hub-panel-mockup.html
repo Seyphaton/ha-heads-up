@@ -196,9 +196,9 @@ data:
 </section>
 
 <section id="tab-rul" hidden>
-  <div class="banner-note">A watch rule is a stored notify call plus a trigger. It shows its message while the condition holds.</div>
-  <div class="card"><h2>Watch rules</h2><div id="rul-list"></div><div class="row" style="margin-top:10px"><button class="ghost" id="rul-new">New rule</button></div></div>
-  <div id="rul-editor"></div>
+  <div class="banner-note">Watch rules are frozen: they keep working as before and show their message on the dashboard. This list is read-only. Edit them in Home Assistant under Devices &amp; services, Heads Up.</div>
+  <div class="card"><h2>Watch rules</h2><div id="rul-list"></div>
+    <p class="note">Policies still apply to a rule's message by severity and tag: quiet hours, escalation, reminders and summaries work without any change to the rule. For anything more detailed, use an automation that calls notify.</p></div>
 </section>
 
 <section id="tab-chs" hidden>
@@ -284,7 +284,7 @@ data:
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const tabs = [["hub","Overview"],["send","New notification"],["prev","Preview"],["trace","Trace"],["aud","Audiences"],["rec","Recipients"],["pol","Policies"],["rul","Rules"],["chs","Channels"],["wiz","Wizard"],["set","Settings"],["ex","Examples & FAQ"]];
+const tabs = [["hub","Overview"],["send","New notification"],["prev","Preview"],["trace","Trace"],["aud","Audiences"],["rec","Recipients"],["pol","Policies"],["rul","Watch rules"],["chs","Channels"],["wiz","Wizard"],["set","Settings"],["ex","Examples & FAQ"]];
 const nav = $("tabs");
 function goto(id) {
   tabs.forEach(([t]) => { $("tab-" + t).hidden = t !== id; });
@@ -691,49 +691,17 @@ function renderRec() {
 }
 $("grp-new").onclick = () => { groups.push({ name: "New group", members: [] }); renderRec(); };
 
-// ---------- Rules tab ----------
-const ops = ["is", "is not", "above", "below", "between", "empty", "not_empty"];
-let rules = [
-  { name: "Freezer warm", entity: "sensor.freezer_temperature", operator: "above", state: "-10", forMin: 10, message: "Freezer is too warm", title: "Freezer", severity: "warning", tag: "kitchen", channels: ["banner", "push"], targets: { push: { mode: "aud", who: "Parents" } }, dismissible: true, snoozable: true, enabled: true },
-  { name: "Window open", entity: "binary_sensor.window", operator: "is", state: "on", forMin: 0, message: "Window is open", title: "", severity: "info", tag: "", channels: ["banner"], targets: {}, dismissible: true, snoozable: false, enabled: true },
+// ---------- Watch rules (read-only) ----------
+const rules = [
+  { name: "Freezer warm", when: "sensor.freezer_temperature above -10 for 10 min", message: "Freezer is too warm", severity: "warning", tag: "kitchen", enabled: true },
+  { name: "Window open", when: "binary_sensor.window is on", message: "Window is open", severity: "info", tag: "", enabled: true },
 ];
-let rcur = 0;
-function ruleProblems(r) { const out = []; if (!r.name.trim()) out.push("Name is required."); if (!/^[a-z_]+\.[a-z0-9_]+$/.test(r.entity)) out.push("Entity must look like domain.name."); if (!r.message.trim()) out.push("Message is required."); if (!r.channels.length) out.push("Pick at least one channel."); if (r.snoozable && !r.dismissible) out.push("Snoozable needs dismissible."); return out; }
-function ruleYaml(r) {
-  const y = ["rule:", `  name: ${r.name}`, `  trigger: {entity_id: ${r.entity}, operator: ${r.operator}${["empty", "not_empty"].includes(r.operator) ? "" : ", state: " + r.state}${+r.forMin ? ", for: " + r.forMin * 60 : ""}}`, "  notify:", `    message: ${r.message}`];
-  if (r.title) y.push(`    title: ${r.title}`);
-  y.push(`    severity: ${r.severity}`); if (r.tag) y.push(`    tag: ${r.tag}`);
-  y.push(`    dismissible: ${r.dismissible}`, `    snoozable: ${r.snoozable}`, `    channels: [${r.channels.join(", ")}]`);
-  const ty = targetsYaml(r.channels, r.targets, "      "); if (ty.length) { y.push("    to:"); ty.forEach((l) => y.push(l)); }
-  if (!r.enabled) y.push("  enabled: false");
-  return y.join("\n");
-}
 function renderRules() {
-  $("rul-list").innerHTML = '<table><tr><th>Name</th><th>When</th><th>Channels</th><th></th></tr>' + rules.map((r, i) => `<tr style="${r.enabled ? "" : "opacity:.5"}"><td><b>${esc(r.name)}</b></td><td>${esc(r.entity + " " + r.operator + (["empty", "not_empty"].includes(r.operator) ? "" : " " + r.state))}</td><td>${esc(r.channels.join(", "))}</td><td><button class="${i === rcur ? "primary" : "ghost"}" data-re="${i}">${i === rcur ? "Editing" : "Edit"}</button></td></tr>`).join("") + "</table>";
-  $("rul-list").querySelectorAll("[data-re]").forEach((b) => (b.onclick = () => { rcur = +b.dataset.re; renderRules(); }));
-  const r = rules[rcur]; if (!r) { $("rul-editor").innerHTML = ""; return; }
-  r.channels.forEach((c) => { if (!chSpec(c).none) r.targets[c] = normTarget(r.targets[c], c); });
-  const probs = ruleProblems(r);
-  $("rul-editor").innerHTML = `<div class="card"><h2>Edit rule</h2>
-    <label>Name</label><input type="text" value="${esc(r.name)}" data-rf="name">
-    <h3>When (trigger)</h3><label>Entity</label><input type="text" value="${esc(r.entity)}" data-rf="entity">
-    <div class="row"><div><label>Condition</label>${sel(ops, r.operator, 'data-rf="operator"')}</div>${["empty", "not_empty"].includes(r.operator) ? "" : `<div><label>Value</label><input type="text" value="${esc(r.state)}" data-rf="state" style="width:120px"></div>`}<div><label>For (minutes)</label><input type="text" value="${r.forMin}" data-rf="forMin" style="width:90px"></div></div>
-    <h3>Then (notify)</h3><label>Message</label><input type="text" value="${esc(r.message)}" data-rf="message"><label>Title (optional)</label><input type="text" value="${esc(r.title)}" data-rf="title">
-    <div class="row"><div><label>Severity</label>${sel(sevs, r.severity, 'data-rf="severity"')}</div><div><label>Tag</label><input type="text" value="${esc(r.tag)}" data-rf="tag" style="width:140px"></div></div>
-    <label>Channels</label>${chips(channelNames, r.channels, "data-rc")}<div id="rul-targets"></div>
-    <label><input type="checkbox" ${r.dismissible ? "checked" : ""} data-rf="dismissible"> Dismissible</label><label><input type="checkbox" ${r.snoozable ? "checked" : ""} data-rf="snoozable"> Snoozable</label>
-    <label><input type="checkbox" ${r.enabled ? "checked" : ""} data-rf="enabled"> Enabled</label></div>
-  <div class="card"><h2>Stored as</h2>${probs.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${esc(t)}</div>`).join("") || '<div class="note"><span class="badge ok">valid</span> No problems found.</div>'}<pre>${esc(ruleYaml(r))}</pre>
-    <p class="note">The rule shows its message while the condition holds, clears it when it stops, and the policies that match its severity and tag apply as for any message.</p>
-    <div class="row" style="margin-top:10px"><button class="primary" id="rul-save" ${probs.length ? "disabled" : ""}>Save</button><button class="ghost" id="rul-del">Delete rule</button></div><p class="note" id="rul-msg"></p></div>`;
-  renderTargets($("rul-targets"), r.channels, r.targets, renderRules);
-  const root = $("rul-editor");
-  root.querySelectorAll("[data-rf]").forEach((e) => (e.onchange = () => { r[e.dataset.rf] = e.type === "checkbox" ? e.checked : e.value; renderRules(); }));
-  root.querySelectorAll("[data-rc]").forEach((e) => (e.onclick = () => { r.channels = toggle(r.channels, e.dataset.rc); renderRules(); }));
-  $("rul-save").onclick = () => { $("rul-msg").textContent = "Saved (simulated). In the real panel this writes the rule subentry."; };
-  $("rul-del").onclick = () => { rules.splice(rcur, 1); rcur = 0; renderRules(); };
+  $("rul-list").innerHTML = '<table><tr><th>Name</th><th>When</th><th>Message</th><th>Severity</th><th>Policies that apply</th></tr>' + rules.map((r) => {
+    const A = applicable(r.severity, "rule", "all that apply").map((q) => q.name);
+    return `<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.when)}</td><td>${esc(r.message)}</td><td>${r.severity}</td><td>${esc(A.join(", ") || "none")}</td></tr>`;
+  }).join("") + "</table>";
 }
-$("rul-new").onclick = () => { rules.push({ name: "New rule", entity: "sensor.example", operator: "above", state: "0", forMin: 0, message: "Something happened", title: "", severity: "info", tag: "", channels: ["banner"], targets: {}, dismissible: true, snoozable: false, enabled: true }); rcur = rules.length - 1; renderRules(); };
 
 // ---------- Channel settings tab ----------
 function renderChannelSettings() {

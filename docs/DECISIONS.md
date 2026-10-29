@@ -606,3 +606,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision: policies have no "Only if" field and the hub has no named conditions in the first version. This removes the escape hatch of D-086 and the "Only if" part of D-097. The generic condition stays where it is today: the message lifecycle condition of `notify` and `create_banner`. Cases such as "only while guest mode is on" are handled by the producer (an automation condition) or by disabling a policy.
 - Alternatives: a named conditions screen and subentry type (reusable, one more concept); an inline single-entity condition on a policy.
 - Reason: fewer concepts for the first version; the need is unproven. Recorded as an idea in `docs/OPEN_QUESTIONS.md`.
+
+## D-100 Watch rules are frozen
+- Date: 2026-10-30. Requested by the maintainer ("we are replicating automation functionality"); decided after a review of keeping, freezing and deprecating rules.
+- Decision: watch rules keep working exactly as released in 0.4.0 and get no hub fields (no channels, targets or policy name). They are not edited in the panel; the panel shows a read-only list with the standard settings page as the place to edit. A rule message is a banner-channel message. Policies match by severity and tag, so quiet hours, escalation, reminders, summaries and the other policy types apply to rule messages without any change to the rule form; an escalation policy can push or speak a rule message after its delay. New needs are served by automations calling `notify`.
+- Supersedes: the statement in D-083 and D-084 that watch rules are stored `notify` calls sharing its schema.
+- Parity (rule 9): an exception row in DESIGN section 22.2 with this decision number: rules do not get channels and targets.
+- Alternatives: rules fully in the hub with channels and a Rules tab (most convenient, most duplication, a second editor in the panel); deprecating rules with a migration to automations or a blueprint (cleanest long term, breaks users).
+- Open: a "watch an entity" blueprint as the no-YAML path for new setups, and whether a custom integration can ship blueprints (unverified); deprecation later.

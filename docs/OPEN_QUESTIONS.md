@@ -87,3 +87,4 @@
 - Policy steps may add channels and audiences (escalation, fallback); wording of "primary channel" in `notify` to settle in the API session.
 - Panel: registration is \`panel_custom.async_register_panel\` with \`module_url\` and \`require_admin\` (N-69); \`require_admin\` only hides the sidebar entry, so the panel's WebSocket commands check admin themselves. Still unverified: the web component contract, whether \`panel_custom\` must be in the manifest, a dev check. Whether the recent-messages list is stored (links to the Phase 13 history candidate).
 - Idea, not planned (D-099): named conditions as reusable hub objects and an optional "only if" on a policy (examples: guest mode on, alarm disarmed, freezer temperature above a limit for 10 minutes).
+- Watch rules are frozen (D-100). Ideas: a "watch an entity" blueprint as the no-YAML path for new setups; whether a custom integration can ship blueprints (unverified); deprecating rules later with a migration.
