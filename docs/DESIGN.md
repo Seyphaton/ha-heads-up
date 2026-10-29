@@ -13,6 +13,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §20 `empty` and `not_empty` operators, rule form without a prefilled State | implemented and tested (Phase 11); card unchanged |
 | §21 banner buttons and snooze | implemented and tested (Phase 12); card checked on the dev HA with a mouse |
 | §22 parity of banner sources, rule buttons, tap action, dismiss scope and template conditions | implemented and tested (Phase 12 follow-up) |
+| §23 notification hub | design proposal only (Phase 15, branch `design/notification-hub`); no code; not approved for build |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
 | Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
@@ -25,7 +26,7 @@ Goals
 - No caller-specific code; the action schema is the only contract.
 
 Non-goals
-- Delivering push, TTS or mobile notifications.
+- Delivering push, TTS or mobile notifications. Under review: §23 proposes delivery through a hub (D-075); this line stays until a build phase is approved.
 - Access control. Server-side targeting limits what a user's session receives, but admins and anyone with file access can read all banners (D-008).
 - Changing other integrations, automations, scripts or blueprints.
 
@@ -535,3 +536,102 @@ Restart: the usual one after a code update. Notification path: not touched. Dash
 ### 22.5 Tests
 `tests/test_rule_parity.py`: rule payload with buttons and tap action, button event and dismissal, unknown key, global dismissal until the condition flips, default scope, template rule (follows, `{name}`, `for`, tracking removed on delete). `tests/test_rules_flow.py`: template stored without entity fields, one of entity and template, invalid template, buttons and tap action stored as the action stores them, invalid input, dismiss button needs a dismissible rule.
 
+
+
+## 23. Notification hub (Phase 15, design proposal)
+
+Status: proposal on branch `design/notification-hub`, 2026-10-29. No code. Not approved for build; whether the hub is built is open (D-075). Decisions D-075 to D-094. The full planning record, including the original draft text, is `docs/dev/HUB_DESIGN.md`; this section is the consolidated design. Where they differ, the decisions win.
+
+### 23.1 Problem
+Automations hard-code notify services, speaker entities, quiet-hour templates and clean-up logic. Replacing a phone means editing every automation. A critical alert nobody read, a doorbell with nobody home, a push dismissed on one device and still shown on a wall tablet: each is handled ad hoc, with no shared state.
+
+### 23.2 Principles
+- Today's banner delivery is the foundation. The hub adds channels and features; the banner is one channel (D-077).
+- Everything that exists works without the hub (D-076): `create_banner`, `clear_banner`, `clear_all`, watch rules, the card. Without a policy a message goes to the channels the call names.
+- A message has one id for all channels; state changes on one surface apply to every channel (D-078).
+- Parity (rule 9): action messages and rule messages offer the same features.
+- Delivery never blocks creation; failures show in the trace.
+
+### 23.3 Concepts
+| Concept | Meaning |
+|---|---|
+| Message | The unit a producer creates; owns the lifecycle (timeout, condition, dismiss, snooze, acknowledgement). |
+| Channel | An output surface: banner, push (Companion app), popup, speak, persistent notification. |
+| Audience | People-based, channel-neutral, flat (D-079): persons, or a presence kind. Built in: Everyone, Admins, At home, Not home, Last to leave, First home. |
+| Recipient group | A named set of explicit targets (speakers, Assist satellites, areas, notify targets), tied to channels (D-088). |
+| Recipient profile | Per person: detected devices, manual overrides, primary device, accepted channels (D-088). |
+| Policy | How a message is delivered: match, acknowledgement rule and up to 4 timed steps (D-079, D-089, D-094). |
+| Gate | A predefined condition on a step or policy: `time_window`, `presence`, `acknowledgement`, `severity_tag`, `named_condition`; outcome `skip`, `delay`, `downgrade` or `stop` (D-086, D-094). |
+| Named condition | A hub subentry holding the generic condition (entity with operators and `for`, or template); usable as a gate and as a lifecycle condition (D-086). |
+| Delivery | One message, one recipient, one channel, with a state: planned, held, sent, skipped, failed, cleared. |
+
+### 23.4 Actions and fields (D-083, D-087)
+- `heads_up.notify`: content `message` (required), `title`, `icon`, `severity`, `actions`, `tap_action`, `tts_message`; lifecycle `id`, `tag`, `timeout`, `condition`, `mode`, `wait_for_condition`, `dismissible`, `dismiss_scope`, `snoozable`, `snooze_scope`, `snooze_options`; delivery `channels` (required list, step 0), `audience` or `recipients` (never both), `policy` (omitted: matched by severity and tag; `none`: no policy behavior).
+- Shortcuts `push`, `popup`, `speak`: fixed channel, optional audience or recipients, no escalation; fire and forget without an `id`, a tracked message with one. `create_banner` is unchanged and keeps `people`.
+- One generic clear removes a message from every channel. Response: `id`, `status` (`created`, `updated`, `waiting`, `condition_false`) and per channel counts of `sent`, `held`, `skipped`, `failed`.
+- Watch rules are stored `notify` calls plus a trigger and share the schema.
+
+### 23.5 Recipients per channel (D-090, D-091)
+| Channel | `audience` | `recipients` |
+|---|---|---|
+| banner | yes | persons (empty: everyone) |
+| push | yes | persons, notify targets or devices |
+| popup | yes | persons only in the first version |
+| speak | no | recipient groups, media players, Assist satellites, areas |
+| persistent | no | none (targets everyone) |
+
+### 23.6 Policy (D-079, D-081, D-089, D-094)
+```yaml
+policy:
+  name: Critical water
+  match: {severities: [critical], tags: [water]}
+  acknowledge: {dismiss_counts: true}
+  steps:
+    - after: 0
+      audience: Everyone
+      channels: [banner, push, popup]
+      profile: {push: {level: time-sensitive}}
+      gates:
+        - {type: time_window, from: "22:00", to: "07:00", outcome: downgrade}
+    - after: 300
+      audience: Admins
+      channels: [push, speak]
+      gates:
+        - {type: acknowledgement, state: not_acknowledged, outcome: skip}
+      fallback: {audience: Everyone}
+```
+- Matching: the most specific policy wins (tag before severity only); two policies with identical matches are refused. A caller's `audience`, `recipients` or `channels` define step 0; later steps come from the policy.
+- Steps: up to 4; `after` is an offset from the message start with stored due times; an overdue step fires once after a restart if the message is active and unacknowledged.
+- Fallback applies when the audience resolves to nobody, all deliveries failed, or nobody acknowledged in time.
+- A severity change on an active message restarts the timeline with the policy of the new severity.
+- Acknowledgement: any recipient stops escalation; whether a dismissal counts is a policy setting. Snooze clears the user's push, pauses their repeats and notifies again when it ends.
+- Conditions: the lifecycle condition ending the message clears every channel; gates are checked when a step is due and a closed gate applies its outcome with a trace entry.
+
+### 23.7 Audiences and devices (D-080, D-088)
+Presence audiences read the person state (`None`, `unknown` and `unavailable` count as unknown, N-63). Membership is a snapshot when a step fires; a step may deliver on arrival to people not yet home. Companion devices are found from the person's trackers with manual override (the path is inferred, N-64); all devices of a person are notified under one tag. Unknown presence: critical notifies, lower severities skip with a trace entry. A person without a usable device is skipped on push and flagged in the panel.
+
+### 23.8 Channels (D-090, D-091, D-092)
+- Push: legacy `notify.mobile_app_*` services only (N-61); tag `hu-<install token>-<message id>`; clear with `clear_notification`; severity maps to passive, normal, time-sensitive (iOS critical is a policy opt-in); buttons are the message's own, then Dismiss and Snooze when allowed, and Acknowledge when the step sets it; button ids `hu:<message>:<recipient>:<action>`; Snooze uses the first snooze option; swiping a push away changes nothing.
+- Popup: global loader under 1 KB, lazy popup code; corner card up to warning, centered modal for critical; one at a time.
+- Speak: announce when supported, else the current volume; no volume changes, no all-clear; text is `tts_message`, else the title or the message, shortened.
+- Persistent notification: `persistent_notification.create` and `dismiss` with an id derived from the message.
+- Banner: unchanged, plus the line "Acknowledged by <first name>" with a card option to hide it.
+- Rate limits: per device and global caps per minute and duplicate suppression, defaults in the options.
+
+### 23.9 State and restarts
+A second store holds deliveries and due times; the manager emits a typed transition for every moment a message appears or disappears (today some are silent, such as a snooze ending or a condition turning true). Existing event payloads do not change. On startup the hub clears pushes of messages that no longer exist, never re-sends anything already sent, and fires overdue steps once.
+
+### 23.10 Admin panel (D-093)
+Admin-only sidebar panel with own forms (`ha-form`) that save through the subentry flow APIs, so storage stays in config subentries. First version: overview and editors, live preview of who would be notified now, per-message delivery trace, recent messages, test send. A first-run wizard exists as a panel stepper and as a config flow entry. Panel registration without a build step is unverified.
+
+### 23.11 Blast radius
+Restart: the usual one after a code update. Notification path: touched for the first time (calls to notify, tts, media player and persistent notification services of other integrations; nothing of theirs is modified). Dashboard: nothing changes until a policy or channels are used. Storage: new subentry types and a deliveries store; a downgrade must be checked for unknown subentry types. Manifest: optional integrations as `after_dependencies` (N-68).
+
+### 23.12 Tests (later)
+Fake notify, tts, media player and persistent notification services; the lifecycle × channel × source matrix; restart and overdue-step tests; presence and debounce with the time freezer; gate outcomes; policy matching conflicts; button round trip with stale ids; loader size budget; translation parity; `dev/smoke.py` with stub services.
+
+### 23.13 Alternatives not chosen
+A separate integration consuming events (events lack recipients and silent transitions); automations only for delivery; one action per channel only; audiences with set operations; policy matching by explicit priority; the panel with its own storage.
+
+### 23.14 Open
+Exact fields of each gate type and channel profile; whether `stop` ends delivery only or the whole message; panel registration and serving; the recent-messages list across restarts; the unit name in public docs; verification of the person-to-device path, the action event user, announce behavior and 2026.10; popup area recipients (not built); build phasing (delayed until the design is final). See `docs/OPEN_QUESTIONS.md`.
