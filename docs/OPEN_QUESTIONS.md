@@ -80,7 +80,7 @@
 - Technical, proposed in the design for review: push identity with an install token, a delivery ledger store, a transition seam in the manager (the manager has no event for every moment a message becomes visible).
 - Whether the unit is called "message" in docs and API, while `create_banner` stays.
 - The admin panel under the no-build-step rule (D-021): serving and build approach.
-- HA facts not verified yet: notify service model in 2026.9 and 2026.10, device to person mapping for Companion devices, action event context, announce actions for speakers and satellites, soft dependencies in the manifest, a second extra JS URL, behaviour of an older version with an unknown subentry type.
+- HA facts checked from source and docs on 2026-10-29 (N-61 to N-68). Still unverified: the person to Companion device mapping (N-64), the exact notify service name pattern on a device, the user in the action event context, announce and volume restore behaviour per platform, the same facts on 2026.10, a second extra JS URL, behaviour of an older version with an unknown subentry type.
 - README material for later: problem statement, vocabulary and end-to-end journeys in `docs/dev/HUB_DESIGN.md` (marked).
 - Build phasing is delayed until the design is final. Hub status (build or not, §1 non-goal) is undecided.
 - Conditions in the hub need their own design session (levels: lifecycle, trigger, policy gate, step gate, channel or recipient gate; shared schema; named conditions; behaviour when a condition flips during escalation). See `docs/dev/HUB_DESIGN.md`.
