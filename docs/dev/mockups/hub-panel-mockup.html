@@ -32,6 +32,7 @@ input[type=text], select, textarea { width: 100%; padding: 9px 10px; border: 1px
 .row { display: flex; gap: 8px; flex-wrap: wrap; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; background: var(--chip); border: 1px solid transparent; cursor: pointer; min-height: 40px; font-size: 14px; }
 .chip[aria-pressed="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chip[disabled] { opacity: .4; cursor: not-allowed; }
 .note { color: var(--muted); font-size: 13px; }
 .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; background: var(--chip); color: var(--muted); }
 .badge.crit { color: var(--crit); } .badge.warn { color: var(--warn); } .badge.ok { color: var(--ok); }
@@ -90,7 +91,7 @@ th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line
     <label for="f-who" id="f-who-label">Audience</label>
     <select id="f-who"></select>
     <p class="note" id="f-who-help"></p>
-    <p class="note">Audience or direct recipients, never both. Speech takes recipients only; persistent notification has no recipients.</p>
+    <p class="note" id="f-who-note"></p>
   </div>
   <div class="card">
     <h2>4. Policy</h2>
@@ -110,23 +111,28 @@ th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line
     <p class="note" id="test-result"></p>
   </div>
   <div class="card">
-    <h2>Three levels of effort</h2>
+    <h2>Three ways to call it</h2>
+    <p class="note">The same engine, called with more or less detail. You only add detail when you need more control.</p>
     <div class="grid">
-      <div class="level"><b>Level 0: banner only</b>One call, as today. No hub objects needed.<pre>action: heads_up.create_banner
+      <div class="level"><b>Level 0: banner only</b>Today's call, unchanged. No hub objects needed.<pre>action: heads_up.create_banner
 data:
   message: Window open</pre></div>
-      <div class="level"><b>Level 1: use a policy</b>The policy knows who and how. The call stays short.<pre>action: heads_up.notify
+      <div class="level"><b>Level 1: channels + matched policy</b>You name channels and who; the policy matched by severity and tag adds the rest (here: escalate to Admins after 5 min).<pre>action: heads_up.notify
 data:
   message: Water leak
   severity: critical
-  channels: [banner]</pre></div>
-      <div class="level"><b>Level 2: custom</b>Name channels, audience and policy in the call for a one-off.<pre>action: heads_up.notify
+  tag: water
+  channels: [banner, push]
+  audience: Everyone</pre></div>
+      <div class="level"><b>Level 2: one-off</b>No policy, one speaker, own spoken text.<pre>action: heads_up.notify
 data:
-  message: Water leak
-  channels: [push, speak]
-  audience: Admins
-  policy: critical_water</pre></div>
+  message: Doorbell
+  tts_message: Someone is at the door
+  channels: [speak]
+  recipients: [Kitchen speaker]
+  policy: none</pre></div>
     </div>
+  </div>
   </div>
 </section>
 
@@ -196,6 +202,7 @@ data:
     </div>
     <select id="p-who" style="margin-top:8px"></select>
     <p class="note" id="p-who-help"></p>
+    <p class="note" id="p-who-note"></p>
     <label for="p-pol">Policy</label>
     <select id="p-pol"></select>
   </div>
@@ -285,6 +292,9 @@ const whoInfo = {
   "Ground floor speakers (group)": "All speakers in this group announce. The hub does not change their volume.",
   "Kitchen speaker": "Speaks on this media player; uses announce if the player supports it.",
   "Hall satellite": "Announces on this Assist satellite.",
+  "Anna": "This person, on every chosen channel.",
+  "Ben": "This person, on every chosen channel.",
+  "Guest": "This person; has no device, so push is skipped.",
   "Anna's phone": "Push to this one device only.",
   "Ben's phone": "Push to this one device only."
 };
@@ -297,39 +307,63 @@ function whoHelp(name, mode) {
   return t;
 }
 
+
+const speakTargets = ["Ground floor speakers (group)", "Kitchen speaker", "Hall satellite"];
+const personRecs = ["Anna", "Ben", "Guest"];
+const pushRecs = ["Anna", "Ben", "Guest", "Anna's phone", "Ben's phone"];
+function whoSpec(chs) {
+  const c = new Set(chs);
+  const kinds = ["banner", "push", "popup", "speak"].filter((x) => c.has(x));
+  if (!c.size) return { note: "Pick a channel first; the choices for who depend on it." };
+  if (!kinds.length) return { note: "Persistent notification has no recipients: it targets everyone." };
+  if (c.has("speak") && kinds.length > 1) return { conflict: true, note: "Speech goes to speakers, the other channels go to people. One call has one 'who': use a policy with separate steps, or two calls." };
+  if (kinds[0] === "speak") return { modes: ["rec"], rec: speakTargets, note: "Speech goes to speakers, not people: pick a speaker, a group or a satellite." };
+  const pushOnly = kinds.length === 1 && kinds[0] === "push";
+  return { modes: ["aud", "rec"], rec: pushOnly ? pushRecs : personRecs, note: pushOnly ? "Audience, or persons and phones. Never both." : "Audience, or persons. Phones and speakers are not valid for " + kinds.join(", ") + "." };
+}
+function syncWho(o) {
+  const spec = whoSpec(o.chs);
+  let mode = o.mode;
+  if (spec.modes && !spec.modes.includes(mode)) mode = spec.modes[0];
+  const show = !!spec.modes;
+  const list = show ? (mode === "aud" ? audiences : spec.rec) : [];
+  const cur = o.select.value;
+  o.select.innerHTML = "";
+  list.forEach((a) => { const op = document.createElement("option"); op.textContent = a; o.select.appendChild(op); });
+  if (list.includes(cur)) o.select.value = cur;
+  o.select.hidden = !show; o.audBtn.parentElement.hidden = !show;
+  if (o.label) { o.label.hidden = !show; o.label.textContent = mode === "aud" ? "Audience" : "Direct recipients"; }
+  o.audBtn.disabled = !(show && spec.modes.includes("aud")); o.recBtn.disabled = !(show && spec.modes.includes("rec"));
+  o.audBtn.setAttribute("aria-pressed", show && mode === "aud"); o.recBtn.setAttribute("aria-pressed", show && mode === "rec");
+  const who = show ? o.select.value : "";
+  o.help.textContent = show ? whoHelp(who, mode) : "";
+  o.note.textContent = spec.note;
+  o.note.style.color = spec.conflict ? "var(--crit)" : "";
+  return { spec, mode, who };
+}
+let whoState = { spec: {}, who: "" };
 function fillWho() {
-  const list = whoMode === "aud" ? audiences : recipients;
-  const cur = $("f-who").value;
-  $("f-who").innerHTML = "";
-  list.forEach((a) => { const o = document.createElement("option"); o.textContent = a; $("f-who").appendChild(o); });
-  if (list.includes(cur)) $("f-who").value = cur;
-  $("f-who-label").textContent = whoMode === "aud" ? "Audience" : "Direct recipients";
-  $("who-aud").setAttribute("aria-pressed", whoMode === "aud");
-  $("who-rec").setAttribute("aria-pressed", whoMode === "rec");
+  const r = syncWho({ chs: [...selected], mode: whoMode, select: $("f-who"), help: $("f-who-help"), note: $("f-who-note"), audBtn: $("who-aud"), recBtn: $("who-rec"), label: $("f-who-label") });
+  whoMode = r.mode; whoState = r;
 }
 
 function render() {
   fillWho();
   const ch = [...selected];
   const speakOnly = ch.length === 1 && ch[0] === "speak";
-  const notes = [];
-  if (ch.includes("speak") && whoMode === "aud") notes.push("Speech takes direct recipients (speakers), not an audience.");
-  if (ch.includes("persistent")) notes.push("Persistent notification targets everyone.");
-  if (ch.includes("popup") && whoMode === "rec") notes.push("Popups take persons only in the first version.");
-  if (!ch.length) notes.push("Pick at least one channel.");
-  $("channel-note").textContent = notes.join(" ");
+  $("channel-note").textContent = ch.length ? "" : "Pick at least one channel.";
 
   const sev = $("f-sev").value, tag = $("f-tag").value.trim();
   const pol = $("f-pol").value;
   const matched = pol === "matched automatically"
     ? (sev === "critical" && tag === "water" ? "critical_water" : sev === "critical" ? "critical_default" : sev === "warning" ? "warning_default" : "none")
     : pol.startsWith("none") ? "none" : pol;
-  const who = $("f-who").value;
-  $("f-who-help").textContent = whoHelp(who, whoMode);
+  const who = whoState.who || "everyone";
 
   const lines = [];
+  if (whoState.spec.conflict) lines.push('<div class="step" style="color:var(--crit)">This combination cannot be sent as one call. See the note under "Who".</div>');
   lines.push(`<div class="step"><span class="when">Now:</span> ${ch.join(", ") || "nothing"} to ${who}${matched === "critical_water" ? " (push is passive between 22:00 and 07:00)" : ""}.</div>`);
-  if (matched === "critical_water") lines.push(`<div class="step"><span class="when">After 5 min, if not acknowledged:</span> push and speak to Admins.</div>`);
+  if (matched === "critical_water") lines.push(`<div class="step"><span class="when">After 5 min, if not acknowledged:</span> push to Admins. <span class="when">After 10 min:</span> speak on the ground floor speakers.</div>`);
   else if (matched === "critical_default") lines.push(`<div class="step"><span class="when">After 10 min, if not acknowledged:</span> push to Admins.</div>`);
   else if (matched === "none") lines.push(`<div class="step note">No policy: one delivery, no escalation, no quiet hours.</div>`);
   lines.push(`<div class="step note">Policy used: ${matched}. Any recipient can acknowledge, dismiss or snooze; the message ends when its condition or timeout ends or it is cleared.</div>`);
@@ -343,7 +377,7 @@ function render() {
   y.push(`  severity: ${sev}`);
   if (tag) y.push(`  tag: ${tag}`);
   y.push(`  channels: [${ch.join(", ")}]`);
-  if (!speakOnly && !ch.every((c) => c === "persistent")) y.push(`  ${whoMode === "aud" ? "audience" : "recipients"}: ${whoMode === "aud" ? who : "[" + who + "]"}`);
+  if (whoState.spec.modes) y.push(`  ${whoMode === "aud" ? "audience" : "recipients"}: ${whoMode === "aud" ? who : "[" + who + "]"}`);
   if (pol !== "matched automatically") y.push(`  policy: ${pol.startsWith("none") ? "none" : pol}`);
   $("yaml").textContent = y.join("\n");
 
@@ -403,26 +437,19 @@ function preview() {
   const pol = polSel === "matched automatically"
     ? (sev === "critical" && tag === "water" ? "critical_water" : sev === "critical" ? "critical_default" : sev === "warning" ? "warning_default" : "info_quiet")
     : polSel.startsWith("none") ? "none" : polSel;
-  const list = pWho === "aud" ? audiences : recipients;
-  const cur = $("p-who").value;
-  $("p-who").innerHTML = "";
-  list.forEach((a) => { const o = document.createElement("option"); o.textContent = a; $("p-who").appendChild(o); });
-  if (list.includes(cur)) $("p-who").value = cur;
-  $("p-who-aud").setAttribute("aria-pressed", pWho === "aud");
-  $("p-who-rec").setAttribute("aria-pressed", pWho === "rec");
-  const who = $("p-who").value;
-  $("p-who-help").textContent = whoHelp(who, pWho);
   const ch = [...pChannels];
+  const r = syncWho({ chs: ch, mode: pWho, select: $("p-who"), help: $("p-who-help"), note: $("p-who-note"), audBtn: $("p-who-aud"), recBtn: $("p-who-rec"), label: null });
+  pWho = r.mode;
+  const who = r.who;
   const nightGate = pol === "critical_water" && night;
 
   const issues = [];
   if (!ch.length) issues.push("Pick at least one channel (channels is required).");
-  if (ch.includes("speak") && pWho === "aud") issues.push("speak takes direct recipients, not an audience: choose Direct recipients and a speaker.");
-  if (ch.includes("popup") && pWho === "rec") issues.push("popup takes persons only in the first version; a speaker or group is not valid here.");
-  if (ch.includes("push") && pWho === "rec" && /speaker|satellite/i.test(who)) issues.push("push cannot go to a speaker: choose a person or a phone.");
+  if (r.spec.conflict) issues.push(r.spec.note);
+  if (issues.length) { $("p-issues").innerHTML = issues.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${t}</div>`).join(""); $("p-summary").textContent = ""; $("p-out").innerHTML = ""; $("p-later").innerHTML = ""; return; }
   $("p-issues").innerHTML = issues.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${t}</div>`).join("");
 
-  const persons = pWho === "aud" ? audienceMembers(who) : (/Anna/.test(who) ? ["Anna"] : /Ben/.test(who) ? ["Ben"] : Object.keys(people));
+  const persons = !r.spec.modes ? [] : pWho === "aud" ? audienceMembers(who) : (/Anna/.test(who) ? ["Anna"] : /Ben/.test(who) ? ["Ben"] : /Guest/.test(who) ? ["Guest"] : []);
   const rows = [];
   const count = {};
   const add = (who, chan, result, cls, why) => { rows.push([who, chan, result, cls, why]); count[chan] = count[chan] || {}; count[chan][result] = (count[chan][result] || 0) + 1; };
@@ -431,7 +458,7 @@ function preview() {
     if (pWho === "aud" && persons.length === 0) add("nobody", "banner", "skipped", "warn", "audience is empty");
     else add(pWho === "aud" ? persons.join(", ") : "everyone", "banner", "shown", "ok", pWho === "aud" ? "visible to the audience" : "no recipients set means everyone");
   }
-  if (ch.includes("push") && !(pWho === "rec" && /speaker|satellite/i.test(who))) {
+  if (ch.includes("push")) {
     if (pWho === "aud" && persons.length === 0) add("nobody", "push", "skipped", "warn", "audience is empty; fallback applies if the policy has one");
     persons.forEach((n) => {
       const pp = people[n];
@@ -441,11 +468,11 @@ function preview() {
       else add(n, "push", "sent", "ok", pp.devices + " device(s), level " + (sev === "critical" ? "time-sensitive" : sev === "warning" ? "normal" : "passive"));
     });
   }
-  if (ch.includes("popup") && !(pWho === "rec")) {
+  if (ch.includes("popup")) {
     if (persons.length === 0) add("nobody", "popup", "skipped", "warn", "audience is empty");
     persons.forEach((n) => add(n, "popup", "sent", "ok", (sev === "critical" && !nightGate ? "centered modal" : "corner card") + (nightGate ? " (downgraded, quiet hours)" : "")));
   }
-  if (ch.includes("speak") && pWho === "rec") {
+  if (ch.includes("speak")) {
     if (nightGate) add(who, "speak", "skipped", "warn", "downgraded: speech skipped (quiet hours)");
     else add(who, "speak", "sent", "ok", "announce, current volume");
   }
@@ -456,7 +483,7 @@ function preview() {
   $("p-out").innerHTML = rows.length ? '<table><tr><th>Recipient</th><th>Channel</th><th>Result</th><th>Why</th></tr>' + rows.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td><span class="badge ${r[3]}">${r[2]}</span></td><td>${r[4]}</td></tr>`).join("") + "</table>" : "";
 
   const later = [];
-  if (pol === "critical_water") later.push('<div class="step"><span class="when">At 5 min, only if not acknowledged:</span> push and speak to Admins (Anna). If Admins are unreachable: fallback to Everyone.</div>');
+  if (pol === "critical_water") later.push('<div class="step"><span class="when">At 5 min, only if not acknowledged:</span> push to Admins (Anna); if unreachable, fallback to Everyone. <span class="when">At 10 min, if still not acknowledged:</span> speak on the ground floor speakers.</div>');
   else if (pol === "critical_default") later.push('<div class="step"><span class="when">At 10 min, only if not acknowledged:</span> push to Admins.</div>');
   else if (pol === "none") later.push('<div class="step note">No policy: no later steps, no gates.</div>');
   else later.push('<div class="step note">This policy has one step: nothing later.</div>');
@@ -479,7 +506,8 @@ const mkGate = (type) => ({ type, outcome: type === "time_window" ? "downgrade" 
 let pols = [
   { name: "Critical water", severities: ["critical"], tags: "water", dismissCounts: true, ackMode: "any", steps: [
     mkStep({ channels: ["banner", "push", "popup"], push: { level: "time-sensitive", privacy: "full", sticky: false, buttons: ["snooze", "dismiss"] }, gates: [mkGate("time_window")] }),
-    mkStep({ after: 5, who: "Admins", channels: ["push", "speak"], push: { level: "time-sensitive", privacy: "full", sticky: false, buttons: ["acknowledge", "snooze", "dismiss"] }, gates: [mkGate("acknowledgement")], fallback: "Everyone" })] },
+    mkStep({ after: 5, who: "Admins", channels: ["push"], push: { level: "time-sensitive", privacy: "full", sticky: false, buttons: ["acknowledge", "snooze", "dismiss"] }, gates: [mkGate("acknowledgement")], fallback: "Everyone" }),
+    mkStep({ after: 10, whoMode: "rec", who: "Ground floor speakers (group)", channels: ["speak"], gates: [mkGate("acknowledgement")] })] },
   { name: "Critical default", severities: ["critical"], tags: "", dismissCounts: true, ackMode: "any", steps: [
     mkStep({ channels: ["banner", "push", "popup"], push: { level: "time-sensitive", privacy: "full", sticky: false, buttons: ["snooze", "dismiss"] } }),
     mkStep({ after: 10, who: "Admins", channels: ["push"], gates: [mkGate("acknowledgement")] })] },
@@ -513,7 +541,15 @@ function gateHtml(g, si, gi) {
 
 function stepHtml(st, si) {
   const k = `data-s="${si}"`;
+  const spec = whoSpec(st.channels);
   const aud = st.whoMode === "aud";
+  const canAud = !!spec.modes && spec.modes.includes("aud"), canRec = !!spec.modes && spec.modes.includes("rec");
+  const list = !spec.modes ? [] : aud ? audiences : spec.rec;
+  const whoBlock = spec.modes
+    ? `<label>Who</label><div class="row"><button class="chip" ${k} data-mode="aud" aria-pressed="${aud}" ${canAud ? "" : "disabled"}>Audience</button><button class="chip" ${k} data-mode="rec" aria-pressed="${!aud}" ${canRec ? "" : "disabled"}>Direct recipients</button></div>
+  <select ${k} data-p="who" style="margin-top:8px">${list.map((o) => `<option${o === st.who ? " selected" : ""}>${esc(o)}</option>`).join("")}</select>
+  <p class="note">${esc(whoHelp(st.who, st.whoMode))}</p><p class="note">${esc(spec.note)}</p>`
+    : `<label>Who</label><p class="note"${spec.conflict ? ' style="color:var(--crit)"' : ""}>${esc(spec.note)}</p>`;
   let prof = "";
   if (st.channels.includes("push")) prof += `<div class="level" style="margin-top:8px"><b>Push settings</b><div class="row"><div><label>Level</label>${sel(["passive", "normal", "time-sensitive", "critical"], st.push.level, k + ' data-p="push.level"')}</div><div><label>Lock screen text</label>${sel(["full", "title_only", "generic"], st.push.privacy, k + ' data-p="push.privacy"')}</div></div><label>Buttons</label>${chips(buttonsAll, st.push.buttons, k + " data-btn")}<label><input type=\"checkbox\" ${st.push.sticky ? "checked" : ""} ${k} data-p="push.sticky"> Sticky (stays until dismissed)</label></div>`;
   if (st.channels.includes("popup")) prof += `<div class="level" style="margin-top:8px"><b>Popup settings</b><label>Style</label>${sel(["default", "card", "modal"], st.popup.style, k + ' data-p="popup.style"')}</div>`;
@@ -521,9 +557,7 @@ function stepHtml(st, si) {
   return `<div class="card" style="border-color:var(--accent)"><div class="row" style="justify-content:space-between"><h2>Step ${si + 1}</h2>${P().steps.length > 1 ? `<button class="ghost" data-rs="${si}">Remove step</button>` : ""}</div>
   <label>Runs after (minutes from message start)</label><input type="text" value="${st.after}" ${k} data-p="after" style="width:100px">
   <label>Channels</label>${chips(channelNames, st.channels, k + " data-ch")}
-  <label>Who</label><div class="row"><button class="chip" ${k} data-mode="aud" aria-pressed="${aud}">Audience</button><button class="chip" ${k} data-mode="rec" aria-pressed="${!aud}">Direct recipients</button></div>
-  <select ${k} data-p="who" style="margin-top:8px">${(aud ? audiences : recipients).map((o) => `<option${o === st.who ? " selected" : ""}>${esc(o)}</option>`).join("")}</select>
-  <p class="note">${esc(whoHelp(st.who, st.whoMode))}</p>
+  ${whoBlock}
   <label><input type="checkbox" ${st.arrival ? "checked" : ""} ${k} data-p="arrival"> Deliver on arrival to people not home yet (waits while the message is active)</label>
   ${prof}
   <h3>Gates (checks before this step runs)</h3>${st.gates.map((g, gi) => gateHtml(g, si, gi)).join("") || '<p class="note">No gates: the step always runs.</p>'}
@@ -535,7 +569,7 @@ function stepHtml(st, si) {
 function sentence(q) {
   const parts = [];
   q.steps.forEach((st, i) => {
-    const who = st.who;
+    const who = st.who || "everyone";
     const chs = st.channels.join(", ") || "nothing";
     let t = i === 0 ? `Show it on ${chs} to ${who}` : `After ${st.after} min`;
     if (i > 0) t += `, if no gate stops it, ${chs} to ${who}`;
@@ -561,8 +595,7 @@ function problems(q) {
   pols.forEach((o, i) => { if (i !== cur && o.severities.slice().sort().join() === q.severities.slice().sort().join() && (o.tags || "") === (q.tags || "")) out.push(`Refused: policy "${o.name}" already matches exactly the same severities and tags.`); });
   q.steps.forEach((st, i) => {
     if (!st.channels.length) out.push(`Step ${i + 1}: pick at least one channel.`);
-    if (st.channels.includes("speak") && st.whoMode === "aud") out.push(`Step ${i + 1}: speak takes direct recipients, not an audience.`);
-    if (st.channels.includes("popup") && st.whoMode === "rec") out.push(`Step ${i + 1}: popup takes persons only in the first version.`);
+    if (whoSpec(st.channels).conflict) out.push(`Step ${i + 1}: speech and people channels cannot share one step; split them into two steps.`);
     if (i === 0 && +st.after !== 0) out.push("Step 1 runs at 0 minutes.");
     if (i > 0 && !(+st.after > +q.steps[i - 1].after)) out.push(`Step ${i + 1}: must run later than step ${i}.`);
   });
@@ -573,7 +606,7 @@ function yamlOf(q) {
   const y = ["policy:", `  name: ${q.name}`, `  match: {severities: [${q.severities.join(", ")}]${q.tags ? ", tags: [" + q.tags + "]" : ""}}`, `  acknowledge: {mode: ${q.ackMode}, dismiss_counts: ${q.dismissCounts}}`, "  steps:"];
   q.steps.forEach((st) => {
     y.push(`    - after: ${Math.round((+st.after || 0) * 60)}`);
-    y.push(`      ${st.whoMode === "aud" ? "audience" : "recipients"}: ${st.whoMode === "aud" ? st.who : "[" + st.who + "]"}`);
+    if (st.who) y.push(`      ${st.whoMode === "aud" ? "audience" : "recipients"}: ${st.whoMode === "aud" ? st.who : "[" + st.who + "]"}`);
     y.push(`      channels: [${st.channels.join(", ")}]`);
     const prof = [];
     if (st.channels.includes("push")) prof.push(`push: {level: ${st.push.level}, privacy: ${st.push.privacy}, sticky: ${st.push.sticky}, buttons: [${st.push.buttons.join(", ")}]}`);
@@ -598,9 +631,19 @@ function yamlOf(q) {
   return y.join("\n");
 }
 
+function normStep(st) {
+  const spec = whoSpec(st.channels);
+  if (spec.modes) {
+    if (!spec.modes.includes(st.whoMode)) st.whoMode = spec.modes[0];
+    const list = st.whoMode === "aud" ? audiences : spec.rec;
+    if (!list.includes(st.who)) st.who = list[0];
+  } else st.who = "";
+  return spec;
+}
 function renderPol() {
   listPols();
   const q = P();
+  q.steps.forEach(normStep);
   const probs = problems(q);
   $("pol-editor").innerHTML = `
   <div class="card"><h2>Edit policy</h2>

@@ -595,11 +595,17 @@ policy:
         - {type: time_window, from: "22:00", to: "07:00", outcome: downgrade}
     - after: 300
       audience: Admins
-      channels: [push, speak]
+      channels: [push]
       gates:
         - {type: acknowledgement, state: not_acknowledged, outcome: skip}
       fallback: {audience: Everyone}
+    - after: 600
+      recipients: [Ground floor speakers]
+      channels: [speak]
+      gates:
+        - {type: acknowledgement, state: not_acknowledged, outcome: skip}
 ```
+- A step has one "who": people channels (banner, push, popup) take an audience or persons, speech takes speakers, so speech and people channels go in separate steps (D-096).
 - Matching: the most specific policy wins (tag before severity only); two policies with identical matches are refused. A caller's `audience`, `recipients` or `channels` define step 0; later steps come from the policy.
 - Steps: up to 4; `after` is an offset from the message start with stored due times; an overdue step fires once after a restart if the message is active and unacknowledged.
 - Fallback applies when the audience resolves to nobody, all deliveries failed, or nobody acknowledged in time.

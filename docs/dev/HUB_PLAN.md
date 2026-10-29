@@ -37,7 +37,7 @@ Today's implementation sets the foundation for how notifications (right now: ban
 - banner: audience, or persons; empty means everyone.
 - push: audience, or persons and notify targets.
 - popup: audience, or persons (persons only in the first version).
-- speak: recipients only (groups, media players, satellites, areas).
+- speak: recipients only (groups, media players, satellites, areas). A step or call has one who, so speech and people channels go in separate steps (D-096).
 - persistent notification: no recipients, it targets everyone.
 
 ## 6. What happens over time

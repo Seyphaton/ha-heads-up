@@ -562,3 +562,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - Channel profile fields: push (`level`, `privacy`, `sticky`, `buttons`, `channel_id`), popup (`style`), speak (`language`, `announce`); banner and persistent notification have none.
   - `stop` ends delivery only; the message and its banner stay until their normal end.
   - Downgrade: push becomes passive without sound, speak is skipped, popup becomes a corner card, banner and persistent notification are unchanged.
+
+## D-096 A step has one "who"; speech and people channels are separate steps
+- Date: 2026-10-29. Found while building the mockup; corrects the example in D-094 and DESIGN §23.6.
+- Decision: a step (and a `notify` call) has one audience or recipients value. Banner, push and popup take an audience or persons (push also phones); speech takes speakers, groups or satellites. A step that mixes speech with a people channel is invalid (`notify` returns a validation error; the panel blocks it). Escalation to speech is a separate step, as in the maintainer's example (push to admins, then speech).
+- Alternatives: separate "who" per channel inside a step (more fields, harder to explain); speech reading an audience through a room mapping (rejected earlier, D-082).

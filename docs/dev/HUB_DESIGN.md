@@ -538,8 +538,14 @@ policy:
         - {type: time_window, from: "22:00", to: "07:00", outcome: downgrade}
     - after: 300
       audience: Admins
-      channels: [push, speak]
+      channels: [push]
       gates:
         - {type: acknowledgement, state: not_acknowledged, outcome: skip}
       fallback: {audience: Everyone}
+    - after: 600
+      recipients: [Ground floor speakers]
+      channels: [speak]
+      gates:
+        - {type: acknowledgement, state: not_acknowledged, outcome: skip}
 ```
+Correction 2026-10-29 (D-096): the first accepted sketch had push and speak in one step with an audience. A step has one "who"; speech and people channels go in separate steps.
