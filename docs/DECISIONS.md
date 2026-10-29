@@ -460,3 +460,22 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Date: 2026-10-28.
 - Decision: channels: banner, Companion push, popup (global on all dashboards, policy decides severities), speech (media players, Assist satellites, targeted speakers; rooms are HA areas with assigned speakers and displays, no occupancy sensors), persistent notification (targets everyone, no special handling). Lock-screen text is a policy setting, default full text. Admin surface: an own admin panel from the start (overview and editors, live preview, delivery trace, test send, first-run wizard).
 - Open: build phasing is delayed until the design is final.
+
+## D-083 Hub API: one generic notify action and channel shortcuts
+- Date: 2026-10-28. API design session on branch `design/notification-hub`.
+- Decision: `heads_up.notify` states content (title, message, optional text for speech), the primary channel, an audience or direct recipients (never both; allowed kinds depend on the channel) and a policy. Shortcuts `push`, `popup` and `speak` fix the channel, take an optional audience and have no escalation. `create_banner` stays as the banner shortcut, unchanged. One id per message for all channels; one generic clear removes the message everywhere. No separate acknowledge, snooze or dismiss actions: push messages get Dismiss and Snooze buttons automatically when allowed, handled by the hub, with the message's own buttons first. Written channels share one text; speech has an optional own text. Watch rules are stored `notify` calls plus a trigger and share its schema.
+- Open: exact field names, and how `create_banner` fields and `condition` map onto `notify`.
+
+## D-084 Source of truth
+- Date: 2026-10-28.
+- Decision: when and what live with the producer (automation, or a rule's trigger and stored `notify` arguments); who and how live in hub subentries (`audience`, `policy`); live state lives in the hub's message store and delivery ledger. The panel edits these subentries and keeps no store of its own.
+
+## D-085 Escalation steps add channels and audiences
+- Date: 2026-10-28.
+- Decision: the call's channel and audience are step 0; policy steps and fallbacks may add other channels and audiences (for example banner, then push, then push to admins, then speech; or push to the last leavers with a fallback to everyone not at home).
+
+## D-086 Conditions in the hub
+- Date: 2026-10-28.
+- Decision: the generic condition (entity with operators and `for`, or template) is used for the message lifecycle, as today. Policy, step, channel and recipient gates use predefined types: time window or quiet hours, presence, acknowledgement state, severity or tag. One extra gate type, a named condition, refers to a hub subentry that holds the generic condition schema; named conditions can also serve as lifecycle conditions. If the lifecycle condition turns false the message ends and all channels are cleared; gates are evaluated when a step is due, and a closed gate skips the step with a trace entry.
+- Alternatives: predefined gates only (closed list); an inline single-entity gate (not reusable).
+- Reason: simple forms for common gates, one escape hatch for the rest, one place for each generic definition.

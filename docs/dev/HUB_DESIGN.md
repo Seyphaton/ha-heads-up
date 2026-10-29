@@ -473,3 +473,6 @@ Not covered so far in the hub design. Today's conditions: a message-level condit
 6. **Mid-flight changes:** a condition flips while escalation runs (stop, pause, restart, continue).
 7. **One condition model or several:** reuse operators, `for` and templates everywhere, and whether conditions can be named and reused like audiences.
 Open until the session: which levels get conditions, the shared schema, named conditions, flip behavior.
+
+### Conditions: decisions (2026-10-28), see D-086
+Generic condition only for the message lifecycle. Gates (policy, step, channel, recipient) are predefined: time window or quiet hours, presence, acknowledgement state, severity or tag. Escape hatch: named conditions as hub subentries holding the generic schema, usable as a gate and as a lifecycle condition. Lifecycle false ends the message; gates are checked when a step is due and a closed gate skips the step with a trace entry. Examples used to decide: guest mode on, alarm disarmed, freezer temperature above a limit for 10 minutes.
