@@ -535,3 +535,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - A banner shows "Acknowledged by <first name>" to everyone who sees it; a card option hides the line.
 - Alternatives: Acknowledge button on every push or only with escalation; the event context user; two Snooze buttons; Snooze opening the dashboard; "Acknowledged" without a name; showing nothing.
 - Open: the card option name, and what the line shows when several people acknowledged (first only, or all).
+
+## D-093 Admin panel and wizard
+- Date: 2026-10-29. API design session on branch `design/notification-hub`.
+- Decision:
+  - Editing: audiences, recipient groups, policies, named conditions, person profiles and rules are edited in the panel with own forms (`ha-form` with selectors, as the card editor does) that save through Home Assistant's subentry flow APIs. Storage stays in config subentries, so the native dialogs keep working.
+  - Wizard: a guided stepper in the panel (people, devices, loudness preset, test) and a config flow entry on the integration page, both creating the same objects.
+  - Access: admins only, as a sidebar item; the panel's WebSocket commands require admin.
+  - First panel covers: live preview (who would be notified now), per-message delivery trace, a list of recent messages, and a test send.
+- Alternatives: panel only shows and native dialogs edit; panel with its own storage; wizard in one place only; read-only access for all users.
+- Open: whether the recent-messages list survives a restart (relates to the history idea in OPEN_QUESTIONS, Phase 13 candidate); the panel registration API and serving under the no-build rule (D-021), to verify; the panel's strings in four languages.

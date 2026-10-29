@@ -516,3 +516,6 @@ Speech: announce when supported, else current volume; no volume changes, no all-
 
 ### Acknowledgement and push buttons (decided 2026-10-29, D-092)
 Acknowledge button on push only if the policy step sets it. Button id `hu:<message>:<recipient>:<action>` identifies who pressed. Push Snooze uses the first snooze option. Banner line "Acknowledged by <first name>" with a card option to hide it.
+
+### Admin panel and wizard (decided 2026-10-29, D-093)
+Own forms (ha-form) saving through the subentry flow APIs; storage stays in subentries. Wizard as a panel stepper and as a config flow entry. Admin only, sidebar item. First panel: live preview, per-message delivery trace, recent messages list, test send. Open: restart survival of the recent list, panel registration API (to verify).

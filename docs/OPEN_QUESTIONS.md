@@ -85,3 +85,4 @@
 - Build phasing is delayed until the design is final. Hub status (build or not, §1 non-goal) is undecided.
 - Conditions in the hub need their own design session (levels: lifecycle, trigger, policy gate, step gate, channel or recipient gate; shared schema; named conditions; behaviour when a condition flips during escalation). See `docs/dev/HUB_DESIGN.md`.
 - Policy steps may add channels and audiences (escalation, fallback); wording of "primary channel" in `notify` to settle in the API session.
+- Panel: registration API for a custom admin panel and serving it without a build step (D-021) to verify; whether the recent-messages list is stored (links to the Phase 13 history candidate).
