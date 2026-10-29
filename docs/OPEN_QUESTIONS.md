@@ -85,4 +85,4 @@
 - Build phasing is delayed until the design is final. Hub status (build or not, §1 non-goal) is undecided.
 - Conditions in the hub need their own design session (levels: lifecycle, trigger, policy gate, step gate, channel or recipient gate; shared schema; named conditions; behaviour when a condition flips during escalation). See `docs/dev/HUB_DESIGN.md`.
 - Policy steps may add channels and audiences (escalation, fallback); wording of "primary channel" in `notify` to settle in the API session.
-- Panel: registration API for a custom admin panel and serving it without a build step (D-021) to verify; whether the recent-messages list is stored (links to the Phase 13 history candidate).
+- Panel: registration is \`panel_custom.async_register_panel\` with \`module_url\` and \`require_admin\` (N-69); \`require_admin\` only hides the sidebar entry, so the panel's WebSocket commands check admin themselves. Still unverified: the web component contract, whether \`panel_custom\` must be in the manifest, a dev check. Whether the recent-messages list is stored (links to the Phase 13 history candidate).
