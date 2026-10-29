@@ -27,7 +27,7 @@ Today's implementation sets the foundation for how notifications (right now: ban
 - Channel settings: one page with defaults by severity (push level, lock-screen text, buttons, popup style, speech language).
 
 ## 4. How a producer calls it
-- `heads_up.notify`: content (message, title, icon, severity, buttons, tap action, tts_message), lifecycle (id, tag, timeout, condition, mode, dismiss and snooze fields), delivery (channels, audience or recipients, policy).
+- `heads_up.notify`: content (message, title, icon, severity, buttons, tap action, tts_message), lifecycle (id, tag, timeout, condition, mode, dismiss and snooze fields), delivery (channels, `to` with a target per channel, policy). One call can send push, speech and persistent notification together (D-098).
 - Shortcuts `push`, `popup`, `speak`: one channel, optional audience or recipients, fire and forget unless an id is given.
 - `create_banner`: unchanged.
 - One generic clear removes a message from every channel.
@@ -37,7 +37,7 @@ Today's implementation sets the foundation for how notifications (right now: ban
 - banner: audience, or persons; empty means everyone.
 - push: audience, or persons and notify targets.
 - popup: audience, or persons (persons only in the first version).
-- speak: recipients only (groups, media players, satellites, areas). A call has one who, so speech and people channels need separate calls or separate escalation policies (D-096).
+- speak: recipients only (groups, media players, satellites, areas).
 - persistent notification: no recipients, it targets everyone.
 
 ## 6. What happens over time

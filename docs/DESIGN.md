@@ -566,7 +566,7 @@ Automations hard-code notify services, speaker entities, quiet-hour templates an
 | Delivery | One message, one recipient, one channel, with a state: planned, held, sent, skipped, failed, cleared. |
 
 ### 23.4 Actions and fields (D-083, D-087)
-- `heads_up.notify`: content `message` (required), `title`, `icon`, `severity`, `actions`, `tap_action`, `tts_message`; lifecycle `id`, `tag`, `timeout`, `condition`, `mode`, `wait_for_condition`, `dismissible`, `dismiss_scope`, `snoozable`, `snooze_scope`, `snooze_options`; delivery `channels` (required list, step 0), `audience` or `recipients` (never both), `policy` (omitted: matched by severity and tag; `none`: no policy behavior).
+- `heads_up.notify`: content `message` (required), `title`, `icon`, `severity`, `actions`, `tap_action`, `tts_message`; lifecycle `id`, `tag`, `timeout`, `condition`, `mode`, `wait_for_condition`, `dismissible`, `dismiss_scope`, `snoozable`, `snooze_scope`, `snooze_options`; delivery `channels` (required list), `to` (a target per channel: `audience` or `recipients`, never both, kinds depend on the channel, D-098), `policy` (omitted: all that apply; `none`: no policy behavior).
 - Shortcuts `push`, `popup`, `speak`: fixed channel, optional audience or recipients, no escalation; fire and forget without an `id`, a tracked message with one. `create_banner` is unchanged and keeps `people`.
 - One generic clear removes a message from every channel. Response: `id`, `status` (`created`, `updated`, `waiting`, `condition_false`) and per channel counts of `sent`, `held`, `skipped`, `failed`.
 - Watch rules are stored `notify` calls plus a trigger and share the schema.
@@ -598,12 +598,16 @@ policy:
   type: escalation
   applies_to: {severities: [critical], tags: [water]}
   after: 5
-  notify: {audience: Admins, channels: [push]}
+  notify:
+    channels: [push, speak, persistent]
+    to:
+      push: {audience: Admins}
+      speak: {recipients: [Ground floor speakers]}
   dismiss_counts: true
 ```
 - Common fields: `name`, `type`, `applies_to` (empty means all), `only_if` (named condition), `enabled`.
 - A second policy of the same type with identical `applies_to` and trigger is refused. Precedence on one delivery: Summarize, Quiet hours, Away, Fallback; escalations and reminders create later deliveries that pass through the same rules.
-- Step 0 (who and channels of the first delivery) always comes from the call. A step or call has one "who": people channels take an audience or persons, speech takes speakers, so speech and people channels need separate escalation policies (D-096).
+- The first delivery (channels and a target per channel) always comes from the call. Escalation and Fallback name their own channels and a target for each (D-098).
 - Acknowledgement: any recipient stops escalation and reminders. Snooze clears the user's push, pauses their reminders and notifies again when it ends. A severity change restarts escalation and reminders with the policies of the new severity. An overdue escalation fires once after a restart if the message is active and unacknowledged.
 - The lifecycle condition ending the message clears every channel and cancels all policies for it.
 
@@ -634,7 +638,7 @@ Fake notify, tts, media player and persistent notification services; the lifecyc
 A separate integration consuming events (events lack recipients and silent transitions); automations only for delivery; one action per channel only; audiences with set operations; policy matching by explicit priority; the panel with its own storage.
 
 ### 23.14 Policy fields and channel settings (D-097)
-- Escalation: `after` (minutes), `notify` (`audience` or `recipients`, `channels`), `dismiss_counts`.
+- Escalation: `after` (minutes), `notify` (`channels` and `to`, a target per channel), `dismiss_counts`.
 - Quiet hours: `from`, `to`, `days`, `action` (`wait`, `quiet`, `drop`), `critical_passes`.
 - Fallback: `when` (`no_audience`, `failed`, `both`), `notify` as above.
 - Reminder: `every` (minutes), `max`.

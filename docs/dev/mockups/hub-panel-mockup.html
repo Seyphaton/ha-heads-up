@@ -83,16 +83,10 @@ th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line
     <p class="note" id="channel-note"></p>
   </div>
   <div class="card">
-    <h2>3. Who</h2>
-    <div class="row">
-      <button class="chip" id="who-aud" aria-pressed="true">Audience</button>
-      <button class="chip" id="who-rec" aria-pressed="false">Direct recipients</button>
-    </div>
-    <label for="f-who" id="f-who-label">Audience</label>
-    <select id="f-who"></select>
-    <p class="note" id="f-who-help"></p>
-    <p class="note" id="f-who-note"></p>
-  </div>
+    <h2>3. Who, per channel</h2>
+    <p class="note">Each channel has its own target: an audience or direct recipients, never both.</p>
+    <div id="targets"></div>
+  
   <div class="card">
     <h2>4. Policy</h2>
     <label for="f-pol">Policy</label>
@@ -195,14 +189,8 @@ data:
     <select id="p-tag"><option value="">none</option><option value="water" selected>water</option></select>
     <label>Channels</label>
     <div class="row" id="p-channels"></div>
-    <label>Who</label>
-    <div class="row">
-      <button class="chip" id="p-who-aud" aria-pressed="true">Audience</button>
-      <button class="chip" id="p-who-rec" aria-pressed="false">Direct recipients</button>
-    </div>
-    <select id="p-who" style="margin-top:8px"></select>
-    <p class="note" id="p-who-help"></p>
-    <p class="note" id="p-who-note"></p>
+    <label>Who, per channel</label>
+    <div id="p-targets"></div>
     <label for="p-pol">Policy</label>
     <select id="p-pol"></select>
   </div>
@@ -253,10 +241,7 @@ const nav = $("tabs");
 tabs.forEach(([id, name], i) => {
   const b = document.createElement("button");
   b.textContent = name; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", i === 0);
-  b.onclick = () => {
-    tabs.forEach(([t]) => { $("tab-" + t).hidden = t !== id; });
-    [...nav.children].forEach((c) => c.setAttribute("aria-selected", c === b));
-  };
+  b.onclick = () => { tabs.forEach(([t]) => { $("tab-" + t).hidden = t !== id; }); [...nav.children].forEach((c) => c.setAttribute("aria-selected", c === b)); };
   nav.appendChild(b);
 });
 
@@ -269,18 +254,13 @@ const personRecs = ["Anna", "Ben", "Guest"];
 const pushRecs = ["Anna", "Ben", "Guest", "Anna's phone", "Ben's phone"];
 const people = { Anna: { devices: 2, home: true }, Ben: { devices: 1, home: true }, Guest: { devices: 0, home: false } };
 const whoInfo = {
-  "Everyone": "Every person with a recipient profile gets it now.",
-  "Admins": "Persons whose user is an admin. Typical for escalation.",
-  "At home": "Persons at home when it is sent (checked once).",
-  "Not home": "Persons away when it is sent (checked once).",
+  "Everyone": "Every person with a recipient profile.", "Admins": "Persons whose user is an admin. Typical for escalation.",
+  "At home": "Persons at home when it is sent (checked once).", "Not home": "Persons away when it is sent (checked once).",
   "Last to leave": "The person whose departure emptied the house. Empty while anyone is home.",
-  "First home": "The first person home after the house was empty. Empty if nobody is home.",
-  "Parents": "The persons in your Parents audience.",
+  "First home": "The first person home after the house was empty. Empty if nobody is home.", "Parents": "The persons in your Parents audience.",
   "Ground floor speakers (group)": "All speakers in this group announce. Volume is not changed.",
-  "Kitchen speaker": "Speaks on this media player; uses announce if supported.",
-  "Hall satellite": "Announces on this Assist satellite.",
-  "Anna": "This person, on every chosen channel.", "Ben": "This person, on every chosen channel.",
-  "Guest": "This person; has no device, so push cannot be sent.",
+  "Kitchen speaker": "Speaks on this media player; uses announce if supported.", "Hall satellite": "Announces on this Assist satellite.",
+  "Anna": "This person.", "Ben": "This person.", "Guest": "This person; has no device, so push cannot be sent.",
   "Anna's phone": "Push to this one device only.", "Ben's phone": "Push to this one device only."
 };
 function audienceMembers(name) {
@@ -292,47 +272,51 @@ function whoHelp(name, mode) {
   if (mode === "aud") { const m = audienceMembers(name); t += " Right now: " + (m.length ? m.join(", ") : "nobody") + "."; }
   return t;
 }
-function whoSpec(chs) {
-  const c = new Set(chs);
-  const kinds = ["banner", "push", "popup", "speak"].filter((x) => c.has(x));
-  if (!c.size) return { note: "Pick a channel first; the choices for who depend on it." };
-  if (!kinds.length) return { note: "Persistent notification has no recipients: it targets everyone." };
-  if (c.has("speak") && kinds.length > 1) return { conflict: true, note: "Speech goes to speakers, the other channels go to people. Use separate calls or separate policies." };
-  if (kinds[0] === "speak") return { modes: ["rec"], rec: speakTargets, note: "Speech goes to speakers, not people: pick a speaker, a group or a satellite." };
-  const pushOnly = kinds.length === 1 && kinds[0] === "push";
-  return { modes: ["aud", "rec"], rec: pushOnly ? pushRecs : personRecs, note: pushOnly ? "Audience, or persons and phones. Never both." : "Audience, or persons. Phones and speakers are not valid for " + kinds.join(", ") + "." };
+// what each channel accepts as a target
+function chSpec(c) {
+  if (c === "persistent") return { none: true, note: "No target: it goes to everyone." };
+  if (c === "speak") return { modes: ["rec"], rec: speakTargets, note: "Speakers, groups or satellites. No audience." };
+  if (c === "push") return { modes: ["aud", "rec"], rec: pushRecs, note: "An audience, or persons and phones. Never both." };
+  return { modes: ["aud", "rec"], rec: personRecs, note: c === "banner" ? "An audience, or persons. Never both." : "An audience, or persons. Never both." };
 }
-function syncWho(o) {
-  const spec = whoSpec(o.chs);
-  let mode = o.mode;
-  if (spec.modes && !spec.modes.includes(mode)) mode = spec.modes[0];
-  const show = !!spec.modes;
-  const list = show ? (mode === "aud" ? audiences : spec.rec) : [];
-  const cur = o.select.value;
-  o.select.innerHTML = "";
-  list.forEach((a) => { const op = document.createElement("option"); op.textContent = a; o.select.appendChild(op); });
-  if (list.includes(cur)) o.select.value = cur;
-  o.select.hidden = !show; o.audBtn.parentElement.hidden = !show;
-  if (o.label) { o.label.hidden = !show; o.label.textContent = mode === "aud" ? "Audience" : "Direct recipients"; }
-  o.audBtn.disabled = !(show && spec.modes.includes("aud")); o.recBtn.disabled = !(show && spec.modes.includes("rec"));
-  o.audBtn.setAttribute("aria-pressed", show && mode === "aud"); o.recBtn.setAttribute("aria-pressed", show && mode === "rec");
-  const who = show ? o.select.value : "";
-  o.help.textContent = show ? whoHelp(who, mode) : "";
-  o.note.textContent = spec.note; o.note.style.color = spec.conflict ? "var(--crit)" : "";
-  return { spec, mode, who };
+const defTarget = (c) => (c === "speak" ? { mode: "rec", who: "Ground floor speakers (group)" } : { mode: "aud", who: c === "push" ? "Admins" : "Everyone" });
+function normTarget(t, c) {
+  const sp = chSpec(c);
+  if (sp.none) return null;
+  if (!t) t = defTarget(c);
+  if (!sp.modes.includes(t.mode)) t.mode = sp.modes[0];
+  const list = t.mode === "aud" ? audiences : sp.rec;
+  if (!list.includes(t.who)) t.who = list[0];
+  return t;
 }
+// renders one target row per channel into el; targets is an object channel -> {mode, who}
+function renderTargets(el, chs, targets, onChange) {
+  if (!chs.length) { el.innerHTML = '<p class="note">Pick a channel first.</p>'; return; }
+  el.innerHTML = chs.map((c) => {
+    const sp = chSpec(c);
+    if (sp.none) return `<div class="level" style="margin-top:8px"><b>${c}</b><p class="note">${esc(sp.note)}</p></div>`;
+    const t = targets[c] = normTarget(targets[c], c);
+    const list = t.mode === "aud" ? audiences : sp.rec;
+    return `<div class="level" style="margin-top:8px"><b>${c}</b>
+      <div class="row" style="margin-top:6px"><button class="chip" data-c="${c}" data-m="aud" aria-pressed="${t.mode === "aud"}" ${sp.modes.includes("aud") ? "" : "disabled"}>Audience</button><button class="chip" data-c="${c}" data-m="rec" aria-pressed="${t.mode === "rec"}" ${sp.modes.includes("rec") ? "" : "disabled"}>Direct recipients</button></div>
+      <select data-c="${c}" data-w style="margin-top:8px">${list.map((o) => `<option${o === t.who ? " selected" : ""}>${esc(o)}</option>`).join("")}</select>
+      <p class="note">${esc(whoHelp(t.who, t.mode))}</p><p class="note">${esc(sp.note)}</p></div>`;
+  }).join("");
+  el.querySelectorAll("button[data-m]").forEach((b) => (b.onclick = () => { const t = targets[b.dataset.c]; t.mode = b.dataset.m; t.who = ""; normTarget(t, b.dataset.c); onChange(); }));
+  el.querySelectorAll("select[data-w]").forEach((e) => (e.onchange = () => { targets[e.dataset.c].who = e.value; onChange(); }));
+}
+const targetsYaml = (chs, targets, ind) => chs.filter((c) => !chSpec(c).none && targets[c]).map((c) => `${ind}${c}: {${targets[c].mode === "aud" ? "audience: " + targets[c].who : "recipients: [" + targets[c].who + "]"}}`);
 
 // ---------- policies (typed rules) ----------
 const typeNames = { escalation: "Escalation", quiet: "Quiet hours", fallback: "Fallback", reminder: "Reminder", away: "Away", summarize: "Summarize" };
 const base = (o) => Object.assign({ name: "New policy", type: "escalation", sev: [], tags: "", onlyIf: "(none)", enabled: true,
-  after: 5, mode: "aud", who: "Admins", channels: ["push"], dismissCounts: true,
+  after: 5, channels: ["push"], targets: {}, dismissCounts: true,
   from: "22:00", to: "07:00", days: "all", action: "quiet", critPass: true,
   when: "both", every: 30, max: 3, summaryMode: "every", summaryEvery: 60, summaryAt: "20:00", inclCrit: false }, o);
 let pols = [
-  base({ name: "Water escalation", type: "escalation", sev: ["critical"], tags: "water", after: 5, who: "Admins", channels: ["push"] }),
-  base({ name: "Water speech escalation", type: "escalation", sev: ["critical"], tags: "water", after: 10, mode: "rec", who: "Ground floor speakers (group)", channels: ["speak"] }),
-  base({ name: "Night quiet", type: "quiet", sev: [], action: "quiet", critPass: true }),
-  base({ name: "Push failed fallback", type: "fallback", sev: ["critical", "warning"], when: "both", who: "Admins", channels: ["push"] }),
+  base({ name: "Water escalation", type: "escalation", sev: ["critical"], tags: "water", after: 5, channels: ["push", "speak", "persistent"], targets: { push: { mode: "aud", who: "Admins" }, speak: { mode: "rec", who: "Ground floor speakers (group)" } } }),
+  base({ name: "Night quiet", type: "quiet", action: "quiet", critPass: true }),
+  base({ name: "Push failed fallback", type: "fallback", sev: ["critical", "warning"], when: "both", channels: ["push"], targets: { push: { mode: "aud", who: "Admins" } } }),
   base({ name: "Warning reminders", type: "reminder", sev: ["warning"], every: 30, max: 3 }),
   base({ name: "Away: send when home", type: "away", sev: ["warning"] }),
   base({ name: "Evening summary", type: "summarize", sev: ["info", "success"], summaryMode: "at", summaryAt: "20:00" }),
@@ -343,11 +327,12 @@ function applicable(sev, tag, sel) {
   if (sel && sel !== "all that apply") return pols.filter((q) => q.enabled && q.name === sel);
   return pols.filter((q) => q.enabled && (!q.sev.length || q.sev.includes(sev)) && (!tagList(q).length || tagList(q).includes(tag)));
 }
-const when = (q) => ({ escalation: `nobody acknowledged within ${q.after} min`, quiet: `sent between ${q.from} and ${q.to}${q.days !== "all" ? " (" + q.days + ")" : ""}`, fallback: `${{ no_audience: "the audience is empty", failed: "sending failed", both: "the audience is empty or sending failed" }[q.when]}`, reminder: "still not acknowledged", away: "a recipient is not home", summarize: "messages arrive" }[q.type]);
+const toText = (q) => q.channels.map((c) => { const sp = chSpec(c); if (sp.none) return c + " (everyone)"; const t = q.targets[c]; return c + " to " + (t ? t.who : "?"); }).join(", ") || "no channel";
+const when = (q) => ({ escalation: `nobody acknowledged within ${q.after} min`, quiet: `sent between ${q.from} and ${q.to}${q.days !== "all" ? " (" + q.days + ")" : ""}`, fallback: { no_audience: "the audience is empty", failed: "sending failed", both: "the audience is empty or sending failed" }[q.when], reminder: "still not acknowledged", away: "a recipient is not home", summarize: "messages arrive" }[q.type]);
 const then = (q) => ({
-  escalation: `also notify ${q.who || "everyone"} on ${q.channels.join(", ") || "no channel"}${q.dismissCounts ? "; dismissing counts as acknowledging" : ""}`,
+  escalation: `also send ${toText(q)}${q.dismissCounts ? "; dismissing counts as acknowledging" : ""}`,
   quiet: { wait: "hold until the end", quiet: "send quietly (passive push, no speech, popup as card)", drop: "drop it" }[q.action] + (q.critPass ? "; critical passes" : ""),
-  fallback: `send to ${q.who || "everyone"} on ${q.channels.join(", ") || "no channel"} instead`,
+  fallback: `send ${toText(q)} instead`,
   reminder: `repeat every ${q.every} min, up to ${q.max} times`,
   away: "send when they arrive, while the message is active",
   summarize: `hold all channels and send one summary ${q.summaryMode === "every" ? "every " + q.summaryEvery + " min" : "at " + q.summaryAt}${q.inclCrit ? " (critical included)" : ""}`
@@ -357,15 +342,13 @@ const appliesText = (q) => (q.sev.length ? q.sev.join(", ") : "any severity") + 
 
 // ---------- New notification tab ----------
 const selected = new Set(["banner", "push"]);
-let whoMode = "aud", whoState = { spec: {}, who: "" };
+const cTargets = {};
 channelNames.forEach((c) => {
   const b = document.createElement("button");
   b.className = "chip"; b.textContent = c; b.setAttribute("aria-pressed", selected.has(c));
   b.onclick = () => { selected.has(c) ? selected.delete(c) : selected.add(c); b.setAttribute("aria-pressed", selected.has(c)); render(); };
   $("channels").appendChild(b);
 });
-$("who-aud").onclick = () => { whoMode = "aud"; render(); };
-$("who-rec").onclick = () => { whoMode = "rec"; render(); };
 function fillPolicySelects() {
   ["f-pol", "p-pol"].forEach((id) => {
     const cur = $(id).value; $(id).innerHTML = "";
@@ -373,19 +356,14 @@ function fillPolicySelects() {
     if ([...$(id).options].some((o) => o.textContent === cur)) $(id).value = cur;
   });
 }
-["f-title","f-message","f-tts","f-sev","f-tag","f-who","f-pol"].forEach((id) => $(id).addEventListener("input", render));
-
+["f-title","f-message","f-tts","f-sev","f-tag","f-pol"].forEach((id) => $(id).addEventListener("input", render));
 function render() {
-  const r = syncWho({ chs: [...selected], mode: whoMode, select: $("f-who"), help: $("f-who-help"), note: $("f-who-note"), audBtn: $("who-aud"), recBtn: $("who-rec"), label: $("f-who-label") });
-  whoMode = r.mode; whoState = r;
-  const ch = [...selected];
+  const ch = channelNames.filter((c) => selected.has(c));
+  renderTargets($("targets"), ch, cTargets, render);
   $("channel-note").textContent = ch.length ? "" : "Pick at least one channel.";
   const sev = $("f-sev").value, tag = $("f-tag").value.trim(), polSel = $("f-pol").value;
   const A = applicable(sev, tag, polSel);
-  const who = r.who || "everyone";
-  const lines = [];
-  if (r.spec.conflict) lines.push('<div class="step" style="color:var(--crit)">This combination cannot be sent as one call. See the note under "Who".</div>');
-  lines.push(`<div class="step"><span class="when">Now:</span> ${ch.join(", ") || "nothing"} to ${esc(who)}.</div>`);
+  const lines = [`<div class="step"><span class="when">Now:</span> ${esc(toText({ channels: ch, targets: cTargets }))}.</div>`];
   if (!A.length) lines.push('<div class="step note">No policy applies: one delivery, nothing else.</div>');
   A.forEach((q) => lines.push(`<div class="step note"><b>${esc(q.name)}</b>: ${esc(line(q))}</div>`));
   $("timeline").innerHTML = lines.join("");
@@ -397,12 +375,13 @@ function render() {
   y.push(`  severity: ${sev}`);
   if (tag) y.push(`  tag: ${tag}`);
   y.push(`  channels: [${ch.join(", ")}]`);
-  if (r.spec.modes) y.push(`  ${whoMode === "aud" ? "audience" : "recipients"}: ${whoMode === "aud" ? who : "[" + who + "]"}`);
+  const ty = targetsYaml(ch, cTargets, "    ");
+  if (ty.length) { y.push("  to:"); ty.forEach((l) => y.push(l)); }
   if (polSel !== "all that apply") y.push(`  policy: ${polSel === "none" ? "none" : polSel}`);
   $("yaml").textContent = y.join("\n");
-  const fields = [t, m, s, tag, ch.length, who, polSel !== "all that apply"].filter(Boolean).length;
+  const fields = [t, m, s, tag, ch.length, ty.length, polSel !== "all that apply"].filter(Boolean).length;
   $("meter").style.width = Math.min(100, fields * 100 / 8) + "%";
-  $("effort-text").textContent = `${fields} of 8 settings used. Required: message and channels. Everything else has a default or comes from the policies that apply.`;
+  $("effort-text").textContent = `${fields} of 8 settings used. Required: message and channels, plus a target for push, popup and speak. Everything else has a default or comes from the policies that apply.`;
 }
 $("test-send").onclick = () => { $("test-result").textContent = "Test (simulated): see the Preview tab for the full result per recipient. Nothing was sent."; };
 $("copy").onclick = () => { navigator.clipboard && navigator.clipboard.writeText($("yaml").textContent).catch(() => {}); $("copy").textContent = "Copied"; setTimeout(() => ($("copy").textContent = "Copy call"), 1200); };
@@ -410,7 +389,7 @@ $("wiz-btn").onclick = () => { $("wiz-out").innerHTML = '<ul class="plain"><li>R
 
 // ---------- Preview tab ----------
 const pChannels = new Set(["banner", "push", "popup"]);
-let pWho = "aud";
+const pTargets = {};
 channelNames.forEach((c) => {
   const b = document.createElement("button");
   b.className = "chip"; b.textContent = c; b.setAttribute("aria-pressed", pChannels.has(c));
@@ -423,63 +402,59 @@ Object.keys(people).forEach((n) => {
   b.onclick = () => { people[n].home = !people[n].home; upd(); preview(); };
   upd(); $("p-presence").appendChild(b);
 });
-$("p-who-aud").onclick = () => { pWho = "aud"; preview(); };
-$("p-who-rec").onclick = () => { pWho = "rec"; preview(); };
-["p-sev", "p-tag", "p-who", "p-pol", "p-time"].forEach((id) => $(id).addEventListener("change", preview));
-
-function personsOf(mode, who) {
-  if (mode === "aud") return audienceMembers(who);
-  return /Anna/.test(who) ? ["Anna"] : /Ben/.test(who) ? ["Ben"] : /Guest/.test(who) ? ["Guest"] : [];
+["p-sev", "p-tag", "p-pol", "p-time"].forEach((id) => $(id).addEventListener("change", preview));
+function personsOf(t) {
+  if (!t) return [];
+  if (t.mode === "aud") return audienceMembers(t.who);
+  return /Anna/.test(t.who) ? ["Anna"] : /Ben/.test(t.who) ? ["Ben"] : /Guest/.test(t.who) ? ["Guest"] : [];
 }
-function deliver(chs, mode, who, ctx, tagPrefix) {
+// deliver channels with their targets; ctx carries summarize / quiet / away
+function deliver(chs, targets, ctx, prefix) {
   const rows = [], failed = [];
-  const spec = whoSpec(chs), persons = spec.modes && !spec.modes.includes("rec") && mode === "rec" ? [] : personsOf(mode, who);
-  const add = (w, c, res, cls, why) => rows.push([w, c, res, cls, (tagPrefix || "") + why]);
-  const held = (w, c) => { if (ctx.summ) { add(w, c, "held", "warn", "waiting for the summary (" + (ctx.summ.summaryMode === "every" ? "every " + ctx.summ.summaryEvery + " min" : "at " + ctx.summ.summaryAt) + ")"); return true; }
+  const add = (w, c, res, cls, why) => rows.push([w, c, res, cls, (prefix || "") + why]);
+  const held = (w, c) => {
+    if (ctx.summ) { add(w, c, "held", "warn", "waiting for the summary (" + (ctx.summ.summaryMode === "every" ? "every " + ctx.summ.summaryEvery + " min" : "at " + ctx.summ.summaryAt) + ")"); return true; }
     if (ctx.quiet && ctx.quiet.action === "wait") { add(w, c, "held", "warn", "quiet hours: until " + ctx.quiet.to); return true; }
-    if (ctx.quiet && ctx.quiet.action === "drop") { add(w, c, "dropped", "warn", "quiet hours: dropped"); return true; } return false; };
+    if (ctx.quiet && ctx.quiet.action === "drop") { add(w, c, "dropped", "warn", "quiet hours: dropped"); return true; }
+    return false;
+  };
   const quiet = ctx.quiet && ctx.quiet.action === "quiet";
-  if (chs.includes("banner")) { const w = mode === "aud" ? (persons.join(", ") || "nobody") : (persons.join(", ") || "everyone");
-    if (!held(w, "banner")) { if (mode === "aud" && !persons.length) add("nobody", "banner", "skipped", "warn", "audience is empty"); else add(w, "banner", "shown", "ok", "visible to the audience"); } }
-  if (chs.includes("push")) {
-    if (mode === "aud" && !persons.length) { add("nobody", "push", "skipped", "warn", "audience is empty"); failed.push("empty"); }
-    persons.forEach((n) => { const pp = people[n];
-      if (held(n, "push")) return;
-      if (!pp.devices) { add(n, "push", "skipped", "warn", "no usable device"); failed.push(n); }
-      else if (ctx.away && !pp.home && mode === "aud") add(n, "push", "held", "warn", "away: sends when they arrive");
-      else if (quiet) add(n, "push", "sent", "warn", pp.devices + " device(s), quiet: passive, no sound");
-      else add(n, "push", "sent", "ok", pp.devices + " device(s), level " + (ctx.sev === "critical" ? "time-sensitive" : ctx.sev === "warning" ? "normal" : "passive")); }); }
-  if (chs.includes("popup")) { if (mode === "aud" && !persons.length) add("nobody", "popup", "skipped", "warn", "audience is empty");
-    persons.forEach((n) => { if (!held(n, "popup")) add(n, "popup", "sent", quiet ? "warn" : "ok", quiet ? "corner card (quiet)" : ctx.sev === "critical" ? "centered modal" : "corner card"); }); }
-  if (chs.includes("speak")) { if (!held(who, "speak")) { if (quiet) add(who, "speak", "skipped", "warn", "quiet: speech skipped"); else add(who, "speak", "sent", "ok", "announce, current volume"); } }
-  if (chs.includes("persistent")) { if (!held("everyone", "persistent")) add("everyone", "persistent", "sent", "ok", "created for everyone"); }
+  chs.forEach((c) => {
+    const t = chSpec(c).none ? null : (targets[c] = normTarget(targets[c], c));
+    const persons = personsOf(t);
+    if (c === "banner") { const w = persons.join(", ") || (t && t.mode === "aud" ? "nobody" : "everyone"); if (!held(w, c)) { if (t && t.mode === "aud" && !persons.length) { add("nobody", c, "skipped", "warn", "audience is empty"); failed.push("empty"); } else add(w, c, "shown", "ok", "visible to the audience"); } }
+    if (c === "push") {
+      if (t.mode === "aud" && !persons.length) { add("nobody", c, "skipped", "warn", "audience is empty"); failed.push("empty"); }
+      persons.forEach((n) => { const pp = people[n]; if (held(n, c)) return;
+        if (!pp.devices) { add(n, c, "skipped", "warn", "no usable device"); failed.push(n); }
+        else if (ctx.away && !pp.home && t.mode === "aud") add(n, c, "held", "warn", "away: sends when they arrive");
+        else if (quiet) add(n, c, "sent", "warn", pp.devices + " device(s), quiet: passive, no sound");
+        else add(n, c, "sent", "ok", pp.devices + " device(s), level " + (ctx.sev === "critical" ? "time-sensitive" : ctx.sev === "warning" ? "normal" : "passive")); });
+    }
+    if (c === "popup") { if (t.mode === "aud" && !persons.length) add("nobody", c, "skipped", "warn", "audience is empty");
+      persons.forEach((n) => { if (!held(n, c)) add(n, c, "sent", quiet ? "warn" : "ok", quiet ? "corner card (quiet)" : ctx.sev === "critical" ? "centered modal" : "corner card"); }); }
+    if (c === "speak") { if (!held(t.who, c)) { if (quiet) add(t.who, c, "skipped", "warn", "quiet: speech skipped"); else add(t.who, c, "sent", "ok", "announce, current volume"); } }
+    if (c === "persistent") { if (!held("everyone", c)) add("everyone", c, "sent", "ok", "created for everyone"); }
+  });
   return { rows, failed };
 }
-
 function preview() {
   const sev = $("p-sev").value, tag = $("p-tag").value, night = $("p-time").value === "night", polSel = $("p-pol").value;
-  const ch = [...pChannels];
-  const r = syncWho({ chs: ch, mode: pWho, select: $("p-who"), help: $("p-who-help"), note: $("p-who-note"), audBtn: $("p-who-aud"), recBtn: $("p-who-rec"), label: null });
-  pWho = r.mode;
-  const issues = [];
-  if (!ch.length) issues.push("Pick at least one channel (channels is required).");
-  if (r.spec.conflict) issues.push(r.spec.note);
-  if (issues.length) { $("p-issues").innerHTML = issues.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${esc(t)}</div>`).join(""); $("p-summary").textContent = ""; $("p-out").innerHTML = ""; $("p-later").innerHTML = ""; return; }
+  const ch = channelNames.filter((c) => pChannels.has(c));
+  renderTargets($("p-targets"), ch, pTargets, preview);
+  if (!ch.length) { $("p-issues").innerHTML = '<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">Pick at least one channel (channels is required).</div>'; $("p-summary").textContent = ""; $("p-out").innerHTML = ""; $("p-later").innerHTML = ""; return; }
   $("p-issues").innerHTML = "";
   const A = applicable(sev, tag, polSel);
   const summ = A.find((q) => q.type === "summarize" && (sev !== "critical" || q.inclCrit));
   const quiet = night ? A.find((q) => q.type === "quiet" && !(sev === "critical" && q.critPass)) : null;
   const away = A.find((q) => q.type === "away");
   const ctx = { sev, summ, quiet, away };
-  const main = deliver(ch, pWho, r.who, ctx);
+  const main = deliver(ch, pTargets, ctx);
   let rows = main.rows.slice();
   const fb = A.find((q) => q.type === "fallback");
   if (fb && !summ) {
     const emptyAud = main.failed.includes("empty"), failedSend = main.failed.some((x) => x !== "empty");
-    if ((emptyAud && fb.when !== "failed") || (failedSend && fb.when !== "no_audience")) {
-      const f = deliver(fb.channels, fb.mode, fb.who, ctx, "fallback (" + fb.name + "): ");
-      rows = rows.concat(f.rows);
-    }
+    if ((emptyAud && fb.when !== "failed") || (failedSend && fb.when !== "no_audience")) rows = rows.concat(deliver(fb.channels, fb.targets, ctx, "fallback (" + fb.name + "): ").rows);
   }
   const count = {};
   rows.forEach((x) => { count[x[1]] = count[x[1]] || {}; count[x[1]][x[2]] = (count[x[1]][x[2]] || 0) + 1; });
@@ -501,31 +476,18 @@ function listPols() {
   $("pol-list").querySelectorAll("[data-edit]").forEach((b) => (b.onclick = () => { cur = +b.dataset.edit; renderPol(); }));
 }
 $("pol-new").onclick = () => { pols.push(base({})); cur = pols.length - 1; renderPol(); };
-function notifyBlock(q) {
-  const spec = whoSpec(q.channels);
-  if (spec.modes) {
-    if (!spec.modes.includes(q.mode)) q.mode = spec.modes[0];
-    const list = q.mode === "aud" ? audiences : spec.rec;
-    if (!list.includes(q.who)) q.who = list[0];
-  } else q.who = "";
-  const chs = chips(channelNames, q.channels, "data-ch");
-  const aud = q.mode === "aud";
-  const who = spec.modes ? `<label>Who</label><div class="row"><button class="chip" data-mode="aud" aria-pressed="${aud}" ${spec.modes.includes("aud") ? "" : "disabled"}>Audience</button><button class="chip" data-mode="rec" aria-pressed="${!aud}" ${spec.modes.includes("rec") ? "" : "disabled"}>Direct recipients</button></div>
-    <select data-f="who" style="margin-top:8px">${(aud ? audiences : spec.rec).map((o) => `<option${o === q.who ? " selected" : ""}>${esc(o)}</option>`).join("")}</select><p class="note">${esc(whoHelp(q.who, q.mode))}</p><p class="note">${esc(spec.note)}</p>`
-    : `<label>Who</label><p class="note"${spec.conflict ? ' style="color:var(--crit)"' : ""}>${esc(spec.note)}</p>`;
-  return `<label>On channels</label>${chs}${who}`;
-}
 function typeFields(q) {
   const T = q.type;
   if (T === "escalation") return `<h3>When</h3><label>Nobody acknowledged within (minutes)</label><input type="text" value="${q.after}" data-f="after" style="width:100px">
-    <h3>Then</h3>${notifyBlock(q)}<label><input type="checkbox" ${q.dismissCounts ? "checked" : ""} data-f="dismissCounts"> Dismissing counts as acknowledging</label>
+    <h3>Then, also send on</h3>${chips(channelNames, q.channels, "data-ch")}<div id="pol-targets"></div>
+    <label><input type="checkbox" ${q.dismissCounts ? "checked" : ""} data-f="dismissCounts"> Dismissing counts as acknowledging</label>
     <p class="note">Pushes of messages this policy covers get an Acknowledge button.</p>`;
   if (T === "quiet") return `<h3>When</h3><div class="row"><div><label>Sent from</label><input type="text" value="${esc(q.from)}" data-f="from" style="width:90px"></div><div><label>to</label><input type="text" value="${esc(q.to)}" data-f="to" style="width:90px"></div><div><label>Days</label><input type="text" value="${esc(q.days)}" data-f="days" style="width:120px"></div></div>
     <h3>Then</h3><label>What happens to messages sent in that time</label>${sel(["wait", "quiet", "drop"], q.action, 'data-f="action"')}
     <p class="note">wait: hold until the end. quiet: passive push without sound, speech skipped, popup as card. drop: not sent.</p>
     <label><input type="checkbox" ${q.critPass ? "checked" : ""} data-f="critPass"> Critical messages pass anyway</label>`;
   if (T === "fallback") return `<h3>When</h3><label>Trigger</label>${sel(["no_audience", "failed", "both"], q.when, 'data-f="when"')}<p class="note">no_audience: the audience is empty. failed: sending failed or the person has no usable device.</p>
-    <h3>Then (send instead)</h3>${notifyBlock(q)}`;
+    <h3>Then, send instead on</h3>${chips(channelNames, q.channels, "data-ch")}<div id="pol-targets"></div>`;
   if (T === "reminder") return `<h3>When</h3><p class="note">The message is still not acknowledged.</p><h3>Then</h3><div class="row"><div><label>Repeat every (minutes)</label><input type="text" value="${q.every}" data-f="every" style="width:100px"></div><div><label>At most (times)</label><input type="text" value="${q.max}" data-f="max" style="width:100px"></div></div>`;
   if (T === "away") return `<h3>When</h3><p class="note">A recipient is not home when the message is sent.</p><h3>Then</h3><p class="note">Send it when they arrive, as long as the message is active (not cleared, expired or acknowledged).</p>`;
   return `<h3>When</h3><p class="note">Messages that this policy applies to arrive.</p><h3>Then</h3><label>Send one summary</label>${sel(["every", "at"], q.summaryMode, 'data-f="summaryMode"')}
@@ -536,7 +498,7 @@ function typeFields(q) {
 function problems(q) {
   const out = [];
   if (!q.name.trim()) out.push("Name is required.");
-  if (["escalation", "fallback"].includes(q.type)) { if (!q.channels.length) out.push("Pick at least one channel."); if (whoSpec(q.channels).conflict) out.push("Speech and people channels cannot share one policy: use two policies."); }
+  if (["escalation", "fallback"].includes(q.type) && !q.channels.length) out.push("Pick at least one channel.");
   if (q.type === "escalation" && !(+q.after > 0)) out.push("Minutes must be more than 0.");
   if (q.type === "reminder" && (!(+q.every > 0) || !(+q.max > 0))) out.push("Every and at most must be more than 0.");
   if (q.type === "summarize" && q.summaryMode === "every" && !(+q.summaryEvery > 0)) out.push("Minutes must be more than 0.");
@@ -548,21 +510,22 @@ function yamlOf(q) {
   const y = ["policy:", `  name: ${q.name}`, `  type: ${q.type}`];
   if (q.sev.length || tagList(q).length) y.push(`  applies_to: {${[q.sev.length ? "severities: [" + q.sev.join(", ") + "]" : "", tagList(q).length ? "tags: [" + tagList(q).join(", ") + "]" : ""].filter(Boolean).join(", ")}}`);
   if (q.onlyIf !== "(none)") y.push(`  only_if: ${q.onlyIf}`);
-  const notify = () => y.push(`  notify: {${q.who ? (q.mode === "aud" ? "audience: " + q.who : "recipients: [" + q.who + "]") + ", " : ""}channels: [${q.channels.join(", ")}]}`);
+  const notify = () => { y.push("  notify:", `    channels: [${q.channels.join(", ")}]`); const ty = targetsYaml(q.channels, q.targets, "      "); if (ty.length) { y.push("    to:"); ty.forEach((l) => y.push(l)); } };
   if (q.type === "escalation") { y.push(`  after: ${q.after}`); notify(); y.push(`  dismiss_counts: ${q.dismissCounts}`); }
-  if (q.type === "quiet") { y.push(`  from: "${q.from}"`, `  to: "${q.to}"`, `  days: ${q.days}`, `  action: ${q.action}`, `  critical_passes: ${q.critPass}`); }
+  if (q.type === "quiet") y.push(`  from: "${q.from}"`, `  to: "${q.to}"`, `  days: ${q.days}`, `  action: ${q.action}`, `  critical_passes: ${q.critPass}`);
   if (q.type === "fallback") { y.push(`  when: ${q.when}`); notify(); }
   if (q.type === "reminder") y.push(`  every: ${q.every}`, `  max: ${q.max}`);
-  if (q.type === "summarize") { y.push(q.summaryMode === "every" ? `  every: ${q.summaryEvery}` : `  at: "${q.summaryAt}"`, `  include_critical: ${q.inclCrit}`); }
+  if (q.type === "summarize") y.push(q.summaryMode === "every" ? `  every: ${q.summaryEvery}` : `  at: "${q.summaryAt}"`, `  include_critical: ${q.inclCrit}`);
   if (!q.enabled) y.push("  enabled: false");
   return y.join("\n");
 }
 function renderPol() {
   listPols(); fillPolicySelects();
-  const q = P(), probs = problems(q);
+  const q = P(); q.channels.forEach((c) => { if (!chSpec(c).none) q.targets[c] = normTarget(q.targets[c], c); });
+  const probs = problems(q);
   $("pol-editor").innerHTML = `<div class="card"><h2>Edit policy</h2>
     <label>Name</label><input type="text" value="${esc(q.name)}" data-f="name">
-    <label>Type</label>${sel(Object.keys(typeNames).map((k) => typeNames[k]), typeNames[q.type], 'data-type')}
+    <label>Type</label>${sel(Object.keys(typeNames).map((k) => typeNames[k]), typeNames[q.type], "data-type")}
     ${typeFields(q)}
     <h3>Applies to</h3><label>Severities (none selected means any)</label>${chips(sevs, q.sev, "data-sev")}
     <label>Tags (comma separated, empty means any tag)</label><input type="text" value="${esc(q.tags)}" data-f="tags">
@@ -575,13 +538,13 @@ function renderPol() {
     <div class="row" style="margin-top:10px"><button class="primary" id="pol-save" ${probs.length ? "disabled" : ""}>Save</button><button class="ghost" id="pol-del" ${pols.length < 2 ? "disabled" : ""}>Delete policy</button></div>
     <p class="note" id="pol-msg"></p></div>`;
   const root = $("pol-editor");
+  if ($("pol-targets")) renderTargets($("pol-targets"), q.channels, q.targets, renderPol);
   root.querySelectorAll("[data-f]").forEach((e) => (e.onchange = () => { q[e.dataset.f] = e.type === "checkbox" ? e.checked : e.value; renderPol(); }));
-  root.querySelectorAll("[data-type]").forEach((e) => (e.onchange = () => { const k = Object.keys(typeNames).find((x) => typeNames[x] === e.value); Object.assign(q, base({ name: q.name, type: k, sev: q.sev, tags: q.tags, onlyIf: q.onlyIf, enabled: q.enabled, channels: k === "fallback" ? ["push"] : ["push"] })); renderPol(); }));
+  root.querySelectorAll("[data-type]").forEach((e) => (e.onchange = () => { const k = Object.keys(typeNames).find((x) => typeNames[x] === e.value); Object.assign(q, base({ name: q.name, type: k, sev: q.sev, tags: q.tags, onlyIf: q.onlyIf, enabled: q.enabled })); renderPol(); }));
   root.querySelectorAll("[data-sev]").forEach((e) => (e.onclick = () => { const v = e.dataset.sev; q.sev = q.sev.includes(v) ? q.sev.filter((x) => x !== v) : q.sev.concat(v); renderPol(); }));
-  root.querySelectorAll("[data-ch]").forEach((e) => (e.onclick = () => { const v = e.dataset.ch; q.channels = q.channels.includes(v) ? q.channels.filter((x) => x !== v) : q.channels.concat(v); renderPol(); }));
-  root.querySelectorAll("[data-mode]").forEach((e) => (e.onclick = () => { q.mode = e.dataset.mode; q.who = (q.mode === "aud" ? audiences : whoSpec(q.channels).rec || [])[0] || ""; renderPol(); }));
+  root.querySelectorAll("button[data-ch]").forEach((e) => (e.onclick = () => { const v = e.dataset.ch; q.channels = q.channels.includes(v) ? q.channels.filter((x) => x !== v) : q.channels.concat(v); renderPol(); }));
   $("pol-save").onclick = () => { $("pol-msg").textContent = "Saved (simulated). In the real panel this writes the policy subentry."; };
-  $("pol-del").onclick = () => { pols.splice(cur, 1); cur = 0; renderPol(); render(); preview(); };
+  $("pol-del").onclick = () => { pols.splice(cur, 1); cur = 0; renderPol(); };
   render(); preview();
 }
 

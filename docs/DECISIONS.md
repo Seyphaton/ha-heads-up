@@ -582,3 +582,21 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - The call stays as decided in D-087: `policy` names one policy, omitted means all that apply; `none` skips all.
 - Alternatives: keep the bundled policy with steps and gates (too complex to edit and understand); a "Limit" type that drops or bundles (replaced by Summarize).
 - Open: whether the dashboard banner is also held while a summary waits (as decided, all channels wait, so the message is not visible on the dashboard until the summary); severity, channels and lifetime of the summary message; whether "Default delivery" by severity is needed because step 0 always comes from the call; the final precedence order.
+
+## D-098 Targets per channel: one call can send push, speech and persistent notification together
+- Date: 2026-10-29. Requested by the maintainer ("it must be possible to send both push and tts and persistent"). Supersedes D-096 and the delivery fields of D-087 (top-level `audience` or `recipients`).
+- Decision: `notify` takes `channels` (required list) and `to`, a mapping from channel to its target. A target is an `audience` or `recipients`, never both, and the kinds allowed depend on the channel: banner (audience or persons, empty means everyone), push (audience, or persons and phones), popup (audience or persons), speak (speakers, groups, satellites, areas; no audience), persistent notification (no target, it goes to everyone). Push, popup and speak need a target; banner and persistent do not. The shortcuts `push`, `popup` and `speak` keep a plain `audience` or `recipients` field because they have one channel.
+- Policies use the same shape: the "Then" of Escalation and Fallback names channels and a target for each channel, so one escalation can push to admins, speak on the ground floor and create a persistent notification.
+- Example:
+  ```yaml
+  action: heads_up.notify
+  data:
+    message: Water leak
+    severity: critical
+    channels: [push, speak, persistent]
+    to:
+      push: {audience: Admins}
+      speak: {recipients: [Ground floor speakers]}
+  ```
+- Alternatives: one audience plus a separate `speakers` field; mixed recipient groups (fixed lists, no dynamic audiences).
+- Open: whether `notify` also accepts a top-level default target for all people channels.

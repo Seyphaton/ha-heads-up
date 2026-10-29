@@ -561,3 +561,9 @@ Why: in the mockup, one policy with steps, gates and per-channel settings was to
 New model: a policy is one small typed rule with a trigger and an effect. Types: Escalation, Quiet hours, Fallback, Reminder, Away, Summarize. Common fields: name, type, applies to (severities and tags), only if (named condition), enabled. Channel settings (push level, lock-screen text, buttons, popup style, speech language) are one settings page with defaults by severity. Summarize holds all channels of matching messages and sends one summary (count and titles, resolved marked, cut at 10) every N minutes or at a fixed time; critical may be summarized if the policy says so.
 
 Open: banner held while a summary waits; summary severity, channels and lifetime; Default delivery by severity; final precedence order.
+
+
+---
+
+## TARGETS PER CHANNEL (maintainer, 2026-10-29, D-098): supersedes D-096
+One call must be able to send push, speech and persistent notification together. `notify` takes `channels` and `to`, a mapping from channel to its own target (audience or recipients, never both; kinds depend on the channel). Policies (Escalation, Fallback) use the same shape. The earlier rule "a step or call has one who" is withdrawn. See DESIGN section 23.4 and 23.6.
