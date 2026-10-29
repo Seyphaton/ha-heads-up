@@ -519,3 +519,27 @@ Acknowledge button on push only if the policy step sets it. Button id `hu:<messa
 
 ### Admin panel and wizard (decided 2026-10-29, D-093)
 Own forms (ha-form) saving through the subentry flow APIs; storage stays in subentries. Wizard as a panel stepper and as a config flow entry. Admin only, sidebar item. First panel: live preview, per-message delivery trace, recent messages list, test send. Open: restart survival of the recent list, panel registration API (to verify).
+
+### Naming and field layout (proposal 2026-10-29, policy layout awaiting confirmation)
+Decided: the person profile is called **recipient profile** (hub subentry, D-088 object). Gate types: `time_window`, `presence`, `acknowledgement`, `severity_tag`, `named_condition`; outcomes `skip`, `delay`, `downgrade`, `stop`. `notify` response: message status `created`, `updated`, `waiting`, `condition_false` (as today) and per channel counts of `sent`, `held`, `skipped`, `failed`.
+
+Proposed policy layout (not yet confirmed; this supersedes the older sketch in Part E1 of this file):
+```yaml
+policy:
+  name: Critical water
+  match: {severities: [critical], tags: [water]}
+  acknowledge: {dismiss_counts: true}
+  steps:
+    - after: 0                  # seconds from message start
+      audience: Everyone        # or: recipients: [...]
+      channels: [banner, push, popup]
+      profile: {push: {level: time-sensitive}}
+      gates:
+        - {type: time_window, from: "22:00", to: "07:00", outcome: downgrade}
+    - after: 300
+      audience: Admins
+      channels: [push, speak]
+      gates:
+        - {type: acknowledgement, state: not_acknowledged, outcome: skip}
+      fallback: {audience: Everyone}
+```
