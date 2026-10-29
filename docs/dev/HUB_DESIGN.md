@@ -513,3 +513,6 @@ Push levels: success/info passive, warning normal, critical time-sensitive; iOS 
 
 ### Remaining channel details (decided 2026-10-29, D-091)
 Speech: announce when supported, else current volume; no volume changes, no all-clear. Popup: persons only in v1 (area recipients not built; the popup row of the matrix narrows to persons). Rate limits: simple defaults in options, duplicate suppression, suppressed counts in the trace.
+
+### Acknowledgement and push buttons (decided 2026-10-29, D-092)
+Acknowledge button on push only if the policy step sets it. Button id `hu:<message>:<recipient>:<action>` identifies who pressed. Push Snooze uses the first snooze option. Banner line "Acknowledged by <first name>" with a card option to hide it.

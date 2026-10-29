@@ -525,3 +525,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - Popups target persons only in the first version; area recipients for popups are not built (this narrows D-090: popup `recipients` are persons only for now).
   - Rate limits: simple defaults in the options (per device and global caps per minute, duplicate suppression of identical updates); suppressed counts appear in the trace.
 - Alternatives: volume set and restored by the hub; an all-clear announcement; a display profile or a URL parameter for popup areas; duplicate suppression only; no limits.
+
+## D-092 Acknowledgement and push buttons
+- Date: 2026-10-29. API design session on branch `design/notification-hub`.
+- Decision:
+  - A push shows an Acknowledge button only if the policy sets it (per step switch, default off).
+  - Push buttons carry the message, the recipient and the action in their id (`hu:<message>:<recipient>:<action>`); a press is attributed to that recipient's person. The hub does not rely on the user in the event context (unverified, N-62). Unknown or stale ids are ignored with a trace entry.
+  - The push Snooze button uses one duration, the first snooze option of the message, and reads for example "Snooze 15 min"; the other choices stay in the dashboard banner.
+  - A banner shows "Acknowledged by <first name>" to everyone who sees it; a card option hides the line.
+- Alternatives: Acknowledge button on every push or only with escalation; the event context user; two Snooze buttons; Snooze opening the dashboard; "Acknowledged" without a name; showing nothing.
+- Open: the card option name, and what the line shows when several people acknowledged (first only, or all).
