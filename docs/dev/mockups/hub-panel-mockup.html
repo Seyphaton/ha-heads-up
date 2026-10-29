@@ -97,7 +97,7 @@ th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line
     <h2>4. Policy</h2>
     <label for="f-pol">Policy</label>
     <select id="f-pol"></select>
-    <p class="note">Left on "matched automatically", the policy is chosen by severity and tag.</p>
+    <p class="note">"All that apply" uses every enabled policy whose severities and tags match. Pick one to try it alone, or none for no policy behavior.</p>
     <h3>What will happen</h3>
     <div class="timeline" id="timeline"></div>
   </div>
@@ -146,7 +146,7 @@ data:
       <li><b>Loudness:</b> Quiet, Balanced or Loud.</li>
       <li><b>Test:</b> send a test and see per recipient what happened.</li>
     </ol>
-    <p class="note">Result of "Balanced" for a household of two: 2 recipient profiles, 1 recipient group, 3 policies, 0 named conditions.</p>
+    <p class="note">Result of "Balanced" for a household of two: 2 recipient profiles, 1 recipient group, 3 policies (one escalation, one quiet hours, one summarize), 0 named conditions.</p>
     <button class="ghost" id="wiz-btn">Preview the wizard result</button>
     <div id="wiz-out"></div>
   </div>
@@ -176,7 +176,7 @@ data:
 </section>
 
 <section id="tab-pol" hidden>
-  <div class="banner-note">Policies are created and edited here. Pick one to edit, or start a new one. The sentence and the YAML update as you change things. Save is simulated.</div>
+  <div class="banner-note">A policy is one small rule: a type, when it triggers, and what happens then. Pick one to edit or start a new one. Save is simulated.</div>
   <div class="card">
     <h2>Policies</h2>
     <div id="pol-list"></div>
@@ -247,7 +247,8 @@ data:
 </main>
 <script>
 const $ = (id) => document.getElementById(id);
-const tabs = [["send","New notification"],["hub","Hub"],["pol","Policy"],["prev","Preview"],["trace","Trace"]];
+const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const tabs = [["send","New notification"],["hub","Hub"],["pol","Policies"],["prev","Preview"],["trace","Trace"]];
 const nav = $("tabs");
 tabs.forEach(([id, name], i) => {
   const b = document.createElement("button");
@@ -259,64 +260,44 @@ tabs.forEach(([id, name], i) => {
   nav.appendChild(b);
 });
 
+// ---------- shared data ----------
 const channelNames = ["banner", "push", "popup", "speak", "persistent"];
-const selected = new Set(["banner", "push"]);
+const sevs = ["success", "info", "warning", "critical"];
 const audiences = ["Everyone", "Admins", "At home", "Not home", "Last to leave", "First home", "Parents"];
-const recipients = ["Ground floor speakers (group)", "Kitchen speaker", "Hall satellite", "Anna's phone", "Ben's phone"];
-let whoMode = "aud";
-
-channelNames.forEach((c) => {
-  const b = document.createElement("button");
-  b.className = "chip"; b.textContent = c; b.setAttribute("aria-pressed", selected.has(c));
-  b.onclick = () => { selected.has(c) ? selected.delete(c) : selected.add(c); b.setAttribute("aria-pressed", selected.has(c)); render(); };
-  $("channels").appendChild(b);
-});
-$("who-aud").onclick = () => { whoMode = "aud"; render(); };
-$("who-rec").onclick = () => { whoMode = "rec"; render(); };
-["f-title","f-message","f-tts","f-sev","f-tag","f-who","f-pol"].forEach((id) => $(id).addEventListener("input", render));
-$("f-pol").addEventListener("change", render);
-
-const policies = ["matched automatically", "critical_water", "critical_default", "warning_default", "none (no policy behavior)"];
-policies.forEach((p) => { const o = document.createElement("option"); o.textContent = p; $("f-pol").appendChild(o); });
-
-
-// ---------- explanations for the who selectors ----------
-const whoInfo = {
-  "Everyone": "Every person with a recipient profile gets it now.",
-  "Admins": "Persons whose user is an admin. Typical for escalation steps.",
-  "At home": "Persons at home when the step runs (checked once). People away do not get it unless 'deliver on arrival' is on.",
-  "Not home": "Persons away when the step runs (checked once). Typical for 'someone left something open'.",
-  "Last to leave": "The person whose departure emptied the house. Empty while anyone is home.",
-  "First home": "The first person home after the house was empty. Empty if nobody is home when the step runs.",
-  "Parents": "The persons in your Parents audience.",
-  "Ground floor speakers (group)": "All speakers in this group announce. The hub does not change their volume.",
-  "Kitchen speaker": "Speaks on this media player; uses announce if the player supports it.",
-  "Hall satellite": "Announces on this Assist satellite.",
-  "Anna": "This person, on every chosen channel.",
-  "Ben": "This person, on every chosen channel.",
-  "Guest": "This person; has no device, so push is skipped.",
-  "Anna's phone": "Push to this one device only.",
-  "Ben's phone": "Push to this one device only."
-};
-function whoHelp(name, mode) {
-  let t = whoInfo[name] || "";
-  if (mode === "aud") {
-    const m = audienceMembers(name);
-    t += " Right now: " + (m.length ? m.join(", ") : "nobody") + ".";
-  }
-  return t;
-}
-
-
 const speakTargets = ["Ground floor speakers (group)", "Kitchen speaker", "Hall satellite"];
 const personRecs = ["Anna", "Ben", "Guest"];
 const pushRecs = ["Anna", "Ben", "Guest", "Anna's phone", "Ben's phone"];
+const people = { Anna: { devices: 2, home: true }, Ben: { devices: 1, home: true }, Guest: { devices: 0, home: false } };
+const whoInfo = {
+  "Everyone": "Every person with a recipient profile gets it now.",
+  "Admins": "Persons whose user is an admin. Typical for escalation.",
+  "At home": "Persons at home when it is sent (checked once).",
+  "Not home": "Persons away when it is sent (checked once).",
+  "Last to leave": "The person whose departure emptied the house. Empty while anyone is home.",
+  "First home": "The first person home after the house was empty. Empty if nobody is home.",
+  "Parents": "The persons in your Parents audience.",
+  "Ground floor speakers (group)": "All speakers in this group announce. Volume is not changed.",
+  "Kitchen speaker": "Speaks on this media player; uses announce if supported.",
+  "Hall satellite": "Announces on this Assist satellite.",
+  "Anna": "This person, on every chosen channel.", "Ben": "This person, on every chosen channel.",
+  "Guest": "This person; has no device, so push cannot be sent.",
+  "Anna's phone": "Push to this one device only.", "Ben's phone": "Push to this one device only."
+};
+function audienceMembers(name) {
+  const home = Object.keys(people).filter((n) => people[n].home), away = Object.keys(people).filter((n) => !people[n].home);
+  return ({ "Everyone": Object.keys(people), "Admins": ["Anna"], "Parents": ["Anna", "Ben"], "At home": home, "Not home": away, "Last to leave": home.length ? [] : ["Anna"], "First home": home.length ? [home[0]] : [] })[name] || [];
+}
+function whoHelp(name, mode) {
+  let t = whoInfo[name] || "";
+  if (mode === "aud") { const m = audienceMembers(name); t += " Right now: " + (m.length ? m.join(", ") : "nobody") + "."; }
+  return t;
+}
 function whoSpec(chs) {
   const c = new Set(chs);
   const kinds = ["banner", "push", "popup", "speak"].filter((x) => c.has(x));
   if (!c.size) return { note: "Pick a channel first; the choices for who depend on it." };
   if (!kinds.length) return { note: "Persistent notification has no recipients: it targets everyone." };
-  if (c.has("speak") && kinds.length > 1) return { conflict: true, note: "Speech goes to speakers, the other channels go to people. One call has one 'who': use a policy with separate steps, or two calls." };
+  if (c.has("speak") && kinds.length > 1) return { conflict: true, note: "Speech goes to speakers, the other channels go to people. Use separate calls or separate policies." };
   if (kinds[0] === "speak") return { modes: ["rec"], rec: speakTargets, note: "Speech goes to speakers, not people: pick a speaker, a group or a satellite." };
   const pushOnly = kinds.length === 1 && kinds[0] === "push";
   return { modes: ["aud", "rec"], rec: pushOnly ? pushRecs : personRecs, note: pushOnly ? "Audience, or persons and phones. Never both." : "Audience, or persons. Phones and speakers are not valid for " + kinds.join(", ") + "." };
@@ -337,38 +318,77 @@ function syncWho(o) {
   o.audBtn.setAttribute("aria-pressed", show && mode === "aud"); o.recBtn.setAttribute("aria-pressed", show && mode === "rec");
   const who = show ? o.select.value : "";
   o.help.textContent = show ? whoHelp(who, mode) : "";
-  o.note.textContent = spec.note;
-  o.note.style.color = spec.conflict ? "var(--crit)" : "";
+  o.note.textContent = spec.note; o.note.style.color = spec.conflict ? "var(--crit)" : "";
   return { spec, mode, who };
 }
-let whoState = { spec: {}, who: "" };
-function fillWho() {
-  const r = syncWho({ chs: [...selected], mode: whoMode, select: $("f-who"), help: $("f-who-help"), note: $("f-who-note"), audBtn: $("who-aud"), recBtn: $("who-rec"), label: $("f-who-label") });
-  whoMode = r.mode; whoState = r;
+
+// ---------- policies (typed rules) ----------
+const typeNames = { escalation: "Escalation", quiet: "Quiet hours", fallback: "Fallback", reminder: "Reminder", away: "Away", summarize: "Summarize" };
+const base = (o) => Object.assign({ name: "New policy", type: "escalation", sev: [], tags: "", onlyIf: "(none)", enabled: true,
+  after: 5, mode: "aud", who: "Admins", channels: ["push"], dismissCounts: true,
+  from: "22:00", to: "07:00", days: "all", action: "quiet", critPass: true,
+  when: "both", every: 30, max: 3, summaryMode: "every", summaryEvery: 60, summaryAt: "20:00", inclCrit: false }, o);
+let pols = [
+  base({ name: "Water escalation", type: "escalation", sev: ["critical"], tags: "water", after: 5, who: "Admins", channels: ["push"] }),
+  base({ name: "Water speech escalation", type: "escalation", sev: ["critical"], tags: "water", after: 10, mode: "rec", who: "Ground floor speakers (group)", channels: ["speak"] }),
+  base({ name: "Night quiet", type: "quiet", sev: [], action: "quiet", critPass: true }),
+  base({ name: "Push failed fallback", type: "fallback", sev: ["critical", "warning"], when: "both", who: "Admins", channels: ["push"] }),
+  base({ name: "Warning reminders", type: "reminder", sev: ["warning"], every: 30, max: 3 }),
+  base({ name: "Away: send when home", type: "away", sev: ["warning"] }),
+  base({ name: "Evening summary", type: "summarize", sev: ["info", "success"], summaryMode: "at", summaryAt: "20:00" }),
+];
+const tagList = (q) => q.tags.split(",").map((t) => t.trim()).filter(Boolean);
+function applicable(sev, tag, sel) {
+  if (sel === "none") return [];
+  if (sel && sel !== "all that apply") return pols.filter((q) => q.enabled && q.name === sel);
+  return pols.filter((q) => q.enabled && (!q.sev.length || q.sev.includes(sev)) && (!tagList(q).length || tagList(q).includes(tag)));
 }
+const when = (q) => ({ escalation: `nobody acknowledged within ${q.after} min`, quiet: `sent between ${q.from} and ${q.to}${q.days !== "all" ? " (" + q.days + ")" : ""}`, fallback: `${{ no_audience: "the audience is empty", failed: "sending failed", both: "the audience is empty or sending failed" }[q.when]}`, reminder: "still not acknowledged", away: "a recipient is not home", summarize: "messages arrive" }[q.type]);
+const then = (q) => ({
+  escalation: `also notify ${q.who || "everyone"} on ${q.channels.join(", ") || "no channel"}${q.dismissCounts ? "; dismissing counts as acknowledging" : ""}`,
+  quiet: { wait: "hold until the end", quiet: "send quietly (passive push, no speech, popup as card)", drop: "drop it" }[q.action] + (q.critPass ? "; critical passes" : ""),
+  fallback: `send to ${q.who || "everyone"} on ${q.channels.join(", ") || "no channel"} instead`,
+  reminder: `repeat every ${q.every} min, up to ${q.max} times`,
+  away: "send when they arrive, while the message is active",
+  summarize: `hold all channels and send one summary ${q.summaryMode === "every" ? "every " + q.summaryEvery + " min" : "at " + q.summaryAt}${q.inclCrit ? " (critical included)" : ""}`
+}[q.type]);
+const line = (q) => `${typeNames[q.type]}: when ${when(q)}, ${then(q)}.`;
+const appliesText = (q) => (q.sev.length ? q.sev.join(", ") : "any severity") + (tagList(q).length ? ", tag " + tagList(q).join("/") : "");
+
+// ---------- New notification tab ----------
+const selected = new Set(["banner", "push"]);
+let whoMode = "aud", whoState = { spec: {}, who: "" };
+channelNames.forEach((c) => {
+  const b = document.createElement("button");
+  b.className = "chip"; b.textContent = c; b.setAttribute("aria-pressed", selected.has(c));
+  b.onclick = () => { selected.has(c) ? selected.delete(c) : selected.add(c); b.setAttribute("aria-pressed", selected.has(c)); render(); };
+  $("channels").appendChild(b);
+});
+$("who-aud").onclick = () => { whoMode = "aud"; render(); };
+$("who-rec").onclick = () => { whoMode = "rec"; render(); };
+function fillPolicySelects() {
+  ["f-pol", "p-pol"].forEach((id) => {
+    const cur = $(id).value; $(id).innerHTML = "";
+    ["all that apply", "none"].concat(pols.map((q) => q.name)).forEach((n) => { const o = document.createElement("option"); o.textContent = n; $(id).appendChild(o); });
+    if ([...$(id).options].some((o) => o.textContent === cur)) $(id).value = cur;
+  });
+}
+["f-title","f-message","f-tts","f-sev","f-tag","f-who","f-pol"].forEach((id) => $(id).addEventListener("input", render));
 
 function render() {
-  fillWho();
+  const r = syncWho({ chs: [...selected], mode: whoMode, select: $("f-who"), help: $("f-who-help"), note: $("f-who-note"), audBtn: $("who-aud"), recBtn: $("who-rec"), label: $("f-who-label") });
+  whoMode = r.mode; whoState = r;
   const ch = [...selected];
-  const speakOnly = ch.length === 1 && ch[0] === "speak";
   $("channel-note").textContent = ch.length ? "" : "Pick at least one channel.";
-
-  const sev = $("f-sev").value, tag = $("f-tag").value.trim();
-  const pol = $("f-pol").value;
-  const matched = pol === "matched automatically"
-    ? (sev === "critical" && tag === "water" ? "critical_water" : sev === "critical" ? "critical_default" : sev === "warning" ? "warning_default" : "none")
-    : pol.startsWith("none") ? "none" : pol;
-  const who = whoState.who || "everyone";
-
+  const sev = $("f-sev").value, tag = $("f-tag").value.trim(), polSel = $("f-pol").value;
+  const A = applicable(sev, tag, polSel);
+  const who = r.who || "everyone";
   const lines = [];
-  if (whoState.spec.conflict) lines.push('<div class="step" style="color:var(--crit)">This combination cannot be sent as one call. See the note under "Who".</div>');
-  lines.push(`<div class="step"><span class="when">Now:</span> ${ch.join(", ") || "nothing"} to ${who}${matched === "critical_water" ? " (push is passive between 22:00 and 07:00)" : ""}.</div>`);
-  if (matched === "critical_water") lines.push(`<div class="step"><span class="when">After 5 min, if not acknowledged:</span> push to Admins. <span class="when">After 10 min:</span> speak on the ground floor speakers.</div>`);
-  else if (matched === "critical_default") lines.push(`<div class="step"><span class="when">After 10 min, if not acknowledged:</span> push to Admins.</div>`);
-  else if (matched === "none") lines.push(`<div class="step note">No policy: one delivery, no escalation, no quiet hours.</div>`);
-  lines.push(`<div class="step note">Policy used: ${matched}. Any recipient can acknowledge, dismiss or snooze; the message ends when its condition or timeout ends or it is cleared.</div>`);
+  if (r.spec.conflict) lines.push('<div class="step" style="color:var(--crit)">This combination cannot be sent as one call. See the note under "Who".</div>');
+  lines.push(`<div class="step"><span class="when">Now:</span> ${ch.join(", ") || "nothing"} to ${esc(who)}.</div>`);
+  if (!A.length) lines.push('<div class="step note">No policy applies: one delivery, nothing else.</div>');
+  A.forEach((q) => lines.push(`<div class="step note"><b>${esc(q.name)}</b>: ${esc(line(q))}</div>`));
   $("timeline").innerHTML = lines.join("");
-
   const y = ["action: heads_up.notify", "data:"];
   const t = $("f-title").value.trim(), m = $("f-message").value.trim(), s = $("f-tts").value.trim();
   if (t) y.push(`  title: ${t}`);
@@ -377,25 +397,18 @@ function render() {
   y.push(`  severity: ${sev}`);
   if (tag) y.push(`  tag: ${tag}`);
   y.push(`  channels: [${ch.join(", ")}]`);
-  if (whoState.spec.modes) y.push(`  ${whoMode === "aud" ? "audience" : "recipients"}: ${whoMode === "aud" ? who : "[" + who + "]"}`);
-  if (pol !== "matched automatically") y.push(`  policy: ${pol.startsWith("none") ? "none" : pol}`);
+  if (r.spec.modes) y.push(`  ${whoMode === "aud" ? "audience" : "recipients"}: ${whoMode === "aud" ? who : "[" + who + "]"}`);
+  if (polSel !== "all that apply") y.push(`  policy: ${polSel === "none" ? "none" : polSel}`);
   $("yaml").textContent = y.join("\n");
-
-  const fields = [t, m, s, tag, ch.length, who, pol !== "matched automatically"].filter(Boolean).length;
+  const fields = [t, m, s, tag, ch.length, who, polSel !== "all that apply"].filter(Boolean).length;
   $("meter").style.width = Math.min(100, fields * 100 / 8) + "%";
-  $("effort-text").textContent = `${fields} of 8 settings used. Required: message and channels. Everything else has a default or comes from the policy.`;
+  $("effort-text").textContent = `${fields} of 8 settings used. Required: message and channels. Everything else has a default or comes from the policies that apply.`;
 }
-
-$("test-send").onclick = () => {
-  $("test-result").textContent = "Test (simulated): Anna push sent to 2 devices; Ben push downgraded (quiet hours); Guest skipped (no usable device); banner shown. Nothing was sent.";
-};
+$("test-send").onclick = () => { $("test-result").textContent = "Test (simulated): see the Preview tab for the full result per recipient. Nothing was sent."; };
 $("copy").onclick = () => { navigator.clipboard && navigator.clipboard.writeText($("yaml").textContent).catch(() => {}); $("copy").textContent = "Copied"; setTimeout(() => ($("copy").textContent = "Copy call"), 1200); };
+$("wiz-btn").onclick = () => { $("wiz-out").innerHTML = '<ul class="plain"><li>Recipient profiles: Anna (phone, tablet), Ben (phone)</li><li>Recipient group: Ground floor speakers</li><li>Policies: Night quiet (quiet hours), Water escalation (escalation), Evening summary (summarize)</li><li>Balanced: warning pushes to people at home; critical pushes to everyone and shows a popup; no speech</li></ul>'; };
 
-$("wiz-btn").onclick = () => {
-  $("wiz-out").innerHTML = '<ul class="plain"><li>Recipient profiles: Anna (phone, tablet), Ben (phone)</li><li>Recipient group: Ground floor speakers</li><li>Policies: Info quiet, Warning default, Critical default</li><li>Balanced: warning pushes to people at home; critical pushes to everyone and shows a popup; no speech</li></ul>';
-};
-
-const people = { Anna: { devices: 2, home: true }, Ben: { devices: 1, home: true }, Guest: { devices: 0, home: false } };
+// ---------- Preview tab ----------
 const pChannels = new Set(["banner", "push", "popup"]);
 let pWho = "aud";
 channelNames.forEach((c) => {
@@ -405,287 +418,178 @@ channelNames.forEach((c) => {
   $("p-channels").appendChild(b);
 });
 Object.keys(people).forEach((n) => {
-  const b = document.createElement("button");
-  b.className = "chip";
+  const b = document.createElement("button"); b.className = "chip";
   const upd = () => { b.textContent = n + ": " + (people[n].home ? "home" : "away"); b.setAttribute("aria-pressed", people[n].home); };
   b.onclick = () => { people[n].home = !people[n].home; upd(); preview(); };
   upd(); $("p-presence").appendChild(b);
 });
-policies.forEach((x) => { const o = document.createElement("option"); o.textContent = x; $("p-pol").appendChild(o); });
 $("p-who-aud").onclick = () => { pWho = "aud"; preview(); };
 $("p-who-rec").onclick = () => { pWho = "rec"; preview(); };
 ["p-sev", "p-tag", "p-who", "p-pol", "p-time"].forEach((id) => $(id).addEventListener("change", preview));
 
-function audienceMembers(name) {
-  const home = Object.keys(people).filter((n) => people[n].home);
-  const away = Object.keys(people).filter((n) => !people[n].home);
-  switch (name) {
-    case "Everyone": return Object.keys(people);
-    case "Admins": return ["Anna"];
-    case "Parents": return ["Anna", "Ben"];
-    case "At home": return home;
-    case "Not home": return away;
-    case "Last to leave": return home.length === 0 ? ["Anna"] : [];
-    case "First home": return home.length ? [home[0]] : [];
-    default: return [];
-  }
+function personsOf(mode, who) {
+  if (mode === "aud") return audienceMembers(who);
+  return /Anna/.test(who) ? ["Anna"] : /Ben/.test(who) ? ["Ben"] : /Guest/.test(who) ? ["Guest"] : [];
+}
+function deliver(chs, mode, who, ctx, tagPrefix) {
+  const rows = [], failed = [];
+  const spec = whoSpec(chs), persons = spec.modes && !spec.modes.includes("rec") && mode === "rec" ? [] : personsOf(mode, who);
+  const add = (w, c, res, cls, why) => rows.push([w, c, res, cls, (tagPrefix || "") + why]);
+  const held = (w, c) => { if (ctx.summ) { add(w, c, "held", "warn", "waiting for the summary (" + (ctx.summ.summaryMode === "every" ? "every " + ctx.summ.summaryEvery + " min" : "at " + ctx.summ.summaryAt) + ")"); return true; }
+    if (ctx.quiet && ctx.quiet.action === "wait") { add(w, c, "held", "warn", "quiet hours: until " + ctx.quiet.to); return true; }
+    if (ctx.quiet && ctx.quiet.action === "drop") { add(w, c, "dropped", "warn", "quiet hours: dropped"); return true; } return false; };
+  const quiet = ctx.quiet && ctx.quiet.action === "quiet";
+  if (chs.includes("banner")) { const w = mode === "aud" ? (persons.join(", ") || "nobody") : (persons.join(", ") || "everyone");
+    if (!held(w, "banner")) { if (mode === "aud" && !persons.length) add("nobody", "banner", "skipped", "warn", "audience is empty"); else add(w, "banner", "shown", "ok", "visible to the audience"); } }
+  if (chs.includes("push")) {
+    if (mode === "aud" && !persons.length) { add("nobody", "push", "skipped", "warn", "audience is empty"); failed.push("empty"); }
+    persons.forEach((n) => { const pp = people[n];
+      if (held(n, "push")) return;
+      if (!pp.devices) { add(n, "push", "skipped", "warn", "no usable device"); failed.push(n); }
+      else if (ctx.away && !pp.home && mode === "aud") add(n, "push", "held", "warn", "away: sends when they arrive");
+      else if (quiet) add(n, "push", "sent", "warn", pp.devices + " device(s), quiet: passive, no sound");
+      else add(n, "push", "sent", "ok", pp.devices + " device(s), level " + (ctx.sev === "critical" ? "time-sensitive" : ctx.sev === "warning" ? "normal" : "passive")); }); }
+  if (chs.includes("popup")) { if (mode === "aud" && !persons.length) add("nobody", "popup", "skipped", "warn", "audience is empty");
+    persons.forEach((n) => { if (!held(n, "popup")) add(n, "popup", "sent", quiet ? "warn" : "ok", quiet ? "corner card (quiet)" : ctx.sev === "critical" ? "centered modal" : "corner card"); }); }
+  if (chs.includes("speak")) { if (!held(who, "speak")) { if (quiet) add(who, "speak", "skipped", "warn", "quiet: speech skipped"); else add(who, "speak", "sent", "ok", "announce, current volume"); } }
+  if (chs.includes("persistent")) { if (!held("everyone", "persistent")) add("everyone", "persistent", "sent", "ok", "created for everyone"); }
+  return { rows, failed };
 }
 
 function preview() {
-  const sev = $("p-sev").value, tag = $("p-tag").value, night = $("p-time").value === "night";
-  const polSel = $("p-pol").value;
-  const pol = polSel === "matched automatically"
-    ? (sev === "critical" && tag === "water" ? "critical_water" : sev === "critical" ? "critical_default" : sev === "warning" ? "warning_default" : "info_quiet")
-    : polSel.startsWith("none") ? "none" : polSel;
+  const sev = $("p-sev").value, tag = $("p-tag").value, night = $("p-time").value === "night", polSel = $("p-pol").value;
   const ch = [...pChannels];
   const r = syncWho({ chs: ch, mode: pWho, select: $("p-who"), help: $("p-who-help"), note: $("p-who-note"), audBtn: $("p-who-aud"), recBtn: $("p-who-rec"), label: null });
   pWho = r.mode;
-  const who = r.who;
-  const nightGate = pol === "critical_water" && night;
-
   const issues = [];
   if (!ch.length) issues.push("Pick at least one channel (channels is required).");
   if (r.spec.conflict) issues.push(r.spec.note);
-  if (issues.length) { $("p-issues").innerHTML = issues.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${t}</div>`).join(""); $("p-summary").textContent = ""; $("p-out").innerHTML = ""; $("p-later").innerHTML = ""; return; }
-  $("p-issues").innerHTML = issues.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${t}</div>`).join("");
-
-  const persons = !r.spec.modes ? [] : pWho === "aud" ? audienceMembers(who) : (/Anna/.test(who) ? ["Anna"] : /Ben/.test(who) ? ["Ben"] : /Guest/.test(who) ? ["Guest"] : []);
-  const rows = [];
+  if (issues.length) { $("p-issues").innerHTML = issues.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${esc(t)}</div>`).join(""); $("p-summary").textContent = ""; $("p-out").innerHTML = ""; $("p-later").innerHTML = ""; return; }
+  $("p-issues").innerHTML = "";
+  const A = applicable(sev, tag, polSel);
+  const summ = A.find((q) => q.type === "summarize" && (sev !== "critical" || q.inclCrit));
+  const quiet = night ? A.find((q) => q.type === "quiet" && !(sev === "critical" && q.critPass)) : null;
+  const away = A.find((q) => q.type === "away");
+  const ctx = { sev, summ, quiet, away };
+  const main = deliver(ch, pWho, r.who, ctx);
+  let rows = main.rows.slice();
+  const fb = A.find((q) => q.type === "fallback");
+  if (fb && !summ) {
+    const emptyAud = main.failed.includes("empty"), failedSend = main.failed.some((x) => x !== "empty");
+    if ((emptyAud && fb.when !== "failed") || (failedSend && fb.when !== "no_audience")) {
+      const f = deliver(fb.channels, fb.mode, fb.who, ctx, "fallback (" + fb.name + "): ");
+      rows = rows.concat(f.rows);
+    }
+  }
   const count = {};
-  const add = (who, chan, result, cls, why) => { rows.push([who, chan, result, cls, why]); count[chan] = count[chan] || {}; count[chan][result] = (count[chan][result] || 0) + 1; };
-
-  if (ch.includes("banner")) {
-    if (pWho === "aud" && persons.length === 0) add("nobody", "banner", "skipped", "warn", "audience is empty");
-    else add(pWho === "aud" ? persons.join(", ") : "everyone", "banner", "shown", "ok", pWho === "aud" ? "visible to the audience" : "no recipients set means everyone");
-  }
-  if (ch.includes("push")) {
-    if (pWho === "aud" && persons.length === 0) add("nobody", "push", "skipped", "warn", "audience is empty; fallback applies if the policy has one");
-    persons.forEach((n) => {
-      const pp = people[n];
-      if (!pp.devices) add(n, "push", "skipped", "warn", "no usable device");
-      else if (sev === "warning" && !pp.home && pWho === "aud" && who === "Everyone") add(n, "push", "held", "warn", "away: deliver on arrival");
-      else if (nightGate) add(n, "push", "sent", "warn", pp.devices + " device(s), downgraded: passive, no sound (quiet hours)");
-      else add(n, "push", "sent", "ok", pp.devices + " device(s), level " + (sev === "critical" ? "time-sensitive" : sev === "warning" ? "normal" : "passive"));
-    });
-  }
-  if (ch.includes("popup")) {
-    if (persons.length === 0) add("nobody", "popup", "skipped", "warn", "audience is empty");
-    persons.forEach((n) => add(n, "popup", "sent", "ok", (sev === "critical" && !nightGate ? "centered modal" : "corner card") + (nightGate ? " (downgraded, quiet hours)" : "")));
-  }
-  if (ch.includes("speak")) {
-    if (nightGate) add(who, "speak", "skipped", "warn", "downgraded: speech skipped (quiet hours)");
-    else add(who, "speak", "sent", "ok", "announce, current volume");
-  }
-  if (ch.includes("persistent")) add("everyone", "persistent", "sent", "ok", "persistent notification created for everyone");
-
-  const sum = Object.entries(count).map(([c, r]) => c + ": " + Object.entries(r).map(([k, v]) => v + " " + k).join(", ")).join(" | ");
-  $("p-summary").textContent = rows.length ? "Response summary: " + sum + ". Policy used: " + pol + "." : "";
-  $("p-out").innerHTML = rows.length ? '<table><tr><th>Recipient</th><th>Channel</th><th>Result</th><th>Why</th></tr>' + rows.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td><span class="badge ${r[3]}">${r[2]}</span></td><td>${r[4]}</td></tr>`).join("") + "</table>" : "";
-
-  const later = [];
-  if (pol === "critical_water") later.push('<div class="step"><span class="when">At 5 min, only if not acknowledged:</span> push to Admins (Anna); if unreachable, fallback to Everyone. <span class="when">At 10 min, if still not acknowledged:</span> speak on the ground floor speakers.</div>');
-  else if (pol === "critical_default") later.push('<div class="step"><span class="when">At 10 min, only if not acknowledged:</span> push to Admins.</div>');
-  else if (pol === "none") later.push('<div class="step note">No policy: no later steps, no gates.</div>');
-  else later.push('<div class="step note">This policy has one step: nothing later.</div>');
-  $("p-later").innerHTML = later.join("");
+  rows.forEach((x) => { count[x[1]] = count[x[1]] || {}; count[x[1]][x[2]] = (count[x[1]][x[2]] || 0) + 1; });
+  const sum = Object.entries(count).map(([c, v]) => c + ": " + Object.entries(v).map(([k, n]) => n + " " + k).join(", ")).join(" | ");
+  $("p-summary").textContent = rows.length ? "Response summary: " + sum + ". Policies applied: " + (A.map((q) => q.name).join(", ") || "none") + "." : "";
+  $("p-out").innerHTML = rows.length ? '<table><tr><th>Recipient</th><th>Channel</th><th>Result</th><th>Why</th></tr>' + rows.map((x) => `<tr><td>${esc(x[0])}</td><td>${x[1]}</td><td><span class="badge ${x[3]}">${x[2]}</span></td><td>${esc(x[4])}</td></tr>`).join("") + "</table>" : "";
+  const later = A.filter((q) => ["escalation", "reminder", "summarize", "away"].includes(q.type)).map((q) => `<div class="step"><b>${esc(q.name)}</b>: ${esc(line(q))}</div>`);
+  $("p-later").innerHTML = later.join("") || '<div class="step note">No escalation, reminder, summary or away policy applies.</div>';
 }
 
-const msgs = [["Water leak", "critical", "acknowledged by Ben"], ["Window open", "warning", "ended: condition false"], ["Doorbell", "info", "expired"], ["Washer done", "info", "dismissed by Anna"]];
-$("msgs").innerHTML = '<tr><th>Message</th><th>Severity</th><th>Outcome</th></tr>' + msgs.map((m) => `<tr><td>${m[0]}</td><td>${m[1]}</td><td>${m[2]}</td></tr>`).join("");
-
-render(); preview();
-
-// ---------- policy editor ----------
-const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const sevs = ["success", "info", "warning", "critical"];
-const buttonsAll = ["acknowledge", "snooze", "dismiss"];
-const gateTypes = ["time_window", "presence", "acknowledgement", "severity_tag", "named_condition"];
-const outcomes = ["skip", "delay", "downgrade", "stop"];
-const mkStep = (o) => Object.assign({ after: 0, whoMode: "aud", who: "Everyone", channels: ["banner"], push: { level: "normal", privacy: "full", sticky: false, buttons: ["snooze", "dismiss"] }, popup: { style: "default" }, speak: { language: "en", announce: true }, gates: [], fallback: "" }, o || {});
-const mkGate = (type) => ({ type, outcome: type === "time_window" ? "downgrade" : "skip", from: "22:00", to: "07:00", days: "all", bypass: "none", who: "Admins", state: type === "acknowledgement" ? "not_acknowledged" : type === "presence" ? "any_home" : "true", severities: "critical", tags: "", name: "Guests staying" });
-let pols = [
-  { name: "Critical water", severities: ["critical"], tags: "water", dismissCounts: true, ackMode: "any", steps: [
-    mkStep({ channels: ["banner", "push", "popup"], push: { level: "time-sensitive", privacy: "full", sticky: false, buttons: ["snooze", "dismiss"] }, gates: [mkGate("time_window")] }),
-    mkStep({ after: 5, who: "Admins", channels: ["push"], push: { level: "time-sensitive", privacy: "full", sticky: false, buttons: ["acknowledge", "snooze", "dismiss"] }, gates: [mkGate("acknowledgement")], fallback: "Everyone" }),
-    mkStep({ after: 10, whoMode: "rec", who: "Ground floor speakers (group)", channels: ["speak"], gates: [mkGate("acknowledgement")] })] },
-  { name: "Critical default", severities: ["critical"], tags: "", dismissCounts: true, ackMode: "any", steps: [
-    mkStep({ channels: ["banner", "push", "popup"], push: { level: "time-sensitive", privacy: "full", sticky: false, buttons: ["snooze", "dismiss"] } }),
-    mkStep({ after: 10, who: "Admins", channels: ["push"], gates: [mkGate("acknowledgement")] })] },
-  { name: "Warning default", severities: ["warning"], tags: "", dismissCounts: false, ackMode: "any", steps: [mkStep({ channels: ["banner", "push"], who: "At home" })] },
-  { name: "Info quiet", severities: ["success", "info"], tags: "", dismissCounts: false, ackMode: "any", steps: [mkStep({ channels: ["banner"] })] },
-];
+// ---------- Policies tab ----------
 let cur = 0;
 const P = () => pols[cur];
-
-function listPols() {
-  $("pol-list").innerHTML = '<table><tr><th>Name</th><th>Applies to</th><th>Steps</th><th></th></tr>' + pols.map((q, i) =>
-    `<tr><td><b>${esc(q.name)}</b></td><td>${esc(q.severities.join(", "))}${q.tags ? " + tag " + esc(q.tags) : ""}</td><td>${q.steps.length}</td><td><button class="${i === cur ? "primary" : "ghost"}" data-edit="${i}">${i === cur ? "Editing" : "Edit"}</button></td></tr>`).join("") + "</table>";
-  $("pol-list").querySelectorAll("[data-edit]").forEach((b) => (b.onclick = () => { cur = +b.dataset.edit; renderPol(); }));
-}
-$("pol-new").onclick = () => { pols.push({ name: "New policy", severities: ["warning"], tags: "", dismissCounts: false, ackMode: "any", steps: [mkStep()] }); cur = pols.length - 1; renderPol(); };
-
 const sel = (opts, val, attr) => `<select ${attr}>` + opts.map((o) => `<option${o === val ? " selected" : ""}>${esc(o)}</option>`).join("") + "</select>";
 const chips = (opts, on, attr) => '<div class="row">' + opts.map((o) => `<button class="chip" ${attr}="${o}" aria-pressed="${on.includes(o)}">${o}</button>`).join("") + "</div>";
-
-function gateHtml(g, si, gi) {
-  const k = `data-s="${si}" data-g="${gi}"`;
-  let f = "";
-  if (g.type === "time_window") f = `<div class="row"><div><label>From</label><input type="text" value="${esc(g.from)}" ${k} data-f="from" style="width:90px"></div><div><label>To</label><input type="text" value="${esc(g.to)}" ${k} data-f="to" style="width:90px"></div><div><label>Days</label><input type="text" value="${esc(g.days)}" ${k} data-f="days" style="width:110px"></div><div><label>Critical passes anyway</label>${sel(["none", "critical"], g.bypass, k + ' data-f="bypass"')}</div></div>`;
-  if (g.type === "presence") f = `<div class="row"><div><label>Who</label>${sel(audiences, g.who, k + ' data-f="who"')}</div><div><label>State</label>${sel(["any_home", "none_home", "all_home"], g.state, k + ' data-f="state"')}</div></div>`;
-  if (g.type === "acknowledgement") f = `<div><label>State</label>${sel(["not_acknowledged", "acknowledged"], g.state, k + ' data-f="state"')}</div>`;
-  if (g.type === "severity_tag") f = `<div class="row"><div><label>Severities</label><input type="text" value="${esc(g.severities)}" ${k} data-f="severities"></div><div><label>Tags</label><input type="text" value="${esc(g.tags)}" ${k} data-f="tags"></div></div>`;
-  if (g.type === "named_condition") f = `<div class="row"><div><label>Named condition</label>${sel(["Guests staying", "House disarmed"], g.name, k + ' data-f="name"')}</div><div><label>Must be</label>${sel(["true", "false"], g.state, k + ' data-f="state"')}</div></div>`;
-  return `<div class="level" style="margin-top:8px"><div class="row" style="justify-content:space-between"><b>Gate</b><button class="ghost" data-rg="${si}:${gi}">Remove</button></div>
-  <label>Type</label>${sel(gateTypes, g.type, k + ' data-f="type"')}${f}<label>If closed</label>${sel(outcomes, g.outcome, k + ' data-f="outcome"')}</div>`;
+function listPols() {
+  $("pol-list").innerHTML = '<table><tr><th>Name</th><th>Type</th><th>Applies to</th><th></th></tr>' + pols.map((q, i) =>
+    `<tr style="${q.enabled ? "" : "opacity:.5"}"><td><b>${esc(q.name)}</b></td><td><span class="badge">${typeNames[q.type]}</span></td><td>${esc(appliesText(q))}</td><td><button class="${i === cur ? "primary" : "ghost"}" data-edit="${i}">${i === cur ? "Editing" : "Edit"}</button></td></tr>`).join("") + "</table>";
+  $("pol-list").querySelectorAll("[data-edit]").forEach((b) => (b.onclick = () => { cur = +b.dataset.edit; renderPol(); }));
 }
-
-function stepHtml(st, si) {
-  const k = `data-s="${si}"`;
-  const spec = whoSpec(st.channels);
-  const aud = st.whoMode === "aud";
-  const canAud = !!spec.modes && spec.modes.includes("aud"), canRec = !!spec.modes && spec.modes.includes("rec");
-  const list = !spec.modes ? [] : aud ? audiences : spec.rec;
-  const whoBlock = spec.modes
-    ? `<label>Who</label><div class="row"><button class="chip" ${k} data-mode="aud" aria-pressed="${aud}" ${canAud ? "" : "disabled"}>Audience</button><button class="chip" ${k} data-mode="rec" aria-pressed="${!aud}" ${canRec ? "" : "disabled"}>Direct recipients</button></div>
-  <select ${k} data-p="who" style="margin-top:8px">${list.map((o) => `<option${o === st.who ? " selected" : ""}>${esc(o)}</option>`).join("")}</select>
-  <p class="note">${esc(whoHelp(st.who, st.whoMode))}</p><p class="note">${esc(spec.note)}</p>`
+$("pol-new").onclick = () => { pols.push(base({})); cur = pols.length - 1; renderPol(); };
+function notifyBlock(q) {
+  const spec = whoSpec(q.channels);
+  if (spec.modes) {
+    if (!spec.modes.includes(q.mode)) q.mode = spec.modes[0];
+    const list = q.mode === "aud" ? audiences : spec.rec;
+    if (!list.includes(q.who)) q.who = list[0];
+  } else q.who = "";
+  const chs = chips(channelNames, q.channels, "data-ch");
+  const aud = q.mode === "aud";
+  const who = spec.modes ? `<label>Who</label><div class="row"><button class="chip" data-mode="aud" aria-pressed="${aud}" ${spec.modes.includes("aud") ? "" : "disabled"}>Audience</button><button class="chip" data-mode="rec" aria-pressed="${!aud}" ${spec.modes.includes("rec") ? "" : "disabled"}>Direct recipients</button></div>
+    <select data-f="who" style="margin-top:8px">${(aud ? audiences : spec.rec).map((o) => `<option${o === q.who ? " selected" : ""}>${esc(o)}</option>`).join("")}</select><p class="note">${esc(whoHelp(q.who, q.mode))}</p><p class="note">${esc(spec.note)}</p>`
     : `<label>Who</label><p class="note"${spec.conflict ? ' style="color:var(--crit)"' : ""}>${esc(spec.note)}</p>`;
-  let prof = "";
-  if (st.channels.includes("push")) prof += `<div class="level" style="margin-top:8px"><b>Push settings</b><div class="row"><div><label>Level</label>${sel(["passive", "normal", "time-sensitive", "critical"], st.push.level, k + ' data-p="push.level"')}</div><div><label>Lock screen text</label>${sel(["full", "title_only", "generic"], st.push.privacy, k + ' data-p="push.privacy"')}</div></div><label>Buttons</label>${chips(buttonsAll, st.push.buttons, k + " data-btn")}<label><input type=\"checkbox\" ${st.push.sticky ? "checked" : ""} ${k} data-p="push.sticky"> Sticky (stays until dismissed)</label></div>`;
-  if (st.channels.includes("popup")) prof += `<div class="level" style="margin-top:8px"><b>Popup settings</b><label>Style</label>${sel(["default", "card", "modal"], st.popup.style, k + ' data-p="popup.style"')}</div>`;
-  if (st.channels.includes("speak")) prof += `<div class="level" style="margin-top:8px"><b>Speech settings</b><div class="row"><div><label>Language</label><input type="text" value="${esc(st.speak.language)}" ${k} data-p="speak.language" style="width:80px"></div><div><label><input type="checkbox" ${st.speak.announce ? "checked" : ""} ${k} data-p="speak.announce"> Use announce when supported</label></div></div></div>`;
-  return `<div class="card" style="border-color:var(--accent)"><div class="row" style="justify-content:space-between"><h2>Step ${si + 1}</h2>${P().steps.length > 1 ? `<button class="ghost" data-rs="${si}">Remove step</button>` : ""}</div>
-  <label>Runs after (minutes from message start)</label><input type="text" value="${st.after}" ${k} data-p="after" style="width:100px">
-  <label>Channels</label>${chips(channelNames, st.channels, k + " data-ch")}
-  ${whoBlock}
-  <label><input type="checkbox" ${st.arrival ? "checked" : ""} ${k} data-p="arrival"> Deliver on arrival to people not home yet (waits while the message is active)</label>
-  ${prof}
-  <h3>Gates (checks before this step runs)</h3>${st.gates.map((g, gi) => gateHtml(g, si, gi)).join("") || '<p class="note">No gates: the step always runs.</p>'}
-  <div class="row" style="margin-top:8px"><button class="ghost" data-ag="${si}">Add gate</button></div>
-  <label>Fallback audience (used if the audience is empty or all deliveries fail)</label>
-  ${sel(["(none)"].concat(audiences), st.fallback || "(none)", k + ' data-p="fallback"')}</div>`;
+  return `<label>On channels</label>${chs}${who}`;
 }
-
-function sentence(q) {
-  const parts = [];
-  q.steps.forEach((st, i) => {
-    const who = st.who || "everyone";
-    const chs = st.channels.join(", ") || "nothing";
-    let t = i === 0 ? `Show it on ${chs} to ${who}` : `After ${st.after} min`;
-    if (i > 0) t += `, if no gate stops it, ${chs} to ${who}`;
-    st.gates.forEach((g) => {
-      const o = { skip: "the step is skipped", delay: "it waits until the check passes", downgrade: "it is downgraded", stop: "delivery stops" }[g.outcome];
-      if (g.type === "time_window") t += ` (between ${g.from} and ${g.to}${g.bypass === "critical" ? ", critical excepted" : ""}: ${o})`;
-      if (g.type === "presence") t += ` (unless ${g.who} is ${g.state.replace("_", " ")}: ${o})`;
-      if (g.type === "acknowledgement") t += ` (only while ${g.state.replace("_", " ")}: otherwise ${o})`;
-      if (g.type === "severity_tag") t += ` (only for ${g.severities || "any severity"}${g.tags ? " tagged " + g.tags : ""}: otherwise ${o})`;
-      if (g.type === "named_condition") t += ` (needs "${g.name}" to be ${g.state}: otherwise ${o})`;
-    });
-    if (st.arrival) t += "; people not home yet get it when they arrive";
-    if (st.fallback) t += `; if nobody can be reached, ${st.fallback}`;
-    parts.push(t + ".");
-  });
-  return `When a ${q.severities.join(" or ") || "(pick a severity)"} message${q.tags ? " tagged " + q.tags : ""} appears: ` + parts.join(" ") + ` ${q.ackMode === "any" ? "Any recipient acknowledging" : "Everyone acknowledging"} stops escalation${q.dismissCounts ? "; dismissing counts as acknowledging" : ""}.`;
+function typeFields(q) {
+  const T = q.type;
+  if (T === "escalation") return `<h3>When</h3><label>Nobody acknowledged within (minutes)</label><input type="text" value="${q.after}" data-f="after" style="width:100px">
+    <h3>Then</h3>${notifyBlock(q)}<label><input type="checkbox" ${q.dismissCounts ? "checked" : ""} data-f="dismissCounts"> Dismissing counts as acknowledging</label>
+    <p class="note">Pushes of messages this policy covers get an Acknowledge button.</p>`;
+  if (T === "quiet") return `<h3>When</h3><div class="row"><div><label>Sent from</label><input type="text" value="${esc(q.from)}" data-f="from" style="width:90px"></div><div><label>to</label><input type="text" value="${esc(q.to)}" data-f="to" style="width:90px"></div><div><label>Days</label><input type="text" value="${esc(q.days)}" data-f="days" style="width:120px"></div></div>
+    <h3>Then</h3><label>What happens to messages sent in that time</label>${sel(["wait", "quiet", "drop"], q.action, 'data-f="action"')}
+    <p class="note">wait: hold until the end. quiet: passive push without sound, speech skipped, popup as card. drop: not sent.</p>
+    <label><input type="checkbox" ${q.critPass ? "checked" : ""} data-f="critPass"> Critical messages pass anyway</label>`;
+  if (T === "fallback") return `<h3>When</h3><label>Trigger</label>${sel(["no_audience", "failed", "both"], q.when, 'data-f="when"')}<p class="note">no_audience: the audience is empty. failed: sending failed or the person has no usable device.</p>
+    <h3>Then (send instead)</h3>${notifyBlock(q)}`;
+  if (T === "reminder") return `<h3>When</h3><p class="note">The message is still not acknowledged.</p><h3>Then</h3><div class="row"><div><label>Repeat every (minutes)</label><input type="text" value="${q.every}" data-f="every" style="width:100px"></div><div><label>At most (times)</label><input type="text" value="${q.max}" data-f="max" style="width:100px"></div></div>`;
+  if (T === "away") return `<h3>When</h3><p class="note">A recipient is not home when the message is sent.</p><h3>Then</h3><p class="note">Send it when they arrive, as long as the message is active (not cleared, expired or acknowledged).</p>`;
+  return `<h3>When</h3><p class="note">Messages that this policy applies to arrive.</p><h3>Then</h3><label>Send one summary</label>${sel(["every", "at"], q.summaryMode, 'data-f="summaryMode"')}
+    ${q.summaryMode === "every" ? `<label>Every (minutes)</label><input type="text" value="${q.summaryEvery}" data-f="summaryEvery" style="width:100px">` : `<label>At (time of day)</label><input type="text" value="${esc(q.summaryAt)}" data-f="summaryAt" style="width:100px">`}
+    <p class="note">Nothing is sent individually while a message waits, on any channel. The summary shows the count and the titles, marks resolved ones and cuts at 10 ("and N more"). Nothing is sent if nothing was collected.</p>
+    <label><input type="checkbox" ${q.inclCrit ? "checked" : ""} data-f="inclCrit"> Include critical messages</label>${q.inclCrit ? '<p class="note" style="color:var(--warn)">Critical messages will not be delivered individually. Check this is what you want.</p>' : ""}`;
 }
-
 function problems(q) {
   const out = [];
   if (!q.name.trim()) out.push("Name is required.");
-  if (!q.severities.length) out.push("Pick at least one severity.");
-  pols.forEach((o, i) => { if (i !== cur && o.severities.slice().sort().join() === q.severities.slice().sort().join() && (o.tags || "") === (q.tags || "")) out.push(`Refused: policy "${o.name}" already matches exactly the same severities and tags.`); });
-  q.steps.forEach((st, i) => {
-    if (!st.channels.length) out.push(`Step ${i + 1}: pick at least one channel.`);
-    if (whoSpec(st.channels).conflict) out.push(`Step ${i + 1}: speech and people channels cannot share one step; split them into two steps.`);
-    if (i === 0 && +st.after !== 0) out.push("Step 1 runs at 0 minutes.");
-    if (i > 0 && !(+st.after > +q.steps[i - 1].after)) out.push(`Step ${i + 1}: must run later than step ${i}.`);
-  });
+  if (["escalation", "fallback"].includes(q.type)) { if (!q.channels.length) out.push("Pick at least one channel."); if (whoSpec(q.channels).conflict) out.push("Speech and people channels cannot share one policy: use two policies."); }
+  if (q.type === "escalation" && !(+q.after > 0)) out.push("Minutes must be more than 0.");
+  if (q.type === "reminder" && (!(+q.every > 0) || !(+q.max > 0))) out.push("Every and at most must be more than 0.");
+  if (q.type === "summarize" && q.summaryMode === "every" && !(+q.summaryEvery > 0)) out.push("Minutes must be more than 0.");
+  const key = (x) => [x.type, x.sev.slice().sort().join(), x.tags.trim(), x.type === "escalation" ? x.after : x.type === "quiet" ? x.from + x.to : ""].join("|");
+  pols.forEach((o, i) => { if (i !== cur && key(o) === key(q)) out.push(`Refused: "${o.name}" is the same type with the same applies to and trigger.`); });
   return out;
 }
-
 function yamlOf(q) {
-  const y = ["policy:", `  name: ${q.name}`, `  match: {severities: [${q.severities.join(", ")}]${q.tags ? ", tags: [" + q.tags + "]" : ""}}`, `  acknowledge: {mode: ${q.ackMode}, dismiss_counts: ${q.dismissCounts}}`, "  steps:"];
-  q.steps.forEach((st) => {
-    y.push(`    - after: ${Math.round((+st.after || 0) * 60)}`);
-    if (st.who) y.push(`      ${st.whoMode === "aud" ? "audience" : "recipients"}: ${st.whoMode === "aud" ? st.who : "[" + st.who + "]"}`);
-    y.push(`      channels: [${st.channels.join(", ")}]`);
-    const prof = [];
-    if (st.channels.includes("push")) prof.push(`push: {level: ${st.push.level}, privacy: ${st.push.privacy}, sticky: ${st.push.sticky}, buttons: [${st.push.buttons.join(", ")}]}`);
-    if (st.channels.includes("popup") && st.popup.style !== "default") prof.push(`popup: {style: ${st.popup.style}}`);
-    if (st.channels.includes("speak")) prof.push(`speak: {language: ${st.speak.language}, announce: ${st.speak.announce}}`);
-    if (prof.length) y.push(`      profile: {${prof.join(", ")}}`);
-    if (st.gates.length) {
-      y.push("      gates:");
-      st.gates.forEach((g) => {
-        let d = "";
-        if (g.type === "time_window") d = `from: "${g.from}", to: "${g.to}", days: ${g.days}, bypass_severity: ${g.bypass}`;
-        if (g.type === "presence") d = `who: ${g.who}, state: ${g.state}`;
-        if (g.type === "acknowledgement") d = `state: ${g.state}`;
-        if (g.type === "severity_tag") d = `severities: [${g.severities}], tags: [${g.tags}]`;
-        if (g.type === "named_condition") d = `name: ${g.name}, state: ${g.state}`;
-        y.push(`        - {type: ${g.type}, ${d}, outcome: ${g.outcome}}`);
-      });
-    }
-    if (st.arrival) y.push("      deliver_on_arrival: true");
-    if (st.fallback) y.push(`      fallback: {audience: ${st.fallback}}`);
-  });
+  const y = ["policy:", `  name: ${q.name}`, `  type: ${q.type}`];
+  if (q.sev.length || tagList(q).length) y.push(`  applies_to: {${[q.sev.length ? "severities: [" + q.sev.join(", ") + "]" : "", tagList(q).length ? "tags: [" + tagList(q).join(", ") + "]" : ""].filter(Boolean).join(", ")}}`);
+  if (q.onlyIf !== "(none)") y.push(`  only_if: ${q.onlyIf}`);
+  const notify = () => y.push(`  notify: {${q.who ? (q.mode === "aud" ? "audience: " + q.who : "recipients: [" + q.who + "]") + ", " : ""}channels: [${q.channels.join(", ")}]}`);
+  if (q.type === "escalation") { y.push(`  after: ${q.after}`); notify(); y.push(`  dismiss_counts: ${q.dismissCounts}`); }
+  if (q.type === "quiet") { y.push(`  from: "${q.from}"`, `  to: "${q.to}"`, `  days: ${q.days}`, `  action: ${q.action}`, `  critical_passes: ${q.critPass}`); }
+  if (q.type === "fallback") { y.push(`  when: ${q.when}`); notify(); }
+  if (q.type === "reminder") y.push(`  every: ${q.every}`, `  max: ${q.max}`);
+  if (q.type === "summarize") { y.push(q.summaryMode === "every" ? `  every: ${q.summaryEvery}` : `  at: "${q.summaryAt}"`, `  include_critical: ${q.inclCrit}`); }
+  if (!q.enabled) y.push("  enabled: false");
   return y.join("\n");
 }
-
-function normStep(st) {
-  const spec = whoSpec(st.channels);
-  if (spec.modes) {
-    if (!spec.modes.includes(st.whoMode)) st.whoMode = spec.modes[0];
-    const list = st.whoMode === "aud" ? audiences : spec.rec;
-    if (!list.includes(st.who)) st.who = list[0];
-  } else st.who = "";
-  return spec;
-}
 function renderPol() {
-  listPols();
-  const q = P();
-  q.steps.forEach(normStep);
-  const probs = problems(q);
-  $("pol-editor").innerHTML = `
-  <div class="card"><h2>Edit policy</h2>
-    <label>Name</label><input type="text" value="${esc(q.name)}" data-top="name">
-    <h3>Applies to</h3>
-    <label>Severities</label>${chips(sevs, q.severities, "data-sev")}
-    <label>Tags (comma separated, empty means any tag)</label><input type="text" value="${esc(q.tags)}" data-top="tags">
-    <p class="note">Most specific wins: a policy with a tag beats one with severity only. Two policies with identical severities and tags are refused.</p>
-    <h3>Acknowledgement</h3>
-    <label>Who must acknowledge to stop escalation</label>${sel(["any", "all"], q.ackMode, 'data-top="ackMode"')}
-    <label><input type="checkbox" ${q.dismissCounts ? "checked" : ""} data-top="dismissCounts"> Dismissing counts as acknowledging</label>
-  </div>
-  ${q.steps.map(stepHtml).join("")}
-  <div class="row" style="margin-bottom:14px"><button class="ghost" id="add-step" ${q.steps.length >= 4 ? "disabled" : ""}>Add step (${q.steps.length} of 4)</button></div>
+  listPols(); fillPolicySelects();
+  const q = P(), probs = problems(q);
+  $("pol-editor").innerHTML = `<div class="card"><h2>Edit policy</h2>
+    <label>Name</label><input type="text" value="${esc(q.name)}" data-f="name">
+    <label>Type</label>${sel(Object.keys(typeNames).map((k) => typeNames[k]), typeNames[q.type], 'data-type')}
+    ${typeFields(q)}
+    <h3>Applies to</h3><label>Severities (none selected means any)</label>${chips(sevs, q.sev, "data-sev")}
+    <label>Tags (comma separated, empty means any tag)</label><input type="text" value="${esc(q.tags)}" data-f="tags">
+    <label>Only if (optional named condition)</label>${sel(["(none)", "Guests staying", "House disarmed"], q.onlyIf, 'data-f="onlyIf"')}
+    <label><input type="checkbox" ${q.enabled ? "checked" : ""} data-f="enabled"> Enabled</label></div>
   <div class="card"><h2>What this policy does</h2>
-    <div class="banner-note" style="margin:0 0 10px">${esc(sentence(q))}</div>
+    <div class="banner-note" style="margin:0 0 10px">${esc(line(q))} Applies to ${esc(appliesText(q))}${q.onlyIf !== "(none)" ? ", only if " + esc(q.onlyIf) : ""}.</div>
     ${probs.length ? probs.map((t) => `<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">${esc(t)}</div>`).join("") : '<div class="note"><span class="badge ok">valid</span> No problems found.</div>'}
     <h3>Stored as</h3><pre>${esc(yamlOf(q))}</pre>
     <div class="row" style="margin-top:10px"><button class="primary" id="pol-save" ${probs.length ? "disabled" : ""}>Save</button><button class="ghost" id="pol-del" ${pols.length < 2 ? "disabled" : ""}>Delete policy</button></div>
-    <p class="note" id="pol-msg"></p>
-  </div>`;
-  wirePol();
+    <p class="note" id="pol-msg"></p></div>`;
+  const root = $("pol-editor");
+  root.querySelectorAll("[data-f]").forEach((e) => (e.onchange = () => { q[e.dataset.f] = e.type === "checkbox" ? e.checked : e.value; renderPol(); }));
+  root.querySelectorAll("[data-type]").forEach((e) => (e.onchange = () => { const k = Object.keys(typeNames).find((x) => typeNames[x] === e.value); Object.assign(q, base({ name: q.name, type: k, sev: q.sev, tags: q.tags, onlyIf: q.onlyIf, enabled: q.enabled, channels: k === "fallback" ? ["push"] : ["push"] })); renderPol(); }));
+  root.querySelectorAll("[data-sev]").forEach((e) => (e.onclick = () => { const v = e.dataset.sev; q.sev = q.sev.includes(v) ? q.sev.filter((x) => x !== v) : q.sev.concat(v); renderPol(); }));
+  root.querySelectorAll("[data-ch]").forEach((e) => (e.onclick = () => { const v = e.dataset.ch; q.channels = q.channels.includes(v) ? q.channels.filter((x) => x !== v) : q.channels.concat(v); renderPol(); }));
+  root.querySelectorAll("[data-mode]").forEach((e) => (e.onclick = () => { q.mode = e.dataset.mode; q.who = (q.mode === "aud" ? audiences : whoSpec(q.channels).rec || [])[0] || ""; renderPol(); }));
+  $("pol-save").onclick = () => { $("pol-msg").textContent = "Saved (simulated). In the real panel this writes the policy subentry."; };
+  $("pol-del").onclick = () => { pols.splice(cur, 1); cur = 0; renderPol(); render(); preview(); };
+  render(); preview();
 }
 
-function wirePol() {
-  const q = P(), root = $("pol-editor");
-  const setPath = (st, path, v) => { const [a, b] = path.split("."); if (b) st[a][b] = v; else st[a] = v; };
-  root.querySelectorAll("[data-top]").forEach((e) => (e.onchange = () => { const k = e.dataset.top; q[k] = e.type === "checkbox" ? e.checked : e.value; renderPol(); }));
-  root.querySelectorAll("[data-sev]").forEach((e) => (e.onclick = () => { const v = e.dataset.sev; q.severities = q.severities.includes(v) ? q.severities.filter((x) => x !== v) : q.severities.concat(v); renderPol(); }));
-  root.querySelectorAll("[data-ch]").forEach((e) => (e.onclick = () => { const st = q.steps[+e.dataset.s], v = e.dataset.ch; st.channels = st.channels.includes(v) ? st.channels.filter((x) => x !== v) : st.channels.concat(v); renderPol(); }));
-  root.querySelectorAll("[data-btn]").forEach((e) => (e.onclick = () => { const st = q.steps[+e.dataset.s], v = e.dataset.btn; st.push.buttons = st.push.buttons.includes(v) ? st.push.buttons.filter((x) => x !== v) : st.push.buttons.concat(v); renderPol(); }));
-  root.querySelectorAll("[data-mode]").forEach((e) => (e.onclick = () => { const st = q.steps[+e.dataset.s]; st.whoMode = e.dataset.mode; st.who = (st.whoMode === "aud" ? audiences : recipients)[0]; renderPol(); }));
-  root.querySelectorAll("[data-p]").forEach((e) => (e.onchange = () => { const st = q.steps[+e.dataset.s]; let v = e.type === "checkbox" ? e.checked : e.value; if (e.dataset.p === "fallback") v = v === "(none)" ? "" : v; setPath(st, e.dataset.p, v); renderPol(); }));
-  root.querySelectorAll("[data-f]").forEach((e) => (e.onchange = () => { const st = q.steps[+e.dataset.s]; const g = st.gates[+e.dataset.g]; if (e.dataset.f === "type") { st.gates[+e.dataset.g] = mkGate(e.value); } else g[e.dataset.f] = e.value; renderPol(); }));
-  root.querySelectorAll("[data-ag]").forEach((e) => (e.onclick = () => { q.steps[+e.dataset.ag].gates.push(mkGate("time_window")); renderPol(); }));
-  root.querySelectorAll("[data-rg]").forEach((e) => (e.onclick = () => { const [a, b] = e.dataset.rg.split(":").map(Number); q.steps[a].gates.splice(b, 1); renderPol(); }));
-  root.querySelectorAll("[data-rs]").forEach((e) => (e.onclick = () => { q.steps.splice(+e.dataset.rs, 1); renderPol(); }));
-  const as = $("add-step"); if (as) as.onclick = () => { const last = q.steps[q.steps.length - 1]; q.steps.push(mkStep({ after: (+last.after || 0) + 5, who: "Admins", channels: ["push"], gates: [mkGate("acknowledgement")] })); renderPol(); };
-  $("pol-save").onclick = () => { $("pol-msg").textContent = "Saved (simulated). In the real panel this writes the policy subentry."; };
-  $("pol-del").onclick = () => { pols.splice(cur, 1); cur = 0; renderPol(); };
-}
-renderPol();
+// ---------- Trace tab ----------
+const msgs = [["Water leak", "critical", "acknowledged by Ben"], ["Window open", "warning", "ended: condition false"], ["Doorbell", "info", "expired"], ["Washer done", "info", "in the 20:00 summary"]];
+$("msgs").innerHTML = '<tr><th>Message</th><th>Severity</th><th>Outcome</th></tr>' + msgs.map((m) => `<tr><td>${m[0]}</td><td>${m[1]}</td><td>${m[2]}</td></tr>`).join("");
+
+fillPolicySelects(); render(); preview(); renderPol();
 </script>
 </body>
 </html>
