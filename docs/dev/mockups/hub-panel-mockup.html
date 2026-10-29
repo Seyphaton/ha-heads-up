@@ -104,29 +104,76 @@ th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line
     <div class="row" style="margin-top:10px"><button class="primary" id="test-send">Test send</button><button class="ghost" id="copy">Copy call</button></div>
     <p class="note" id="test-result"></p>
   </div>
+</section>
+
+<section id="tab-ex" hidden>
+  <div class="banner-note">Examples of calls, from the simplest to the most detailed, and answers to common questions. Names (Anna, Admins, Kitchen speaker) are samples.</div>
   <div class="card">
-    <h2>Three ways to call it</h2>
-    <p class="note">The same engine, called with more or less detail. You only add detail when you need more control.</p>
-    <div class="grid">
-      <div class="level"><b>Level 0: banner only</b>Today's call, unchanged. No hub objects needed.<pre>action: heads_up.create_banner
+    <h2>Examples</h2>
+    <h3>1. Banner only, as today</h3>
+    <p class="note">No hub objects needed. Nothing else is sent.</p>
+<pre>action: heads_up.create_banner
 data:
-  message: Window open</pre></div>
-      <div class="level"><b>Level 1: channels + matched policy</b>You name channels and who; the policy matched by severity and tag adds the rest (here: escalate to Admins after 5 min).<pre>action: heads_up.notify
+  message: Window open</pre>
+    <h3>2. Banner and push, policies add the rest</h3>
+    <p class="note">The policies that match severity and tag also apply, here an escalation to Admins after 5 minutes.</p>
+<pre>action: heads_up.notify
 data:
   message: Water leak
   severity: critical
   tag: water
   channels: [banner, push]
-  audience: Everyone</pre></div>
-      <div class="level"><b>Level 2: one-off</b>No policy, one speaker, own spoken text.<pre>action: heads_up.notify
+  to:
+    push: {audience: Everyone}</pre>
+    <h3>3. Push, speech and persistent notification together</h3>
+    <p class="note">Each channel has its own target. Persistent notification needs none.</p>
+<pre>action: heads_up.notify
+data:
+  message: Water leak
+  tts_message: Water in the utility room
+  severity: critical
+  channels: [push, speak, persistent]
+  to:
+    push: {audience: Admins}
+    speak: {recipients: [Ground floor speakers]}</pre>
+    <h3>4. One-off, no policy</h3>
+    <p class="note">Speech on one speaker, ignoring all policies.</p>
+<pre>action: heads_up.notify
 data:
   message: Doorbell
   tts_message: Someone is at the door
   channels: [speak]
-  recipients: [Kitchen speaker]
-  policy: none</pre></div>
-    </div>
+  to:
+    speak: {recipients: [Kitchen speaker]}
+  policy: none</pre>
+    <h3>5. Shortcut for one channel</h3>
+    <p class="note">The push shortcut with a presence audience: the person whose departure emptied the house.</p>
+<pre>action: heads_up.push
+data:
+  message: Window left open
+  audience: Last to leave</pre>
+    <h3>6. To one person</h3>
+<pre>action: heads_up.notify
+data:
+  message: Washer is done
+  severity: info
+  channels: [push]
+  to:
+    push: {recipients: [Anna]}</pre>
   </div>
+  <div class="card">
+    <h2>Questions</h2>
+    <details><summary><b>Do I need the hub for banners?</b></summary><p class="note">No. create_banner, clear_banner, clear_all, watch rules and the card work as today without any hub object.</p></details>
+    <details><summary><b>What is the difference between audience and direct recipients?</b></summary><p class="note">An audience is a named group of people that can change over time (Everyone, At home, Last to leave). Direct recipients are fixed targets such as one person, one phone or one speaker. A channel takes one or the other, never both.</p></details>
+    <details><summary><b>Why does speech take no audience?</b></summary><p class="note">An audience is a set of people, and speech goes to a speaker in a place. The hub does not know which speaker a person is near, so you name the speakers.</p></details>
+    <details><summary><b>Can one call send push, speech and persistent notification?</b></summary><p class="note">Yes. Name the channels and give each channel its own target in "to", as in example 3.</p></details>
+    <details><summary><b>What happens if nobody reacts?</b></summary><p class="note">An escalation policy can notify more people after a delay, and a reminder policy can repeat. Any acknowledgement stops both. Whether dismissing counts as acknowledging is a setting of the escalation policy.</p></details>
+    <details><summary><b>How do I keep messages quiet at night?</b></summary><p class="note">Add a quiet hours policy: hold messages until the end, send them quietly, or drop them. Critical messages can pass anyway.</p></details>
+    <details><summary><b>What if someone is not home?</b></summary><p class="note">An away policy sends the message when they arrive, while the message is still active. A fallback policy can send to someone else instead.</p></details>
+    <details><summary><b>Can I get one summary instead of many messages?</b></summary><p class="note">Yes. A summarize policy holds matching messages and sends one summary every N minutes or at a fixed time, with the count and titles. While a message waits, nothing is sent individually on any channel (the dashboard banner too, still to confirm).</p></details>
+    <details><summary><b>What happens when I replace a phone?</b></summary><p class="note">Edit the person's recipient profile once. Audiences and policies do not change, and no automation needs editing.</p></details>
+    <details><summary><b>Why didn't I get a notification?</b></summary><p class="note">The Preview tab shows who would be notified for a given call and why anyone was skipped, held or dropped. The Trace tab shows what happened for a real message.</p></details>
+    <details><summary><b>What happens after a restart?</b></summary><p class="note">Pending escalations keep their due times. A step that was due during the restart runs once if the message is still active and unacknowledged. Pushes of messages that no longer exist are cleared.</p></details>
   </div>
 </section>
 
@@ -233,7 +280,7 @@ data:
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const tabs = [["send","New notification"],["hub","Hub"],["pol","Policies"],["prev","Preview"],["trace","Trace"]];
+const tabs = [["send","New notification"],["ex","Examples & FAQ"],["hub","Hub"],["pol","Policies"],["prev","Preview"],["trace","Trace"]];
 const nav = $("tabs");
 tabs.forEach(([id, name], i) => {
   const b = document.createElement("button");
