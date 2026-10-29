@@ -510,3 +510,6 @@ Shortcuts `push`, `popup`, `speak`: fire and forget, tracked only when an `id` i
 | persistent | no | none (targets everyone) |
 
 Push levels: success/info passive, warning normal, critical time-sensitive; iOS critical is a policy opt-in. Speech fallback text: title if set, else message, shortened. Popup: corner card up to warning, centered modal for critical.
+
+### Remaining channel details (decided 2026-10-29, D-091)
+Speech: announce when supported, else current volume; no volume changes, no all-clear. Popup: persons only in v1 (area recipients not built; the popup row of the matrix narrows to persons). Rate limits: simple defaults in options, duplicate suppression, suppressed counts in the trace.

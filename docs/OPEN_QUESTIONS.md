@@ -76,7 +76,7 @@
 ## Phase 15: notification hub (design only, on branch `design/notification-hub`)
 - Dedicated API design session before any implementation: which actions and arguments exist; one generic notify action versus per-channel actions like `create_banner`; how a caller names a policy, audience and channels (create_banner takes no channel argument, D-077).
 - Shape of per-channel content overrides (for example text for speech).
-- How a dashboard session learns its room (HA area) for room-targeted popups.
+- Popup area recipients and how a dashboard session learns its area: not in v1 (D-091); revisit later.
 - Technical, proposed in the design for review: push identity with an install token, a delivery ledger store, a transition seam in the manager (the manager has no event for every moment a message becomes visible).
 - Whether the unit is called "message" in docs and API, while `create_banner` stays.
 - The admin panel under the no-build-step rule (D-021): serving and build approach.

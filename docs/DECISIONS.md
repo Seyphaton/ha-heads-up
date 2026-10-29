@@ -516,3 +516,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - Speech text when `tts_message` is missing: the title if set, else the message, shortened to a length limit.
   - Popup by default: a non-blocking card in a corner for warning and lower, a centered modal for critical; one at a time in a queue, buttons as in the card, closes when the message is resolved.
 - Alternatives: speak with an audience as a presence gate; critical push defaulting to iOS critical; all default levels; message spoken in full; nothing spoken without `tts_message`; always a modal.
+
+## D-091 Channels: volume, speech cleanup, popup areas, rate limits
+- Date: 2026-10-29. API design session on branch `design/notification-hub`.
+- Decision:
+  - Speech uses announce when the player supports it, else plays at the current volume. The hub never changes or restores volume.
+  - Speech is fire and forget. A resolved message says nothing; there is no all-clear feature.
+  - Popups target persons only in the first version; area recipients for popups are not built (this narrows D-090: popup `recipients` are persons only for now).
+  - Rate limits: simple defaults in the options (per device and global caps per minute, duplicate suppression of identical updates); suppressed counts appear in the trace.
+- Alternatives: volume set and restored by the hub; an all-clear announcement; a display profile or a URL parameter for popup areas; duplicate suppression only; no limits.
