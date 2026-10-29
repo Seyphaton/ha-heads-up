@@ -497,3 +497,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision: two object types answer "who". An audience is people-based and channel-neutral: persons, or a presence kind (D-080). A recipient group is a named set of explicit targets (media players, Assist satellites, areas, notify targets) tied to the channels it fits. `audience` takes the first, `recipients` takes entities or the name of a recipient group. Per-person device handling lives in a new hub subentry, the person profile: auto-detected devices, manual add and remove, a primary device, accepted channels; audiences reference persons only. Built-in audiences without setup: Everyone, Admins, At home, Not home, Last to leave, First home. A person with no usable device is skipped on push with a trace entry and shown in the panel with a fix link; banner and popup still work.
 - Alternatives: one audience type for everything; speakers only as direct recipients; overrides inside each audience or in a global options table; failing at save; falling back to the banner.
 - Open: the shape of the person profile in the Home Assistant UI (name clash with the core person entity), which recipient kinds each channel accepts exactly, area-to-speaker assignment.
+
+## D-089 Policy mechanics: timing, gates, matching, fallback
+- Date: 2026-10-29. API design session on branch `design/notification-hub`.
+- Decision:
+  - Step timing is an offset from the message start (0, 5, 15 minutes); due times are stored.
+  - A closed gate may skip the step, delay it until the gate opens (bounded by the message lifetime), downgrade the step's profile, or stop the delivery completely. Which outcome applies is a setting of the gate.
+  - Matching: the most specific policy wins (tag match before severity only). Two policies that match exactly the same severities and tags are refused when the second is created.
+  - A fallback (audience or channels) applies when the audience resolves to nobody, when all deliveries of the step failed, and when nobody acknowledged in time (escalation).
+- Alternatives: delay after the previous step; explicit priority numbers; all matching policies running; any overlap being an error.
+- Open: exact meaning of "stop completely" (ends delivery only, the banner stays; or ends the message), field names of a step and of a gate.

@@ -492,3 +492,10 @@ Shortcuts `push`, `popup`, `speak`: fire and forget, tracked only when an `id` i
 - Person profile (hub subentry): detected devices, manual overrides, primary device, accepted channels.
 - Built-ins: Everyone, Admins, At home, Not home, Last to leave, First home.
 - No usable device: skipped on push with a trace entry, shown in the panel with a fix link.
+
+### Policy mechanics (decided 2026-10-29, D-089)
+- Step timing: offset from the message start; due times stored.
+- Closed gate outcomes: skip, delay until open, downgrade profile, stop completely (setting of the gate).
+- Matching: most specific wins; identical matches refused at creation of the second policy.
+- Fallback applies on empty audience, all deliveries failed, no acknowledgement in time.
+- Open: whether "stop completely" ends delivery only or the whole message.
