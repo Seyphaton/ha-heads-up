@@ -1,6 +1,6 @@
 # Hub roadmap: work packages, order and parallel lanes
 
-Status: proposal. Nothing here is approved for build. Whether the hub is built at all, and the amendment of the "no push delivery" non-goal in `docs/DESIGN.md` section 1, are the maintainer's decision (D-075). Each package below is one phase approval (CLAUDE.md rule 1); a session builds exactly one package, then stops. The status column is updated by the maintainer or the session that finishes a package, on the branch it merges to.
+Status: the hub is approved for build (D-107, 2026-10-30), on feature branches only; nothing reaches `main` until the maintainer confirms. Each package below is one phase approval (CLAUDE.md rule 1); a session builds exactly one package, then stops. The status column is updated by the maintainer or the session that finishes a package, on the branch it merges to.
 
 ## Packages
 - H0a Test fixtures and dev stubs. Small. Needs nothing. `WP-H0a-test-scaffolding.md`
@@ -24,7 +24,7 @@ Status: proposal. Nothing here is approved for build. Whether the hub is built a
 - H10 Hardening, documentation, Home Assistant 2026.10, release preparation. Large, last. Needs everything. `WP-H10-hardening-release.md`
 
 ## Status
-All packages: not started (2026-10-30). One line per finished package: date, branch, commit, what was verified.
+H0a and H0b approved and started 2026-10-30; all others not started. One line per finished package: date, branch, commit, what was verified.
 
 ## Dependency graph
 ```
@@ -81,6 +81,6 @@ Hot spots: `strings.json`, `translations/en.json`, `de.json`, `fr.json`, `es.jso
 H0a, H0b, H1, H2, H4a, H3, H4b, H4c, H5, H6, H7, H8, H9a, H9b, H9c, H9d, H9e, H9f, H10. The parallel plan above shortens the calendar time without changing the order of dependencies.
 
 ## Decisions needed from the maintainer before building
-1. Hub status (build or not) and the wording of the non-goal amendment (D-075).
-2. Approval of this roadmap and of the first package.
+1. Done: hub status (D-107).
+2. Done: approval of the roadmap and of H0a and H0b (2026-10-30). Each later package needs its own approval.
 3. The open and proposed values in `DEFAULTS_AND_PROPOSALS.md`, asked by the package that needs each one.

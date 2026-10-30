@@ -1,6 +1,6 @@
 # Notification hub: consolidated plan
 
-Status: proposal on branch `design/notification-hub`, 2026-10-29. No code. Not approved for build; whether the hub is built is open (D-075). This is the readable summary. The design is `docs/DESIGN.md` §23, the decisions are D-075 to D-095 in `docs/DECISIONS.md`, the full planning record is `docs/dev/HUB_DESIGN.md`.
+Status: approved for build on feature branches (D-107, 2026-10-30). No code yet; nothing on `main`. This is the readable summary. The design is `docs/DESIGN.md` §23, the decisions are D-075 to D-095 in `docs/DECISIONS.md`, the full planning record is `docs/dev/HUB_DESIGN.md`.
 
 ## 1. What it is
 Today's implementation sets the foundation for how notifications (right now: banners) are delivered. The hub expands this idea to more channels and additional features.
@@ -78,7 +78,6 @@ Today's implementation sets the foundation for how notifications (right now: ban
 - Storage: new subentry types and a deliveries store; a downgrade needs a check for unknown subentry types.
 
 ## 11. Still open
-- Hub status (build or not) and the amendment of the "no push delivery" non-goal in DESIGN §1.
 - Build phasing.
 - Home Assistant facts not verified: the person to Companion device path, the user in the push action event, announce and volume behavior per platform, the custom panel component contract and manifest listing, everything on 2026.10.
 - Whether the recent-messages list survives a restart.

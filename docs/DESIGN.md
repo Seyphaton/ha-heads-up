@@ -13,7 +13,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §20 `empty` and `not_empty` operators, rule form without a prefilled State | implemented and tested (Phase 11); card unchanged |
 | §21 banner buttons and snooze | implemented and tested (Phase 12); card checked on the dev HA with a mouse |
 | §22 parity of banner sources, rule buttons, tap action, dismiss scope and template conditions | implemented and tested (Phase 12 follow-up) |
-| §23 notification hub | design proposal only (Phase 15, branch `design/notification-hub`); no code; not approved for build |
+| §23 notification hub | designed (Phase 15) and approved for build (D-107); built on feature branches only; nothing on `main` |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
 | Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
@@ -26,7 +26,7 @@ Goals
 - No caller-specific code; the action schema is the only contract.
 
 Non-goals
-- Delivering push, TTS or mobile notifications. Under review: §23 proposes delivery through a hub (D-075); this line stays until a build phase is approved.
+- Delivering push, TTS or mobile notifications was a non-goal until D-107; the hub (§23) now delivers through push, speech, popup and persistent notification. This line is removed from the user documentation when the first channel ships.
 - Access control. Server-side targeting limits what a user's session receives, but admins and anyone with file access can read all banners (D-008).
 - Changing other integrations, automations, scripts or blueprints.
 
@@ -541,7 +541,7 @@ Restart: the usual one after a code update. Notification path: not touched. Dash
 
 ## 23. Notification hub (Phase 15, design proposal)
 
-Status: proposal on branch `design/notification-hub`, 2026-10-30. No code. Not approved for build; whether the hub is built is open (D-075). Decisions D-075 to D-106; `docs/dev/hub/DECISION_INDEX.md` lists which decisions are current and which are superseded. This section is the consolidated design. The UI is specified in `docs/dev/hub/UX_SPEC.md` (with the mockup `docs/dev/mockups/hub-panel-mockup.html`), the work breakdown in `docs/dev/hub/ROADMAP.md`. `docs/dev/HUB_DESIGN.md` is the historical planning record and contains superseded text.
+Status: approved for build on feature branches (D-107, 2026-10-30); no code yet; nothing on `main` until the maintainer confirms. Decisions D-075 to D-107; `docs/dev/hub/DECISION_INDEX.md` lists which decisions are current and which are superseded. This section is the consolidated design. The UI is specified in `docs/dev/hub/UX_SPEC.md` (with the mockup `docs/dev/mockups/hub-panel-mockup.html`), the work breakdown in `docs/dev/hub/ROADMAP.md`. `docs/dev/HUB_DESIGN.md` is the historical planning record and contains superseded text.
 
 ### 23.1 Problem
 Automations hard-code notify services, speaker entities, quiet-hour templates and clean-up logic. Replacing a phone means editing every automation. A critical alert nobody read, a doorbell with nobody home, a push dismissed on one device and still shown on a wall tablet: each is handled ad hoc, with no shared state.
@@ -552,7 +552,7 @@ Automations hard-code notify services, speaker entities, quiet-hour templates an
 - A message has one id for all channels; state changes on one surface apply to every channel (D-078).
 - Parity (rule 9): action messages and rule messages offer the same features.
 - Delivery never blocks creation; failures show in the trace.
-- The hub is off by default (option `hub_enabled`). With it off, `notify` accepts only the banner channel and behaves like `create_banner`; no hub listeners, timers or stores run.
+- The hub is on by default (option `hub_enabled`, D-107) and has an off switch. With it off, `notify` accepts only the banner channel and behaves like `create_banner`; no hub listeners, timers or stores run. With it on, a message that names no hub channel and matches no policy is delivered exactly as before. The panel's sidebar entry is chosen by the user during initial setup and is not registered by default.
 - UI-first households and power users are served equally: the same objects are created in the panel, in the setup wizard, in the standard forms, and used from automations as plain actions.
 
 ### 23.3 Concepts

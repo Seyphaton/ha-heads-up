@@ -5,7 +5,8 @@ Which hub decisions are current. Read this before any hub work, because several 
 Status values: current, partly superseded (the part that still holds is named), superseded.
 
 ## Index
-- D-075 Hub direction, status undecided. Current. Whether the hub is built, and the amendment of the "no push delivery" non-goal in DESIGN section 1, wait for the maintainer.
+- D-075 Hub direction. Superseded in status by D-107: the hub is built, on feature branches only, and the "no push delivery" non-goal is gone.
+- D-107 The hub is built; on by default with an off switch; the sidebar entry is chosen during initial setup; nothing reaches `main` until the maintainer confirms. Current.
 - D-076 Everything existing works without the hub. Current.
 - D-077 Banner is one channel; the unit is a message. Current. `create_banner` takes no `channel` argument.
 - D-078 Banner and its notifications are one linked message; snooze clears the user's push and reminds at its end. Current.
@@ -39,6 +40,7 @@ Status values: current, partly superseded (the part that still holds is named), 
 - D-106 Summary details, no default delivery, precedence. Current.
 
 ## The current truth in one page
+- Status: approved for build (D-107). On by default with an off switch; the panel sidebar entry is opt-in during initial setup.
 - Unit: a message with one id; channels: banner, push, popup, speak, persistent.
 - Call: `heads_up.notify` with content, lifecycle, `channels` (required list), `to` (a target per channel: `audience` or `recipients`, never both), `policy` (omitted: all that apply; `none`: no policy behavior). Shortcuts `push`, `popup`, `speak`. `create_banner` and watch rules unchanged (rules frozen).
 - Targets: banner (audience or persons, empty means everyone), push (audience, or persons and phones), popup (audience or persons), speak (speakers, groups, satellites, areas; no audience), persistent (none).

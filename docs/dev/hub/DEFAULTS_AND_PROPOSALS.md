@@ -3,6 +3,7 @@
 Every concrete value the hub design uses, and whether the maintainer decided it. A build session asks about every "proposed" and "open" item with AskUserQuestion before it relies on it, and records the answer in `docs/DECISIONS.md`.
 
 ## Decided
+- The hub is built (D-107). `hub_enabled` defaults to true with an off switch; the panel sidebar entry is not registered by default and is enabled by the user during initial setup (D-107). All work stays on feature branches until the maintainer confirms.
 - Severities: success, info, warning, critical (existing).
 - Push levels by severity: success and info passive, warning normal, critical time-sensitive; iOS critical only as an opt-in (D-090).
 - Popup style: corner card up to warning, centered modal for critical (D-090).
@@ -40,7 +41,6 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 - Banner line "Acknowledged by <first name>": when several people acknowledged, show the first only (open).
 
 ## Open (need a maintainer answer or a check before the work package that needs them)
-- Hub status: build or not; amendment of the "no push delivery" non-goal in DESIGN section 1 (D-075). Before anything.
 - Build phasing and order (this roadmap is a proposal until approved).
 - The speech length limit.
 - Whether the recent-messages list survives a restart (relates to the history idea, Phase 13 candidate).

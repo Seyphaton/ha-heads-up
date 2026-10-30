@@ -649,3 +649,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - There is no default delivery by severity: calls always name their channels (D-087 stands).
   - Precedence on one delivery: Summarize, then Quiet hours, then Away, then Fallback. The summary itself is a delivery and passes through quiet hours, the away check and fallback like any other. Escalations and reminders create later deliveries that pass through the same chain.
 - Alternatives: summary severity always info or set on the policy; summary channels set on the policy; a timeout on the policy; a default delivery per severity; quiet hours before summarize; summaries exempt from the other policies.
+
+## D-107 The hub is built; on by default; sidebar entry chosen at setup; branches only
+- Date: 2026-10-30. Decided by the maintainer; resolves the open status of D-075.
+- Decision:
+  - The hub is built as a core part of Heads Up. The non-goal "Delivering push, TTS or mobile notifications" (DESIGN section 1) and the sentence in `docs/limitations.md` are removed when the first channel ships (H3), and the README says so at release (H10).
+  - All hub features are enabled by default. The option `hub_enabled` defaults to true and stays as an off switch in Settings. This replaces the earlier "off by default" statements. Existing calls (`create_banner`, `clear_banner`, `clear_all`) and watch rules behave as before because the hub acts only on messages that name hub channels or that match a policy; with no policies nothing new happens to a message.
+  - The sidebar entry of the admin panel is not registered until the user enables it during the initial setup of the integration (a step in the setup flow, also changeable in Settings). Installations that already exist have no entry until the user enables it. The default is no entry.
+  - All hub work happens on feature branches: `design/notification-hub` for the design and `hub/<id>` for each work package. Nothing reaches `main`, and nothing is pushed or tagged, until the maintainer confirms (rule 7, D-020).
+- Consequences: DESIGN 23.2, the briefs H1, H2, H9a, H9e, H10, UX_SPEC (Settings) and the roadmap are updated. Recipient profiles should exist without manual work, so H2 creates a profile for every person automatically, with detected devices (to confirm in H2).
+- Open: whether the sidebar entry can be added and removed without a restart when the option changes (H9a); the wording of the setup step.

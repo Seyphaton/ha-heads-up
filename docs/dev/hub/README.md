@@ -1,9 +1,9 @@
 # Notification hub: where everything is
 
-Status: design complete, build not approved (D-075). All files here are Claude-facing documents (`docs/dev/**`); user documentation is written when the features exist.
+Status: design complete, build approved on feature branches only (D-107); nothing on `main` until the maintainer confirms. All files here are Claude-facing documents (`docs/dev/**`); user documentation is written when the features exist.
 
 ## What the hub is
-Today's implementation sets the foundation for how notifications (right now: banners) are delivered; the hub expands this idea to more channels and additional features. A message with one id is delivered on up to five channels (banner, push, popup, speak, persistent notification), to audiences or direct recipients chosen per channel, under typed policies (Escalation, Quiet hours, Fallback, Reminder, Away, Summarize). Everything that exists today works without the hub, and the hub is off by default.
+Today's implementation sets the foundation for how notifications (right now: banners) are delivered; the hub expands this idea to more channels and additional features. A message with one id is delivered on up to five channels (banner, push, popup, speak, persistent notification), to audiences or direct recipients chosen per channel, under typed policies (Escalation, Quiet hours, Fallback, Reminder, Away, Summarize). Everything that exists today works as before, and the hub is on by default with an off switch; the panel's sidebar entry is chosen by the user during initial setup.
 
 ## Reading order for a new session
 1. `CLAUDE.md` and `docs/dev/STATE.md` (end of file).

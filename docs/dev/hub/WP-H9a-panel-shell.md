@@ -14,6 +14,7 @@ Register the admin panel, build the two-level navigation and the Settings page, 
 ## Scope
 - Register with `panel_custom.async_register_panel` (`module_url`, `require_admin: true`, sidebar title and icon, N-69), remove it on unload with `async_remove_panel`; static path and cache busting like the card. Every panel WebSocket command checks admin itself (N-69).
 - Navigation per UX_SPEC: five groups, second row for groups with more than one page, wizard as a window opened by a button.
+- Option `show_panel` (default false) set in a new step of the integration's setup flow (initial setup) and changeable in Settings; the panel is registered only when it is true. Installations that already exist have the option false until the user enables it.
 - Settings page: hub switch, limits, history, install token (read-only), people and devices summary, loudness presets, the 'Run the setup wizard' button; saving writes the integration options through the options flow API or a command that updates options.
 - Decision to ask: the panel is one ES module or a shell that loads one module per page (conflicts when parallel sessions build pages); recommended: a shell plus one module per page file under `frontend/panel/`.
 - Strings in four languages; accessible names for tabs; dark and light themes.
@@ -31,10 +32,10 @@ CHANGELOG, DESIGN 23.10, UX_SPEC if details change, STATE.
 Not a banner feature.
 
 ## Blast radius (rule 5)
-Sidebar: a new admin-only entry once the hub is enabled (decide whether it shows while the hub is off).
+Sidebar: an admin-only entry that is not registered by default; the user enables it during initial setup (D-107).
 
 ## Ask the maintainer first (AskUserQuestion, recommended first; record answers in `docs/DECISIONS.md`)
-Module layout; panel visibility while the hub is off; sidebar title and icon. Open items listed in `docs/dev/hub/DEFAULTS_AND_PROPOSALS.md` that this package needs: ask each with AskUserQuestion and record the answer in `docs/DECISIONS.md` before relying on it.
+Module layout; sidebar title and icon; whether the entry can be added and removed without a restart when the option changes; the wording of the setup step. Open items listed in `docs/dev/hub/DEFAULTS_AND_PROPOSALS.md` that this package needs: ask each with AskUserQuestion and record the answer in `docs/DECISIONS.md` before relying on it.
 
 ## Home Assistant facts to verify or rely on
 N-69 (component contract, manifest, from H0b). (rows in `docs/dev/HA_API_NOTES.md`). Verify any API not listed there before using it (rule 4).

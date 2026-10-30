@@ -85,7 +85,8 @@ Settings by severity (D-097):
 ## Settings (General)
 One page that holds everything the setup wizard sets up, plus the rest.
 - Setup wizard: a button that opens the wizard window.
-- Hub: enabled switch. Off means messages reach only the dashboard banner, as before the hub existed.
+- Hub: enabled switch, on by default (D-107). Off means messages reach only the dashboard banner, as before the hub existed.
+- Sidebar: show the Heads Up panel in the sidebar (off until the user enables it during initial setup; changeable here).
 - People and devices: a summary table with a link to Configuration, Recipients.
 - Loudness: Quiet, Balanced, Loud with a description and the policies each creates; an Apply preset button that adds missing policies and never deletes or changes existing ones. Presets: Quiet creates Night quiet; Balanced creates Night quiet, Water escalation, Evening summary; Loud adds Warning reminders and Push failed fallback. Preset contents are sample content to be fixed in the build.
 - Limits: pushes per device per minute, deliveries per minute for all devices, seconds during which identical updates are ignored (proposed defaults 10, 60, 30; suppressed deliveries are counted in the trace).

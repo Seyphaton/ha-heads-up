@@ -3,7 +3,7 @@
 Size: large, first and alone. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
-Build the foundation every other package uses: a typed transition seam in the manager, the `hub` package with the delivery engine, channel protocol, delivery store, trace buffer and install token, and the `heads_up.notify` action with the shortcuts `push`, `popup`, `speak`. With the hub switched off (default) nothing changes for anyone. Only the banner channel delivers in this package; the other channels are registered as 'not available' until their packages exist.
+Build the foundation every other package uses: a typed transition seam in the manager, the `hub` package with the delivery engine, channel protocol, delivery store, trace buffer and install token, and the `heads_up.notify` action with the shortcuts `push`, `popup`, `speak`. With the hub switched off, or for a call that names no hub channel and matches no policy, nothing changes for anyone. The hub is on by default (D-107). Only the banner channel delivers in this package; the other channels are registered as 'not available' until their packages exist.
 
 ## Dependencies and parallel work
 - Needs: H0a (fixtures)
@@ -19,12 +19,12 @@ Build the foundation every other package uses: a typed transition seam in the ma
 - Channel protocol: `capabilities` (title, buttons, clear, replace, per-user), `deliver`, `update`, `clear`, plus a registry. The banner channel wraps the existing card path. Interfaces for the audience and recipient resolvers (consumed by H2, H3, H5) and for policy hooks (consumed by H4) are defined here with fake implementations for tests.
 - Delivery model and store: second `Store` with its own key (`heads_up.deliveries`), version 1 and a `minor_version` migration hook (the banner store has no migration pattern); rows hold message id, recipient key, channel, state (planned, held, sent, skipped, failed, cleared), due times, last tag or notification id; saves debounced as the banner store does; a startup reconciliation skeleton (clear what no longer exists, never re-send what was sent).
 - Trace: a ring buffer of delivery decisions with reasons (size from the options) and the WebSocket command `heads_up/hub_trace` (admin only).
-- Options: `hub_enabled` (default false), install token (6 hexadecimal characters, generated once, read-only), the limit and history keys with their proposed defaults (stored here, enforced in H10). New option keys are added to `DEFAULT_OPTIONS` and the options flow dict (the flow rewrites all keys on save).
+- Options: `hub_enabled` (default true, D-107; the off switch), install token (6 hexadecimal characters, generated once, read-only), the limit and history keys with their proposed defaults (stored here, enforced in H10). New option keys are added to `DEFAULT_OPTIONS` and the options flow dict (the flow rewrites all keys on save).
 - Action `heads_up.notify` (D-087, D-098): content `message` (1 to 1000 characters), `title`, `icon`, `severity`, `actions`, `tap_action`, `tts_message`; lifecycle fields shared with `create_banner` (reuse its validators and constants); `channels` (required, non-empty, values from the five channels); `to` (a mapping channel to `{audience: name}` or `{recipients: [...]}`, never both); `policy` (a name, or `none`). Validation by channel as in DESIGN 23.5: push, popup and speak need a target; banner and persistent do not; speak accepts recipients only; persistent accepts no target. Unknown audience or recipient names are validation errors that list the valid names. Errors are `ServiceValidationError` with translation keys.
 - Response: `id`, `status` (`created`, `updated`, `waiting`, `condition_false`) and per channel counts of `sent`, `held`, `skipped`, `failed`.
 - Shortcuts `heads_up.push`, `heads_up.popup`, `heads_up.speak`: one fixed channel, optional `audience` or `recipients`, no escalation; fire and forget without an `id`, a tracked message with one.
 - Clearing: one generic clear removes a message from every channel. `clear_banner` already clears by `id` and/or `tag`; decide in the session (AskUserQuestion) whether `clear_banner` gains the all-channel behavior or a new `clear` action is added; keep `clear_banner` working either way.
-- Hub disabled: `notify` accepts only `channels: [banner]` and behaves exactly like `create_banner`; other channels return a validation error that says the hub is switched off. No listeners, timers or stores are created while the hub is off.
+- Hub switched off: `notify` accepts only `channels: [banner]` and behaves exactly like `create_banner`; other channels return a validation error that says the hub is switched off. No listeners, timers or stores are created while the hub is off.
 
 ## Out of scope
 Audiences, recipient profiles and groups (H2); any real push, popup, speak or persistent delivery (H3, H5, H6, H7); policies (H4); the panel (H9); rate limit enforcement and restart reconciliation details (H10).
@@ -39,7 +39,7 @@ Audiences, recipient profiles and groups (H2); any real push, popup, speak or pe
 `notify` messages and watch rule messages go through the same manager, transition seam and engine; rules do not get hub fields (D-100, DESIGN 22.2 exception row). Add tests for both sources in the transition tests.
 
 ## Blast radius (rule 5)
-Restart: the usual one after a code update. Notification path: not touched yet (banner only). Dashboard: nothing changes with the hub off. Storage: optional fields on stored banners (downgrade needs banners cleared) and a new deliveries store created only when the hub is on. New action `notify`, three shortcuts.
+Restart: the usual one after a code update. Notification path: not touched yet (banner only). Dashboard: nothing changes for messages that name no hub channel and match no policy. Storage: optional fields on stored banners (downgrade needs banners cleared) and a new deliveries store created only when the hub is on. New action `notify`, three shortcuts.
 
 ## Ask the maintainer first (AskUserQuestion, recommended first; record answers in `docs/DECISIONS.md`)
 Name of the generic clear. Panel and popup are not asked here. Speech length limit is asked in H5. Open items listed in `docs/dev/hub/DEFAULTS_AND_PROPOSALS.md` that this package needs: ask each with AskUserQuestion and record the answer in `docs/DECISIONS.md` before relying on it.
@@ -48,7 +48,7 @@ Name of the generic clear. Panel and popup are not asked here. Speech length lim
 None new; rely on N-1 to N-60 and N-61 to N-68. (rows in `docs/dev/HA_API_NOTES.md`). Verify any API not listed there before using it (rule 4).
 
 ## Done when
-Seam, engine, ledger, trace, options, `notify` and shortcuts built and tested for both message sources; hub off changes nothing; `make check`, `make hassfest`, `make dev-smoke` green; docs per the list; STATE updated.
+Seam, engine, ledger, trace, options, `notify` and shortcuts built and tested for both message sources; hub off and unaffected calls change nothing; `make check`, `make hassfest`, `make dev-smoke` green; docs per the list; STATE updated.
 
 ## Read first
 `CLAUDE.md`, `docs/dev/STATE.md`, `docs/dev/hub/README.md`, `docs/dev/hub/ROADMAP.md`, this file, `docs/DESIGN.md` section 23, `docs/dev/hub/DECISION_INDEX.md`, `docs/dev/hub/UX_SPEC.md` (for panel and card work), `docs/dev/hub/DEFAULTS_AND_PROPOSALS.md`, `docs/dev/PHASE_PROMPT.md`. Session prompt: `docs/dev/hub/SESSION_PROMPTS.md`.
