@@ -19,7 +19,11 @@ body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 sys
 header { padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--card); }
 header h1 { margin: 0; font-size: 18px; }
 header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
-nav { display: flex; gap: 4px; overflow-x: auto; padding: 8px 12px; background: var(--card); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 2; }
+.navwrap { position: sticky; top: 0; z-index: 2; background: var(--card); border-bottom: 1px solid var(--line); }
+nav { display: flex; gap: 4px; overflow-x: auto; padding: 8px 12px; }
+nav#subtabs { padding: 0 12px 6px; border-top: 1px solid var(--line); background: var(--bg); }
+nav#subtabs button { font-size: 14px; min-height: 36px; padding: 6px 10px; border-radius: 6px; }
+nav#subtabs[hidden] { display: none; }
 nav button { flex: none; border: 0; background: none; color: var(--muted); padding: 8px 12px; border-radius: 8px; font: inherit; cursor: pointer; min-height: 40px; }
 nav button[aria-selected="true"] { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
 main { max-width: 760px; margin: 0 auto; padding: 16px; }
@@ -59,7 +63,7 @@ th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line
   <h1>Heads Up: hub panel (mockup)</h1>
   <p>Static mockup of the proposed admin panel. Not part of the integration; nothing is sent or saved.</p>
 </header>
-<nav role="tablist" id="tabs"></nav>
+<div class="navwrap"><nav role="tablist" id="tabs"></nav><nav role="tablist" id="subtabs" hidden></nav></div>
 <main>
 
 
@@ -255,22 +259,27 @@ data:
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const tabs = [["hub","Overview"],["prev","Test send"],["trace","Trace"],["aud","Audiences"],["rec","Recipients"],["pol","Policies"],["rul","Watch rules"],["chs","Channels"],["wiz","Wizard"],["set","Settings"],["ex","Examples & FAQ"]];
-const nav = $("tabs");
+const groupsNav = [
+  { id: "overview", name: "Overview", subs: [["hub", "Status"]] },
+  { id: "activity", name: "Activity", subs: [["prev", "Test send"], ["trace", "Messages"]] },
+  { id: "config", name: "Configuration", subs: [["aud", "Audiences"], ["rec", "Recipients"], ["pol", "Policies"], ["chs", "Channels"], ["rul", "Watch rules"]] },
+  { id: "settings", name: "Settings", subs: [["set", "General"], ["wiz", "Setup wizard"]] },
+  { id: "help", name: "FAQ & Examples", subs: [["ex", "Examples & FAQ"]] },
+];
+const pages = groupsNav.flatMap((g) => g.subs.map((x) => x[0]));
+const nav = $("tabs"), subnav = $("subtabs");
 function goto(id) {
-  tabs.forEach(([t]) => { $("tab-" + t).hidden = t !== id; });
-  [...nav.children].forEach((c) => c.setAttribute("aria-selected", c.dataset.id === id));
+  pages.forEach((t) => { $("tab-" + t).hidden = t !== id; });
+  const g = groupsNav.find((x) => x.subs.some((y) => y[0] === id));
+  [...nav.children].forEach((c) => c.setAttribute("aria-selected", c.dataset.id === g.id));
+  subnav.innerHTML = ""; subnav.hidden = g.subs.length < 2;
+  g.subs.forEach(([pid, name]) => { const b = document.createElement("button"); b.textContent = name; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", pid === id); b.onclick = () => goto(pid); subnav.appendChild(b); });
   if (id === "hub") renderOverview();
   window.scrollTo(0, 0);
 }
-tabs.forEach(([id, name], i) => {
-  const b = document.createElement("button");
-  b.textContent = name; b.dataset.id = id; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", i === 0);
-  b.onclick = () => goto(id);
-  nav.appendChild(b);
-});
-document.addEventListener("click", (e) => { const g = e.target.closest("[data-go]"); if (g) goto(g.dataset.go); });
-tabs.forEach(([t], i) => { $("tab-" + t).hidden = i !== 0; });
+groupsNav.forEach((g) => { const b = document.createElement("button"); b.textContent = g.name; b.dataset.id = g.id; b.setAttribute("role", "tab"); b.onclick = () => goto(g.subs[0][0]); nav.appendChild(b); });
+document.addEventListener("click", (e) => { const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); goto(g.dataset.go); } });
+pages.forEach((t, i) => { $("tab-" + t).hidden = i !== 0; });
 
 // ---------- shared data ----------
 const channelNames = ["banner", "push", "popup", "speak", "persistent"];
@@ -725,7 +734,7 @@ function renderOverview() {
 const msgs = [["Water leak", "critical", "acknowledged by Ben"], ["Window open", "warning", "ended: condition false"], ["Doorbell", "info", "expired"], ["Washer done", "info", "in the 20:00 summary"]];
 $("msgs").innerHTML = '<tr><th>Message</th><th>Severity</th><th>Outcome</th></tr>' + msgs.map((m) => `<tr><td>${m[0]}</td><td>${m[1]}</td><td>${m[2]}</td></tr>`).join("");
 
-fillPolicySelects(); renderAud(); renderRec(); renderRules(); renderChannelSettings(); renderSettings(); renderWizard(); renderPol(); renderOverview(); preview();
+fillPolicySelects(); renderAud(); renderRec(); renderRules(); renderChannelSettings(); renderSettings(); renderWizard(); renderPol(); goto("hub"); preview();
 </script>
 </body>
 </html>

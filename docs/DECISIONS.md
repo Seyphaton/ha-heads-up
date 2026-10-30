@@ -619,3 +619,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Date: 2026-10-30. Requested by the maintainer after asking whether the mockup's "New notification" tab was part of the design (it was not).
 - Decision: the panel has no form to compose and send real notifications; that is what automations and Home Assistant's action tool are for. The preview and the test send are one tab: content fields, the call with a target per channel, a simulated result per recipient and channel, the generated call to copy, and a Send test button, which is the only thing the panel sends.
 - Alternatives: a separate compose tab (duplicates Developer Tools and the preview); preview without a test send.
+
+## D-102 Panel navigation in two levels
+- Date: 2026-10-30. Requested by the maintainer ("I don't like the unstructured list").
+- Decision: five top-level groups with sub-pages. Overview (Status). Activity (Test send, Messages). Configuration (Audiences, Recipients, Policies, Channels, Watch rules as a read-only list). Settings (General, Setup wizard). FAQ and Examples. The wizard is a flow, started from Overview on first run and from Settings, not a page to browse. A group with one page shows no second row.
+- Alternatives: the maintainer's four groups with Test send and Messages under Overview; three groups with Settings inside Configuration.
