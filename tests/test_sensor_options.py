@@ -44,7 +44,11 @@ async def test_options_flow_sets_defaults_for_new_banners(
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
+    token = entry.options["install_token"]
+    assert len(token) == 6  # generated at setup, kept by the options flow
     assert entry.options == {
+        "install_token": token,
+        "hub_enabled": True,
         "max_banners": 10,
         "evict": False,
         "default_dismiss_scope": "global",

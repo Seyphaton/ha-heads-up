@@ -204,3 +204,12 @@ async def tick(hass: HomeAssistant, freezer: FrozenDateTimeFactory, seconds: flo
     freezer.tick(timedelta(seconds=seconds))
     async_fire_time_changed(hass)
     await hass.async_block_till_done()
+
+
+async def settle(hass: HomeAssistant, entry: Any) -> None:
+    """Let events and the hub's background deliveries finish (they are not awaited by HA)."""
+    await hass.async_block_till_done()
+    manager = getattr(entry, "runtime_data", None)  # absent after an unload
+    if manager is not None and (hub := manager.hub) is not None:
+        await hub.async_wait_idle()
+    await hass.async_block_till_done()
