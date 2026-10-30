@@ -47,6 +47,6 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 - The unit name in public docs ("message") while the actions keep their names.
 - Card option name that hides the "Acknowledged by" line.
 - Popup area recipients (not built).
-- A "watch an entity" blueprint and whether an integration can ship blueprints (N-73).
+- A "watch an entity" blueprint: an integration cannot ship blueprints (N-80); it could only be a file in the repository that users import. Decide later whether to offer one.
 - Deprecation of watch rules later (D-100).
-- Volume restore per speaker platform (N-66); the custom panel web component contract and manifest listing (N-69); whether the app sends action presses through the fire_event webhook (N-72); everything on a real device and on a dev instance with a fake `mobile_app` registration.
+- Volume restore on platforms other than Sonos (N-76); whether `panel_custom` or the frontend function passes hassfest (N-77); the iOS app's action event and the transport of Android's `fireEvent` (N-79); everything on a real device and on a dev instance with a fake `mobile_app` registration.
