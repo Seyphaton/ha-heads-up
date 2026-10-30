@@ -14,7 +14,7 @@ Deliver spoken messages to media players, Assist satellites and groups of them.
 ## Scope
 - Targets: recipient groups (expanded to members), media players, Assist satellites, areas (their assigned speakers). No audience (D-090).
 - Text: `tts_message`, else the title if set, else the message, shortened to a length limit (limit decided here).
-- Services (N-65, N-66): `assist_satellite.announce` for satellites; for media players `tts.speak` with the player, or `media_player.play_media` with `announce: true` when the player has the announce feature; otherwise plain playback at the current volume. The hub never changes or restores volume. Language from the Channels settings.
+- Services (N-65, N-66): `assist_satellite.announce` for satellites; for media players `tts.speak` with the player, or `media_player.play_media` with `announce: true` only when the player's state shows the `MEDIA_ANNOUNCE` feature (the base class does not check it, N-75); otherwise plain playback at the current volume. The hub never changes or restores volume. Language from the Channels settings.
 - Per-speaker queue so two messages do not overlap, and a short cooldown against identical repeats; speech cannot be cleared and nothing is said when a message is resolved (D-091); quiet hours `quiet` skips speech.
 - Failures give a `failed` delivery with a reason; a missing entity is flagged in the panel's needs attention list.
 
