@@ -19,6 +19,9 @@ body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 sys
 header { padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--card); }
 header h1 { margin: 0; font-size: 18px; }
 header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+.modal[hidden] { display: none; }
+.modal > .card { max-width: 620px; width: 100%; max-height: 90vh; overflow: auto; margin: 0; }
 .navwrap { position: sticky; top: 0; z-index: 2; background: var(--card); border-bottom: 1px solid var(--line); }
 nav { display: flex; gap: 4px; overflow-x: auto; padding: 8px 12px; }
 nav#subtabs { padding: 0 12px 6px; border-top: 1px solid var(--line); background: var(--bg); }
@@ -168,13 +171,10 @@ data:
   <div id="chs-body"></div>
 </section>
 
-<section id="tab-wiz" hidden>
-  <div class="banner-note">First-run wizard: four steps create the first recipient profiles and policies from a preset. Everything stays editable afterwards.</div>
-  <div class="card"><div id="wiz-body"></div></div>
-</section>
+
 
 <section id="tab-set" hidden>
-  <div class="banner-note">Hub settings. Limits protect devices from floods of notifications.</div>
+  <div class="banner-note">Everything from first-time setup lives here, plus limits and history. The wizard is only a guided way through this page.</div>
   <div id="set-body"></div>
 </section>
 
@@ -256,14 +256,15 @@ data:
 </section>
 
 </main>
+<div class="modal" id="wiz-modal" hidden role="dialog" aria-modal="true" aria-label="Setup wizard"><div class="card"><div class="row" style="justify-content:space-between"><b>Setup wizard</b><button class="ghost" id="wiz-close">Close</button></div><div id="wiz-body"></div></div></div>
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const groupsNav = [
   { id: "overview", name: "Overview", subs: [["hub", "Status"]] },
-  { id: "activity", name: "Activity", subs: [["prev", "Test send"], ["trace", "Messages"]] },
-  { id: "config", name: "Configuration", subs: [["aud", "Audiences"], ["rec", "Recipients"], ["pol", "Policies"], ["chs", "Channels"], ["rul", "Watch rules"]] },
-  { id: "settings", name: "Settings", subs: [["set", "General"], ["wiz", "Setup wizard"]] },
+  { id: "notif", name: "Notifications & Rules", subs: [["prev", "Test send"], ["rul", "Watch rules"], ["trace", "Messages"]] },
+  { id: "config", name: "Configuration", subs: [["aud", "Audiences"], ["rec", "Recipients"], ["pol", "Policies"], ["chs", "Channels"]] },
+  { id: "settings", name: "Settings", subs: [["set", "General"]] },
   { id: "help", name: "FAQ & Examples", subs: [["ex", "Examples & FAQ"]] },
 ];
 const pages = groupsNav.flatMap((g) => g.subs.map((x) => x[0]));
@@ -278,7 +279,7 @@ function goto(id) {
   window.scrollTo(0, 0);
 }
 groupsNav.forEach((g) => { const b = document.createElement("button"); b.textContent = g.name; b.dataset.id = g.id; b.setAttribute("role", "tab"); b.onclick = () => goto(g.subs[0][0]); nav.appendChild(b); });
-document.addEventListener("click", (e) => { const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); goto(g.dataset.go); } });
+document.addEventListener("click", (e) => { const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); if (g.dataset.go === "wiz") openWizard(); else goto(g.dataset.go); } });
 pages.forEach((t, i) => { $("tab-" + t).hidden = i !== 0; });
 
 // ---------- shared data ----------
@@ -684,14 +685,23 @@ function renderChannelSettings() {
 
 // ---------- Settings tab ----------
 function renderSettings() {
-  $("set-body").innerHTML = `<div class="card"><h2>Hub</h2><label><input type="checkbox" ${settings.enabled ? "checked" : ""} data-sf="enabled"> Hub enabled</label>
+  const presetKeys = ["Quiet", "Balanced", "Loud"];
+  $("set-body").innerHTML = `<div class="card"><h2>Setup wizard</h2><p class="note">Everything the wizard sets up is on this page. The wizard walks you through it in four steps: people, devices, loudness, test.</p><div class="row"><button class="primary" data-go="wiz">Run the setup wizard</button></div></div>
+  <div class="card"><h2>Hub</h2><label><input type="checkbox" ${settings.enabled ? "checked" : ""} data-sf="enabled"> Hub enabled</label>
     <p class="note">Off: messages only reach the dashboard banner, exactly as before the hub existed.</p></div>
+  <div class="card"><h2>People and devices</h2><table><tr><th>Person</th><th>Devices</th><th>Accepts</th></tr>${Object.keys(profiles).map((n) => `<tr><td><b>${esc(n)}</b></td><td>${profiles[n].devices.length ? esc(profiles[n].devices.map((d) => d.name).join(", ")) : '<span class="badge warn">none</span>'}</td><td>${esc(profiles[n].channels.join(", "))}</td></tr>`).join("")}</table>
+    <p class="note">Edit devices and accepted channels under <a href="#" data-go="rec">Configuration, Recipients</a>.</p></div>
+  <div class="card"><h2>Loudness</h2>${presetKeys.map((p) => `<div class="level" style="margin-bottom:8px"><label style="margin:0"><input type="radio" name="set-preset" data-sp="${p}" ${wiz.preset === p ? "checked" : ""}> <b>${p}</b></label><p class="note">${presetText[p]}</p><p class="note">Policies: ${presets[p].join(", ")}.</p></div>`).join("")}
+    <div class="row"><button class="ghost" id="preset-apply">Apply preset</button></div><p class="note" id="preset-msg">Applying a preset adds the policies it lists if they do not exist yet. It never deletes yours.</p></div>
   <div class="card"><h2>Limits</h2><div class="row"><div><label>Pushes per device per minute</label><input type="text" value="${settings.perDevice}" data-sf="perDevice" style="width:100px"></div><div><label>Deliveries per minute, all devices</label><input type="text" value="${settings.global}" data-sf="global" style="width:100px"></div><div><label>Ignore identical updates for (seconds)</label><input type="text" value="${settings.dedupe}" data-sf="dedupe" style="width:100px"></div></div>
     <p class="note">Suppressed deliveries are counted in the trace.</p></div>
   <div class="card"><h2>History</h2><div class="row"><div><label>Trace entries kept</label><input type="text" value="${settings.logSize}" data-sf="logSize" style="width:100px"></div><div><label>Recent messages kept</label><input type="text" value="${settings.recent}" data-sf="recent" style="width:100px"></div></div></div>
   <div class="card"><h2>Identity</h2><label>Install token (used in push tags so several Home Assistant servers do not collide)</label><input type="text" value="a7f3c2" disabled style="width:140px"></div>
   <div class="card"><div class="row"><button class="primary" id="set-save">Save</button></div><p class="note" id="set-msg"></p></div>`;
-  $("set-body").querySelectorAll("[data-sf]").forEach((e) => (e.onchange = () => { settings[e.dataset.sf] = e.type === "checkbox" ? e.checked : +e.value || e.value; preview(); }));
+  const R = $("set-body");
+  R.querySelectorAll("[data-sf]").forEach((e) => (e.onchange = () => { settings[e.dataset.sf] = e.type === "checkbox" ? e.checked : +e.value || e.value; preview(); }));
+  R.querySelectorAll("[data-sp]").forEach((e) => (e.onchange = () => { wiz.preset = e.dataset.sp; renderSettings(); }));
+  $("preset-apply").onclick = () => { const add = presets[wiz.preset].filter((n) => !pols.some((q) => q.name === n)); $("preset-msg").textContent = add.length ? "Applied (simulated). Would add: " + add.join(", ") + "." : "Applied (simulated). All policies of this preset already exist; nothing added."; };
   $("set-save").onclick = () => { $("set-msg").textContent = "Saved (simulated)."; };
 }
 
@@ -699,6 +709,8 @@ function renderSettings() {
 const wiz = { step: 0, persons: { Anna: true, Ben: true, Guest: false }, devices: { Anna: { "Anna's phone": true, "Anna's tablet": true }, Ben: { "Ben's phone": true }, Guest: {} }, preset: "Balanced" };
 const presets = { Quiet: ["Night quiet"], Balanced: ["Night quiet", "Water escalation", "Evening summary"], Loud: ["Night quiet", "Water escalation", "Warning reminders", "Evening summary", "Push failed fallback"] };
 const presetText = { Quiet: "Banner only for most things; quiet hours; nothing is pushed unless you add policies.", Balanced: "Quiet at night, a critical escalation to admins, an evening summary for info.", Loud: "Balanced, plus reminders for warnings and a fallback if a push fails." };
+function openWizard() { wiz.step = 0; renderWizard(); $("wiz-modal").hidden = false; }
+$("wiz-close").onclick = () => { $("wiz-modal").hidden = true; };
 function renderWizard() {
   const steps = ["People", "Devices", "Loudness", "Test"];
   const bar = `<div class="row" style="margin-bottom:12px">${steps.map((t, i) => `<span class="badge ${i === wiz.step ? "ok" : ""}">${i + 1}. ${t}</span>`).join("")}</div>`;
@@ -715,7 +727,7 @@ function renderWizard() {
   W.querySelectorAll("[data-wd]").forEach((e) => (e.onchange = () => { const [n, d] = e.dataset.wd.split(":"); wiz.devices[n][d] = e.checked; }));
   W.querySelectorAll("[data-wpre]").forEach((e) => (e.onchange = () => { wiz.preset = e.dataset.wpre; renderWizard(); }));
   $("wiz-back").onclick = () => { wiz.step--; renderWizard(); };
-  $("wiz-next").onclick = () => { if (wiz.step < 3) { wiz.step++; renderWizard(); } else { $("wiz-done").textContent = "Created (simulated). The profiles and policies now appear under Recipients and Policies, where you can edit them."; } };
+  $("wiz-next").onclick = () => { if (wiz.step < 3) { wiz.step++; renderWizard(); } else { $("wiz-done").textContent = "Created (simulated). The profiles and policies now appear under Configuration, where you can edit them. You can close this window."; } };
 }
 
 // ---------- Overview ----------

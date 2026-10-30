@@ -624,3 +624,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Date: 2026-10-30. Requested by the maintainer ("I don't like the unstructured list").
 - Decision: five top-level groups with sub-pages. Overview (Status). Activity (Test send, Messages). Configuration (Audiences, Recipients, Policies, Channels, Watch rules as a read-only list). Settings (General, Setup wizard). FAQ and Examples. The wizard is a flow, started from Overview on first run and from Settings, not a page to browse. A group with one page shows no second row.
 - Alternatives: the maintainer's four groups with Test send and Messages under Overview; three groups with Settings inside Configuration.
+
+## D-103 Panel navigation, second version
+- Date: 2026-10-30. Requested by the maintainer; replaces the grouping of D-102.
+- Decision: Overview is a dashboard-like page only. Notifications and Rules holds Test send, Watch rules (read-only list, D-100) and Messages (the delivery trace). Configuration holds Audiences, Recipients, Policies and Channels. Settings is one page that covers everything the setup wizard sets up (people and devices, loudness preset) plus the hub switch, limits, history and identity; the wizard is only a button on that page (also offered from Overview on first run) that opens a guided window. FAQ and Examples stays as the last group.
+- Alternatives: the five groups of D-102 with Activity and a Setup wizard page.
