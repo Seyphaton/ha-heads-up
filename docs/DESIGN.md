@@ -541,7 +541,7 @@ Restart: the usual one after a code update. Notification path: not touched. Dash
 
 ## 23. Notification hub (Phase 15, design proposal)
 
-Status: proposal on branch `design/notification-hub`, 2026-10-29. No code. Not approved for build; whether the hub is built is open (D-075). Decisions D-075 to D-094. The full planning record, including the original draft text, is `docs/dev/HUB_DESIGN.md`; this section is the consolidated design. Where they differ, the decisions win.
+Status: proposal on branch `design/notification-hub`, 2026-10-30. No code. Not approved for build; whether the hub is built is open (D-075). Decisions D-075 to D-106; `docs/dev/hub/DECISION_INDEX.md` lists which decisions are current and which are superseded. This section is the consolidated design. The UI is specified in `docs/dev/hub/UX_SPEC.md` (with the mockup `docs/dev/mockups/hub-panel-mockup.html`), the work breakdown in `docs/dev/hub/ROADMAP.md`. `docs/dev/HUB_DESIGN.md` is the historical planning record and contains superseded text.
 
 ### 23.1 Problem
 Automations hard-code notify services, speaker entities, quiet-hour templates and clean-up logic. Replacing a phone means editing every automation. A critical alert nobody read, a doorbell with nobody home, a push dismissed on one device and still shown on a wall tablet: each is handled ad hoc, with no shared state.
@@ -552,6 +552,8 @@ Automations hard-code notify services, speaker entities, quiet-hour templates an
 - A message has one id for all channels; state changes on one surface apply to every channel (D-078).
 - Parity (rule 9): action messages and rule messages offer the same features.
 - Delivery never blocks creation; failures show in the trace.
+- The hub is off by default (option `hub_enabled`). With it off, `notify` accepts only the banner channel and behaves like `create_banner`; no hub listeners, timers or stores run.
+- UI-first households and power users are served equally: the same objects are created in the panel, in the setup wizard, in the standard forms, and used from automations as plain actions.
 
 ### 23.3 Concepts
 | Concept | Meaning |
@@ -613,7 +615,7 @@ policy:
 - The lifecycle condition ending the message clears every channel and cancels all policies for it.
 
 ### 23.7 Audiences and devices (D-080, D-088)
-Presence audiences read the person state (`None`, `unknown` and `unavailable` count as unknown, N-63). Membership is a snapshot when a step fires; a step may deliver on arrival to people not yet home. Companion devices are found from the person's trackers with manual override (read from source, N-70 and N-71; not run on a device); all devices of a person are notified under one tag. Unknown presence: critical notifies, lower severities skip with a trace entry. A person without a usable device is skipped on push and flagged in the panel.
+Presence audiences read the person state (`None`, `unknown` and `unavailable` count as unknown, N-63). Membership is a snapshot when a delivery is made (a call, an escalation, a reminder or a summary); people not yet home get the delivery on arrival through the Away policy. Companion devices are found from the person's trackers with manual override (read from source, N-70 and N-71; not run on a device); all devices of a person are notified under one tag. Unknown presence: critical notifies, lower severities skip with a trace entry. A person without a usable device is skipped on push and flagged in the panel.
 
 ### 23.8 Channels (D-090, D-091, D-092)
 - Push: legacy `notify.mobile_app_*` services only (N-61); tag `hu-<install token>-<message id>`; clear with `clear_notification`; severity maps to passive, normal, time-sensitive (iOS critical is a policy opt-in); buttons are the message's own, then Dismiss and Snooze when allowed, and Acknowledge when an escalation or reminder policy applies; button ids `hu:<message>:<recipient>:<action>`; Snooze uses the first snooze option; swiping a push away changes nothing.
@@ -624,16 +626,16 @@ Presence audiences read the person state (`None`, `unknown` and `unavailable` co
 - Rate limits: per device and global caps per minute and duplicate suppression, defaults in the options.
 
 ### 23.9 State and restarts
-A second store holds deliveries and due times; the manager emits a typed transition for every moment a message appears or disappears (today some are silent, such as a snooze ending or a condition turning true). Existing event payloads do not change. On startup the hub clears pushes of messages that no longer exist, never re-sends anything already sent, and fires overdue steps once.
+A second store holds deliveries and due times; the manager emits a typed transition for every moment a message appears or disappears (today some are silent, such as a snooze ending or a condition turning true). Existing event payloads do not change. On startup the hub clears pushes of messages that no longer exist, never re-sends anything already sent, and fires overdue escalations and reminders once.
 
 ### 23.10 Admin panel (D-093)
-Admin-only sidebar panel with own forms (`ha-form`) that save through the subentry flow APIs, so storage stays in config subentries. First version: an overview page (counts of active notifications with their states, watch rules enabled and showing, a log of the last actions, and configuration errors), editors, live preview of who would be notified now, per-message delivery trace, recent messages, test send. A first-run wizard exists as a panel stepper and as a config flow entry. Panel registration without a build step is unverified.
+Admin-only sidebar panel, in two levels (D-103): Overview; Notifications and Rules (Test send, Watch rules read-only, Messages); Configuration (Audiences, Recipients, Policies, Channels); Settings (one page that holds everything the wizard sets up, with a button that opens the wizard as a window); FAQ and Examples. Own forms (`ha-form`) that save through the subentry flow APIs, so storage stays in config subentries. First version: an overview page (counts of active notifications with their states, watch rules enabled and showing, a log of the last actions, and configuration errors), editors, live preview of who would be notified now, per-message delivery trace, recent messages, test send. A first-run wizard exists as a panel stepper and as a config flow entry. Panel registration without a build step is unverified.
 
 ### 23.11 Blast radius
 Restart: the usual one after a code update. Notification path: touched for the first time (calls to notify, tts, media player and persistent notification services of other integrations; nothing of theirs is modified). Dashboard: nothing changes until a policy or channels are used. Storage: new subentry types and a deliveries store; a downgrade must be checked for unknown subentry types. Manifest: optional integrations as `after_dependencies` (N-68).
 
 ### 23.12 Tests (later)
-Fake notify, tts, media player and persistent notification services; the lifecycle × channel × source matrix; restart and overdue-step tests; presence and debounce with the time freezer; each policy type and their precedence; summary collection and resolved marking; button round trip with stale ids; loader size budget; translation parity; `dev/smoke.py` with stub services.
+Fake notify, tts, media player and persistent notification services; the lifecycle × channel × source matrix; restart and overdue-step tests; presence with the time freezer (a debounce of presence changes is proposed, not decided); each policy type and their precedence; summary collection and resolved marking; button round trip with stale ids; loader size budget; translation parity; `dev/smoke.py` with stub services.
 
 ### 23.13 Alternatives not chosen
 A separate integration consuming events (events lack recipients and silent transitions); automations only for delivery; one action per channel only; audiences with set operations; policy matching by explicit priority; the panel with its own storage.

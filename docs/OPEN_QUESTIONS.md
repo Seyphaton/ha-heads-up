@@ -90,3 +90,4 @@
 - Watch rules are frozen (D-100). Ideas: a "watch an entity" blueprint as the no-YAML path for new setups; whether a custom integration can ship blueprints (unverified); deprecating rules later with a migration.
 - Hub design: the open items about summary details, default delivery and precedence are closed (D-106).
 - HA facts checked on 2026-10-30 (N-70 to N-74): notify service names, person to device path, action event context, blueprints (not covered by the docs read), 2026.10.4 for the read files. Still open: announce and volume restore per platform, whether an integration can ship blueprints, the custom panel web component contract and manifest listing, and a run on the dev instance with a fake mobile_app registration.
+- Hub build plan and all open and proposed values: `docs/dev/hub/ROADMAP.md` and `docs/dev/hub/DEFAULTS_AND_PROPOSALS.md`.

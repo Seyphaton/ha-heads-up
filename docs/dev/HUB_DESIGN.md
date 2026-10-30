@@ -1,6 +1,6 @@
 # Notification hub: design record (Phase 15, design only, not approved for build)
 
-Status: draft on branch `design/notification-hub`, 2026-10-28. Not merged. No code exists for anything in this file. It holds the full planning record: maintainer decisions, vision, concept model and open items. README material is marked "README material".
+HISTORICAL RECORD (2026-10-30). This file is the planning record and contains superseded text; the current truth is `docs/dev/hub/DECISION_INDEX.md`, `docs/DESIGN.md` section 23 and `docs/dev/hub/`. Its problem statement (A2), vocabulary (B1) and journeys (C6) are approved README material. Status: draft on branch `design/notification-hub`. Not merged. No code exists for anything in this file. It holds the full planning record: maintainer decisions, vision, concept model and open items. README material is marked "README material".
 
 ## TERMINOLOGY NOTE (read first)
 Drafts of Parts A to P below were written before decision 29 (the banner is one channel). Where they say "the banner is the source of truth", "banner always on" or "banner owns the lifecycle", read: the *message* (what an automation creates) owns the lifecycle and the dashboard banner is one of its channels. Where they list fields on `create_banner`, read: candidates for the dedicated API design session, not decided. Decisions 1 to 30 win over any other text in this file.
