@@ -579,3 +579,9 @@ Policies have no "only if" field and the hub has no named conditions in the firs
 
 ## WATCH RULES ARE FROZEN (maintainer, 2026-10-30, D-100)
 Rules keep working as released and get no hub fields; the panel lists them read-only. Policies apply to rule messages by severity and tag. This supersedes the earlier statements in this file that watch rules are stored notify calls. See DESIGN section 22.2 for the parity exception.
+
+
+---
+
+## BANNER HELD WITH A SUMMARY (maintainer, 2026-10-30, D-105)
+While a Summarize policy holds a message, the dashboard banner is held too. The open item "banner held while a summary waits" is closed.

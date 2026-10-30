@@ -590,7 +590,7 @@ A policy is one rule: type, When, Then. All policies that apply to a message (by
 | Fallback | the audience is empty or sending failed | send to an audience or recipients on channels instead |
 | Reminder | still not acknowledged | repeat every X minutes, up to N times |
 | Away | a recipient is not home | send when they arrive, while the message is active |
-| Summarize | messages arrive | hold all channels, send one summary every N minutes or at a fixed time (count, titles, resolved marked, cut at 10) |
+| Summarize | messages arrive | hold all channels including the banner (D-105), send one summary every N minutes or at a fixed time (count, titles, resolved marked, cut at 10) |
 
 ```yaml
 policy:
@@ -648,4 +648,4 @@ A separate integration consuming events (events lack recipients and silent trans
 - Quiet hours "quiet": push passive without sound, speech skipped, popup as a corner card.
 
 ### 23.15 Open
-Panel component contract and manifest listing for a custom panel (N-69); the recent-messages list across restarts; the unit name in public docs; verification of the person-to-device path, the action event user, announce behavior and 2026.10; popup area recipients (not built); build phasing (delayed until the design is final). See `docs/OPEN_QUESTIONS.md`.
+The summary message's severity, channels and lifetime (the banner is held with all other channels while a summary waits, D-105); whether a Default delivery by severity is needed; the final policy precedence order; panel component contract and manifest listing for a custom panel (N-69); the recent-messages list across restarts; the unit name in public docs; verification of the person-to-device path, the action event user, announce behavior and 2026.10; popup area recipients (not built); build phasing (delayed until the design is final). See `docs/OPEN_QUESTIONS.md`.
