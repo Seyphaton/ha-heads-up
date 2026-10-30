@@ -24,7 +24,8 @@ Status: the hub is approved for build (D-107, 2026-10-30), on feature branches o
 - H10 Hardening, documentation, Home Assistant 2026.10, release preparation. Large, last. Needs everything. `WP-H10-hardening-release.md`
 
 ## Status
-H0a: built on branch `hub/h0a-test-scaffolding` 2026-10-30, awaiting the maintainer's merge decision. H0b approved and started 2026-10-30. All others not started. One line per finished package: date, branch, commit, what was verified.
+Nothing is merged until the full feature is implemented (maintainer, 2026-10-30). Work continues on one chain of feature branches: `hub/h1-core` was created from `hub/h0a-test-scaffolding` with `hub/h0b-verify-ha-facts` merged in, and later packages branch from it.
+H0a: built 2026-10-30, branch `hub/h0a-test-scaffolding`. H0b: done 2026-10-30, branch `hub/h0b-verify-ha-facts`. H1: built 2026-10-30, branch `hub/h1-core`; `make check` (393 pytest, 81 vitest), `make hassfest` and `make dev-smoke` (with the new `hub_core` phases) green. All others not started. One line per finished package: date, branch, commit, what was verified.
 
 ## Dependency graph
 ```

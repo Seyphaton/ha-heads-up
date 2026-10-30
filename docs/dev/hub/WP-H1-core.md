@@ -1,6 +1,6 @@
 # H1: Core engine, notify action and message store
 
-Size: large, first and alone. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: large, first and alone. Status: built on branch `hub/h1-core` (the roadmap status is the source). Deviations from this brief: an ended snooze emits `unsnoozed` with reason `elapsed` (not `became_visible`); `clear` is a new action (D-108); shortcuts without an `id` keep no record; the engine has `async_wait_idle` for tests; the channel registry has `available` so placeholders report `channel_unavailable`. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Build the foundation every other package uses: a typed transition seam in the manager, the `hub` package with the delivery engine, channel protocol, delivery store, trace buffer and install token, and the `heads_up.notify` action with the shortcuts `push`, `popup`, `speak`. With the hub switched off, or for a call that names no hub channel and matches no policy, nothing changes for anyone. The hub is on by default (D-107). Only the banner channel delivers in this package; the other channels are registered as 'not available' until their packages exist.

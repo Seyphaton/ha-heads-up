@@ -659,3 +659,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - All hub work happens on feature branches: `design/notification-hub` for the design and `hub/<id>` for each work package. Nothing reaches `main`, and nothing is pushed or tagged, until the maintainer confirms (rule 7, D-020).
 - Consequences: DESIGN 23.2, the briefs H1, H2, H9a, H9e, H10, UX_SPEC (Settings) and the roadmap are updated. Recipient profiles should exist without manual work, so H2 creates a profile for every person automatically, with detected devices (to confirm in H2).
 - Open: whether the sidebar entry can be added and removed without a restart when the option changes (H9a); the wording of the setup step.
+
+## D-108 Generic clear is a new action `clear` (2026-10-30)
+- Context: H1 needs one way to remove a message from every channel. Options: extend `clear_banner`, or add an action.
+- Decision (maintainer): add `heads_up.clear`. `clear_banner` keeps working and matches only messages that have the banner channel. `clear` matches any message by `id` and/or `tag`. A message has one lifecycle: removing the record clears it on every channel through the hub engine, whichever action removed it.
+- Consequence: a `notify` message without the banner channel cannot be removed by `clear_banner`; it ends by timeout, condition, `clear` or `clear_all`.
+- Also decided in H1 (build detail, no maintainer question): shortcuts without an `id` keep no record (delivered once, trace only); an ended snooze emits `unsnoozed` with reason `elapsed` rather than `became_visible`; a downgrade after using `notify` needs banners cleared.

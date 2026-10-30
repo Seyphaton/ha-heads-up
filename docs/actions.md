@@ -1,6 +1,6 @@
 # Actions
 
-Heads Up has three actions. Call them from automations, scripts, blueprints or Developer tools > Actions.
+Heads Up has eight actions. `create_banner`, `clear_banner` and `clear_all` are the banner actions. `notify`, `push`, `popup`, `speak` and `clear` belong to the notification hub, which delivers one message on several channels. Call them from automations, scripts, blueprints or Developer tools > Actions.
 
 ## `heads_up.create_banner`
 
@@ -263,6 +263,154 @@ Removes every banner, including banners that cannot be closed. No fields. Respon
 - action: heads_up.clear_all
 ```
 
+## `heads_up.clear`
+
+Removes messages by `id`, by `tag`, or both, from every channel. `clear_banner` removes only messages that have the banner channel; `clear` also removes messages without it, such as a `notify` call with `channels: [push]` and an `id`.
+
+| Field | Type | Required / default | Meaning |
+|---|---|---|---|
+| `id` | text | one of `id` or `tag` | ID of the message to remove. |
+| `tag` | text | one of `id` or `tag` | Removes every message with this tag. |
+
+Response data: `cleared`, the number of removed messages.
+
+```yaml
+- action: heads_up.clear
+  data:
+    id: garage_open
+```
+
+## `heads_up.notify`
+
+Delivers one message on the channels you name. It takes the content and lifecycle fields of [`create_banner`](#headsupcreate_banner) and adds the channel fields below. It has no `people` field: use `to.banner.recipients`. Calling it again with the same `id` replaces the message.
+
+The hub is on by default. With the hub switched off in the integration options, only `channels: [banner]` works and `notify` behaves like `create_banner`; other channels fail with the error "The hub is switched off".
+
+Channels: `banner`, `push`, `popup`, `speak`, `persistent`. In this version only `banner` delivers. Every other channel is reported as skipped with the reason `channel_unavailable` and nothing is sent.
+
+| Field | Type | Required / default | Meaning |
+|---|---|---|---|
+| `message` | text | required | Message text, 1–1000 characters. |
+| `id` | text | generated | As in `create_banner`. |
+| `title` | text | none | Up to 100 characters. |
+| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `create_banner`. |
+| `icon` | icon | icon of the severity | As in `create_banner`. |
+| `timeout` | seconds or duration | integration option | As in `create_banner`. |
+| `dismissible` | boolean | `true` | As in `create_banner`. |
+| `dismiss_scope` | `user`, `global` | integration option | As in `create_banner`. |
+| `snoozable` | `true`, `false` | integration option | As in `create_banner`. |
+| `snooze_scope` | `user`, `global` | integration option | As in `create_banner`. |
+| `snooze_options` | list of durations | integration option | As in `create_banner`. |
+| `actions` | list of up to 3 buttons | none | As in `create_banner`. |
+| `tag` | text | none | As in `create_banner`. |
+| `condition` | object | none | As in `create_banner`. See [Conditions](#conditions). |
+| `mode` | `once`, `recurring` | `once` | As in `create_banner`. |
+| `wait_for_condition` | boolean | `true` | As in `create_banner`. |
+| `tap_action` | object with `action` | none | As in `create_banner`. |
+| `tts_message` | text | the title if set, otherwise the message | Text for the speak channel instead of the title and message. |
+| `channels` | list of channels | required | One or more of the five channels, each at most once. |
+| `to` | object | none | A target per channel: `audience` (a name) or `recipients` (a list), never both. `push`, `popup` and `speak` need a target. `speak` takes recipients only. `persistent` takes no target and goes to everyone. `banner` is optional: recipients limit the banner to the users linked to those persons. |
+| `policy` | text | every policy that applies | A policy name, or `none` for no policy behavior. |
+
+Response data: `id`, `status` (`created`, `updated`, `waiting` or `condition_false`, as in `create_banner`), and `channels`: for each channel the counts `sent`, `held`, `skipped` and `failed`. A banner that waits for its condition counts as `held`.
+
+A message without the `banner` channel is stored so it can be updated and cleared, but the card does not show it. The names in `to` and `policy` are checked when you call the action; a name that does not exist fails with an error that lists the valid names.
+
+```yaml
+- action: heads_up.notify
+  data:
+    id: garage_open
+    title: Garage
+    message: The garage door has been open for 10 minutes.
+    severity: warning
+    channels:
+      - banner
+      - push
+    to:
+      push:
+        recipients:
+          - person.alex
+```
+
+## `heads_up.push`
+
+Shortcut for `notify` with `channels: [push]` and no policies. It needs `audience` or `recipients`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. In this version no channel but `banner` delivers, so this action reports `skipped` with the reason `channel_unavailable`.
+
+| Field | Type | Required / default | Meaning |
+|---|---|---|---|
+| `message` | text | required | Message text, 1–1000 characters. |
+| `id` | text | none | Tracks the message when set. |
+| `title` | text | none | Up to 100 characters. |
+| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `create_banner`. |
+| `icon` | icon | icon of the severity | As in `create_banner`. |
+| `timeout` | seconds or duration | integration option | Only used when `id` is set. |
+| `actions` | list of up to 3 buttons | none | As in `create_banner`. |
+| `tag` | text | none | As in `create_banner`. |
+| `tap_action` | object with `action` | none | As in `create_banner`. |
+| `tts_message` | text | the title if set, otherwise the message | Text for the speak channel. |
+| `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
+| `audience` | text | one of `audience` or `recipients` | Name of an audience. Not available for `speak`. |
+
+```yaml
+- action: heads_up.push
+  data:
+    message: The washing machine is done.
+    recipients:
+      - person.alex
+```
+
+## `heads_up.popup`
+
+Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audience` or `recipients`; the fields are those of `heads_up.push`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. In this version no channel but `banner` delivers, so this action reports `skipped` with the reason `channel_unavailable`.
+
+| Field | Type | Required / default | Meaning |
+|---|---|---|---|
+| `message` | text | required | Message text, 1–1000 characters. |
+| `id` | text | none | Tracks the message when set. |
+| `title` | text | none | Up to 100 characters. |
+| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `create_banner`. |
+| `icon` | icon | icon of the severity | As in `create_banner`. |
+| `timeout` | seconds or duration | integration option | Only used when `id` is set. |
+| `actions` | list of up to 3 buttons | none | As in `create_banner`. |
+| `tag` | text | none | As in `create_banner`. |
+| `tap_action` | object with `action` | none | As in `create_banner`. |
+| `tts_message` | text | the title if set, otherwise the message | Text for the speak channel. |
+| `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
+| `audience` | text | one of `audience` or `recipients` | Name of an audience. Not available for `speak`. |
+
+```yaml
+- action: heads_up.popup
+  data:
+    message: Someone is at the door.
+    audience: At home
+```
+
+## `heads_up.speak`
+
+Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipients` (speakers or groups) and has no `audience` field, because speech goes to speakers, not to people. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. In this version no channel but `banner` delivers, so this action reports `skipped` with the reason `channel_unavailable`.
+
+| Field | Type | Required / default | Meaning |
+|---|---|---|---|
+| `message` | text | required | Message text, 1–1000 characters. |
+| `id` | text | none | Tracks the message when set. |
+| `title` | text | none | Up to 100 characters. |
+| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `create_banner`. |
+| `icon` | icon | icon of the severity | As in `create_banner`. |
+| `timeout` | seconds or duration | integration option | Only used when `id` is set. |
+| `actions` | list of up to 3 buttons | none | As in `create_banner`. |
+| `tag` | text | none | As in `create_banner`. |
+| `tap_action` | object with `action` | none | As in `create_banner`. |
+| `tts_message` | text | the title if set, otherwise the message | Text for the speak channel. |
+| `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
+
+```yaml
+- action: heads_up.speak
+  data:
+    message: Dinner is ready.
+    recipients:
+      - media_player.kitchen
+```
+
 ## Errors
 
 | Message | Cause |
@@ -271,6 +419,8 @@ Removes every banner, including banners that cannot be closed. No fields. Respon
 | Heads Up already holds N banners and none can be evicted. | The limit is reached and every banner is `critical`, or eviction is turned off. |
 | Condition entity X does not exist. | `condition.entity_id` names an entity Home Assistant does not know. |
 | Validation error on `template`, `for` or an entity field | The template does not parse, `for` is over 24 hours, or `template` is combined with `entity_id`, `operator`, `state` or `attribute`. |
+| The hub is switched off. | `notify` names a channel other than `banner`, or a shortcut is called, while the hub is off. |
+| Audience, recipient or policy "X" does not exist. | A name in `to`, `audience`, `recipients` or `policy` is unknown. The message lists the valid names. |
 | Validation error naming the field | A field breaks the rules in the tables above. Nothing is stored. |
 
 ## Events

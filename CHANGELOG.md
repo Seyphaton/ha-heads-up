@@ -4,6 +4,13 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Added
+- Hub core (work in progress on a feature branch): the actions `heads_up.notify`, `heads_up.push`, `heads_up.popup`, `heads_up.speak` and `heads_up.clear`. `notify` takes a list of channels and a target per channel. Only the banner channel delivers in this version; the other channels report `skipped` with the reason `channel_unavailable`.
+- Option `hub_enabled` (on by default). Off: `notify` accepts only `channels: [banner]`, and no hub listener, task or store exists.
+- Option `install_token`, generated once. Hub limits and history sizes are stored as options and not enforced yet.
+- A delivery ledger in `.storage/heads_up.deliveries`, a trace of delivery decisions and the admin WebSocket command `heads_up/hub_trace`.
+- Stored banners carry the optional fields `channels`, `targets`, `policy`, `tts_message`, `acknowledged_by` and `source`. Banners saved by an older version load unchanged. After using `notify`, a downgrade needs the banners cleared.
+
 ## [0.4.0] - 2026-10-27
 
 ### Added
