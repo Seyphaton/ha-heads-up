@@ -13,6 +13,7 @@
     "step": {
       "init": {
         "data": {
+          "hub_enabled": "Hub",
           "max_banners": "Nombre maximal de bannières",
           "evict": "Supprimer la plus ancienne bannière de moindre gravité quand la limite est atteinte",
           "default_dismiss_scope": "Portée de fermeture par défaut",
@@ -22,6 +23,7 @@
           "default_snooze_options": "Durées de report par défaut"
         },
         "data_description": {
+          "hub_enabled": "Active ou désactive le hub de notifications. Désactivé : seul le canal bannière fonctionne, comme avant le hub.",
           "max_banners": "1–200. Les bannières critiques ne sont jamais supprimées.",
           "evict": "Désactivé : créer une bannière au-delà du maximum échoue avec une erreur.",
           "default_dismiss_scope": "Utilisé quand l'appel d'action ne définit pas dismiss_scope.",
@@ -84,6 +86,15 @@
         "480": "8 heures",
         "1440": "24 heures"
       }
+    },
+    "channel": {
+      "options": {
+        "banner": "Bannière",
+        "push": "Push",
+        "popup": "Popup",
+        "speak": "Parler",
+        "persistent": "Notification persistante"
+      }
     }
   },
   "entity": {
@@ -102,6 +113,18 @@
     },
     "entity_not_found": {
       "message": "L'entité de condition {entity_id} n'existe pas."
+    },
+    "hub_off": {
+      "message": "Le hub est désactivé. Seul le canal bannière fonctionne tant qu'il n'est pas activé dans les options de l'intégration."
+    },
+    "unknown_audience": {
+      "message": "Le public « {name} » n'existe pas. Publics valides : {valid}."
+    },
+    "unknown_recipient": {
+      "message": "Le destinataire « {name} » n'est pas valide pour ce canal. Destinataires valides : {valid}."
+    },
+    "unknown_policy": {
+      "message": "La politique « {name} » n'existe pas. Politiques valides : {valid}."
     }
   },
   "services": {
@@ -200,6 +223,268 @@
     "clear_all": {
       "name": "Supprimer toutes les bannières",
       "description": "Supprime toutes les bannières. Renvoie le nombre supprimé."
+    },
+    "clear": {
+      "name": "Effacer le message",
+      "description": "Supprime des messages par ID, par tag ou les deux, sur tous les canaux, y compris ceux sans bannière. Renvoie le nombre supprimé.",
+      "fields": {
+        "id": {
+          "name": "ID",
+          "description": "ID de la bannière à supprimer."
+        },
+        "tag": {
+          "name": "Étiquette",
+          "description": "Supprime toutes les bannières ayant cette étiquette."
+        }
+      }
+    },
+    "notify": {
+      "name": "Notifier",
+      "description": "Livre un message sur les canaux indiqués. Un nouvel appel avec le même ID remplace le message. Renvoie l'ID, le statut et, par canal, le nombre de livraisons envoyées, retenues, ignorées et échouées.",
+      "fields": {
+        "message": {
+          "name": "Message",
+          "description": "Texte de la bannière, 1 à 1000 caractères."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
+        },
+        "title": {
+          "name": "Titre",
+          "description": "100 caractères au maximum. Par défaut : aucun titre."
+        },
+        "severity": {
+          "name": "Gravité",
+          "description": "Définit la couleur, l'icône par défaut et l'ordre de tri. Par défaut : Avertissement."
+        },
+        "icon": {
+          "name": "Icône",
+          "description": "Remplace l'icône par défaut de la gravité. Par défaut : l'icône de la gravité."
+        },
+        "timeout": {
+          "name": "Délai d'expiration",
+          "description": "La bannière disparaît après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
+        },
+        "dismissible": {
+          "name": "Fermable",
+          "description": "Affiche un bouton de fermeture sur la bannière. Par défaut : activé."
+        },
+        "dismiss_scope": {
+          "name": "Portée de fermeture",
+          "description": "Par utilisateur : fermer la masque seulement pour cet utilisateur. Tout le monde : fermer la supprime pour tous. Par défaut : le réglage des options de l'intégration (par utilisateur sauf modification)."
+        },
+        "snoozable": {
+          "name": "Reportable",
+          "description": "Permet de masquer la bannière un moment ; elle revient ensuite. Erreur avec « Fermable » désactivé. Par défaut : le réglage des options de l'intégration (désactivé sauf modification)."
+        },
+        "snooze_scope": {
+          "name": "Portée du report",
+          "description": "Par utilisateur : le report ne masque que pour cet utilisateur. Tout le monde : masquée pour tous. Par défaut : le réglage des options de l'intégration (par utilisateur sauf modification)."
+        },
+        "snooze_options": {
+          "name": "Durées de report",
+          "description": "Jusqu'à 6 durées de report, de 1 minute à 7 jours.\n\nExemple :\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "actions": {
+          "name": "Boutons",
+          "description": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action.\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Étiquette",
+          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs bannières à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
+        },
+        "condition": {
+          "name": "Condition",
+          "description": "Afficher la bannière seulement tant qu'une entité correspond ou qu'un modèle est vrai. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+        },
+        "mode": {
+          "name": "Mode",
+          "description": "Une fois : supprimée quand la condition devient fausse. Récurrent : masquée tant qu'elle est fausse, réaffichée quand elle redevient vraie. Par défaut : Une fois."
+        },
+        "wait_for_condition": {
+          "name": "Attendre la condition",
+          "description": "Activé : une bannière dont la condition est fausse attend qu'elle devienne vraie. Désactivé : rien n'est enregistré et le statut de la réponse est condition_false. Par défaut : activé. Ignoré sans condition."
+        },
+        "tap_action": {
+          "name": "Action au toucher",
+          "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Texte parlé",
+          "description": "Texte utilisé pour la voix à la place du titre et du message. Par défaut : le titre s'il existe, sinon le message."
+        },
+        "channels": {
+          "name": "Canaux",
+          "description": "Où le message est livré : banner, push, popup, speak, persistent.\n\nExemple :\n```yaml\n- banner\n- push\n```"
+        },
+        "to": {
+          "name": "Destinataires",
+          "description": "Qui le reçoit, par canal : un public ou une liste de destinataires, jamais les deux. Push et popup exigent une cible ; la voix n'accepte que des destinataires.\n\nExemple :\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
+        },
+        "policy": {
+          "name": "Politique",
+          "description": "Nom d'une politique, ou \"none\" pour aucun comportement de politique. Par défaut : toutes les politiques applicables."
+        }
+      }
+    },
+    "push": {
+      "name": "Push",
+      "description": "Envoie une notification push à l'application Companion de la cible. Avec un ID, le message est suivi et effacé avec lui ; sans ID, il est envoyé une fois.",
+      "fields": {
+        "message": {
+          "name": "Message",
+          "description": "Texte de la bannière, 1 à 1000 caractères."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
+        },
+        "title": {
+          "name": "Titre",
+          "description": "100 caractères au maximum. Par défaut : aucun titre."
+        },
+        "severity": {
+          "name": "Gravité",
+          "description": "Définit la couleur, l'icône par défaut et l'ordre de tri. Par défaut : Avertissement."
+        },
+        "icon": {
+          "name": "Icône",
+          "description": "Remplace l'icône par défaut de la gravité. Par défaut : l'icône de la gravité."
+        },
+        "timeout": {
+          "name": "Délai d'expiration",
+          "description": "La bannière disparaît après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
+        },
+        "actions": {
+          "name": "Boutons",
+          "description": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action.\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Étiquette",
+          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs bannières à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
+        },
+        "tap_action": {
+          "name": "Action au toucher",
+          "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Texte parlé",
+          "description": "Texte utilisé pour la voix à la place du titre et du message. Par défaut : le titre s'il existe, sinon le message."
+        },
+        "recipients": {
+          "name": "Destinataires",
+          "description": "Personnes, téléphones, enceintes ou groupes selon le canal. Indiquez soit un public, soit des destinataires."
+        },
+        "audience": {
+          "name": "Public",
+          "description": "Nom d'un public. Indiquez soit un public, soit des destinataires."
+        }
+      }
+    },
+    "popup": {
+      "name": "Popup",
+      "description": "Affiche une fenêtre contextuelle sur les tableaux de bord de la cible. Avec un ID, le message est suivi et effacé avec lui ; sans ID, il est affiché une fois.",
+      "fields": {
+        "message": {
+          "name": "Message",
+          "description": "Texte de la bannière, 1 à 1000 caractères."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
+        },
+        "title": {
+          "name": "Titre",
+          "description": "100 caractères au maximum. Par défaut : aucun titre."
+        },
+        "severity": {
+          "name": "Gravité",
+          "description": "Définit la couleur, l'icône par défaut et l'ordre de tri. Par défaut : Avertissement."
+        },
+        "icon": {
+          "name": "Icône",
+          "description": "Remplace l'icône par défaut de la gravité. Par défaut : l'icône de la gravité."
+        },
+        "timeout": {
+          "name": "Délai d'expiration",
+          "description": "La bannière disparaît après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
+        },
+        "actions": {
+          "name": "Boutons",
+          "description": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action.\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Étiquette",
+          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs bannières à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
+        },
+        "tap_action": {
+          "name": "Action au toucher",
+          "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Texte parlé",
+          "description": "Texte utilisé pour la voix à la place du titre et du message. Par défaut : le titre s'il existe, sinon le message."
+        },
+        "recipients": {
+          "name": "Destinataires",
+          "description": "Personnes, téléphones, enceintes ou groupes selon le canal. Indiquez soit un public, soit des destinataires."
+        },
+        "audience": {
+          "name": "Public",
+          "description": "Nom d'un public. Indiquez soit un public, soit des destinataires."
+        }
+      }
+    },
+    "speak": {
+      "name": "Parler",
+      "description": "Prononce le message sur les enceintes destinataires. La voix ne peut pas être reprise ; effacer le message ne l'annule pas.",
+      "fields": {
+        "message": {
+          "name": "Message",
+          "description": "Texte de la bannière, 1 à 1000 caractères."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
+        },
+        "title": {
+          "name": "Titre",
+          "description": "100 caractères au maximum. Par défaut : aucun titre."
+        },
+        "severity": {
+          "name": "Gravité",
+          "description": "Définit la couleur, l'icône par défaut et l'ordre de tri. Par défaut : Avertissement."
+        },
+        "icon": {
+          "name": "Icône",
+          "description": "Remplace l'icône par défaut de la gravité. Par défaut : l'icône de la gravité."
+        },
+        "timeout": {
+          "name": "Délai d'expiration",
+          "description": "La bannière disparaît après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
+        },
+        "actions": {
+          "name": "Boutons",
+          "description": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action.\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Étiquette",
+          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs bannières à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
+        },
+        "tap_action": {
+          "name": "Action au toucher",
+          "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Texte parlé",
+          "description": "Texte utilisé pour la voix à la place du titre et du message. Par défaut : le titre s'il existe, sinon le message."
+        },
+        "recipients": {
+          "name": "Destinataires",
+          "description": "Personnes, téléphones, enceintes ou groupes selon le canal. Indiquez soit un public, soit des destinataires."
+        }
+      }
     }
   },
   "config_subentries": {

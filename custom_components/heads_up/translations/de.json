@@ -13,6 +13,7 @@
     "step": {
       "init": {
         "data": {
+          "hub_enabled": "Hub",
           "max_banners": "Maximale Anzahl Banner",
           "evict": "Ältestes Banner mit der niedrigsten Dringlichkeit entfernen, wenn voll",
           "default_dismiss_scope": "Standard-Bereich beim Schließen",
@@ -22,6 +23,7 @@
           "default_snooze_options": "Standard-Auswahl beim Zurückstellen"
         },
         "data_description": {
+          "hub_enabled": "Benachrichtigungs-Hub ein- oder ausschalten. Aus: nur der Banner-Kanal funktioniert, wie vor dem Hub.",
           "max_banners": "1–200. Kritische Banner werden nie entfernt.",
           "evict": "Wenn aus, schlägt das Erstellen eines Banners über dem Maximum mit einem Fehler fehl.",
           "default_dismiss_scope": "Gilt, wenn ein Aktionsaufruf kein dismiss_scope angibt.",
@@ -84,6 +86,15 @@
         "480": "8 Stunden",
         "1440": "24 Stunden"
       }
+    },
+    "channel": {
+      "options": {
+        "banner": "Banner",
+        "push": "Push",
+        "popup": "Popup",
+        "speak": "Sprechen",
+        "persistent": "Dauerhafte Benachrichtigung"
+      }
     }
   },
   "entity": {
@@ -102,6 +113,18 @@
     },
     "entity_not_found": {
       "message": "Die Bedingungs-Entität {entity_id} existiert nicht."
+    },
+    "hub_off": {
+      "message": "Der Hub ist ausgeschaltet. Bis er in den Integrationsoptionen eingeschaltet wird, funktioniert nur der Banner-Kanal."
+    },
+    "unknown_audience": {
+      "message": "Die Zielgruppe \"{name}\" gibt es nicht. Gültige Zielgruppen: {valid}."
+    },
+    "unknown_recipient": {
+      "message": "Der Empfänger \"{name}\" ist für diesen Kanal nicht gültig. Gültige Empfänger: {valid}."
+    },
+    "unknown_policy": {
+      "message": "Die Richtlinie \"{name}\" gibt es nicht. Gültige Richtlinien: {valid}."
     }
   },
   "services": {
@@ -200,6 +223,268 @@
     "clear_all": {
       "name": "Alle Banner entfernen",
       "description": "Entfernt alle Banner. Gibt die Anzahl der entfernten Banner zurück."
+    },
+    "clear": {
+      "name": "Nachricht löschen",
+      "description": "Entfernt Nachrichten nach ID, Tag oder beidem aus allen Kanälen, auch Nachrichten ohne Banner. Gibt die Anzahl zurück.",
+      "fields": {
+        "id": {
+          "name": "ID",
+          "description": "ID des zu entfernenden Banners."
+        },
+        "tag": {
+          "name": "Tag",
+          "description": "Entfernt jedes Banner mit diesem Tag."
+        }
+      }
+    },
+    "notify": {
+      "name": "Benachrichtigen",
+      "description": "Liefert eine Nachricht auf den genannten Kanälen. Ein erneuter Aufruf mit derselben ID ersetzt die Nachricht. Gibt ID, Status und je Kanal die Anzahl gesendeter, gehaltener, übersprungener und fehlgeschlagener Zustellungen zurück.",
+      "fields": {
+        "message": {
+          "name": "Nachricht",
+          "description": "Bannertext, 1–1000 Zeichen."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
+        },
+        "title": {
+          "name": "Titel",
+          "description": "Bis 100 Zeichen. Standard: kein Titel."
+        },
+        "severity": {
+          "name": "Dringlichkeit",
+          "description": "Legt Farbe, Standardsymbol und Sortierung fest. Standard: Warnung."
+        },
+        "icon": {
+          "name": "Symbol",
+          "description": "Ersetzt das Standardsymbol der Dringlichkeit. Standard: das Symbol der Dringlichkeit."
+        },
+        "timeout": {
+          "name": "Zeitlimit",
+          "description": "Das Banner verschwindet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
+        },
+        "dismissible": {
+          "name": "Schließbar",
+          "description": "Zeigt eine Schließen-Schaltfläche am Banner. Standard: an."
+        },
+        "dismiss_scope": {
+          "name": "Bereich beim Schließen",
+          "description": "Pro Benutzer: Schließen blendet es nur für diesen Benutzer aus. Alle: Schließen entfernt es für alle. Standard: die Einstellung aus den Integrationsoptionen (pro Benutzer, sofern nicht geändert)."
+        },
+        "snoozable": {
+          "name": "Zurückstellbar",
+          "description": "Erlaubt es, das Banner für eine Weile auszublenden; danach kehrt es zurück. Zusammen mit „Schließbar“ aus ist es ein Fehler. Standard: die Einstellung aus den Integrationsoptionen (aus, sofern nicht geändert)."
+        },
+        "snooze_scope": {
+          "name": "Bereich beim Zurückstellen",
+          "description": "Pro Benutzer: Zurückstellen blendet es nur für diesen Benutzer aus. Alle: es wird für alle ausgeblendet. Standard: die Einstellung aus den Integrationsoptionen (pro Benutzer, sofern nicht geändert)."
+        },
+        "snooze_options": {
+          "name": "Auswahl beim Zurückstellen",
+          "description": "Bis zu 6 Zeitspannen zum Zurückstellen, 1 Minute bis 7 Tage.\n\nBeispiel:\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "actions": {
+          "name": "Schaltflächen",
+          "description": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Tag",
+          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Banner. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
+        },
+        "condition": {
+          "name": "Bedingung",
+          "description": "Das Banner nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+        },
+        "mode": {
+          "name": "Modus",
+          "description": "Einmal: wird entfernt, wenn die Bedingung falsch wird. Wiederkehrend: ausgeblendet, solange sie falsch ist, und wieder gezeigt, wenn sie wahr wird. Standard: Einmal."
+        },
+        "wait_for_condition": {
+          "name": "Auf Bedingung warten",
+          "description": "An: Ein Banner, dessen Bedingung jetzt falsch ist, wartet, bis sie wahr wird. Aus: nichts wird gespeichert und der Antwortstatus ist condition_false. Standard: an. Ohne Bedingung wirkungslos."
+        },
+        "tap_action": {
+          "name": "Tipp-Aktion",
+          "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Gesprochener Text",
+          "description": "Text für die Sprachausgabe statt Titel und Nachricht. Standard: der Titel, falls gesetzt, sonst die Nachricht."
+        },
+        "channels": {
+          "name": "Kanäle",
+          "description": "Wohin die Nachricht geht: banner, push, popup, speak, persistent.\n\nBeispiel:\n```yaml\n- banner\n- push\n```"
+        },
+        "to": {
+          "name": "Empfänger",
+          "description": "Wer es erhält, je Kanal: eine Zielgruppe oder eine Liste von Empfängern, nie beides. Push und Popup brauchen ein Ziel; Sprache nimmt nur Empfänger.\n\nBeispiel:\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
+        },
+        "policy": {
+          "name": "Richtlinie",
+          "description": "Name einer Richtlinie, oder \"none\" für kein Richtlinienverhalten. Standard: alle passenden Richtlinien."
+        }
+      }
+    },
+    "push": {
+      "name": "Push",
+      "description": "Sendet eine Push-Benachrichtigung an die Companion-App des Ziels. Mit ID wird die Nachricht verfolgt und mit ihr gelöscht; ohne ID wird sie einmal gesendet.",
+      "fields": {
+        "message": {
+          "name": "Nachricht",
+          "description": "Bannertext, 1–1000 Zeichen."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
+        },
+        "title": {
+          "name": "Titel",
+          "description": "Bis 100 Zeichen. Standard: kein Titel."
+        },
+        "severity": {
+          "name": "Dringlichkeit",
+          "description": "Legt Farbe, Standardsymbol und Sortierung fest. Standard: Warnung."
+        },
+        "icon": {
+          "name": "Symbol",
+          "description": "Ersetzt das Standardsymbol der Dringlichkeit. Standard: das Symbol der Dringlichkeit."
+        },
+        "timeout": {
+          "name": "Zeitlimit",
+          "description": "Das Banner verschwindet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
+        },
+        "actions": {
+          "name": "Schaltflächen",
+          "description": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Tag",
+          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Banner. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
+        },
+        "tap_action": {
+          "name": "Tipp-Aktion",
+          "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Gesprochener Text",
+          "description": "Text für die Sprachausgabe statt Titel und Nachricht. Standard: der Titel, falls gesetzt, sonst die Nachricht."
+        },
+        "recipients": {
+          "name": "Empfänger",
+          "description": "Personen, Telefone, Lautsprecher oder Gruppen, je nach Kanal. Entweder Zielgruppe oder Empfänger angeben."
+        },
+        "audience": {
+          "name": "Zielgruppe",
+          "description": "Name einer Zielgruppe. Entweder Zielgruppe oder Empfänger angeben."
+        }
+      }
+    },
+    "popup": {
+      "name": "Popup",
+      "description": "Zeigt ein Popup auf den Dashboards des Ziels. Mit ID wird die Nachricht verfolgt und mit ihr gelöscht; ohne ID wird sie einmal gezeigt.",
+      "fields": {
+        "message": {
+          "name": "Nachricht",
+          "description": "Bannertext, 1–1000 Zeichen."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
+        },
+        "title": {
+          "name": "Titel",
+          "description": "Bis 100 Zeichen. Standard: kein Titel."
+        },
+        "severity": {
+          "name": "Dringlichkeit",
+          "description": "Legt Farbe, Standardsymbol und Sortierung fest. Standard: Warnung."
+        },
+        "icon": {
+          "name": "Symbol",
+          "description": "Ersetzt das Standardsymbol der Dringlichkeit. Standard: das Symbol der Dringlichkeit."
+        },
+        "timeout": {
+          "name": "Zeitlimit",
+          "description": "Das Banner verschwindet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
+        },
+        "actions": {
+          "name": "Schaltflächen",
+          "description": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Tag",
+          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Banner. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
+        },
+        "tap_action": {
+          "name": "Tipp-Aktion",
+          "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Gesprochener Text",
+          "description": "Text für die Sprachausgabe statt Titel und Nachricht. Standard: der Titel, falls gesetzt, sonst die Nachricht."
+        },
+        "recipients": {
+          "name": "Empfänger",
+          "description": "Personen, Telefone, Lautsprecher oder Gruppen, je nach Kanal. Entweder Zielgruppe oder Empfänger angeben."
+        },
+        "audience": {
+          "name": "Zielgruppe",
+          "description": "Name einer Zielgruppe. Entweder Zielgruppe oder Empfänger angeben."
+        }
+      }
+    },
+    "speak": {
+      "name": "Sprechen",
+      "description": "Spricht die Nachricht auf den Ziel-Lautsprechern. Sprache lässt sich nicht zurücknehmen; Löschen macht sie nicht ungesprochen.",
+      "fields": {
+        "message": {
+          "name": "Nachricht",
+          "description": "Bannertext, 1–1000 Zeichen."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
+        },
+        "title": {
+          "name": "Titel",
+          "description": "Bis 100 Zeichen. Standard: kein Titel."
+        },
+        "severity": {
+          "name": "Dringlichkeit",
+          "description": "Legt Farbe, Standardsymbol und Sortierung fest. Standard: Warnung."
+        },
+        "icon": {
+          "name": "Symbol",
+          "description": "Ersetzt das Standardsymbol der Dringlichkeit. Standard: das Symbol der Dringlichkeit."
+        },
+        "timeout": {
+          "name": "Zeitlimit",
+          "description": "Das Banner verschwindet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
+        },
+        "actions": {
+          "name": "Schaltflächen",
+          "description": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Tag",
+          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Banner. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
+        },
+        "tap_action": {
+          "name": "Tipp-Aktion",
+          "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Gesprochener Text",
+          "description": "Text für die Sprachausgabe statt Titel und Nachricht. Standard: der Titel, falls gesetzt, sonst die Nachricht."
+        },
+        "recipients": {
+          "name": "Empfänger",
+          "description": "Personen, Telefone, Lautsprecher oder Gruppen, je nach Kanal. Entweder Zielgruppe oder Empfänger angeben."
+        }
+      }
     }
   },
   "config_subentries": {

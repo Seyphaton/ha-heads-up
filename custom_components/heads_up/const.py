@@ -48,6 +48,25 @@ OPT_DEFAULT_TIMEOUT: Final = "default_timeout"  # seconds; 0 = none
 OPT_DEFAULT_SNOOZABLE: Final = "default_snoozable"
 OPT_DEFAULT_SNOOZE_SCOPE: Final = "default_snooze_scope"
 OPT_DEFAULT_SNOOZE_OPTIONS: Final = "default_snooze_options"  # seconds
+# Hub (DESIGN §23). Channels of a message; only `banner` delivers in H1.
+CHANNEL_BANNER: Final = "banner"
+CHANNELS: Final = ("banner", "push", "popup", "speak", "persistent")
+TARGET_CHANNELS: Final = ("banner", "push", "popup", "speak")  # channels that accept a target
+SOURCE_ACTION: Final = "action"
+SOURCE_RULE: Final = "rule"
+POLICY_NONE: Final = "none"
+DELIVERIES_KEY: Final = "heads_up.deliveries"
+DELIVERIES_VERSION: Final = 1
+DELIVERIES_MINOR_VERSION: Final = 1
+OPT_HUB_ENABLED: Final = "hub_enabled"  # D-107: on by default, this is the off switch
+OPT_INSTALL_TOKEN: Final = "install_token"  # 6 hex characters, used in push tags (D-080)
+OPT_TRACE_ENTRIES: Final = "trace_entries"
+OPT_RECENT_MESSAGES: Final = "recent_messages"
+# Stored in H1, enforced in H10.
+OPT_RATE_PER_DEVICE: Final = "rate_per_device_per_minute"
+OPT_RATE_TOTAL: Final = "rate_total_per_minute"
+OPT_DEDUPE_SECONDS: Final = "dedupe_seconds"
+
 DEFAULT_OPTIONS: Final = {
     OPT_MAX_BANNERS: 50,
     OPT_EVICT: True,
@@ -56,6 +75,12 @@ DEFAULT_OPTIONS: Final = {
     OPT_DEFAULT_SNOOZABLE: False,  # existing dashboards look the same after an update (D-069)
     OPT_DEFAULT_SNOOZE_SCOPE: "user",
     OPT_DEFAULT_SNOOZE_OPTIONS: list(DEFAULT_SNOOZE_SECONDS),
+    OPT_HUB_ENABLED: True,
+    OPT_TRACE_ENTRIES: 500,
+    OPT_RECENT_MESSAGES: 100,
+    OPT_RATE_PER_DEVICE: 10,
+    OPT_RATE_TOTAL: 60,
+    OPT_DEDUPE_SECONDS: 30,
 }
 
 EVENT_CREATED: Final = f"{DOMAIN}_banner_created"

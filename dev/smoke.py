@@ -8,6 +8,9 @@ Run after `make dev-up` + `make dev-onboard`:
   (restart the container)
   uv run python dev/smoke.py rules_verify
   uv run python dev/smoke.py stub     # the dev-only stub services record calls (hub work, H0a)
+  uv run python dev/smoke.py hub_core # notify, shortcuts, trace (hub work, H1)
+  (restart the container)
+  uv run python dev/smoke.py hub_core_verify
 """
 
 import asyncio
@@ -340,6 +343,50 @@ async def snooze_verify() -> None:
         print("snooze and dismissal survived the restart")
 
 
+async def hub_core() -> None:
+    """notify with the banner channel and a skipped push; the message survives a restart (H1)."""
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        data = {
+            "id": "smoke_hub",
+            "message": "Hub core",
+            "timeout": 0,
+            "channels": ["banner", "push"],
+            "to": {"push": {"recipients": ["person.dev_admin"]}},
+        }
+        try:
+            result = await call(s, admin, "notify", data)
+        except AssertionError as err:  # the dev instance may have no person of that name
+            print("notify refused:", err)
+            data["channels"], data["to"] = ["banner"], {}
+            result = await call(s, admin, "notify", data)
+        print("notify:", result)
+        assert result["channels"]["banner"]["sent"] == 1, result
+        assert "smoke_hub" in [b["id"] for b in await subscribe(await connect(s, user))]
+        ws_user = await connect(s, user)
+        msg_id = await ws_user.send({"type": "heads_up/hub_trace"})
+        assert (await ws_user.recv(msg_id))["error"]["code"] == "unauthorized"
+        ws_admin = await connect(s, admin)
+        msg_id = await ws_admin.send({"type": "heads_up/hub_trace", "message_id": "smoke_hub"})
+        trace = (await ws_admin.recv(msg_id))["result"]["entries"]
+        assert trace and trace[-1]["channel"] == "banner", trace
+        print("trace:", trace)
+        sent = await call(s, admin, "push", {"message": "once", "recipients": ["person.dev_admin"]})
+        print("push shortcut:", sent)
+
+
+async def hub_core_verify() -> None:
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        assert "smoke_hub" in [b["id"] for b in await subscribe(await connect(s, user))]
+        ws_admin = await connect(s, admin)
+        msg_id = await ws_admin.send({"type": "heads_up/hub_trace"})
+        assert (await ws_admin.recv(msg_id))["success"]
+        print("clear:", await call(s, admin, "clear", {"id": "smoke_hub"}))
+        assert "smoke_hub" not in [b["id"] for b in await subscribe(await connect(s, user))]
+        print("hub core survived the restart")
+
+
 async def stub() -> None:
     """The stub notify services and fake players record their calls with data (H0a)."""
     async with aiohttp.ClientSession() as s:
@@ -466,5 +513,7 @@ asyncio.run(
         "snooze": snooze,
         "snooze_verify": snooze_verify,
         "stub": stub,
+        "hub_core": hub_core,
+        "hub_core_verify": hub_core_verify,
     }[sys.argv[1]]()
 )

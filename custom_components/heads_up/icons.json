@@ -15,6 +15,21 @@
     },
     "clear_all": {
       "service": "mdi:message-off"
+    },
+    "clear": {
+      "service": "mdi:message-minus-outline"
+    },
+    "notify": {
+      "service": "mdi:bell-ring"
+    },
+    "push": {
+      "service": "mdi:cellphone-message"
+    },
+    "popup": {
+      "service": "mdi:message-badge"
+    },
+    "speak": {
+      "service": "mdi:bullhorn"
     }
   }
 }

@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 import secrets
 from collections.abc import Callable, Iterator, Mapping
+from copy import deepcopy
 from datetime import datetime, timedelta
 from functools import partial
 from itertools import chain
@@ -33,6 +34,7 @@ from homeassistant.util import dt as dt_util
 
 from .conditions import DEFAULT_OPERATOR, NO_STATE_OPERATORS, matches
 from .const import (
+    CHANNEL_BANNER,
     DEFAULT_OPTIONS,
     DEFAULT_SEVERITY,
     DOMAIN,
@@ -57,13 +59,27 @@ from .const import (
     RULE_TAG,
     SAVE_DELAY,
     SEVERITIES,
+    SOURCE_RULE,
     STORAGE_KEY,
     STORAGE_VERSION,
 )
+from .hub.engine import HubEngine
+from .hub.transitions import BannerTransition, Kind, Reason, TransitionListener
 from .models import Banner
 
 _LOGGER = logging.getLogger(__name__)
 _NO_STATE = {STATE_UNAVAILABLE, STATE_UNKNOWN}
+# `reason` values of the bus events mapped to transition reasons.
+_REASONS = {
+    "action": Reason.CLEARED,
+    "condition": Reason.CONDITION,
+    "admin": Reason.ADMIN,
+    "clear_all": Reason.CLEAR_ALL,
+    "evicted": Reason.EVICTED,
+    "rule": Reason.RULE,
+    Reason.EXPIRED: Reason.EXPIRED,
+    Reason.DISMISSED_GLOBAL: Reason.DISMISSED_GLOBAL,
+}
 
 
 class HeadsUpError(Exception):
@@ -86,12 +102,18 @@ class BannerManager:
         self.banners: dict[str, Banner] = {}
         # Watch rules as virtual banners; never stored (DESIGN §17).
         self.rules: dict[str, Banner] = {}
+        # The hub engine while the hub is on (set by setup); None when it is switched off.
+        self.hub: HubEngine | None = None
         self._rule_sources: dict[str, dict[str, Any]] = {}
         # Entities a rule's message template reads, so state changes re-render it (D-063).
         self._rule_template_entities: dict[str, set[str]] = {}
         self._store = banner_store(hass)
         self._timers: dict[str, CALLBACK_TYPE] = {}
         self._listeners: list[Callable[[], None]] = []
+        # Typed transitions for the hub engine, apart from `_listeners` (DESIGN §23.11).
+        self._transition_listeners: list[TransitionListener] = []
+        # True while loading: transitions are flagged silent.
+        self._silent = False
         self.tracked_entities: set[str] = set()
         self._untrack: CALLBACK_TYPE | None = None
         # Pending `for` waits and template trackers, by banner or rule ID (DESIGN §19).
@@ -101,6 +123,13 @@ class BannerManager:
         self._snooze_timers: dict[tuple[str, str], CALLBACK_TYPE] = {}
 
     async def async_load(self) -> None:
+        self._silent = True
+        try:
+            await self._load()
+        finally:
+            self._silent = False
+
+    async def _load(self) -> None:
         data = await self._store.async_load() or {}
         now = dt_util.utcnow()
         dropped = False
@@ -116,6 +145,7 @@ class BannerManager:
             if banner.expires_at is not None and banner.expires_at <= now:
                 # Expired while HA was down (D-023).
                 self._fire(EVENT_EXPIRED, banner)
+                self._emit(Kind.HIDDEN, banner, Reason.EXPIRED)
                 dropped = True
                 continue
             self.banners[banner.id] = banner
@@ -142,6 +172,7 @@ class BannerManager:
             self._cancel_wait(banner_id)
             self._untrack_template(banner_id)
         self._listeners.clear()
+        self._transition_listeners.clear()
         self.rules.clear()
         self._rule_sources.clear()
         self._rule_template_entities.clear()
@@ -191,6 +222,7 @@ class BannerManager:
         timeout: timedelta | None = data.get("timeout")
         if timeout is None:
             timeout = timedelta(seconds=self.options[OPT_DEFAULT_TIMEOUT])
+        was_active = existing.active if existing else False
         self._cancel_snoozes(banner_id)  # an upsert starts from no snoozes, like dismissals (D-010)
         dismissible = data.get("dismissible", True)
         banner = Banner(
@@ -217,6 +249,10 @@ class BannerManager:
             created_at=existing.created_at if existing else now,
             updated_at=now,
             expires_at=now + timeout if timeout > timedelta(0) else None,
+            channels=list(data.get("channels") or [CHANNEL_BANNER]),
+            targets={k: dict(v) for k, v in data.get("targets", {}).items()},
+            policy=data.get("policy"),
+            tts_message=data.get("tts_message"),
         )
         self.banners[banner_id] = banner
         self._schedule(banner)
@@ -224,15 +260,29 @@ class BannerManager:
             self._start_wait(banner)
         self._track_template(banner)
         self._fire(EVENT_UPDATED if existing else EVENT_CREATED, banner, severity=banner.severity)
+        if existing is None:
+            self._emit(Kind.APPEARED, banner)
+        else:
+            self._emit(Kind.UPDATED, banner)
+            if existing.severity != banner.severity:
+                self._emit(Kind.SEVERITY_CHANGED, banner)
+            if banner.active and not was_active:
+                self._emit(Kind.BECAME_VISIBLE, banner)
         self._changed()
         return result
 
     @callback
-    def clear(self, banner_id: str | None = None, tag: str | None = None) -> int:
+    def clear(
+        self, banner_id: str | None = None, tag: str | None = None, all_channels: bool = False
+    ) -> int:
+        """Remove messages by ID and/or tag. `clear_banner` leaves messages without the banner
+        channel alone; the `clear` action removes any message (D-108)."""
         matches = [
             b
             for b in self.banners.values()
-            if (banner_id is None or b.id == banner_id) and (tag is None or b.tag == tag)
+            if (banner_id is None or b.id == banner_id)
+            and (tag is None or b.tag == tag)
+            and (all_channels or b.on_card)
         ]
         for banner in matches:
             self._remove(banner.id, EVENT_CLEARED, reason="action")
@@ -281,11 +331,13 @@ class BannerManager:
             if GLOBAL_SNOOZE_KEY not in banner.dismissed_by:
                 banner.dismissed_by.append(GLOBAL_SNOOZE_KEY)
                 self._fire(EVENT_DISMISSED, banner, scope="global", user_id=user_id)
+                self._emit(Kind.HIDDEN, banner, Reason.DISMISSED, user_id)
         elif banner.dismiss_scope == "global":
             self._remove(banner_id, EVENT_DISMISSED, scope="global", user_id=user_id)
         elif user_id not in banner.dismissed_by:
             banner.dismissed_by.append(user_id)
             self._fire(EVENT_DISMISSED, banner, scope="user", user_id=user_id)
+            self._emit(Kind.HIDDEN, banner, Reason.DISMISSED, user_id)
 
     @callback
     def press(self, banner_id: str, user_id: str, key: str) -> None:
@@ -321,6 +373,7 @@ class BannerManager:
             user_id=user_id,
             until=until.isoformat(),
         )
+        self._emit(Kind.SNOOZED, banner, user_id=user_id)
         self._changed()
 
     @callback
@@ -335,6 +388,7 @@ class BannerManager:
             ):
                 cancel()
         self._fire(EVENT_UNSNOOZED, banner, user_id=user_id)
+        self._emit(Kind.UNSNOOZED, banner, user_id=user_id)
         self._changed()
 
     @callback
@@ -355,7 +409,7 @@ class BannerManager:
 
     @callback
     def active_count(self) -> int:
-        return sum(1 for b in self._all() if b.active)
+        return sum(1 for b in self._all() if b.active and b.on_card)
 
     @callback
     def visible(
@@ -367,13 +421,16 @@ class BannerManager:
         return [
             self._client(b, user_id)
             for b in self._all()
-            if show_all
-            or (
-                b.active
-                and user_id not in b.dismissed_by
-                and GLOBAL_SNOOZE_KEY not in b.dismissed_by
-                and (show_snoozed or b.snoozed_for(user_id) is None)
-                and self._targets(b, user_id)
+            if b.on_card
+            and (
+                show_all
+                or (
+                    b.active
+                    and user_id not in b.dismissed_by
+                    and GLOBAL_SNOOZE_KEY not in b.dismissed_by
+                    and (show_snoozed or b.snoozed_for(user_id) is None)
+                    and self._targets(b, user_id)
+                )
             )
         ]
 
@@ -385,6 +442,17 @@ class BannerManager:
         def unsubscribe() -> None:
             if listener in self._listeners:
                 self._listeners.remove(listener)
+
+        return unsubscribe
+
+    @callback
+    def subscribe_transitions(self, listener: TransitionListener) -> CALLBACK_TYPE:
+        self._transition_listeners.append(listener)
+
+        @callback
+        def unsubscribe() -> None:
+            if listener in self._transition_listeners:
+                self._transition_listeners.remove(listener)
 
         return unsubscribe
 
@@ -410,8 +478,10 @@ class BannerManager:
                 self._untrack_template(banner_id)
                 self._rule_sources.pop(banner_id, None)
                 self._rule_template_entities.pop(banner_id, None)
-                if gone.condition_met and not silent:
-                    self._fire(EVENT_CLEARED, gone, reason="rule")
+                if gone.condition_met:
+                    if not silent:
+                        self._fire(EVENT_CLEARED, gone, reason="rule")
+                    self._emit(Kind.HIDDEN, gone, Reason.RULE, silent=silent)
                 changed = True
         for banner_id, sub in wanted.items():
             # The rule name stands in for {name} when there is no entity (template rules).
@@ -423,11 +493,15 @@ class BannerManager:
             banner = self._build_rule(banner_id, source, old)
             self.rules[banner_id] = banner
             self._track_template(banner)
-            if not silent and banner.condition_met != bool(old and old.condition_met):
+            if banner.condition_met != bool(old and old.condition_met):
                 if banner.condition_met:
-                    self._fire(EVENT_CREATED, banner, severity=banner.severity)
+                    if not silent:
+                        self._fire(EVENT_CREATED, banner, severity=banner.severity)
+                    self._emit(Kind.BECAME_VISIBLE, banner, silent=silent)
                 else:
-                    self._fire(EVENT_CLEARED, banner, reason="rule")
+                    if not silent:
+                        self._fire(EVENT_CLEARED, banner, reason="rule")
+                    self._emit(Kind.HIDDEN, banner, Reason.RULE, silent=silent)
             changed = True
         self._refresh_tracking()
         if changed and not silent:
@@ -475,6 +549,7 @@ class BannerManager:
                 source.get("snooze_options") or self.options[OPT_DEFAULT_SNOOZE_OPTIONS]
             ),
             tag=RULE_TAG,
+            source=SOURCE_RULE,
             condition=condition,
             mode="recurring",
             people=list(source.get("people", [])),
@@ -518,10 +593,14 @@ class BannerManager:
             if met:
                 banner.updated_at = dt_util.utcnow()  # the card's "time ago" counts from the flip
                 self._fire(EVENT_CREATED, banner, severity=banner.severity)
+                self._emit(Kind.BECAME_VISIBLE, banner)
             else:
                 banner.dismissed_by.clear()  # a dismissal lasts until the condition flips (D-056)
                 self._cancel_snoozes(banner.id)
                 self._fire(EVENT_CLEARED, banner, reason="rule")
+                self._emit(Kind.HIDDEN, banner, Reason.CONDITION)
+        elif changed and banner.condition_met:
+            self._emit(Kind.UPDATED, banner)  # same rule, new message text
         return changed
 
     # Internals -------------------------------------------------------------------------
@@ -602,8 +681,12 @@ class BannerManager:
                 banner.dismissed_by.clear()
                 self._cancel_snoozes(banner.id)
             banner.ever_met = True
+            if previous is not True:
+                self._emit(Kind.BECAME_VISIBLE, banner)
         elif banner.mode == "once" and banner.ever_met:
             self._remove(banner.id, EVENT_CLEARED, reason="condition")
+        elif previous is True:
+            self._emit(Kind.HIDDEN, banner, Reason.CONDITION)
         return True
 
     @callback
@@ -689,6 +772,12 @@ class BannerManager:
         self._cancel_snoozes(banner_id)
         self._untrack_template(banner_id)
         self._fire(event, banner, **extra)
+        reason = extra.get("reason")
+        if event == EVENT_EXPIRED:
+            reason = Reason.EXPIRED
+        elif event == EVENT_DISMISSED:
+            reason = Reason.DISMISSED_GLOBAL
+        self._emit(Kind.HIDDEN, banner, _REASONS.get(reason or "", Reason.CLEARED))
 
     def _start_wait(self, banner: Banner) -> None:
         assert banner.condition is not None
@@ -777,6 +866,13 @@ class BannerManager:
         self._snooze_timers.pop((banner_id, key), None)
         banner = self.banners.get(banner_id) or self.rules.get(banner_id)
         if banner is not None and banner.snoozed_until.pop(key, None) is not None:
+            # No bus event fires for an ended snooze; the engine still needs to know (D-078).
+            self._emit(
+                Kind.UNSNOOZED,
+                banner,
+                Reason.ELAPSED,
+                None if key == GLOBAL_SNOOZE_KEY else key,
+            )
             self._changed()
 
     def _cancel_snoozes(self, banner_id: str) -> None:
@@ -794,6 +890,22 @@ class BannerManager:
         for key, until in banner.snoozed_until.items():
             self._schedule_snooze(banner.id, key, until)
         return bool(ended)
+
+    def _emit(
+        self,
+        kind: Kind,
+        banner: Banner,
+        reason: str | None = None,
+        user_id: str | None = None,
+        silent: bool = False,
+    ) -> None:
+        if not self._transition_listeners:
+            return
+        transition = BannerTransition(
+            kind, deepcopy(banner), reason, user_id, silent or self._silent
+        )
+        for listener in list(self._transition_listeners):
+            listener(transition)
 
     def _fire(self, event: str, banner: Banner, **extra: Any) -> None:
         self.hass.bus.async_fire(event, {"id": banner.id, "tag": banner.tag, **extra})

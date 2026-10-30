@@ -13,6 +13,7 @@
     "step": {
       "init": {
         "data": {
+          "hub_enabled": "Hub",
           "max_banners": "Número máximo de avisos",
           "evict": "Eliminar el aviso más antiguo de menor gravedad cuando se llena",
           "default_dismiss_scope": "Ámbito de cierre predeterminado",
@@ -22,6 +23,7 @@
           "default_snooze_options": "Opciones de posposición predeterminadas"
         },
         "data_description": {
+          "hub_enabled": "Activa o desactiva el hub de notificaciones. Desactivado: solo funciona el canal banner, como antes del hub.",
           "max_banners": "1–200. Los avisos críticos nunca se eliminan.",
           "evict": "Si está desactivado, crear un aviso por encima del máximo falla con un error.",
           "default_dismiss_scope": "Se usa cuando la llamada a la acción no define dismiss_scope.",
@@ -84,6 +86,15 @@
         "480": "8 horas",
         "1440": "24 horas"
       }
+    },
+    "channel": {
+      "options": {
+        "banner": "Banner",
+        "push": "Push",
+        "popup": "Popup",
+        "speak": "Hablar",
+        "persistent": "Notificación persistente"
+      }
     }
   },
   "entity": {
@@ -102,6 +113,18 @@
     },
     "entity_not_found": {
       "message": "La entidad de condición {entity_id} no existe."
+    },
+    "hub_off": {
+      "message": "El hub está desactivado. Solo funciona el canal banner hasta activarlo en las opciones de la integración."
+    },
+    "unknown_audience": {
+      "message": "La audiencia \"{name}\" no existe. Audiencias válidas: {valid}."
+    },
+    "unknown_recipient": {
+      "message": "El destinatario \"{name}\" no es válido para este canal. Destinatarios válidos: {valid}."
+    },
+    "unknown_policy": {
+      "message": "La política \"{name}\" no existe. Políticas válidas: {valid}."
     }
   },
   "services": {
@@ -200,6 +223,268 @@
     "clear_all": {
       "name": "Eliminar todos los avisos",
       "description": "Elimina todos los avisos. Devuelve el número eliminado."
+    },
+    "clear": {
+      "name": "Borrar mensaje",
+      "description": "Elimina mensajes por ID, por etiqueta o ambos, de todos los canales, también los que no tienen banner. Devuelve el número eliminado.",
+      "fields": {
+        "id": {
+          "name": "ID",
+          "description": "ID del aviso que se eliminará."
+        },
+        "tag": {
+          "name": "Etiqueta",
+          "description": "Elimina todos los avisos con esta etiqueta."
+        }
+      }
+    },
+    "notify": {
+      "name": "Notificar",
+      "description": "Entrega un mensaje por los canales indicados. Llamarlo de nuevo con el mismo ID reemplaza el mensaje. Devuelve el ID, el estado y, por canal, el número de entregas enviadas, retenidas, omitidas y fallidas.",
+      "fields": {
+        "message": {
+          "name": "Mensaje",
+          "description": "Texto del aviso, de 1 a 1000 caracteres."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
+        },
+        "title": {
+          "name": "Título",
+          "description": "Hasta 100 caracteres. Predeterminado: sin título."
+        },
+        "severity": {
+          "name": "Gravedad",
+          "description": "Define el color, el icono predeterminado y el orden. Predeterminado: Advertencia."
+        },
+        "icon": {
+          "name": "Icono",
+          "description": "Sustituye el icono predeterminado de la gravedad. Predeterminado: el icono de la gravedad."
+        },
+        "timeout": {
+          "name": "Tiempo de caducidad",
+          "description": "El aviso desaparece tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
+        },
+        "dismissible": {
+          "name": "Se puede cerrar",
+          "description": "Muestra un botón de cierre en el aviso. Predeterminado: activado."
+        },
+        "dismiss_scope": {
+          "name": "Ámbito de cierre",
+          "description": "Por usuario: cerrarlo lo oculta solo para ese usuario. Todos: cerrarlo lo elimina para todos. Predeterminado: el ajuste de las opciones de la integración (por usuario salvo cambios)."
+        },
+        "snoozable": {
+          "name": "Se puede posponer",
+          "description": "Permite ocultar el aviso un tiempo; después vuelve. Es un error junto con «Se puede cerrar» desactivado. Predeterminado: el ajuste de las opciones de la integración (desactivado salvo cambios)."
+        },
+        "snooze_scope": {
+          "name": "Ámbito de posposición",
+          "description": "Por usuario: posponerlo lo oculta solo para ese usuario. Todos: se oculta para todos. Predeterminado: el ajuste de las opciones de la integración (por usuario salvo cambios)."
+        },
+        "snooze_options": {
+          "name": "Opciones de posposición",
+          "description": "Hasta 6 duraciones de posposición, de 1 minuto a 7 días.\n\nEjemplo:\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "actions": {
+          "name": "Botones",
+          "description": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action.\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Etiqueta",
+          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios avisos a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
+        },
+        "condition": {
+          "name": "Condición",
+          "description": "Mostrar el aviso solo mientras una entidad coincida o una plantilla sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+        },
+        "mode": {
+          "name": "Modo",
+          "description": "Una vez: se elimina cuando la condición pasa a falsa. Recurrente: oculto mientras es falsa y visible de nuevo cuando vuelve a ser verdadera. Predeterminado: Una vez."
+        },
+        "wait_for_condition": {
+          "name": "Esperar a la condición",
+          "description": "Activado: un aviso cuya condición es falsa espera hasta que sea verdadera. Desactivado: no se guarda nada y el estado de la respuesta es condition_false. Predeterminado: activado. Se ignora sin condición."
+        },
+        "tap_action": {
+          "name": "Acción al tocar",
+          "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Texto hablado",
+          "description": "Texto usado para la voz en lugar del título y el mensaje. Por defecto: el título si existe, si no el mensaje."
+        },
+        "channels": {
+          "name": "Canales",
+          "description": "Dónde se entrega el mensaje: banner, push, popup, speak, persistent.\n\nEjemplo:\n```yaml\n- banner\n- push\n```"
+        },
+        "to": {
+          "name": "Destinatarios",
+          "description": "Quién lo recibe, por canal: una audiencia o una lista de destinatarios, nunca ambos. Push y popup necesitan un destino; la voz solo admite destinatarios.\n\nEjemplo:\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
+        },
+        "policy": {
+          "name": "Política",
+          "description": "Nombre de una política, o \"none\" para ningún comportamiento de política. Por defecto: todas las políticas aplicables."
+        }
+      }
+    },
+    "push": {
+      "name": "Push",
+      "description": "Envía una notificación push a la app Companion del destino. Con ID el mensaje se sigue y se borra con él; sin ID se envía una vez.",
+      "fields": {
+        "message": {
+          "name": "Mensaje",
+          "description": "Texto del aviso, de 1 a 1000 caracteres."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
+        },
+        "title": {
+          "name": "Título",
+          "description": "Hasta 100 caracteres. Predeterminado: sin título."
+        },
+        "severity": {
+          "name": "Gravedad",
+          "description": "Define el color, el icono predeterminado y el orden. Predeterminado: Advertencia."
+        },
+        "icon": {
+          "name": "Icono",
+          "description": "Sustituye el icono predeterminado de la gravedad. Predeterminado: el icono de la gravedad."
+        },
+        "timeout": {
+          "name": "Tiempo de caducidad",
+          "description": "El aviso desaparece tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
+        },
+        "actions": {
+          "name": "Botones",
+          "description": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action.\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Etiqueta",
+          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios avisos a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
+        },
+        "tap_action": {
+          "name": "Acción al tocar",
+          "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Texto hablado",
+          "description": "Texto usado para la voz en lugar del título y el mensaje. Por defecto: el título si existe, si no el mensaje."
+        },
+        "recipients": {
+          "name": "Destinatarios",
+          "description": "Personas, teléfonos, altavoces o grupos según el canal. Indique audiencia o destinatarios."
+        },
+        "audience": {
+          "name": "Audiencia",
+          "description": "Nombre de una audiencia. Indique audiencia o destinatarios."
+        }
+      }
+    },
+    "popup": {
+      "name": "Popup",
+      "description": "Muestra una ventana emergente en los paneles del destino. Con ID el mensaje se sigue y se borra con él; sin ID se muestra una vez.",
+      "fields": {
+        "message": {
+          "name": "Mensaje",
+          "description": "Texto del aviso, de 1 a 1000 caracteres."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
+        },
+        "title": {
+          "name": "Título",
+          "description": "Hasta 100 caracteres. Predeterminado: sin título."
+        },
+        "severity": {
+          "name": "Gravedad",
+          "description": "Define el color, el icono predeterminado y el orden. Predeterminado: Advertencia."
+        },
+        "icon": {
+          "name": "Icono",
+          "description": "Sustituye el icono predeterminado de la gravedad. Predeterminado: el icono de la gravedad."
+        },
+        "timeout": {
+          "name": "Tiempo de caducidad",
+          "description": "El aviso desaparece tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
+        },
+        "actions": {
+          "name": "Botones",
+          "description": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action.\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Etiqueta",
+          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios avisos a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
+        },
+        "tap_action": {
+          "name": "Acción al tocar",
+          "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Texto hablado",
+          "description": "Texto usado para la voz en lugar del título y el mensaje. Por defecto: el título si existe, si no el mensaje."
+        },
+        "recipients": {
+          "name": "Destinatarios",
+          "description": "Personas, teléfonos, altavoces o grupos según el canal. Indique audiencia o destinatarios."
+        },
+        "audience": {
+          "name": "Audiencia",
+          "description": "Nombre de una audiencia. Indique audiencia o destinatarios."
+        }
+      }
+    },
+    "speak": {
+      "name": "Hablar",
+      "description": "Dice el mensaje en los altavoces destinatarios. La voz no se puede retirar; borrar el mensaje no lo des-dice.",
+      "fields": {
+        "message": {
+          "name": "Mensaje",
+          "description": "Texto del aviso, de 1 a 1000 caracteres."
+        },
+        "id": {
+          "name": "ID",
+          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
+        },
+        "title": {
+          "name": "Título",
+          "description": "Hasta 100 caracteres. Predeterminado: sin título."
+        },
+        "severity": {
+          "name": "Gravedad",
+          "description": "Define el color, el icono predeterminado y el orden. Predeterminado: Advertencia."
+        },
+        "icon": {
+          "name": "Icono",
+          "description": "Sustituye el icono predeterminado de la gravedad. Predeterminado: el icono de la gravedad."
+        },
+        "timeout": {
+          "name": "Tiempo de caducidad",
+          "description": "El aviso desaparece tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
+        },
+        "actions": {
+          "name": "Botones",
+          "description": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action.\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "tag": {
+          "name": "Etiqueta",
+          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios avisos a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
+        },
+        "tap_action": {
+          "name": "Acción al tocar",
+          "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "tts_message": {
+          "name": "Texto hablado",
+          "description": "Texto usado para la voz en lugar del título y el mensaje. Por defecto: el título si existe, si no el mensaje."
+        },
+        "recipients": {
+          "name": "Destinatarios",
+          "description": "Personas, teléfonos, altavoces o grupos según el canal. Indique audiencia o destinatarios."
+        }
+      }
     }
   },
   "config_subentries": {

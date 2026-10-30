@@ -150,6 +150,27 @@ def ws_admin_clear(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
     connection.send_result(msg["id"])
 
 
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/hub_trace",
+        vol.Optional("message_id"): str,
+        vol.Optional("limit"): vol.All(int, vol.Range(min=1, max=1000)),
+    }
+)
+@require_admin
+@callback
+def ws_hub_trace(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    if manager.hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    connection.send_result(
+        msg["id"],
+        {"entries": manager.hub.trace.entries(msg.get("message_id"), msg.get("limit"))},
+    )
+
+
 @callback
 def async_setup_websocket(hass: HomeAssistant) -> None:
     for command in (
@@ -160,5 +181,6 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_unsnooze,
         ws_action,
         ws_admin_clear,
+        ws_hub_trace,
     ):
         async_register_command(hass, command)

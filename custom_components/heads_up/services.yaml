@@ -1,103 +1,197 @@
 create_banner:
   fields:
-    message:
+    message: &id003
       required: true
-      example: "The bedroom window is open."
+      example: The bedroom window is open.
       selector:
         text:
           multiline: true
-    id:
-      example: "window_bedroom"
+    id: &id004
+      example: window_bedroom
       selector:
-        text:
-    title:
-      example: "Window open"
+        text: null
+    title: &id005
+      example: Window open
       selector:
-        text:
-    severity:
+        text: null
+    severity: &id006
       default: warning
       selector:
         select:
           options:
-            - success
-            - info
-            - warning
-            - critical
+          - success
+          - info
+          - warning
+          - critical
           translation_key: severity
-    icon:
+    icon: &id007
       selector:
-        icon:
-    timeout:
+        icon: null
+    timeout: &id008
       selector:
         duration:
           enable_day: true
-    dismissible:
+    dismissible: &id009
       default: true
       selector:
-        boolean:
-    dismiss_scope:
+        boolean: null
+    dismiss_scope: &id010
       selector:
         select:
           options:
-            - user
-            - global
+          - user
+          - global
           translation_key: dismiss_scope
-    snoozable:
+    snoozable: &id011
       selector:
-        boolean:
-    snooze_scope:
+        boolean: null
+    snooze_scope: &id012
       selector:
         select:
           options:
-            - user
-            - global
+          - user
+          - global
           translation_key: snooze_scope
-    snooze_options:
+    snooze_options: &id013
       example: '[{"minutes": 15}, {"hours": 1}, {"hours": 4}]'
       selector:
-        object:
-    actions:
+        object: null
+    actions: &id014
       example: '[{"key": "ack", "label": "Got it", "dismiss": true}]'
       selector:
-        object:
-    tag:
-      example: "laundry"
+        object: null
+    tag: &id015
+      example: laundry
       selector:
-        text:
-    condition:
-      example: '{"entity_id": "binary_sensor.window", "state": "on", "for": {"minutes": 5}}'
+        text: null
+    condition: &id016
+      example: '{"entity_id": "binary_sensor.window", "state": "on", "for": {"minutes":
+        5}}'
       selector:
-        object:
-    mode:
+        object: null
+    mode: &id017
       selector:
         select:
           options:
-            - once
-            - recurring
+          - once
+          - recurring
           translation_key: mode
-    wait_for_condition:
+    wait_for_condition: &id018
       default: true
       selector:
-        boolean:
+        boolean: null
     people:
       selector:
         entity:
           domain: person
           multiple: true
-    tap_action:
+    tap_action: &id019
       example: '{"action": "navigate", "navigation_path": "/lovelace/0"}'
       selector:
-        object:
-
+        object: null
 clear_banner:
   fields:
-    id:
-      example: "window_bedroom"
+    id: &id001
+      example: window_bedroom
       selector:
-        text:
-    tag:
-      example: "laundry"
+        text: null
+    tag: &id002
+      example: laundry
       selector:
-        text:
-
-clear_all:
+        text: null
+clear_all: null
+clear:
+  fields:
+    id: *id001
+    tag: *id002
+notify:
+  fields:
+    message: *id003
+    id: *id004
+    title: *id005
+    severity: *id006
+    icon: *id007
+    timeout: *id008
+    dismissible: *id009
+    dismiss_scope: *id010
+    snoozable: *id011
+    snooze_scope: *id012
+    snooze_options: *id013
+    actions: *id014
+    tag: *id015
+    condition: *id016
+    mode: *id017
+    wait_for_condition: *id018
+    tap_action: *id019
+    tts_message: &id020
+      example: The garage door is open.
+      selector:
+        text: {}
+    channels:
+      required: true
+      example: '["banner", "push"]'
+      selector:
+        select:
+          options:
+          - banner
+          - push
+          - popup
+          - speak
+          - persistent
+          multiple: true
+          translation_key: channel
+    to:
+      example: '{"push": {"audience": "At home"}}'
+      selector:
+        object: {}
+    policy:
+      example: none
+      selector:
+        text: {}
+push:
+  fields:
+    message: *id003
+    id: *id004
+    title: *id005
+    severity: *id006
+    icon: *id007
+    timeout: *id008
+    actions: *id014
+    tag: *id015
+    tap_action: *id019
+    tts_message: *id020
+    recipients: &id021
+      example: '["person.anna"]'
+      selector:
+        object: {}
+    audience: &id022
+      example: At home
+      selector:
+        text: {}
+popup:
+  fields:
+    message: *id003
+    id: *id004
+    title: *id005
+    severity: *id006
+    icon: *id007
+    timeout: *id008
+    actions: *id014
+    tag: *id015
+    tap_action: *id019
+    tts_message: *id020
+    recipients: *id021
+    audience: *id022
+speak:
+  fields:
+    message: *id003
+    id: *id004
+    title: *id005
+    severity: *id006
+    icon: *id007
+    timeout: *id008
+    actions: *id014
+    tag: *id015
+    tap_action: *id019
+    tts_message: *id020
+    recipients: *id021

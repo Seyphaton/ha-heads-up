@@ -54,6 +54,7 @@ from .const import (
     OPT_DEFAULT_SNOOZE_SCOPE,
     OPT_DEFAULT_TIMEOUT,
     OPT_EVICT,
+    OPT_HUB_ENABLED,
     OPT_MAX_BANNERS,
     RULE_SUBENTRY,
     SEVERITIES,
@@ -108,6 +109,8 @@ class HeadsUpOptionsFlow(OptionsFlow):
             seconds = int(cv.time_period_dict(duration).total_seconds()) if duration else 0
             return self.async_create_entry(
                 data={
+                    **self.config_entry.options,  # keeps the install token and the hub limits
+                    OPT_HUB_ENABLED: user_input.get(OPT_HUB_ENABLED, True),
                     OPT_MAX_BANNERS: int(user_input[OPT_MAX_BANNERS]),
                     OPT_EVICT: user_input[OPT_EVICT],
                     OPT_DEFAULT_DISMISS_SCOPE: user_input[OPT_DEFAULT_DISMISS_SCOPE],
@@ -135,6 +138,7 @@ class HeadsUpOptionsFlow(OptionsFlow):
         )
         schema = vol.Schema(
             {
+                vol.Required(OPT_HUB_ENABLED, default=current[OPT_HUB_ENABLED]): BooleanSelector(),
                 vol.Required(OPT_MAX_BANNERS, default=current[OPT_MAX_BANNERS]): NumberSelector(
                     NumberSelectorConfig(min=1, max=200, step=1, mode=NumberSelectorMode.BOX)
                 ),

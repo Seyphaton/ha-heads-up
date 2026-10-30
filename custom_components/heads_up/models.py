@@ -8,7 +8,7 @@ from typing import Any
 
 from homeassistant.util import dt as dt_util
 
-from .const import DEFAULT_ICONS, GLOBAL_SNOOZE_KEY
+from .const import CHANNEL_BANNER, DEFAULT_ICONS, GLOBAL_SNOOZE_KEY, SOURCE_ACTION
 
 
 def _parse(value: str | None) -> datetime | None:
@@ -45,6 +45,20 @@ class Banner:
     snooze_options: list[int] = field(default_factory=list)
     # Snooze end by user ID, or GLOBAL_SNOOZE_KEY for everyone (D-069).
     snoozed_until: dict[str, datetime] = field(default_factory=dict)
+    # Hub fields (DESIGN §23). The defaults are what `create_banner` produces, so stored banners
+    # of earlier versions load unchanged.
+    channels: list[str] = field(default_factory=lambda: [CHANNEL_BANNER])
+    # Channel to {"audience": name} or {"recipients": [...]} (D-098).
+    targets: dict[str, dict[str, Any]] = field(default_factory=dict)
+    policy: str | None = None
+    tts_message: str | None = None
+    acknowledged_by: list[str] = field(default_factory=list)
+    source: str = SOURCE_ACTION
+
+    @property
+    def on_card(self) -> bool:
+        """A message without the banner channel exists as a record but is not shown."""
+        return CHANNEL_BANNER in self.channels
 
     @property
     def active(self) -> bool:
@@ -95,6 +109,12 @@ class Banner:
             "ever_met",
             "snoozed_until",
             "snooze_scope",
+            "channels",
+            "targets",
+            "policy",
+            "tts_message",
+            "acknowledged_by",
+            "source",
         ):
             del data[key]
         snoozed_until = self.snoozed_for(user_id)

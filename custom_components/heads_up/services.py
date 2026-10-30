@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import secrets
+from collections.abc import Callable, Coroutine
 from datetime import timedelta
 from typing import Any
 
@@ -10,10 +12,14 @@ from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, Supp
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import VolSchemaType
+from homeassistant.util import dt as dt_util
 from jinja2 import Environment, TemplateSyntaxError
 
 from .conditions import DEFAULT_OPERATOR, NO_STATE_OPERATORS, OPERATORS, check_state
 from .const import (
+    CHANNEL_BANNER,
+    CHANNELS,
+    DEFAULT_SEVERITY,
     DISMISS_SCOPES,
     DOMAIN,
     ID_PATTERN,
@@ -27,10 +33,14 @@ from .const import (
     MAX_TITLE,
     MIN_SNOOZE_SECONDS,
     MODES,
+    POLICY_NONE,
     SEVERITIES,
     SNOOZE_SCOPES,
+    SOURCE_ACTION,
 )
+from .hub.engine import HubEngine, Planned
 from .manager import BannerManager
+from .models import Banner
 
 SLUG = vol.All(
     cv.string,
@@ -156,44 +166,127 @@ CONDITION_SCHEMA = vol.All(
     _check_condition,
 )
 
-CREATE_SCHEMA = vol.All(
+NAME = vol.All(cv.string, vol.Length(min=1, max=100))  # audience, recipient and policy names
+
+
+def _check_notify(data: dict[str, Any]) -> dict[str, Any]:
+    """Shape of channels and targets (DESIGN §23.5). Names are checked in the handler."""
+    channels = data["channels"]
+    if len(set(channels)) != len(channels):
+        raise vol.Invalid("channels must not repeat", path=["channels"])
+    to = data.get("to", {})
+    for channel, target in to.items():
+        if channel not in channels:
+            raise vol.Invalid(f"to.{channel} names a channel that is not in channels", path=["to"])
+        if channel == "persistent":
+            raise vol.Invalid("a persistent notification takes no target", path=["to", channel])
+        if ("audience" in target) == ("recipients" in target):
+            raise vol.Invalid(
+                "give either audience or recipients, not both and not neither",
+                path=["to", channel],
+            )
+        if channel == "speak" and "audience" in target:
+            raise vol.Invalid("speech takes recipients, not an audience", path=["to", channel])
+    for channel in ("push", "popup", "speak"):
+        if channel in channels and channel not in to:
+            raise vol.Invalid(f"{channel} needs a target in to.{channel}", path=["to"])
+    return data
+
+
+def _exclusive_target(data: dict[str, Any]) -> dict[str, Any]:
+    if "audience" in data and "recipients" in data:
+        raise vol.Invalid("give either audience or recipients, not both", path=["recipients"])
+    return data
+
+
+_CONTENT_FIELDS: dict[Any, Any] = {
+    vol.Required("message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
+    vol.Optional("title"): vol.All(cv.string, vol.Length(max=MAX_TITLE)),
+    vol.Optional("icon"): cv.icon,
+}
+_CREATE_FIELDS: dict[Any, Any] = {
+    vol.Optional("id"): SLUG,
+    vol.Required("message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
+    vol.Optional("title"): vol.All(cv.string, vol.Length(max=MAX_TITLE)),
+    vol.Optional("severity"): vol.In(SEVERITIES),
+    vol.Optional("icon"): cv.icon,
+    vol.Optional("timeout"): vol.All(cv.time_period, _timeout),
+    vol.Optional("dismissible"): cv.boolean,
+    vol.Optional("dismiss_scope"): vol.In(DISMISS_SCOPES),
+    vol.Optional("snoozable"): cv.boolean,
+    vol.Optional("snooze_scope"): vol.In(SNOOZE_SCOPES),
+    vol.Optional("snooze_options"): vol.All(
+        cv.ensure_list, [vol.All(cv.time_period, _snooze_seconds)], _snooze_options
+    ),
+    vol.Optional("tag"): SLUG,
+    # Passed to the card unchanged (D-015).
+    vol.Optional("condition"): CONDITION_SCHEMA,
+    vol.Optional("mode"): vol.In(MODES),
+    vol.Optional("wait_for_condition"): cv.boolean,
+    vol.Optional("people"): vol.All(cv.ensure_list, [cv.entity_domain("person")]),
+    vol.Optional("actions"): ACTIONS_SCHEMA,
+    vol.Optional("tap_action"): TAP_ACTION_SCHEMA,
+}
+CREATE_SCHEMA = vol.All(vol.Schema(_CREATE_FIELDS), _check_create)
+
+# `notify` takes the lifecycle of `create_banner` (D-087). Banner recipients replace `people`.
+_NOTIFY_FIELDS = {k: v for k, v in _CREATE_FIELDS.items() if str(k) != "people"}
+TARGET_SCHEMA = vol.Schema(
+    {
+        vol.Optional("audience"): NAME,
+        vol.Optional("recipients"): vol.All(cv.ensure_list, [cv.string]),
+    }
+)
+NOTIFY_SCHEMA = vol.All(
     vol.Schema(
         {
-            vol.Optional("id"): SLUG,
-            vol.Required("message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
-            vol.Optional("title"): vol.All(cv.string, vol.Length(max=MAX_TITLE)),
-            vol.Optional("severity"): vol.In(SEVERITIES),
-            vol.Optional("icon"): cv.icon,
-            vol.Optional("timeout"): vol.All(cv.time_period, _timeout),
-            vol.Optional("dismissible"): cv.boolean,
-            vol.Optional("dismiss_scope"): vol.In(DISMISS_SCOPES),
-            vol.Optional("snoozable"): cv.boolean,
-            vol.Optional("snooze_scope"): vol.In(SNOOZE_SCOPES),
-            vol.Optional("snooze_options"): vol.All(
-                cv.ensure_list, [vol.All(cv.time_period, _snooze_seconds)], _snooze_options
+            **_NOTIFY_FIELDS,
+            vol.Optional("tts_message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
+            vol.Required("channels"): vol.All(
+                cv.ensure_list, [vol.In(CHANNELS)], vol.Length(min=1)
             ),
-            vol.Optional("tag"): SLUG,
-            # Passed to the card unchanged (D-015).
-            vol.Optional("condition"): CONDITION_SCHEMA,
-            vol.Optional("mode"): vol.In(MODES),
-            vol.Optional("wait_for_condition"): cv.boolean,
-            vol.Optional("people"): vol.All(cv.ensure_list, [cv.entity_domain("person")]),
-            vol.Optional("actions"): ACTIONS_SCHEMA,
-            vol.Optional("tap_action"): TAP_ACTION_SCHEMA,
+            vol.Optional("to"): {vol.In(CHANNELS): TARGET_SCHEMA},
+            vol.Optional("policy"): vol.All(cv.string, vol.Length(min=1)),
         }
     ),
     _check_create,
+    _check_notify,
 )
+
+
+# Shortcuts: one fixed channel, a target, no policies (D-083).
+def _shortcut_schema(channel: str) -> VolSchemaType:
+    fields: dict[Any, Any] = {
+        vol.Optional("id"): SLUG,
+        **_CONTENT_FIELDS,
+        vol.Optional("severity"): vol.In(SEVERITIES),
+        vol.Optional("tts_message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
+        vol.Optional("tag"): SLUG,
+        vol.Optional("timeout"): vol.All(cv.time_period, _timeout),
+        vol.Optional("actions"): ACTIONS_SCHEMA,
+        vol.Optional("tap_action"): TAP_ACTION_SCHEMA,
+        vol.Optional("recipients"): vol.All(cv.ensure_list, [cv.string]),
+    }
+    if channel != "speak":  # speech takes speakers, not an audience (D-098)
+        fields[vol.Optional("audience")] = NAME
+    needs = ("recipients",) if channel == "speak" else ("audience", "recipients")
+    return vol.All(vol.Schema(fields), cv.has_at_least_one_key(*needs), _exclusive_target)
+
+
 CLEAR_SCHEMA = vol.All(
     vol.Schema({vol.Optional("id"): SLUG, vol.Optional("tag"): SLUG}),
     cv.has_at_least_one_key("id", "tag"),
 )
 CLEAR_ALL_SCHEMA = vol.Schema({})
+SHORTCUT_CHANNELS = ("push", "popup", "speak")
 
 SCHEMAS: dict[str, VolSchemaType] = {
     "create_banner": CREATE_SCHEMA,
     "clear_banner": CLEAR_SCHEMA,
     "clear_all": CLEAR_ALL_SCHEMA,
+    "clear": CLEAR_SCHEMA,
+    "notify": NOTIFY_SCHEMA,
+    **{channel: _shortcut_schema(channel) for channel in SHORTCUT_CHANNELS},
 }
 
 
@@ -217,6 +310,116 @@ async def _clear_all(call: ServiceCall) -> ServiceResponse:
     return {"cleared": _manager(call.hass).clear_all()}
 
 
+async def _clear_everywhere(call: ServiceCall) -> ServiceResponse:
+    # Removes any message, also one without the banner channel; clear_banner skips those (D-108).
+    cleared = _manager(call.hass).clear(
+        call.data.get("id"), call.data.get("tag"), all_channels=True
+    )
+    return {"cleared": cleared}
+
+
+def _hub_off() -> ServiceValidationError:
+    return ServiceValidationError(translation_domain=DOMAIN, translation_key="hub_off")
+
+
+def _unknown(key: str, name: str, valid: list[str]) -> ServiceValidationError:
+    shown = ", ".join(valid[:20]) + (" ..." if len(valid) > 20 else "")
+    return ServiceValidationError(
+        translation_domain=DOMAIN,
+        translation_key=key,
+        translation_placeholders={"name": name, "valid": shown or "none exist yet"},
+    )
+
+
+def _check_names(hub: HubEngine, to: dict[str, dict[str, Any]], policy: str | None) -> None:
+    for channel, target in to.items():
+        if (
+            audience := target.get("audience")
+        ) is not None and audience not in hub.audiences.names():
+            raise _unknown("unknown_audience", audience, hub.audiences.names())
+        known = hub.recipients.known(channel)
+        for recipient in target.get("recipients", []):
+            if recipient not in known:
+                raise _unknown("unknown_recipient", recipient, known)
+    if policy not in (None, POLICY_NONE) and policy not in hub.policies.names():
+        raise _unknown("unknown_policy", str(policy), hub.policies.names())
+
+
+def _response(result: dict[str, Any], planned: list[Planned] | None) -> dict[str, Any]:
+    counts = HubEngine.counts(planned) if planned is not None else {}
+    return {**result, "channels": counts}
+
+
+async def _notify(call: ServiceCall) -> ServiceResponse:
+    manager = _manager(call.hass)
+    data = dict(call.data)
+    to: dict[str, dict[str, Any]] = data.pop("to", {})
+    hub = manager.hub
+    if hub is None:
+        # Hub switched off: `notify` is `create_banner` with extra names (D-107).
+        if data["channels"] != [CHANNEL_BANNER] or data.get("policy") not in (None, POLICY_NONE):
+            raise _hub_off()
+        if any("audience" in t for t in to.values()):
+            raise _hub_off()
+    else:
+        _check_names(hub, to, data.get("policy"))
+    if recipients := to.get(CHANNEL_BANNER, {}).get("recipients"):
+        data["people"] = recipients  # the card's own targeting (D-008)
+    data["targets"] = to
+    result = manager.create(data)
+    banner = manager.banners.get(result["id"])
+    if banner is None:
+        return _response(result, [])
+    if hub is None:
+        return _response(result, _banner_only(banner))
+    return _response(result, hub.plan(banner, waiting=result["status"] == "waiting"))
+
+
+def _banner_only(banner: Banner) -> list[Planned]:
+    from .hub.channels import Result
+
+    result = Result.SENT if banner.active else Result.HELD
+    return [Planned(CHANNEL_BANNER, "", result, None if banner.active else "waiting_for_condition")]
+
+
+def _shortcut(channel: str) -> Callable[[ServiceCall], Coroutine[Any, Any, ServiceResponse]]:
+    async def handler(call: ServiceCall) -> ServiceResponse:
+        manager = _manager(call.hass)
+        if (hub := manager.hub) is None:
+            raise _hub_off()
+        data = dict(call.data)
+        target: dict[str, Any] = {k: data.pop(k) for k in ("audience", "recipients") if k in data}
+        _check_names(hub, {channel: target}, None)
+        if "id" in data:
+            data.update(channels=[channel], targets={channel: target}, source=SOURCE_ACTION)
+            result = manager.create(data)
+            banner = manager.banners[result["id"]]
+            return _response(result, hub.plan(banner))
+        # No id: deliver once and keep no record, so a later clear cannot take it back.
+        now = dt_util.utcnow()
+        message = Banner(
+            id=f"hu_{secrets.token_hex(5)}",
+            message=data["message"],
+            severity=data.get("severity", DEFAULT_SEVERITY),
+            dismissible=False,
+            dismiss_scope="user",
+            created_at=now,
+            updated_at=now,
+            title=data.get("title"),
+            icon=data.get("icon"),
+            tag=data.get("tag"),
+            tap_action=data.get("tap_action"),
+            actions=[dict(a) for a in data.get("actions", [])],
+            tts_message=data.get("tts_message"),
+            channels=[channel],
+            targets={channel: target},
+        )
+        planned = await hub.send_once(message)
+        return _response({"id": message.id, "status": "sent_once"}, planned)
+
+    return handler
+
+
 def async_setup_services(hass: HomeAssistant) -> None:
     # Registered in async_setup so calls fail with not_loaded instead of "unknown action"
     # while the entry is not loaded. SupportsResponse: HA_API_NOTES N-3.
@@ -224,6 +427,9 @@ def async_setup_services(hass: HomeAssistant) -> None:
         ("create_banner", _create),
         ("clear_banner", _clear),
         ("clear_all", _clear_all),
+        ("clear", _clear_everywhere),
+        ("notify", _notify),
+        *((c, _shortcut(c)) for c in SHORTCUT_CHANNELS),
     ):
         hass.services.async_register(
             DOMAIN, name, handler, schema=SCHEMAS[name], supports_response=SupportsResponse.OPTIONAL
