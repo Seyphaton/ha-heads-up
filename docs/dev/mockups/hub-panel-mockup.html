@@ -49,6 +49,10 @@ pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; 
 .timeline .when { font-weight: 600; }
 .meter { height: 8px; background: var(--chip); border-radius: 8px; overflow: hidden; margin-top: 6px; }
 .meter > div { height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+.tile { text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; cursor: pointer; font: inherit; color: var(--text); }
+.tile:hover, .tile[aria-expanded="true"] { border-color: var(--accent); }
+.tile .big { font-size: 34px; font-weight: 700; line-height: 1.1; }
+.tile .sub { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
 .grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
 .level { border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
 .level b { display: block; margin-bottom: 4px; }
@@ -143,9 +147,11 @@ data:
 </section>
 
 <section id="tab-hub" hidden>
-  <div class="card"><h2>Overview</h2><div id="ov-counts"></div><div class="row" style="margin-top:10px"><button class="primary" data-go="wiz">Run the setup wizard</button><button class="ghost" data-go="prev">Test send</button></div></div>
-  <div class="card"><h2>Policies in words</h2><div id="ov-pols"></div></div>
+  <div class="grid" id="ov-tiles"></div>
+  <div id="ov-detail"></div>
   <div class="card"><h2>Needs attention</h2><div id="ov-warn"></div></div>
+  <div class="card"><h2>Last actions</h2><div id="ov-log"></div><div class="row" style="margin-top:10px"><button class="ghost" data-go="trace">Open all messages</button></div></div>
+  <p class="note">First time here? <a href="#" data-go="wiz">Run the setup wizard</a>.</p>
 </section>
 
 <section id="tab-aud" hidden>
@@ -288,7 +294,7 @@ const sevs = ["success", "info", "warning", "critical"];
 const people = { Anna: { home: true }, Ben: { home: true }, Guest: { home: false } };
 const zoneOf = (n) => (people[n].home ? "home" : "work");
 const profiles = {
-  Anna: { devices: [{ name: "Anna's phone", src: "detected" }, { name: "Anna's tablet", src: "manual" }], primary: "Anna's phone", channels: ["banner", "push", "popup"] },
+  Anna: { devices: [{ name: "Anna's phone", src: "detected" }, { name: "Anna's tablet", src: "manual", missing: true }], primary: "Anna's phone", channels: ["banner", "push", "popup"] },
   Ben: { devices: [{ name: "Ben's phone", src: "detected" }], primary: "Ben's phone", channels: ["banner", "push", "popup"] },
   Guest: { devices: [], primary: "", channels: ["banner", "popup"] },
 };
@@ -539,7 +545,7 @@ function typeFields(q) {
     <p class="note">Nothing is sent individually while a message waits, on any channel. The summary shows the count and the titles, marks resolved ones and cuts at 10 ("and N more"). Nothing is sent if nothing was collected.</p>
     <label><input type="checkbox" ${q.inclCrit ? "checked" : ""} data-f="inclCrit"> Include critical messages</label>${q.inclCrit ? '<p class="note" style="color:var(--warn)">Critical messages will not be delivered individually. Check this is what you want.</p>' : ""}`;
 }
-function polProblems(q) {
+function polProblems(q, idx = cur) {
   const out = [];
   if (!q.name.trim()) out.push("Name is required.");
   if (["escalation", "fallback"].includes(q.type) && !q.channels.length) out.push("Pick at least one channel.");
@@ -547,7 +553,7 @@ function polProblems(q) {
   if (q.type === "reminder" && (!(+q.every > 0) || !(+q.max > 0))) out.push("Every and at most must be more than 0.");
   if (q.type === "summarize" && q.summaryMode === "every" && !(+q.summaryEvery > 0)) out.push("Minutes must be more than 0.");
   const key = (x) => [x.type, x.sev.slice().sort().join(), x.tags.trim(), x.type === "escalation" ? x.after : x.type === "quiet" ? x.from + x.to : ""].join("|");
-  pols.forEach((o, i) => { if (i !== cur && key(o) === key(q)) out.push(`Refused: "${o.name}" is the same type with the same applies to and trigger.`); });
+  pols.forEach((o, i) => { if (i !== idx && key(o) === key(q)) out.push(`Refused: "${o.name}" is the same type with the same applies to and trigger.`); });
   return out;
 }
 function polYaml(q) {
@@ -631,7 +637,7 @@ function renderRec() {
   $("prof-list").innerHTML = Object.keys(profiles).map((n) => {
     const p = profiles[n];
     return `<div class="level" style="margin-bottom:10px"><b>${esc(n)}</b>${p.devices.length ? "" : ' <span class="badge warn">no usable device: skipped on push</span>'}
-      <table style="margin-top:6px">${p.devices.map((d, i) => `<tr><td>${esc(d.name)}</td><td><span class="badge">${d.src}</span></td><td><label style="margin:0"><input type="radio" name="prim-${n}" data-prim="${n}:${esc(d.name)}" ${p.primary === d.name ? "checked" : ""}> primary</label></td><td><button class="ghost" data-rd="${n}:${i}">Remove</button></td></tr>`).join("") || '<tr><td class="note">No devices.</td></tr>'}</table>
+      <table style="margin-top:6px">${p.devices.map((d, i) => `<tr><td>${esc(d.name)}</td><td><span class="badge">${d.src}</span>${d.missing ? ' <span class="badge crit">service not found</span>' : ''}</td><td><label style="margin:0"><input type="radio" name="prim-${n}" data-prim="${n}:${esc(d.name)}" ${p.primary === d.name ? "checked" : ""}> primary</label></td><td><button class="ghost" data-rd="${n}:${i}">Remove</button></td></tr>`).join("") || '<tr><td class="note">No devices.</td></tr>'}</table>
       <div class="row" style="margin-top:6px"><input type="text" placeholder="Add a device by name" data-nd="${n}" style="max-width:260px"><button class="ghost" data-ad="${n}">Add</button></div>
       <label>Accepts</label>${chips(["banner", "push", "popup"], p.channels, `data-pc="${n}" data-ch2`)}</div>`;
   }).join("");
@@ -652,13 +658,14 @@ $("grp-new").onclick = () => { groups.push({ name: "New group", members: [] }); 
 
 // ---------- Watch rules (read-only) ----------
 const rules = [
-  { name: "Freezer warm", when: "sensor.freezer_temperature above -10 for 10 min", message: "Freezer is too warm", severity: "warning", tag: "kitchen", enabled: true },
-  { name: "Window open", when: "binary_sensor.window is on", message: "Window is open", severity: "info", tag: "", enabled: true },
+  { name: "Freezer warm", when: "sensor.freezer_temperature above -10 for 10 min", message: "Freezer is too warm", severity: "warning", tag: "kitchen", enabled: true, showing: true, entityOk: false },
+  { name: "Window open", when: "binary_sensor.window is on", message: "Window is open", severity: "info", tag: "", enabled: true, showing: false, entityOk: true },
+  { name: "Garage door", when: "cover.garage_door is open for 15 min", message: "Garage door is open", severity: "warning", tag: "", enabled: false, showing: false, entityOk: true },
 ];
 function renderRules() {
-  $("rul-list").innerHTML = '<table><tr><th>Name</th><th>When</th><th>Message</th><th>Severity</th><th>Policies that apply</th></tr>' + rules.map((r) => {
+  $("rul-list").innerHTML = '<table><tr><th>Name</th><th>State</th><th>When</th><th>Message</th><th>Severity</th><th>Policies that apply</th></tr>' + rules.map((r) => {
     const A = applicable(r.severity, "rule", "all that apply").map((q) => q.name);
-    return `<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.when)}</td><td>${esc(r.message)}</td><td>${r.severity}</td><td>${esc(A.join(", ") || "none")}</td></tr>`;
+    return `<tr style="${r.enabled ? '' : 'opacity:.5'}"><td><b>${esc(r.name)}</b></td><td><span class="badge ${r.enabled ? (r.showing ? 'warn' : 'ok') : ''}">${r.enabled ? (r.showing ? 'showing' : 'enabled') : 'disabled'}</span></td><td>${esc(r.when)}</td><td>${esc(r.message)}</td><td>${r.severity}</td><td>${esc(A.join(", ") || "none")}</td></tr>`;
   }).join("") + "</table>";
 }
 
@@ -731,15 +738,45 @@ function renderWizard() {
 }
 
 // ---------- Overview ----------
+const activeMsgs = [
+  { title: "Water leak", sev: "critical", kind: "escalating", text: "Escalation ongoing: Water escalation sends push and speech in 3 min unless acknowledged." },
+  { title: "Window open", sev: "warning", kind: "reminding", text: "Reminder 1 of 3 sent; next in 20 min." },
+  { title: "Freezer is too warm", sev: "warning", kind: "snoozed", text: "From the watch rule Freezer warm; snoozed by Anna until 21:30." },
+  { title: "Washer done", sev: "info", kind: "summary", text: "Held for the Evening summary at 20:00 (all channels wait)." },
+];
+const kindLabel = { escalating: "escalating", reminding: "reminding", snoozed: "snoozed", summary: "in a summary" };
+const logEntries = [
+  ["21:42", "Water leak: acknowledged by Ben, escalation stopped", "ok"],
+  ["21:37", "Water leak: escalation sent (push to Admins)", "warn"],
+  ["21:32", "Water leak created (critical): banner, push to Everyone, popup", ""],
+  ["20:00", "Evening summary sent: 3 messages, push to Everyone", "ok"],
+  ["19:12", "Window open: reminder 1 of 3 sent", ""],
+  ["18:55", "Guest: push skipped, no usable device", "warn"],
+  ["18:40", "Doorbell: expired", ""],
+  ["18:12", "Freezer is too warm: snoozed by Anna for 1 h", ""],
+];
+let ovOpen = null;
 function renderOverview() {
-  const warn = [];
-  Object.keys(profiles).forEach((n) => { if (!profiles[n].devices.length) warn.push(`${n} has no usable device: push is skipped for them. <a href="#" data-go="rec">Fix in Recipients</a>`); });
-  if (!settings.enabled) warn.push('The hub is switched off: only banners are shown. <a href="#" data-go="set">Settings</a>');
-  const crit = pols.filter((q) => q.enabled && q.type === "escalation" && (!q.sev.length || q.sev.includes("critical")));
-  if (!crit.length) warn.push("No escalation policy covers critical messages.");
-  $("ov-counts").innerHTML = `<table><tr><td>Audiences</td><td><b>${audDefs.length}</b> (${audDefs.filter((a) => a.kind !== "builtin").length} custom)</td></tr><tr><td>Recipient profiles</td><td><b>${Object.keys(profiles).length}</b></td></tr><tr><td>Recipient groups</td><td><b>${groups.length}</b></td></tr><tr><td>Policies</td><td><b>${pols.length}</b> (${pols.filter((q) => q.enabled).length} enabled)</td></tr><tr><td>Watch rules</td><td><b>${rules.length}</b></td></tr><tr><td>Hub</td><td><span class="badge ${settings.enabled ? "ok" : "warn"}">${settings.enabled ? "on" : "off"}</span></td></tr></table>`;
-  $("ov-pols").innerHTML = pols.map((q) => `<p class="note" style="${q.enabled ? "" : "opacity:.5"}"><b>${esc(q.name)}</b> (${esc(appliesText(q))}): ${esc(line(q))}</p>`).join("");
-  $("ov-warn").innerHTML = warn.length ? '<ul class="plain">' + warn.map((w) => `<li>${w}</li>`).join("") + "</ul>" : '<p class="note"><span class="badge ok">ok</span> Nothing needs attention.</p>';
+  const kinds = {}; activeMsgs.forEach((m) => { kinds[m.kind] = (kinds[m.kind] || 0) + 1; });
+  const enabledR = rules.filter((r) => r.enabled).length, showingR = rules.filter((r) => r.enabled && r.showing).length;
+  $("ov-tiles").innerHTML = `<button class="tile" id="tile-active" aria-expanded="${ovOpen === "active"}" title="Click or double-click for details"><div class="note">Active notifications</div><div class="big">${activeMsgs.length}</div><div class="sub">${Object.keys(kinds).map((k) => `<span class="badge ${k === "escalating" ? "crit" : "warn"}">${kinds[k]} ${kindLabel[k]}</span>`).join("")}</div><div class="note" style="margin-top:6px">Click for details</div></button>
+    <button class="tile" id="tile-rules" aria-expanded="${ovOpen === "rules"}" title="Click or double-click for details"><div class="note">Watch rules</div><div class="big">${enabledR} <span class="note" style="font-size:16px">of ${rules.length} active</span></div><div class="sub"><span class="badge ${rules.length - enabledR ? "warn" : ""}">${rules.length - enabledR} disabled</span><span class="badge ${showingR ? "warn" : "ok"}">${showingR} showing a message now</span></div><div class="note" style="margin-top:6px">Click for details</div></button>`;
+  const open = (k) => { ovOpen = ovOpen === k ? null : k; renderOverview(); };
+  ["tile-active", "tile-rules"].forEach((id) => { const b = $(id); b.onclick = () => open(id === "tile-active" ? "active" : "rules"); b.ondblclick = () => { ovOpen = id === "tile-active" ? "active" : "rules"; renderOverview(); }; });
+  $("ov-detail").innerHTML = ovOpen === "active" ? `<div class="card"><h2>Active notifications</h2><table><tr><th>Message</th><th>Severity</th><th>Status</th></tr>${activeMsgs.map((m) => `<tr><td><b>${esc(m.title)}</b></td><td>${m.sev}</td><td><span class="badge ${m.kind === "escalating" ? "crit" : "warn"}">${kindLabel[m.kind]}</span> ${esc(m.text)}</td></tr>`).join("")}</table></div>`
+    : ovOpen === "rules" ? `<div class="card"><h2>Watch rules</h2><table><tr><th>Rule</th><th>State</th><th>When</th></tr>${rules.map((r) => `<tr style="${r.enabled ? "" : "opacity:.5"}"><td><b>${esc(r.name)}</b></td><td><span class="badge ${r.enabled ? (r.showing ? "warn" : "ok") : ""}">${r.enabled ? (r.showing ? "showing" : "enabled") : "disabled"}</span></td><td>${esc(r.when)}</td></tr>`).join("")}</table><p class="note">Rules are edited in Home Assistant under Devices &amp; services, Heads Up. <a href="#" data-go="rul">Open the list</a>.</p></div>` : "";
+  const items = [];
+  rules.forEach((r) => { if (r.enabled && !r.entityOk) items.push(["crit", `Watch rule "${r.name}": the entity is unavailable, so the rule cannot show its message.`, "rul", "Watch rules"]); });
+  Object.keys(profiles).forEach((n) => { const p = profiles[n]; p.devices.filter((d) => d.missing).forEach((d) => items.push(["crit", `${n}: the notify service for "${d.name}" was not found in Home Assistant.`, "rec", "Recipients"])); if (!p.devices.length) items.push(["warn", `${n} has no usable device: push is skipped for them.`, "rec", "Recipients"]); });
+  groups.forEach((g) => { if (!g.members.length) items.push(["crit", `Recipient group "${g.name}" has no members.`, "rec", "Recipients"]); });
+  pols.forEach((q, i) => {
+    polProblems(q, i).forEach((t) => items.push(["crit", `Policy "${q.name}": ${t}`, "pol", "Policies"]));
+    Object.keys(q.targets).forEach((c) => { const t = q.targets[c]; if (t && t.mode === "aud" && !audiences.includes(t.who)) items.push(["crit", `Policy "${q.name}": the audience "${t.who}" no longer exists.`, "pol", "Policies"]); });
+  });
+  if (!pols.some((q) => q.enabled && q.type === "escalation" && (!q.sev.length || q.sev.includes("critical")))) items.push(["warn", "No escalation policy covers critical messages.", "pol", "Policies"]);
+  if (!settings.enabled) items.push(["warn", "The hub is switched off: only banners are shown.", "set", "Settings"]);
+  $("ov-warn").innerHTML = items.length ? '<table>' + items.map((x) => `<tr><td><span class="badge ${x[0]}">${x[0] === "crit" ? "error" : "warning"}</span></td><td>${esc(x[1])}</td><td><a href="#" data-go="${x[2]}">${x[3]}</a></td></tr>`).join("") + "</table>" : '<p class="note"><span class="badge ok">ok</span> Nothing needs attention.</p>';
+  $("ov-log").innerHTML = '<table>' + logEntries.map((e) => `<tr><td style="white-space:nowrap">${e[0]}</td><td>${esc(e[1])}</td></tr>`).join("") + "</table>";
 }
 
 // ---------- Trace tab ----------
