@@ -7,6 +7,7 @@ Run after `make dev-up` + `make dev-onboard`:
   uv run python dev/smoke.py rules    # watch rule added through the subentry flow
   (restart the container)
   uv run python dev/smoke.py rules_verify
+  uv run python dev/smoke.py stub     # the dev-only stub services record calls (hub work, H0a)
 """
 
 import asyncio
@@ -83,6 +84,26 @@ async def call(s: aiohttp.ClientSession, tok: str, service: str, data: dict[str,
     body = await r.json()
     assert r.status == 200, body
     return body["service_response"]
+
+
+async def call_service(
+    s: aiohttp.ClientSession, tok: str, domain: str, service: str, data: dict[str, Any]
+) -> None:
+    r = await s.post(
+        f"{BASE}/api/services/{domain}/{service}",
+        json=data,
+        headers={"Authorization": f"Bearer {tok}"},
+    )
+    assert r.status == 200, await r.text()
+
+
+async def stub_calls(s: aiohttp.ClientSession, tok: str) -> list[dict[str, Any]]:
+    """Calls recorded by the dev-only stub component (dev/stub_components/hub_stub)."""
+    r = await s.get(
+        f"{BASE}/api/states/sensor.hub_stub_calls", headers={"Authorization": f"Bearer {tok}"}
+    )
+    assert r.status == 200, "the hub_stub component is not loaded (restart the dev container)"
+    return list((await r.json())["attributes"]["calls"])
 
 
 async def sensor(s: aiohttp.ClientSession, tok: str) -> str:
@@ -319,6 +340,45 @@ async def snooze_verify() -> None:
         print("snooze and dismissal survived the restart")
 
 
+async def stub() -> None:
+    """The stub notify services and fake players record their calls with data (H0a)."""
+    async with aiohttp.ClientSession() as s:
+        admin = await token(s, "ADMIN")
+        await call_service(s, admin, "hub_stub", "reset", {})
+        assert await stub_calls(s, admin) == []
+        await call_service(
+            s,
+            admin,
+            "notify",
+            "mobile_app_stub_phone",
+            {
+                "message": "hi",
+                "data": {"tag": "hu-test-1", "actions": [{"action": "a", "title": "A"}]},
+            },
+        )
+        await call_service(
+            s,
+            admin,
+            "media_player",
+            "play_media",
+            {
+                "entity_id": "media_player.hub_stub_kitchen",
+                "media": {"media_content_id": "x", "media_content_type": "music"},
+                "announce": True,
+            },
+        )
+        calls = await stub_calls(s, admin)
+        assert [(c["domain"], c["service"]) for c in calls] == [
+            ("notify", "mobile_app_stub_phone"),
+            ("media_player", "play_media"),
+        ], calls
+        assert calls[0]["data"]["data"]["tag"] == "hu-test-1", calls[0]
+        assert calls[1]["data"]["announce"] is True, calls[1]
+        print("stub recorded:", [(c["domain"], c["service"]) for c in calls])
+        await call_service(s, admin, "hub_stub", "reset", {})
+        assert await stub_calls(s, admin) == []
+
+
 SMOKE_RULE = "Smoke window"
 
 
@@ -405,5 +465,6 @@ asyncio.run(
         "rules_verify": rules_verify,
         "snooze": snooze,
         "snooze_verify": snooze_verify,
+        "stub": stub,
     }[sys.argv[1]]()
 )

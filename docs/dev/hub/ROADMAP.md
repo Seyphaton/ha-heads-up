@@ -24,7 +24,7 @@ Status: the hub is approved for build (D-107, 2026-10-30), on feature branches o
 - H10 Hardening, documentation, Home Assistant 2026.10, release preparation. Large, last. Needs everything. `WP-H10-hardening-release.md`
 
 ## Status
-H0a and H0b approved and started 2026-10-30; all others not started. One line per finished package: date, branch, commit, what was verified.
+H0a: built on branch `hub/h0a-test-scaffolding` 2026-10-30, awaiting the maintainer's merge decision. H0b approved and started 2026-10-30. All others not started. One line per finished package: date, branch, commit, what was verified.
 
 ## Dependency graph
 ```

@@ -23,5 +23,12 @@
 - Only `dev/ha-config/configuration.yaml` is tracked; everything else in `dev/ha-config/` is gitignored.
 - `make dev-logs` follows the container log.
 
+## Hub stubs (dev only)
+- The dev instance has no real devices and no notify platforms. For the hub end-to-end checks it loads a tiny dev-only component, `dev/stub_components/hub_stub`, mounted read-only into the container by `dev/docker-compose.yml` and enabled by the line `hub_stub:` in `dev/ha-config/configuration.yaml`. It is never part of the integration and never shipped.
+- It registers the recording notify services `notify.mobile_app_stub_phone` and `notify.mobile_app_stub_tablet`, two fake media players (`media_player.hub_stub_kitchen` with the announce feature, `media_player.hub_stub_office` without), and the service `hub_stub.reset`.
+- Every call is recorded with its data in `sensor.hub_stub_calls` (state: number of calls, attribute `calls`: the last 50, each with `domain`, `service`, `data`, `time`), so `dev/smoke.py` can check tags, buttons and text that the hub sent. `uv run python dev/smoke.py stub` (part of `make dev-smoke`) proves the stub records.
+- Not stubbed: `tts.speak` and Assist satellites (they need entity platforms that are larger than a stub); the unit tests cover them with the fakes of `tests/hub/helpers.py`. After a change under `dev/stub_components/`, restart the container.
+
+
 ## hassfest
 - `make hassfest` runs `ghcr.io/home-assistant/hassfest` with `--platform linux/amd64`; the image has no arm64 variant (N-30).

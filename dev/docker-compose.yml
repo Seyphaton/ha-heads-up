@@ -10,6 +10,8 @@ services:
     volumes:
       - ./ha-config:/config
       - ../custom_components/heads_up:/config/custom_components/heads_up:ro
+      # Dev-only stub services for the hub end-to-end checks (H0a); never part of the integration.
+      - ./stub_components/hub_stub:/config/custom_components/hub_stub:ro
     environment:
       TZ: UTC
     restart: "no"

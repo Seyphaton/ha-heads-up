@@ -1,10 +1,13 @@
-# Dev-only Home Assistant config. No notify platforms, no real devices.
+# Dev-only Home Assistant config. No real devices: the hub end-to-end checks use the stub below.
 homeassistant:
   name: Heads Up Dev
   unit_system: metric
   time_zone: UTC
 
 default_config:
+
+# Dev-only stub notify services and fake media players that record every call (dev/stub_components).
+hub_stub:
 
 # Automations and scripts for trying the documented examples. The files are gitignored;
 # `make dev-up` creates them empty when missing.
