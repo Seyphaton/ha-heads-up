@@ -49,6 +49,7 @@ async def test_options_flow_sets_defaults_for_new_banners(
     assert entry.options == {
         "install_token": token,
         "hub_enabled": True,
+        "presence_debounce_seconds": 60,
         "max_banners": 10,
         "evict": False,
         "default_dismiss_scope": "global",

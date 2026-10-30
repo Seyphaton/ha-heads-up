@@ -64,7 +64,7 @@ async def test_plan_is_a_dry_run_that_sends_and_records_nothing(
     before = len(hub.trace), dict(hub.ledger.rows)
     banner = entry.runtime_data.banners["a"]
     banner.channels = ["banner", "popup"]
-    planned = hub.plan(banner)
+    planned = await hub.plan(banner)
     assert [(p.channel, p.result) for p in planned] == [
         ("banner", Result.SENT),
         ("popup", Result.SKIPPED),
