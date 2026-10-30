@@ -28,6 +28,8 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 - Built-in audiences: Everyone, Admins, At home, Not home, Last to leave, First home (D-080, D-088). Custom audiences: persons, or a presence kind including in and not in a zone (D-080).
 - Wizard exists as a panel window and as a config flow entry; presets Quiet, Balanced, Loud (names decided in D-093; contents proposed).
 
+- Presence delay for Last to leave and First home: 60 seconds, configurable, 0 for none; their state is stored; an area is the speakers assigned to it in Home Assistant; a profile exists for every person without setup (D-109).
+
 ## Proposed (used in the mockup, not decided)
 - Install token: 6 hexadecimal characters, generated at first setup, shown read-only.
 - Rate limits in the options: 10 pushes per device per minute, 60 deliveries per minute for all devices, identical updates ignored for 30 seconds.
@@ -35,7 +37,6 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 - Escalation default 5 minutes; reminder default every 30 minutes, at most 3; summary default every 60 minutes or at 20:00; quiet hours default 22:00 to 07:00, all days, critical passes, action quiet.
 - Android channel id default `heads_up`; push default lock-screen text full; push buttons Snooze and Dismiss.
 - Preset contents: Quiet creates Night quiet; Balanced creates Night quiet, Water escalation, Evening summary; Loud adds Warning reminders and Push failed fallback.
-- Debounce of presence changes (60 seconds) for Last to leave and First home.
 - Send test uses a test marker in the message (exact form open).
 - Panel sidebar title and icon.
 - Banner line "Acknowledged by <first name>": when several people acknowledged, show the first only (open).

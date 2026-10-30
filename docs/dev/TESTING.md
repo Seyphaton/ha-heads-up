@@ -41,6 +41,13 @@
 | `tests/hub/test_core_engine.py` | ledger and trace bookkeeping, dry-run `plan`, per-message ordering, a failing channel, cancellation on unload, restart without re-sending, vanished messages, hub switched on and off at runtime. `settle()` in `helpers.py` waits for the background deliveries, which `async_block_till_done` does not |
 | `tests/hub/test_core_ledger.py` | deliveries store: key and versions, migration hook, damaged rows, removal with the entry |
 | `tests/hub/test_core_options.py` | `hub_enabled`, install token, limit and history defaults, options flow keeps the token |
+| `tests/hub/test_audiences_resolution.py` | built-in and custom audiences (every kind), admins, zones, unknown presence per severity |
+| `tests/hub/test_audiences_presence.py` | Last to leave and First home sequences, debounce with the time freezer, unknown states, new entity at startup, deleted person, restart |
+| `tests/hub/test_recipients_profiles.py` | profile detection with the fake registration (other-integration tracker, missing service, manual add and remove, missing device, rename, channels), push expansion |
+| `tests/hub/test_recipients_groups.py` | groups, area expansion, deduplication, empty group and unknown names |
+| `tests/hub/test_audiences_flows.py` | the three subentry flows: add, reconfigure, errors, duplicates |
+| `tests/hub/test_audiences_notify.py` | `notify` with real audiences, groups and profiles; restart; hub off |
+| `tests/hub/test_audiences_ws.py` | `heads_up/hub_preview_audience`: members, skipped, not found, admin only |
 | `tests/test_frontend.py` | module URL with `?v=<version>-<file hash>` registered, changes with the file, removed on unload (the URL that was added) and added on reload, file served at `/heads_up/heads-up-card.js` |
 | `tests/card/heads-up-card.test.js` | `normalizeConfig` (all options), `sortBanners`, `visibleBanners`, `controlsFor`, `retryDelay`, `relativeTime`, `collapse`, `emptyView`, `resolveColors`, `colorParts`, `swipeOutcome`, `clearableIds` (vitest) |
 

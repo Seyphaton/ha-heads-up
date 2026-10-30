@@ -1,6 +1,6 @@
 # H2: Audiences, recipient groups and recipient profiles
 
-Size: medium. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: medium. Status: built on branch `hub/h2-audiences` (the roadmap status is the source). Answers: D-109. Deviations: `HubEngine.plan` is asynchronous; the flows live in `hub/flows.py` (registered in `config_flow.py`); the resolver is `hub/resolver.py`; `heads_up/hub_preview_audience` is the only preview command; a person's profile subentry holds only changes (D-109). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Build the objects that answer 'who': config subentry types for audiences, recipient groups and recipient profiles, the built-in audiences, the presence tracking, the person to device resolution, and the resolver the engine calls.

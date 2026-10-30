@@ -665,3 +665,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer): add `heads_up.clear`. `clear_banner` keeps working and matches only messages that have the banner channel. `clear` matches any message by `id` and/or `tag`. A message has one lifecycle: removing the record clears it on every channel through the hub engine, whichever action removed it.
 - Consequence: a `notify` message without the banner channel cannot be removed by `clear_banner`; it ends by timeout, condition, `clear` or `clear_all`.
 - Also decided in H1 (build detail, no maintainer question): shortcuts without an `id` keep no record (delivered once, trace only); an ended snooze emits `unsnoozed` with reason `elapsed` rather than `became_visible`; a downgrade after using `notify` needs banners cleared.
+
+## D-109 H2 choices: presence delay, stored state, areas, automatic profiles (2026-10-31)
+- Context: H2 (audiences, recipient groups, recipient profiles) needed four answers before relying on them.
+- Decisions (maintainer):
+  - Presence delay for Last to leave and First home: 60 seconds, configurable (option `presence_debounce_seconds`, 0 reacts at once; in the integration options).
+  - The state of Last to leave and First home is stored (`.storage/heads_up.presence`) so it is right after a restart. The set of people at home is recomputed from the person states at start.
+  - An area in a recipient group or call stands for the speakers and satellites assigned to it in Home Assistant (the entity's own area, else its device's), resolved when the message is delivered.
+  - A recipient profile exists for every person without setup (devices found from the person's trackers). A profile subentry exists only to change that: add a device, remove a detected one, pick a primary device, limit channels.
+- Build details decided in H2 without a question: the first state of a new person entity is not an arrival; unknown person states change nothing; a push goes to every device of a person (the primary device is listed first and has no other effect yet); a registration id is a valid push recipient; recipient groups are named `<name> (group)` in calls and an area is addressed by its area id; `plan()` is asynchronous because the Admins audience reads users.

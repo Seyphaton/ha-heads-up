@@ -5,6 +5,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ## [Unreleased]
 
 ### Added
+- Audiences, recipient groups and recipient profiles (hub work in progress). Built-in audiences `Everyone`, `Admins`, `At home`, `Not home`, `Last to leave`, `First home`; custom audiences of persons or presence (including in a zone); recipient groups of speakers, satellites and areas; recipient profiles that are derived for every person from their Companion devices. Three new entry types with forms, option Presence delay (60 seconds), admin WebSocket command `heads_up/hub_preview_audience`. See [Audiences and recipients](docs/audiences.md). `notify` now checks audience and recipient names against these objects.
 - Hub core (work in progress on a feature branch): the actions `heads_up.notify`, `heads_up.push`, `heads_up.popup`, `heads_up.speak` and `heads_up.clear`. `notify` takes a list of channels and a target per channel. Only the banner channel delivers in this version; the other channels report `skipped` with the reason `channel_unavailable`.
 - Option `hub_enabled` (on by default). Off: `notify` accepts only `channels: [banner]`, and no hub listener, task or store exists.
 - Option `install_token`, generated once. Hub limits and history sizes are stored as options and not enforced yet.
