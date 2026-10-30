@@ -62,49 +62,7 @@ th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line
 <nav role="tablist" id="tabs"></nav>
 <main>
 
-<section id="tab-send">
-  <div class="banner-note">How much work is one notification? Fill the form and watch the counter and the generated call at the bottom.</div>
-  <div class="card">
-    <h2>1. Content</h2>
-    <label for="f-title">Title (optional)</label>
-    <input type="text" id="f-title" value="Water leak">
-    <label for="f-message">Message</label>
-    <input type="text" id="f-message" value="Water detected in the utility room">
-    <label for="f-tts">Spoken text (optional, speech only)</label>
-    <input type="text" id="f-tts" placeholder="Short sentence for speakers">
-    <label for="f-sev">Severity</label>
-    <select id="f-sev"><option>info</option><option>warning</option><option selected>critical</option></select>
-    <label for="f-tag">Tag (optional)</label>
-    <input type="text" id="f-tag" value="water">
-  </div>
-  <div class="card">
-    <h2>2. Channels</h2>
-    <div class="row" id="channels"></div>
-    <p class="note" id="channel-note"></p>
-  </div>
-  <div class="card">
-    <h2>3. Who, per channel</h2>
-    <p class="note">Each channel has its own target: an audience or direct recipients, never both.</p>
-    <div id="targets"></div>
-  
-  <div class="card">
-    <h2>4. Policy</h2>
-    <label for="f-pol">Policy</label>
-    <select id="f-pol"></select>
-    <p class="note">"All that apply" uses every enabled policy whose severities and tags match. Pick one to try it alone, or none for no policy behavior.</p>
-    <h3>What will happen</h3>
-    <div class="timeline" id="timeline"></div>
-  </div>
-  <div class="card">
-    <h2>Effort</h2>
-    <div id="effort-text" class="note"></div>
-    <div class="meter"><div id="meter"></div></div>
-    <h3>Generated call</h3>
-    <pre id="yaml"></pre>
-    <div class="row" style="margin-top:10px"><button class="primary" id="test-send">Test send</button><button class="ghost" id="copy">Copy call</button></div>
-    <p class="note" id="test-result"></p>
-  </div>
-</section>
+
 
 <section id="tab-ex" hidden>
   <div class="banner-note">Examples of calls, from the simplest to the most detailed, and answers to common questions. Names (Anna, Admins, Kitchen speaker) are samples.</div>
@@ -172,13 +130,13 @@ data:
     <details><summary><b>What if someone is not home?</b></summary><p class="note">An away policy sends the message when they arrive, while the message is still active. A fallback policy can send to someone else instead.</p></details>
     <details><summary><b>Can I get one summary instead of many messages?</b></summary><p class="note">Yes. A summarize policy holds matching messages and sends one summary every N minutes or at a fixed time, with the count and titles. While a message waits, nothing is sent individually on any channel (the dashboard banner too, still to confirm).</p></details>
     <details><summary><b>What happens when I replace a phone?</b></summary><p class="note">Edit the person's recipient profile once. Audiences and policies do not change, and no automation needs editing.</p></details>
-    <details><summary><b>Why didn't I get a notification?</b></summary><p class="note">The Preview tab shows who would be notified for a given call and why anyone was skipped, held or dropped. The Trace tab shows what happened for a real message.</p></details>
+    <details><summary><b>Why didn't I get a notification?</b></summary><p class="note">The Test send tab shows who would be notified for a given call and why anyone was skipped, held or dropped. The Trace tab shows what happened for a real message.</p></details>
     <details><summary><b>What happens after a restart?</b></summary><p class="note">Pending escalations keep their due times. A step that was due during the restart runs once if the message is still active and unacknowledged. Pushes of messages that no longer exist are cleared.</p></details>
   </div>
 </section>
 
 <section id="tab-hub" hidden>
-  <div class="card"><h2>Overview</h2><div id="ov-counts"></div><div class="row" style="margin-top:10px"><button class="primary" data-go="wiz">Run the setup wizard</button><button class="ghost" data-go="send">New notification</button><button class="ghost" data-go="prev">Preview</button></div></div>
+  <div class="card"><h2>Overview</h2><div id="ov-counts"></div><div class="row" style="margin-top:10px"><button class="primary" data-go="wiz">Run the setup wizard</button><button class="ghost" data-go="prev">Test send</button></div></div>
   <div class="card"><h2>Policies in words</h2><div id="ov-pols"></div></div>
   <div class="card"><h2>Needs attention</h2><div id="ov-warn"></div></div>
 </section>
@@ -227,7 +185,13 @@ data:
 </section>
 
 <section id="tab-prev" hidden>
-  <div class="banner-note">Same inputs as a notify call, plus the state of the house. Change anything and the result below updates. Simulated, nothing is sent.</div>
+  <div class="banner-note">Try a notification: fill in the call, see what each channel would do, and copy the call for an automation. The result is simulated; the Send test button is the only thing the panel would really send.</div>
+  <div class="card">
+    <h2>Content</h2>
+    <label for="p-title">Title (optional)</label><input type="text" id="p-title" value="Water leak">
+    <label for="p-message">Message</label><input type="text" id="p-message" value="Water detected in the utility room">
+    <label for="p-tts">Spoken text (optional, speech only)</label><input type="text" id="p-tts" placeholder="Short sentence for speakers">
+  </div>
   <div class="card">
     <h2>The call</h2>
     <label for="p-sev">Severity</label>
@@ -258,6 +222,13 @@ data:
     <h3>Later steps</h3>
     <div class="timeline" id="p-later"></div>
   </div>
+  <div class="card">
+    <h2>The call</h2>
+    <p class="note">Paste this into an automation to send the same notification.</p>
+    <pre id="yaml"></pre>
+    <div class="row" style="margin-top:10px"><button class="primary" id="test-send">Send test</button><button class="ghost" id="copy">Copy call</button></div>
+    <p class="note" id="test-result"></p>
+  </div>
 </section>
 
 <section id="tab-trace" hidden>
@@ -284,7 +255,7 @@ data:
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const tabs = [["hub","Overview"],["send","New notification"],["prev","Preview"],["trace","Trace"],["aud","Audiences"],["rec","Recipients"],["pol","Policies"],["rul","Watch rules"],["chs","Channels"],["wiz","Wizard"],["set","Settings"],["ex","Examples & FAQ"]];
+const tabs = [["hub","Overview"],["prev","Test send"],["trace","Trace"],["aud","Audiences"],["rec","Recipients"],["pol","Policies"],["rul","Watch rules"],["chs","Channels"],["wiz","Wizard"],["set","Settings"],["ex","Examples & FAQ"]];
 const nav = $("tabs");
 function goto(id) {
   tabs.forEach(([t]) => { $("tab-" + t).hidden = t !== id; });
@@ -427,51 +398,11 @@ const then = (q) => ({
 const line = (q) => `${typeNames[q.type]}: when ${when(q)}, ${then(q)}.`;
 const appliesText = (q) => (q.sev.length ? q.sev.join(", ") : "any severity") + (tagList(q).length ? ", tag " + tagList(q).join("/") : "");
 
-// ---------- New notification tab ----------
-const selected = new Set(["banner", "push"]);
-const cTargets = {};
-channelNames.forEach((c) => {
-  const b = document.createElement("button");
-  b.className = "chip"; b.textContent = c; b.setAttribute("aria-pressed", selected.has(c));
-  b.onclick = () => { selected.has(c) ? selected.delete(c) : selected.add(c); b.setAttribute("aria-pressed", selected.has(c)); render(); };
-  $("channels").appendChild(b);
-});
 function fillPolicySelects() {
-  ["f-pol", "p-pol"].forEach((id) => {
-    const cur = $(id).value; $(id).innerHTML = "";
-    ["all that apply", "none"].concat(pols.map((q) => q.name)).forEach((n) => { const o = document.createElement("option"); o.textContent = n; $(id).appendChild(o); });
-    if ([...$(id).options].some((o) => o.textContent === cur)) $(id).value = cur;
-  });
+  const id = "p-pol"; const cur = $(id).value; $(id).innerHTML = "";
+  ["all that apply", "none"].concat(pols.map((q) => q.name)).forEach((n) => { const o = document.createElement("option"); o.textContent = n; $(id).appendChild(o); });
+  if ([...$(id).options].some((o) => o.textContent === cur)) $(id).value = cur;
 }
-["f-title","f-message","f-tts","f-sev","f-tag","f-pol"].forEach((id) => $(id).addEventListener("input", render));
-function render() {
-  const ch = channelNames.filter((c) => selected.has(c));
-  renderTargets($("targets"), ch, cTargets, render);
-  $("channel-note").textContent = ch.length ? "" : "Pick at least one channel.";
-  const sev = $("f-sev").value, tag = $("f-tag").value.trim(), polSel = $("f-pol").value;
-  const A = applicable(sev, tag, polSel);
-  const lines = [`<div class="step"><span class="when">Now:</span> ${esc(toText({ channels: ch, targets: cTargets }))}.</div>`];
-  if (!A.length) lines.push('<div class="step note">No policy applies: one delivery, nothing else.</div>');
-  A.forEach((q) => lines.push(`<div class="step note"><b>${esc(q.name)}</b>: ${esc(line(q))}</div>`));
-  $("timeline").innerHTML = lines.join("");
-  const y = ["action: heads_up.notify", "data:"];
-  const t = $("f-title").value.trim(), m = $("f-message").value.trim(), sp = $("f-tts").value.trim();
-  if (t) y.push(`  title: ${t}`);
-  y.push(`  message: ${m || "..."}`);
-  if (sp) y.push(`  tts_message: ${sp}`);
-  y.push(`  severity: ${sev}`);
-  if (tag) y.push(`  tag: ${tag}`);
-  y.push(`  channels: [${ch.join(", ")}]`);
-  const ty = targetsYaml(ch, cTargets, "    ");
-  if (ty.length) { y.push("  to:"); ty.forEach((l) => y.push(l)); }
-  if (polSel !== "all that apply") y.push(`  policy: ${polSel === "none" ? "none" : polSel}`);
-  $("yaml").textContent = y.join("\n");
-  const fields = [t, m, sp, tag, ch.length, ty.length, polSel !== "all that apply"].filter(Boolean).length;
-  $("meter").style.width = Math.min(100, fields * 100 / 8) + "%";
-  $("effort-text").textContent = `${fields} of 8 settings used. Required: message and channels, plus a target for push, popup and speak. Everything else has a default or comes from the policies that apply.`;
-}
-$("test-send").onclick = () => { $("test-result").textContent = "Test (simulated): see the Preview tab for the full result per recipient. Nothing was sent."; };
-$("copy").onclick = () => { navigator.clipboard && navigator.clipboard.writeText($("yaml").textContent).catch(() => {}); $("copy").textContent = "Copied"; setTimeout(() => ($("copy").textContent = "Copy call"), 1200); };
 
 // ---------- Preview tab ----------
 const pChannels = new Set(["banner", "push", "popup"]);
@@ -489,6 +420,9 @@ Object.keys(people).forEach((n) => {
   upd(); $("p-presence").appendChild(b);
 });
 ["p-sev", "p-tag", "p-pol", "p-time"].forEach((id) => $(id).addEventListener("change", preview));
+["p-title", "p-message", "p-tts"].forEach((id) => $(id).addEventListener("input", preview));
+$("test-send").onclick = () => { $("test-result").textContent = "Test (simulated): the table above is what would be sent. In the real panel this sends the message with a test marker. Nothing was sent here."; };
+$("copy").onclick = () => { navigator.clipboard && navigator.clipboard.writeText($("yaml").textContent).catch(() => {}); $("copy").textContent = "Copied"; setTimeout(() => ($("copy").textContent = "Copy call"), 1200); };
 function personsOf(t) {
   if (!t) return [];
   if (t.mode === "aud") return audienceMembers(t.who);
@@ -525,10 +459,25 @@ function deliver(chs, targets, ctx, prefix) {
   });
   return { rows, failed };
 }
+function buildCall(ch, sev, tag, polSel) {
+  const y = ["action: heads_up.notify", "data:"];
+  const t = $("p-title").value.trim(), m = $("p-message").value.trim(), sp = $("p-tts").value.trim();
+  if (t) y.push(`  title: ${t}`);
+  y.push(`  message: ${m || "..."}`);
+  if (sp) y.push(`  tts_message: ${sp}`);
+  y.push(`  severity: ${sev}`);
+  if (tag) y.push(`  tag: ${tag}`);
+  y.push(`  channels: [${ch.join(", ")}]`);
+  const ty = targetsYaml(ch, pTargets, "    ");
+  if (ty.length) { y.push("  to:"); ty.forEach((l) => y.push(l)); }
+  if (polSel !== "all that apply") y.push(`  policy: ${polSel === "none" ? "none" : polSel}`);
+  $("yaml").textContent = y.join("\n");
+}
 function preview() {
   const sev = $("p-sev").value, tag = $("p-tag").value, night = $("p-time").value === "night", polSel = $("p-pol").value;
   const ch = channelNames.filter((c) => pChannels.has(c));
   renderTargets($("p-targets"), ch, pTargets, preview);
+  buildCall(ch, sev, tag, polSel);
   if (!ch.length) { $("p-issues").innerHTML = '<div class="banner-note" style="background:transparent;border:1px solid var(--crit);color:var(--crit)">Pick at least one channel (channels is required).</div>'; $("p-summary").textContent = ""; $("p-out").innerHTML = ""; $("p-later").innerHTML = ""; return; }
   $("p-issues").innerHTML = settings.enabled ? "" : '<div class="banner-note" style="background:transparent;border:1px solid var(--warn);color:var(--warn)">The hub is switched off in Settings: only the banner would be shown.</div>';
   const A = settings.enabled ? applicable(sev, tag, polSel) : [];
@@ -628,7 +577,7 @@ function renderPol() {
   root.querySelectorAll("button[data-ch]").forEach((e) => (e.onclick = () => { q.channels = toggle(q.channels, e.dataset.ch); renderPol(); }));
   $("pol-save").onclick = () => { $("pol-msg").textContent = "Saved (simulated). In the real panel this writes the policy subentry."; };
   $("pol-del").onclick = () => { pols.splice(cur, 1); cur = 0; renderPol(); };
-  render(); preview();
+  preview();
 }
 
 // ---------- Audiences tab ----------
@@ -665,7 +614,7 @@ function renderAud() {
   fillAll();
 }
 $("aud-new").onclick = () => { audDefs.push({ name: "New audience", kind: "persons", persons: [] }); acur = audDefs.length - 1; renderAud(); };
-function fillAll() { render(); preview(); }
+function fillAll() { preview(); }
 
 // ---------- Recipients tab ----------
 function renderRec() {
@@ -776,7 +725,7 @@ function renderOverview() {
 const msgs = [["Water leak", "critical", "acknowledged by Ben"], ["Window open", "warning", "ended: condition false"], ["Doorbell", "info", "expired"], ["Washer done", "info", "in the 20:00 summary"]];
 $("msgs").innerHTML = '<tr><th>Message</th><th>Severity</th><th>Outcome</th></tr>' + msgs.map((m) => `<tr><td>${m[0]}</td><td>${m[1]}</td><td>${m[2]}</td></tr>`).join("");
 
-fillPolicySelects(); renderAud(); renderRec(); renderRules(); renderChannelSettings(); renderSettings(); renderWizard(); renderPol(); renderOverview();
+fillPolicySelects(); renderAud(); renderRec(); renderRules(); renderChannelSettings(); renderSettings(); renderWizard(); renderPol(); renderOverview(); preview();
 </script>
 </body>
 </html>

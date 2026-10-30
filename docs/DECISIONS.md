@@ -614,3 +614,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Parity (rule 9): an exception row in DESIGN section 22.2 with this decision number: rules do not get channels and targets.
 - Alternatives: rules fully in the hub with channels and a Rules tab (most convenient, most duplication, a second editor in the panel); deprecating rules with a migration to automations or a blueprint (cleanest long term, breaks users).
 - Open: a "watch an entity" blueprint as the no-YAML path for new setups, and whether a custom integration can ship blueprints (unverified); deprecation later.
+
+## D-101 One tab for preview and test send; no compose form
+- Date: 2026-10-30. Requested by the maintainer after asking whether the mockup's "New notification" tab was part of the design (it was not).
+- Decision: the panel has no form to compose and send real notifications; that is what automations and Home Assistant's action tool are for. The preview and the test send are one tab: content fields, the call with a target per channel, a simulated result per recipient and channel, the generated call to copy, and a Send test button, which is the only thing the panel sends.
+- Alternatives: a separate compose tab (duplicates Developer Tools and the preview); preview without a test send.
