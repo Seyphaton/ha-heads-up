@@ -613,7 +613,7 @@ policy:
 - The lifecycle condition ending the message clears every channel and cancels all policies for it.
 
 ### 23.7 Audiences and devices (D-080, D-088)
-Presence audiences read the person state (`None`, `unknown` and `unavailable` count as unknown, N-63). Membership is a snapshot when a step fires; a step may deliver on arrival to people not yet home. Companion devices are found from the person's trackers with manual override (the path is inferred, N-64); all devices of a person are notified under one tag. Unknown presence: critical notifies, lower severities skip with a trace entry. A person without a usable device is skipped on push and flagged in the panel.
+Presence audiences read the person state (`None`, `unknown` and `unavailable` count as unknown, N-63). Membership is a snapshot when a step fires; a step may deliver on arrival to people not yet home. Companion devices are found from the person's trackers with manual override (read from source, N-70 and N-71; not run on a device); all devices of a person are notified under one tag. Unknown presence: critical notifies, lower severities skip with a trace entry. A person without a usable device is skipped on push and flagged in the panel.
 
 ### 23.8 Channels (D-090, D-091, D-092)
 - Push: legacy `notify.mobile_app_*` services only (N-61); tag `hu-<install token>-<message id>`; clear with `clear_notification`; severity maps to passive, normal, time-sensitive (iOS critical is a policy opt-in); buttons are the message's own, then Dismiss and Snooze when allowed, and Acknowledge when an escalation or reminder policy applies; button ids `hu:<message>:<recipient>:<action>`; Snooze uses the first snooze option; swiping a push away changes nothing.
@@ -649,4 +649,4 @@ A separate integration consuming events (events lack recipients and silent trans
 - Quiet hours "quiet": push passive without sound, speech skipped, popup as a corner card.
 
 ### 23.15 Open
-Panel component contract and manifest listing for a custom panel (N-69); the recent-messages list across restarts; the unit name in public docs; verification of the person-to-device path, the action event user, announce behavior and 2026.10; popup area recipients (not built); build phasing (delayed until the design is final). See `docs/OPEN_QUESTIONS.md`.
+Panel component contract and manifest listing for a custom panel (N-69); the recent-messages list across restarts; the unit name in public docs; announce and volume behavior per platform, whether an integration can ship blueprints, and a run against the dev instance; popup area recipients (not built); build phasing (delayed until the design is final). See `docs/OPEN_QUESTIONS.md`.
