@@ -372,7 +372,7 @@ async def _notify(call: ServiceCall) -> ServiceResponse:
         return _response(result, [])
     if hub is None:
         return _response(result, _banner_only(banner))
-    return _response(result, hub.plan(banner, waiting=result["status"] == "waiting"))
+    return _response(result, await hub.plan(banner, waiting=result["status"] == "waiting"))
 
 
 def _banner_only(banner: Banner) -> list[Planned]:
@@ -394,7 +394,7 @@ def _shortcut(channel: str) -> Callable[[ServiceCall], Coroutine[Any, Any, Servi
             data.update(channels=[channel], targets={channel: target}, source=SOURCE_ACTION)
             result = manager.create(data)
             banner = manager.banners[result["id"]]
-            return _response(result, hub.plan(banner))
+            return _response(result, await hub.plan(banner))
         # No id: deliver once and keep no record, so a later clear cannot take it back.
         now = dt_util.utcnow()
         message = Banner(

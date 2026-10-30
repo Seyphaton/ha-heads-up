@@ -40,11 +40,13 @@ from homeassistant.helpers.template import Template
 
 from .conditions import DEFAULT_OPERATOR, NO_STATE_OPERATORS, OPERATORS, check_state
 from .const import (
+    AUDIENCE_SUBENTRY,
     DEFAULT_OPTIONS,
     DEFAULT_SEVERITY,
     DEFAULT_SNOOZE_SECONDS,
     DISMISS_SCOPES,
     DOMAIN,
+    GROUP_SUBENTRY,
     MAX_FOR_SECONDS,
     MAX_MESSAGE,
     MAX_TITLE,
@@ -56,10 +58,17 @@ from .const import (
     OPT_EVICT,
     OPT_HUB_ENABLED,
     OPT_MAX_BANNERS,
+    OPT_PRESENCE_DEBOUNCE,
+    PROFILE_SUBENTRY,
     RULE_SUBENTRY,
     SEVERITIES,
     SNOOZE_PRESET_MINUTES,
     SNOOZE_SCOPES,
+)
+from .hub.flows import (
+    AudienceSubentryFlow,
+    RecipientGroupSubentryFlow,
+    RecipientProfileSubentryFlow,
 )
 from .services import ACTIONS_SCHEMA, TAP_ACTION_SCHEMA
 
@@ -85,7 +94,12 @@ class HeadsUpConfigFlow(ConfigFlow, domain=DOMAIN):
     def async_get_supported_subentry_types(
         cls, config_entry: ConfigEntry
     ) -> dict[str, type[ConfigSubentryFlow]]:
-        return {RULE_SUBENTRY: RuleSubentryFlow}
+        return {
+            RULE_SUBENTRY: RuleSubentryFlow,
+            AUDIENCE_SUBENTRY: AudienceSubentryFlow,
+            GROUP_SUBENTRY: RecipientGroupSubentryFlow,
+            PROFILE_SUBENTRY: RecipientProfileSubentryFlow,
+        }
 
 
 def _seconds_to_duration(seconds: int) -> dict[str, int]:
@@ -111,6 +125,11 @@ class HeadsUpOptionsFlow(OptionsFlow):
                 data={
                     **self.config_entry.options,  # keeps the install token and the hub limits
                     OPT_HUB_ENABLED: user_input.get(OPT_HUB_ENABLED, True),
+                    OPT_PRESENCE_DEBOUNCE: int(
+                        user_input.get(
+                            OPT_PRESENCE_DEBOUNCE, DEFAULT_OPTIONS[OPT_PRESENCE_DEBOUNCE]
+                        )
+                    ),
                     OPT_MAX_BANNERS: int(user_input[OPT_MAX_BANNERS]),
                     OPT_EVICT: user_input[OPT_EVICT],
                     OPT_DEFAULT_DISMISS_SCOPE: user_input[OPT_DEFAULT_DISMISS_SCOPE],
@@ -139,6 +158,11 @@ class HeadsUpOptionsFlow(OptionsFlow):
         schema = vol.Schema(
             {
                 vol.Required(OPT_HUB_ENABLED, default=current[OPT_HUB_ENABLED]): BooleanSelector(),
+                vol.Required(
+                    OPT_PRESENCE_DEBOUNCE, default=current[OPT_PRESENCE_DEBOUNCE]
+                ): NumberSelector(
+                    NumberSelectorConfig(min=0, max=600, step=1, mode=NumberSelectorMode.BOX)
+                ),
                 vol.Required(OPT_MAX_BANNERS, default=current[OPT_MAX_BANNERS]): NumberSelector(
                     NumberSelectorConfig(min=1, max=200, step=1, mode=NumberSelectorMode.BOX)
                 ),

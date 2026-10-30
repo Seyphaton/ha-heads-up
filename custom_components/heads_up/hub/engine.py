@@ -15,18 +15,12 @@ from typing import Any
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.util import dt as dt_util
 
-from ..const import CHANNEL_BANNER, DEFAULT_OPTIONS, OPT_TRACE_ENTRIES
+from ..const import CHANNEL_BANNER, DEFAULT_OPTIONS, OPT_TRACE_ENTRIES, TARGET_CHANNELS
 from ..models import Banner
 from .channels import ChannelRegistry, Outcome, Result
-from .interfaces import (
-    AudienceResolver,
-    EntityRecipients,
-    NoAudiences,
-    NoPolicies,
-    PolicyCatalog,
-    RecipientResolver,
-)
+from .interfaces import AudienceResolver, NoPolicies, PolicyCatalog, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, State
+from .resolver import HubResolver
 from .trace import TraceBuffer, TraceEntry
 from .transitions import BannerTransition, Kind
 
@@ -46,17 +40,6 @@ class Planned:
     reason: str | None = None
 
 
-def _recipients(message: Banner, channel: str) -> list[str]:
-    if channel == CHANNEL_BANNER:
-        return [""]  # the card applies its own targeting (`people`)
-    target = message.targets.get(channel) or {}
-    if "recipients" in target:
-        return list(target["recipients"])
-    if "audience" in target:
-        return [f"audience:{target['audience']}"]
-    return [""]
-
-
 class HubEngine:
     def __init__(
         self, hass: HomeAssistant, options: dict[str, Any], create_task: TaskFactory
@@ -65,8 +48,10 @@ class HubEngine:
         self.channels = ChannelRegistry()
         self.ledger = DeliveryLedger(hass)
         self.trace = TraceBuffer(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
-        self.audiences: AudienceResolver = NoAudiences()
-        self.recipients: RecipientResolver = EntityRecipients(hass)
+        self.resolver = HubResolver(hass, options)
+        # The names a call may use come from the resolver (H2); policies arrive with H4.
+        self.audiences: AudienceResolver = self.resolver
+        self.recipients: RecipientResolver = self.resolver
         self.policies: PolicyCatalog = NoPolicies()
         self._create_task = create_task
         self._tails: dict[str, asyncio.Task[None]] = {}
@@ -77,6 +62,7 @@ class HubEngine:
     async def async_start(self, known_ids: set[str]) -> None:
         """Load the ledger and forget what no longer exists, without re-sending anything."""
         await self.ledger.async_load()
+        await self.resolver.async_start()
         for message_id in self.ledger.message_ids() - known_ids:
             for row in self.ledger.for_message(message_id):
                 self._trace(message_id, row.channel, row.recipient, "cleared", "gone_at_startup")
@@ -90,6 +76,7 @@ class HubEngine:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
         self._tails.clear()
+        await self.resolver.async_stop()
         await self.ledger.async_save()
 
     async def async_wait_idle(self) -> None:
@@ -100,22 +87,35 @@ class HubEngine:
 
     # Planning ---------------------------------------------------------------------------
 
-    def plan(self, message: Banner, *, waiting: bool = False) -> list[Planned]:
+    async def plan(self, message: Banner, *, waiting: bool = False) -> list[Planned]:
         """What delivering this message would do now. Sends nothing."""
         planned: list[Planned] = []
         for channel in message.channels:
-            for recipient in _recipients(message, channel):
-                if channel == CHANNEL_BANNER and waiting:
-                    planned.append(
-                        Planned(channel, recipient, Result.HELD, "waiting_for_condition")
-                    )
-                elif self.channels.get(channel).available:
-                    planned.append(Planned(channel, recipient, Result.SENT))
-                else:
-                    planned.append(
-                        Planned(channel, recipient, Result.SKIPPED, "channel_unavailable")
-                    )
+            available = self.channels.get(channel).available
+            if channel == CHANNEL_BANNER:
+                result = Result.HELD if waiting else Result.SENT
+                reason = "waiting_for_condition" if waiting else None
+                planned.append(Planned(channel, "", result, reason))
+                continue
+            if channel not in TARGET_CHANNELS:  # persistent: no target, goes to everyone
+                planned.append(self._planned(channel, "", available))
+                continue
+            resolution = await self.resolver.resolve(
+                message.targets.get(channel), channel, message.severity
+            )
+            planned += [self._planned(channel, r.key, available) for r in resolution.recipients]
+            planned += [
+                Planned(channel, s.who, Result.SKIPPED, s.reason) for s in resolution.skipped
+            ]
+            if not resolution.recipients and not resolution.skipped:
+                planned.append(Planned(channel, "", Result.SKIPPED, "no_recipients"))
         return planned
+
+    @staticmethod
+    def _planned(channel: str, recipient: str, available: bool) -> Planned:
+        if available:
+            return Planned(channel, recipient, Result.SENT)
+        return Planned(channel, recipient, Result.SKIPPED, "channel_unavailable")
 
     @staticmethod
     def counts(planned: list[Planned]) -> dict[str, dict[str, int]]:
@@ -170,7 +170,7 @@ class HubEngine:
             )
 
     async def _deliver(self, banner: Banner, *, update: bool, resume: bool = False) -> None:
-        for item in self.plan(banner, waiting=not banner.active):
+        for item in await self.plan(banner, waiting=not banner.active):
             row = self.ledger.rows.get((banner.id, item.channel, item.recipient))
             if resume and row is not None and row.state is State.SENT:
                 continue  # sent before the restart: never send twice
@@ -190,7 +190,7 @@ class HubEngine:
 
     async def send_once(self, message: Banner) -> list[Planned]:
         """Deliver a message that has no record (shortcuts without an id)."""
-        planned = self.plan(message)
+        planned = await self.plan(message)
         for item in planned:
             outcome = Outcome(item.result, item.reason)
             if item.result is Result.SENT:

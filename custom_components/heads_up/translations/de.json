@@ -20,7 +20,8 @@
           "default_timeout": "Standard-Zeitlimit",
           "default_snoozable": "Banner sind standardmäßig zurückstellbar",
           "default_snooze_scope": "Standard-Bereich beim Zurückstellen",
-          "default_snooze_options": "Standard-Auswahl beim Zurückstellen"
+          "default_snooze_options": "Standard-Auswahl beim Zurückstellen",
+          "presence_debounce_seconds": "Anwesenheitsverzögerung (Sekunden)"
         },
         "data_description": {
           "hub_enabled": "Benachrichtigungs-Hub ein- oder ausschalten. Aus: nur der Banner-Kanal funktioniert, wie vor dem Hub.",
@@ -30,7 +31,8 @@
           "default_timeout": "Gilt, wenn ein Aktionsaufruf kein timeout angibt. Achtung: Wenn du dieses Feld leerst, bleiben Banner ohne eigenes Zeitlimit, bis sie geschlossen oder entfernt werden.",
           "default_snoozable": "Gilt, wenn ein Aktionsaufruf kein snoozable angibt. Banner, die nicht schließbar sind, sind nie zurückstellbar.",
           "default_snooze_scope": "Gilt, wenn ein Aktionsaufruf kein snooze_scope angibt.",
-          "default_snooze_options": "Gilt, wenn ein Aktionsaufruf kein snooze_options angibt. Leer lassen für 15 Minuten, 1 Stunde und 4 Stunden."
+          "default_snooze_options": "Gilt, wenn ein Aktionsaufruf kein snooze_options angibt. Leer lassen für 15 Minuten, 1 Stunde und 4 Stunden.",
+          "presence_debounce_seconds": "Eine Person muss so lange zu Hause oder weg bleiben, bevor sich \"Last to leave\" und \"First home\" ändern. 0 reagiert sofort."
         }
       }
     }
@@ -94,6 +96,29 @@
         "popup": "Popup",
         "speak": "Sprechen",
         "persistent": "Dauerhafte Benachrichtigung"
+      }
+    },
+    "audience_kind": {
+      "options": {
+        "persons": "Personen",
+        "presence": "Anwesenheit"
+      }
+    },
+    "presence_kind": {
+      "options": {
+        "at_home": "Zu Hause",
+        "not_home": "Nicht zu Hause",
+        "last_to_leave": "Als Letzter gegangen",
+        "first_home": "Als Erster zu Hause",
+        "in_zone": "In einer Zone",
+        "not_in_zone": "Nicht in einer Zone"
+      }
+    },
+    "profile_channel": {
+      "options": {
+        "banner": "Banner",
+        "push": "Push",
+        "popup": "Popup"
       }
     }
   },
@@ -602,6 +627,152 @@
         "actions_invalid": "Die Schaltflächen sind ungültig. Jede braucht key und label, höchstens 3.",
         "tap_action_invalid": "Die Tipp-Aktion braucht einen action-Schlüssel.",
         "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an."
+      },
+      "abort": {
+        "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
+      }
+    },
+    "audience": {
+      "entry_type": "Zielgruppe",
+      "initiate_flow": {
+        "user": "Zielgruppe hinzufügen"
+      },
+      "step": {
+        "user": {
+          "title": "Zielgruppe hinzufügen",
+          "description": "Eine benannte Personengruppe, die Aufrufe ansprechen können. Personen: eine feste Liste. Anwesenheit: wer zum Zeitpunkt des Aufrufs zu Hause, nicht zu Hause, als Letzter gegangen, als Erster angekommen oder in einer Zone ist.",
+          "data": {
+            "name": "Name",
+            "kind": "Art",
+            "persons": "Personen",
+            "presence": "Anwesenheit",
+            "zone": "Zone"
+          },
+          "data_description": {
+            "name": "Wird in Aufrufen verwendet, zum Beispiel \"At home\". Muss sich von den eingebauten und anderen Zielgruppen unterscheiden.",
+            "persons": "Für die Art Personen: die Personen dieser Zielgruppe.",
+            "presence": "Für die Art Anwesenheit: welche Personen zählen. Unbekannte Anwesenheit zählt nur bei kritischen Nachrichten.",
+            "zone": "Für In einer Zone und Nicht in einer Zone."
+          }
+        },
+        "reconfigure": {
+          "title": "Zielgruppe",
+          "description": "Eine benannte Personengruppe, die Aufrufe ansprechen können. Personen: eine feste Liste. Anwesenheit: wer zum Zeitpunkt des Aufrufs zu Hause, nicht zu Hause, als Letzter gegangen, als Erster angekommen oder in einer Zone ist.",
+          "data": {
+            "name": "Name",
+            "kind": "Art",
+            "persons": "Personen",
+            "presence": "Anwesenheit",
+            "zone": "Zone"
+          },
+          "data_description": {
+            "name": "Wird in Aufrufen verwendet, zum Beispiel \"At home\". Muss sich von den eingebauten und anderen Zielgruppen unterscheiden.",
+            "persons": "Für die Art Personen: die Personen dieser Zielgruppe.",
+            "presence": "Für die Art Anwesenheit: welche Personen zählen. Unbekannte Anwesenheit zählt nur bei kritischen Nachrichten.",
+            "zone": "Für In einer Zone und Nicht in einer Zone."
+          }
+        }
+      },
+      "error": {
+        "name_required": "Name eingeben.",
+        "name_exists": "Dieser Name wird bereits von einer eingebauten oder anderen Zielgruppe verwendet.",
+        "persons_required": "Mindestens eine Person wählen.",
+        "presence_required": "Wählen, welcher Anwesenheit die Zielgruppe folgt.",
+        "zone_required": "Eine Zone wählen."
+      },
+      "abort": {
+        "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
+      }
+    },
+    "recipient_group": {
+      "entry_type": "Empfängergruppe",
+      "initiate_flow": {
+        "user": "Empfängergruppe hinzufügen"
+      },
+      "step": {
+        "user": {
+          "title": "Empfängergruppe hinzufügen",
+          "description": "Eine benannte Menge von Lautsprechern, Satelliten und Bereichen für Sprache. In Aufrufen heißt sie \"NAME (group)\". Ein Bereich steht für die ihm in Home Assistant zugewiesenen Lautsprecher.",
+          "data": {
+            "name": "Name",
+            "members": "Lautsprecher und Satelliten",
+            "areas": "Bereiche"
+          },
+          "data_description": {
+            "name": "Ohne den Zusatz \"(group)\", den Aufrufe selbst anfügen."
+          }
+        },
+        "reconfigure": {
+          "title": "Empfängergruppe",
+          "description": "Eine benannte Menge von Lautsprechern, Satelliten und Bereichen für Sprache. In Aufrufen heißt sie \"NAME (group)\". Ein Bereich steht für die ihm in Home Assistant zugewiesenen Lautsprecher.",
+          "data": {
+            "name": "Name",
+            "members": "Lautsprecher und Satelliten",
+            "areas": "Bereiche"
+          },
+          "data_description": {
+            "name": "Ohne den Zusatz \"(group)\", den Aufrufe selbst anfügen."
+          }
+        }
+      },
+      "error": {
+        "name_required": "Name eingeben.",
+        "name_exists": "Dieser Name wird bereits von einer eingebauten oder anderen Zielgruppe verwendet.",
+        "name_has_suffix": "\"(group)\" weglassen; Aufrufe fügen es an.",
+        "group_empty": "Mindestens einen Lautsprecher, Satelliten oder Bereich wählen.",
+        "member_not_found": "Ein gewählter Lautsprecher oder Satellit existiert nicht.",
+        "area_not_found": "Ein gewählter Bereich existiert nicht."
+      },
+      "abort": {
+        "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
+      }
+    },
+    "recipient_profile": {
+      "entry_type": "Empfängerprofil",
+      "initiate_flow": {
+        "user": "Empfängerprofil hinzufügen"
+      },
+      "step": {
+        "user": {
+          "title": "Empfängerprofil hinzufügen",
+          "description": "Jede Person hat ohne Einrichtung ein Profil: Ihre Companion-App-Geräte werden über die Tracker der Person gefunden. Ein Profil ist nur nötig, um das zu ändern: ein nicht gefundenes Gerät hinzufügen, eines entfernen, ein Hauptgerät wählen oder die Kanäle einschränken.",
+          "data": {
+            "person": "Person",
+            "devices": "Hinzugefügte Geräte",
+            "removed_devices": "Entfernte Geräte",
+            "primary": "Hauptgerät",
+            "channels": "Akzeptierte Kanäle"
+          },
+          "data_description": {
+            "devices": "Companion-Geräte, die zusätzlich zu den erkannten verwendet werden.",
+            "removed_devices": "Erkannte Geräte, die ausgelassen werden.",
+            "primary": "Wird zuerst gelistet. Pushes gehen weiterhin an alle Geräte der Person. Leer: das erste erkannte Gerät.",
+            "channels": "Kanäle, die diese Person erreichen dürfen. Ein ausgelassener Kanal wird für sie übersprungen."
+          }
+        },
+        "reconfigure": {
+          "title": "Empfängerprofil",
+          "description": "Jede Person hat ohne Einrichtung ein Profil: Ihre Companion-App-Geräte werden über die Tracker der Person gefunden. Ein Profil ist nur nötig, um das zu ändern: ein nicht gefundenes Gerät hinzufügen, eines entfernen, ein Hauptgerät wählen oder die Kanäle einschränken.",
+          "data": {
+            "devices": "Hinzugefügte Geräte",
+            "removed_devices": "Entfernte Geräte",
+            "primary": "Hauptgerät",
+            "channels": "Akzeptierte Kanäle"
+          },
+          "data_description": {
+            "devices": "Companion-Geräte, die zusätzlich zu den erkannten verwendet werden.",
+            "removed_devices": "Erkannte Geräte, die ausgelassen werden.",
+            "primary": "Wird zuerst gelistet. Pushes gehen weiterhin an alle Geräte der Person. Leer: das erste erkannte Gerät.",
+            "channels": "Kanäle, die diese Person erreichen dürfen. Ein ausgelassener Kanal wird für sie übersprungen."
+          }
+        }
+      },
+      "error": {
+        "person_not_found": "Diese Person existiert nicht.",
+        "profile_exists": "Diese Person hat schon ein Profil. Ändere dieses.",
+        "device_unknown": "Ein gewähltes Gerät ist keine Companion-App-Registrierung.",
+        "device_added_and_removed": "Ein Gerät kann nicht gleichzeitig hinzugefügt und entfernt werden.",
+        "channels_required": "Mindestens einen Kanal wählen."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."

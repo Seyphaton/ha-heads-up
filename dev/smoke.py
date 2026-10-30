@@ -373,6 +373,18 @@ async def hub_core() -> None:
         print("trace:", trace)
         sent = await call(s, admin, "push", {"message": "once", "recipients": ["person.dev_admin"]})
         print("push shortcut:", sent)
+        audience = await call(s, admin, "popup", {"message": "once", "audience": "Everyone"})
+        print("popup to Everyone:", audience)
+        msg_id = await ws_admin.send(
+            {"type": "heads_up/hub_preview_audience", "audience": "Everyone"}
+        )
+        preview = (await ws_admin.recv(msg_id))["result"]
+        print("Everyone now:", preview)
+        assert "members" in preview and "skipped" in preview, preview
+        msg_id = await ws_user.send(
+            {"type": "heads_up/hub_preview_audience", "audience": "Everyone"}
+        )
+        assert (await ws_user.recv(msg_id))["error"]["code"] == "unauthorized"
 
 
 async def hub_core_verify() -> None:

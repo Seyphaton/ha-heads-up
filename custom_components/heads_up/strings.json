@@ -20,7 +20,8 @@
           "default_timeout": "Default timeout",
           "default_snoozable": "Banners can be snoozed by default",
           "default_snooze_scope": "Default snooze scope",
-          "default_snooze_options": "Default snooze choices"
+          "default_snooze_options": "Default snooze choices",
+          "presence_debounce_seconds": "Presence delay (seconds)"
         },
         "data_description": {
           "hub_enabled": "Switch the notification hub on or off. Off: only the banner channel works, as before the hub existed.",
@@ -30,7 +31,8 @@
           "default_timeout": "Used when an action call sets no timeout. Warning: if you clear this field, banners without their own timeout stay until they are dismissed or cleared.",
           "default_snoozable": "Used when an action call sets no snoozable. Banners that are not dismissible are never snoozable.",
           "default_snooze_scope": "Used when an action call sets no snooze_scope.",
-          "default_snooze_options": "Used when an action call sets no snooze_options. Leave empty for 15 minutes, 1 hour and 4 hours."
+          "default_snooze_options": "Used when an action call sets no snooze_options. Leave empty for 15 minutes, 1 hour and 4 hours.",
+          "presence_debounce_seconds": "A person must stay home or away this long before \"Last to leave\" and \"First home\" change. 0 reacts at once."
         }
       }
     }
@@ -94,6 +96,29 @@
         "popup": "Popup",
         "speak": "Speak",
         "persistent": "Persistent notification"
+      }
+    },
+    "audience_kind": {
+      "options": {
+        "persons": "Persons",
+        "presence": "Presence"
+      }
+    },
+    "presence_kind": {
+      "options": {
+        "at_home": "At home",
+        "not_home": "Not home",
+        "last_to_leave": "Last to leave",
+        "first_home": "First home",
+        "in_zone": "In a zone",
+        "not_in_zone": "Not in a zone"
+      }
+    },
+    "profile_channel": {
+      "options": {
+        "banner": "Banner",
+        "push": "Push",
+        "popup": "Popup"
       }
     }
   },
@@ -602,6 +627,152 @@
         "actions_invalid": "The buttons are not valid. Each needs a key and a label, up to 3.",
         "tap_action_invalid": "The tap action needs an action key.",
         "actions_dismiss_needs_dismissible": "A button with dismiss needs Dismissible to be on."
+      },
+      "abort": {
+        "reconfigure_successful": "Re-configuration was successful."
+      }
+    },
+    "audience": {
+      "entry_type": "Audience",
+      "initiate_flow": {
+        "user": "Add audience"
+      },
+      "step": {
+        "user": {
+          "title": "Add audience",
+          "description": "A named group of people that calls can address. Persons: a fixed list. Presence: whoever is at home, not home, the last to leave, the first home, or in a zone, at the moment of the call.",
+          "data": {
+            "name": "Name",
+            "kind": "Kind",
+            "persons": "Persons",
+            "presence": "Presence",
+            "zone": "Zone"
+          },
+          "data_description": {
+            "name": "Used in calls, for example \"At home\". Must differ from the built-in audiences and from other audiences.",
+            "persons": "For kind Persons: the people in this audience.",
+            "presence": "For kind Presence: which people count. Unknown presence counts for critical messages only.",
+            "zone": "For In a zone and Not in a zone."
+          }
+        },
+        "reconfigure": {
+          "title": "Audience",
+          "description": "A named group of people that calls can address. Persons: a fixed list. Presence: whoever is at home, not home, the last to leave, the first home, or in a zone, at the moment of the call.",
+          "data": {
+            "name": "Name",
+            "kind": "Kind",
+            "persons": "Persons",
+            "presence": "Presence",
+            "zone": "Zone"
+          },
+          "data_description": {
+            "name": "Used in calls, for example \"At home\". Must differ from the built-in audiences and from other audiences.",
+            "persons": "For kind Persons: the people in this audience.",
+            "presence": "For kind Presence: which people count. Unknown presence counts for critical messages only.",
+            "zone": "For In a zone and Not in a zone."
+          }
+        }
+      },
+      "error": {
+        "name_required": "Enter a name.",
+        "name_exists": "This name is already used by a built-in or another audience.",
+        "persons_required": "Choose at least one person.",
+        "presence_required": "Choose which presence this audience follows.",
+        "zone_required": "Choose a zone."
+      },
+      "abort": {
+        "reconfigure_successful": "Re-configuration was successful."
+      }
+    },
+    "recipient_group": {
+      "entry_type": "Recipient group",
+      "initiate_flow": {
+        "user": "Add recipient group"
+      },
+      "step": {
+        "user": {
+          "title": "Add recipient group",
+          "description": "A named set of speakers, satellites and areas for speech. In calls it is named \"NAME (group)\". An area stands for the speakers assigned to it in Home Assistant.",
+          "data": {
+            "name": "Name",
+            "members": "Speakers and satellites",
+            "areas": "Areas"
+          },
+          "data_description": {
+            "name": "Without the suffix \"(group)\", which calls add."
+          }
+        },
+        "reconfigure": {
+          "title": "Recipient group",
+          "description": "A named set of speakers, satellites and areas for speech. In calls it is named \"NAME (group)\". An area stands for the speakers assigned to it in Home Assistant.",
+          "data": {
+            "name": "Name",
+            "members": "Speakers and satellites",
+            "areas": "Areas"
+          },
+          "data_description": {
+            "name": "Without the suffix \"(group)\", which calls add."
+          }
+        }
+      },
+      "error": {
+        "name_required": "Enter a name.",
+        "name_exists": "This name is already used by a built-in or another audience.",
+        "name_has_suffix": "Leave out \"(group)\"; calls add it.",
+        "group_empty": "Choose at least one speaker, satellite or area.",
+        "member_not_found": "A chosen speaker or satellite does not exist.",
+        "area_not_found": "A chosen area does not exist."
+      },
+      "abort": {
+        "reconfigure_successful": "Re-configuration was successful."
+      }
+    },
+    "recipient_profile": {
+      "entry_type": "Recipient profile",
+      "initiate_flow": {
+        "user": "Add recipient profile"
+      },
+      "step": {
+        "user": {
+          "title": "Add recipient profile",
+          "description": "Every person has a profile without any setup: their Companion app devices are found from the person's trackers. Add one only to change that: add a device that was not found, remove one, pick a primary device or limit the channels.",
+          "data": {
+            "person": "Person",
+            "devices": "Added devices",
+            "removed_devices": "Removed devices",
+            "primary": "Primary device",
+            "channels": "Accepted channels"
+          },
+          "data_description": {
+            "devices": "Companion devices to use in addition to the detected ones.",
+            "removed_devices": "Detected devices to leave out.",
+            "primary": "Listed first. Pushes still go to every device of the person. Empty: the first detected device.",
+            "channels": "Channels that may reach this person. A channel left out is skipped for them."
+          }
+        },
+        "reconfigure": {
+          "title": "Recipient profile",
+          "description": "Every person has a profile without any setup: their Companion app devices are found from the person's trackers. Add one only to change that: add a device that was not found, remove one, pick a primary device or limit the channels.",
+          "data": {
+            "devices": "Added devices",
+            "removed_devices": "Removed devices",
+            "primary": "Primary device",
+            "channels": "Accepted channels"
+          },
+          "data_description": {
+            "devices": "Companion devices to use in addition to the detected ones.",
+            "removed_devices": "Detected devices to leave out.",
+            "primary": "Listed first. Pushes still go to every device of the person. Empty: the first detected device.",
+            "channels": "Channels that may reach this person. A channel left out is skipped for them."
+          }
+        }
+      },
+      "error": {
+        "person_not_found": "This person does not exist.",
+        "profile_exists": "This person already has a profile. Change that one.",
+        "device_unknown": "A chosen device is not a Companion app registration.",
+        "device_added_and_removed": "A device cannot be both added and removed.",
+        "channels_required": "Choose at least one channel."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

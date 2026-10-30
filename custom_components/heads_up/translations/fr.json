@@ -20,7 +20,8 @@
           "default_timeout": "Délai d'expiration par défaut",
           "default_snoozable": "Les bannières peuvent être reportées par défaut",
           "default_snooze_scope": "Portée du report par défaut",
-          "default_snooze_options": "Durées de report par défaut"
+          "default_snooze_options": "Durées de report par défaut",
+          "presence_debounce_seconds": "Délai de présence (secondes)"
         },
         "data_description": {
           "hub_enabled": "Active ou désactive le hub de notifications. Désactivé : seul le canal bannière fonctionne, comme avant le hub.",
@@ -30,7 +31,8 @@
           "default_timeout": "Utilisé quand l'appel d'action ne définit pas timeout. Attention : si vous videz ce champ, les bannières sans délai propre restent jusqu'à leur fermeture ou suppression.",
           "default_snoozable": "Utilisé quand l'appel d'action ne définit pas snoozable. Les bannières non fermables ne sont jamais reportables.",
           "default_snooze_scope": "Utilisé quand l'appel d'action ne définit pas snooze_scope.",
-          "default_snooze_options": "Utilisé quand l'appel d'action ne définit pas snooze_options. Laisser vide pour 15 minutes, 1 heure et 4 heures."
+          "default_snooze_options": "Utilisé quand l'appel d'action ne définit pas snooze_options. Laisser vide pour 15 minutes, 1 heure et 4 heures.",
+          "presence_debounce_seconds": "Une personne doit rester à la maison ou absente ce temps avant que « Last to leave » et « First home » changent. 0 réagit tout de suite."
         }
       }
     }
@@ -94,6 +96,29 @@
         "popup": "Popup",
         "speak": "Parler",
         "persistent": "Notification persistante"
+      }
+    },
+    "audience_kind": {
+      "options": {
+        "persons": "Personnes",
+        "presence": "Présence"
+      }
+    },
+    "presence_kind": {
+      "options": {
+        "at_home": "À la maison",
+        "not_home": "Absent",
+        "last_to_leave": "Parti en dernier",
+        "first_home": "Arrivé en premier",
+        "in_zone": "Dans une zone",
+        "not_in_zone": "Pas dans une zone"
+      }
+    },
+    "profile_channel": {
+      "options": {
+        "banner": "Bannière",
+        "push": "Push",
+        "popup": "Popup"
       }
     }
   },
@@ -602,6 +627,152 @@
         "actions_invalid": "Les boutons ne sont pas valides. Chacun a besoin d'une key et d'un label, 3 au maximum.",
         "tap_action_invalid": "L'action au toucher a besoin d'une clé action.",
         "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé."
+      },
+      "abort": {
+        "reconfigure_successful": "La reconfiguration a réussi."
+      }
+    },
+    "audience": {
+      "entry_type": "Public",
+      "initiate_flow": {
+        "user": "Ajouter un public"
+      },
+      "step": {
+        "user": {
+          "title": "Ajouter un public",
+          "description": "Un groupe de personnes nommé que les appels peuvent viser. Personnes : une liste fixe. Présence : qui est à la maison, absent, parti en dernier, arrivé en premier ou dans une zone au moment de l'appel.",
+          "data": {
+            "name": "Nom",
+            "kind": "Type",
+            "persons": "Personnes",
+            "presence": "Présence",
+            "zone": "Zone"
+          },
+          "data_description": {
+            "name": "Utilisé dans les appels, par exemple « At home ». Doit différer des publics intégrés et des autres publics.",
+            "persons": "Pour le type Personnes : les personnes de ce public.",
+            "presence": "Pour le type Présence : quelles personnes comptent. Une présence inconnue ne compte que pour les messages critiques.",
+            "zone": "Pour Dans une zone et Pas dans une zone."
+          }
+        },
+        "reconfigure": {
+          "title": "Public",
+          "description": "Un groupe de personnes nommé que les appels peuvent viser. Personnes : une liste fixe. Présence : qui est à la maison, absent, parti en dernier, arrivé en premier ou dans une zone au moment de l'appel.",
+          "data": {
+            "name": "Nom",
+            "kind": "Type",
+            "persons": "Personnes",
+            "presence": "Présence",
+            "zone": "Zone"
+          },
+          "data_description": {
+            "name": "Utilisé dans les appels, par exemple « At home ». Doit différer des publics intégrés et des autres publics.",
+            "persons": "Pour le type Personnes : les personnes de ce public.",
+            "presence": "Pour le type Présence : quelles personnes comptent. Une présence inconnue ne compte que pour les messages critiques.",
+            "zone": "Pour Dans une zone et Pas dans une zone."
+          }
+        }
+      },
+      "error": {
+        "name_required": "Saisissez un nom.",
+        "name_exists": "Ce nom est déjà utilisé par un public intégré ou un autre public.",
+        "persons_required": "Choisissez au moins une personne.",
+        "presence_required": "Choisissez la présence que ce public suit.",
+        "zone_required": "Choisissez une zone."
+      },
+      "abort": {
+        "reconfigure_successful": "La reconfiguration a réussi."
+      }
+    },
+    "recipient_group": {
+      "entry_type": "Groupe de destinataires",
+      "initiate_flow": {
+        "user": "Ajouter un groupe de destinataires"
+      },
+      "step": {
+        "user": {
+          "title": "Ajouter un groupe de destinataires",
+          "description": "Un ensemble nommé d'enceintes, de satellites et de zones pour la voix. Dans les appels il s'appelle « NOM (group) ». Une pièce représente les enceintes qui lui sont attribuées dans Home Assistant.",
+          "data": {
+            "name": "Nom",
+            "members": "Enceintes et satellites",
+            "areas": "Zones"
+          },
+          "data_description": {
+            "name": "Sans le suffixe « (group) », que les appels ajoutent."
+          }
+        },
+        "reconfigure": {
+          "title": "Groupe de destinataires",
+          "description": "Un ensemble nommé d'enceintes, de satellites et de zones pour la voix. Dans les appels il s'appelle « NOM (group) ». Une pièce représente les enceintes qui lui sont attribuées dans Home Assistant.",
+          "data": {
+            "name": "Nom",
+            "members": "Enceintes et satellites",
+            "areas": "Zones"
+          },
+          "data_description": {
+            "name": "Sans le suffixe « (group) », que les appels ajoutent."
+          }
+        }
+      },
+      "error": {
+        "name_required": "Saisissez un nom.",
+        "name_exists": "Ce nom est déjà utilisé par un public intégré ou un autre public.",
+        "name_has_suffix": "Omettez « (group) » ; les appels l'ajoutent.",
+        "group_empty": "Choisissez au moins une enceinte, un satellite ou une zone.",
+        "member_not_found": "Une enceinte ou un satellite choisi n'existe pas.",
+        "area_not_found": "Une zone choisie n'existe pas."
+      },
+      "abort": {
+        "reconfigure_successful": "La reconfiguration a réussi."
+      }
+    },
+    "recipient_profile": {
+      "entry_type": "Profil de destinataire",
+      "initiate_flow": {
+        "user": "Ajouter un profil de destinataire"
+      },
+      "step": {
+        "user": {
+          "title": "Ajouter un profil de destinataire",
+          "description": "Chaque personne a un profil sans configuration : ses appareils de l'application Companion sont trouvés par les suivis de la personne. N'en ajoutez un que pour modifier cela : ajouter un appareil non trouvé, en retirer un, choisir un appareil principal ou limiter les canaux.",
+          "data": {
+            "person": "Personne",
+            "devices": "Appareils ajoutés",
+            "removed_devices": "Appareils retirés",
+            "primary": "Appareil principal",
+            "channels": "Canaux acceptés"
+          },
+          "data_description": {
+            "devices": "Appareils Companion à utiliser en plus de ceux détectés.",
+            "removed_devices": "Appareils détectés à ignorer.",
+            "primary": "Listé en premier. Les push vont toujours à tous les appareils de la personne. Vide : le premier appareil détecté.",
+            "channels": "Canaux pouvant atteindre cette personne. Un canal omis est ignoré pour elle."
+          }
+        },
+        "reconfigure": {
+          "title": "Profil de destinataire",
+          "description": "Chaque personne a un profil sans configuration : ses appareils de l'application Companion sont trouvés par les suivis de la personne. N'en ajoutez un que pour modifier cela : ajouter un appareil non trouvé, en retirer un, choisir un appareil principal ou limiter les canaux.",
+          "data": {
+            "devices": "Appareils ajoutés",
+            "removed_devices": "Appareils retirés",
+            "primary": "Appareil principal",
+            "channels": "Canaux acceptés"
+          },
+          "data_description": {
+            "devices": "Appareils Companion à utiliser en plus de ceux détectés.",
+            "removed_devices": "Appareils détectés à ignorer.",
+            "primary": "Listé en premier. Les push vont toujours à tous les appareils de la personne. Vide : le premier appareil détecté.",
+            "channels": "Canaux pouvant atteindre cette personne. Un canal omis est ignoré pour elle."
+          }
+        }
+      },
+      "error": {
+        "person_not_found": "Cette personne n'existe pas.",
+        "profile_exists": "Cette personne a déjà un profil. Modifiez celui-ci.",
+        "device_unknown": "Un appareil choisi n'est pas un enregistrement de l'application Companion.",
+        "device_added_and_removed": "Un appareil ne peut pas être à la fois ajouté et retiré.",
+        "channels_required": "Choisissez au moins un canal."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."

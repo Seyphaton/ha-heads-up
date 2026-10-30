@@ -11,10 +11,14 @@ import voluptuous as vol
 from homeassistant.components.websocket_api import async_register_command
 from homeassistant.components.websocket_api.connection import ActiveConnection
 from homeassistant.components.websocket_api.const import ERR_UNAUTHORIZED
-from homeassistant.components.websocket_api.decorators import require_admin, websocket_command
+from homeassistant.components.websocket_api.decorators import (
+    async_response,
+    require_admin,
+    websocket_command,
+)
 from homeassistant.core import HomeAssistant, callback
 
-from .const import DOMAIN
+from .const import DOMAIN, SEVERITIES
 from .manager import BannerManager, HeadsUpError
 
 
@@ -171,6 +175,38 @@ def ws_hub_trace(hass: HomeAssistant, connection: ActiveConnection, msg: dict[st
     )
 
 
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/hub_preview_audience",
+        vol.Required("audience"): str,
+        vol.Optional("severity", default="warning"): vol.In(SEVERITIES),
+    }
+)
+@require_admin
+@async_response
+async def ws_hub_preview_audience(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Who an audience is right now, with the reason for each person (and each skipped one)."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    if manager.hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    resolver = manager.hub.resolver
+    if (audience := resolver.audience(msg["audience"])) is None:
+        connection.send_error(msg["id"], "not_found", f"Audience {msg['audience']} not found")
+        return
+    result = await resolver.members(audience, msg["severity"])
+    connection.send_result(
+        msg["id"],
+        {
+            "members": [{"person": r.key, "reason": r.reason} for r in result.recipients],
+            "skipped": [{"person": s.who, "reason": s.reason} for s in result.skipped],
+        },
+    )
+
+
 @callback
 def async_setup_websocket(hass: HomeAssistant) -> None:
     for command in (
@@ -182,5 +218,6 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_action,
         ws_admin_clear,
         ws_hub_trace,
+        ws_hub_preview_audience,
     ):
         async_register_command(hass, command)

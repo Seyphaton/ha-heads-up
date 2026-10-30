@@ -58,6 +58,32 @@ POLICY_NONE: Final = "none"
 DELIVERIES_KEY: Final = "heads_up.deliveries"
 DELIVERIES_VERSION: Final = 1
 DELIVERIES_MINOR_VERSION: Final = 1
+AUDIENCE_SUBENTRY: Final = "audience"
+GROUP_SUBENTRY: Final = "recipient_group"
+PROFILE_SUBENTRY: Final = "recipient_profile"
+GROUP_SUFFIX: Final = " (group)"  # how a recipient group is named in calls
+PRESENCE_KEY: Final = "heads_up.presence"
+# Built in, not stored (D-080). Names are the ones calls use.
+BUILTIN_AUDIENCES: Final = {
+    "Everyone": "everyone",
+    "Admins": "admins",
+    "At home": "at_home",
+    "Not home": "not_home",
+    "Last to leave": "last_to_leave",
+    "First home": "first_home",
+}
+AUDIENCE_KINDS: Final = ("persons", "presence")
+PRESENCE_KINDS: Final = (
+    "at_home",
+    "not_home",
+    "last_to_leave",
+    "first_home",
+    "in_zone",
+    "not_in_zone",
+)
+ZONE_KINDS: Final = ("in_zone", "not_in_zone")
+PROFILE_CHANNELS: Final = ("banner", "push", "popup")  # channels a person's profile can accept
+OPT_PRESENCE_DEBOUNCE: Final = "presence_debounce_seconds"  # D-109
 OPT_HUB_ENABLED: Final = "hub_enabled"  # D-107: on by default, this is the off switch
 OPT_INSTALL_TOKEN: Final = "install_token"  # 6 hex characters, used in push tags (D-080)
 OPT_TRACE_ENTRIES: Final = "trace_entries"
@@ -76,6 +102,7 @@ DEFAULT_OPTIONS: Final = {
     OPT_DEFAULT_SNOOZE_SCOPE: "user",
     OPT_DEFAULT_SNOOZE_OPTIONS: list(DEFAULT_SNOOZE_SECONDS),
     OPT_HUB_ENABLED: True,
+    OPT_PRESENCE_DEBOUNCE: 60,
     OPT_TRACE_ENTRIES: 500,
     OPT_RECENT_MESSAGES: 100,
     OPT_RATE_PER_DEVICE: 10,
