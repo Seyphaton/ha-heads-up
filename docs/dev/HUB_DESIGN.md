@@ -585,3 +585,9 @@ Rules keep working as released and get no hub fields; the panel lists them read-
 
 ## BANNER HELD WITH A SUMMARY (maintainer, 2026-10-30, D-105)
 While a Summarize policy holds a message, the dashboard banner is held too. The open item "banner held while a summary waits" is closed.
+
+
+---
+
+## SUMMARY DETAILS AND PRECEDENCE (maintainer, 2026-10-30, D-106)
+Summary severity is the highest among its messages; it goes to the channels and targets the held messages would have used; it stays until dismissed or 24 hours. No default delivery by severity. Precedence: Summarize, Quiet hours, Away, Fallback; the summary passes through the same chain. The open items in the earlier text are closed.

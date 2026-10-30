@@ -606,7 +606,8 @@ policy:
   dismiss_counts: true
 ```
 - Common fields: `name`, `type`, `applies_to` (empty means all), `enabled`. There is no "only if" condition and there are no named conditions in the first version (D-099).
-- A second policy of the same type with identical `applies_to` and trigger is refused. Precedence on one delivery: Summarize, Quiet hours, Away, Fallback; escalations and reminders create later deliveries that pass through the same rules.
+- A second policy of the same type with identical `applies_to` and trigger is refused. Precedence on one delivery (D-106): Summarize, Quiet hours, Away, Fallback; escalations, reminders and the summary itself are deliveries that pass through the same chain.
+- A summary (D-106) takes the highest severity of its messages, goes to the channels and targets the held messages would have used (one per recipient and channel), and stays until dismissed or 24 hours. There is no default delivery by severity: calls always name their channels.
 - The first delivery (channels and a target per channel) always comes from the call. Escalation and Fallback name their own channels and a target for each (D-098).
 - Acknowledgement: any recipient stops escalation and reminders. Snooze clears the user's push, pauses their reminders and notifies again when it ends. A severity change restarts escalation and reminders with the policies of the new severity. An overdue escalation fires once after a restart if the message is active and unacknowledged.
 - The lifecycle condition ending the message clears every channel and cancels all policies for it.
@@ -648,4 +649,4 @@ A separate integration consuming events (events lack recipients and silent trans
 - Quiet hours "quiet": push passive without sound, speech skipped, popup as a corner card.
 
 ### 23.15 Open
-The summary message's severity, channels and lifetime (the banner is held with all other channels while a summary waits, D-105); whether a Default delivery by severity is needed; the final policy precedence order; panel component contract and manifest listing for a custom panel (N-69); the recent-messages list across restarts; the unit name in public docs; verification of the person-to-device path, the action event user, announce behavior and 2026.10; popup area recipients (not built); build phasing (delayed until the design is final). See `docs/OPEN_QUESTIONS.md`.
+Panel component contract and manifest listing for a custom panel (N-69); the recent-messages list across restarts; the unit name in public docs; verification of the person-to-device path, the action event user, announce behavior and 2026.10; popup area recipients (not built); build phasing (delayed until the design is final). See `docs/OPEN_QUESTIONS.md`.

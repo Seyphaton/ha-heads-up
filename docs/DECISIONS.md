@@ -639,3 +639,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Date: 2026-10-30. Confirmed by the maintainer; closes an open item of D-097.
 - Decision: while a Summarize policy holds a message, no channel shows it, including the dashboard banner. It appears on the dashboard only in the summary. The Overview lists such messages as "in a summary", so they stay findable. Critical messages are only held if the policy includes them (a warning appears in the form).
 - Alternatives: the banner shows at once and only other channels wait; a policy setting to also hold the banner.
+
+## D-106 Summary message details, no default delivery, precedence
+- Date: 2026-10-30. Closes the open items of D-097 and D-105.
+- Decision:
+  - A summary message gets the highest severity among the messages it contains; policies for that severity then apply to the summary.
+  - A summary goes to the channels and targets that the held messages would have used: one summary per recipient and channel, listing the messages meant for that recipient.
+  - A summary stays on the dashboard and in the notification bell until dismissed, or for 24 hours.
+  - There is no default delivery by severity: calls always name their channels (D-087 stands).
+  - Precedence on one delivery: Summarize, then Quiet hours, then Away, then Fallback. The summary itself is a delivery and passes through quiet hours, the away check and fallback like any other. Escalations and reminders create later deliveries that pass through the same chain.
+- Alternatives: summary severity always info or set on the policy; summary channels set on the policy; a timeout on the policy; a default delivery per severity; quiet hours before summarize; summaries exempt from the other policies.
