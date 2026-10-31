@@ -1,6 +1,6 @@
 # H4c: Summarize policy
 
-Size: medium. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: medium. Status: built on branch `hub/h4c-summarize` (see `ROADMAP.md`). Held messages live in the ledger store; the Overview state "in a summary" is `HubEngine.is_held`; no separate held and released transitions were added. Decisions in D-113. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Add the Summarize type: hold matching messages on every channel and send one summary per recipient and channel.

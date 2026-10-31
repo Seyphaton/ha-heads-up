@@ -30,6 +30,7 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 
 - Presence delay for Last to leave and First home: 60 seconds, configurable, 0 for none; their state is stored; an area is the speakers assigned to it in Home Assistant; a profile exists for every person without setup (D-109).
 
+- Summarize: every 60 minutes or at a time of day (form default 20:00 when used), critical excluded; a summary lists every held message that still exists, cleared ones marked resolved (D-113).
 - Quiet hours: local wall clock; 22:00 to 07:00, all days, action quiet, critical passes (D-112).
 - Policies: escalation after 5 minutes; reminder every 30 minutes, at most 3; dismissing counts as acknowledging only when the policy says so (D-111).
 - Push: Android channel prefix `heads_up`, lock-screen text full, buttons Snooze and Dismiss, levels by severity, iOS critical off (D-110).

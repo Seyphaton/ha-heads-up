@@ -48,6 +48,7 @@ Status values: current, partly superseded (the part that still holds is named), 
 - Call: `heads_up.notify` with content, lifecycle, `channels` (required list), `to` (a target per channel: `audience` or `recipients`, never both), `policy` (omitted: all that apply; `none`: no policy behavior). Shortcuts `push`, `popup`, `speak`. `create_banner` and watch rules unchanged (rules frozen).
 - Targets: banner (audience or persons, empty means everyone), push (audience, or persons and phones), popup (audience or persons), speak (speakers, groups, satellites, areas; no audience), persistent (none).
 - Deleted audience or group that a policy names: reported (trace `audience_missing`, `group_missing`), the step is skipped, a usage lookup exists (D-111). Moving hub objects to an own store is a follow-up.
+- Summary: lists every held message that still exists, a cleared one marked resolved; acknowledged and dismissed need no handling because a held message cannot be acted on by its recipients (D-113).
 - Objects: audience (flat; persons or presence), recipient group, recipient profile, policy (typed rules). No named conditions.
 - Policy types: Escalation, Quiet hours, Fallback, Reminder, Away, Summarize. Common fields: name, type, applies to, enabled. Precedence Summarize, Quiet hours, Away, Fallback.
 - Panel: five groups (Overview; Notifications and Rules; Configuration; Settings; FAQ and Examples).
