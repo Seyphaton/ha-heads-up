@@ -117,6 +117,11 @@ DEFAULT_PUSH_LEVELS: Final = {
     "warning": "normal",
     "critical": "time-sensitive",  # "critical" is the iOS opt-in
 }
+# Speech settings (D-114).
+OPT_SPEAK_MAX_LENGTH: Final = "speak_max_length"  # characters
+OPT_SPEAK_COOLDOWN: Final = "speak_cooldown_seconds"  # 0 for none
+OPT_SPEAK_TTS_ENTITY: Final = "speak_tts_entity"  # empty: the only tts entity
+OPT_SPEAK_LANGUAGE: Final = "speak_language"  # empty: the Home Assistant language
 OPT_HUB_ENABLED: Final = "hub_enabled"  # D-107: on by default, this is the off switch
 OPT_INSTALL_TOKEN: Final = "install_token"  # 6 hex characters, used in push tags (D-080)
 OPT_TRACE_ENTRIES: Final = "trace_entries"
@@ -140,6 +145,10 @@ DEFAULT_OPTIONS: Final = {
     OPT_PUSH_LOCKSCREEN: "full",
     OPT_PUSH_CHANNEL_ID: "heads_up",
     OPT_PUSH_STICKY: False,
+    OPT_SPEAK_MAX_LENGTH: 200,
+    OPT_SPEAK_COOLDOWN: 60,
+    OPT_SPEAK_TTS_ENTITY: "",
+    OPT_SPEAK_LANGUAGE: "",
     OPT_TRACE_ENTRIES: 500,
     OPT_RECENT_MESSAGES: 100,
     OPT_RATE_PER_DEVICE: 10,

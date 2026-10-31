@@ -21,7 +21,10 @@
           "default_snoozable": "Les bannières peuvent être reportées par défaut",
           "default_snooze_scope": "Portée du report par défaut",
           "default_snooze_options": "Durées de report par défaut",
-          "presence_debounce_seconds": "Délai de présence (secondes)"
+          "presence_debounce_seconds": "Délai de présence (secondes)",
+          "speak_max_length": "Texte parlé : longueur maximale (caractères)",
+          "speak_cooldown_seconds": "Texte parlé : pause avant répétition (secondes)",
+          "speak_tts_entity": "Moteur de synthèse vocale"
         },
         "data_description": {
           "hub_enabled": "Active ou désactive le hub de notifications. Désactivé : seul le canal bannière fonctionne, comme avant le hub.",
@@ -32,7 +35,10 @@
           "default_snoozable": "Utilisé quand l'appel d'action ne définit pas snoozable. Les bannières non fermables ne sont jamais reportables.",
           "default_snooze_scope": "Utilisé quand l'appel d'action ne définit pas snooze_scope.",
           "default_snooze_options": "Utilisé quand l'appel d'action ne définit pas snooze_options. Laisser vide pour 15 minutes, 1 heure et 4 heures.",
-          "presence_debounce_seconds": "Une personne doit rester à la maison ou absente ce temps avant que « Last to leave » et « First home » changent. 0 réagit tout de suite."
+          "presence_debounce_seconds": "Une personne doit rester à la maison ou absente ce temps avant que « Last to leave » et « First home » changent. 0 réagit tout de suite.",
+          "speak_max_length": "Les textes plus longs sont coupés à la fin d'un mot et se terminent par des points de suspension.",
+          "speak_cooldown_seconds": "Le même texte n'est pas redit sur le même haut-parleur pendant ce délai. 0 : toujours dire.",
+          "speak_tts_entity": "Le moteur qui parle sur les lecteurs multimédia. Vide : la seule entité de synthèse vocale, s'il n'y en a qu'une."
         }
       }
     }

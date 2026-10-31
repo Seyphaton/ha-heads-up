@@ -1,7 +1,7 @@
 {
   "domain": "heads_up",
   "name": "Heads Up",
-  "after_dependencies": ["mobile_app", "notify"],
+  "after_dependencies": ["assist_satellite", "media_player", "mobile_app", "notify", "tts"],
   "codeowners": ["@Seyphaton"],
   "config_flow": true,
   "dependencies": ["frontend", "http", "person"],

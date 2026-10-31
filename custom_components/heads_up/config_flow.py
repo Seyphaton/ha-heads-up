@@ -59,6 +59,9 @@ from .const import (
     OPT_HUB_ENABLED,
     OPT_MAX_BANNERS,
     OPT_PRESENCE_DEBOUNCE,
+    OPT_SPEAK_COOLDOWN,
+    OPT_SPEAK_MAX_LENGTH,
+    OPT_SPEAK_TTS_ENTITY,
     POLICY_SUBENTRY,
     PROFILE_SUBENTRY,
     RULE_SUBENTRY,
@@ -133,6 +136,13 @@ class HeadsUpOptionsFlow(OptionsFlow):
                             OPT_PRESENCE_DEBOUNCE, DEFAULT_OPTIONS[OPT_PRESENCE_DEBOUNCE]
                         )
                     ),
+                    OPT_SPEAK_MAX_LENGTH: int(
+                        user_input.get(OPT_SPEAK_MAX_LENGTH, DEFAULT_OPTIONS[OPT_SPEAK_MAX_LENGTH])
+                    ),
+                    OPT_SPEAK_COOLDOWN: int(
+                        user_input.get(OPT_SPEAK_COOLDOWN, DEFAULT_OPTIONS[OPT_SPEAK_COOLDOWN])
+                    ),
+                    OPT_SPEAK_TTS_ENTITY: user_input.get(OPT_SPEAK_TTS_ENTITY, ""),
                     OPT_MAX_BANNERS: int(user_input[OPT_MAX_BANNERS]),
                     OPT_EVICT: user_input[OPT_EVICT],
                     OPT_DEFAULT_DISMISS_SCOPE: user_input[OPT_DEFAULT_DISMISS_SCOPE],
@@ -158,6 +168,13 @@ class HeadsUpOptionsFlow(OptionsFlow):
             if current[OPT_DEFAULT_TIMEOUT]
             else vol.Optional(OPT_DEFAULT_TIMEOUT)
         )
+        speak_engine_field = (
+            vol.Optional(
+                OPT_SPEAK_TTS_ENTITY, description={"suggested_value": current[OPT_SPEAK_TTS_ENTITY]}
+            )
+            if current[OPT_SPEAK_TTS_ENTITY]
+            else vol.Optional(OPT_SPEAK_TTS_ENTITY)
+        )
         schema = vol.Schema(
             {
                 vol.Required(OPT_HUB_ENABLED, default=current[OPT_HUB_ENABLED]): BooleanSelector(),
@@ -166,6 +183,17 @@ class HeadsUpOptionsFlow(OptionsFlow):
                 ): NumberSelector(
                     NumberSelectorConfig(min=0, max=600, step=1, mode=NumberSelectorMode.BOX)
                 ),
+                vol.Required(
+                    OPT_SPEAK_MAX_LENGTH, default=current[OPT_SPEAK_MAX_LENGTH]
+                ): NumberSelector(
+                    NumberSelectorConfig(min=20, max=1000, step=1, mode=NumberSelectorMode.BOX)
+                ),
+                vol.Required(
+                    OPT_SPEAK_COOLDOWN, default=current[OPT_SPEAK_COOLDOWN]
+                ): NumberSelector(
+                    NumberSelectorConfig(min=0, max=3600, step=1, mode=NumberSelectorMode.BOX)
+                ),
+                speak_engine_field: EntitySelector(EntitySelectorConfig(domain="tts")),
                 vol.Required(OPT_MAX_BANNERS, default=current[OPT_MAX_BANNERS]): NumberSelector(
                     NumberSelectorConfig(min=1, max=200, step=1, mode=NumberSelectorMode.BOX)
                 ),

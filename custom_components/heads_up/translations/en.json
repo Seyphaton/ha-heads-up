@@ -21,7 +21,10 @@
           "default_snoozable": "Banners can be snoozed by default",
           "default_snooze_scope": "Default snooze scope",
           "default_snooze_options": "Default snooze choices",
-          "presence_debounce_seconds": "Presence delay (seconds)"
+          "presence_debounce_seconds": "Presence delay (seconds)",
+          "speak_max_length": "Spoken text: longest (characters)",
+          "speak_cooldown_seconds": "Spoken text: repeat pause (seconds)",
+          "speak_tts_entity": "Text-to-speech engine"
         },
         "data_description": {
           "hub_enabled": "Switch the notification hub on or off. Off: only the banner channel works, as before the hub existed.",
@@ -32,7 +35,10 @@
           "default_snoozable": "Used when an action call sets no snoozable. Banners that are not dismissible are never snoozable.",
           "default_snooze_scope": "Used when an action call sets no snooze_scope.",
           "default_snooze_options": "Used when an action call sets no snooze_options. Leave empty for 15 minutes, 1 hour and 4 hours.",
-          "presence_debounce_seconds": "A person must stay home or away this long before \"Last to leave\" and \"First home\" change. 0 reacts at once."
+          "presence_debounce_seconds": "A person must stay home or away this long before \"Last to leave\" and \"First home\" change. 0 reacts at once.",
+          "speak_max_length": "Longer texts are cut at a word and end with an ellipsis.",
+          "speak_cooldown_seconds": "The same text is not spoken again on the same speaker within this time. 0: always speak.",
+          "speak_tts_entity": "The engine that speaks on media players. Empty: the only text-to-speech entity, if there is exactly one."
         }
       }
     }

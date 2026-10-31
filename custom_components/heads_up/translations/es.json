@@ -21,7 +21,10 @@
           "default_snoozable": "Los avisos se pueden posponer de forma predeterminada",
           "default_snooze_scope": "Ámbito de posposición predeterminado",
           "default_snooze_options": "Opciones de posposición predeterminadas",
-          "presence_debounce_seconds": "Retraso de presencia (segundos)"
+          "presence_debounce_seconds": "Retraso de presencia (segundos)",
+          "speak_max_length": "Texto hablado: longitud máxima (caracteres)",
+          "speak_cooldown_seconds": "Texto hablado: pausa de repetición (segundos)",
+          "speak_tts_entity": "Motor de texto a voz"
         },
         "data_description": {
           "hub_enabled": "Activa o desactiva el hub de notificaciones. Desactivado: solo funciona el canal banner, como antes del hub.",
@@ -32,7 +35,10 @@
           "default_snoozable": "Se usa cuando la llamada a la acción no define snoozable. Los avisos que no se pueden cerrar nunca se pueden posponer.",
           "default_snooze_scope": "Se usa cuando la llamada a la acción no define snooze_scope.",
           "default_snooze_options": "Se usa cuando la llamada a la acción no define snooze_options. Déjalo vacío para 15 minutos, 1 hora y 4 horas.",
-          "presence_debounce_seconds": "Una persona debe estar en casa o fuera este tiempo antes de que cambien \"Last to leave\" y \"First home\". 0 reacciona al instante."
+          "presence_debounce_seconds": "Una persona debe estar en casa o fuera este tiempo antes de que cambien \"Last to leave\" y \"First home\". 0 reacciona al instante.",
+          "speak_max_length": "Los textos más largos se cortan al final de una palabra y terminan con puntos suspensivos.",
+          "speak_cooldown_seconds": "El mismo texto no se repite en el mismo altavoz dentro de este tiempo. 0: hablar siempre.",
+          "speak_tts_entity": "El motor que habla en los reproductores multimedia. Vacío: la única entidad de texto a voz, si solo hay una."
         }
       }
     }
