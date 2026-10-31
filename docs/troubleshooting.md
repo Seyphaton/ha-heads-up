@@ -51,6 +51,16 @@ Ask the trace for the message: the admin WebSocket command `heads_up/hub_trace` 
 - `presence_unknown`: an audience such as `Not home` skipped a person whose presence is unknown. Only `critical` messages include them.
 - A button press that does nothing: the trace says `user_mismatch`, `stale_message` or `unknown_recipient`.
 
+## An escalation or reminder did not run
+
+Open the trace of the message (`heads_up/hub_trace`, admin) and look for entries with the channel `timer`.
+
+- `cleared` with `acknowledged`: someone acknowledged the message.
+- `cleared` with `dismissed_counts_as_acknowledged`: the policy counts a dismissal as an acknowledgement.
+- `skipped` with `audience_missing` or `group_missing`: an audience or group the policy names was deleted. Edit the policy.
+- `cleared` with `nobody_left`: every recipient had dismissed or snoozed, so there was nobody to remind.
+- No entry: the policy did not match the message (severity, tag, or the `policy` field), is disabled, or was added after the message became visible. A policy added later starts at the message's next update. See [Policies](policies.md).
+
 ## The "Clear all" button is missing
 
 The button appears only when the card shows at least one banner that can be dismissed, and only with `clear_all: true`. Banners with `dismissible: false` are not counted.

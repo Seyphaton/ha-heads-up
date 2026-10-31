@@ -40,7 +40,7 @@ An update to a message replaces the notification in place. An iOS critical notif
 
 ## Buttons
 
-Pressing Dismiss, Snooze or one of the message's own buttons does the same as pressing it on the banner, for the person the notification was sent to. Snooze uses the first snooze choice of the message. The button's ID is `hu:<message>:<person>:<action>`; the hub trusts nothing else in the event. If the event carries a Home Assistant user and it is not the person's user, the press is ignored and the trace says `user_mismatch`. A press for a message that no longer exists is ignored (`stale_message`). Buttons of other automations are not touched.
+Pressing Acknowledge, Dismiss, Snooze or one of the message's own buttons does the same as pressing it on the banner, for the person the notification was sent to. Snooze uses the first snooze choice of the message. The button's ID is `hu:<message>:<person>:<action>`; the hub trusts nothing else in the event. If the event carries a Home Assistant user and it is not the person's user, the press is ignored and the trace says `user_mismatch`. A press for a message that no longer exists is ignored (`stale_message`). Buttons of other automations are not touched.
 
 ## Settings
 
@@ -57,5 +57,5 @@ These options have defaults and no form yet. They are read from the integration 
 
 - No retry. A failed push is not tried again.
 - No rate limit yet.
-- The Acknowledge button and escalation are not built. A press of an Acknowledge button is ignored.
+- The Acknowledge button appears only when an escalation or reminder policy applies to the message; see [Policies](policies.md). Pressing it acknowledges the message for the person the notification was sent to.
 - The behavior on real phones was not checked; the tests use a stand-in for the app.

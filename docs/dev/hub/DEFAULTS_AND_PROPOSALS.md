@@ -30,6 +30,7 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 
 - Presence delay for Last to leave and First home: 60 seconds, configurable, 0 for none; their state is stored; an area is the speakers assigned to it in Home Assistant; a profile exists for every person without setup (D-109).
 
+- Policies: escalation after 5 minutes; reminder every 30 minutes, at most 3; dismissing counts as acknowledging only when the policy says so (D-111).
 - Push: Android channel prefix `heads_up`, lock-screen text full, buttons Snooze and Dismiss, levels by severity, iOS critical off (D-110).
 
 ## Proposed (used in the mockup, not decided)

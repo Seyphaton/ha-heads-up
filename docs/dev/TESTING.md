@@ -51,6 +51,12 @@
 | `tests/hub/test_push_payload.py` | push payload: tag and group, level and importance per severity, iOS critical opt-in, lock-screen modes, language, sticky, click action, button order and ids, platform button limits |
 | `tests/hub/test_push_lifecycle.py` | replace by tag, all devices of a person, clear on every end, per-user dismissal, snooze and remind, waiting message, ledger tag and person, missing and failing services, no device, restart, startup clear, hub off |
 | `tests/hub/test_push_actions.py` | press round trip: dismiss, snooze, own button, user from the person or the event, mismatch, stale, wrong recipient, foreign actions, untrusted tag, listener removed on unload |
+| `tests/hub/test_policy_matching.py` | severity and tag matching, empty lists, `policy` field (name, none, disabled), duplicates |
+| `tests/hub/test_policy_chain.py` | stage order, skip stops the chain, stubs pass, unknown stage |
+| `tests/hub/test_policy_flow.py` | policy form: both types, targets per channel, unknown names, duplicates, reserved name, reconfigure |
+| `tests/hub/test_policy_escalation.py` | timing with the freezer, ledger timer row, acknowledge, dismiss counts or not, chain of two, severity change, clear and condition end, overdue step after a restart (once), pending step after a restart, deleted audience reported, disabled, `policy` field, tags |
+| `tests/hub/test_policy_reminder.py` | repeat and maximum, acknowledge, snooze pause and resume, everyone dismissed, channel limit, severity filter |
+| `tests/hub/test_policy_acknowledge.py` | Acknowledge button only with a policy, press on the push, banner stays, idempotent, unknown message, rule messages (tag `rule`, reset when the condition flips), usage lookup |
 | `tests/test_frontend.py` | module URL with `?v=<version>-<file hash>` registered, changes with the file, removed on unload (the URL that was added) and added on reload, file served at `/heads_up/heads-up-card.js` |
 | `tests/card/heads-up-card.test.js` | `normalizeConfig` (all options), `sortBanners`, `visibleBanners`, `controlsFor`, `retryDelay`, `relativeTime`, `collapse`, `emptyView`, `resolveColors`, `colorParts`, `swipeOutcome`, `clearableIds` (vitest) |
 

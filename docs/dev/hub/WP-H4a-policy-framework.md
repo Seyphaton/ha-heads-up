@@ -1,6 +1,6 @@
 # H4a: Policy framework, Escalation and Reminder
 
-Size: large. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: large. Status: built on branch `hub/h4a-policies` (see `ROADMAP.md`). Built differently from the text below: timers are ledger rows of channel `timer`; the policy form is one flat form for both types; the usage lookup is the WebSocket command `heads_up/hub_usage`; deleted audiences are reported, not blocked (D-111). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Build the policy subentry type, matching, the precedence chain and the timer machinery, and implement the Escalation and Reminder types with acknowledgement. Quiet hours, Away, Fallback and Summarize are separate packages that plug into the chain.
