@@ -193,6 +193,90 @@ class HubEngine:
             return Planned(channel, recipient, Result.SENT, who=who)
         return Planned(channel, recipient, Result.SKIPPED, "channel_unavailable", who)
 
+    async def preview(self, message: Banner) -> dict[str, Any]:
+        """What the first delivery of this message would do now, chain included, sending nothing.
+
+        The same planning and the same precedence chain as a real delivery, so the preview cannot
+        drift (D-120). The message is never stored."""
+        summary = self._summary_policy(message)
+        planned = await self.plan(message)
+        rows: list[dict[str, Any]] = []
+        results: list[tuple[Planned, Outcome]] = []
+        for item in planned:
+            row = self._preview_row(message, item, summary)
+            rows.append(row)
+            results.append((item, Outcome(Result(row["result"]), row["reason"])))
+        if summary is None:
+            classes = self._unreached(results)
+            for policy in self.policies.for_message(message):
+                if policy.type != "fallback" or not fallback.matches(policy.when, classes):
+                    continue
+                if (problem := self.policy_problem(policy)) is not None:
+                    rows.append(
+                        {
+                            "channel": "",
+                            "recipient": "",
+                            "result": "skipped",
+                            "reason": problem,
+                            "via": policy.name,
+                        }
+                    )
+                    continue
+                other = escalation.message_for(message, policy)
+                for item in await self.plan(other):
+                    rows.append({**self._preview_row(other, item, None), "via": policy.name})
+        applied = self.policies.for_message(message)
+        return {
+            "rows": rows,
+            "policies": [{"name": p.name, "type": p.type} for p in applied],
+            "later": [self._later(p) for p in applied if p.type != "quiet_hours"],
+            "held_for_summary": summary.name if summary else None,
+        }
+
+    def _preview_row(
+        self, message: Banner, item: Planned, summary: Policy | None
+    ) -> dict[str, Any]:
+        row: dict[str, Any] = {
+            "channel": item.channel,
+            "recipient": item.recipient,
+            "person": item.who.person if item.who else None,
+            "result": item.result.value,
+            "reason": item.reason,
+            "note": None,
+            "until": None,
+            "via": None,
+        }
+        if summary is not None:
+            return {**row, "result": "held", "reason": "summarize", "note": summary.name}
+        if item.result is Result.SENT:
+            step = self.chain.run(
+                Step(message, item.channel, self._target(item, message, ack=False), "message")
+            )
+            if isinstance(step, Skip):
+                return {**row, "result": "skipped", "reason": step.reason}
+            if isinstance(step, Hold):
+                until = step.until.isoformat() if step.until else None
+                return {**row, "result": "held", "reason": step.reason, "until": until}
+            if step.target.quiet:
+                row["note"] = "quiet"
+        return row
+
+    @staticmethod
+    def _later(policy: Policy) -> dict[str, Any]:
+        """The timing of a policy, as fields the panel words."""
+        fields = {
+            "escalation": ("after_minutes", "channels"),
+            "reminder": ("every_minutes", "max_count", "channels"),
+            "away": ("max_wait",),
+            "fallback": ("when", "channels"),
+            "summarize": ("summary_every", "summary_at", "include_critical"),
+        }
+        out: dict[str, Any] = {"type": policy.type, "policy": policy.name}
+        for key in fields.get(policy.type, ()):
+            value = getattr(policy, key)
+            out[key] = list(value) if isinstance(value, tuple) else value
+        return out
+
     @staticmethod
     def counts(planned: list[Planned]) -> dict[str, dict[str, int]]:
         out: dict[str, dict[str, int]] = {}

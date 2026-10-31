@@ -161,7 +161,9 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
         for s in of(POLICY_SUBENTRY)
     ]
     areas = ar.async_get(hass).async_list_areas()
-    known = {c: hub.recipients.known(c) for c in ("push", "popup", "speak")} if hub else {}
+    known = (
+        {c: hub.recipients.known(c) for c in ("banner", "push", "popup", "speak")} if hub else {}
+    )
     return {
         "entry_id": entry.entry_id,
         "hub": hub is not None,

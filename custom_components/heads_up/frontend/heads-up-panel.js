@@ -11,6 +11,7 @@ export const NAV = [
 // Page id to the module that renders it. A page without a module shows a note.
 export const MODULES = {
   status: "overview.js",
+  test: "test_send.js",
   messages: "messages.js",
   general: "settings.js",
   audiences: "audiences.js",

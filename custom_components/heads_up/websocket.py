@@ -20,7 +20,7 @@ from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, SEVERITIES
 from .frontend import async_popup_url
-from .hub import panel_config, panel_data, presets, settings
+from .hub import panel_config, panel_data, panel_test, presets, settings
 from .manager import BannerManager, HeadsUpError
 
 
@@ -278,6 +278,60 @@ def ws_channels_set(hass: HomeAssistant, connection: ActiveConnection, msg: dict
     connection.send_result(msg["id"], panel_config.channel_settings(entry.runtime_data))
 
 
+_TEST_CALL: dict[Any, Any] = {
+    vol.Required("message"): str,
+    vol.Required("channels"): [str],
+    vol.Optional("title"): str,
+    vol.Optional("tts_message"): str,
+    vol.Optional("severity"): str,
+    vol.Optional("tag"): str,
+    vol.Optional("policy"): str,
+    vol.Optional("to"): {str: dict},
+}
+
+
+@websocket_command({vol.Required("type"): "heads_up/hub_plan", **_TEST_CALL})
+@require_admin
+@async_response
+async def ws_hub_plan(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The dry run of Test send: what a call would do now. Sends nothing (D-120)."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    if manager.hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    payload = {k: v for k, v in msg.items() if k not in ("id", "type")}
+    try:
+        message = panel_test.build(manager.hub, payload)
+    except panel_test.TestSendError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    connection.send_result(msg["id"], await manager.hub.preview(message))
+
+
+@websocket_command({vol.Required("type"): "heads_up/hub_test_send", **_TEST_CALL})
+@require_admin
+@async_response
+async def ws_hub_test_send(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The one real send of the panel: the call with the test marker (D-120)."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    if manager.hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    payload = {k: v for k, v in msg.items() if k not in ("id", "type")}
+    try:
+        result = await panel_test.send(hass, manager.hub, payload)
+    except panel_test.TestSendError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    connection.send_result(msg["id"], result)
+
+
 @websocket_command({vol.Required("type"): "heads_up/hub_usage", vol.Required("name"): str})
 @require_admin
 @callback
@@ -432,6 +486,8 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_dismiss_many,
         ws_acknowledge,
         ws_hub_usage,
+        ws_hub_plan,
+        ws_hub_test_send,
         ws_panel_config,
         ws_channels_set,
         ws_panel_overview,
