@@ -1,6 +1,6 @@
 # H9b: Panel: Overview and Messages
 
-Size: medium. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: medium. Status: built on branch `hub/h9b-overview-messages` (see `ROADMAP.md`). Decisions in D-118. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Build the dashboard-like Overview and the Messages page (recent messages and the delivery trace).
