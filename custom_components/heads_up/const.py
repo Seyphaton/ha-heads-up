@@ -62,7 +62,18 @@ AUDIENCE_SUBENTRY: Final = "audience"
 GROUP_SUBENTRY: Final = "recipient_group"
 PROFILE_SUBENTRY: Final = "recipient_profile"
 POLICY_SUBENTRY: Final = "policy"
-POLICY_TYPES: Final = ("escalation", "reminder")  # H4b and H4c add theirs
+POLICY_TYPES: Final = (
+    "escalation",
+    "reminder",
+    "quiet_hours",
+    "away",
+    "fallback",
+)  # H4c adds summarize
+WEEKDAYS: Final = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
+QUIET_ACTIONS: Final = ("quiet", "wait", "drop")
+FALLBACK_WHEN: Final = ("no_audience", "failed", "both")
+HOLD_QUIET: Final = "quiet_hours"
+HOLD_AWAY: Final = "away"
 POLICY_CHANNELS: Final = ("push", "popup", "speak", "persistent")  # an escalation can add these
 TIMER_CHANNEL: Final = "timer"  # ledger rows of this channel hold escalation and reminder due times
 GROUP_SUFFIX: Final = " (group)"  # how a recipient group is named in calls

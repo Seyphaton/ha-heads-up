@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from enum import StrEnum
 from typing import Protocol
 
@@ -41,6 +42,8 @@ class Outcome:
     result: Result
     reason: str | None = None
     ref: str | None = None  # push tag or notification id, kept in the ledger
+    due: datetime | None = None  # a held delivery: release time or deadline
+    hold: str | None = None  # a held delivery: why (quiet_hours, away)
 
 
 class Channel(Protocol):

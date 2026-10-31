@@ -124,7 +124,35 @@
     "policy_type": {
       "options": {
         "escalation": "Eskalation",
-        "reminder": "Erinnerung"
+        "reminder": "Erinnerung",
+        "quiet_hours": "Ruhezeit",
+        "away": "Abwesend",
+        "fallback": "Ersatz"
+      }
+    },
+    "weekday": {
+      "options": {
+        "mon": "Montag",
+        "tue": "Dienstag",
+        "wed": "Mittwoch",
+        "thu": "Donnerstag",
+        "fri": "Freitag",
+        "sat": "Samstag",
+        "sun": "Sonntag"
+      }
+    },
+    "quiet_action": {
+      "options": {
+        "quiet": "Leise senden",
+        "wait": "Bis zum Ende zurückhalten",
+        "drop": "Verwerfen"
+      }
+    },
+    "fallback_when": {
+      "options": {
+        "no_audience": "Niemand zu benachrichtigen",
+        "failed": "Zustellung fehlgeschlagen",
+        "both": "Eines von beiden"
       }
     }
   },
@@ -792,7 +820,7 @@
       "step": {
         "user": {
           "title": "Richtlinie hinzufügen",
-          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\".",
+          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte.",
           "data": {
             "name": "Name",
             "type": "Art",
@@ -808,7 +836,14 @@
             "push_recipients": "Push: Empfänger",
             "popup_audience": "Popup: Zielgruppe",
             "popup_recipients": "Popup: Empfänger",
-            "speak_recipients": "Sprechen: Empfänger"
+            "speak_recipients": "Sprechen: Empfänger",
+            "from_time": "Ruhe ab",
+            "to_time": "Ruhe bis",
+            "days": "Tage",
+            "action": "Während der Ruhezeit",
+            "critical_passes": "Kritische Meldungen kommen durch",
+            "max_wait": "Auf Ankunft warten (Minuten)",
+            "when": "Verwenden, wenn"
           },
           "data_description": {
             "name": "Wird vom Feld policy eines Aufrufs verwendet. Muss eindeutig sein und darf nicht \"none\" heißen.",
@@ -820,12 +855,19 @@
             "every_minutes": "Erinnerung: Minuten zwischen den Wiederholungen.",
             "max_count": "Erinnerung: wie oft wiederholt wird.",
             "push_audience": "Eskalation: je Kanal entweder eine Zielgruppe oder Empfänger, nie beides.",
-            "speak_recipients": "Eskalation: Sprechen nimmt Empfänger, keine Zielgruppe."
+            "speak_recipients": "Eskalation: Sprechen nimmt Empfänger, keine Zielgruppe.",
+            "from_time": "Ruhezeit: Beginn des Zeitfensters, in der Zeitzone von Home Assistant.",
+            "to_time": "Ruhezeit: Ende des Zeitfensters. Ein Fenster darf über Mitternacht gehen.",
+            "days": "Ruhezeit: die Tage, an denen ein Fenster beginnt. Leer: jeden Tag.",
+            "action": "Ruhezeit: leise senden (Push ohne Ton, keine Sprachausgabe), bis zum Ende zurückhalten oder die Zustellung verwerfen.",
+            "critical_passes": "Ruhezeit: kritische Meldungen ignorieren diese Richtlinie.",
+            "max_wait": "Abwesend: Minuten, die auf die Ankunft der Person gewartet wird. 0: solange die Meldung besteht.",
+            "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl."
           }
         },
         "reconfigure": {
           "title": "Richtlinie",
-          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\".",
+          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte.",
           "data": {
             "name": "Name",
             "type": "Art",
@@ -841,7 +883,14 @@
             "push_recipients": "Push: Empfänger",
             "popup_audience": "Popup: Zielgruppe",
             "popup_recipients": "Popup: Empfänger",
-            "speak_recipients": "Sprechen: Empfänger"
+            "speak_recipients": "Sprechen: Empfänger",
+            "from_time": "Ruhe ab",
+            "to_time": "Ruhe bis",
+            "days": "Tage",
+            "action": "Während der Ruhezeit",
+            "critical_passes": "Kritische Meldungen kommen durch",
+            "max_wait": "Auf Ankunft warten (Minuten)",
+            "when": "Verwenden, wenn"
           },
           "data_description": {
             "name": "Wird vom Feld policy eines Aufrufs verwendet. Muss eindeutig sein und darf nicht \"none\" heißen.",
@@ -853,7 +902,14 @@
             "every_minutes": "Erinnerung: Minuten zwischen den Wiederholungen.",
             "max_count": "Erinnerung: wie oft wiederholt wird.",
             "push_audience": "Eskalation: je Kanal entweder eine Zielgruppe oder Empfänger, nie beides.",
-            "speak_recipients": "Eskalation: Sprechen nimmt Empfänger, keine Zielgruppe."
+            "speak_recipients": "Eskalation: Sprechen nimmt Empfänger, keine Zielgruppe.",
+            "from_time": "Ruhezeit: Beginn des Zeitfensters, in der Zeitzone von Home Assistant.",
+            "to_time": "Ruhezeit: Ende des Zeitfensters. Ein Fenster darf über Mitternacht gehen.",
+            "days": "Ruhezeit: die Tage, an denen ein Fenster beginnt. Leer: jeden Tag.",
+            "action": "Ruhezeit: leise senden (Push ohne Ton, keine Sprachausgabe), bis zum Ende zurückhalten oder die Zustellung verwerfen.",
+            "critical_passes": "Ruhezeit: kritische Meldungen ignorieren diese Richtlinie.",
+            "max_wait": "Abwesend: Minuten, die auf die Ankunft der Person gewartet wird. 0: solange die Meldung besteht.",
+            "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl."
           }
         }
       },
@@ -868,7 +924,11 @@
         "target_exclusive": "Gib für diesen Kanal entweder eine Zielgruppe oder Empfänger an.",
         "audience_unknown": "Diese Zielgruppe gibt es nicht.",
         "recipient_unknown": "Einer dieser Empfänger ist für diesen Kanal nicht bekannt.",
-        "policy_duplicate": "Eine andere Richtlinie dieser Art gilt bereits für dieselben Schweregrade und Tags mit derselben Zeit."
+        "policy_duplicate": "Eine andere Richtlinie dieser Art gilt bereits für dieselben Schweregrade und Tags mit derselben Zeit.",
+        "window_empty": "Das Zeitfenster muss zu verschiedenen Zeiten beginnen und enden.",
+        "time_invalid": "Gib eine gültige Uhrzeit ein.",
+        "wait_invalid": "Gib 0 oder mehr Minuten ein.",
+        "when_required": "Wähle, wann dieser Ersatz verwendet wird."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."

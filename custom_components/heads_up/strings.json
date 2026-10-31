@@ -124,7 +124,35 @@
     "policy_type": {
       "options": {
         "escalation": "Escalation",
-        "reminder": "Reminder"
+        "reminder": "Reminder",
+        "quiet_hours": "Quiet hours",
+        "away": "Away",
+        "fallback": "Fallback"
+      }
+    },
+    "weekday": {
+      "options": {
+        "mon": "Monday",
+        "tue": "Tuesday",
+        "wed": "Wednesday",
+        "thu": "Thursday",
+        "fri": "Friday",
+        "sat": "Saturday",
+        "sun": "Sunday"
+      }
+    },
+    "quiet_action": {
+      "options": {
+        "quiet": "Send quietly",
+        "wait": "Hold until the end",
+        "drop": "Drop"
+      }
+    },
+    "fallback_when": {
+      "options": {
+        "no_audience": "Nobody to notify",
+        "failed": "Delivery failed",
+        "both": "Either"
       }
     }
   },
@@ -792,7 +820,7 @@
       "step": {
         "user": {
           "title": "Add policy",
-          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\".",
+          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: use other channels when nobody could be notified.",
           "data": {
             "name": "Name",
             "type": "Type",
@@ -808,7 +836,14 @@
             "push_recipients": "Push: recipients",
             "popup_audience": "Popup: audience",
             "popup_recipients": "Popup: recipients",
-            "speak_recipients": "Speak: recipients"
+            "speak_recipients": "Speak: recipients",
+            "from_time": "Quiet from",
+            "to_time": "Quiet until",
+            "days": "Days",
+            "action": "During quiet hours",
+            "critical_passes": "Critical messages pass",
+            "max_wait": "Wait for arrival (minutes)",
+            "when": "Use when"
           },
           "data_description": {
             "name": "Used by the policy field of a call. Must be unique and cannot be \"none\".",
@@ -820,12 +855,19 @@
             "every_minutes": "Reminder: minutes between repeats.",
             "max_count": "Reminder: how many times to repeat.",
             "push_audience": "Escalation: give either an audience or recipients per channel, never both.",
-            "speak_recipients": "Escalation: speech takes recipients, not an audience."
+            "speak_recipients": "Escalation: speech takes recipients, not an audience.",
+            "from_time": "Quiet hours: start of the window, in the Home Assistant time zone.",
+            "to_time": "Quiet hours: end of the window. A window may cross midnight.",
+            "days": "Quiet hours: the days a window starts on. Empty: every day.",
+            "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
+            "critical_passes": "Quiet hours: critical messages ignore this policy.",
+            "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
+            "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed."
           }
         },
         "reconfigure": {
           "title": "Policy",
-          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\".",
+          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: use other channels when nobody could be notified.",
           "data": {
             "name": "Name",
             "type": "Type",
@@ -841,7 +883,14 @@
             "push_recipients": "Push: recipients",
             "popup_audience": "Popup: audience",
             "popup_recipients": "Popup: recipients",
-            "speak_recipients": "Speak: recipients"
+            "speak_recipients": "Speak: recipients",
+            "from_time": "Quiet from",
+            "to_time": "Quiet until",
+            "days": "Days",
+            "action": "During quiet hours",
+            "critical_passes": "Critical messages pass",
+            "max_wait": "Wait for arrival (minutes)",
+            "when": "Use when"
           },
           "data_description": {
             "name": "Used by the policy field of a call. Must be unique and cannot be \"none\".",
@@ -853,7 +902,14 @@
             "every_minutes": "Reminder: minutes between repeats.",
             "max_count": "Reminder: how many times to repeat.",
             "push_audience": "Escalation: give either an audience or recipients per channel, never both.",
-            "speak_recipients": "Escalation: speech takes recipients, not an audience."
+            "speak_recipients": "Escalation: speech takes recipients, not an audience.",
+            "from_time": "Quiet hours: start of the window, in the Home Assistant time zone.",
+            "to_time": "Quiet hours: end of the window. A window may cross midnight.",
+            "days": "Quiet hours: the days a window starts on. Empty: every day.",
+            "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
+            "critical_passes": "Quiet hours: critical messages ignore this policy.",
+            "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
+            "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed."
           }
         }
       },
@@ -868,7 +924,11 @@
         "target_exclusive": "Give either an audience or recipients for this channel.",
         "audience_unknown": "This audience does not exist.",
         "recipient_unknown": "One of these recipients is not known for this channel.",
-        "policy_duplicate": "Another policy of this type already applies to the same severities and tags with the same time."
+        "policy_duplicate": "Another policy of this type already applies to the same severities and tags with the same time.",
+        "window_empty": "The window must start and end at different times.",
+        "time_invalid": "Enter a valid time.",
+        "wait_invalid": "Enter 0 or more minutes.",
+        "when_required": "Choose when to use this fallback."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

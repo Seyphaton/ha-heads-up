@@ -424,6 +424,18 @@ async def policies() -> None:
         )
         result = await r.json()
         print("policy form:", result["type"], result.get("errors"))
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow",
+            json={"handler": [eid, "policy"], "show_advanced_options": False},
+            headers=headers,
+        )
+        flow = await r.json()
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow/{flow['flow_id']}",
+            json={"name": "Smoke night", "type": "quiet_hours"},
+            headers=headers,
+        )
+        print("quiet hours form:", (await r.json())["type"])
         await asyncio.sleep(1)
         data = {"id": "smoke_policy", "message": "Policy", "timeout": 0, "policy": SMOKE_POLICY}
         print(

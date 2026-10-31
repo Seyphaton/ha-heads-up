@@ -14,14 +14,17 @@ from datetime import datetime
 from functools import partial
 from typing import Any
 
-from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
+from homeassistant.const import EVENT_STATE_CHANGED
+from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
 from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.util import dt as dt_util
 
 from ..const import (
     CHANNEL_BANNER,
     DEFAULT_OPTIONS,
+    GLOBAL_SNOOZE_KEY,
     GROUP_SUFFIX,
+    HOLD_AWAY,
     OPT_TRACE_ENTRIES,
     TARGET_CHANNELS,
     TIMER_CHANNEL,
@@ -30,9 +33,11 @@ from ..models import Banner
 from .channels import ChannelRegistry, Outcome, Result, Target
 from .interfaces import AudienceResolver, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, State
-from .policies import PolicyBook, escalation, reminder
-from .policies.chain import Chain, Skip, Step
+from .policies import PolicyBook, escalation, fallback, reminder
+from .policies.away import AwayStage
+from .policies.chain import Chain, Hold, Skip, Step
 from .policies.models import Policy
+from .policies.quiet import QuietHoursStage
 from .resolver import HubResolver, Recipient
 from .trace import TraceBuffer, TraceEntry
 from .transitions import BannerTransition, Kind, Reason
@@ -68,6 +73,9 @@ class HubEngine:
         self.recipients: RecipientResolver = self.resolver
         self.policies = PolicyBook()
         self.chain = Chain()
+        self.chain.replace(QuietHoursStage(self.policies))
+        self.chain.replace(AwayStage(hass, self.policies))
+        self._unsub_arrival: CALLBACK_TYPE | None = None
         # The live message by id; the manager sets it. Timers read the message when they fire.
         self.lookup: Callable[[str], Banner | None] = lambda _id: None
         self._timers: dict[tuple[str, str], CALLBACK_TYPE] = {}
@@ -90,12 +98,19 @@ class HubEngine:
                 self._trace(message_id, row.channel, row.recipient, "cleared", "gone_at_startup")
             self.ledger.drop_message(message_id)
         self._restore_timers()
+        # Arrival releases the deliveries held by Away.
+        self._unsub_arrival = self.hass.bus.async_listen(
+            EVENT_STATE_CHANGED, self._on_state_change, event_filter=self._is_person
+        )
         self._ready.set()
 
     async def async_unload(self) -> None:
         self._closed = True
         self.channels.stop_all()
         self._cancel_all_timers()
+        if self._unsub_arrival is not None:
+            self._unsub_arrival()
+            self._unsub_arrival = None
         tasks = list(self._tails.values())
         for task in tasks:
             task.cancel()
@@ -218,7 +233,11 @@ class HubEngine:
         elif kind is Kind.UNSNOOZED:
             await self._resend(banner, transition.user_id)
         elif kind in (Kind.APPEARED, Kind.BECAME_VISIBLE, Kind.UPDATED):
-            await self._deliver(banner, update=kind is Kind.UPDATED, resume=transition.silent)
+            results = await self._deliver(
+                banner, update=kind is Kind.UPDATED, resume=transition.silent
+            )
+            if kind is not Kind.UPDATED and not transition.silent and banner.active:
+                await self._fallback(banner, results)
             if kind is Kind.UPDATED:
                 self._drop_inapplicable_timers(
                     banner
@@ -237,9 +256,11 @@ class HubEngine:
         button of a push)."""
         return bool(self.policies.timed_for(banner))
 
-    async def _deliver(self, banner: Banner, *, update: bool, resume: bool = False) -> None:
+    async def _deliver(
+        self, banner: Banner, *, update: bool, resume: bool = False
+    ) -> list[tuple[Planned, Outcome]]:
         planned = await self.plan(banner, waiting=not banner.active)
-        await self._send(banner, planned, update=update, resume=resume, origin="message")
+        return await self._send(banner, planned, update=update, resume=resume, origin="message")
 
     async def _send(
         self,
@@ -249,12 +270,13 @@ class HubEngine:
         update: bool = False,
         resume: bool = False,
         origin: str,
-    ) -> None:
+    ) -> list[tuple[Planned, Outcome]]:
         """Run planned deliveries through the precedence chain and the channels."""
+        results: list[tuple[Planned, Outcome]] = []
         for item in planned:
             row = self.ledger.rows.get((banner.id, item.channel, item.recipient))
-            if resume and row is not None and row.state is State.SENT:
-                continue  # sent before the restart: never send twice
+            if resume and row is not None and (row.state is State.SENT or row.hold):
+                continue  # sent or held before the restart: never send twice
             channel = self.channels.get(item.channel)
             outcome = Outcome(item.result, item.reason)
             if item.result is Result.SENT:
@@ -263,6 +285,8 @@ class HubEngine:
                 )
                 if isinstance(step, Skip):
                     outcome = Outcome(Result.SKIPPED, step.reason)
+                elif isinstance(step, Hold):
+                    outcome = Outcome(Result.HELD, step.reason, due=step.until, hold=step.kind)
                 else:
                     call = channel.update if update else channel.deliver
                     outcome = await call(step.banner, step.target)
@@ -273,6 +297,8 @@ class HubEngine:
                 outcome,
                 item.who.person if item.who else None,
             )
+            results.append((item, outcome))
+        return results
 
     async def _take_back(self, banner: Banner, user_id: str | None) -> None:
         """Clear what one user (or everyone) sees on the per-user channels, keeping the rows."""
@@ -381,6 +407,8 @@ class HubEngine:
         for row in self.ledger.timers():
             if row.state is State.PLANNED:
                 self._schedule(row)
+        for held in [r for r in self.ledger.rows.values() if r.state is State.HELD and r.hold]:
+            self._schedule_held(held.message_id, held.channel, held.recipient)
 
     def _cancel_timer_callbacks(self, message_id: str) -> None:
         for key in [k for k in self._timers if k[0] == message_id]:
@@ -423,6 +451,9 @@ class HubEngine:
         self._trace(row.message_id, TIMER_CHANNEL, row.recipient, state.value, reason)
 
     async def _run_timer(self, message_id: str, key: str) -> None:
+        if key.startswith("held:"):
+            await self._run_held(message_id, key)
+            return
         row = self.ledger.rows.get((message_id, TIMER_CHANNEL, key))
         if row is None or row.state is not State.PLANNED:
             return
@@ -463,10 +494,9 @@ class HubEngine:
             step = self.chain.run(
                 Step(banner, target_row.channel, self._row_target(target_row, banner), "reminder")
             )
-            if isinstance(step, Skip):
-                self._trace(
-                    banner.id, target_row.channel, target_row.recipient, "skipped", step.reason
-                )
+            if isinstance(step, Skip | Hold):  # a reminder is never held, only skipped
+                reason = step.reason
+                self._trace(banner.id, target_row.channel, target_row.recipient, "skipped", reason)
                 continue
             outcome = await self.channels.get(target_row.channel).deliver(step.banner, step.target)
             self._trace(
@@ -483,6 +513,125 @@ class HubEngine:
         row.due = reminder.next_due(policy, dt_util.utcnow())
         self.ledger.put(row)
         self._schedule(row)
+
+    # Held deliveries: quiet hours and away ------------------------------------------------
+
+    @staticmethod
+    def _held_key(channel: str, recipient: str) -> str:
+        return f"held:{channel}:{recipient}"
+
+    def _schedule_held(self, message_id: str, channel: str, recipient: str) -> None:
+        key = (message_id, self._held_key(channel, recipient))
+        if cancel := self._timers.pop(key, None):
+            cancel()
+        row = self.ledger.rows.get((message_id, channel, recipient))
+        if row is None or row.due is None:
+            return  # an away delivery without a deadline waits for the arrival only
+        self._timers[key] = async_track_point_in_utc_time(
+            self.hass, partial(self._timer_due, message_id, key[1]), row.due
+        )
+
+    @staticmethod
+    @callback
+    def _is_person(data: Any) -> bool:  # HA requires a callback as an event filter
+        return str(data["entity_id"]).startswith("person.")
+
+    @callback
+    def _on_state_change(self, event: Event[Any]) -> None:
+        new, old = event.data["new_state"], event.data["old_state"]
+        if self._closed or new is None or new.state != "home" or (old and old.state == "home"):
+            return
+        for row in list(self.ledger.rows.values()):
+            if row.state is State.HELD and row.hold == HOLD_AWAY and row.person == new.entity_id:
+                self._enqueue(
+                    row.message_id,
+                    partial(self._release, row.message_id, row.channel, row.recipient),
+                    f"heads_up arrival {row.person}",
+                )
+
+    async def _run_held(self, message_id: str, key: str) -> None:
+        _, channel, recipient = key.split(":", 2)
+        row = self.ledger.rows.get((message_id, channel, recipient))
+        if row is None or row.state is not State.HELD or not row.hold:
+            return
+        if row.hold == HOLD_AWAY:  # the timer of an away delivery is its deadline
+            self._end_held(row, State.SKIPPED, "max_wait_exceeded")
+        else:
+            await self._release(message_id, channel, recipient)
+
+    def _end_held(self, row: Delivery, state: State, reason: str) -> None:
+        if cancel := self._timers.pop(
+            (row.message_id, self._held_key(row.channel, row.recipient)), None
+        ):
+            cancel()
+        row.state = state
+        row.hold = None
+        row.updated_at = dt_util.utcnow()
+        self.ledger.put(row)
+        self._trace(row.message_id, row.channel, row.recipient, state.value, reason)
+
+    async def _release(self, message_id: str, channel: str, recipient: str) -> None:
+        """Send a held delivery now, if the message still needs it."""
+        row = self.ledger.rows.get((message_id, channel, recipient))
+        if row is None or row.state is not State.HELD or not row.hold:
+            return
+        banner = self.lookup(message_id)
+        user = self.resolver.user_of_person(row.person) if row.person else None
+        if banner is None or not banner.active or banner.acknowledged_by:
+            self._end_held(row, State.SKIPPED, "no_longer_needed")
+        elif user and (user in banner.dismissed_by or GLOBAL_SNOOZE_KEY in banner.dismissed_by):
+            self._end_held(row, State.SKIPPED, "dismissed")
+        elif user and banner.snoozed_for(user):
+            self._end_held(row, State.SKIPPED, "snoozed")
+        else:
+            self._end_held(row, State.PLANNED, "released")
+            target = self._row_target(row, banner)
+            step = self.chain.run(Step(banner, channel, target, "message"))
+            if isinstance(step, Skip):
+                outcome = Outcome(Result.SKIPPED, step.reason)
+            elif isinstance(step, Hold):
+                outcome = Outcome(Result.HELD, step.reason, due=step.until, hold=step.kind)
+            else:
+                outcome = await self.channels.get(channel).deliver(step.banner, step.target)
+            self._record(message_id, channel, recipient, outcome, row.person)
+
+    # Fallback ---------------------------------------------------------------------------
+
+    @staticmethod
+    def _unreached(results: list[tuple[Planned, Outcome]]) -> set[str]:
+        """Why a requested channel reached nobody: `no_audience` or `failed`."""
+        classes: set[str] = set()
+        channels = {item.channel for item, _ in results if item.channel != CHANNEL_BANNER}
+        for channel in channels:
+            mine = [(i, o) for i, o in results if i.channel == channel]
+            if any(o.result in (Result.SENT, Result.HELD) for _, o in mine):
+                continue
+            for _, outcome in mine:
+                reason = outcome.reason
+                if reason in fallback.IGNORED_REASONS:
+                    continue
+                failed = outcome.result is Result.FAILED or reason in fallback.DEVICE_REASONS
+                classes.add("failed" if failed else "no_audience")
+        return classes
+
+    async def _fallback(self, banner: Banner, results: list[tuple[Planned, Outcome]]) -> None:
+        """After the first delivery: other channels and targets when it reached nobody (D-079).
+        It fires once per message and a fallback never triggers another."""
+        classes = self._unreached(results)
+        for policy in self.policies.for_message(banner):
+            if policy.type != "fallback" or not fallback.matches(policy.when, classes):
+                continue
+            if (banner.id, TIMER_CHANNEL, policy.key) in self.ledger.rows:
+                continue
+            now = dt_util.utcnow()
+            marker = Delivery(banner.id, TIMER_CHANNEL, policy.key, State.SENT, now)
+            self.ledger.put(marker)
+            if (problem := self.policy_problem(policy)) is not None:
+                self._finish(marker, State.SKIPPED, problem)
+                continue
+            self._trace(banner.id, TIMER_CHANNEL, policy.key, "fallback", "+".join(sorted(classes)))
+            message = escalation.message_for(banner, policy)
+            await self._send(message, await self.plan(message), resume=True, origin="fallback")
 
     async def send_once(self, message: Banner) -> list[Planned]:
         """Deliver a message that has no record (shortcuts without an id)."""
@@ -519,11 +668,15 @@ class HubEngine:
                 recipient,
                 state,
                 dt_util.utcnow(),
+                due=outcome.due,
                 ref=outcome.ref,
                 person=person,
+                hold=outcome.hold,
             )
         )
         self._trace(message_id, channel, recipient, outcome.result.value, outcome.reason)
+        if outcome.hold:
+            self._schedule_held(message_id, channel, recipient)
 
     def _trace(
         self, message_id: str, channel: str, recipient: str, result: str, reason: str | None

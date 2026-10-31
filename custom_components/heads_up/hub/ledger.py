@@ -50,6 +50,9 @@ class Delivery:
     # done, cleared = cancelled; `count` is the reminders sent so far. Rows of earlier layouts
     # have no count, so no migration is needed.
     count: int = 0
+    # Why a delivery in state held waits: "quiet_hours" (due = release time) or "away" (due =
+    # deadline, released on arrival). Rows of earlier layouts have none.
+    hold: str | None = None
 
     @property
     def key(self) -> tuple[str, str, str]:
@@ -78,6 +81,7 @@ class Delivery:
             ref=raw.get("ref"),
             person=raw.get("person"),
             count=int(raw.get("count", 0)),
+            hold=raw.get("hold"),
         )
 
 

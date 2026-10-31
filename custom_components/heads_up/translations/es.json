@@ -124,7 +124,35 @@
     "policy_type": {
       "options": {
         "escalation": "Escalado",
-        "reminder": "Recordatorio"
+        "reminder": "Recordatorio",
+        "quiet_hours": "Horas de silencio",
+        "away": "Ausente",
+        "fallback": "Alternativa"
+      }
+    },
+    "weekday": {
+      "options": {
+        "mon": "Lunes",
+        "tue": "Martes",
+        "wed": "Miércoles",
+        "thu": "Jueves",
+        "fri": "Viernes",
+        "sat": "Sábado",
+        "sun": "Domingo"
+      }
+    },
+    "quiet_action": {
+      "options": {
+        "quiet": "Enviar en silencio",
+        "wait": "Retener hasta el final",
+        "drop": "Descartar"
+      }
+    },
+    "fallback_when": {
+      "options": {
+        "no_audience": "Nadie a quien avisar",
+        "failed": "Falló el envío",
+        "both": "Cualquiera de los dos"
       }
     }
   },
@@ -792,7 +820,7 @@
       "step": {
         "user": {
           "title": "Añadir política",
-          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\".",
+          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\". Horas de silencio: retener, enviar en silencio o descartar envíos en una franja horaria. Ausente: enviar a las personas que no están en casa cuando lleguen. Alternativa: usar otros canales cuando no se pudo avisar a nadie.",
           "data": {
             "name": "Nombre",
             "type": "Tipo",
@@ -808,7 +836,14 @@
             "push_recipients": "Push: destinatarios",
             "popup_audience": "Ventana emergente: audiencia",
             "popup_recipients": "Ventana emergente: destinatarios",
-            "speak_recipients": "Voz: destinatarios"
+            "speak_recipients": "Voz: destinatarios",
+            "from_time": "Silencio desde",
+            "to_time": "Silencio hasta",
+            "days": "Días",
+            "action": "Durante las horas de silencio",
+            "critical_passes": "Los mensajes críticos pasan",
+            "max_wait": "Esperar la llegada (minutos)",
+            "when": "Usar cuando"
           },
           "data_description": {
             "name": "Lo usa el campo policy de una llamada. Debe ser único y no puede ser \"none\".",
@@ -820,12 +855,19 @@
             "every_minutes": "Recordatorio: minutos entre repeticiones.",
             "max_count": "Recordatorio: cuántas veces repetir.",
             "push_audience": "Escalado: por canal, una audiencia o destinatarios, nunca ambos.",
-            "speak_recipients": "Escalado: la voz admite destinatarios, no una audiencia."
+            "speak_recipients": "Escalado: la voz admite destinatarios, no una audiencia.",
+            "from_time": "Horas de silencio: inicio de la franja, en la zona horaria de Home Assistant.",
+            "to_time": "Horas de silencio: fin de la franja. Una franja puede cruzar la medianoche.",
+            "days": "Horas de silencio: los días en que empieza una franja. Vacío: todos los días.",
+            "action": "Horas de silencio: enviar en silencio (push sin sonido, sin voz), retener hasta el final o descartar el envío.",
+            "critical_passes": "Horas de silencio: los mensajes críticos ignoran esta política.",
+            "max_wait": "Ausente: minutos de espera a que llegue la persona. 0: mientras exista el mensaje.",
+            "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló."
           }
         },
         "reconfigure": {
           "title": "Política",
-          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\".",
+          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\". Horas de silencio: retener, enviar en silencio o descartar envíos en una franja horaria. Ausente: enviar a las personas que no están en casa cuando lleguen. Alternativa: usar otros canales cuando no se pudo avisar a nadie.",
           "data": {
             "name": "Nombre",
             "type": "Tipo",
@@ -841,7 +883,14 @@
             "push_recipients": "Push: destinatarios",
             "popup_audience": "Ventana emergente: audiencia",
             "popup_recipients": "Ventana emergente: destinatarios",
-            "speak_recipients": "Voz: destinatarios"
+            "speak_recipients": "Voz: destinatarios",
+            "from_time": "Silencio desde",
+            "to_time": "Silencio hasta",
+            "days": "Días",
+            "action": "Durante las horas de silencio",
+            "critical_passes": "Los mensajes críticos pasan",
+            "max_wait": "Esperar la llegada (minutos)",
+            "when": "Usar cuando"
           },
           "data_description": {
             "name": "Lo usa el campo policy de una llamada. Debe ser único y no puede ser \"none\".",
@@ -853,7 +902,14 @@
             "every_minutes": "Recordatorio: minutos entre repeticiones.",
             "max_count": "Recordatorio: cuántas veces repetir.",
             "push_audience": "Escalado: por canal, una audiencia o destinatarios, nunca ambos.",
-            "speak_recipients": "Escalado: la voz admite destinatarios, no una audiencia."
+            "speak_recipients": "Escalado: la voz admite destinatarios, no una audiencia.",
+            "from_time": "Horas de silencio: inicio de la franja, en la zona horaria de Home Assistant.",
+            "to_time": "Horas de silencio: fin de la franja. Una franja puede cruzar la medianoche.",
+            "days": "Horas de silencio: los días en que empieza una franja. Vacío: todos los días.",
+            "action": "Horas de silencio: enviar en silencio (push sin sonido, sin voz), retener hasta el final o descartar el envío.",
+            "critical_passes": "Horas de silencio: los mensajes críticos ignoran esta política.",
+            "max_wait": "Ausente: minutos de espera a que llegue la persona. 0: mientras exista el mensaje.",
+            "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló."
           }
         }
       },
@@ -868,7 +924,11 @@
         "target_exclusive": "Indica una audiencia o destinatarios para este canal.",
         "audience_unknown": "Esta audiencia no existe.",
         "recipient_unknown": "Uno de estos destinatarios no se conoce para este canal.",
-        "policy_duplicate": "Otra política de este tipo ya se aplica a las mismas gravedades y etiquetas con el mismo tiempo."
+        "policy_duplicate": "Otra política de este tipo ya se aplica a las mismas gravedades y etiquetas con el mismo tiempo.",
+        "window_empty": "La franja debe empezar y acabar a horas distintas.",
+        "time_invalid": "Introduce una hora válida.",
+        "wait_invalid": "Introduce 0 o más minutos.",
+        "when_required": "Elige cuándo usar esta alternativa."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguración se realizó correctamente."

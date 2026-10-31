@@ -23,11 +23,13 @@ from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     TextSelector,
+    TimeSelector,
 )
 
 from ..const import (
     AUDIENCE_KINDS,
     AUDIENCE_SUBENTRY,
+    FALLBACK_WHEN,
     GROUP_SUBENTRY,
     GROUP_SUFFIX,
     POLICY_CHANNELS,
@@ -37,18 +39,23 @@ from ..const import (
     PRESENCE_KINDS,
     PROFILE_CHANNELS,
     PROFILE_SUBENTRY,
+    QUIET_ACTIONS,
     SEVERITIES,
+    WEEKDAYS,
     ZONE_KINDS,
 )
 from .audiences import BUILTINS
-from .policies import escalation, reminder
+from .policies import away, escalation, fallback, quiet, reminder
 from .policies.matching import duplicate_of
 from .policies.models import (
     DEFAULT_AFTER_MINUTES,
     DEFAULT_EVERY_MINUTES,
     DEFAULT_MAX_REMINDERS,
+    DEFAULT_QUIET_FROM,
+    DEFAULT_QUIET_TO,
     Policy,
     parse_policy,
+    policy_from_data,
 )
 from .recipients import SPEAKER_DOMAINS, area_exists, registrations
 
@@ -306,7 +313,8 @@ _MINUTES = NumberSelector(
 
 
 class PolicySubentryFlow(_HubFlow):
-    """Escalation and Reminder policies (D-079, D-081). The other types arrive with H4b and H4c.
+    """Escalation, Reminder, Quiet hours, Away and Fallback policies (D-079, D-081, D-112).
+    Summarize arrives with H4c.
 
     One form for every type; the fields of the other types are ignored and not stored.
     """
@@ -351,6 +359,23 @@ class PolicySubentryFlow(_HubFlow):
             vol.Optional("max_count", default=DEFAULT_MAX_REMINDERS): NumberSelector(
                 NumberSelectorConfig(min=1, max=20, step=1, mode=NumberSelectorMode.BOX)
             ),
+            vol.Optional("from_time", default=DEFAULT_QUIET_FROM): TimeSelector(),
+            vol.Optional("to_time", default=DEFAULT_QUIET_TO): TimeSelector(),
+            vol.Optional("days"): SelectSelector(
+                SelectSelectorConfig(
+                    options=list(WEEKDAYS), multiple=True, translation_key="weekday"
+                )
+            ),
+            vol.Optional("action", default=QUIET_ACTIONS[0]): SelectSelector(
+                SelectSelectorConfig(options=list(QUIET_ACTIONS), translation_key="quiet_action")
+            ),
+            vol.Optional("critical_passes", default=True): BooleanSelector(),
+            vol.Optional("max_wait", default=0): NumberSelector(
+                NumberSelectorConfig(min=0, max=10080, step=1, mode=NumberSelectorMode.BOX)
+            ),
+            vol.Optional("when", default=FALLBACK_WHEN[0]): SelectSelector(
+                SelectSelectorConfig(options=list(FALLBACK_WHEN), translation_key="fallback_when")
+            ),
         }
         for channel in TARGET_CHANNELS_WITH_FIELDS:
             if channel != "speak":  # speech takes recipients, not an audience (D-098)
@@ -378,16 +403,11 @@ class PolicySubentryFlow(_HubFlow):
         return targets
 
     def _candidate(self, user_input: dict[str, Any], own: str | None) -> Policy:
-        data = self._data(user_input)
-        return Policy(
-            name=str(user_input["name"]).strip(),
-            type=data["type"],
-            subentry_id=own or "",
-            severities=frozenset(data["severities"]),
-            tags=frozenset(data["tags"]),
-            after_minutes=data.get("after_minutes", 0),
-            every_minutes=data.get("every_minutes", 0),
+        candidate = policy_from_data(
+            str(user_input["name"]).strip(), own or "", self._data(user_input)
         )
+        assert candidate is not None  # the type comes from a selector
+        return candidate
 
     def _check(self, user_input: dict[str, Any], own: str | None) -> dict[str, str]:
         errors: dict[str, str] = {}
@@ -398,11 +418,19 @@ class PolicySubentryFlow(_HubFlow):
             self, POLICY_SUBENTRY, own
         ):
             errors["name"] = "name_exists"  # `none` means no policy in a call
-        if user_input["type"] == "escalation":
+        kind = user_input["type"]
+        if kind == "escalation":
             errors.update(escalation.check(user_input))
             errors.update(self._check_targets(user_input))
-        else:
+        elif kind == "reminder":
             errors.update(reminder.check(user_input))
+        elif kind == "quiet_hours":
+            errors.update(quiet.check(user_input))
+        elif kind == "away":
+            errors.update(away.check(user_input))
+        else:
+            errors.update(fallback.check(user_input))
+            errors.update(self._check_targets(user_input))
         if not errors:
             existing = [
                 p
@@ -441,18 +469,35 @@ class PolicySubentryFlow(_HubFlow):
             "enabled": bool(user_input.get("enabled", True)),
         }
         channels = list(user_input.get("channels") or [])
-        if user_input["type"] == "escalation":
+        kind = user_input["type"]
+        if kind == "escalation":
             data.update(
                 after_minutes=int(user_input["after_minutes"]),
                 channels=channels,
                 targets=self._targets(user_input),
                 dismiss_acks=bool(user_input.get("dismiss_acks", False)),
             )
-        else:
+        elif kind == "reminder":
             data.update(
                 every_minutes=int(user_input["every_minutes"]),
                 max_count=int(user_input["max_count"]),
                 channels=channels,
+            )
+        elif kind == "quiet_hours":
+            data.update(
+                from_time=str(user_input.get("from_time") or DEFAULT_QUIET_FROM),
+                to_time=str(user_input.get("to_time") or DEFAULT_QUIET_TO),
+                days=list(user_input.get("days") or []),
+                action=user_input.get("action", QUIET_ACTIONS[0]),
+                critical_passes=bool(user_input.get("critical_passes", True)),
+            )
+        elif kind == "away":
+            data["max_wait"] = int(user_input.get("max_wait") or 0)
+        else:
+            data.update(
+                when=user_input.get("when", FALLBACK_WHEN[0]),
+                channels=channels,
+                targets=self._targets(user_input),
             )
         return data
 

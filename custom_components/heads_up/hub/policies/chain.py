@@ -9,6 +9,7 @@ built yet pass everything, and H4b and H4c replace theirs.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Protocol
 
 from ...models import Banner
@@ -30,17 +31,27 @@ class Skip:
     reason: str
 
 
+@dataclass(frozen=True, slots=True)
+class Hold:
+    """Keep the delivery and send it later: `kind` says why (quiet_hours or away) and `until` is
+    the release time (quiet hours) or the deadline (away; None means while the message lives)."""
+
+    reason: str
+    kind: str
+    until: datetime | None = None
+
+
 class Stage(Protocol):
     name: str
 
-    def apply(self, step: Step) -> Step | Skip: ...
+    def apply(self, step: Step) -> Step | Skip | Hold: ...
 
 
 class PassThrough:
     def __init__(self, name: str) -> None:
         self.name = name
 
-    def apply(self, step: Step) -> Step | Skip:
+    def apply(self, step: Step) -> Step | Skip | Hold:
         return step
 
 
@@ -53,10 +64,10 @@ class Chain:
             raise ValueError(stage.name)
         self.stages[stage.name] = stage
 
-    def run(self, step: Step) -> Step | Skip:
+    def run(self, step: Step) -> Step | Skip | Hold:
         for name in STAGE_ORDER:
             result = self.stages[name].apply(step)
-            if isinstance(result, Skip):
+            if isinstance(result, Skip | Hold):
                 return result
             step = result
         return step
