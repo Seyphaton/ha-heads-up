@@ -30,13 +30,11 @@ async def test_a_built_in_audience_is_accepted_and_resolved_per_recipient(
     result = await notify(
         hass, id="a", message="x", channels=["push"], to={"push": {"audience": "At home"}}
     )
-    # Anna has a device, Ben has none: one delivery is planned (skipped: push is not built yet)
-    # and Ben is skipped for a different reason.
-    assert result["channels"]["push"]["skipped"] == 2
+    # Anna has a device and gets the push; Ben has none and is skipped with a reason.
+    assert result["channels"]["push"] == {"sent": 1, "held": 0, "skipped": 1, "failed": 0}
     await settle(hass, entry)
     reasons = {t["recipient"]: t["reason"] for t in entry.runtime_data.hub.trace.entries("a")}
     assert reasons["person.ben"] == "no_usable_device"
-    assert "channel_unavailable" in reasons.values()
 
 
 async def test_an_audience_that_is_empty_right_now_is_skipped_as_no_recipients(
@@ -87,6 +85,7 @@ async def test_a_custom_audience_and_a_group_can_be_used_in_a_call(
     )
     assert result["channels"]["popup"]["skipped"] == 1  # one person; popup is not built yet
     assert result["channels"]["speak"]["skipped"] == 1  # one speaker; speech is not built yet
+    assert set(result["channels"]) == {"popup", "speak"}
 
 
 async def test_audiences_groups_and_profiles_survive_a_restart(

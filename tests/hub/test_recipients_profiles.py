@@ -178,7 +178,7 @@ async def test_a_registration_id_is_a_valid_push_recipient(
     assert [r.service for r in result.recipients] == [spare.notify_service]
 
 
-async def test_push_to_a_notify_target_reaches_the_device_in_a_call(
+async def test_an_audience_in_a_call_reaches_the_device(
     hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
 ) -> None:
     from custom_components.heads_up.const import DOMAIN
@@ -193,7 +193,4 @@ async def test_push_to_a_notify_target_reaches_the_device_in_a_call(
         return_response=True,
     )
     assert response is not None
-    # Push is not built yet (H3): the device is resolved, then skipped as unavailable.
-    assert response["channels"]["push"] == {"sent": 0, "held": 0, "skipped": 1, "failed": 0}
-    trace = entry.runtime_data.hub.trace.entries("a")
-    assert any(t["reason"] == "channel_unavailable" for t in trace)
+    assert response["channels"]["push"] == {"sent": 1, "held": 0, "skipped": 0, "failed": 0}

@@ -84,16 +84,16 @@ async def test_deliveries_of_one_message_run_in_order(
         available = True
         capabilities = hub.channels.get("banner").capabilities
 
-        async def deliver(self, message: Any, recipient: str) -> Outcome:
+        async def deliver(self, message: Any, target: Any) -> Outcome:
             await asyncio.sleep(0.05)
             order.append(f"deliver:{message.message}")
             return Outcome(Result.SENT)
 
-        async def update(self, message: Any, recipient: str) -> Outcome:
+        async def update(self, message: Any, target: Any) -> Outcome:
             order.append(f"update:{message.message}")
             return Outcome(Result.SENT)
 
-        async def clear(self, message: Any, recipient: str) -> Outcome:
+        async def clear(self, message_id: str, target: Any, ref: Any) -> Outcome:
             order.append("clear")
             return Outcome(Result.SENT)
 
@@ -115,7 +115,7 @@ async def test_a_failing_channel_does_not_stop_the_engine(
         available = True
         capabilities = hub.channels.get("banner").capabilities
 
-        async def deliver(self, message: Any, recipient: str) -> Outcome:
+        async def deliver(self, message: Any, target: Any) -> Outcome:
             raise RuntimeError("boom")
 
         update = clear = deliver
@@ -140,7 +140,7 @@ async def test_unload_cancels_pending_work_and_leaves_no_task(
         available = True
         capabilities = hub.channels.get("banner").capabilities
 
-        async def deliver(self, message: Any, recipient: str) -> Outcome:
+        async def deliver(self, message: Any, target: Any) -> Outcome:
             await asyncio.sleep(3600)
             return Outcome(Result.SENT)
 
@@ -169,7 +169,7 @@ async def test_ledger_survives_a_restart_and_nothing_is_sent_twice(
         available = True
         capabilities = hub.channels.get("banner").capabilities
 
-        async def deliver(self, message: Any, recipient: str) -> Outcome:
+        async def deliver(self, message: Any, target: Any) -> Outcome:
             calls.append(message.id)
             return Outcome(Result.SENT)
 
