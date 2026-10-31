@@ -12,6 +12,7 @@ from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN, OPT_HUB_ENABLED, OPT_INSTALL_TOKEN, OPT_TRACE_ENTRIES
 from .frontend import async_add_card, async_register_card_path, async_remove_card
+from .hub.channels.push import PushChannel
 from .hub.engine import HubEngine
 from .hub.ledger import remove_ledger
 from .manager import BannerManager, banner_store
@@ -62,6 +63,7 @@ def _start_hub(hass: HomeAssistant, entry: HeadsUpConfigEntry, manager: BannerMa
     )
     manager.hub = hub
     hub.resolver.sync(entry.subentries)
+    hub.channels.register(PushChannel(hass, hub, manager))
     manager.subscribe_transitions(hub.on_transition)
 
 

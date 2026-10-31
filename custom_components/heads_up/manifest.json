@@ -1,6 +1,7 @@
 {
   "domain": "heads_up",
   "name": "Heads Up",
+  "after_dependencies": ["mobile_app", "notify"],
   "codeowners": ["@Seyphaton"],
   "config_flow": true,
   "dependencies": ["frontend", "http", "person"],

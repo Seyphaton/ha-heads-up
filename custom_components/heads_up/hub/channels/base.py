@@ -26,6 +26,17 @@ class Capabilities:
 
 
 @dataclass(frozen=True, slots=True)
+class Target:
+    """One recipient of one delivery, with the context the engine and policies add."""
+
+    key: str  # ledger key: "" for banner and persistent, `device:<id>`, a person or an entity id
+    kind: str = ""  # person, device or speaker
+    person: str | None = None
+    quiet: bool = False  # set by a Quiet hours policy (H4b): passive, no sound
+    ack_button: bool = False  # set when an escalation or reminder policy applies (H4a)
+
+
+@dataclass(frozen=True, slots=True)
 class Outcome:
     result: Result
     reason: str | None = None
@@ -37,6 +48,7 @@ class Channel(Protocol):
     available: bool  # False for a placeholder whose package is not built yet
     capabilities: Capabilities
 
-    async def deliver(self, message: Banner, recipient: str) -> Outcome: ...
-    async def update(self, message: Banner, recipient: str) -> Outcome: ...
-    async def clear(self, message: Banner, recipient: str) -> Outcome: ...
+    async def deliver(self, message: Banner, target: Target) -> Outcome: ...
+    async def update(self, message: Banner, target: Target) -> Outcome: ...
+    # The message may be gone already (startup), so clearing needs only its id and the stored ref.
+    async def clear(self, message_id: str, target: Target, ref: str | None) -> Outcome: ...

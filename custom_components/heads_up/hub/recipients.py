@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
+from typing import Any
 
 from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
@@ -76,6 +77,14 @@ def registrations(hass: HomeAssistant) -> dict[str, str]:
         for e in hass.config_entries.async_entries(MOBILE_APP)
         if e.data.get("device_id")
     }
+
+
+def registration_data(hass: HomeAssistant, device_id: str) -> Mapping[str, Any] | None:
+    """Data of a `mobile_app` registration (device_name, os_name, ...), or None."""
+    for entry in hass.config_entries.async_entries(MOBILE_APP):
+        if entry.data.get("device_id") == device_id:
+            return entry.data
+    return None
 
 
 def _device(hass: HomeAssistant, device_id: str, names: Mapping[str, str], source: str) -> Device:

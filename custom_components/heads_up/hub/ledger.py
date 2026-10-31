@@ -39,6 +39,7 @@ class Delivery:
     updated_at: datetime
     due: datetime | None = None  # next step (escalation, reminder, summary), from H4
     ref: str | None = None  # push tag or notification id, from H3 and H7
+    person: str | None = None  # the person behind a device or person recipient
 
     @property
     def key(self) -> tuple[str, str, str]:
@@ -65,6 +66,7 @@ class Delivery:
             updated_at=updated,
             due=due,
             ref=raw.get("ref"),
+            person=raw.get("person"),
         )
 
 

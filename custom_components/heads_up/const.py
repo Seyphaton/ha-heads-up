@@ -84,6 +84,19 @@ PRESENCE_KINDS: Final = (
 ZONE_KINDS: Final = ("in_zone", "not_in_zone")
 PROFILE_CHANNELS: Final = ("banner", "push", "popup")  # channels a person's profile can accept
 OPT_PRESENCE_DEBOUNCE: Final = "presence_debounce_seconds"  # D-109
+# Push settings (D-097, D-110). Edited in the panel (H9c); no form in the options flow.
+OPT_PUSH_LEVELS: Final = "push_levels"  # severity to level
+OPT_PUSH_LOCKSCREEN: Final = "push_lockscreen"  # full, title_only, generic
+OPT_PUSH_CHANNEL_ID: Final = "push_channel_id"  # Android notification channel prefix
+OPT_PUSH_STICKY: Final = "push_sticky"
+PUSH_LEVELS: Final = ("passive", "normal", "time-sensitive", "critical")
+PUSH_LOCKSCREEN: Final = ("full", "title_only", "generic")
+DEFAULT_PUSH_LEVELS: Final = {
+    "success": "passive",
+    "info": "passive",
+    "warning": "normal",
+    "critical": "time-sensitive",  # "critical" is the iOS opt-in
+}
 OPT_HUB_ENABLED: Final = "hub_enabled"  # D-107: on by default, this is the off switch
 OPT_INSTALL_TOKEN: Final = "install_token"  # 6 hex characters, used in push tags (D-080)
 OPT_TRACE_ENTRIES: Final = "trace_entries"
@@ -103,6 +116,10 @@ DEFAULT_OPTIONS: Final = {
     OPT_DEFAULT_SNOOZE_OPTIONS: list(DEFAULT_SNOOZE_SECONDS),
     OPT_HUB_ENABLED: True,
     OPT_PRESENCE_DEBOUNCE: 60,
+    OPT_PUSH_LEVELS: DEFAULT_PUSH_LEVELS,
+    OPT_PUSH_LOCKSCREEN: "full",
+    OPT_PUSH_CHANNEL_ID: "heads_up",
+    OPT_PUSH_STICKY: False,
     OPT_TRACE_ENTRIES: 500,
     OPT_RECENT_MESSAGES: 100,
     OPT_RATE_PER_DEVICE: 10,

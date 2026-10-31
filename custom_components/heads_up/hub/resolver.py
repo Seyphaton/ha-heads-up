@@ -101,6 +101,19 @@ class HubResolver:
     def audience(self, name: str) -> Audience | None:
         return BUILTINS.get(name) or self._audiences.get(name)
 
+    def persons_of_user(self, user_id: str) -> list[str]:
+        """Persons linked to a Home Assistant user (N-10)."""
+        return [
+            s.entity_id
+            for s in self._hass.states.async_all("person")
+            if s.attributes.get("user_id") == user_id
+        ]
+
+    def user_of_person(self, person: str) -> str | None:
+        state = self._hass.states.get(person)
+        user_id = state.attributes.get("user_id") if state else None
+        return str(user_id) if user_id else None
+
     def profile(self, person: str) -> Profile:
         return build_profile(self._hass, person, self._profiles.get(person))
 

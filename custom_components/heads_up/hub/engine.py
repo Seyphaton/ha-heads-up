@@ -17,12 +17,12 @@ from homeassistant.util import dt as dt_util
 
 from ..const import CHANNEL_BANNER, DEFAULT_OPTIONS, OPT_TRACE_ENTRIES, TARGET_CHANNELS
 from ..models import Banner
-from .channels import ChannelRegistry, Outcome, Result
+from .channels import ChannelRegistry, Outcome, Result, Target
 from .interfaces import AudienceResolver, NoPolicies, PolicyCatalog, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, State
-from .resolver import HubResolver
+from .resolver import HubResolver, Recipient
 from .trace import TraceBuffer, TraceEntry
-from .transitions import BannerTransition, Kind
+from .transitions import BannerTransition, Kind, Reason
 
 _LOGGER = logging.getLogger(__name__)
 MAX_CONCURRENT = 8
@@ -38,6 +38,7 @@ class Planned:
     recipient: str  # "" for channels without recipients
     result: Result
     reason: str | None = None
+    who: Recipient | None = None  # what the resolver knows about the recipient
 
 
 class HubEngine:
@@ -65,12 +66,17 @@ class HubEngine:
         await self.resolver.async_start()
         for message_id in self.ledger.message_ids() - known_ids:
             for row in self.ledger.for_message(message_id):
+                if row.state is State.SENT and row.channel != CHANNEL_BANNER:
+                    # The message ended while Home Assistant was stopped: take its push back.
+                    target = Target(row.recipient, "", row.person)
+                    await self.channels.get(row.channel).clear(message_id, target, row.ref)
                 self._trace(message_id, row.channel, row.recipient, "cleared", "gone_at_startup")
             self.ledger.drop_message(message_id)
         self._ready.set()
 
     async def async_unload(self) -> None:
         self._closed = True
+        self.channels.stop_all()
         tasks = list(self._tails.values())
         for task in tasks:
             task.cancel()
@@ -98,12 +104,24 @@ class HubEngine:
                 planned.append(Planned(channel, "", result, reason))
                 continue
             if channel not in TARGET_CHANNELS:  # persistent: no target, goes to everyone
-                planned.append(self._planned(channel, "", available))
+                if waiting:
+                    planned.append(Planned(channel, "", Result.HELD, "waiting_for_condition"))
+                else:
+                    planned.append(self._planned(channel, "", available))
                 continue
             resolution = await self.resolver.resolve(
                 message.targets.get(channel), channel, message.severity
             )
-            planned += [self._planned(channel, r.key, available) for r in resolution.recipients]
+            if waiting:
+                # Nothing is delivered before the condition is true; resolution still shows who.
+                planned += [
+                    Planned(channel, r.key, Result.HELD, "waiting_for_condition", r)
+                    for r in resolution.recipients
+                ]
+            else:
+                planned += [
+                    self._planned(channel, r.key, available, r) for r in resolution.recipients
+                ]
             planned += [
                 Planned(channel, s.who, Result.SKIPPED, s.reason) for s in resolution.skipped
             ]
@@ -112,10 +130,12 @@ class HubEngine:
         return planned
 
     @staticmethod
-    def _planned(channel: str, recipient: str, available: bool) -> Planned:
+    def _planned(
+        channel: str, recipient: str, available: bool, who: Recipient | None = None
+    ) -> Planned:
         if available:
-            return Planned(channel, recipient, Result.SENT)
-        return Planned(channel, recipient, Result.SKIPPED, "channel_unavailable")
+            return Planned(channel, recipient, Result.SENT, who=who)
+        return Planned(channel, recipient, Result.SKIPPED, "channel_unavailable", who)
 
     @staticmethod
     def counts(planned: list[Planned]) -> dict[str, dict[str, int]]:
@@ -162,12 +182,24 @@ class HubEngine:
 
     async def _handle(self, transition: BannerTransition) -> None:
         banner = transition.banner
+        kind = transition.kind
         if transition.ends_message:
             await self._end(banner)
-        elif transition.kind in (Kind.APPEARED, Kind.BECAME_VISIBLE, Kind.UPDATED):
-            await self._deliver(
-                banner, update=transition.kind is Kind.UPDATED, resume=transition.silent
-            )
+        elif kind is Kind.HIDDEN and transition.reason == Reason.DISMISSED:
+            await self._take_back(banner, transition.user_id)
+        elif kind is Kind.SNOOZED:
+            everyone = banner.snooze_scope == "global"
+            await self._take_back(banner, None if everyone else transition.user_id)
+        elif kind is Kind.UNSNOOZED:
+            await self._resend(banner, transition.user_id)
+        elif kind in (Kind.APPEARED, Kind.BECAME_VISIBLE, Kind.UPDATED):
+            await self._deliver(banner, update=kind is Kind.UPDATED, resume=transition.silent)
+
+    def _target(self, item: Planned) -> Target:
+        who = item.who
+        if who is None:
+            return Target(item.recipient)
+        return Target(who.key, who.kind, who.person)
 
     async def _deliver(self, banner: Banner, *, update: bool, resume: bool = False) -> None:
         for item in await self.plan(banner, waiting=not banner.active):
@@ -178,13 +210,50 @@ class HubEngine:
             outcome = Outcome(item.result, item.reason)
             if item.result is Result.SENT:
                 call = channel.update if update else channel.deliver
-                outcome = await call(banner, item.recipient)
-            self._record(banner.id, item.channel, item.recipient, outcome)
+                outcome = await call(banner, self._target(item))
+            self._record(
+                banner.id,
+                item.channel,
+                item.recipient,
+                outcome,
+                item.who.person if item.who else None,
+            )
+
+    async def _take_back(self, banner: Banner, user_id: str | None) -> None:
+        """Clear what one user (or everyone) sees on the per-user channels, keeping the rows."""
+        persons = set(self.resolver.persons_of_user(user_id)) if user_id else None
+        for row in self.ledger.for_message(banner.id):
+            if row.state is not State.SENT or row.person is None:
+                continue
+            if persons is not None and row.person not in persons:
+                continue
+            channel = self.channels.get(row.channel)
+            outcome = await channel.clear(banner.id, Target(row.recipient, "", row.person), row.ref)
+            self._trace(banner.id, row.channel, row.recipient, "cleared", outcome.reason)
+            row.state = State.CLEARED
+            self.ledger.put(row)
+
+    async def _resend(self, banner: Banner, user_id: str | None) -> None:
+        """A snooze ended: notify again the people it was cleared for (D-078)."""
+        if not banner.active:
+            return
+        persons = set(self.resolver.persons_of_user(user_id)) if user_id else None
+        for row in self.ledger.for_message(banner.id):
+            if row.state is not State.CLEARED or row.person is None:
+                continue
+            if persons is not None and row.person not in persons:
+                continue
+            target = Target(
+                row.recipient, "device" if row.recipient.startswith("device:") else "", row.person
+            )
+            outcome = await self.channels.get(row.channel).deliver(banner, target)
+            self._record(banner.id, row.channel, row.recipient, outcome, row.person)
 
     async def _end(self, banner: Banner) -> None:
         for row in self.ledger.for_message(banner.id):
             if row.state is State.SENT:
-                await self.channels.get(row.channel).clear(banner, row.recipient)
+                target = Target(row.recipient, "", row.person)
+                await self.channels.get(row.channel).clear(banner.id, target, row.ref)
             self._trace(banner.id, row.channel, row.recipient, "cleared", None)
         self.ledger.drop_message(banner.id)
 
@@ -194,16 +263,35 @@ class HubEngine:
         for item in planned:
             outcome = Outcome(item.result, item.reason)
             if item.result is Result.SENT:
-                outcome = await self.channels.get(item.channel).deliver(message, item.recipient)
+                outcome = await self.channels.get(item.channel).deliver(message, self._target(item))
             self._trace(
                 message.id, item.channel, item.recipient, outcome.result.value, outcome.reason
             )
         return planned
 
-    def _record(self, message_id: str, channel: str, recipient: str, outcome: Outcome) -> None:
+    def note(self, message_id: str, channel: str, recipient: str, result: str, reason: str) -> None:
+        """A trace entry for something that is not a delivery (a press, for example)."""
+        self._trace(message_id, channel, recipient, result, reason)
+
+    def _record(
+        self,
+        message_id: str,
+        channel: str,
+        recipient: str,
+        outcome: Outcome,
+        person: str | None = None,
+    ) -> None:
         state = State(outcome.result.value)
         self.ledger.put(
-            Delivery(message_id, channel, recipient, state, dt_util.utcnow(), ref=outcome.ref)
+            Delivery(
+                message_id,
+                channel,
+                recipient,
+                state,
+                dt_util.utcnow(),
+                ref=outcome.ref,
+                person=person,
+            )
         )
         self._trace(message_id, channel, recipient, outcome.result.value, outcome.reason)
 
