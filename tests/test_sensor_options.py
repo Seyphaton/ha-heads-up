@@ -50,6 +50,7 @@ async def test_options_flow_sets_defaults_for_new_banners(
         "install_token": token,
         "hub_enabled": True,
         "presence_debounce_seconds": 60,
+        "show_panel": False,
         "speak_max_length": 200,
         "speak_cooldown_seconds": 60,
         "speak_tts_entity": "",
