@@ -59,6 +59,7 @@ from .const import (
     OPT_HUB_ENABLED,
     OPT_MAX_BANNERS,
     OPT_PRESENCE_DEBOUNCE,
+    POLICY_SUBENTRY,
     PROFILE_SUBENTRY,
     RULE_SUBENTRY,
     SEVERITIES,
@@ -67,6 +68,7 @@ from .const import (
 )
 from .hub.flows import (
     AudienceSubentryFlow,
+    PolicySubentryFlow,
     RecipientGroupSubentryFlow,
     RecipientProfileSubentryFlow,
 )
@@ -99,6 +101,7 @@ class HeadsUpConfigFlow(ConfigFlow, domain=DOMAIN):
             AUDIENCE_SUBENTRY: AudienceSubentryFlow,
             GROUP_SUBENTRY: RecipientGroupSubentryFlow,
             PROFILE_SUBENTRY: RecipientProfileSubentryFlow,
+            POLICY_SUBENTRY: PolicySubentryFlow,
         }
 
 

@@ -62,7 +62,9 @@ def _start_hub(hass: HomeAssistant, entry: HeadsUpConfigEntry, manager: BannerMa
         lambda work, name: entry.async_create_background_task(hass, work, name),
     )
     manager.hub = hub
+    hub.lookup = lambda message_id: manager.banners.get(message_id) or manager.rules.get(message_id)
     hub.resolver.sync(entry.subentries)
+    hub.policies.sync(entry.subentries)
     hub.channels.register(PushChannel(hass, hub, manager))
     manager.subscribe_transitions(hub.on_transition)
 
@@ -84,6 +86,7 @@ async def _async_entry_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry) -
         await hub.async_unload()
     if manager.hub is not None:
         manager.hub.resolver.sync(entry.subentries)
+        manager.hub.policies.sync(entry.subentries)
     manager.sync_rules(entry.subentries)
 
 

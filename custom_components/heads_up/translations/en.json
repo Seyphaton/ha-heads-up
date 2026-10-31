@@ -120,6 +120,12 @@
         "push": "Push",
         "popup": "Popup"
       }
+    },
+    "policy_type": {
+      "options": {
+        "escalation": "Escalation",
+        "reminder": "Reminder"
+      }
     }
   },
   "entity": {
@@ -773,6 +779,96 @@
         "device_unknown": "A chosen device is not a Companion app registration.",
         "device_added_and_removed": "A device cannot be both added and removed.",
         "channels_required": "Choose at least one channel."
+      },
+      "abort": {
+        "reconfigure_successful": "Re-configuration was successful."
+      }
+    },
+    "policy": {
+      "entry_type": "Policy",
+      "initiate_flow": {
+        "user": "Add policy"
+      },
+      "step": {
+        "user": {
+          "title": "Add policy",
+          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\".",
+          "data": {
+            "name": "Name",
+            "type": "Type",
+            "severities": "Severities",
+            "tags": "Tags",
+            "enabled": "Enabled",
+            "after_minutes": "Escalate after (minutes)",
+            "channels": "Channels",
+            "dismiss_acks": "Dismissing counts as acknowledging",
+            "every_minutes": "Repeat every (minutes)",
+            "max_count": "At most this many reminders",
+            "push_audience": "Push: audience",
+            "push_recipients": "Push: recipients",
+            "popup_audience": "Popup: audience",
+            "popup_recipients": "Popup: recipients",
+            "speak_recipients": "Speak: recipients"
+          },
+          "data_description": {
+            "name": "Used by the policy field of a call. Must be unique and cannot be \"none\".",
+            "severities": "Only messages of these severities. Empty: any.",
+            "tags": "Only messages with one of these tags. Empty: any.",
+            "after_minutes": "Escalation: minutes without acknowledgement before the channels below are used.",
+            "channels": "Escalation: channels to add. Reminder: limit to these channels, empty for all.",
+            "dismiss_acks": "Escalation: a dismissal stops the escalation, as an acknowledgement does.",
+            "every_minutes": "Reminder: minutes between repeats.",
+            "max_count": "Reminder: how many times to repeat.",
+            "push_audience": "Escalation: give either an audience or recipients per channel, never both.",
+            "speak_recipients": "Escalation: speech takes recipients, not an audience."
+          }
+        },
+        "reconfigure": {
+          "title": "Policy",
+          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\".",
+          "data": {
+            "name": "Name",
+            "type": "Type",
+            "severities": "Severities",
+            "tags": "Tags",
+            "enabled": "Enabled",
+            "after_minutes": "Escalate after (minutes)",
+            "channels": "Channels",
+            "dismiss_acks": "Dismissing counts as acknowledging",
+            "every_minutes": "Repeat every (minutes)",
+            "max_count": "At most this many reminders",
+            "push_audience": "Push: audience",
+            "push_recipients": "Push: recipients",
+            "popup_audience": "Popup: audience",
+            "popup_recipients": "Popup: recipients",
+            "speak_recipients": "Speak: recipients"
+          },
+          "data_description": {
+            "name": "Used by the policy field of a call. Must be unique and cannot be \"none\".",
+            "severities": "Only messages of these severities. Empty: any.",
+            "tags": "Only messages with one of these tags. Empty: any.",
+            "after_minutes": "Escalation: minutes without acknowledgement before the channels below are used.",
+            "channels": "Escalation: channels to add. Reminder: limit to these channels, empty for all.",
+            "dismiss_acks": "Escalation: a dismissal stops the escalation, as an acknowledgement does.",
+            "every_minutes": "Reminder: minutes between repeats.",
+            "max_count": "Reminder: how many times to repeat.",
+            "push_audience": "Escalation: give either an audience or recipients per channel, never both.",
+            "speak_recipients": "Escalation: speech takes recipients, not an audience."
+          }
+        }
+      },
+      "error": {
+        "name_required": "Enter a name.",
+        "name_exists": "This name is used by another policy or is reserved.",
+        "after_required": "Enter a time of at least one minute.",
+        "channels_required": "Choose at least one channel.",
+        "channel_unknown": "This channel cannot be used by a policy.",
+        "every_required": "Enter a time of at least one minute.",
+        "max_required": "Enter at least one reminder.",
+        "target_exclusive": "Give either an audience or recipients for this channel.",
+        "audience_unknown": "This audience does not exist.",
+        "recipient_unknown": "One of these recipients is not known for this channel.",
+        "policy_duplicate": "Another policy of this type already applies to the same severities and tags with the same time."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

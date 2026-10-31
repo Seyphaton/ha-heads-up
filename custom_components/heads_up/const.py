@@ -61,6 +61,10 @@ DELIVERIES_MINOR_VERSION: Final = 1
 AUDIENCE_SUBENTRY: Final = "audience"
 GROUP_SUBENTRY: Final = "recipient_group"
 PROFILE_SUBENTRY: Final = "recipient_profile"
+POLICY_SUBENTRY: Final = "policy"
+POLICY_TYPES: Final = ("escalation", "reminder")  # H4b and H4c add theirs
+POLICY_CHANNELS: Final = ("push", "popup", "speak", "persistent")  # an escalation can add these
+TIMER_CHANNEL: Final = "timer"  # ledger rows of this channel hold escalation and reminder due times
 GROUP_SUFFIX: Final = " (group)"  # how a recipient group is named in calls
 PRESENCE_KEY: Final = "heads_up.presence"
 # Built in, not stored (D-080). Names are the ones calls use.

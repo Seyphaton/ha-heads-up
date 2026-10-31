@@ -13,8 +13,12 @@ from homeassistant.config_entries import ConfigSubentry, ConfigSubentryFlow, Sub
 from homeassistant.helpers.selector import (
     AreaSelector,
     AreaSelectorConfig,
+    BooleanSelector,
     EntitySelector,
     EntitySelectorConfig,
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
@@ -26,12 +30,26 @@ from ..const import (
     AUDIENCE_SUBENTRY,
     GROUP_SUBENTRY,
     GROUP_SUFFIX,
+    POLICY_CHANNELS,
+    POLICY_NONE,
+    POLICY_SUBENTRY,
+    POLICY_TYPES,
     PRESENCE_KINDS,
     PROFILE_CHANNELS,
     PROFILE_SUBENTRY,
+    SEVERITIES,
     ZONE_KINDS,
 )
 from .audiences import BUILTINS
+from .policies import escalation, reminder
+from .policies.matching import duplicate_of
+from .policies.models import (
+    DEFAULT_AFTER_MINUTES,
+    DEFAULT_EVERY_MINUTES,
+    DEFAULT_MAX_REMINDERS,
+    Policy,
+    parse_policy,
+)
 from .recipients import SPEAKER_DOMAINS, area_exists, registrations
 
 
@@ -277,3 +295,172 @@ class RecipientProfileSubentryFlow(_HubFlow):
 
     def _suggested(self, subentry: ConfigSubentry) -> dict[str, Any]:
         return dict(subentry.data)
+
+
+TARGET_CHANNELS_WITH_FIELDS = ("push", "popup", "speak")  # a persistent notification has no target
+_MINUTES = NumberSelector(
+    NumberSelectorConfig(
+        min=1, max=1440, step=1, mode=NumberSelectorMode.BOX, unit_of_measurement="min"
+    )
+)
+
+
+class PolicySubentryFlow(_HubFlow):
+    """Escalation and Reminder policies (D-079, D-081). The other types arrive with H4b and H4c.
+
+    One form for every type; the fields of the other types are ignored and not stored.
+    """
+
+    subentry_type = POLICY_SUBENTRY
+
+    def _hub(self) -> Any:
+        return getattr(getattr(self._get_entry(), "runtime_data", None), "hub", None)
+
+    def _options(self, names: list[str]) -> SelectSelectorConfig:
+        return SelectSelectorConfig(
+            options=[SelectOptionDict(value=n, label=n) for n in names],
+            custom_value=True,
+            multiple=True,
+        )
+
+    def _schema(self, reconfigure: bool) -> vol.Schema:
+        hub = self._hub()
+        audiences = hub.audiences.names() if hub else []
+        fields: dict[Any, Any] = {
+            vol.Required("name"): TextSelector(),
+            vol.Required("type", default=POLICY_TYPES[0]): SelectSelector(
+                SelectSelectorConfig(options=list(POLICY_TYPES), translation_key="policy_type")
+            ),
+            vol.Optional("severities"): SelectSelector(
+                SelectSelectorConfig(
+                    options=list(SEVERITIES), multiple=True, translation_key="severity"
+                )
+            ),
+            vol.Optional("tags"): SelectSelector(
+                SelectSelectorConfig(options=[], custom_value=True, multiple=True)
+            ),
+            vol.Required("enabled", default=True): BooleanSelector(),
+            vol.Optional("after_minutes", default=DEFAULT_AFTER_MINUTES): _MINUTES,
+            vol.Optional("channels"): SelectSelector(
+                SelectSelectorConfig(
+                    options=list(POLICY_CHANNELS), multiple=True, translation_key="channel"
+                )
+            ),
+            vol.Optional("dismiss_acks", default=False): BooleanSelector(),
+            vol.Optional("every_minutes", default=DEFAULT_EVERY_MINUTES): _MINUTES,
+            vol.Optional("max_count", default=DEFAULT_MAX_REMINDERS): NumberSelector(
+                NumberSelectorConfig(min=1, max=20, step=1, mode=NumberSelectorMode.BOX)
+            ),
+        }
+        for channel in TARGET_CHANNELS_WITH_FIELDS:
+            if channel != "speak":  # speech takes recipients, not an audience (D-098)
+                fields[vol.Optional(f"{channel}_audience")] = SelectSelector(
+                    # custom_value: a policy that names a deleted audience must still open (D-111).
+                    SelectSelectorConfig(
+                        options=[SelectOptionDict(value=n, label=n) for n in audiences],
+                        custom_value=True,
+                    )
+                )
+            known = hub.recipients.known(channel) if hub else []
+            fields[vol.Optional(f"{channel}_recipients")] = SelectSelector(self._options(known))
+        return vol.Schema(fields)
+
+    def _targets(self, user_input: dict[str, Any]) -> dict[str, dict[str, Any]]:
+        targets: dict[str, dict[str, Any]] = {}
+        for channel in user_input.get("channels") or []:
+            target: dict[str, Any] = {}
+            if audience := user_input.get(f"{channel}_audience"):
+                target["audience"] = audience
+            if recipients := user_input.get(f"{channel}_recipients"):
+                target["recipients"] = list(recipients)
+            if target:
+                targets[channel] = target
+        return targets
+
+    def _candidate(self, user_input: dict[str, Any], own: str | None) -> Policy:
+        data = self._data(user_input)
+        return Policy(
+            name=str(user_input["name"]).strip(),
+            type=data["type"],
+            subentry_id=own or "",
+            severities=frozenset(data["severities"]),
+            tags=frozenset(data["tags"]),
+            after_minutes=data.get("after_minutes", 0),
+            every_minutes=data.get("every_minutes", 0),
+        )
+
+    def _check(self, user_input: dict[str, Any], own: str | None) -> dict[str, str]:
+        errors: dict[str, str] = {}
+        name = str(user_input["name"]).strip()
+        if not name:
+            errors["name"] = "name_required"
+        elif name.casefold() == POLICY_NONE or name.casefold() in _names_taken(
+            self, POLICY_SUBENTRY, own
+        ):
+            errors["name"] = "name_exists"  # `none` means no policy in a call
+        if user_input["type"] == "escalation":
+            errors.update(escalation.check(user_input))
+            errors.update(self._check_targets(user_input))
+        else:
+            errors.update(reminder.check(user_input))
+        if not errors:
+            existing = [
+                p
+                for sub in self._get_entry().subentries.values()
+                if (p := parse_policy(sub)) is not None
+            ]
+            if duplicate_of(existing, self._candidate(user_input, own)) is not None:
+                errors["base"] = "policy_duplicate"
+        return errors
+
+    def _check_targets(self, user_input: dict[str, Any]) -> dict[str, str]:
+        """Same rules as the `to` of `notify` (DESIGN §23.5)."""
+        errors: dict[str, str] = {}
+        hub = self._hub()
+        for channel in user_input.get("channels") or []:
+            if channel == "persistent":
+                continue
+            audience = user_input.get(f"{channel}_audience")
+            recipients = user_input.get(f"{channel}_recipients")
+            field = f"{channel}_recipients" if channel == "speak" else f"{channel}_audience"
+            if bool(audience) == bool(recipients):
+                errors[field] = "target_exclusive"
+            elif hub is not None and audience and audience not in hub.audiences.names():
+                errors[field] = "audience_unknown"
+            elif hub is not None and any(
+                r not in hub.recipients.known(channel) for r in recipients or []
+            ):
+                errors[f"{channel}_recipients"] = "recipient_unknown"
+        return errors
+
+    def _data(self, user_input: dict[str, Any]) -> dict[str, Any]:
+        data: dict[str, Any] = {
+            "type": user_input["type"],
+            "severities": list(user_input.get("severities") or []),
+            "tags": list(user_input.get("tags") or []),
+            "enabled": bool(user_input.get("enabled", True)),
+        }
+        channels = list(user_input.get("channels") or [])
+        if user_input["type"] == "escalation":
+            data.update(
+                after_minutes=int(user_input["after_minutes"]),
+                channels=channels,
+                targets=self._targets(user_input),
+                dismiss_acks=bool(user_input.get("dismiss_acks", False)),
+            )
+        else:
+            data.update(
+                every_minutes=int(user_input["every_minutes"]),
+                max_count=int(user_input["max_count"]),
+                channels=channels,
+            )
+        return data
+
+    def _suggested(self, subentry: ConfigSubentry) -> dict[str, Any]:
+        suggested = {"name": subentry.title, **subentry.data}
+        for channel, target in (subentry.data.get("targets") or {}).items():
+            if "audience" in target:
+                suggested[f"{channel}_audience"] = target["audience"]
+            if "recipients" in target:
+                suggested[f"{channel}_recipients"] = target["recipients"]
+        return suggested

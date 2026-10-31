@@ -10,16 +10,29 @@ import asyncio
 import logging
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
+from datetime import datetime
+from functools import partial
 from typing import Any
 
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
+from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.util import dt as dt_util
 
-from ..const import CHANNEL_BANNER, DEFAULT_OPTIONS, OPT_TRACE_ENTRIES, TARGET_CHANNELS
+from ..const import (
+    CHANNEL_BANNER,
+    DEFAULT_OPTIONS,
+    GROUP_SUFFIX,
+    OPT_TRACE_ENTRIES,
+    TARGET_CHANNELS,
+    TIMER_CHANNEL,
+)
 from ..models import Banner
 from .channels import ChannelRegistry, Outcome, Result, Target
-from .interfaces import AudienceResolver, NoPolicies, PolicyCatalog, RecipientResolver
+from .interfaces import AudienceResolver, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, State
+from .policies import PolicyBook, escalation, reminder
+from .policies.chain import Chain, Skip, Step
+from .policies.models import Policy
 from .resolver import HubResolver, Recipient
 from .trace import TraceBuffer, TraceEntry
 from .transitions import BannerTransition, Kind, Reason
@@ -50,10 +63,14 @@ class HubEngine:
         self.ledger = DeliveryLedger(hass)
         self.trace = TraceBuffer(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
         self.resolver = HubResolver(hass, options)
-        # The names a call may use come from the resolver (H2); policies arrive with H4.
+        # The names a call may use come from the resolver (H2) and the policy book (H4a).
         self.audiences: AudienceResolver = self.resolver
         self.recipients: RecipientResolver = self.resolver
-        self.policies: PolicyCatalog = NoPolicies()
+        self.policies = PolicyBook()
+        self.chain = Chain()
+        # The live message by id; the manager sets it. Timers read the message when they fire.
+        self.lookup: Callable[[str], Banner | None] = lambda _id: None
+        self._timers: dict[tuple[str, str], CALLBACK_TYPE] = {}
         self._create_task = create_task
         self._tails: dict[str, asyncio.Task[None]] = {}
         self._gate = asyncio.Semaphore(MAX_CONCURRENT)
@@ -72,11 +89,13 @@ class HubEngine:
                     await self.channels.get(row.channel).clear(message_id, target, row.ref)
                 self._trace(message_id, row.channel, row.recipient, "cleared", "gone_at_startup")
             self.ledger.drop_message(message_id)
+        self._restore_timers()
         self._ready.set()
 
     async def async_unload(self) -> None:
         self._closed = True
         self.channels.stop_all()
+        self._cancel_all_timers()
         tasks = list(self._tails.values())
         for task in tasks:
             task.cancel()
@@ -187,6 +206,12 @@ class HubEngine:
             await self._end(banner)
         elif kind is Kind.HIDDEN and transition.reason == Reason.DISMISSED:
             await self._take_back(banner, transition.user_id)
+            self._dismissed(banner)
+        elif kind is Kind.ACKNOWLEDGED:
+            self._stop_timers(banner.id, "acknowledged")
+            self.note(banner.id, "", transition.user_id or "", "acknowledged", "ok")
+        elif kind is Kind.SEVERITY_CHANGED:
+            self._restart_timers(banner)
         elif kind is Kind.SNOOZED:
             everyone = banner.snooze_scope == "global"
             await self._take_back(banner, None if everyone else transition.user_id)
@@ -194,23 +219,53 @@ class HubEngine:
             await self._resend(banner, transition.user_id)
         elif kind in (Kind.APPEARED, Kind.BECAME_VISIBLE, Kind.UPDATED):
             await self._deliver(banner, update=kind is Kind.UPDATED, resume=transition.silent)
+            if kind is Kind.UPDATED:
+                self._drop_inapplicable_timers(
+                    banner
+                )  # the policy field or the tag may have changed
+            self._arm(banner)
 
-    def _target(self, item: Planned) -> Target:
+    def _target(self, item: Planned, banner: Banner, *, ack: bool | None = None) -> Target:
         who = item.who
+        ack = self._ack_applies(banner) if ack is None else ack
         if who is None:
-            return Target(item.recipient)
-        return Target(who.key, who.kind, who.person)
+            return Target(item.recipient, ack_button=ack)
+        return Target(who.key, who.kind, who.person, ack_button=ack)
+
+    def _ack_applies(self, banner: Banner) -> bool:
+        """An escalation or reminder applies, so acknowledging is meaningful (the Acknowledge
+        button of a push)."""
+        return bool(self.policies.timed_for(banner))
 
     async def _deliver(self, banner: Banner, *, update: bool, resume: bool = False) -> None:
-        for item in await self.plan(banner, waiting=not banner.active):
+        planned = await self.plan(banner, waiting=not banner.active)
+        await self._send(banner, planned, update=update, resume=resume, origin="message")
+
+    async def _send(
+        self,
+        banner: Banner,
+        planned: list[Planned],
+        *,
+        update: bool = False,
+        resume: bool = False,
+        origin: str,
+    ) -> None:
+        """Run planned deliveries through the precedence chain and the channels."""
+        for item in planned:
             row = self.ledger.rows.get((banner.id, item.channel, item.recipient))
             if resume and row is not None and row.state is State.SENT:
                 continue  # sent before the restart: never send twice
             channel = self.channels.get(item.channel)
             outcome = Outcome(item.result, item.reason)
             if item.result is Result.SENT:
-                call = channel.update if update else channel.deliver
-                outcome = await call(banner, self._target(item))
+                step = self.chain.run(
+                    Step(banner, item.channel, self._target(item, banner), origin)
+                )
+                if isinstance(step, Skip):
+                    outcome = Outcome(Result.SKIPPED, step.reason)
+                else:
+                    call = channel.update if update else channel.deliver
+                    outcome = await call(step.banner, step.target)
             self._record(
                 banner.id,
                 item.channel,
@@ -243,13 +298,13 @@ class HubEngine:
                 continue
             if persons is not None and row.person not in persons:
                 continue
-            target = Target(
-                row.recipient, "device" if row.recipient.startswith("device:") else "", row.person
+            outcome = await self.channels.get(row.channel).deliver(
+                banner, self._row_target(row, banner)
             )
-            outcome = await self.channels.get(row.channel).deliver(banner, target)
             self._record(banner.id, row.channel, row.recipient, outcome, row.person)
 
     async def _end(self, banner: Banner) -> None:
+        self._cancel_timers(banner.id)
         for row in self.ledger.for_message(banner.id):
             if row.state is State.SENT:
                 target = Target(row.recipient, "", row.person)
@@ -257,13 +312,188 @@ class HubEngine:
             self._trace(banner.id, row.channel, row.recipient, "cleared", None)
         self.ledger.drop_message(banner.id)
 
+    # Policies: escalation and reminder timers --------------------------------------------
+
+    def _row_target(self, row: Delivery, banner: Banner) -> Target:
+        kind = "device" if row.recipient.startswith("device:") else ""
+        return Target(row.recipient, kind, row.person, ack_button=self._ack_applies(banner))
+
+    def policy_problem(self, policy: Policy) -> str | None:
+        """Why a policy cannot run now, as a stable reason code (D-111). Home Assistant cannot
+        stop a user from deleting an audience or group a policy names, so this is checked when
+        the policy fires and reported instead."""
+        for channel, target in policy.targets.items():
+            audience = target.get("audience")
+            if audience is not None and audience not in self.audiences.names():
+                return "audience_missing"
+            known = self.recipients.known(channel)
+            for name in target.get("recipients", []):
+                if name.endswith(GROUP_SUFFIX) and name not in known:
+                    return "group_missing"
+        return None
+
+    def _arm(self, banner: Banner) -> None:
+        """Start the timers of the escalations and reminders that apply, once per message."""
+        if self._closed or not banner.active or banner.acknowledged_by:
+            return
+        now = dt_util.utcnow()
+        for policy in self.policies.timed_for(banner):
+            row = self.ledger.rows.get((banner.id, TIMER_CHANNEL, policy.key))
+            if row is None:
+                due = (
+                    escalation.due(policy, now)
+                    if policy.type == "escalation"
+                    else reminder.next_due(policy, now)
+                )
+                row = Delivery(banner.id, TIMER_CHANNEL, policy.key, State.PLANNED, now, due=due)
+                self.ledger.put(row)
+            if row.state is State.PLANNED and (banner.id, policy.key) not in self._timers:
+                self._schedule(row)
+
+    def _drop_inapplicable_timers(self, banner: Banner) -> None:
+        applicable = {p.key for p in self.policies.timed_for(banner)}
+        for row in self.ledger.timers(banner.id):
+            if row.state is State.PLANNED and row.recipient not in applicable:
+                if cancel := self._timers.pop((banner.id, row.recipient), None):
+                    cancel()
+                self._finish(row, State.CLEARED, "no_longer_applies")
+
+    def _schedule(self, row: Delivery) -> None:
+        key = (row.message_id, row.recipient)
+        if cancel := self._timers.pop(key, None):
+            cancel()
+        # HA_API_NOTES N-7: a time in the past runs at once, which is how an overdue step fires
+        # once after a restart (D-081).
+        self._timers[key] = async_track_point_in_utc_time(
+            self.hass,
+            partial(self._timer_due, row.message_id, row.recipient),
+            row.due or dt_util.utcnow(),
+        )
+
+    @callback
+    def _timer_due(self, message_id: str, key: str, _now: datetime) -> None:
+        self._timers.pop((message_id, key), None)
+        if self._closed:
+            return
+        self._enqueue(message_id, lambda: self._run_timer(message_id, key), f"heads_up timer {key}")
+
+    def _restore_timers(self) -> None:
+        for row in self.ledger.timers():
+            if row.state is State.PLANNED:
+                self._schedule(row)
+
+    def _cancel_timer_callbacks(self, message_id: str) -> None:
+        for key in [k for k in self._timers if k[0] == message_id]:
+            self._timers.pop(key)()
+
+    def _cancel_all_timers(self) -> None:
+        for cancel in self._timers.values():
+            cancel()
+        self._timers.clear()
+
+    def _cancel_timers(self, message_id: str) -> None:
+        """The message is gone: forget its timers."""
+        self._cancel_timer_callbacks(message_id)
+        self.ledger.drop_timers(message_id)
+
+    def _stop_timers(self, message_id: str, reason: str, *, only: Policy | None = None) -> None:
+        for row in self.ledger.timers(message_id):
+            if row.state is not State.PLANNED or (only is not None and row.recipient != only.key):
+                continue
+            if cancel := self._timers.pop((message_id, row.recipient), None):
+                cancel()
+            self._finish(row, State.CLEARED, reason)
+
+    def _restart_timers(self, banner: Banner) -> None:
+        """The severity changed: the policies of the new severity start from now (D-081)."""
+        self._cancel_timers(banner.id)
+        self._trace(banner.id, TIMER_CHANNEL, "", "restarted", "severity_changed")
+        self._arm(banner)
+
+    def _dismissed(self, banner: Banner) -> None:
+        for row in self.ledger.timers(banner.id):
+            policy = self.policies.by_key(row.recipient)
+            if row.state is State.PLANNED and policy is not None and policy.dismiss_acks:
+                self._stop_timers(banner.id, "dismissed_counts_as_acknowledged", only=policy)
+
+    def _finish(self, row: Delivery, state: State, reason: str) -> None:
+        row.state = state
+        row.updated_at = dt_util.utcnow()
+        self.ledger.put(row)
+        self._trace(row.message_id, TIMER_CHANNEL, row.recipient, state.value, reason)
+
+    async def _run_timer(self, message_id: str, key: str) -> None:
+        row = self.ledger.rows.get((message_id, TIMER_CHANNEL, key))
+        if row is None or row.state is not State.PLANNED:
+            return
+        banner = self.lookup(message_id)
+        policy = self.policies.by_key(key)
+        if banner is None or not banner.active or banner.acknowledged_by:
+            self._finish(row, State.CLEARED, "no_longer_needed")
+        elif policy is None or not policy.enabled:
+            self._finish(row, State.CLEARED, "policy_gone")
+        elif policy.type == "escalation":
+            await self._escalate(banner, policy, row)
+        else:
+            await self._remind(banner, policy, row)
+
+    async def _escalate(self, banner: Banner, policy: Policy, row: Delivery) -> None:
+        if (problem := self.policy_problem(policy)) is not None:
+            self._finish(row, State.SKIPPED, problem)  # D-111: reported, never silent
+            return
+        message = escalation.message_for(banner, policy)
+        # Whoever already has the message on that channel is not notified a second time.
+        await self._send(message, await self.plan(message), resume=True, origin="escalation")
+        self._finish(row, State.SENT, "escalated")
+
+    async def _remind(self, banner: Banner, policy: Policy, row: Delivery) -> None:
+        # Cleared rows (dismissed or snoozed) are left out: a snooze pauses the person's
+        # reminders and the notification after it brings them back (D-078).
+        sent = [
+            r
+            for r in self.ledger.for_message(banner.id)
+            if r.state is State.SENT
+            and r.channel != CHANNEL_BANNER
+            and (not policy.channels or r.channel in policy.channels)
+        ]
+        if not sent:
+            self._finish(row, State.CLEARED, "nobody_left")
+            return
+        for target_row in sent:
+            step = self.chain.run(
+                Step(banner, target_row.channel, self._row_target(target_row, banner), "reminder")
+            )
+            if isinstance(step, Skip):
+                self._trace(
+                    banner.id, target_row.channel, target_row.recipient, "skipped", step.reason
+                )
+                continue
+            outcome = await self.channels.get(target_row.channel).deliver(step.banner, step.target)
+            self._trace(
+                banner.id,
+                target_row.channel,
+                target_row.recipient,
+                outcome.result.value,
+                "reminder",
+            )
+        row.count += 1
+        if reminder.finished(policy, row.count):
+            self._finish(row, State.SENT, "reminders_done")
+            return
+        row.due = reminder.next_due(policy, dt_util.utcnow())
+        self.ledger.put(row)
+        self._schedule(row)
+
     async def send_once(self, message: Banner) -> list[Planned]:
         """Deliver a message that has no record (shortcuts without an id)."""
         planned = await self.plan(message)
         for item in planned:
             outcome = Outcome(item.result, item.reason)
             if item.result is Result.SENT:
-                outcome = await self.channels.get(item.channel).deliver(message, self._target(item))
+                outcome = await self.channels.get(item.channel).deliver(
+                    message,
+                    self._target(item, message, ack=False),  # no record to acknowledge
+                )
             self._trace(
                 message.id, item.channel, item.recipient, outcome.result.value, outcome.reason
             )

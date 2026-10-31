@@ -11,6 +11,8 @@ Run after `make dev-up` + `make dev-onboard`:
   uv run python dev/smoke.py hub_core # notify, shortcuts, trace (hub work, H1)
   (restart the container)
   uv run python dev/smoke.py hub_core_verify
+  uv run python dev/smoke.py policies # policy form, `policy` field, acknowledge (hub work, H4a)
+  uv run python dev/smoke.py policies_verify
 """
 
 import asyncio
@@ -399,6 +401,58 @@ async def hub_core_verify() -> None:
         print("hub core survived the restart")
 
 
+SMOKE_POLICY = "Smoke reminder"
+
+
+async def policies() -> None:
+    """A reminder policy added through the real subentry flow, used by a message, acknowledged."""
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        headers = {"Authorization": f"Bearer {admin}"}
+        eid = await entry_id(s, admin)
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow",
+            json={"handler": [eid, "policy"], "show_advanced_options": False},
+            headers=headers,
+        )
+        flow = await r.json()
+        assert flow["type"] == "form", flow
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow/{flow['flow_id']}",
+            json={"name": SMOKE_POLICY, "type": "reminder", "every_minutes": 30, "max_count": 3},
+            headers=headers,
+        )
+        result = await r.json()
+        print("policy form:", result["type"], result.get("errors"))
+        await asyncio.sleep(1)
+        data = {"id": "smoke_policy", "message": "Policy", "timeout": 0, "policy": SMOKE_POLICY}
+        print(
+            "notify with policy:", await call(s, admin, "notify", {**data, "channels": ["banner"]})
+        )
+        ws_user, ws_admin = await connect(s, user), await connect(s, admin)
+        msg_id = await ws_user.send({"type": "heads_up/acknowledge", "banner_id": "smoke_policy"})
+        print("acknowledge:", await ws_user.recv(msg_id))
+        msg_id = await ws_user.send({"type": "heads_up/acknowledge", "banner_id": "missing"})
+        assert (await ws_user.recv(msg_id))["error"]["code"] == "not_found"
+        msg_id = await ws_user.send({"type": "heads_up/hub_usage", "name": "Everyone"})
+        assert (await ws_user.recv(msg_id))["error"]["code"] == "unauthorized"
+        msg_id = await ws_admin.send({"type": "heads_up/hub_usage", "name": "Everyone"})
+        assert (await ws_admin.recv(msg_id))["result"] == {"policies": []}
+        msg_id = await ws_admin.send({"type": "heads_up/hub_trace", "message_id": "smoke_policy"})
+        trace = (await ws_admin.recv(msg_id))["result"]["entries"]
+        assert any(e["result"] == "acknowledged" for e in trace), trace
+
+
+async def policies_verify() -> None:
+    async with aiohttp.ClientSession() as s:
+        admin = await token(s, "ADMIN")
+        # The policy survived the restart: a call naming it is still accepted.
+        data = {"id": "smoke_policy", "message": "Policy", "timeout": 0, "policy": SMOKE_POLICY}
+        await call(s, admin, "notify", {**data, "channels": ["banner"]})
+        print("clear:", await call(s, admin, "clear", {"id": "smoke_policy"}))
+        print("policies survived the restart")
+
+
 async def stub() -> None:
     """The stub notify services and fake players record their calls with data (H0a)."""
     async with aiohttp.ClientSession() as s:
@@ -527,5 +581,7 @@ asyncio.run(
         "stub": stub,
         "hub_core": hub_core,
         "hub_core_verify": hub_core_verify,
+        "policies": policies,
+        "policies_verify": policies_verify,
     }[sys.argv[1]]()
 )

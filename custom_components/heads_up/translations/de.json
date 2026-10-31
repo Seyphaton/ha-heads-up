@@ -120,6 +120,12 @@
         "push": "Push",
         "popup": "Popup"
       }
+    },
+    "policy_type": {
+      "options": {
+        "escalation": "Eskalation",
+        "reminder": "Erinnerung"
+      }
     }
   },
   "entity": {
@@ -773,6 +779,96 @@
         "device_unknown": "Ein gewähltes Gerät ist keine Companion-App-Registrierung.",
         "device_added_and_removed": "Ein Gerät kann nicht gleichzeitig hinzugefügt und entfernt werden.",
         "channels_required": "Mindestens einen Kanal wählen."
+      },
+      "abort": {
+        "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
+      }
+    },
+    "policy": {
+      "entry_type": "Richtlinie",
+      "initiate_flow": {
+        "user": "Richtlinie hinzufügen"
+      },
+      "step": {
+        "user": {
+          "title": "Richtlinie hinzufügen",
+          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\".",
+          "data": {
+            "name": "Name",
+            "type": "Art",
+            "severities": "Schweregrade",
+            "tags": "Tags",
+            "enabled": "Aktiv",
+            "after_minutes": "Eskalieren nach (Minuten)",
+            "channels": "Kanäle",
+            "dismiss_acks": "Ausblenden zählt als Bestätigung",
+            "every_minutes": "Wiederholen alle (Minuten)",
+            "max_count": "Höchstens so viele Erinnerungen",
+            "push_audience": "Push: Zielgruppe",
+            "push_recipients": "Push: Empfänger",
+            "popup_audience": "Popup: Zielgruppe",
+            "popup_recipients": "Popup: Empfänger",
+            "speak_recipients": "Sprechen: Empfänger"
+          },
+          "data_description": {
+            "name": "Wird vom Feld policy eines Aufrufs verwendet. Muss eindeutig sein und darf nicht \"none\" heißen.",
+            "severities": "Nur Meldungen dieser Schweregrade. Leer: alle.",
+            "tags": "Nur Meldungen mit einem dieser Tags. Leer: alle.",
+            "after_minutes": "Eskalation: Minuten ohne Bestätigung, bevor die folgenden Kanäle genutzt werden.",
+            "channels": "Eskalation: hinzuzufügende Kanäle. Erinnerung: auf diese Kanäle beschränken, leer für alle.",
+            "dismiss_acks": "Eskalation: Ausblenden beendet die Eskalation, wie eine Bestätigung.",
+            "every_minutes": "Erinnerung: Minuten zwischen den Wiederholungen.",
+            "max_count": "Erinnerung: wie oft wiederholt wird.",
+            "push_audience": "Eskalation: je Kanal entweder eine Zielgruppe oder Empfänger, nie beides.",
+            "speak_recipients": "Eskalation: Sprechen nimmt Empfänger, keine Zielgruppe."
+          }
+        },
+        "reconfigure": {
+          "title": "Richtlinie",
+          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\".",
+          "data": {
+            "name": "Name",
+            "type": "Art",
+            "severities": "Schweregrade",
+            "tags": "Tags",
+            "enabled": "Aktiv",
+            "after_minutes": "Eskalieren nach (Minuten)",
+            "channels": "Kanäle",
+            "dismiss_acks": "Ausblenden zählt als Bestätigung",
+            "every_minutes": "Wiederholen alle (Minuten)",
+            "max_count": "Höchstens so viele Erinnerungen",
+            "push_audience": "Push: Zielgruppe",
+            "push_recipients": "Push: Empfänger",
+            "popup_audience": "Popup: Zielgruppe",
+            "popup_recipients": "Popup: Empfänger",
+            "speak_recipients": "Sprechen: Empfänger"
+          },
+          "data_description": {
+            "name": "Wird vom Feld policy eines Aufrufs verwendet. Muss eindeutig sein und darf nicht \"none\" heißen.",
+            "severities": "Nur Meldungen dieser Schweregrade. Leer: alle.",
+            "tags": "Nur Meldungen mit einem dieser Tags. Leer: alle.",
+            "after_minutes": "Eskalation: Minuten ohne Bestätigung, bevor die folgenden Kanäle genutzt werden.",
+            "channels": "Eskalation: hinzuzufügende Kanäle. Erinnerung: auf diese Kanäle beschränken, leer für alle.",
+            "dismiss_acks": "Eskalation: Ausblenden beendet die Eskalation, wie eine Bestätigung.",
+            "every_minutes": "Erinnerung: Minuten zwischen den Wiederholungen.",
+            "max_count": "Erinnerung: wie oft wiederholt wird.",
+            "push_audience": "Eskalation: je Kanal entweder eine Zielgruppe oder Empfänger, nie beides.",
+            "speak_recipients": "Eskalation: Sprechen nimmt Empfänger, keine Zielgruppe."
+          }
+        }
+      },
+      "error": {
+        "name_required": "Gib einen Namen ein.",
+        "name_exists": "Dieser Name wird von einer anderen Richtlinie verwendet oder ist reserviert.",
+        "after_required": "Gib eine Zeit von mindestens einer Minute ein.",
+        "channels_required": "Wähle mindestens einen Kanal.",
+        "channel_unknown": "Dieser Kanal kann in einer Richtlinie nicht verwendet werden.",
+        "every_required": "Gib eine Zeit von mindestens einer Minute ein.",
+        "max_required": "Gib mindestens eine Erinnerung an.",
+        "target_exclusive": "Gib für diesen Kanal entweder eine Zielgruppe oder Empfänger an.",
+        "audience_unknown": "Diese Zielgruppe gibt es nicht.",
+        "recipient_unknown": "Einer dieser Empfänger ist für diesen Kanal nicht bekannt.",
+        "policy_duplicate": "Eine andere Richtlinie dieser Art gilt bereits für dieselben Schweregrade und Tags mit derselben Zeit."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."

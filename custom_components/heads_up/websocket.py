@@ -75,6 +75,33 @@ def ws_dismiss(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str,
     connection.send_result(msg["id"])
 
 
+@websocket_command({vol.Required("type"): "heads_up/acknowledge", vol.Required("banner_id"): str})
+@callback
+def ws_acknowledge(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    try:
+        manager.acknowledge(msg["banner_id"], connection.user.id)
+    except HeadsUpError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    connection.send_result(msg["id"])
+
+
+@websocket_command({vol.Required("type"): "heads_up/hub_usage", vol.Required("name"): str})
+@require_admin
+@callback
+def ws_hub_usage(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """Policies that name an audience or recipient group, so a panel can warn before a delete
+    (D-111). Home Assistant cannot block the deletion of a subentry."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    if manager.hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    connection.send_result(msg["id"], {"policies": manager.hub.policies.usage(msg["name"])})
+
+
 @websocket_command(
     {
         vol.Required("type"): "heads_up/action",
@@ -213,6 +240,8 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_subscribe,
         ws_dismiss,
         ws_dismiss_many,
+        ws_acknowledge,
+        ws_hub_usage,
         ws_snooze,
         ws_unsnooze,
         ws_action,

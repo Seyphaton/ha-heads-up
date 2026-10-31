@@ -120,6 +120,12 @@
         "push": "Push",
         "popup": "Popup"
       }
+    },
+    "policy_type": {
+      "options": {
+        "escalation": "Escalade",
+        "reminder": "Rappel"
+      }
     }
   },
   "entity": {
@@ -773,6 +779,96 @@
         "device_unknown": "Un appareil choisi n'est pas un enregistrement de l'application Companion.",
         "device_added_and_removed": "Un appareil ne peut pas être à la fois ajouté et retiré.",
         "channels_required": "Choisissez au moins un canal."
+      },
+      "abort": {
+        "reconfigure_successful": "La reconfiguration a réussi."
+      }
+    },
+    "policy": {
+      "entry_type": "Politique",
+      "initiate_flow": {
+        "user": "Ajouter une politique"
+      },
+      "step": {
+        "user": {
+          "title": "Ajouter une politique",
+          "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\".",
+          "data": {
+            "name": "Nom",
+            "type": "Type",
+            "severities": "Gravités",
+            "tags": "Étiquettes",
+            "enabled": "Activée",
+            "after_minutes": "Escalader après (minutes)",
+            "channels": "Canaux",
+            "dismiss_acks": "Masquer vaut acquittement",
+            "every_minutes": "Répéter toutes les (minutes)",
+            "max_count": "Au plus ce nombre de rappels",
+            "push_audience": "Push : audience",
+            "push_recipients": "Push : destinataires",
+            "popup_audience": "Popup : audience",
+            "popup_recipients": "Popup : destinataires",
+            "speak_recipients": "Voix : destinataires"
+          },
+          "data_description": {
+            "name": "Utilisé par le champ policy d'un appel. Doit être unique et ne peut pas être \"none\".",
+            "severities": "Seulement les messages de ces gravités. Vide : toutes.",
+            "tags": "Seulement les messages avec l'une de ces étiquettes. Vide : toutes.",
+            "after_minutes": "Escalade : minutes sans acquittement avant d'utiliser les canaux ci-dessous.",
+            "channels": "Escalade : canaux à ajouter. Rappel : limiter à ces canaux, vide pour tous.",
+            "dismiss_acks": "Escalade : masquer arrête l'escalade, comme un acquittement.",
+            "every_minutes": "Rappel : minutes entre les répétitions.",
+            "max_count": "Rappel : nombre de répétitions.",
+            "push_audience": "Escalade : par canal, soit une audience soit des destinataires, jamais les deux.",
+            "speak_recipients": "Escalade : la voix prend des destinataires, pas une audience."
+          }
+        },
+        "reconfigure": {
+          "title": "Politique",
+          "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\".",
+          "data": {
+            "name": "Nom",
+            "type": "Type",
+            "severities": "Gravités",
+            "tags": "Étiquettes",
+            "enabled": "Activée",
+            "after_minutes": "Escalader après (minutes)",
+            "channels": "Canaux",
+            "dismiss_acks": "Masquer vaut acquittement",
+            "every_minutes": "Répéter toutes les (minutes)",
+            "max_count": "Au plus ce nombre de rappels",
+            "push_audience": "Push : audience",
+            "push_recipients": "Push : destinataires",
+            "popup_audience": "Popup : audience",
+            "popup_recipients": "Popup : destinataires",
+            "speak_recipients": "Voix : destinataires"
+          },
+          "data_description": {
+            "name": "Utilisé par le champ policy d'un appel. Doit être unique et ne peut pas être \"none\".",
+            "severities": "Seulement les messages de ces gravités. Vide : toutes.",
+            "tags": "Seulement les messages avec l'une de ces étiquettes. Vide : toutes.",
+            "after_minutes": "Escalade : minutes sans acquittement avant d'utiliser les canaux ci-dessous.",
+            "channels": "Escalade : canaux à ajouter. Rappel : limiter à ces canaux, vide pour tous.",
+            "dismiss_acks": "Escalade : masquer arrête l'escalade, comme un acquittement.",
+            "every_minutes": "Rappel : minutes entre les répétitions.",
+            "max_count": "Rappel : nombre de répétitions.",
+            "push_audience": "Escalade : par canal, soit une audience soit des destinataires, jamais les deux.",
+            "speak_recipients": "Escalade : la voix prend des destinataires, pas une audience."
+          }
+        }
+      },
+      "error": {
+        "name_required": "Saisissez un nom.",
+        "name_exists": "Ce nom est utilisé par une autre politique ou est réservé.",
+        "after_required": "Saisissez une durée d'au moins une minute.",
+        "channels_required": "Choisissez au moins un canal.",
+        "channel_unknown": "Ce canal ne peut pas être utilisé par une politique.",
+        "every_required": "Saisissez une durée d'au moins une minute.",
+        "max_required": "Saisissez au moins un rappel.",
+        "target_exclusive": "Indiquez soit une audience soit des destinataires pour ce canal.",
+        "audience_unknown": "Cette audience n'existe pas.",
+        "recipient_unknown": "L'un de ces destinataires est inconnu pour ce canal.",
+        "policy_duplicate": "Une autre politique de ce type s'applique déjà aux mêmes gravités et étiquettes avec le même délai."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."

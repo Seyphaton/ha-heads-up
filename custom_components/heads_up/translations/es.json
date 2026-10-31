@@ -120,6 +120,12 @@
         "push": "Push",
         "popup": "Popup"
       }
+    },
+    "policy_type": {
+      "options": {
+        "escalation": "Escalado",
+        "reminder": "Recordatorio"
+      }
     }
   },
   "entity": {
@@ -773,6 +779,96 @@
         "device_unknown": "Un dispositivo elegido no es un registro de la app Companion.",
         "device_added_and_removed": "Un dispositivo no puede añadirse y quitarse a la vez.",
         "channels_required": "Elija al menos un canal."
+      },
+      "abort": {
+        "reconfigure_successful": "La reconfiguración se realizó correctamente."
+      }
+    },
+    "policy": {
+      "entry_type": "Política",
+      "initiate_flow": {
+        "user": "Añadir política"
+      },
+      "step": {
+        "user": {
+          "title": "Añadir política",
+          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\".",
+          "data": {
+            "name": "Nombre",
+            "type": "Tipo",
+            "severities": "Gravedades",
+            "tags": "Etiquetas",
+            "enabled": "Activa",
+            "after_minutes": "Escalar tras (minutos)",
+            "channels": "Canales",
+            "dismiss_acks": "Descartar cuenta como confirmar",
+            "every_minutes": "Repetir cada (minutos)",
+            "max_count": "Como máximo este número de recordatorios",
+            "push_audience": "Push: audiencia",
+            "push_recipients": "Push: destinatarios",
+            "popup_audience": "Ventana emergente: audiencia",
+            "popup_recipients": "Ventana emergente: destinatarios",
+            "speak_recipients": "Voz: destinatarios"
+          },
+          "data_description": {
+            "name": "Lo usa el campo policy de una llamada. Debe ser único y no puede ser \"none\".",
+            "severities": "Solo mensajes de estas gravedades. Vacío: todas.",
+            "tags": "Solo mensajes con una de estas etiquetas. Vacío: todas.",
+            "after_minutes": "Escalado: minutos sin confirmación antes de usar los canales siguientes.",
+            "channels": "Escalado: canales que añadir. Recordatorio: limitar a estos canales, vacío para todos.",
+            "dismiss_acks": "Escalado: descartar detiene el escalado, como una confirmación.",
+            "every_minutes": "Recordatorio: minutos entre repeticiones.",
+            "max_count": "Recordatorio: cuántas veces repetir.",
+            "push_audience": "Escalado: por canal, una audiencia o destinatarios, nunca ambos.",
+            "speak_recipients": "Escalado: la voz admite destinatarios, no una audiencia."
+          }
+        },
+        "reconfigure": {
+          "title": "Política",
+          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\".",
+          "data": {
+            "name": "Nombre",
+            "type": "Tipo",
+            "severities": "Gravedades",
+            "tags": "Etiquetas",
+            "enabled": "Activa",
+            "after_minutes": "Escalar tras (minutos)",
+            "channels": "Canales",
+            "dismiss_acks": "Descartar cuenta como confirmar",
+            "every_minutes": "Repetir cada (minutos)",
+            "max_count": "Como máximo este número de recordatorios",
+            "push_audience": "Push: audiencia",
+            "push_recipients": "Push: destinatarios",
+            "popup_audience": "Ventana emergente: audiencia",
+            "popup_recipients": "Ventana emergente: destinatarios",
+            "speak_recipients": "Voz: destinatarios"
+          },
+          "data_description": {
+            "name": "Lo usa el campo policy de una llamada. Debe ser único y no puede ser \"none\".",
+            "severities": "Solo mensajes de estas gravedades. Vacío: todas.",
+            "tags": "Solo mensajes con una de estas etiquetas. Vacío: todas.",
+            "after_minutes": "Escalado: minutos sin confirmación antes de usar los canales siguientes.",
+            "channels": "Escalado: canales que añadir. Recordatorio: limitar a estos canales, vacío para todos.",
+            "dismiss_acks": "Escalado: descartar detiene el escalado, como una confirmación.",
+            "every_minutes": "Recordatorio: minutos entre repeticiones.",
+            "max_count": "Recordatorio: cuántas veces repetir.",
+            "push_audience": "Escalado: por canal, una audiencia o destinatarios, nunca ambos.",
+            "speak_recipients": "Escalado: la voz admite destinatarios, no una audiencia."
+          }
+        }
+      },
+      "error": {
+        "name_required": "Introduce un nombre.",
+        "name_exists": "Este nombre lo usa otra política o está reservado.",
+        "after_required": "Introduce un tiempo de al menos un minuto.",
+        "channels_required": "Elige al menos un canal.",
+        "channel_unknown": "Una política no puede usar este canal.",
+        "every_required": "Introduce un tiempo de al menos un minuto.",
+        "max_required": "Introduce al menos un recordatorio.",
+        "target_exclusive": "Indica una audiencia o destinatarios para este canal.",
+        "audience_unknown": "Esta audiencia no existe.",
+        "recipient_unknown": "Uno de estos destinatarios no se conoce para este canal.",
+        "policy_duplicate": "Otra política de este tipo ya se aplica a las mismas gravedades y etiquetas con el mismo tiempo."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguración se realizó correctamente."

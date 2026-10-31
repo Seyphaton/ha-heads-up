@@ -253,6 +253,12 @@ class BannerManager:
             targets={k: dict(v) for k, v in data.get("targets", {}).items()},
             policy=data.get("policy"),
             tts_message=data.get("tts_message"),
+            # Kept across an update with the same severity; a new severity starts again (D-081).
+            acknowledged_by=(
+                list(existing.acknowledged_by)
+                if existing and existing.severity == data.get("severity", DEFAULT_SEVERITY)
+                else []
+            ),
         )
         self.banners[banner_id] = banner
         self._schedule(banner)
@@ -374,6 +380,18 @@ class BannerManager:
             until=until.isoformat(),
         )
         self._emit(Kind.SNOOZED, banner, user_id=user_id)
+        self._changed()
+
+    @callback
+    def acknowledge(self, banner_id: str, user_id: str) -> None:
+        """Someone saw it: escalations and reminders stop for everyone (D-081). The banner stays."""
+        banner = self.rules.get(banner_id) or self._get(banner_id)
+        if not self._targets(banner, user_id):
+            raise HeadsUpError("not_found", f"Banner {banner_id} not found")
+        if user_id in banner.acknowledged_by:
+            return
+        banner.acknowledged_by.append(user_id)
+        self._emit(Kind.ACKNOWLEDGED, banner, user_id=user_id)
         self._changed()
 
     @callback
@@ -502,6 +520,9 @@ class BannerManager:
                     if not silent:
                         self._fire(EVENT_CLEARED, banner, reason="rule")
                     self._emit(Kind.HIDDEN, banner, Reason.RULE, silent=silent)
+            elif banner.condition_met and old is not None and old.severity != banner.severity:
+                # An edited rule that stays visible: its policies restart, as for an action (D-081).
+                self._emit(Kind.SEVERITY_CHANGED, banner, silent=silent)
             changed = True
         self._refresh_tracking()
         if changed and not silent:
@@ -550,6 +571,11 @@ class BannerManager:
             ),
             tag=RULE_TAG,
             source=SOURCE_RULE,
+            acknowledged_by=(
+                list(old.acknowledged_by)
+                if old and old.severity == source.get("severity", DEFAULT_SEVERITY)
+                else []
+            ),
             condition=condition,
             mode="recurring",
             people=list(source.get("people", [])),
@@ -596,6 +622,7 @@ class BannerManager:
                 self._emit(Kind.BECAME_VISIBLE, banner)
             else:
                 banner.dismissed_by.clear()  # a dismissal lasts until the condition flips (D-056)
+                banner.acknowledged_by.clear()  # a new occurrence needs a new acknowledgement
                 self._cancel_snoozes(banner.id)
                 self._fire(EVENT_CLEARED, banner, reason="rule")
                 self._emit(Kind.HIDDEN, banner, Reason.CONDITION)
@@ -679,6 +706,7 @@ class BannerManager:
         if met:
             if banner.mode == "recurring" and previous is False:
                 banner.dismissed_by.clear()
+                banner.acknowledged_by.clear()
                 self._cancel_snoozes(banner.id)
             banner.ever_met = True
             if previous is not True:

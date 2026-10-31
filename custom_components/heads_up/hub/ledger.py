@@ -16,7 +16,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
-from ..const import DELIVERIES_KEY, DELIVERIES_MINOR_VERSION, DELIVERIES_VERSION, SAVE_DELAY
+from ..const import (
+    DELIVERIES_KEY,
+    DELIVERIES_MINOR_VERSION,
+    DELIVERIES_VERSION,
+    SAVE_DELAY,
+    TIMER_CHANNEL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,6 +46,10 @@ class Delivery:
     due: datetime | None = None  # next step (escalation, reminder, summary), from H4
     ref: str | None = None  # push tag or notification id, from H3 and H7
     person: str | None = None  # the person behind a device or person recipient
+    # Timer rows (channel "timer", recipient "<type>:<policy>"): state planned = pending, sent =
+    # done, cleared = cancelled; `count` is the reminders sent so far. Rows of earlier layouts
+    # have no count, so no migration is needed.
+    count: int = 0
 
     @property
     def key(self) -> tuple[str, str, str]:
@@ -67,6 +77,7 @@ class Delivery:
             due=due,
             ref=raw.get("ref"),
             person=raw.get("person"),
+            count=int(raw.get("count", 0)),
         )
 
 
@@ -104,10 +115,27 @@ class DeliveryLedger:
         self._save()
 
     def for_message(self, message_id: str) -> list[Delivery]:
-        return [r for r in self.rows.values() if r.message_id == message_id]
+        """Deliveries of a message, without its timer rows."""
+        return [
+            r
+            for r in self.rows.values()
+            if r.message_id == message_id and r.channel != TIMER_CHANNEL
+        ]
+
+    def timers(self, message_id: str | None = None) -> list[Delivery]:
+        return [
+            r
+            for r in self.rows.values()
+            if r.channel == TIMER_CHANNEL and (message_id is None or r.message_id == message_id)
+        ]
+
+    def drop_timers(self, message_id: str) -> None:
+        for row in self.timers(message_id):
+            del self.rows[row.key]
+        self._save()
 
     def drop_message(self, message_id: str) -> None:
-        for row in self.for_message(message_id):
+        for row in [*self.for_message(message_id), *self.timers(message_id)]:
             del self.rows[row.key]
         self._save()
 

@@ -271,7 +271,7 @@ class PushChannel:
             elif action == "snooze":
                 manager.snooze(message_id, user_id, banner.snooze_options[0])
             elif action == "ack":
-                return "acknowledge_unavailable"  # the acknowledgement state arrives with H4a
+                manager.acknowledge(message_id, user_id)
             elif action.startswith(OWN_PREFIX):
                 manager.press(message_id, user_id, action.removeprefix(OWN_PREFIX))
             else:
