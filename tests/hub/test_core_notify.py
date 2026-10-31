@@ -133,7 +133,7 @@ async def test_persistent_and_banner_need_no_target(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
     result = await notify(hass, id="a", message="x", channels=["banner", "persistent"])
-    assert result["channels"]["persistent"]["skipped"] == 1
+    assert result["channels"]["persistent"]["sent"] == 1
 
 
 async def test_unknown_audience_lists_the_valid_names(
