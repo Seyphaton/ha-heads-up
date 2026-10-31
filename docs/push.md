@@ -1,0 +1,61 @@
+# Push notifications
+
+The push channel sends a message to the Home Assistant Companion app on the phones and tablets of the people you target. It calls the services `notify.mobile_app_<device name>`; it does not use the notify entities, because only the services pass `tag`, `actions` and `clear_notification` on to the app.
+
+```yaml
+- action: heads_up.notify
+  data:
+    id: garage_open
+    title: Garage
+    message: The garage door has been open for 10 minutes.
+    severity: warning
+    channels:
+      - push
+    to:
+      push:
+        audience: At home
+```
+
+## Who receives it
+
+A target is an audience, persons, or a Companion registration ID. A person's devices are found automatically; see [Audiences and recipients](audiences.md). Every device of a person gets the notification. A person with no usable device, a device whose notify service does not exist and a profile that does not accept push are skipped, and the trace says why (`no_usable_device`, `service_not_found`, `channel_not_accepted`).
+
+The response counts of `notify` come from the plan made before sending: `sent` means the notification was handed to the app's service. A service that then fails is a `failed` delivery in the trace (`heads_up/hub_trace`), not in the response.
+
+## What the notification looks like
+
+| Part | Value |
+|---|---|
+| Title and text | The message's `title` and `message`. |
+| `tag` | `hu-<install token>-<message id>`. A new notification with the same tag replaces the old one on the device. |
+| `group` | `hu-<install token>`. |
+| Level | By severity: `success` and `info` passive, `warning` normal, `critical` time-sensitive. Passive is `importance: low`, normal `default`, time-sensitive `high`. |
+| Android channel | `heads_up_<level>`. Android keeps the importance a channel had when it was first used, so the channel is named after the level. |
+| Tap | A `navigate` tap action opens its `navigation_path`, a `url` tap action its `url_path`. |
+| Buttons | The message's own `actions`, then Snooze when the message is snoozable, then Dismiss when it is dismissible. Android shows at most 3 buttons and iOS 10; extra buttons are left out and the trace entry says `buttons_clipped:<n>`. |
+
+A message that ends (cleared, expired, its condition false, dismissed for everyone, evicted) is removed from every device with `clear_notification` and its tag. A user who dismisses or snoozes the banner loses only their own notification. When a snooze ends, that user is notified again. Swiping a notification away changes nothing.
+
+An update to a message replaces the notification in place. An iOS critical notification cannot be replaced, so the hub clears it and sends a new one.
+
+## Buttons
+
+Pressing Dismiss, Snooze or one of the message's own buttons does the same as pressing it on the banner, for the person the notification was sent to. Snooze uses the first snooze choice of the message. The button's ID is `hu:<message>:<person>:<action>`; the hub trusts nothing else in the event. If the event carries a Home Assistant user and it is not the person's user, the press is ignored and the trace says `user_mismatch`. A press for a message that no longer exists is ignored (`stale_message`). Buttons of other automations are not touched.
+
+## Settings
+
+These options have defaults and no form yet. They are read from the integration options.
+
+| Option | Default | Meaning |
+|---|---|---|
+| `push_levels` | success and info `passive`, warning `normal`, critical `time-sensitive` | Level per severity. `critical` is the iOS critical level; it needs the app's permission, plays a sound regardless of silent mode and is sent as `time-sensitive` to Android. |
+| `push_lockscreen` | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
+| `push_channel_id` | `heads_up` | Prefix of the Android channel. |
+| `push_sticky` | off | Keeps the notification after a tap (Android). |
+
+## Limits
+
+- No retry. A failed push is not tried again.
+- No rate limit yet.
+- The Acknowledge button and escalation are not built. A press of an Acknowledge button is ignored.
+- The behavior on real phones was not checked; the tests use a stand-in for the app.

@@ -30,12 +30,13 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 
 - Presence delay for Last to leave and First home: 60 seconds, configurable, 0 for none; their state is stored; an area is the speakers assigned to it in Home Assistant; a profile exists for every person without setup (D-109).
 
+- Push: Android channel prefix `heads_up`, lock-screen text full, buttons Snooze and Dismiss, levels by severity, iOS critical off (D-110).
+
 ## Proposed (used in the mockup, not decided)
 - Install token: 6 hexadecimal characters, generated at first setup, shown read-only.
 - Rate limits in the options: 10 pushes per device per minute, 60 deliveries per minute for all devices, identical updates ignored for 30 seconds.
 - History: 500 trace entries, 100 recent messages.
 - Escalation default 5 minutes; reminder default every 30 minutes, at most 3; summary default every 60 minutes or at 20:00; quiet hours default 22:00 to 07:00, all days, critical passes, action quiet.
-- Android channel id default `heads_up`; push default lock-screen text full; push buttons Snooze and Dismiss.
 - Preset contents: Quiet creates Night quiet; Balanced creates Night quiet, Water escalation, Evening summary; Loud adds Warning reminders and Push failed fallback.
 - Send test uses a test marker in the message (exact form open).
 - Panel sidebar title and icon.

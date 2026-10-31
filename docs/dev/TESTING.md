@@ -48,6 +48,9 @@
 | `tests/hub/test_audiences_flows.py` | the three subentry flows: add, reconfigure, errors, duplicates |
 | `tests/hub/test_audiences_notify.py` | `notify` with real audiences, groups and profiles; restart; hub off |
 | `tests/hub/test_audiences_ws.py` | `heads_up/hub_preview_audience`: members, skipped, not found, admin only |
+| `tests/hub/test_push_payload.py` | push payload: tag and group, level and importance per severity, iOS critical opt-in, lock-screen modes, language, sticky, click action, button order and ids, platform button limits |
+| `tests/hub/test_push_lifecycle.py` | replace by tag, all devices of a person, clear on every end, per-user dismissal, snooze and remind, waiting message, ledger tag and person, missing and failing services, no device, restart, startup clear, hub off |
+| `tests/hub/test_push_actions.py` | press round trip: dismiss, snooze, own button, user from the person or the event, mismatch, stale, wrong recipient, foreign actions, untrusted tag, listener removed on unload |
 | `tests/test_frontend.py` | module URL with `?v=<version>-<file hash>` registered, changes with the file, removed on unload (the URL that was added) and added on reload, file served at `/heads_up/heads-up-card.js` |
 | `tests/card/heads-up-card.test.js` | `normalizeConfig` (all options), `sortBanners`, `visibleBanners`, `controlsFor`, `retryDelay`, `relativeTime`, `collapse`, `emptyView`, `resolveColors`, `colorParts`, `swipeOutcome`, `clearableIds` (vitest) |
 

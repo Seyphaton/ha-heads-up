@@ -286,7 +286,7 @@ Delivers one message on the channels you name. It takes the content and lifecycl
 
 The hub is on by default. With the hub switched off in the integration options, only `channels: [banner]` works and `notify` behaves like `create_banner`; other channels fail with the error "The hub is switched off".
 
-Channels: `banner`, `push`, `popup`, `speak`, `persistent`. In this version only `banner` delivers. Every other channel is reported as skipped with the reason `channel_unavailable` and nothing is sent.
+Channels: `banner`, `push`, `popup`, `speak`, `persistent`. In this version `banner` and `push` deliver; see [Push notifications](push.md). `popup`, `speak` and `persistent` are reported as skipped with the reason `channel_unavailable` and nothing is sent.
 
 | Field | Type | Required / default | Meaning |
 |---|---|---|---|
@@ -334,7 +334,7 @@ A message without the `banner` channel is stored so it can be updated and cleare
 
 ## `heads_up.push`
 
-Shortcut for `notify` with `channels: [push]` and no policies. It needs `audience` or `recipients`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. In this version no channel but `banner` delivers, so this action reports `skipped` with the reason `channel_unavailable`.
+Shortcut for `notify` with `channels: [push]` and no policies. It needs `audience` or `recipients`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Push notifications](push.md).
 
 | Field | Type | Required / default | Meaning |
 |---|---|---|---|
@@ -361,7 +361,7 @@ Shortcut for `notify` with `channels: [push]` and no policies. It needs `audienc
 
 ## `heads_up.popup`
 
-Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audience` or `recipients`; the fields are those of `heads_up.push`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. In this version no channel but `banner` delivers, so this action reports `skipped` with the reason `channel_unavailable`.
+Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audience` or `recipients`; the fields are those of `heads_up.push`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. This channel does not deliver yet: the action reports `skipped` with the reason `channel_unavailable`.
 
 | Field | Type | Required / default | Meaning |
 |---|---|---|---|
@@ -387,7 +387,7 @@ Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audien
 
 ## `heads_up.speak`
 
-Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipients` (speakers or groups) and has no `audience` field, because speech goes to speakers, not to people. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. In this version no channel but `banner` delivers, so this action reports `skipped` with the reason `channel_unavailable`.
+Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipients` (speakers or groups) and has no `audience` field, because speech goes to speakers, not to people. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. This channel does not deliver yet: the action reports `skipped` with the reason `channel_unavailable`.
 
 | Field | Type | Required / default | Meaning |
 |---|---|---|---|

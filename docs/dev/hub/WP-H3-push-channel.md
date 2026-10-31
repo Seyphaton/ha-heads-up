@@ -1,6 +1,6 @@
 # H3: Push channel (Companion app)
 
-Size: large. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: large. Status: built on branch `hub/h3-push` (the roadmap status is the source). Answers: D-110. Deviations: the Acknowledge press is traced `acknowledge_unavailable` until H4a; buttons are ordered own, Acknowledge, Snooze, Dismiss so clipping keeps the important ones; `Channel.clear` takes `(message_id, target, ref)`; no rate-limit hook beyond `Target.quiet` and `Target.ack_button`. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Deliver messages as Companion app notifications through the legacy `notify.mobile_app_*` services, keep them in sync with the message lifecycle, and handle Dismiss, Snooze and Acknowledge presses without any automation.

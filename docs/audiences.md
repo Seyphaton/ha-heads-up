@@ -1,6 +1,6 @@
 # Audiences, recipient groups and recipient profiles
 
-These objects say who a [`heads_up.notify`](actions.md#headsupnotify) call is for. In this version only the banner channel delivers; the other channels resolve their recipients and report them as skipped with the reason `channel_unavailable`. The objects below are used for those checks and for the preview.
+These objects say who a [`heads_up.notify`](actions.md#headsupnotify) call is for. In this version the banner and push channels deliver. The popup, speak and persistent channels resolve their recipients and report them as skipped with the reason `channel_unavailable`.
 
 Add custom objects under Settings > Devices & services > Heads Up > Add entry. Edit them with the pencil next to the entry.
 

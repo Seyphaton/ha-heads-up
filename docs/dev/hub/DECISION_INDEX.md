@@ -7,6 +7,7 @@ Status values: current, partly superseded (the part that still holds is named), 
 ## Index
 - D-075 Hub direction. Superseded in status by D-107: the hub is built, on feature branches only, and the "no push delivery" non-goal is gone.
 - D-107 The hub is built; on by default with an off switch; the sidebar entry is chosen during initial setup; nothing reaches `main` until the maintainer confirms. Current.
+- D-110 H3 choices: presses count for the recipient in the id with an event-user cross-check; push defaults confirmed. Current.
 - D-109 H2 choices: presence delay 60 s configurable, stored Last to leave / First home, areas by Home Assistant area, automatic profiles. Current.
 - D-108 Generic clear is the new action `clear`; `clear_banner` matches only messages with the banner channel. Current.
 - D-076 Everything existing works without the hub. Current.

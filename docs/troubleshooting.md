@@ -40,6 +40,17 @@ Check, in this order:
 
 For a banner from a watch rule, see [A watch rule shows no banner](#a-watch-rule-shows-no-banner).
 
+## A push did not arrive
+
+Ask the trace for the message: the admin WebSocket command `heads_up/hub_trace` with `message_id`. Each recipient has a result and a reason.
+
+- `no_usable_device`: the person has no Companion device. Check that a `device_tracker` of the app is in the person's trackers, or add the device in a recipient profile.
+- `service_not_found`: `notify.mobile_app_<device name>` does not exist. The app was removed or renamed and has not registered again. Look for the service in Developer tools > Actions.
+- `channel_not_accepted`: the person's recipient profile does not accept push.
+- `send_failed`: the service raised an error; the log has one warning per device and hour.
+- `presence_unknown`: an audience such as `Not home` skipped a person whose presence is unknown. Only `critical` messages include them.
+- A button press that does nothing: the trace says `user_mismatch`, `stale_message` or `unknown_recipient`.
+
 ## The "Clear all" button is missing
 
 The button appears only when the card shows at least one banner that can be dismissed, and only with `clear_all: true`. Banners with `dismissible: false` are not counted.
