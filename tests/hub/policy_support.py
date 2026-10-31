@@ -73,3 +73,31 @@ def pushes(phone: FakeDevice) -> list[ServiceCall]:
 
 def trace(entry: MockConfigEntry) -> list[dict[str, Any]]:
     return [dict(e) for e in entry.runtime_data.hub.trace.entries("m")]
+
+
+QUIET: dict[str, Any] = {
+    "type": "quiet_hours",
+    "from_time": "22:00:00",
+    "to_time": "07:00:00",
+    "action": "quiet",
+}
+AWAY: dict[str, Any] = {"type": "away"}
+FALLBACK: dict[str, Any] = {
+    "type": "fallback",
+    "when": "no_audience",
+    "channels": ["push"],
+    "targets": {"push": {"recipients": ["person.ben"]}},
+}
+
+
+async def add_audience(hass: HomeAssistant, entry: MockConfigEntry, name: str, **data: Any) -> None:
+    hass.config_entries.async_add_subentry(
+        entry, ConfigSubentry(data=data, subentry_type="audience", title=name, unique_id=None)
+    )
+    await hass.async_block_till_done()
+
+
+def move(hass: HomeAssistant, person: str, state: str) -> None:
+    """Change a person's state, keeping their user and trackers (`set_person` resets them)."""
+    current = hass.states.get(person)
+    hass.states.async_set(person, state, dict(current.attributes) if current else {})

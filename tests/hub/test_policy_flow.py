@@ -138,3 +138,70 @@ async def test_reconfigure_changes_a_policy_without_being_its_own_duplicate(
     )
     assert done["type"] is FlowResultType.ABORT and done["reason"] == "reconfigure_successful"
     assert entry.subentries[sub.subentry_id].data["dismiss_acks"] is True
+
+
+async def test_add_quiet_hours_with_the_confirmed_defaults(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await run(hass, entry, "policy", {"name": "Night", "type": "quiet_hours"})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (sub,) = subentries(entry, "policy")
+    assert dict(sub.data) == {
+        "type": "quiet_hours",
+        "severities": [],
+        "tags": [],
+        "enabled": True,
+        "from_time": "22:00:00",
+        "to_time": "07:00:00",
+        "days": [],
+        "action": "quiet",
+        "critical_passes": True,
+    }
+
+
+async def test_a_quiet_hours_window_needs_different_start_and_end(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    same = {"name": "Night", "type": "quiet_hours", "from_time": "08:00:00", "to_time": "08:00:00"}
+    assert (await run(hass, entry, "policy", same))["errors"]["to_time"] == "window_empty"
+
+
+async def test_the_same_quiet_window_for_the_same_messages_is_a_duplicate(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    await run(hass, entry, "policy", {"name": "Night", "type": "quiet_hours"})
+    again = await run(hass, entry, "policy", {"name": "Night 2", "type": "quiet_hours"})
+    assert again["errors"]["base"] == "policy_duplicate"
+    other = {"name": "Night 3", "type": "quiet_hours", "days": ["sat"]}
+    assert (await run(hass, entry, "policy", other))["type"] is FlowResultType.CREATE_ENTRY
+
+
+async def test_add_away_with_a_maximum_wait(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    result = await run(hass, entry, "policy", {"name": "Back", "type": "away", "max_wait": 45})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (sub,) = subentries(entry, "policy")
+    assert sub.data["max_wait"] == 45 and "targets" not in sub.data
+
+
+async def test_add_a_fallback_with_a_target_per_channel(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    set_person(hass, "person.ben", "home")
+    data = {
+        "name": "Backup",
+        "type": "fallback",
+        "when": "both",
+        "channels": ["push"],
+        "push_recipients": ["person.ben"],
+    }
+    assert (await run(hass, entry, "policy", data))["type"] is FlowResultType.CREATE_ENTRY
+    (sub,) = subentries(entry, "policy")
+    assert sub.data["when"] == "both"
+    assert dict(sub.data["targets"]) == {"push": {"recipients": ["person.ben"]}}
+
+
+async def test_a_fallback_needs_channels_and_targets(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await run(hass, entry, "policy", {"name": "Backup", "type": "fallback"})
+    assert result["errors"]["channels"] == "channels_required"
