@@ -1,6 +1,6 @@
 # H9d: Panel: Test send
 
-Size: medium. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: medium. Status: built on branch `hub/h9d-test-send` (see `ROADMAP.md`). Marker and no what-if time: D-120. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Build the Test send page: content, the call, a simulated result per recipient and channel from the engine's dry run, the generated call, and the one real send.

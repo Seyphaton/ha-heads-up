@@ -1,6 +1,6 @@
 # The Heads Up panel
 
-The panel is an administrator page in Home Assistant's sidebar. In this version it has the navigation, the Overview, the Messages page, the four Configuration pages and the Settings page; Test send, Watch rules and FAQ say they are not available yet.
+The panel is an administrator page in Home Assistant's sidebar. In this version it has the navigation, the Overview, the Messages page, the four Configuration pages, Test send and the Settings page; Watch rules and FAQ say they are not available yet.
 
 ## Show it in the sidebar
 
@@ -30,6 +30,17 @@ The Status page (Overview group) refreshes every 10 seconds.
 The Messages page (Notifications and rules group) lists the recent messages, newest first: severity, title, how long ago, whether it is active or how it ended, and a count of its delivery results ("2 sent, 1 skipped"). Choose a message to see its delivery trace: time, channel, recipient and result with the reason; who acknowledged; and the escalations and reminders with their state and due time.
 
 The recent messages and the log of last actions are kept in memory. They start empty after a restart; messages that are still active are listed again with the time they were created, without delivery history. The History settings (trace entries kept, recent messages kept) set the sizes.
+
+## Test send
+
+The page (Notifications and rules group) previews a call and can send it once. It has no compose form for real messages.
+
+1. Enter the content (title, message, spoken text for speech), the call (severity, tag, channels, policy: all that apply, none, or one by name) and the target of each channel (an audience or recipients; the banner and the bell need none).
+2. The result table updates as you type. It has one row per recipient and channel: sent, held (with the time it is released), skipped or failed, with the reason. A note says when a push goes out quietly. A summary line counts the results per channel, the policies that apply are listed, and Later steps lists the escalations, reminders, away rules and summaries that would follow, with their timing. A fallback that would fire shows its rows marked with its name. A Summarize policy shows every channel held.
+3. The call is shown as the YAML of a `heads_up.notify` action, with a Copy call button.
+4. Send test sends one real message. It is a normal message with a marker: the title starts with `Test: ` (a message without a title gets the title `Test`), the tag is `test`, the id starts with `hu_test_` and it ends by itself after 10 minutes. Policies apply to it like to any other message. Clear the test message removes it at once.
+
+The preview runs the engine's own planning and the same precedence chain as a delivery, with the real clock and the real presence, so it shows what the same call does now. It stores nothing and sends nothing. A call that `notify` would refuse (an unknown audience, recipient or policy, a missing target) is refused in the preview with the same reason.
 
 ## Configuration pages
 
@@ -68,6 +79,7 @@ Evening summary only collects messages tagged `digest`, so nothing is held that 
 
 ## Limits
 
-- Test send, Watch rules and FAQ come in later versions. The Needs attention button for a rule opens a page that says so.
+- Watch rules and FAQ come in later versions. The Needs attention button for a rule opens a page that says so.
+- Test send has no "what if" time: it uses the real clock.
 - The pages poll every 10 seconds; they do not update the moment something happens.
 - Not tested on a touch device or with a screen reader.

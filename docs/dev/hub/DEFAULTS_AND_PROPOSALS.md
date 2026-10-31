@@ -30,6 +30,7 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 
 - Presence delay for Last to leave and First home: 60 seconds, configurable, 0 for none; their state is stored; an area is the speakers assigned to it in Home Assistant; a profile exists for every person without setup (D-109).
 
+- Test send marker: title prefix `Test: `, tag `test`, id `hu_test_`, 10 minutes; no what-if time (D-120).
 - Panel history: recent messages and the log of last actions in memory only, sizes from the History settings (D-118).
 - Panel: title Heads Up, icon mdi:bell-ring-outline, shell plus one module per page, setup toggle starts on, presets Quiet, Balanced, Loud as listed in `docs/panel.md` (D-117).
 - Card acknowledgement: option `show_acknowledged`, on by default; "Acknowledged by Anna" and "and N others" (D-116).
