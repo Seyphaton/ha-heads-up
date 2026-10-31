@@ -132,11 +132,11 @@ async def test_an_unknown_action_word_is_traced(
     assert last_trace(entry)["reason"] == "unknown_action"
 
 
-async def test_acknowledge_waits_for_the_policy_package(
+async def test_acknowledge_marks_the_message_acknowledged_by_the_user(
     hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
 ) -> None:
     await press(hass, entry, "hu:m:person.anna:ack", user_id="anna-id")
-    assert last_trace(entry)["reason"] == "acknowledge_unavailable"
+    assert entry.runtime_data.banners["m"].acknowledged_by == ["anna-id"]
 
 
 async def test_a_device_without_a_person_uses_the_registering_user(
