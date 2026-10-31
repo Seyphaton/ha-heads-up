@@ -61,6 +61,18 @@ Open the trace of the message (`heads_up/hub_trace`, admin) and look for entries
 - `cleared` with `nobody_left`: every recipient had dismissed or snoozed, so there was nobody to remind.
 - No entry: the policy did not match the message (severity, tag, or the `policy` field), is disabled, or was added after the message became visible. A policy added later starts at the message's next update. See [Policies](policies.md).
 
+## A push did not arrive during the night, or arrived late
+
+Open the trace of the message (`heads_up/hub_trace`, admin).
+
+- `held` with `quiet_hours`: a Quiet hours policy with the action `wait` holds it until the window ends.
+- `skipped` with `quiet_hours`: the action is `drop`, or the delivery was a reminder.
+- `held` with `away`: the person was not home. It is sent when their person state becomes `home`. `skipped` with `max_wait_exceeded`: they did not arrive in time.
+- Critical messages ignore Quiet hours unless the policy has Critical messages pass turned off.
+- The window uses the Home Assistant time zone (Settings > System > General).
+
+See [Policies](policies.md).
+
 ## The "Clear all" button is missing
 
 The button appears only when the card shows at least one banner that can be dismissed, and only with `clear_all: true`. Banners with `dismissible: false` are not counted.

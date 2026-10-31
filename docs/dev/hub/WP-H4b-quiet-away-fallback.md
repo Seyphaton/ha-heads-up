@@ -1,6 +1,6 @@
 # H4b: Quiet hours, Away and Fallback policies
 
-Size: medium. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: medium. Status: built on branch `hub/h4b-quiet-away-fallback` (see `ROADMAP.md`). Held deliveries are ledger rows in state `held` with the reason in `hold`; decisions in D-112. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Add three policy types to the chain built in H4a.

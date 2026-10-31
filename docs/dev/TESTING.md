@@ -56,6 +56,9 @@
 | `tests/hub/test_policy_flow.py` | policy form: both types, targets per channel, unknown names, duplicates, reserved name, reconfigure |
 | `tests/hub/test_policy_escalation.py` | timing with the freezer, ledger timer row, acknowledge, dismiss counts or not, chain of two, severity change, clear and condition end, overdue step after a restart (once), pending step after a restart, deleted audience reported, disabled, `policy` field, tags |
 | `tests/hub/test_policy_reminder.py` | repeat and maximum, acknowledge, snooze pause and resume, everyone dismissed, channel limit, severity filter |
+| `tests/hub/test_policy_quiet.py` | window boundaries, midnight, days, clock-change days (Europe/Berlin), quiet marker in the push, critical passes, wait and release once, restart while held, cleared meanwhile, drop with trace, banner unaffected, reminder skipped, escalation of a rule message |
+| `tests/hub/test_policy_away.py` | held for a person away and sent on arrival once, recipients and unknown presence not held, cleared, acknowledged and dismissed meanwhile, maximum wait, restart while held |
+| `tests/hub/test_policy_fallback.py` | no_audience, failed, both, not when someone was notified, once per message, no loop, deleted audience reported, waiting message, `policy: none` |
 | `tests/hub/test_policy_acknowledge.py` | Acknowledge button only with a policy, press on the push, banner stays, idempotent, unknown message, rule messages (tag `rule`, reset when the condition flips), usage lookup |
 | `tests/test_frontend.py` | module URL with `?v=<version>-<file hash>` registered, changes with the file, removed on unload (the URL that was added) and added on reload, file served at `/heads_up/heads-up-card.js` |
 | `tests/card/heads-up-card.test.js` | `normalizeConfig` (all options), `sortBanners`, `visibleBanners`, `controlsFor`, `retryDelay`, `relativeTime`, `collapse`, `emptyView`, `resolveColors`, `colorParts`, `swipeOutcome`, `clearableIds` (vitest) |

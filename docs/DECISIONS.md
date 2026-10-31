@@ -687,3 +687,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer, provisional): keep audiences, groups, profiles and policies as subentries for now. The hub provides a "used by" lookup; a policy that names a missing audience or group is reported invalid, its step is skipped and the trace says why. Nothing breaks silently.
 - Deferred: moving these objects into an integration-owned store with refused deletes is a follow-up (`docs/OPEN_QUESTIONS.md`, Phase 15). The maintainer wants to try the integration first and see how often a broken reference happens.
 - Policy defaults confirmed: escalation after 5 minutes; reminder every 30 minutes, at most 3; dismissing counts as acknowledging only when the policy says so.
+
+## D-112 H4b choices: quiet hours on the local clock, defaults (2026-10-31)
+- Context: quiet hours need a rule for the days the clock changes, and their defaults were proposed only.
+- Decisions (maintainer):
+  - A quiet hours window is on the local wall clock of the Home Assistant time zone. 22:00 to 07:00 always means those local times, so on a clock-change day the window is one hour shorter or longer. A time that does not exist or occurs twice uses its first occurrence.
+  - Defaults: 22:00 to 07:00, all days, action `quiet`, critical passes.
+- Build details decided in H4b without a question: `days` names the day a window starts on; only the non-banner channels are held or quieted; a reminder under `wait` is skipped, not held; several quiet hours policies apply the strictest action (`drop`, then `wait`, then `quiet`); Away holds only audience targets and only recipients whose person state is known and not `home`; Away has no exemption for critical (choose its severities); Fallback is judged after the first delivery of a message (not on updates, not for escalations, reminders or another fallback) and fires once per message; held deliveries are ledger rows in state `held` with the reason in `hold` and the release or deadline time in `due`.

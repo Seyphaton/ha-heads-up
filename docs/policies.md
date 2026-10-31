@@ -1,6 +1,6 @@
-# Policies: escalation and reminders
+# Policies
 
-A policy adds behaviour to messages without changing the automation that sends them. This version has two types: Escalation and Reminder. Add one in Settings > Devices & services > Heads Up > Add policy.
+A policy adds behaviour to messages without changing the automation that sends them. Types: Escalation, Reminder, Quiet hours, Away and Fallback. Add one in Settings > Devices & services > Heads Up > Add policy.
 
 ## Which messages a policy applies to
 
@@ -52,6 +52,48 @@ While nobody acknowledges, the policy repeats the notification.
 - Only people who still have the notification are reminded. Someone who dismissed or snoozed it is left out; when a snooze ends they are notified again. When nobody is left the reminder stops.
 - Reminders repeat the push with the same tag, so the phone replaces it.
 
+## Quiet hours
+
+Between two times of day, deliveries outside the dashboard are held, sent quietly or dropped. The banner on the dashboard is never affected.
+
+| Field | Default | Meaning |
+|---|---|---|
+| Quiet from, Quiet until | 22:00 to 07:00 | The window, on the clock of the Home Assistant time zone. A window may cross midnight. The two times must differ. |
+| Days | every day | The days a window starts on. A window that starts on Friday ends on Saturday morning. |
+| During quiet hours | Send quietly | `quiet`: a push is sent passive and without sound, speech is skipped, a popup is shown as a corner card. `wait`: hold the delivery until the window ends, then send it once. `drop`: do not deliver. |
+| Critical messages pass | on | Critical messages ignore the policy. |
+
+- The window follows the wall clock. On the day the clocks change it is one hour shorter or longer. A time that does not exist or occurs twice uses its first occurrence.
+- Reminders during the window are skipped, not held, whatever the action.
+- A held delivery is stored. After a restart it is still released at the end of the window, once. If the message was cleared, expired or acknowledged meanwhile, or the person dismissed it, nothing is sent and the trace says why.
+- If several quiet hours policies are in their window, the strictest action applies: `drop`, then `wait`, then `quiet`.
+
+## Away
+
+A person who is not home when a message is sent gets it when they arrive, if the message is still there.
+
+| Field | Default | Meaning |
+|---|---|---|
+| Wait for arrival (minutes) | 0 | How long to wait. 0 means as long as the message lives. After that time the delivery is skipped (`max_wait_exceeded`). |
+
+- Away holds only deliveries to an audience, and only for people whose state is known and not `home`. Recipients you list yourself, and people whose presence is unknown, are sent at once.
+- Arrival is the person's state changing to `home`. The delivery is sent once. It is not sent if the message was cleared, expired or acknowledged meanwhile, or if that person dismissed or snoozed it.
+- Away has no exception for critical messages. Limit its severities if you want critical messages to go out at once.
+- Held deliveries are stored and survive a restart.
+
+## Fallback
+
+If the first delivery of a message reached nobody on a channel, the policy delivers on its own channels to its own targets.
+
+| Field | Default | Meaning |
+|---|---|---|
+| Use when | Nobody to notify | `no_audience`: the audience resolved to nobody (for example nobody is home). `failed`: the person has no usable device or sending failed. `both`: either. |
+| Channels, targets | none | As for an escalation: an audience or recipients per channel. |
+
+- A fallback is judged once, after the first delivery of the message. It is not judged again on updates, and escalations, reminders and fallbacks never start a fallback.
+- A channel with a delivery that was sent or held counts as reached. The banner does not count.
+- Messages from watch rules only have the banner channel, so they have no first delivery to fall back from. Their escalations still pass quiet hours and away.
+
 ## If an audience or group is deleted
 
 Home Assistant lets you delete an audience or recipient group even if a policy uses it. The policy then cannot run: when its time comes the trace shows `skipped` with the reason `audience_missing` or `group_missing`, and nothing is sent. Admins can list the policies that use a name with the WebSocket command `heads_up/hub_usage` (`name`).
@@ -76,6 +118,7 @@ Home Assistant lets you delete an audience or recipient group even if a policy u
 
 ## Limits
 
-- Quiet hours, Away, Fallback and Summarize are not built yet.
-- A policy that applies after the message was sent only starts when the message is next updated.
-- Policy forms and the panel are not built; use the entry's Add policy form.
+- A policy added after the message was sent only starts when the message is next updated.
+- Summaries are not built yet.
+- Speech and popup channels are not built yet; the `quiet` marker is passed to them when they exist.
+- The panel is not built; use the entry's Add policy form.
