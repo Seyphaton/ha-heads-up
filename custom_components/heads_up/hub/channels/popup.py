@@ -96,6 +96,6 @@ class PopupChannel:
             payload = message.to_client(user_id)
             quiet = row.ref == QUIET
             payload["style"] = "card" if quiet else self.styles().get(message.severity, "card")
-            payload["ack"] = self._hub.ack_applies(message)
+            payload["ack"] = self._hub.ack_applies(message) and not message.acknowledged_by
             found[message.id] = payload
         return list(found.values())

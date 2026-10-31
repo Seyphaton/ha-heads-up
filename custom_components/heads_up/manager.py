@@ -646,10 +646,30 @@ class BannerManager:
 
     def _client(self, banner: Banner, user_id: str) -> dict[str, Any]:
         data = banner.to_client(user_id)
+        # Who acknowledged is shown as first names (D-116); a user without a person is counted only.
+        data["acknowledged"] = bool(banner.acknowledged_by)
+        data["acknowledged_by"] = [
+            name for user in banner.acknowledged_by if (name := self._first_name(user))
+        ]
+        data["acknowledged_count"] = len(banner.acknowledged_by)
+        # The Acknowledge button: a policy applies, nobody acknowledged yet, the viewer is a target.
+        data["can_acknowledge"] = (
+            self.hub is not None
+            and not banner.acknowledged_by
+            and self._targets(banner, user_id)
+            and self.hub.ack_applies(banner)
+        )
         if banner.id in self.rules:
             # The card hides "Clear for everyone": a rule banner is disabled or deleted instead.
             data["rule"] = True
         return data
+
+    def _first_name(self, user_id: str) -> str | None:
+        for state in self.hass.states.async_all("person"):
+            if state.attributes.get("user_id") == user_id:
+                words = str(state.attributes.get("friendly_name") or "").split()
+                return words[0] if words else None
+        return None
 
     def _all(self) -> Iterator[Banner]:
         return chain(self.banners.values(), self.rules.values())

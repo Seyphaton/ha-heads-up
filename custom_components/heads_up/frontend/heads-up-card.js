@@ -27,6 +27,7 @@ export const CONFIG_KEYS = [
   "clear_all",
   "swipe_to_dismiss",
   "show_snoozed",
+  "show_acknowledged",
   "collapsed_items",
   "empty_message",
   "empty_icon",
@@ -37,6 +38,7 @@ const EDITOR_DEFAULTS = {
   layout: "comfortable",
   colorize: "all",
   empty_icon: "mdi:bell-check-outline",
+  show_acknowledged: true,
 };
 const SORTS = ["severity", "time"];
 const LAYOUTS = ["comfortable", "compact"];
@@ -55,6 +57,11 @@ export const STRINGS = {
   },
   dismiss: "Dismiss",
   snooze: "Snooze",
+  acknowledge: "Acknowledge",
+  acknowledged: "Acknowledged",
+  acknowledged_by: "Acknowledged by {name}",
+  acknowledged_one_other: "Acknowledged by {name} and 1 other",
+  acknowledged_others: "Acknowledged by {name} and {n} others",
   snooze_choices: "Snooze for",
   duration: { minute: "{n} min", hour: "{n} h", day: "{n} d" },
   clear: "Clear for everyone",
@@ -88,6 +95,7 @@ export const STRINGS = {
     clear_all: "Show a Clear all button",
     swipe_to_dismiss: "Swipe a banner to dismiss it",
     show_snoozed: "List snoozed banners with a Show now button",
+    show_acknowledged: "Show who acknowledged a banner",
     collapsed_items: "Show only this many banners, then a Show more button",
     empty_message: "Message when there are no banners (shows the card)",
     empty_icon: "Icon for that message",
@@ -113,6 +121,11 @@ export const TRANSLATIONS = {
     },
     "dismiss": "Schließen",
     "snooze": "Zurückstellen",
+    "acknowledge": "Bestätigen",
+    "acknowledged": "Bestätigt",
+    "acknowledged_by": "Bestätigt von {name}",
+    "acknowledged_one_other": "Bestätigt von {name} und 1 weiterer Person",
+    "acknowledged_others": "Bestätigt von {name} und {n} weiteren",
     "snooze_choices": "Zurückstellen für",
     "duration": {
       "minute": "{n} Min.",
@@ -150,6 +163,7 @@ export const TRANSLATIONS = {
       "clear_all": "Schaltfläche „Alle schließen“ zeigen",
       "swipe_to_dismiss": "Banner durch Wischen schließen",
       "show_snoozed": "Zurückgestellte Banner mit „Jetzt anzeigen“ auflisten",
+      "show_acknowledged": "Anzeigen, wer ein Banner bestätigt hat",
       "collapsed_items": "Nur so viele Banner zeigen, dann eine Schaltfläche „Mehr anzeigen“",
       "empty_message": "Nachricht, wenn es keine Banner gibt (zeigt die Karte)",
       "empty_icon": "Symbol für diese Nachricht",
@@ -172,6 +186,11 @@ export const TRANSLATIONS = {
     },
     "dismiss": "Fermer",
     "snooze": "Reporter",
+    "acknowledge": "Confirmer",
+    "acknowledged": "Confirmé",
+    "acknowledged_by": "Confirmé par {name}",
+    "acknowledged_one_other": "Confirmé par {name} et 1 autre",
+    "acknowledged_others": "Confirmé par {name} et {n} autres",
     "snooze_choices": "Reporter de",
     "duration": {
       "minute": "{n} min",
@@ -209,6 +228,7 @@ export const TRANSLATIONS = {
       "clear_all": "Afficher un bouton « Tout fermer »",
       "swipe_to_dismiss": "Fermer une bannière en la faisant glisser",
       "show_snoozed": "Lister les bannières reportées avec un bouton Afficher maintenant",
+      "show_acknowledged": "Afficher qui a confirmé une bannière",
       "collapsed_items": "Afficher seulement ce nombre de bannières, puis un bouton « Afficher plus »",
       "empty_message": "Message quand il n'y a aucune bannière (affiche la carte)",
       "empty_icon": "Icône pour ce message",
@@ -231,6 +251,11 @@ export const TRANSLATIONS = {
     },
     "dismiss": "Cerrar",
     "snooze": "Posponer",
+    "acknowledge": "Confirmar",
+    "acknowledged": "Confirmado",
+    "acknowledged_by": "Confirmado por {name}",
+    "acknowledged_one_other": "Confirmado por {name} y 1 más",
+    "acknowledged_others": "Confirmado por {name} y {n} más",
     "snooze_choices": "Posponer",
     "duration": {
       "minute": "{n} min",
@@ -268,6 +293,7 @@ export const TRANSLATIONS = {
       "clear_all": "Mostrar un botón «Cerrar todos»",
       "swipe_to_dismiss": "Cerrar un aviso deslizándolo",
       "show_snoozed": "Listar los avisos pospuestos con un botón Mostrar ahora",
+      "show_acknowledged": "Mostrar quién confirmó un aviso",
       "collapsed_items": "Mostrar solo este número de avisos y luego un botón «Mostrar más»",
       "empty_message": "Mensaje cuando no hay avisos (muestra la tarjeta)",
       "empty_icon": "Icono para ese mensaje",
@@ -386,6 +412,7 @@ export function normalizeConfig(config) {
     clear_all: toBool(config.clear_all),
     swipe_to_dismiss: toBool(config.swipe_to_dismiss),
     show_snoozed: toBool(config.show_snoozed),
+    show_acknowledged: config.show_acknowledged === undefined ? true : toBool(config.show_acknowledged),
     collapsed_items: collapsed,
     empty_message: toText(config.empty_message, "empty_message"),
     empty_icon: emptyIcon,
@@ -526,7 +553,20 @@ export function controlsFor(banner, isAdmin) {
       Array.isArray(banner.snooze_options) &&
       banner.snooze_options.length > 0,
     actions: Array.isArray(banner.actions) ? banner.actions : [],
+    // The server says when an escalation or reminder policy applies and nobody acknowledged yet.
+    acknowledge: banner.can_acknowledge === true,
   };
+}
+
+// "Acknowledged by Anna", "... and 2 others", or null when nobody acknowledged (D-116).
+export function acknowledgedLabel(banner) {
+  if (banner.acknowledged !== true) return null;
+  const names = Array.isArray(banner.acknowledged_by) ? banner.acknowledged_by : [];
+  if (names.length === 0) return STRINGS.acknowledged;
+  const others = Math.max((banner.acknowledged_count ?? names.length) - 1, 0);
+  if (others === 0) return STRINGS.acknowledged_by.replace("{name}", names[0]);
+  if (others === 1) return STRINGS.acknowledged_one_other.replace("{name}", names[0]);
+  return STRINGS.acknowledged_others.replace("{name}", names[0]).replace("{n}", others);
 }
 
 // True when some shown banner has a button, so banners without one keep the same text width
@@ -569,6 +609,7 @@ const STYLE = `
   .time { color: var(--secondary-text-color); white-space: nowrap; }
   .title { font-weight: 500; }
   .message { white-space: pre-line; }
+  .ack-line { font-size: 12px; color: var(--secondary-text-color); margin-top: 2px; }
   .sr-only {
     position: absolute; width: 1px; height: 1px; overflow: hidden;
     clip: rect(0 0 0 0); white-space: nowrap;
@@ -788,6 +829,10 @@ class HeadsUpCard extends Base {
     this._hass.callWS({ type: "heads_up/dismiss", banner_id: banner.id }).catch(() => {});
   }
 
+  _acknowledge(banner) {
+    this._hass.callWS({ type: "heads_up/acknowledge", banner_id: banner.id }).catch(() => {});
+  }
+
   _dismissAll(ids) {
     this._hass.callWS({ type: "heads_up/dismiss_many", banner_ids: ids }).catch(() => {});
   }
@@ -957,8 +1002,19 @@ class HeadsUpCard extends Base {
     text.append(meta);
     if (banner.title) text.append(el("div", "title", banner.title));
     text.append(el("div", "message", banner.message));
-    if (controls.actions.length > 0) {
+    const ackLine = cfg.show_acknowledged ? acknowledgedLabel(banner) : null;
+    if (ackLine) text.append(el("div", "ack-line", ackLine));
+    if (controls.actions.length > 0 || controls.acknowledge) {
       const buttons = el("div", "buttons");
+      if (controls.acknowledge) {
+        const ack = el("button", "text-button", STRINGS.acknowledge);
+        ack.type = "button";
+        ack.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          this._acknowledge(banner);
+        });
+        buttons.append(ack);
+      }
       for (const action of controls.actions) {
         const b = el("button", "text-button", action.label);
         b.type = "button";
@@ -1232,6 +1288,7 @@ class HeadsUpCardEditor extends Base {
       { name: "clear_all", selector: { boolean: {} } },
       { name: "swipe_to_dismiss", selector: { boolean: {} } },
       { name: "show_snoozed", selector: { boolean: {} } },
+      { name: "show_acknowledged", selector: { boolean: {} } },
       { name: "show_all", selector: { boolean: {} } },
       { name: "show_empty", selector: { boolean: {} } },
       { name: "empty_message", selector: { text: {} } },
