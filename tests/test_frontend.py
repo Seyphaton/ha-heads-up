@@ -84,3 +84,32 @@ def test_translations_have_no_unresolved_key_references() -> None:
     # `[%key:...%]` is resolved only for core integrations; a custom one shows it as text.
     path = Path(__file__).parents[1] / "custom_components" / "heads_up" / "translations" / "en.json"
     assert "[%key" not in path.read_text()
+
+
+# The popup loader runs on every page for every user (D-115).
+async def test_the_loader_is_registered_and_removed_like_the_card(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    integration = await async_get_integration(hass, DOMAIN)
+    digest = hashlib.sha256(frontend.LOADER_FILE.read_bytes()).hexdigest()[:8]
+    url = f"/heads_up/heads-up-loader.js?v={integration.version}-{digest}"
+    assert url in hass.data[DATA_EXTRA_MODULE_URL].urls
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    assert url not in hass.data[DATA_EXTRA_MODULE_URL].urls
+
+
+def test_the_loader_is_under_one_kilobyte() -> None:
+    assert frontend.LOADER_FILE.stat().st_size < 1024
+
+
+async def test_the_loader_and_the_popup_module_are_served_and_cached(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_client: ClientSessionGenerator
+) -> None:
+    client = await hass_client()
+    for path, marker in (
+        ("/heads_up/heads-up-loader.js", "heads_up/popup_config"),
+        ("/heads_up/heads-up-popup.js", "export function show"),
+    ):
+        response = await client.get(path)
+        assert response.status == 200 and marker in await response.text()
+        assert "max-age" in response.headers["Cache-Control"]

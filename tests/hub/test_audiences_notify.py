@@ -83,7 +83,7 @@ async def test_a_custom_audience_and_a_group_can_be_used_in_a_call(
             "speak": {"recipients": ["Ground floor (group)"]},
         },
     )
-    assert result["channels"]["popup"]["skipped"] == 1  # one person; popup is not built yet
+    assert result["channels"]["popup"]["sent"] == 1  # one person
     assert result["channels"]["speak"]["sent"] == 1  # one speaker
     assert set(result["channels"]) == {"popup", "speak"}
 
