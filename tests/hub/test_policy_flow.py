@@ -232,3 +232,30 @@ async def test_two_summaries_with_the_same_schedule_for_the_same_messages_are_a_
     await run(hass, entry, "policy", {"name": "Digest", "type": "summarize"})
     again = await run(hass, entry, "policy", {"name": "Digest 2", "type": "summarize"})
     assert again["errors"]["base"] == "policy_duplicate"
+
+
+async def test_add_a_deliver_policy_with_a_target_per_channel(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    data = {
+        "name": "Critical delivery",
+        "type": "deliver",
+        "severities": ["critical"],
+        "channels": ["push"],
+        "push_audience": "Admins",
+    }
+    assert (await run(hass, entry, "policy", data))["type"] is FlowResultType.CREATE_ENTRY
+    (sub,) = subentries(entry, "policy")
+    assert dict(sub.data["targets"]) == {"push": {"audience": "Admins"}}
+    assert "after_minutes" not in sub.data and sub.data["channels"] == ["push"]
+
+
+async def test_a_deliver_policy_needs_channels_and_a_target(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    none = await run(hass, entry, "policy", {"name": "D", "type": "deliver"})
+    assert none["errors"]["channels"] == "channels_required"
+    no_target = await run(
+        hass, entry, "policy", {"name": "D", "type": "deliver", "channels": ["push"]}
+    )
+    assert no_target["errors"]["push_audience"] == "target_exclusive"

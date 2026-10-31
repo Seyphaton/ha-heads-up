@@ -195,6 +195,9 @@ describe("policy editor", () => {
     expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).toMatchObject({ from_time: "22:00:00", to_time: "07:00:00", days: [], action: "quiet", critical_passes: true });
     expect(policyData({ ...blankPolicy("away"), name: "Back", max_wait: 0 })).toMatchObject({ max_wait: 0 });
     expect(policyData({ ...blankPolicy("fallback"), name: "Backup", channels: ["speak"], speak_recipients: ["media_player.k"] })).toMatchObject({ when: "no_audience", channels: ["speak"], speak_recipients: ["media_player.k"] });
+    expect(policyData({ ...blankPolicy("deliver"), name: "Crit", severities: ["critical"], channels: ["push"], push_audience: "Admins" })).toEqual({
+      name: "Crit", type: "deliver", severities: ["critical"], tags: [], enabled: true, channels: ["push"], push_audience: "Admins",
+    });
     const every = policyData({ ...blankPolicy("summarize"), name: "Digest" });
     expect(every).toMatchObject({ summary_every: 60, include_critical: false });
     expect(every.summary_at).toBeUndefined();
@@ -217,6 +220,9 @@ describe("policy editor", () => {
     expect(validatePolicy({ ...blankPolicy("summarize"), name: "S", summary_every: 0 }, [])).toEqual({ summary_every: "every_required" });
     expect(validatePolicy({ ...blankPolicy("summarize"), name: "S", summary_mode: "at", summary_at: "" }, [])).toEqual({ summary_at: "time_invalid" });
     expect(validatePolicy({ ...blankPolicy("fallback"), name: "F", channels: [] }, [])).toEqual({ channels: "channels_required" });
+    expect(validatePolicy({ ...blankPolicy("deliver"), name: "D", channels: [] }, [])).toEqual({ channels: "channels_required" });
+    expect(validatePolicy({ ...blankPolicy("deliver"), name: "D", channels: ["push"] }, [])).toEqual({ push_target: "target_exclusive" });
+    expect(validatePolicy({ ...blankPolicy("deliver"), name: "D", channels: ["push"], push_audience: "Admins" }, [])).toEqual({});
     expect(validatePolicy({ ...blankPolicy("away"), name: "A", max_wait: -1 }, [])).toEqual({ max_wait: "wait_invalid" });
     expect(validatePolicy({ ...blankPolicy("away"), name: "water" }, ["Water"], "Water")).toEqual({});
     expect(validatePolicy({ ...blankPolicy("away"), name: "water" }, ["Water"])).toEqual({ name: "name_exists" });
@@ -243,6 +249,7 @@ describe("policy editor", () => {
     expect(sentence({ ...blankPolicy("reminder"), channels: ["push"] }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times, only on Push.");
     expect(sentence({ ...blankPolicy("away"), max_wait: 30 }, t)).toBe("Every message: a person who is not home gets it when they arrive, for at most 30 min.");
     expect(sentence({ ...blankPolicy("fallback"), when: "both", channels: ["persistent"] }, t)).toBe("Every message: if the audience is empty or delivery fails, it is sent on Bell instead.");
+    expect(sentence({ ...blankPolicy("deliver"), severities: ["critical"], channels: ["push"] }, t)).toBe("Messages with severity Critical: it is also sent at once on Push.");
     expect(sentence({ ...blankPolicy("summarize"), include_critical: true }, t)).toBe("Every message: held, and one summary is sent 60 min after the first held message, critical messages included.");
     expect(sentence({ ...blankPolicy("summarize"), summary_mode: "at" }, t)).toBe("Every message: held, and one summary is sent every day at 20:00.");
   });
