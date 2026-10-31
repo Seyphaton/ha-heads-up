@@ -98,6 +98,9 @@ class HubResolver:
             return [*persons, *registrations(self._hass)]
         return persons
 
+    def groups(self) -> list[Group]:
+        return list(self._groups.values())
+
     def audience(self, name: str) -> Audience | None:
         return BUILTINS.get(name) or self._audiences.get(name)
 

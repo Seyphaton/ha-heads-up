@@ -20,7 +20,7 @@ from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, SEVERITIES
 from .frontend import async_popup_url
-from .hub import presets, settings
+from .hub import panel_data, presets, settings
 from .manager import BannerManager, HeadsUpError
 
 
@@ -201,6 +201,44 @@ def ws_settings_apply_preset(
     connection.send_result(msg["id"], presets.apply(hass, entry, msg["preset"]))
 
 
+@websocket_command({vol.Required("type"): "heads_up/panel_overview"})
+@require_admin
+@callback
+def ws_panel_overview(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The Overview page: active messages and their states, rules, needs attention, the log."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    connection.send_result(msg["id"], panel_data.overview(hass, entry.runtime_data, entry))
+
+
+@websocket_command({vol.Required("type"): "heads_up/panel_messages"})
+@require_admin
+@callback
+def ws_panel_messages(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The Messages page: recent messages with their delivery results."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    connection.send_result(msg["id"], {"messages": panel_data.messages(entry.runtime_data)})
+
+
+@websocket_command({vol.Required("type"): "heads_up/panel_trace", vol.Required("message_id"): str})
+@require_admin
+@callback
+def ws_panel_trace(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """The delivery trace of one message: entries, deliveries, timers, acknowledgements."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    result = panel_data.trace(hass, entry.runtime_data, msg["message_id"])
+    if result is None:
+        connection.send_error(msg["id"], "not_found", f"Message {msg['message_id']} not found")
+        return
+    connection.send_result(msg["id"], result)
+
+
 @websocket_command({vol.Required("type"): "heads_up/hub_usage", vol.Required("name"): str})
 @require_admin
 @callback
@@ -355,6 +393,9 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_dismiss_many,
         ws_acknowledge,
         ws_hub_usage,
+        ws_panel_overview,
+        ws_panel_messages,
+        ws_panel_trace,
         ws_settings_get,
         ws_settings_set,
         ws_settings_apply_preset,

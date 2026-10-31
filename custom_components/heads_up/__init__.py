@@ -10,7 +10,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
-from .const import DOMAIN, OPT_HUB_ENABLED, OPT_INSTALL_TOKEN, OPT_TRACE_ENTRIES
+from .const import (
+    DOMAIN,
+    OPT_HUB_ENABLED,
+    OPT_INSTALL_TOKEN,
+    OPT_RECENT_MESSAGES,
+    OPT_TRACE_ENTRIES,
+)
 from .frontend import async_add_card, async_register_card_path, async_remove_card
 from .hub.channels.persistent import PersistentChannel
 from .hub.channels.popup import PopupChannel
@@ -92,6 +98,8 @@ async def _async_entry_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry) -
             await manager.hub.async_start(set(manager.banners) | set(manager.rules))
         else:
             manager.hub.trace.resize(manager.options[OPT_TRACE_ENTRIES])
+            manager.hub.log.resize(manager.options[OPT_TRACE_ENTRIES])
+            manager.hub.recent.resize(manager.options[OPT_RECENT_MESSAGES])
     elif (hub := manager.hub) is not None:
         manager.hub = None
         await hub.async_unload()

@@ -26,6 +26,7 @@ from ..const import (
     GLOBAL_SNOOZE_KEY,
     GROUP_SUFFIX,
     HOLD_AWAY,
+    OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
     SOURCE_SUMMARY,
     SUMMARY_LIFETIME_HOURS,
@@ -34,6 +35,7 @@ from ..const import (
     TIMER_CHANNEL,
 )
 from ..models import Banner
+from .activity import Activity, ActivityLog, RecentMessages
 from .channels import ChannelRegistry, Outcome, Result, Target
 from .interfaces import AudienceResolver, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, HeldMessage, State
@@ -72,6 +74,10 @@ class HubEngine:
         self.ledger = DeliveryLedger(hass)
         self.trace = TraceBuffer(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
         self.resolver = HubResolver(hass, options)
+        self.log = ActivityLog(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
+        self.recent = RecentMessages(
+            options.get(OPT_RECENT_MESSAGES, DEFAULT_OPTIONS[OPT_RECENT_MESSAGES])
+        )
         # The names a call may use come from the resolver (H2) and the policy book (H4a).
         self.audiences: AudienceResolver = self.resolver
         self.recipients: RecipientResolver = self.resolver
@@ -110,6 +116,9 @@ class HubEngine:
                     await self.channels.get(row.channel).clear(message_id, target, row.ref)
                 self._trace(message_id, row.channel, row.recipient, "cleared", "gone_at_startup")
             self.ledger.drop_message(message_id)
+        for message_id in sorted(known_ids):
+            if (loaded := self.lookup(message_id)) is not None:
+                self.recent.seen(message_id, self._info(loaded))
         self._restore_timers()
         # Arrival releases the deliveries held by Away.
         self._unsub_arrival = self.hass.bus.async_listen(
@@ -199,6 +208,7 @@ class HubEngine:
         if self._closed:
             return
         banner = transition.banner
+        self._remember(transition)
         if self._ready.is_set():
             # Decided here, in the same call that created the message, so a viewer is never shown a
             # message that is about to be held (D-105).
@@ -207,6 +217,62 @@ class HubEngine:
             elif transition.kind is Kind.UPDATED:
                 self._update_held(banner)
         self._enqueue(banner.id, lambda: self._handle(transition), f"heads_up hub {banner.id}")
+
+    # The panel's log and recent messages (D-118) -----------------------------------------
+
+    def _user_name(self, user_id: str | None) -> str | None:
+        """First name of the person behind a user, for "acknowledged by"."""
+        for person in self.resolver.persons_of_user(user_id) if user_id else []:
+            state = self.hass.states.get(person)
+            words = str((state.attributes.get("friendly_name") if state else None) or "").split()
+            if words:
+                return words[0]
+        return None
+
+    def _info(self, banner: Banner) -> dict[str, Any]:
+        return {
+            "title": banner.title,
+            "message": banner.message,
+            "severity": banner.severity,
+            "channels": list(banner.channels),
+            "source": banner.source,
+            "created_at": banner.created_at.isoformat(),
+        }
+
+    def _log(self, kind: str, message_id: str, detail: str | None = None) -> None:
+        banner = self.lookup(message_id)
+        known = next((m for m in self.recent.listed() if m["id"] == message_id), {})
+        title = banner.title if banner else known.get("title")
+        severity = banner.severity if banner else known.get("severity")
+        self.log.add(
+            Activity(
+                dt_util.utcnow().isoformat(), kind, message_id, title or None, severity, detail
+            )
+        )
+
+    def _remember(self, transition: BannerTransition) -> None:
+        banner, kind = transition.banner, transition.kind
+        if kind in (Kind.APPEARED, Kind.BECAME_VISIBLE):
+            self.recent.seen(banner.id, self._info(banner))
+            if not transition.silent and banner.source != SOURCE_SUMMARY:
+                self._log("created", banner.id, ",".join(banner.channels))
+            return
+        if transition.silent:
+            return
+        who = self._user_name(transition.user_id)
+        if kind is Kind.ACKNOWLEDGED:
+            self._log("acknowledged", banner.id, who)
+        elif kind is Kind.SNOOZED:
+            self._log("snoozed", banner.id, who)
+        elif kind is Kind.UNSNOOZED:
+            self._log("unsnoozed", banner.id, who)
+        elif kind is Kind.HIDDEN and transition.reason == Reason.DISMISSED:
+            self._log("dismissed", banner.id, who)
+        elif transition.ends_message:
+            now = dt_util.utcnow().isoformat()
+            self.recent.ended(banner.id, now, transition.reason)
+            expired = transition.reason == Reason.EXPIRED
+            self._log("expired" if expired else "cleared", banner.id, transition.reason)
 
     def _enqueue(
         self, message_id: str, work: Callable[[], Coroutine[Any, Any, None]], name: str
@@ -513,6 +579,7 @@ class HubEngine:
         # Whoever already has the message on that channel is not notified a second time.
         await self._send(message, await self.plan(message), resume=True, origin="escalation")
         self._finish(row, State.SENT, "escalated")
+        self._log("escalation_sent", banner.id, policy.name)
 
     async def _remind(self, banner: Banner, policy: Policy, row: Delivery) -> None:
         # Cleared rows (dismissed or snoozed) are left out: a snooze pauses the person's
@@ -543,6 +610,7 @@ class HubEngine:
                 outcome.result.value,
                 "reminder",
             )
+        self._log("reminder_sent", banner.id, policy.name)
         row.count += 1
         if reminder.finished(policy, row.count):
             self._finish(row, State.SENT, "reminders_done")
@@ -669,6 +737,7 @@ class HubEngine:
             self._trace(banner.id, TIMER_CHANNEL, policy.key, "fallback", "+".join(sorted(classes)))
             message = escalation.message_for(banner, policy)
             await self._send(message, await self.plan(message), resume=True, origin="fallback")
+            self._log("fallback_sent", banner.id, policy.name)
 
     # Summarize: hold, then one summary per recipient and channel (D-105, D-113) ---------------
 
@@ -823,9 +892,9 @@ class HubEngine:
             elif recipient:
                 data["targets"] = {channel: {"recipients": [recipient.removeprefix("device:")]}}
             result = self.create_message(data)
-            self._trace(
-                str(result.get("id", data["id"])), channel, recipient, "summary", f"{len(members)}"
-            )
+            summary_id = str(result.get("id", data["id"]))
+            self._trace(summary_id, channel, recipient, "summary", f"{len(members)}")
+            self._log("summary_sent", summary_id, f"{channel}|{len(members)}")
         for entry in entries:
             if entry.resolved:
                 self.ledger.drop_held(entry.message_id)
@@ -875,6 +944,11 @@ class HubEngine:
             )
         )
         self._trace(message_id, channel, recipient, outcome.result.value, outcome.reason)
+        if (
+            outcome.result in (Result.SKIPPED, Result.FAILED)
+            and outcome.reason not in fallback.IGNORED_REASONS
+        ):
+            self._log(outcome.result.value, message_id, f"{channel}|{outcome.reason}")
         if outcome.hold:
             self._schedule_held(message_id, channel, recipient)
 
