@@ -30,6 +30,7 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 
 - Presence delay for Last to leave and First home: 60 seconds, configurable, 0 for none; their state is stored; an area is the speakers assigned to it in Home Assistant; a profile exists for every person without setup (D-109).
 
+- Panel: title Heads Up, icon mdi:bell-ring-outline, shell plus one module per page, setup toggle starts on, presets Quiet, Balanced, Loud as listed in `docs/panel.md` (D-117).
 - Card acknowledgement: option `show_acknowledged`, on by default; "Acknowledged by Anna" and "and N others" (D-116).
 - Popup: card for success, info and warning, modal for critical, `popup_styles` per severity; Escape and × hide on the page only (D-115).
 - Speech: 200 characters (configurable), same text not repeated on a speaker for 60 seconds (configurable), engine from the option or the only tts entity (D-114).

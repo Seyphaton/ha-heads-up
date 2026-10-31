@@ -1,6 +1,6 @@
 # H9a: Panel shell, navigation, Settings page
 
-Size: medium. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: medium. Status: built on branch `hub/h9a-panel-shell` (see `ROADMAP.md`). Registered with `frontend.async_register_built_in_panel` (N-88); decisions in D-117. The wizard button is disabled until H9e. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Register the admin panel, build the two-level navigation and the Settings page, so later pages plug in.

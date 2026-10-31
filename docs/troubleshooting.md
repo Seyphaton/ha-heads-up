@@ -103,6 +103,10 @@ See [Popups](popup.md).
 
 Open the trace of the message (`heads_up/hub_trace`, admin). `service_not_found` or `send_failed` means Home Assistant's `persistent_notification` service failed. If you dismissed the entry in the bell, Heads Up does not know: the next update of the message creates it again. A rule message reaches the bell only through an escalation or fallback policy. See [Persistent notifications](persistent.md).
 
+## The Heads Up entry is not in the sidebar
+
+The entry exists only while the option is on: Settings > Devices & services > Heads Up > Configure > Show Heads Up in the sidebar. Only administrators see it. If it is on and the entry is still missing, reload the browser page. See [The panel](panel.md).
+
 ## The "Clear all" button is missing
 
 The button appears only when the card shows at least one banner that can be dismissed, and only with `clear_all: true`. Banners with `dismissible: false` are not counted.

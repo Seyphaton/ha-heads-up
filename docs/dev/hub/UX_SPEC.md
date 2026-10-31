@@ -84,7 +84,7 @@ Settings by severity (D-097):
 
 ## Settings (General)
 One page that holds everything the setup wizard sets up, plus the rest.
-- Setup wizard: a button that opens the wizard window.
+- Setup wizard: a button that opens the wizard window (disabled until the wizard is built, H9e).
 - Hub: enabled switch, on by default (D-107). Off means messages reach only the dashboard banner, as before the hub existed.
 - Sidebar: show the Heads Up panel in the sidebar (off until the user enables it during initial setup; changeable here).
 - People and devices: a summary table with a link to Configuration, Recipients.
