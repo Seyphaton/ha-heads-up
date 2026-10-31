@@ -77,6 +77,19 @@ See [Policies](policies.md).
 
 If a Summarize policy applies to the message (its severities and tags, and `policy` in the call), it is held until the summary. The trace of the message has no delivery entries, and `heads_up/hub_trace` shows the summary with `summary` once it is sent. Critical messages are held only if the policy includes them. Deleting or disabling the policy releases its held messages. See [Policies](policies.md).
 
+## A message was not spoken
+
+Open the trace of the message (`heads_up/hub_trace`, admin) and look at the speak entries.
+
+- `no_tts_engine`: set the option Text-to-speech engine, or keep exactly one `tts` entity.
+- `cooldown`: the same text was said on that speaker in the last 60 seconds.
+- `quiet_hours`: a Quiet hours policy skips speech.
+- `already_spoken`: updates are not said again.
+- `service_not_found` or `send_failed`: the speaker's integration does not offer the service or it failed; the log has one warning per speaker per hour.
+- `entity_missing`: the speaker no longer exists. Edit the recipient group.
+
+See [Speech](speech.md).
+
 ## The "Clear all" button is missing
 
 The button appears only when the card shows at least one banner that can be dismissed, and only with `clear_all: true`. Banners with `dismissible: false` are not counted.

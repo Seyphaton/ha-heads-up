@@ -1,6 +1,6 @@
 # H5: Speak channel (speakers and satellites)
 
-Size: medium. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: medium. Status: built on branch `hub/h5-speak` (see `ROADMAP.md`). Decisions in D-114. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Deliver spoken messages to media players, Assist satellites and groups of them.
