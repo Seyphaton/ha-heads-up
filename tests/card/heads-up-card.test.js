@@ -4,6 +4,7 @@ import {
   collapse,
   colorParts,
   CONFIG_KEYS,
+  acknowledgedLabel,
   controlsFor,
   emptyView,
   normalizeConfig,
@@ -154,6 +155,7 @@ describe("controlsFor", () => {
       tap: false,
       snooze: false,
       actions: [],
+      acknowledge: false,
     });
   });
 
@@ -517,5 +519,40 @@ describe("snoozed banners", () => {
   it("show_snoozed is off by default and must be a boolean", () => {
     expect(config.show_snoozed).toBe(false);
     expect(normalizeConfig({ show_snoozed: true }).show_snoozed).toBe(true);
+  });
+});
+
+describe("acknowledgement", () => {
+  it("offers the Acknowledge button only when the server says a policy applies", () => {
+    expect(controlsFor(banner(), false).acknowledge).toBe(false);
+    expect(controlsFor(banner({ can_acknowledge: true }), false).acknowledge).toBe(true);
+  });
+
+  it("has no line while nobody acknowledged", () => {
+    expect(acknowledgedLabel(banner())).toBeNull();
+    expect(acknowledgedLabel(banner({ acknowledged: false, acknowledged_by: ["Anna"] }))).toBeNull();
+  });
+
+  it("names the first person, then counts the others", () => {
+    const one = banner({ acknowledged: true, acknowledged_by: ["Anna"], acknowledged_count: 1 });
+    expect(acknowledgedLabel(one)).toBe("Acknowledged by Anna");
+    const two = banner({ acknowledged: true, acknowledged_by: ["Anna", "Ben"], acknowledged_count: 2 });
+    expect(acknowledgedLabel(two)).toBe("Acknowledged by Anna and 1 other");
+    const three = banner({ acknowledged: true, acknowledged_by: ["Anna", "Ben", "Cy"], acknowledged_count: 3 });
+    expect(acknowledgedLabel(three)).toBe("Acknowledged by Anna and 2 others");
+  });
+
+  it("counts people whose name is not known", () => {
+    const b = banner({ acknowledged: true, acknowledged_by: ["Anna"], acknowledged_count: 3 });
+    expect(acknowledgedLabel(b)).toBe("Acknowledged by Anna and 2 others");
+    expect(acknowledgedLabel(banner({ acknowledged: true, acknowledged_by: [], acknowledged_count: 1 }))).toBe(
+      "Acknowledged",
+    );
+  });
+
+  it("show_acknowledged is on by default and can be switched off", () => {
+    expect(normalizeConfig({}).show_acknowledged).toBe(true);
+    expect(normalizeConfig({ show_acknowledged: false }).show_acknowledged).toBe(false);
+    expect(CONFIG_KEYS).toContain("show_acknowledged");
   });
 });
