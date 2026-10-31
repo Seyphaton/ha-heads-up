@@ -1,6 +1,6 @@
 # H9c: Panel: editors for audiences, recipients, policies and channel settings
 
-Size: large. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: large. Status: built on branch `hub/h9c-editors` (see `ROADMAP.md`). The editors drive the integration's flows over REST; decisions in D-119. The target block is `targetBlock` in `frontend/panel/ui.js`, for Test send to reuse. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Build the Configuration pages with working forms that save to the subentries and options.

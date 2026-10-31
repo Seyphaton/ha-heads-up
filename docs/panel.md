@@ -1,6 +1,6 @@
 # The Heads Up panel
 
-The panel is an administrator page in Home Assistant's sidebar. In this version it has the navigation, the Overview, the Messages page and the Settings page; the other pages say they are not available yet.
+The panel is an administrator page in Home Assistant's sidebar. In this version it has the navigation, the Overview, the Messages page, the four Configuration pages and the Settings page; Test send, Watch rules and FAQ say they are not available yet.
 
 ## Show it in the sidebar
 
@@ -31,6 +31,17 @@ The Messages page (Notifications and rules group) lists the recent messages, new
 
 The recent messages and the log of last actions are kept in memory. They start empty after a restart; messages that are still active are listed again with the time they were created, without delivery history. The History settings (trace entries kept, recent messages kept) set the sizes.
 
+## Configuration pages
+
+The editors save through the integration's own forms, so the rules are the same as in Settings > Devices & services > Heads Up, and a change made there shows here. Every editor shows the stored data as YAML and a list of problems; Save is disabled while there are problems. The pages need the hub switched on.
+
+- **Audiences:** the six built-in audiences are listed with who is in them right now. Your own audiences are edited in a form: a name and either a fixed list of persons or a presence (at home, not home, last to leave, first home, in a zone, not in a zone, with a zone choice). The list says which policies use each audience.
+- **Recipients:** one profile per person with the devices found automatically, a badge for added devices and for a notify service that is missing, a primary device, devices you removed (which you can bring back), a device you add by name, and the channels the person accepts. A profile that equals the detected devices is not stored. Speaker groups have a name, speakers and areas, and show how the group is written in calls ("Name (group)") and how many speakers reach it now.
+- **Policies:** all six types in one form: name, type, severities, tags, enabled and the fields of the type, with a target block per channel for Escalation and Fallback (an audience or recipients, never both; speech takes recipients only; a bell notification takes none). A sentence in words describes the policy as you edit it. A second policy of the same type with the same severities, tags and trigger is refused.
+- **Channels:** the push level per severity, the popup style per severity (card, window or off), the lock-screen text, whether the push stays after a tap, the Android channel name and the spoken language. These are the options `push_levels`, `popup_styles`, `push_lockscreen`, `push_sticky`, `push_channel_id` and `speak_language`.
+
+An audience or a speaker group that a policy uses cannot be deleted in the panel: the Delete button is disabled and the page names the policies. Home Assistant's own screen does not enforce this; if it is deleted there, Needs attention on the Overview reports the policy.
+
 ## Settings
 
 | Part | What it does |
@@ -57,6 +68,6 @@ Evening summary only collects messages tagged `digest`, so nothing is held that 
 
 ## Limits
 
-- Test send, Watch rules, Audiences, Recipients, Policies, Channels and FAQ come in later versions. Until then use the integration's own forms; the buttons in Needs attention open those pages and say so while they are not available.
+- Test send, Watch rules and FAQ come in later versions. The Needs attention button for a rule opens a page that says so.
 - The pages poll every 10 seconds; they do not update the moment something happens.
 - Not tested on a touch device or with a screen reader.
