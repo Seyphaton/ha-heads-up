@@ -19,6 +19,7 @@ from homeassistant.components.websocket_api.decorators import (
 from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, SEVERITIES
+from .frontend import async_popup_url
 from .manager import BannerManager, HeadsUpError
 
 
@@ -86,6 +87,51 @@ def ws_acknowledge(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
         connection.send_error(msg["id"], err.code, str(err))
         return
     connection.send_result(msg["id"])
+
+
+@websocket_command({vol.Required("type"): "heads_up/popup_config"})
+@async_response
+async def ws_popup_config(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Whether popups are on, how each severity looks, and the popup module (D-115)."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    channel = manager.hub.channels.get("popup") if manager.hub is not None else None
+    if channel is None or not channel.available:
+        connection.send_result(msg["id"], {"enabled": False})
+        return
+    connection.send_result(
+        msg["id"],
+        {
+            "enabled": True,
+            "styles": channel.styles(),  # type: ignore[attr-defined]
+            "module": await async_popup_url(hass),
+        },
+    )
+
+
+@websocket_command({vol.Required("type"): "heads_up/popup_subscribe"})
+@callback
+def ws_popup_subscribe(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The popups of the calling user, now and whenever they change."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    channel = manager.hub.channels.get("popup") if manager.hub is not None else None
+    if channel is None or not channel.available:
+        connection.send_error(msg["id"], "hub_off", "Popups are switched off")
+        return
+    user_id = connection.user.id
+
+    @callback
+    def forward() -> None:
+        connection.send_event(msg["id"], {"messages": channel.messages_for(user_id)})  # type: ignore[attr-defined]
+
+    connection.subscriptions[msg["id"]] = channel.subscribe(forward)  # type: ignore[attr-defined]
+    connection.send_result(msg["id"])
+    forward()
 
 
 @websocket_command({vol.Required("type"): "heads_up/hub_usage", vol.Required("name"): str})
@@ -242,6 +288,8 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_dismiss_many,
         ws_acknowledge,
         ws_hub_usage,
+        ws_popup_config,
+        ws_popup_subscribe,
         ws_snooze,
         ws_unsnooze,
         ws_action,

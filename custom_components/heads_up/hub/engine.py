@@ -273,12 +273,12 @@ class HubEngine:
 
     def _target(self, item: Planned, banner: Banner, *, ack: bool | None = None) -> Target:
         who = item.who
-        ack = self._ack_applies(banner) if ack is None else ack
+        ack = self.ack_applies(banner) if ack is None else ack
         if who is None:
             return Target(item.recipient, ack_button=ack)
         return Target(who.key, who.kind, who.person, ack_button=ack)
 
-    def _ack_applies(self, banner: Banner) -> bool:
+    def ack_applies(self, banner: Banner) -> bool:
         """An escalation or reminder applies, so acknowledging is meaningful (the Acknowledge
         button of a push)."""
         return banner.source != SOURCE_SUMMARY and bool(self.policies.timed_for(banner))
@@ -370,7 +370,7 @@ class HubEngine:
 
     def _row_target(self, row: Delivery, banner: Banner) -> Target:
         kind = "device" if row.recipient.startswith("device:") else ""
-        return Target(row.recipient, kind, row.person, ack_button=self._ack_applies(banner))
+        return Target(row.recipient, kind, row.person, ack_button=self.ack_applies(banner))
 
     def policy_problem(self, policy: Policy) -> str | None:
         """Why a policy cannot run now, as a stable reason code (D-111). Home Assistant cannot

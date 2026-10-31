@@ -117,6 +117,15 @@ DEFAULT_PUSH_LEVELS: Final = {
     "warning": "normal",
     "critical": "time-sensitive",  # "critical" is the iOS opt-in
 }
+# Popup settings (D-090, D-115): how a popup looks per severity. Edited in the panel (H9c).
+OPT_POPUP_STYLES: Final = "popup_styles"
+POPUP_STYLES: Final = ("card", "modal", "off")
+DEFAULT_POPUP_STYLES: Final[dict[str, str]] = {
+    "success": "card",
+    "info": "card",
+    "warning": "card",
+    "critical": "modal",
+}
 # Speech settings (D-114).
 OPT_SPEAK_MAX_LENGTH: Final = "speak_max_length"  # characters
 OPT_SPEAK_COOLDOWN: Final = "speak_cooldown_seconds"  # 0 for none
@@ -145,6 +154,7 @@ DEFAULT_OPTIONS: Final = {
     OPT_PUSH_LOCKSCREEN: "full",
     OPT_PUSH_CHANNEL_ID: "heads_up",
     OPT_PUSH_STICKY: False,
+    OPT_POPUP_STYLES: DEFAULT_POPUP_STYLES,
     OPT_SPEAK_MAX_LENGTH: 200,
     OPT_SPEAK_COOLDOWN: 60,
     OPT_SPEAK_TTS_ENTITY: "",
