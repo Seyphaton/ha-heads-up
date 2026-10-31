@@ -13,6 +13,7 @@ Run after `make dev-up` + `make dev-onboard`:
   uv run python dev/smoke.py hub_core_verify
   uv run python dev/smoke.py policies # policy form, `policy` field, acknowledge (hub work, H4a)
   uv run python dev/smoke.py policies_verify
+  uv run python dev/smoke.py editors  # the panel's way: flows over REST, reconfigure, delete (H9c)
 """
 
 import asyncio
@@ -473,6 +474,79 @@ async def policies() -> None:
         assert any(e["result"] == "acknowledged" for e in trace), trace
 
 
+async def editors() -> None:
+    """What the panel's editors do: create, reconfigure and delete a subentry through the REST
+    flow API and the delete command, and read the result through heads_up/panel_config."""
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        headers = {"Authorization": f"Bearer {admin}"}
+        ws = await connect(s, admin)
+        base = f"{BASE}/api/config/config_entries/subentries/flow"
+
+        async def config() -> dict[str, Any]:
+            msg_id = await ws.send({"type": "heads_up/panel_config"})
+            return dict((await ws.recv(msg_id))["result"])
+
+        async def flow(start: dict[str, Any], data: dict[str, Any]) -> dict[str, Any]:
+            r = await s.post(base, json={"show_advanced_options": False, **start}, headers=headers)
+            opened = await r.json()
+            r = await s.post(f"{base}/{opened['flow_id']}", json=data, headers=headers)
+            return dict(await r.json())
+
+        state = await config()
+        eid = state["entry_id"]
+        for old in [a for a in state["audiences"] if a["name"] == "Smoke family"]:
+            msg_id = await ws.send(
+                {
+                    "type": "config_entries/subentries/delete",
+                    "entry_id": eid,
+                    "subentry_id": old["subentry_id"],
+                }
+            )
+            await ws.recv(msg_id)
+        made = await flow(
+            {"handler": [eid, "audience"]},
+            {"name": "Smoke family", "kind": "persons", "persons": ["person.dev_admin"]},
+        )
+        print("create:", made["type"])
+        assert made["type"] == "create_entry", made
+        await asyncio.sleep(1)
+        mine = next(a for a in (await config())["audiences"] if a["name"] == "Smoke family")
+        assert mine["data"]["persons"] == ["person.dev_admin"] and mine["members"] == [
+            "person.dev_admin"
+        ], mine
+        bad = await flow(
+            {"handler": [eid, "audience"]},
+            {"name": "Smoke family", "kind": "persons", "persons": ["person.dev_admin"]},
+        )
+        assert bad["type"] == "form" and bad["errors"] == {"name": "name_exists"}, bad
+        print("duplicate refused:", bad["errors"])
+        both = ["person.dev_admin", "person.dev_user"]
+        changed = await flow(
+            {"handler": [eid, "audience"], "subentry_id": mine["subentry_id"]},
+            {"name": "Smoke family", "kind": "persons", "persons": both},
+        )
+        print("reconfigure:", changed["type"])
+        assert changed["type"] == "abort" and changed["reason"] == "reconfigure_successful", changed
+        await asyncio.sleep(1)
+        mine = next(a for a in (await config())["audiences"] if a["name"] == "Smoke family")
+        assert mine["data"]["persons"] == both, mine
+        ws_user = await connect(s, user)
+        msg_id = await ws_user.send({"type": "heads_up/panel_config"})
+        assert (await ws_user.recv(msg_id))["error"]["code"] == "unauthorized"
+        msg_id = await ws.send(
+            {
+                "type": "config_entries/subentries/delete",
+                "entry_id": eid,
+                "subentry_id": mine["subentry_id"],
+            }
+        )
+        assert (await ws.recv(msg_id))["success"]
+        await asyncio.sleep(1)
+        assert "Smoke family" not in [a["name"] for a in (await config())["audiences"]]
+        print("delete: ok")
+
+
 async def policies_verify() -> None:
     async with aiohttp.ClientSession() as s:
         admin = await token(s, "ADMIN")
@@ -613,5 +687,6 @@ asyncio.run(
         "hub_core_verify": hub_core_verify,
         "policies": policies,
         "policies_verify": policies_verify,
+        "editors": editors,
     }[sys.argv[1]]()
 )

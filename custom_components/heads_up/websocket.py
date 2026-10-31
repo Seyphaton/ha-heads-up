@@ -20,7 +20,7 @@ from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, SEVERITIES
 from .frontend import async_popup_url
-from .hub import panel_data, presets, settings
+from .hub import panel_config, panel_data, presets, settings
 from .manager import BannerManager, HeadsUpError
 
 
@@ -239,6 +239,45 @@ def ws_panel_trace(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
     connection.send_result(msg["id"], result)
 
 
+@websocket_command({vol.Required("type"): "heads_up/panel_config"})
+@require_admin
+@async_response
+async def ws_panel_config(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Everything the editors show: audiences, groups, profiles, policies, choices, channels."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    connection.send_result(msg["id"], await panel_config.editors(hass, entry.runtime_data, entry))
+
+
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/channels_set",
+        vol.Optional("push_levels"): {str: str},
+        vol.Optional("popup_styles"): {str: str},
+        vol.Optional("push_lockscreen"): str,
+        vol.Optional("push_sticky"): bool,
+        vol.Optional("push_channel_id"): str,
+        vol.Optional("speak_language"): vol.All(str, vol.Length(max=20)),
+    }
+)
+@require_admin
+@callback
+def ws_channels_set(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """The settings of the Channels page (D-119); the same options the options form keeps."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    changes = {key: msg[key] for key in panel_config.CHANNEL_KEYS if key in msg}
+    if errors := panel_config.check_channels(changes):
+        connection.send_error(
+            msg["id"], "invalid_format", ", ".join(f"{k}: {v}" for k, v in errors.items())
+        )
+        return
+    hass.config_entries.async_update_entry(entry, options={**entry.options, **changes})
+    connection.send_result(msg["id"], panel_config.channel_settings(entry.runtime_data))
+
+
 @websocket_command({vol.Required("type"): "heads_up/hub_usage", vol.Required("name"): str})
 @require_admin
 @callback
@@ -393,6 +432,8 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_dismiss_many,
         ws_acknowledge,
         ws_hub_usage,
+        ws_panel_config,
+        ws_channels_set,
         ws_panel_overview,
         ws_panel_messages,
         ws_panel_trace,
