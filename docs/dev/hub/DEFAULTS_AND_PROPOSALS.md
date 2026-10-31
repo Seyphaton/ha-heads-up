@@ -30,6 +30,7 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 
 - Presence delay for Last to leave and First home: 60 seconds, configurable, 0 for none; their state is stored; an area is the speakers assigned to it in Home Assistant; a profile exists for every person without setup (D-109).
 
+- Popup: card for success, info and warning, modal for critical, `popup_styles` per severity; Escape and × hide on the page only (D-115).
 - Speech: 200 characters (configurable), same text not repeated on a speaker for 60 seconds (configurable), engine from the option or the only tts entity (D-114).
 - Summarize: every 60 minutes or at a time of day (form default 20:00 when used), critical excluded; a summary lists every held message that still exists, cleared ones marked resolved (D-113).
 - Quiet hours: local wall clock; 22:00 to 07:00, all days, action quiet, critical passes (D-112).

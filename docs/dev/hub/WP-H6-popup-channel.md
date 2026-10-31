@@ -1,6 +1,6 @@
 # H6: Popup channel (loader and popup)
 
-Size: medium. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: medium. Status: built on branch `hub/h6-popup` (see `ROADMAP.md`). Popups are ledger rows read through `heads_up/popup_subscribe`; decisions in D-115. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Show popups on every dashboard for the audience a policy or call names, with a global resource under 1 KB and the popup code loaded only when needed.

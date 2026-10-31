@@ -90,6 +90,15 @@ Open the trace of the message (`heads_up/hub_trace`, admin) and look at the spea
 
 See [Speech](speech.md).
 
+## A popup did not appear
+
+- Popups need an open Home Assistant page for a user who is linked to a person in the audience or recipients. The trace (`heads_up/hub_trace`) says `no_user` for a person without a user and `popup_off` for a severity set to `off`.
+- You closed it with the close button or Escape: it only hides on that page. Reload the page to see it again.
+- For about a second after Home Assistant starts, pages are served without extra scripts. A page loaded in that time has no popups until you reload it.
+- If you dismissed or snoozed it, it is gone for you until the snooze ends.
+
+See [Popups](popup.md).
+
 ## The "Clear all" button is missing
 
 The button appears only when the card shows at least one banner that can be dismissed, and only with `clear_all: true`. Banners with `dismissible: false` are not counted.
