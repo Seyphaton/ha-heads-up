@@ -127,7 +127,8 @@
         "reminder": "Recordatorio",
         "quiet_hours": "Horas de silencio",
         "away": "Ausente",
-        "fallback": "Alternativa"
+        "fallback": "Alternativa",
+        "summarize": "Resumir"
       }
     },
     "weekday": {
@@ -820,7 +821,7 @@
       "step": {
         "user": {
           "title": "Añadir política",
-          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\". Horas de silencio: retener, enviar en silencio o descartar envíos en una franja horaria. Ausente: enviar a las personas que no están en casa cuando lleguen. Alternativa: usar otros canales cuando no se pudo avisar a nadie.",
+          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\". Horas de silencio: retener, enviar en silencio o descartar envíos en una franja horaria. Ausente: enviar a las personas que no están en casa cuando lleguen. Alternativa: usar otros canales cuando no se pudo avisar a nadie. Resumir: retener mensajes en todos los canales, incluido el banner, y enviar un resumen por destinatario.",
           "data": {
             "name": "Nombre",
             "type": "Tipo",
@@ -843,7 +844,10 @@
             "action": "Durante las horas de silencio",
             "critical_passes": "Los mensajes críticos pasan",
             "max_wait": "Esperar la llegada (minutos)",
-            "when": "Usar cuando"
+            "when": "Usar cuando",
+            "summary_every": "Resumen cada (minutos)",
+            "summary_at": "Resumen a (hora)",
+            "include_critical": "Incluir mensajes críticos"
           },
           "data_description": {
             "name": "Lo usa el campo policy de una llamada. Debe ser único y no puede ser \"none\".",
@@ -862,12 +866,15 @@
             "action": "Horas de silencio: enviar en silencio (push sin sonido, sin voz), retener hasta el final o descartar el envío.",
             "critical_passes": "Horas de silencio: los mensajes críticos ignoran esta política.",
             "max_wait": "Ausente: minutos de espera a que llegue la persona. 0: mientras exista el mensaje.",
-            "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló."
+            "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló.",
+            "summary_every": "Resumir: envía un resumen este número de minutos después del primer mensaje retenido.",
+            "summary_at": "Resumir: envía un resumen cada día a esta hora en lugar de por intervalo.",
+            "include_critical": "Resumir: retiene también los mensajes críticos. Desactivado: los mensajes críticos se entregan de inmediato."
           }
         },
         "reconfigure": {
           "title": "Política",
-          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\". Horas de silencio: retener, enviar en silencio o descartar envíos en una franja horaria. Ausente: enviar a las personas que no están en casa cuando lleguen. Alternativa: usar otros canales cuando no se pudo avisar a nadie.",
+          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\". Horas de silencio: retener, enviar en silencio o descartar envíos en una franja horaria. Ausente: enviar a las personas que no están en casa cuando lleguen. Alternativa: usar otros canales cuando no se pudo avisar a nadie. Resumir: retener mensajes en todos los canales, incluido el banner, y enviar un resumen por destinatario.",
           "data": {
             "name": "Nombre",
             "type": "Tipo",
@@ -890,7 +897,10 @@
             "action": "Durante las horas de silencio",
             "critical_passes": "Los mensajes críticos pasan",
             "max_wait": "Esperar la llegada (minutos)",
-            "when": "Usar cuando"
+            "when": "Usar cuando",
+            "summary_every": "Resumen cada (minutos)",
+            "summary_at": "Resumen a (hora)",
+            "include_critical": "Incluir mensajes críticos"
           },
           "data_description": {
             "name": "Lo usa el campo policy de una llamada. Debe ser único y no puede ser \"none\".",
@@ -909,7 +919,10 @@
             "action": "Horas de silencio: enviar en silencio (push sin sonido, sin voz), retener hasta el final o descartar el envío.",
             "critical_passes": "Horas de silencio: los mensajes críticos ignoran esta política.",
             "max_wait": "Ausente: minutos de espera a que llegue la persona. 0: mientras exista el mensaje.",
-            "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló."
+            "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló.",
+            "summary_every": "Resumir: envía un resumen este número de minutos después del primer mensaje retenido.",
+            "summary_at": "Resumir: envía un resumen cada día a esta hora en lugar de por intervalo.",
+            "include_critical": "Resumir: retiene también los mensajes críticos. Desactivado: los mensajes críticos se entregan de inmediato."
           }
         }
       },

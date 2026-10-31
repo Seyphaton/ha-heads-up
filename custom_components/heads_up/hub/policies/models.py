@@ -17,6 +17,8 @@ from ...const import POLICY_SUBENTRY, POLICY_TYPES
 DEFAULT_AFTER_MINUTES = 5
 DEFAULT_EVERY_MINUTES = 30
 DEFAULT_MAX_REMINDERS = 3
+DEFAULT_SUMMARY_EVERY = 60
+DEFAULT_SUMMARY_AT = "20:00:00"
 DEFAULT_QUIET_FROM = "22:00:00"
 DEFAULT_QUIET_TO = "07:00:00"
 
@@ -46,6 +48,10 @@ class Policy:
     critical_passes: bool = True
     # Away: minutes to wait for arrival; 0 means as long as the message lives
     max_wait: int = 0
+    # Summarize: every N minutes, or daily at a time of day when `summary_at` is set
+    summary_every: int = 0
+    summary_at: str = ""
+    include_critical: bool = False
 
     @property
     def trigger(self) -> tuple[Any, ...]:
@@ -59,6 +65,8 @@ class Policy:
             return ("window", self.from_time, self.to_time, tuple(sorted(self.days)))
         if self.type == "fallback":
             return ("when", self.when)
+        if self.type == "summarize":
+            return ("summary", self.summary_every, self.summary_at)
         return (self.type,)
 
     @property
@@ -89,6 +97,9 @@ def policy_from_data(name: str, subentry_id: str, data: Mapping[str, Any]) -> Po
         action=str(data.get("action", "quiet")),
         critical_passes=bool(data.get("critical_passes", True)),
         max_wait=int(data.get("max_wait", 0)),
+        summary_every=int(data.get("summary_every", 0)),
+        summary_at=str(data.get("summary_at", "")),
+        include_critical=bool(data.get("include_critical", False)),
     )
 
 

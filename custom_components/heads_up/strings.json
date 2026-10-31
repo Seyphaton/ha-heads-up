@@ -127,7 +127,8 @@
         "reminder": "Reminder",
         "quiet_hours": "Quiet hours",
         "away": "Away",
-        "fallback": "Fallback"
+        "fallback": "Fallback",
+        "summarize": "Summarize"
       }
     },
     "weekday": {
@@ -820,7 +821,7 @@
       "step": {
         "user": {
           "title": "Add policy",
-          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: use other channels when nobody could be notified.",
+          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: use other channels when nobody could be notified. Summarize: hold messages on every channel, including the banner, and send one summary per recipient.",
           "data": {
             "name": "Name",
             "type": "Type",
@@ -843,7 +844,10 @@
             "action": "During quiet hours",
             "critical_passes": "Critical messages pass",
             "max_wait": "Wait for arrival (minutes)",
-            "when": "Use when"
+            "when": "Use when",
+            "summary_every": "Summary every (minutes)",
+            "summary_at": "Summary at (time of day)",
+            "include_critical": "Include critical messages"
           },
           "data_description": {
             "name": "Used by the policy field of a call. Must be unique and cannot be \"none\".",
@@ -862,12 +866,15 @@
             "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
             "critical_passes": "Quiet hours: critical messages ignore this policy.",
             "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
-            "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed."
+            "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed.",
+            "summary_every": "Summarize: send one summary this many minutes after the first message was held.",
+            "summary_at": "Summarize: send one summary at this time every day instead of by the interval.",
+            "include_critical": "Summarize: also hold critical messages. Off: critical messages are delivered at once."
           }
         },
         "reconfigure": {
           "title": "Policy",
-          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: use other channels when nobody could be notified.",
+          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: use other channels when nobody could be notified. Summarize: hold messages on every channel, including the banner, and send one summary per recipient.",
           "data": {
             "name": "Name",
             "type": "Type",
@@ -890,7 +897,10 @@
             "action": "During quiet hours",
             "critical_passes": "Critical messages pass",
             "max_wait": "Wait for arrival (minutes)",
-            "when": "Use when"
+            "when": "Use when",
+            "summary_every": "Summary every (minutes)",
+            "summary_at": "Summary at (time of day)",
+            "include_critical": "Include critical messages"
           },
           "data_description": {
             "name": "Used by the policy field of a call. Must be unique and cannot be \"none\".",
@@ -909,7 +919,10 @@
             "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
             "critical_passes": "Quiet hours: critical messages ignore this policy.",
             "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
-            "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed."
+            "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed.",
+            "summary_every": "Summarize: send one summary this many minutes after the first message was held.",
+            "summary_at": "Summarize: send one summary at this time every day instead of by the interval.",
+            "include_critical": "Summarize: also hold critical messages. Off: critical messages are delivered at once."
           }
         }
       },

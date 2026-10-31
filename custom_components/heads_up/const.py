@@ -54,6 +54,10 @@ CHANNELS: Final = ("banner", "push", "popup", "speak", "persistent")
 TARGET_CHANNELS: Final = ("banner", "push", "popup", "speak")  # channels that accept a target
 SOURCE_ACTION: Final = "action"
 SOURCE_RULE: Final = "rule"
+SOURCE_SUMMARY: Final = "summary"  # a summary the hub made itself (H4c)
+SUMMARY_PREFIX: Final = "summary:"  # ledger message id of a Summarize policy timer
+SUMMARY_LIFETIME_HOURS: Final = 24
+SUMMARY_MAX_LISTED: Final = 10
 POLICY_NONE: Final = "none"
 DELIVERIES_KEY: Final = "heads_up.deliveries"
 DELIVERIES_VERSION: Final = 1
@@ -68,7 +72,8 @@ POLICY_TYPES: Final = (
     "quiet_hours",
     "away",
     "fallback",
-)  # H4c adds summarize
+    "summarize",
+)
 WEEKDAYS: Final = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 QUIET_ACTIONS: Final = ("quiet", "wait", "drop")
 FALLBACK_WHEN: Final = ("no_audience", "failed", "both")

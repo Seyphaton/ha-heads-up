@@ -436,6 +436,24 @@ async def policies() -> None:
             headers=headers,
         )
         print("quiet hours form:", (await r.json())["type"])
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow",
+            json={"handler": [eid, "policy"], "show_advanced_options": False},
+            headers=headers,
+        )
+        flow = await r.json()
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow/{flow['flow_id']}",
+            # Disabled and limited to a tag nothing uses: it must not hide the other smoke banners.
+            json={
+                "name": "Smoke digest",
+                "type": "summarize",
+                "enabled": False,
+                "tags": ["smoke_never"],
+            },
+            headers=headers,
+        )
+        print("summarize form:", (await r.json())["type"])
         await asyncio.sleep(1)
         data = {"id": "smoke_policy", "message": "Policy", "timeout": 0, "policy": SMOKE_POLICY}
         print(

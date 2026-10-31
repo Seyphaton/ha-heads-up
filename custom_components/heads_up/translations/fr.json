@@ -127,7 +127,8 @@
         "reminder": "Rappel",
         "quiet_hours": "Heures calmes",
         "away": "Absent",
-        "fallback": "Repli"
+        "fallback": "Repli",
+        "summarize": "Résumer"
       }
     },
     "weekday": {
@@ -820,7 +821,7 @@
       "step": {
         "user": {
           "title": "Ajouter une politique",
-          "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\". Heures calmes : retenir, envoyer discrètement ou abandonner les envois dans une plage horaire. Absent : envoyer aux personnes qui ne sont pas à la maison à leur arrivée. Repli : utiliser d'autres canaux quand personne n'a pu être notifié.",
+          "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\". Heures calmes : retenir, envoyer discrètement ou abandonner les envois dans une plage horaire. Absent : envoyer aux personnes qui ne sont pas à la maison à leur arrivée. Repli : utiliser d'autres canaux quand personne n'a pu être notifié. Résumer : retenir les messages sur tous les canaux, bannière comprise, et envoyer un résumé par destinataire.",
           "data": {
             "name": "Nom",
             "type": "Type",
@@ -843,7 +844,10 @@
             "action": "Pendant les heures calmes",
             "critical_passes": "Les messages critiques passent",
             "max_wait": "Attendre l'arrivée (minutes)",
-            "when": "Utiliser quand"
+            "when": "Utiliser quand",
+            "summary_every": "Résumé toutes les (minutes)",
+            "summary_at": "Résumé à (heure)",
+            "include_critical": "Inclure les messages critiques"
           },
           "data_description": {
             "name": "Utilisé par le champ policy d'un appel. Doit être unique et ne peut pas être \"none\".",
@@ -862,12 +866,15 @@
             "action": "Heures calmes : envoyer discrètement (push sans son, pas de voix), retenir jusqu'à la fin ou abandonner l'envoi.",
             "critical_passes": "Heures calmes : les messages critiques ignorent cette politique.",
             "max_wait": "Absent : minutes d'attente de l'arrivée de la personne. 0 : tant que le message existe.",
-            "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué."
+            "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué.",
+            "summary_every": "Résumer : envoie un résumé ce nombre de minutes après le premier message retenu.",
+            "summary_at": "Résumer : envoie un résumé chaque jour à cette heure plutôt qu'à intervalle.",
+            "include_critical": "Résumer : retient aussi les messages critiques. Désactivé : les messages critiques sont livrés tout de suite."
           }
         },
         "reconfigure": {
           "title": "Politique",
-          "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\". Heures calmes : retenir, envoyer discrètement ou abandonner les envois dans une plage horaire. Absent : envoyer aux personnes qui ne sont pas à la maison à leur arrivée. Repli : utiliser d'autres canaux quand personne n'a pu être notifié.",
+          "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\". Heures calmes : retenir, envoyer discrètement ou abandonner les envois dans une plage horaire. Absent : envoyer aux personnes qui ne sont pas à la maison à leur arrivée. Repli : utiliser d'autres canaux quand personne n'a pu être notifié. Résumer : retenir les messages sur tous les canaux, bannière comprise, et envoyer un résumé par destinataire.",
           "data": {
             "name": "Nom",
             "type": "Type",
@@ -890,7 +897,10 @@
             "action": "Pendant les heures calmes",
             "critical_passes": "Les messages critiques passent",
             "max_wait": "Attendre l'arrivée (minutes)",
-            "when": "Utiliser quand"
+            "when": "Utiliser quand",
+            "summary_every": "Résumé toutes les (minutes)",
+            "summary_at": "Résumé à (heure)",
+            "include_critical": "Inclure les messages critiques"
           },
           "data_description": {
             "name": "Utilisé par le champ policy d'un appel. Doit être unique et ne peut pas être \"none\".",
@@ -909,7 +919,10 @@
             "action": "Heures calmes : envoyer discrètement (push sans son, pas de voix), retenir jusqu'à la fin ou abandonner l'envoi.",
             "critical_passes": "Heures calmes : les messages critiques ignorent cette politique.",
             "max_wait": "Absent : minutes d'attente de l'arrivée de la personne. 0 : tant que le message existe.",
-            "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué."
+            "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué.",
+            "summary_every": "Résumer : envoie un résumé ce nombre de minutes après le premier message retenu.",
+            "summary_at": "Résumer : envoie un résumé chaque jour à cette heure plutôt qu'à intervalle.",
+            "include_critical": "Résumer : retient aussi les messages critiques. Désactivé : les messages critiques sont livrés tout de suite."
           }
         }
       },

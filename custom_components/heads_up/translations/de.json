@@ -127,7 +127,8 @@
         "reminder": "Erinnerung",
         "quiet_hours": "Ruhezeit",
         "away": "Abwesend",
-        "fallback": "Ersatz"
+        "fallback": "Ersatz",
+        "summarize": "Zusammenfassen"
       }
     },
     "weekday": {
@@ -820,7 +821,7 @@
       "step": {
         "user": {
           "title": "Richtlinie hinzufügen",
-          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte.",
+          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte. Zusammenfassen: Meldungen auf allen Kanälen, auch dem Banner, zurückhalten und eine Zusammenfassung je Empfänger senden.",
           "data": {
             "name": "Name",
             "type": "Art",
@@ -843,7 +844,10 @@
             "action": "Während der Ruhezeit",
             "critical_passes": "Kritische Meldungen kommen durch",
             "max_wait": "Auf Ankunft warten (Minuten)",
-            "when": "Verwenden, wenn"
+            "when": "Verwenden, wenn",
+            "summary_every": "Zusammenfassung alle (Minuten)",
+            "summary_at": "Zusammenfassung um (Uhrzeit)",
+            "include_critical": "Kritische Meldungen einschließen"
           },
           "data_description": {
             "name": "Wird vom Feld policy eines Aufrufs verwendet. Muss eindeutig sein und darf nicht \"none\" heißen.",
@@ -862,12 +866,15 @@
             "action": "Ruhezeit: leise senden (Push ohne Ton, keine Sprachausgabe), bis zum Ende zurückhalten oder die Zustellung verwerfen.",
             "critical_passes": "Ruhezeit: kritische Meldungen ignorieren diese Richtlinie.",
             "max_wait": "Abwesend: Minuten, die auf die Ankunft der Person gewartet wird. 0: solange die Meldung besteht.",
-            "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl."
+            "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl.",
+            "summary_every": "Zusammenfassen: eine Zusammenfassung so viele Minuten nach der ersten zurückgehaltenen Meldung senden.",
+            "summary_at": "Zusammenfassen: eine Zusammenfassung täglich zu dieser Uhrzeit statt im Intervall senden.",
+            "include_critical": "Zusammenfassen: auch kritische Meldungen zurückhalten. Aus: kritische Meldungen werden sofort zugestellt."
           }
         },
         "reconfigure": {
           "title": "Richtlinie",
-          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte.",
+          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte. Zusammenfassen: Meldungen auf allen Kanälen, auch dem Banner, zurückhalten und eine Zusammenfassung je Empfänger senden.",
           "data": {
             "name": "Name",
             "type": "Art",
@@ -890,7 +897,10 @@
             "action": "Während der Ruhezeit",
             "critical_passes": "Kritische Meldungen kommen durch",
             "max_wait": "Auf Ankunft warten (Minuten)",
-            "when": "Verwenden, wenn"
+            "when": "Verwenden, wenn",
+            "summary_every": "Zusammenfassung alle (Minuten)",
+            "summary_at": "Zusammenfassung um (Uhrzeit)",
+            "include_critical": "Kritische Meldungen einschließen"
           },
           "data_description": {
             "name": "Wird vom Feld policy eines Aufrufs verwendet. Muss eindeutig sein und darf nicht \"none\" heißen.",
@@ -909,7 +919,10 @@
             "action": "Ruhezeit: leise senden (Push ohne Ton, keine Sprachausgabe), bis zum Ende zurückhalten oder die Zustellung verwerfen.",
             "critical_passes": "Ruhezeit: kritische Meldungen ignorieren diese Richtlinie.",
             "max_wait": "Abwesend: Minuten, die auf die Ankunft der Person gewartet wird. 0: solange die Meldung besteht.",
-            "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl."
+            "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl.",
+            "summary_every": "Zusammenfassen: eine Zusammenfassung so viele Minuten nach der ersten zurückgehaltenen Meldung senden.",
+            "summary_at": "Zusammenfassen: eine Zusammenfassung täglich zu dieser Uhrzeit statt im Intervall senden.",
+            "include_critical": "Zusammenfassen: auch kritische Meldungen zurückhalten. Aus: kritische Meldungen werden sofort zugestellt."
           }
         }
       },

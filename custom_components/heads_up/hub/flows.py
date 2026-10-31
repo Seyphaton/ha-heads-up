@@ -45,7 +45,7 @@ from ..const import (
     ZONE_KINDS,
 )
 from .audiences import BUILTINS
-from .policies import away, escalation, fallback, quiet, reminder
+from .policies import away, escalation, fallback, quiet, reminder, summarize
 from .policies.matching import duplicate_of
 from .policies.models import (
     DEFAULT_AFTER_MINUTES,
@@ -53,6 +53,7 @@ from .policies.models import (
     DEFAULT_MAX_REMINDERS,
     DEFAULT_QUIET_FROM,
     DEFAULT_QUIET_TO,
+    DEFAULT_SUMMARY_EVERY,
     Policy,
     parse_policy,
     policy_from_data,
@@ -313,8 +314,8 @@ _MINUTES = NumberSelector(
 
 
 class PolicySubentryFlow(_HubFlow):
-    """Escalation, Reminder, Quiet hours, Away and Fallback policies (D-079, D-081, D-112).
-    Summarize arrives with H4c.
+    """The policy types: Escalation, Reminder, Quiet hours, Away, Fallback and Summarize
+    (D-079, D-081, D-112, D-113).
 
     One form for every type; the fields of the other types are ignored and not stored.
     """
@@ -373,6 +374,9 @@ class PolicySubentryFlow(_HubFlow):
             vol.Optional("max_wait", default=0): NumberSelector(
                 NumberSelectorConfig(min=0, max=10080, step=1, mode=NumberSelectorMode.BOX)
             ),
+            vol.Optional("summary_every", default=DEFAULT_SUMMARY_EVERY): _MINUTES,
+            vol.Optional("summary_at"): TimeSelector(),
+            vol.Optional("include_critical", default=False): BooleanSelector(),
             vol.Optional("when", default=FALLBACK_WHEN[0]): SelectSelector(
                 SelectSelectorConfig(options=list(FALLBACK_WHEN), translation_key="fallback_when")
             ),
@@ -428,6 +432,8 @@ class PolicySubentryFlow(_HubFlow):
             errors.update(quiet.check(user_input))
         elif kind == "away":
             errors.update(away.check(user_input))
+        elif kind == "summarize":
+            errors.update(summarize.check(user_input))
         else:
             errors.update(fallback.check(user_input))
             errors.update(self._check_targets(user_input))
@@ -493,6 +499,12 @@ class PolicySubentryFlow(_HubFlow):
             )
         elif kind == "away":
             data["max_wait"] = int(user_input.get("max_wait") or 0)
+        elif kind == "summarize":
+            data["include_critical"] = bool(user_input.get("include_critical", False))
+            if user_input.get("summary_at"):
+                data["summary_at"] = str(user_input["summary_at"])
+            else:
+                data["summary_every"] = int(user_input["summary_every"])
         else:
             data.update(
                 when=user_input.get("when", FALLBACK_WHEN[0]),

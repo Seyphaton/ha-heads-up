@@ -8,9 +8,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import secrets
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import partial
 from typing import Any
 
@@ -26,14 +27,17 @@ from ..const import (
     GROUP_SUFFIX,
     HOLD_AWAY,
     OPT_TRACE_ENTRIES,
+    SOURCE_SUMMARY,
+    SUMMARY_LIFETIME_HOURS,
+    SUMMARY_PREFIX,
     TARGET_CHANNELS,
     TIMER_CHANNEL,
 )
 from ..models import Banner
 from .channels import ChannelRegistry, Outcome, Result, Target
 from .interfaces import AudienceResolver, RecipientResolver
-from .ledger import Delivery, DeliveryLedger, State
-from .policies import PolicyBook, escalation, fallback, reminder
+from .ledger import Delivery, DeliveryLedger, HeldMessage, State
+from .policies import PolicyBook, escalation, fallback, reminder, summarize
 from .policies.away import AwayStage
 from .policies.chain import Chain, Hold, Skip, Step
 from .policies.models import Policy
@@ -76,6 +80,10 @@ class HubEngine:
         self.chain.replace(QuietHoursStage(self.policies))
         self.chain.replace(AwayStage(hass, self.policies))
         self._unsub_arrival: CALLBACK_TYPE | None = None
+        # Set by the manager: make a message (the summaries), and tell viewers a hold changed.
+        self.create_message: Callable[[dict[str, Any]], dict[str, Any]] = lambda data: {}
+        self.visibility_changed: Callable[[], None] = lambda: None
+        self._released: set[str] = set()  # held messages that become normal messages again
         # The live message by id; the manager sets it. Timers read the message when they fire.
         self.lookup: Callable[[str], Banner | None] = lambda _id: None
         self._timers: dict[tuple[str, str], CALLBACK_TYPE] = {}
@@ -89,7 +97,12 @@ class HubEngine:
         """Load the ledger and forget what no longer exists, without re-sending anything."""
         await self.ledger.async_load()
         await self.resolver.async_start()
+        for held in list(self.ledger.held.values()):
+            if held.message_id not in known_ids:  # it ended while Home Assistant was stopped
+                self._message_gone(held.message_id)
         for message_id in self.ledger.message_ids() - known_ids:
+            if message_id.startswith(SUMMARY_PREFIX):
+                continue  # the timer of a Summarize policy, not a message
             for row in self.ledger.for_message(message_id):
                 if row.state is State.SENT and row.channel != CHANNEL_BANNER:
                     # The message ended while Home Assistant was stopped: take its push back.
@@ -186,6 +199,13 @@ class HubEngine:
         if self._closed:
             return
         banner = transition.banner
+        if self._ready.is_set():
+            # Decided here, in the same call that created the message, so a viewer is never shown a
+            # message that is about to be held (D-105).
+            if transition.kind in (Kind.APPEARED, Kind.BECAME_VISIBLE):
+                self._try_hold(banner)
+            elif transition.kind is Kind.UPDATED:
+                self._update_held(banner)
         self._enqueue(banner.id, lambda: self._handle(transition), f"heads_up hub {banner.id}")
 
     def _enqueue(
@@ -233,9 +253,16 @@ class HubEngine:
         elif kind is Kind.UNSNOOZED:
             await self._resend(banner, transition.user_id)
         elif kind in (Kind.APPEARED, Kind.BECAME_VISIBLE, Kind.UPDATED):
+            if kind is not Kind.UPDATED:
+                self._try_hold(banner)  # the startup transitions come before the ledger is loaded
+            if self.is_held(banner.id):
+                return  # the summary stands for it
+            released = banner.id in self._released
+            self._released.discard(banner.id)
             results = await self._deliver(
-                banner, update=kind is Kind.UPDATED, resume=transition.silent
+                banner, update=kind is Kind.UPDATED and not released, resume=transition.silent
             )
+            kind = Kind.APPEARED if released else kind
             if kind is not Kind.UPDATED and not transition.silent and banner.active:
                 await self._fallback(banner, results)
             if kind is Kind.UPDATED:
@@ -254,7 +281,7 @@ class HubEngine:
     def _ack_applies(self, banner: Banner) -> bool:
         """An escalation or reminder applies, so acknowledging is meaningful (the Acknowledge
         button of a push)."""
-        return bool(self.policies.timed_for(banner))
+        return banner.source != SOURCE_SUMMARY and bool(self.policies.timed_for(banner))
 
     async def _deliver(
         self, banner: Banner, *, update: bool, resume: bool = False
@@ -331,6 +358,7 @@ class HubEngine:
 
     async def _end(self, banner: Banner) -> None:
         self._cancel_timers(banner.id)
+        self._message_gone(banner.id)
         for row in self.ledger.for_message(banner.id):
             if row.state is State.SENT:
                 target = Target(row.recipient, "", row.person)
@@ -360,7 +388,13 @@ class HubEngine:
 
     def _arm(self, banner: Banner) -> None:
         """Start the timers of the escalations and reminders that apply, once per message."""
-        if self._closed or not banner.active or banner.acknowledged_by:
+        if (
+            self._closed
+            or not banner.active
+            or banner.acknowledged_by
+            or banner.source == SOURCE_SUMMARY  # a summary has no escalation or reminder
+            or self.is_held(banner.id)
+        ):
             return
         now = dt_util.utcnow()
         for policy in self.policies.timed_for(banner):
@@ -451,6 +485,9 @@ class HubEngine:
         self._trace(row.message_id, TIMER_CHANNEL, row.recipient, state.value, reason)
 
     async def _run_timer(self, message_id: str, key: str) -> None:
+        if message_id.startswith(SUMMARY_PREFIX):
+            await self._run_summary(key)
+            return
         if key.startswith("held:"):
             await self._run_held(message_id, key)
             return
@@ -632,6 +669,169 @@ class HubEngine:
             self._trace(banner.id, TIMER_CHANNEL, policy.key, "fallback", "+".join(sorted(classes)))
             message = escalation.message_for(banner, policy)
             await self._send(message, await self.plan(message), resume=True, origin="fallback")
+
+    # Summarize: hold, then one summary per recipient and channel (D-105, D-113) ---------------
+
+    def is_held(self, message_id: str) -> bool:
+        held = self.ledger.held.get(message_id)
+        return held is not None and not held.resolved
+
+    def _summary_policy(self, banner: Banner) -> Policy | None:
+        if banner.source == SOURCE_SUMMARY:
+            return None  # a summary is never held itself
+        found = [
+            p
+            for p in self.policies.for_message(banner)
+            if p.type == "summarize" and summarize.holds(p, banner.severity)
+        ]
+        return min(found, key=lambda p: p.name) if found else None
+
+    def _try_hold(self, banner: Banner) -> None:
+        """Hold a message that appears while a Summarize policy applies. Decided once, when the
+        message first appears; a message already delivered is not taken back."""
+        if self.is_held(banner.id) or self.ledger.for_message(banner.id):
+            return
+        if (policy := self._summary_policy(banner)) is None:
+            return
+        self.ledger.put_held(HeldMessage.from_banner(banner, policy.key, dt_util.utcnow()))
+        self._arm_summary(policy)
+
+    def _update_held(self, banner: Banner) -> None:
+        held = self.ledger.held.get(banner.id)
+        if held is None or held.resolved:
+            return
+        policy = self.policies.by_key(held.policy)
+        if policy is None or not policy.enabled or not summarize.holds(policy, banner.severity):
+            # For example a message that became critical: it must not stay hidden.
+            self.ledger.drop_held(banner.id)
+            self._released.add(banner.id)
+            return
+        changed = (held.message, held.title, held.severity) != (
+            banner.message,
+            banner.title,
+            banner.severity,
+        )
+        held.message, held.title, held.severity = banner.message, banner.title, banner.severity
+        held.channels, held.targets = list(banner.channels), dict(banner.targets)
+        held.people = list(banner.people)
+        if changed:
+            held.summarized = False  # listed again in the next summary
+            self._arm_summary(policy)
+        self.ledger.put_held(held)
+
+    def _message_gone(self, message_id: str) -> None:
+        """A held message was removed: its summary lists it once more, marked resolved."""
+        held = self.ledger.held.get(message_id)
+        if held is None:
+            return
+        if held.summarized:
+            self.ledger.drop_held(message_id)
+        else:
+            held.resolved = True
+            self.ledger.put_held(held)
+
+    def on_policies_changed(self) -> None:
+        """A policy was deleted, disabled or renamed: the messages it holds become normal."""
+        for held in list(self.ledger.held.values()):
+            policy = self.policies.by_key(held.policy)
+            if held.resolved or (policy is not None and policy.enabled):
+                continue
+            self.ledger.drop_held(held.message_id)
+            self._released.add(held.message_id)
+            banner = self.lookup(held.message_id)
+            if banner is not None:
+                self._enqueue(
+                    banner.id,
+                    partial(self._release_held, banner.id),
+                    f"heads_up release {banner.id}",
+                )
+        self.visibility_changed()
+
+    async def _release_held(self, message_id: str) -> None:
+        banner = self.lookup(message_id)
+        self._released.discard(message_id)
+        if banner is None:
+            return
+        await self._deliver(banner, update=False)
+        self._arm(banner)
+
+    def _arm_summary(self, policy: Policy) -> None:
+        """One timer per policy, started by the first message held after the last summary."""
+        message_id = SUMMARY_PREFIX + policy.key
+        row = self.ledger.rows.get((message_id, TIMER_CHANNEL, policy.key))
+        if row is not None and row.state is State.PLANNED:
+            return
+        now = dt_util.utcnow()
+        row = Delivery(
+            message_id,
+            TIMER_CHANNEL,
+            policy.key,
+            State.PLANNED,
+            now,
+            due=summarize.next_due(policy, now),
+        )
+        self.ledger.put(row)
+        self._schedule(row)
+
+    async def _run_summary(self, key: str) -> None:
+        row = self.ledger.rows.get((SUMMARY_PREFIX + key, TIMER_CHANNEL, key))
+        if row is None or row.state is not State.PLANNED:
+            return
+        policy = self.policies.by_key(key)
+        entries = [h for h in self.ledger.held.values() if h.policy == key and not h.summarized]
+        # Finished first: a message held while the summary is sent starts the next timer.
+        self._finish(
+            row,
+            State.SENT if entries else State.CLEARED,
+            "summarized" if entries else "nothing_held",
+        )
+        if policy is None or not policy.enabled or not entries:
+            return
+        await self._send_summaries(entries)
+
+    async def _send_summaries(self, entries: list[HeldMessage]) -> None:
+        groups: dict[tuple[str, str], list[HeldMessage]] = {}
+        for entry in entries:
+            for item in await self.plan(entry.as_banner()):
+                if item.result is not Result.SENT:
+                    continue
+                who = item.who.person if item.who and item.who.person else item.recipient
+                group = groups.setdefault(
+                    (item.channel, "" if item.channel == CHANNEL_BANNER else who), []
+                )
+                if entry not in group:
+                    group.append(entry)
+        language = self.hass.config.language
+        for (channel, recipient), members in groups.items():
+            title, text, severity = summarize.build(members, language)
+            data: dict[str, Any] = {
+                "id": f"hu_sum_{secrets.token_hex(5)}",
+                "title": title,
+                "message": text,
+                "severity": severity,
+                "channels": [channel],
+                "timeout": timedelta(hours=SUMMARY_LIFETIME_HOURS),
+                "dismissible": True,
+                "source": SOURCE_SUMMARY,
+            }
+            if channel == CHANNEL_BANNER:
+                data["people"] = (
+                    []
+                    if any(not m.people for m in members)
+                    else sorted({p for m in members for p in m.people})
+                )
+            elif recipient:
+                data["targets"] = {channel: {"recipients": [recipient.removeprefix("device:")]}}
+            result = self.create_message(data)
+            self._trace(
+                str(result.get("id", data["id"])), channel, recipient, "summary", f"{len(members)}"
+            )
+        for entry in entries:
+            if entry.resolved:
+                self.ledger.drop_held(entry.message_id)
+            else:
+                entry.summarized = True
+                self.ledger.put_held(entry)
 
     async def send_once(self, message: Banner) -> list[Planned]:
         """Deliver a message that has no record (shortcuts without an id)."""

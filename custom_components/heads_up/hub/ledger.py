@@ -7,7 +7,7 @@ data, not behaviour; the engine decides what a row means after a restart.
 from __future__ import annotations
 
 import logging
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import StrEnum
 from typing import Any
@@ -23,6 +23,7 @@ from ..const import (
     SAVE_DELAY,
     TIMER_CHANNEL,
 )
+from ..models import Banner
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -85,6 +86,66 @@ class Delivery:
         )
 
 
+@dataclass(slots=True)
+class HeldMessage:
+    """A message a Summarize policy holds until its summary (D-105, D-113). It keeps what the
+    summary needs, so a message cleared meanwhile can still be listed, marked resolved."""
+
+    message_id: str
+    policy: str  # the policy key, "summarize:<name>"
+    message: str
+    severity: str
+    held_at: datetime
+    title: str | None = None
+    channels: list[str] = field(default_factory=list)
+    targets: dict[str, dict[str, Any]] = field(default_factory=dict)
+    people: list[str] = field(default_factory=list)
+    summarized: bool = False
+    resolved: bool = False  # the message was removed before it was summarized
+
+    @classmethod
+    def from_banner(cls, banner: Banner, policy: str, now: datetime) -> HeldMessage:
+        return cls(
+            banner.id,
+            policy,
+            banner.message,
+            banner.severity,
+            now,
+            banner.title,
+            list(banner.channels),
+            {k: dict(v) for k, v in banner.targets.items()},
+            list(banner.people),
+        )
+
+    def as_banner(self) -> Banner:
+        """Enough of a message to resolve its recipients again."""
+        return Banner(
+            id=self.message_id,
+            message=self.message,
+            severity=self.severity,
+            dismissible=True,
+            dismiss_scope="user",
+            created_at=self.held_at,
+            updated_at=self.held_at,
+            title=self.title,
+            channels=list(self.channels),
+            targets={k: dict(v) for k, v in self.targets.items()},
+            people=list(self.people),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        data = asdict(self)
+        data["held_at"] = self.held_at.isoformat()
+        return data
+
+    @classmethod
+    def from_dict(cls, raw: dict[str, Any]) -> HeldMessage:
+        held_at = dt_util.parse_datetime(raw["held_at"])
+        if held_at is None:
+            raise ValueError("held_at")
+        return cls(**{**raw, "held_at": held_at})
+
+
 class LedgerStore(Store[dict[str, Any]]):
     async def _async_migrate_func(
         self, old_major_version: int, old_minor_version: int, old_data: dict[str, Any]
@@ -102,6 +163,7 @@ class DeliveryLedger:
             hass, DELIVERIES_VERSION, DELIVERIES_KEY, minor_version=DELIVERIES_MINOR_VERSION
         )
         self.rows: dict[tuple[str, str, str], Delivery] = {}
+        self.held: dict[str, HeldMessage] = {}
 
     async def async_load(self) -> None:
         data = await self._store.async_load() or {}
@@ -113,6 +175,21 @@ class DeliveryLedger:
                 _LOGGER.error("Skipping unreadable delivery %r in storage: %s", raw, err)
                 continue
             self.rows[row.key] = row
+        for raw_held in data.get("held", []):
+            try:
+                held = HeldMessage.from_dict(raw_held)
+            except (TypeError, KeyError, ValueError, AttributeError) as err:
+                _LOGGER.error("Skipping unreadable held message %r in storage: %s", raw_held, err)
+                continue
+            self.held[held.message_id] = held
+
+    def put_held(self, held: HeldMessage) -> None:
+        self.held[held.message_id] = held
+        self._save()
+
+    def drop_held(self, message_id: str) -> None:
+        if self.held.pop(message_id, None) is not None:
+            self._save()
 
     def put(self, row: Delivery) -> None:
         self.rows[row.key] = row
@@ -153,7 +230,10 @@ class DeliveryLedger:
         await self._store.async_remove()
 
     def _data(self) -> dict[str, Any]:
-        return {"deliveries": [r.to_dict() for r in self.rows.values()]}
+        return {
+            "deliveries": [r.to_dict() for r in self.rows.values()],
+            "held": [h.to_dict() for h in self.held.values()],
+        }
 
     def _save(self) -> None:
         self._store.async_delay_save(self._data, SAVE_DELAY)

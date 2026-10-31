@@ -59,6 +59,7 @@ from .const import (
     RULE_TAG,
     SAVE_DELAY,
     SEVERITIES,
+    SOURCE_ACTION,
     SOURCE_RULE,
     STORAGE_KEY,
     STORAGE_VERSION,
@@ -253,6 +254,7 @@ class BannerManager:
             targets={k: dict(v) for k, v in data.get("targets", {}).items()},
             policy=data.get("policy"),
             tts_message=data.get("tts_message"),
+            source=data.get("source", SOURCE_ACTION),
             # Kept across an update with the same severity; a new severity starts again (D-081).
             acknowledged_by=(
                 list(existing.acknowledged_by)
@@ -427,7 +429,7 @@ class BannerManager:
 
     @callback
     def active_count(self) -> int:
-        return sum(1 for b in self._all() if b.active and b.on_card)
+        return sum(1 for b in self._all() if b.active and b.on_card and not self._held(b))
 
     @callback
     def visible(
@@ -444,6 +446,7 @@ class BannerManager:
                 show_all
                 or (
                     b.active
+                    and not self._held(b)
                     and user_id not in b.dismissed_by
                     and GLOBAL_SNOOZE_KEY not in b.dismissed_by
                     and (show_snoozed or b.snoozed_for(user_id) is None)
@@ -451,6 +454,15 @@ class BannerManager:
                 )
             )
         ]
+
+    @callback
+    def refresh(self) -> None:
+        """Tell viewers to read the list again (a hold changed)."""
+        self._notify()
+
+    def _held(self, banner: Banner) -> bool:
+        """A Summarize policy holds the message until its summary (D-105): not shown to viewers."""
+        return self.hub is not None and self.hub.is_held(banner.id)
 
     @callback
     def subscribe(self, listener: Callable[[], None]) -> CALLBACK_TYPE:
