@@ -205,3 +205,30 @@ async def test_a_fallback_needs_channels_and_targets(
 ) -> None:
     result = await run(hass, entry, "policy", {"name": "Backup", "type": "fallback"})
     assert result["errors"]["channels"] == "channels_required"
+
+
+async def test_add_a_summarize_policy_with_the_confirmed_defaults(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await run(hass, entry, "policy", {"name": "Digest", "type": "summarize"})
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (sub,) = subentries(entry, "policy")
+    assert sub.data["summary_every"] == 60 and sub.data["include_critical"] is False
+    assert "summary_at" not in sub.data
+
+
+async def test_a_time_of_day_replaces_the_interval(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    data = {"name": "Evening", "type": "summarize", "summary_at": "20:00:00"}
+    await run(hass, entry, "policy", data)
+    (sub,) = subentries(entry, "policy")
+    assert sub.data["summary_at"] == "20:00:00" and "summary_every" not in sub.data
+
+
+async def test_two_summaries_with_the_same_schedule_for_the_same_messages_are_a_duplicate(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    await run(hass, entry, "policy", {"name": "Digest", "type": "summarize"})
+    again = await run(hass, entry, "policy", {"name": "Digest 2", "type": "summarize"})
+    assert again["errors"]["base"] == "policy_duplicate"

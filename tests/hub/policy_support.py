@@ -101,3 +101,16 @@ def move(hass: HomeAssistant, person: str, state: str) -> None:
     """Change a person's state, keeping their user and trackers (`set_person` resets them)."""
     current = hass.states.get(person)
     hass.states.async_set(person, state, dict(current.attributes) if current else {})
+
+
+SUMMARIZE: dict[str, Any] = {"type": "summarize", "summary_every": 60}
+
+
+def summaries(entry: MockConfigEntry) -> list[Any]:
+    """The summary messages the hub made, oldest first."""
+    found = [b for b in entry.runtime_data.banners.values() if b.source == "summary"]
+    return sorted(found, key=lambda b: b.created_at)
+
+
+def shown(entry: MockConfigEntry, user: str = "anna-id") -> list[str]:
+    return [b["id"] for b in entry.runtime_data.visible(user)]
