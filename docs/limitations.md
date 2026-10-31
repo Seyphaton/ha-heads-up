@@ -2,7 +2,7 @@
 
 ## What Heads Up does not do
 
-- It sends no persistent notifications yet. Popups are described in [Popups](popup.md). Speech works through `heads_up.notify` and `heads_up.speak` ([Speech](speech.md)) without volume handling or an all-clear. Push to the Companion app works through `heads_up.notify` and `heads_up.push` ([Push notifications](push.md)), without retry or rate limit. The policies (escalation, reminders, quiet hours, away, fallback and summaries) are described in [Policies](policies.md).
+- Popups are described in [Popups](popup.md), the notification bell in [Persistent notifications](persistent.md). Speech works through `heads_up.notify` and `heads_up.speak` ([Speech](speech.md)) without volume handling or an all-clear. Push to the Companion app works through `heads_up.notify` and `heads_up.push` ([Push notifications](push.md)), without retry or rate limit. The policies (escalation, reminders, quiet hours, away, fallback and summaries) are described in [Policies](policies.md).
 - It keeps no history. Each change fires an event; see [actions](actions.md#events).
 - A watch rule watches one entity: its state or one attribute, compared as text. The `create_banner` action can use a template condition instead, rules cannot yet.
 - Banner text is shown as you write it. The card's own labels and the integration's screens follow your Home Assistant language in English, German, French and Spanish; other languages show English. The German, French and Spanish texts were written without review by native speakers.

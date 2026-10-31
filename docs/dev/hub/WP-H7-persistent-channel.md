@@ -1,6 +1,6 @@
 # H7: Persistent notification channel
 
-Size: small. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: small. Status: built on branch `hub/h7-persistent` (see `ROADMAP.md`). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Mirror messages to Home Assistant's notification bell.
