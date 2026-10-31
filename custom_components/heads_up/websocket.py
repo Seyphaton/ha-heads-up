@@ -20,6 +20,7 @@ from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, SEVERITIES
 from .frontend import async_popup_url
+from .hub import presets, settings
 from .manager import BannerManager, HeadsUpError
 
 
@@ -132,6 +133,72 @@ def ws_popup_subscribe(
     connection.subscriptions[msg["id"]] = channel.subscribe(forward)  # type: ignore[attr-defined]
     connection.send_result(msg["id"])
     forward()
+
+
+def _entry(hass: HomeAssistant, connection: ActiveConnection, msg_id: int) -> Any:
+    entries = hass.config_entries.async_loaded_entries(DOMAIN)
+    if not entries:
+        connection.send_error(msg_id, "not_loaded", "Heads Up is not set up")
+        return None
+    return entries[0]
+
+
+@websocket_command({vol.Required("type"): "heads_up/settings_get"})
+@require_admin
+@callback
+def ws_settings_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """Everything the Settings page shows (D-117)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    manager: BannerManager = entry.runtime_data
+    connection.send_result(
+        msg["id"],
+        {
+            "options": settings.read_options(manager),
+            "ranges": {key: list(value) for key, value in settings.RANGES.items()},
+            "install_token": settings.token(manager),
+            "people": settings.people(hass, manager),
+            "presets": presets.overview(entry),
+        },
+    )
+
+
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/settings_set",
+        **{vol.Optional(key): bool for key in settings.BOOLEANS},
+        **{
+            vol.Optional(key): vol.All(int, vol.Range(min=low, max=high))
+            for key, (low, high) in settings.RANGES.items()
+        },
+    }
+)
+@require_admin
+@callback
+def ws_settings_set(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """Change options. The integration's own options form keeps working (D-117)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    changes = {key: msg[key] for key in settings.EDITABLE if key in msg}
+    hass.config_entries.async_update_entry(entry, options={**entry.options, **changes})
+    connection.send_result(msg["id"], {"options": settings.read_options(entry.runtime_data)})
+
+
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/settings_apply_preset",
+        vol.Required("preset"): vol.In(list(presets.PRESETS)),
+    }
+)
+@require_admin
+@callback
+def ws_settings_apply_preset(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Add the policies of a loudness preset that do not exist yet; never change one."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    connection.send_result(msg["id"], presets.apply(hass, entry, msg["preset"]))
 
 
 @websocket_command({vol.Required("type"): "heads_up/hub_usage", vol.Required("name"): str})
@@ -288,6 +355,9 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_dismiss_many,
         ws_acknowledge,
         ws_hub_usage,
+        ws_settings_get,
+        ws_settings_set,
+        ws_settings_apply_preset,
         ws_popup_config,
         ws_popup_subscribe,
         ws_snooze,

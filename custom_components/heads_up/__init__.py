@@ -18,6 +18,8 @@ from .hub.channels.push import PushChannel
 from .hub.channels.speak import SpeakChannel
 from .hub.engine import HubEngine
 from .hub.ledger import remove_ledger
+from .hub.panel import async_sync_panel
+from .hub.panel import wanted as panel_wanted
 from .manager import BannerManager, banner_store
 from .services import async_setup_services
 from .websocket import async_setup_websocket
@@ -52,6 +54,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> b
     entry.async_on_unload(entry.add_update_listener(_async_entry_updated))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     await async_add_card(hass)
+    await async_sync_panel(hass, panel_wanted(manager.options))
     return True
 
 
@@ -97,12 +100,14 @@ async def _async_entry_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry) -
         manager.hub.policies.sync(entry.subentries)
         manager.hub.on_policies_changed()
     manager.sync_rules(entry.subentries)
+    await async_sync_panel(hass, panel_wanted(manager.options))
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> bool:
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:
         await async_remove_card(hass)
+        await async_sync_panel(hass, False)
         if entry.runtime_data.hub is not None:
             await entry.runtime_data.hub.async_unload()
         await entry.runtime_data.async_unload()

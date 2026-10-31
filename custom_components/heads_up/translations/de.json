@@ -2,7 +2,13 @@
   "config": {
     "step": {
       "user": {
-        "description": "Heads Up hinzufügen. Banner werden mit der Aktion `heads_up.create_banner` erstellt."
+        "description": "Administratoren sehen eine Heads-Up-Seite in der Seitenleiste mit den Einstellungen. Du kannst das jederzeit in den Einstellungen der Integration oder auf der Einstellungsseite des Panels ändern. Banner werden mit der Aktion `heads_up.create_banner` erstellt.",
+        "data": {
+          "show_panel": "Heads Up in der Seitenleiste anzeigen"
+        },
+        "data_description": {
+          "show_panel": "Das Heads-Up-Panel in der Seitenleiste anzeigen. Nur Administratoren sehen es."
+        }
       }
     },
     "abort": {
@@ -24,7 +30,8 @@
           "presence_debounce_seconds": "Anwesenheitsverzögerung (Sekunden)",
           "speak_max_length": "Gesprochener Text: höchstens (Zeichen)",
           "speak_cooldown_seconds": "Gesprochener Text: Wiederholungspause (Sekunden)",
-          "speak_tts_entity": "Text-zu-Sprache-Engine"
+          "speak_tts_entity": "Text-zu-Sprache-Engine",
+          "show_panel": "Heads Up in der Seitenleiste anzeigen"
         },
         "data_description": {
           "hub_enabled": "Benachrichtigungs-Hub ein- oder ausschalten. Aus: nur der Banner-Kanal funktioniert, wie vor dem Hub.",
@@ -38,7 +45,8 @@
           "presence_debounce_seconds": "Eine Person muss so lange zu Hause oder weg bleiben, bevor sich \"Last to leave\" und \"First home\" ändern. 0 reagiert sofort.",
           "speak_max_length": "Längere Texte werden an einem Wortende gekürzt und enden mit Auslassungspunkten.",
           "speak_cooldown_seconds": "Derselbe Text wird auf demselben Lautsprecher innerhalb dieser Zeit nicht noch einmal gesprochen. 0: immer sprechen.",
-          "speak_tts_entity": "Die Engine, die auf Mediaplayern spricht. Leer: die einzige Text-zu-Sprache-Entität, wenn es genau eine gibt."
+          "speak_tts_entity": "Die Engine, die auf Mediaplayern spricht. Leer: die einzige Text-zu-Sprache-Entität, wenn es genau eine gibt.",
+          "show_panel": "Das Heads-Up-Panel in der Seitenleiste anzeigen. Nur Administratoren sehen es."
         }
       }
     }

@@ -2,7 +2,13 @@
   "config": {
     "step": {
       "user": {
-        "description": "Añadir Heads Up. Los avisos se crean con la acción `heads_up.create_banner`."
+        "description": "Los administradores ven una página de Heads Up en la barra lateral con los ajustes. Puedes cambiarlo en cualquier momento en los ajustes de la integración o en la página Ajustes del panel. Los avisos se crean con la acción `heads_up.create_banner`.",
+        "data": {
+          "show_panel": "Mostrar Heads Up en la barra lateral"
+        },
+        "data_description": {
+          "show_panel": "Mostrar el panel de Heads Up en la barra lateral. Solo lo ven los administradores."
+        }
       }
     },
     "abort": {
@@ -24,7 +30,8 @@
           "presence_debounce_seconds": "Retraso de presencia (segundos)",
           "speak_max_length": "Texto hablado: longitud máxima (caracteres)",
           "speak_cooldown_seconds": "Texto hablado: pausa de repetición (segundos)",
-          "speak_tts_entity": "Motor de texto a voz"
+          "speak_tts_entity": "Motor de texto a voz",
+          "show_panel": "Mostrar Heads Up en la barra lateral"
         },
         "data_description": {
           "hub_enabled": "Activa o desactiva el hub de notificaciones. Desactivado: solo funciona el canal banner, como antes del hub.",
@@ -38,7 +45,8 @@
           "presence_debounce_seconds": "Una persona debe estar en casa o fuera este tiempo antes de que cambien \"Last to leave\" y \"First home\". 0 reacciona al instante.",
           "speak_max_length": "Los textos más largos se cortan al final de una palabra y terminan con puntos suspensivos.",
           "speak_cooldown_seconds": "El mismo texto no se repite en el mismo altavoz dentro de este tiempo. 0: hablar siempre.",
-          "speak_tts_entity": "El motor que habla en los reproductores multimedia. Vacío: la única entidad de texto a voz, si solo hay una."
+          "speak_tts_entity": "El motor que habla en los reproductores multimedia. Vacío: la única entidad de texto a voz, si solo hay una.",
+          "show_panel": "Mostrar el panel de Heads Up en la barra lateral. Solo lo ven los administradores."
         }
       }
     }

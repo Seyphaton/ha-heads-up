@@ -2,7 +2,13 @@
   "config": {
     "step": {
       "user": {
-        "description": "Add Heads Up. Banners are created by the `heads_up.create_banner` action."
+        "description": "Administrators see a Heads Up page in the sidebar with Settings and, later, the editors. You can change this at any time in the settings of the integration or on the Settings page of the panel. Banners are created by the `heads_up.create_banner` action.",
+        "data": {
+          "show_panel": "Show Heads Up in the sidebar"
+        },
+        "data_description": {
+          "show_panel": "Show the Heads Up panel in the sidebar. Only administrators see it."
+        }
       }
     },
     "abort": {
@@ -24,7 +30,8 @@
           "presence_debounce_seconds": "Presence delay (seconds)",
           "speak_max_length": "Spoken text: longest (characters)",
           "speak_cooldown_seconds": "Spoken text: repeat pause (seconds)",
-          "speak_tts_entity": "Text-to-speech engine"
+          "speak_tts_entity": "Text-to-speech engine",
+          "show_panel": "Show Heads Up in the sidebar"
         },
         "data_description": {
           "hub_enabled": "Switch the notification hub on or off. Off: only the banner channel works, as before the hub existed.",
@@ -38,7 +45,8 @@
           "presence_debounce_seconds": "A person must stay home or away this long before \"Last to leave\" and \"First home\" change. 0 reacts at once.",
           "speak_max_length": "Longer texts are cut at a word and end with an ellipsis.",
           "speak_cooldown_seconds": "The same text is not spoken again on the same speaker within this time. 0: always speak.",
-          "speak_tts_entity": "The engine that speaks on media players. Empty: the only text-to-speech entity, if there is exactly one."
+          "speak_tts_entity": "The engine that speaks on media players. Empty: the only text-to-speech entity, if there is exactly one.",
+          "show_panel": "Show the Heads Up panel in the sidebar. Only administrators see it."
         }
       }
     }

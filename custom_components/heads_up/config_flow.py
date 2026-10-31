@@ -59,6 +59,7 @@ from .const import (
     OPT_HUB_ENABLED,
     OPT_MAX_BANNERS,
     OPT_PRESENCE_DEBOUNCE,
+    OPT_SHOW_PANEL,
     OPT_SPEAK_COOLDOWN,
     OPT_SPEAK_MAX_LENGTH,
     OPT_SPEAK_TTS_ENTITY,
@@ -86,8 +87,16 @@ class HeadsUpConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         # Duplicate entries are prevented by "single_config_entry" in manifest.json.
         if user_input is not None:
-            return self.async_create_entry(title="Heads Up", data={})
-        return self.async_show_form(step_id="user")
+            # The sidebar entry is the user's choice at setup (D-107, D-117).
+            return self.async_create_entry(
+                title="Heads Up",
+                data={},
+                options={OPT_SHOW_PANEL: bool(user_input.get(OPT_SHOW_PANEL, True))},
+            )
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema({vol.Required(OPT_SHOW_PANEL, default=True): BooleanSelector()}),
+        )
 
     @staticmethod
     @callback
@@ -136,6 +145,7 @@ class HeadsUpOptionsFlow(OptionsFlow):
                             OPT_PRESENCE_DEBOUNCE, DEFAULT_OPTIONS[OPT_PRESENCE_DEBOUNCE]
                         )
                     ),
+                    OPT_SHOW_PANEL: user_input.get(OPT_SHOW_PANEL, False),
                     OPT_SPEAK_MAX_LENGTH: int(
                         user_input.get(OPT_SPEAK_MAX_LENGTH, DEFAULT_OPTIONS[OPT_SPEAK_MAX_LENGTH])
                     ),
@@ -183,6 +193,7 @@ class HeadsUpOptionsFlow(OptionsFlow):
                 ): NumberSelector(
                     NumberSelectorConfig(min=0, max=600, step=1, mode=NumberSelectorMode.BOX)
                 ),
+                vol.Required(OPT_SHOW_PANEL, default=current[OPT_SHOW_PANEL]): BooleanSelector(),
                 vol.Required(
                     OPT_SPEAK_MAX_LENGTH, default=current[OPT_SPEAK_MAX_LENGTH]
                 ): NumberSelector(

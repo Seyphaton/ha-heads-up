@@ -2,7 +2,13 @@
   "config": {
     "step": {
       "user": {
-        "description": "Ajouter Heads Up. Les bannières sont créées par l'action `heads_up.create_banner`."
+        "description": "Les administrateurs voient une page Heads Up dans la barre latérale avec les réglages. Vous pouvez le modifier à tout moment dans les réglages de l'intégration ou sur la page Réglages du panneau. Les bannières sont créées par l'action `heads_up.create_banner`.",
+        "data": {
+          "show_panel": "Afficher Heads Up dans la barre latérale"
+        },
+        "data_description": {
+          "show_panel": "Afficher le panneau Heads Up dans la barre latérale. Seuls les administrateurs le voient."
+        }
       }
     },
     "abort": {
@@ -24,7 +30,8 @@
           "presence_debounce_seconds": "Délai de présence (secondes)",
           "speak_max_length": "Texte parlé : longueur maximale (caractères)",
           "speak_cooldown_seconds": "Texte parlé : pause avant répétition (secondes)",
-          "speak_tts_entity": "Moteur de synthèse vocale"
+          "speak_tts_entity": "Moteur de synthèse vocale",
+          "show_panel": "Afficher Heads Up dans la barre latérale"
         },
         "data_description": {
           "hub_enabled": "Active ou désactive le hub de notifications. Désactivé : seul le canal bannière fonctionne, comme avant le hub.",
@@ -38,7 +45,8 @@
           "presence_debounce_seconds": "Une personne doit rester à la maison ou absente ce temps avant que « Last to leave » et « First home » changent. 0 réagit tout de suite.",
           "speak_max_length": "Les textes plus longs sont coupés à la fin d'un mot et se terminent par des points de suspension.",
           "speak_cooldown_seconds": "Le même texte n'est pas redit sur le même haut-parleur pendant ce délai. 0 : toujours dire.",
-          "speak_tts_entity": "Le moteur qui parle sur les lecteurs multimédia. Vide : la seule entité de synthèse vocale, s'il n'y en a qu'une."
+          "speak_tts_entity": "Le moteur qui parle sur les lecteurs multimédia. Vide : la seule entité de synthèse vocale, s'il n'y en a qu'une.",
+          "show_panel": "Afficher le panneau Heads Up dans la barre latérale. Seuls les administrateurs le voient."
         }
       }
     }

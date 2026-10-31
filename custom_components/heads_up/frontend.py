@@ -12,6 +12,7 @@ from homeassistant.loader import async_get_integration
 from homeassistant.util.hass_dict import HassKey
 
 from .const import DOMAIN
+from .hub.panel import async_register_panel_paths
 
 CARD_URL_PATH = "/heads_up/heads-up-card.js"
 CARD_FILE = Path(__file__).parent / "frontend" / "heads-up-card.js"
@@ -36,6 +37,7 @@ async def async_register_card_path(hass: HomeAssistant) -> None:
             StaticPathConfig(POPUP_URL_PATH, str(POPUP_FILE), cache_headers=True),
         ]
     )
+    await async_register_panel_paths(hass)
 
 
 def _digest(path: Path = CARD_FILE) -> str:

@@ -117,6 +117,11 @@ DEFAULT_PUSH_LEVELS: Final = {
     "warning": "normal",
     "critical": "time-sensitive",  # "critical" is the iOS opt-in
 }
+# The admin panel (D-107, D-117). Off until the user switches it on in the setup step or Settings.
+OPT_SHOW_PANEL: Final = "show_panel"
+PANEL_URL_PATH: Final = "heads-up"
+PANEL_TITLE: Final = "Heads Up"
+PANEL_ICON: Final = "mdi:bell-ring-outline"
 # Popup settings (D-090, D-115): how a popup looks per severity. Edited in the panel (H9c).
 OPT_POPUP_STYLES: Final = "popup_styles"
 POPUP_STYLES: Final = ("card", "modal", "off")
@@ -154,6 +159,7 @@ DEFAULT_OPTIONS: Final = {
     OPT_PUSH_LOCKSCREEN: "full",
     OPT_PUSH_CHANNEL_ID: "heads_up",
     OPT_PUSH_STICKY: False,
+    OPT_SHOW_PANEL: False,
     OPT_POPUP_STYLES: DEFAULT_POPUP_STYLES,
     OPT_SPEAK_MAX_LENGTH: 200,
     OPT_SPEAK_COOLDOWN: 60,
