@@ -28,6 +28,7 @@ The card shows a banner while it is active, not dismissed by you, and not remove
 | `clear_all` | boolean | `false` | Show a "Clear all" button in the header. |
 | `swipe_to_dismiss` | boolean | `false` | Swipe a banner sideways to dismiss it. |
 | `show_snoozed` | boolean | `false` | List your snoozed banners under the card with a Show now button. |
+| `show_acknowledged` | boolean | `true` | Show the line "Acknowledged by Anna" under a banner that someone acknowledged. `false` hides the line; the Acknowledge button stays. |
 | `show_all` | boolean | `false` | Administrators only: also show banners that are targeted at other people. Ignored for other users. |
 | `show_empty` | boolean | `false` | Show an empty card when there are no banners. |
 | `empty_message` | text | none | Show this text with an icon when there are no banners. Setting it shows the card, also without `show_empty`. |
@@ -89,6 +90,12 @@ With `show_snoozed: true`, a "Snoozed (2)" button appears under the card wheneve
 A banner with `actions` shows up to 3 text buttons under its message. A button fires the event `heads_up_banner_action`, can close the banner for you (`dismiss: true`) and can run a Home Assistant action, the same way a `tap_action` does. The compact layout shows no buttons. See [actions](actions.md) for the fields.
 
 Tested with a mouse in a desktop browser on Home Assistant 2026.9.4. Touch, keyboard use of the snooze row and phone width are not tested.
+
+## Acknowledge
+
+When an escalation or reminder policy applies to a banner ([Policies](policies.md)) and nobody has acknowledged it, the banner has an **Acknowledge** button next to its own buttons. Pressing it stops the escalations and reminders of that message for everyone. The banner stays on the dashboard and the button goes away. The compact layout shows no buttons, so it has no Acknowledge button; it still shows the line.
+
+A banner that someone acknowledged shows a line under its text: "Acknowledged by Anna", "Acknowledged by Anna and 1 other" or "Acknowledged by Anna and 2 others". The name is the first word of the person's name; the first person is the one who acknowledged first. Someone without a person entity is counted but not named, and a banner acknowledged only by such a person shows "Acknowledged". The option `show_acknowledged: false` hides the line. Watch rule banners work the same, if a policy applies to the tag `rule`. The acknowledgement ends when the banner's condition turns false (rules) or when its severity changes.
 
 ## Empty card
 

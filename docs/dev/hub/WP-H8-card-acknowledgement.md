@@ -1,6 +1,6 @@
 # H8: Card: acknowledgement line and button
 
-Size: small. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: small. Status: built on branch `hub/h8-card-ack` (see `ROADMAP.md`). Decisions in D-116. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Show acknowledgement on the banner and let a viewer acknowledge when a policy asks for it.
