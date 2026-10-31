@@ -3,14 +3,14 @@
 export const STRINGS = {
   en: {
     title: "Settings",
+    welcome: "Welcome",
+    welcome_button: "Show the welcome",
+    welcome_hint: "The welcome explains the default policies and lets you switch each one on or off. Switching an item on adds only the policies that are missing; nothing you have is changed.",
     hub: "Hub",
     hub_enabled: "Hub enabled",
     hub_hint: "Off: messages reach only the dashboard banner, as before the hub existed.",
     show_panel: "Show Heads Up in the sidebar",
     show_panel_hint: "Only administrators see the entry. It appears and disappears at once when you save.",
-    wizard: "Setup wizard",
-    wizard_button: "Run the setup wizard",
-    wizard_hint: "The wizard is not available yet.",
     people: "People and devices",
     people_none: "No persons found, or the hub is off.",
     person: "Person",
@@ -20,19 +20,6 @@ export const STRINGS = {
     no_user: "no user: no popup",
     user_ok: "linked",
     user: "User",
-    loudness: "Loudness",
-    loudness_hint: "A preset adds the policies it names that do not exist yet. It never changes or deletes one.",
-    apply: "Apply preset",
-    missing: "Adds: {names}",
-    all_there: "Nothing to add: all its policies exist.",
-    preset_quiet: "Quiet",
-    preset_balanced: "Balanced",
-    preset_loud: "Loud",
-    desc_quiet: "Messages stay on the dashboard at night. Creates Night quiet (22:00 to 07:00, push without sound, speech skipped).",
-    desc_balanced: "Quiet nights, escalation for water leaks and an evening summary of messages tagged digest.",
-    desc_loud: "Balanced, plus reminders for warnings and a bell notification when a push cannot be delivered.",
-    applied: "Added: {added}. Skipped: {skipped}.",
-    none: "none",
     limits: "Limits",
     rate_per_device_per_minute: "Pushes per device per minute",
     rate_total_per_minute: "Deliveries per minute, all devices",
@@ -55,14 +42,14 @@ export const STRINGS = {
   },
   de: {
     title: "Einstellungen",
+    welcome: "Willkommen",
+    welcome_button: "Willkommen anzeigen",
+    welcome_hint: "Das Willkommen erklärt die Standardrichtlinien und lässt dich jede ein- oder ausschalten. Eine eingeschaltete Auswahl fügt nur fehlende Richtlinien hinzu; nichts, was du hast, wird geändert.",
     hub: "Hub",
     hub_enabled: "Hub aktiv",
     hub_hint: "Aus: Meldungen erreichen nur das Banner im Dashboard, wie vor dem Hub.",
     show_panel: "Heads Up in der Seitenleiste anzeigen",
     show_panel_hint: "Nur Administratoren sehen den Eintrag. Er erscheint und verschwindet sofort beim Speichern.",
-    wizard: "Einrichtungsassistent",
-    wizard_button: "Einrichtungsassistent starten",
-    wizard_hint: "Der Assistent ist noch nicht verfügbar.",
     people: "Personen und Geräte",
     people_none: "Keine Personen gefunden, oder der Hub ist aus.",
     person: "Person",
@@ -72,19 +59,6 @@ export const STRINGS = {
     no_user: "kein Benutzer: kein Popup",
     user_ok: "verknüpft",
     user: "Benutzer",
-    loudness: "Lautstärke",
-    loudness_hint: "Eine Voreinstellung fügt die genannten Richtlinien hinzu, die es noch nicht gibt. Sie ändert oder löscht nie eine.",
-    apply: "Voreinstellung anwenden",
-    missing: "Fügt hinzu: {names}",
-    all_there: "Nichts hinzuzufügen: alle Richtlinien sind vorhanden.",
-    preset_quiet: "Leise",
-    preset_balanced: "Ausgewogen",
-    preset_loud: "Laut",
-    desc_quiet: "Meldungen bleiben nachts im Dashboard. Erstellt Nachtruhe (22:00 bis 07:00, Push ohne Ton, keine Sprachausgabe).",
-    desc_balanced: "Ruhige Nächte, Eskalation bei Wasserlecks und eine Abendzusammenfassung der Meldungen mit dem Tag digest.",
-    desc_loud: "Ausgewogen, dazu Erinnerungen für Warnungen und eine Glocken-Meldung, wenn ein Push nicht zugestellt werden kann.",
-    applied: "Hinzugefügt: {added}. Übersprungen: {skipped}.",
-    none: "keine",
     limits: "Grenzen",
     rate_per_device_per_minute: "Pushes pro Gerät und Minute",
     rate_total_per_minute: "Zustellungen pro Minute, alle Geräte",
@@ -107,14 +81,14 @@ export const STRINGS = {
   },
   fr: {
     title: "Réglages",
+    welcome: "Bienvenue",
+    welcome_button: "Afficher la bienvenue",
+    welcome_hint: "La bienvenue explique les politiques par défaut et vous laisse activer ou désactiver chacune. Activer un élément n'ajoute que les politiques manquantes ; rien de ce que vous avez n'est modifié.",
     hub: "Hub",
     hub_enabled: "Hub activé",
     hub_hint: "Désactivé : les messages n'atteignent que la bannière du tableau de bord, comme avant le hub.",
     show_panel: "Afficher Heads Up dans la barre latérale",
     show_panel_hint: "Seuls les administrateurs voient l'entrée. Elle apparaît et disparaît aussitôt à l'enregistrement.",
-    wizard: "Assistant de configuration",
-    wizard_button: "Lancer l'assistant de configuration",
-    wizard_hint: "L'assistant n'est pas encore disponible.",
     people: "Personnes et appareils",
     people_none: "Aucune personne trouvée, ou le hub est désactivé.",
     person: "Personne",
@@ -124,19 +98,6 @@ export const STRINGS = {
     no_user: "pas d'utilisateur : pas de fenêtre contextuelle",
     user_ok: "lié",
     user: "Utilisateur",
-    loudness: "Volume",
-    loudness_hint: "Un préréglage ajoute les politiques qu'il nomme et qui n'existent pas encore. Il n'en modifie ni n'en supprime aucune.",
-    apply: "Appliquer le préréglage",
-    missing: "Ajoute : {names}",
-    all_there: "Rien à ajouter : toutes ses politiques existent.",
-    preset_quiet: "Discret",
-    preset_balanced: "Équilibré",
-    preset_loud: "Fort",
-    desc_quiet: "Les messages restent sur le tableau de bord la nuit. Crée Nuit calme (22:00 à 07:00, push sans son, voix ignorée).",
-    desc_balanced: "Nuits calmes, escalade pour les fuites d'eau et un résumé du soir des messages marqués digest.",
-    desc_loud: "Équilibré, plus des rappels pour les avertissements et une notification de la cloche quand un push ne peut pas être livré.",
-    applied: "Ajoutées : {added}. Ignorées : {skipped}.",
-    none: "aucune",
     limits: "Limites",
     rate_per_device_per_minute: "Push par appareil et par minute",
     rate_total_per_minute: "Livraisons par minute, tous appareils",
@@ -159,14 +120,14 @@ export const STRINGS = {
   },
   es: {
     title: "Ajustes",
+    welcome: "Bienvenida",
+    welcome_button: "Mostrar la bienvenida",
+    welcome_hint: "La bienvenida explica las políticas por defecto y te deja activar o desactivar cada una. Activar un elemento solo añade las políticas que faltan; nada de lo que tienes se modifica.",
     hub: "Hub",
     hub_enabled: "Hub activado",
     hub_hint: "Desactivado: los mensajes solo llegan al aviso del panel, como antes del hub.",
     show_panel: "Mostrar Heads Up en la barra lateral",
     show_panel_hint: "Solo los administradores ven la entrada. Aparece y desaparece al guardar.",
-    wizard: "Asistente de configuración",
-    wizard_button: "Ejecutar el asistente de configuración",
-    wizard_hint: "El asistente aún no está disponible.",
     people: "Personas y dispositivos",
     people_none: "No se encontraron personas, o el hub está desactivado.",
     person: "Persona",
@@ -176,19 +137,6 @@ export const STRINGS = {
     no_user: "sin usuario: sin ventana emergente",
     user_ok: "vinculado",
     user: "Usuario",
-    loudness: "Volumen",
-    loudness_hint: "Un ajuste preestablecido añade las políticas que nombra y que aún no existen. Nunca cambia ni borra ninguna.",
-    apply: "Aplicar ajuste",
-    missing: "Añade: {names}",
-    all_there: "Nada que añadir: todas sus políticas existen.",
-    preset_quiet: "Silencioso",
-    preset_balanced: "Equilibrado",
-    preset_loud: "Alto",
-    desc_quiet: "Los mensajes se quedan en el panel por la noche. Crea Noche tranquila (22:00 a 07:00, push sin sonido, voz omitida).",
-    desc_balanced: "Noches tranquilas, escalado para fugas de agua y un resumen de la tarde de los mensajes con la etiqueta digest.",
-    desc_loud: "Equilibrado, más recordatorios para avisos y una notificación de la campana cuando no se puede entregar un push.",
-    applied: "Añadidas: {added}. Omitidas: {skipped}.",
-    none: "ninguna",
     limits: "Límites",
     rate_per_device_per_minute: "Pushes por dispositivo y minuto",
     rate_total_per_minute: "Entregas por minuto, todos los dispositivos",
@@ -263,7 +211,6 @@ const CSS = `
 .hu-settings button:focus-visible, .hu-settings input:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
 .hu-settings table { width: 100%; border-collapse: collapse; }
 .hu-settings th, .hu-settings td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--divider-color); }
-.hu-settings .preset { border: 1px solid var(--divider-color); border-radius: 8px; padding: 12px; margin-bottom: 8px; }
 .hu-settings .problems { color: var(--error-color); }
 .hu-settings .ok { color: var(--success-color); }
 `;
@@ -314,8 +261,9 @@ export function mount(container, ctx) {
       ...checkbox("show_panel", t.show_panel, t.show_panel_hint),
     ]);
 
-    const wizard = el("button", { type: "button", textContent: t.wizard_button, disabled: true });
-    section(t.wizard, [wizard, el("div", { className: "hint", textContent: t.wizard_hint })]);
+    const welcomeButton = el("button", { type: "button", textContent: t.welcome_button });
+    welcomeButton.addEventListener("click", () => ctx.openWelcome());
+    section(t.welcome, [welcomeButton, el("div", { className: "hint", textContent: t.welcome_hint })]);
 
     const people = data.people;
     if (people.length === 0) {
@@ -333,19 +281,6 @@ export function mount(container, ctx) {
       link.addEventListener("click", () => ctx.navigate("recipients"));
       section(t.people, [el("table", {}, [el("thead", {}, [head]), el("tbody", {}, rows)]), link]);
     }
-
-    const presetNodes = data.presets.map((preset) => {
-      const apply = el("button", { type: "button", textContent: t.apply, disabled: preset.missing.length === 0 });
-      apply.addEventListener("click", () => applyPreset(preset.id));
-      const info = preset.missing.length ? fill(t.missing, { names: preset.missing.join(", ") }) : t.all_there;
-      return el("div", { className: "preset" }, [
-        el("strong", { textContent: t[`preset_${preset.id}`] }),
-        el("div", { className: "hint", textContent: t[`desc_${preset.id}`] }),
-        el("div", { className: "hint", textContent: info }),
-        apply,
-      ]);
-    });
-    section(t.loudness, [el("div", { className: "hint", textContent: t.loudness_hint }), ...presetNodes]);
 
     section(t.limits, [el("div", { className: "hint", textContent: t.limits_hint }), ...["rate_per_device_per_minute", "rate_total_per_minute", "dedupe_seconds"].map(number)]);
     section(t.history, ["trace_entries", "recent_messages"].map(number));
@@ -381,18 +316,6 @@ export function mount(container, ctx) {
       data.options = result.options;
       values = { ...result.options };
       message = t.saved;
-      await load(false);
-    } catch (err) {
-      message = t.failed;
-      paintStatus();
-    }
-  }
-
-  async function applyPreset(id) {
-    try {
-      const result = await call({ type: "heads_up/settings_apply_preset", preset: id });
-      const skipped = result.skipped.map((s) => s.name).join(", ") || t.none;
-      message = fill(t.applied, { added: result.added.join(", ") || t.none, skipped });
       await load(false);
     } catch (err) {
       message = t.failed;

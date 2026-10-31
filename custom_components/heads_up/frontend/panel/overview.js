@@ -32,8 +32,8 @@ export const STRINGS = {
     last_actions: "Last actions",
     last_none: "Nothing has happened since Home Assistant started.",
     open_messages: "Open Messages",
-    first_run: "No policies yet. The presets in Settings add a starting set.",
-    first_run_button: "Open Settings",
+    first_run: "No policies yet. The welcome explains a few defaults you can switch on.",
+    first_run_button: "Show the welcome",
     refresh: "Refresh",
     loading: "Loading…",
     load_failed: "The overview could not be loaded.",
@@ -71,8 +71,8 @@ export const STRINGS = {
     last_actions: "Letzte Aktionen",
     last_none: "Seit dem Start von Home Assistant ist nichts passiert.",
     open_messages: "Meldungen öffnen",
-    first_run: "Noch keine Richtlinien. Die Voreinstellungen in den Einstellungen fügen einen Grundstock hinzu.",
-    first_run_button: "Einstellungen öffnen",
+    first_run: "Noch keine Richtlinien. Das Willkommen erklärt ein paar Standards, die du einschalten kannst.",
+    first_run_button: "Willkommen anzeigen",
     refresh: "Aktualisieren",
     loading: "Lädt…",
     load_failed: "Die Übersicht konnte nicht geladen werden.",
@@ -110,8 +110,8 @@ export const STRINGS = {
     last_actions: "Dernières actions",
     last_none: "Rien ne s'est passé depuis le démarrage de Home Assistant.",
     open_messages: "Ouvrir Messages",
-    first_run: "Aucune politique pour l'instant. Les préréglages dans Réglages ajoutent un jeu de départ.",
-    first_run_button: "Ouvrir Réglages",
+    first_run: "Aucune politique pour l'instant. La bienvenue explique quelques réglages par défaut que vous pouvez activer.",
+    first_run_button: "Afficher la bienvenue",
     refresh: "Actualiser",
     loading: "Chargement…",
     load_failed: "La vue d'ensemble n'a pas pu être chargée.",
@@ -149,8 +149,8 @@ export const STRINGS = {
     last_actions: "Últimas acciones",
     last_none: "No ha pasado nada desde que arrancó Home Assistant.",
     open_messages: "Abrir Mensajes",
-    first_run: "Aún no hay políticas. Los ajustes preestablecidos en Ajustes añaden un conjunto inicial.",
-    first_run_button: "Abrir Ajustes",
+    first_run: "Aún no hay políticas. La bienvenida explica algunos valores por defecto que puedes activar.",
+    first_run_button: "Mostrar la bienvenida",
     refresh: "Actualizar",
     loading: "Cargando…",
     load_failed: "No se pudo cargar el resumen.",
@@ -236,7 +236,7 @@ export function mount(container, ctx) {
     root.replaceChildren(el("style", { textContent: CSS }), el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }));
     if (data.first_run) {
       const go = el("button", { type: "button", textContent: t.first_run_button });
-      go.addEventListener("click", () => ctx.navigate("general"));
+      go.addEventListener("click", () => ctx.openWelcome());
       root.append(el("div", { className: "hint" }, [el("span", { textContent: t.first_run }), go]));
     }
 

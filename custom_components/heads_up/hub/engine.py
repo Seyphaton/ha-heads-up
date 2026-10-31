@@ -207,6 +207,23 @@ class HubEngine:
             rows.append(row)
             results.append((item, Outcome(Result(row["result"]), row["reason"])))
         if summary is None:
+            for policy in self.policies.for_message(message):
+                if policy.type != "deliver":
+                    continue
+                if (problem := self.policy_problem(policy)) is not None:
+                    rows.append(
+                        {
+                            "channel": "",
+                            "recipient": "",
+                            "result": "skipped",
+                            "reason": problem,
+                            "via": policy.name,
+                        }
+                    )
+                    continue
+                extra = escalation.message_for(message, policy)
+                for item in await self.plan(extra):
+                    rows.append({**self._preview_row(extra, item, None), "via": policy.name})
             classes = self._unreached(results)
             for policy in self.policies.for_message(message):
                 if policy.type != "fallback" or not fallback.matches(policy.when, classes):
@@ -229,7 +246,7 @@ class HubEngine:
         return {
             "rows": rows,
             "policies": [{"name": p.name, "type": p.type} for p in applied],
-            "later": [self._later(p) for p in applied if p.type != "quiet_hours"],
+            "later": [self._later(p) for p in applied if p.type not in ("quiet_hours", "deliver")],
             "held_for_summary": summary.name if summary else None,
         }
 
@@ -269,6 +286,7 @@ class HubEngine:
             "reminder": ("every_minutes", "max_count", "channels"),
             "away": ("max_wait",),
             "fallback": ("when", "channels"),
+            "deliver": ("channels",),
             "summarize": ("summary_every", "summary_at", "include_critical"),
         }
         out: dict[str, Any] = {"type": policy.type, "policy": policy.name}
@@ -414,7 +432,10 @@ class HubEngine:
             )
             kind = Kind.APPEARED if released else kind
             if kind is not Kind.UPDATED and not transition.silent and banner.active:
+                await self._apply_deliver(banner)
                 await self._fallback(banner, results)
+            if kind is Kind.UPDATED and banner.active:
+                await self._update_deliver(banner, {(i.channel, i.recipient) for i, _ in results})
             if kind is Kind.UPDATED:
                 self._drop_inapplicable_timers(
                     banner
@@ -802,6 +823,42 @@ class HubEngine:
                 failed = outcome.result is Result.FAILED or reason in fallback.DEVICE_REASONS
                 classes.add("failed" if failed else "no_audience")
         return classes
+
+    async def _apply_deliver(self, banner: Banner) -> None:
+        """Deliver policies add channels and targets to the first delivery (D-121). Once per
+        message; a recipient that already has the message on that channel is left out."""
+        if banner.source == SOURCE_SUMMARY or self.is_held(banner.id):
+            return
+        for policy in self.policies.for_message(banner):
+            if (
+                policy.type != "deliver"
+                or (banner.id, TIMER_CHANNEL, policy.key) in self.ledger.rows
+            ):
+                continue
+            marker = Delivery(banner.id, TIMER_CHANNEL, policy.key, State.SENT, dt_util.utcnow())
+            self.ledger.put(marker)
+            if (problem := self.policy_problem(policy)) is not None:
+                self._finish(marker, State.SKIPPED, problem)
+                continue
+            message = escalation.message_for(banner, policy)
+            await self._send(message, await self.plan(message), resume=True, origin="deliver")
+            self._log("deliver_sent", banner.id, policy.name)
+
+    async def _update_deliver(self, banner: Banner, own: set[tuple[str, str]]) -> None:
+        """An update replaces what a Deliver policy sent, like it replaces the call's own."""
+        for policy in self.policies.for_message(banner):
+            row = self.ledger.rows.get((banner.id, TIMER_CHANNEL, policy.key))
+            if policy.type != "deliver" or row is None or row.state is not State.SENT:
+                continue
+            message = escalation.message_for(banner, policy)
+            planned = [
+                item
+                for item in await self.plan(message)
+                if (item.channel, item.recipient) not in own
+                and (r := self.ledger.rows.get((banner.id, item.channel, item.recipient)))
+                and r.state is State.SENT
+            ]
+            await self._send(message, planned, update=True, origin="deliver")
 
     async def _fallback(self, banner: Banner, results: list[tuple[Planned, Outcome]]) -> None:
         """After the first delivery: other channels and targets when it reached nobody (D-079).

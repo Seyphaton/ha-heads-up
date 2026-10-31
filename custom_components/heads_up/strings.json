@@ -142,7 +142,8 @@
         "quiet_hours": "Quiet hours",
         "away": "Away",
         "fallback": "Fallback",
-        "summarize": "Summarize"
+        "summarize": "Summarize",
+        "deliver": "Deliver"
       }
     },
     "weekday": {
@@ -835,7 +836,7 @@
       "step": {
         "user": {
           "title": "Add policy",
-          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: use other channels when nobody could be notified. Summarize: hold messages on every channel, including the banner, and send one summary per recipient.",
+          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: use other channels when nobody could be notified. Summarize: hold messages on every channel, including the banner, and send one summary per recipient. Deliver: send matching messages to a chosen audience on chosen channels at once, in addition to what the call names.",
           "data": {
             "name": "Name",
             "type": "Type",
@@ -888,7 +889,7 @@
         },
         "reconfigure": {
           "title": "Policy",
-          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: use other channels when nobody could be notified. Summarize: hold messages on every channel, including the banner, and send one summary per recipient.",
+          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: use other channels when nobody could be notified. Summarize: hold messages on every channel, including the banner, and send one summary per recipient. Deliver: send matching messages to a chosen audience on chosen channels at once, in addition to what the call names.",
           "data": {
             "name": "Name",
             "type": "Type",

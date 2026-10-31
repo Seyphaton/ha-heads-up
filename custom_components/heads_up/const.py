@@ -73,6 +73,7 @@ POLICY_TYPES: Final = (
     "away",
     "fallback",
     "summarize",
+    "deliver",
 )
 WEEKDAYS: Final = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 QUIET_ACTIONS: Final = ("quiet", "wait", "drop")

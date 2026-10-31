@@ -1,10 +1,10 @@
 // Heads Up panel: Policies page (D-119). One form for the six types, saved through the policy flow.
 
 const TYPE_NAMES = {
-  en: { escalation: "Escalation", reminder: "Reminder", quiet_hours: "Quiet hours", away: "Away", fallback: "Fallback", summarize: "Summarize" },
-  de: { escalation: "Eskalation", reminder: "Erinnerung", quiet_hours: "Ruhezeit", away: "Abwesend", fallback: "Ersatz", summarize: "Zusammenfassen" },
-  fr: { escalation: "Escalade", reminder: "Rappel", quiet_hours: "Heures calmes", away: "Absent", fallback: "Repli", summarize: "Résumer" },
-  es: { escalation: "Escalado", reminder: "Recordatorio", quiet_hours: "Horas de silencio", away: "Ausente", fallback: "Alternativa", summarize: "Resumir" },
+  en: { escalation: "Escalation", reminder: "Reminder", quiet_hours: "Quiet hours", away: "Away", fallback: "Fallback", summarize: "Summarize", deliver: "Deliver" },
+  de: { escalation: "Eskalation", reminder: "Erinnerung", quiet_hours: "Ruhezeit", away: "Abwesend", fallback: "Ersatz", summarize: "Zusammenfassen", deliver: "Zustellen" },
+  fr: { escalation: "Escalade", reminder: "Rappel", quiet_hours: "Heures calmes", away: "Absent", fallback: "Repli", summarize: "Résumer", deliver: "Livrer" },
+  es: { escalation: "Escalado", reminder: "Recordatorio", quiet_hours: "Horas de silencio", away: "Ausente", fallback: "Alternativa", summarize: "Resumir", deliver: "Entregar" },
 };
 const DAY_NAMES = {
   en: { mon: "Monday", tue: "Tuesday", wed: "Wednesday", thu: "Thursday", fri: "Friday", sat: "Saturday", sun: "Sunday" },
@@ -79,6 +79,7 @@ export const STRINGS = {
     s_reminder: "{applies}: while nobody acknowledges, the notification is repeated every {n} min, at most {m} times{channels}.",
     s_quiet_hours: "{applies}: between {from} and {to}{days}, deliveries outside the dashboard are {action}{critical}.",
     s_away: "{applies}: a person who is not home gets it when they arrive{wait}.",
+    s_deliver: "{applies}: it is also sent at once on {channels}.",
     s_fallback: "{applies}: if {when}, it is sent on {channels} instead.",
     s_summarize_every: "{applies}: held, and one summary is sent {n} min after the first held message{critical}.",
     s_summarize_at: "{applies}: held, and one summary is sent every day at {time}{critical}.",
@@ -147,6 +148,7 @@ export const STRINGS = {
     s_reminder: "{applies}: solange niemand bestätigt, wird die Benachrichtigung alle {n} Min. wiederholt, höchstens {m} Mal{channels}.",
     s_quiet_hours: "{applies}: zwischen {from} und {to}{days} werden Zustellungen außerhalb des Dashboards {action}{critical}.",
     s_away: "{applies}: wer nicht zu Hause ist, bekommt sie bei der Ankunft{wait}.",
+    s_deliver: "{applies}: wird zusätzlich sofort auf {channels} gesendet.",
     s_fallback: "{applies}: wenn {when}, wird stattdessen auf {channels} gesendet.",
     s_summarize_every: "{applies}: zurückgehalten, und eine Zusammenfassung wird {n} Min. nach der ersten zurückgehaltenen Meldung gesendet{critical}.",
     s_summarize_at: "{applies}: zurückgehalten, und eine Zusammenfassung wird jeden Tag um {time} gesendet{critical}.",
@@ -215,6 +217,7 @@ export const STRINGS = {
     s_reminder: "{applies} : tant que personne ne confirme, la notification est répétée toutes les {n} min, au plus {m} fois{channels}.",
     s_quiet_hours: "{applies} : entre {from} et {to}{days}, les livraisons hors tableau de bord sont {action}{critical}.",
     s_away: "{applies} : une personne qui n'est pas à la maison le reçoit à son arrivée{wait}.",
+    s_deliver: "{applies} : il est aussi envoyé tout de suite sur {channels}.",
     s_fallback: "{applies} : si {when}, il est envoyé sur {channels} à la place.",
     s_summarize_every: "{applies} : retenu, et un résumé est envoyé {n} min après le premier message retenu{critical}.",
     s_summarize_at: "{applies} : retenu, et un résumé est envoyé chaque jour à {time}{critical}.",
@@ -283,6 +286,7 @@ export const STRINGS = {
     s_reminder: "{applies}: mientras nadie confirme, la notificación se repite cada {n} min, como máximo {m} veces{channels}.",
     s_quiet_hours: "{applies}: entre {from} y {to}{days}, las entregas fuera del panel se {action}{critical}.",
     s_away: "{applies}: quien no está en casa lo recibe al llegar{wait}.",
+    s_deliver: "{applies}: se envía además de inmediato por {channels}.",
     s_fallback: "{applies}: si {when}, se envía por {channels} en su lugar.",
     s_summarize_every: "{applies}: retenido, y se envía un resumen {n} min después del primer mensaje retenido{critical}.",
     s_summarize_at: "{applies}: retenido, y se envía un resumen cada día a las {time}{critical}.",
@@ -300,7 +304,7 @@ export const STRINGS = {
   },
 };
 
-const TYPES = ["escalation", "reminder", "quiet_hours", "away", "fallback", "summarize"];
+const TYPES = ["escalation", "reminder", "quiet_hours", "away", "fallback", "deliver", "summarize"];
 const SEVERITIES = ["success", "info", "warning", "critical"];
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const POLICY_CHANNELS = ["push", "popup", "speak", "persistent"];
@@ -401,6 +405,10 @@ export function toFlowData(values) {
       Object.assign(data, { when: values.when, channels: [...values.channels] });
       targets();
       break;
+    case "deliver":
+      data.channels = [...values.channels];
+      targets();
+      break;
     default:
       data.include_critical = Boolean(values.include_critical);
       if (values.summary_mode === "at") data.summary_at = values.summary_at;
@@ -418,7 +426,7 @@ export function validate(values, existingNames, ownName) {
   const taken = existingNames.filter((n) => n.toLowerCase() !== String(ownName || "").toLowerCase());
   if (!name) problems.name = "name_required";
   else if (name.toLowerCase() === "none" || taken.some((n) => n.toLowerCase() === name.toLowerCase())) problems.name = "name_exists";
-  const needsTargets = values.type === "escalation" || values.type === "fallback";
+  const needsTargets = ["escalation", "fallback", "deliver"].includes(values.type);
   if (values.type === "escalation" && !positive(values.after_minutes)) problems.after_minutes = "after_required";
   if (values.type === "reminder") {
     if (!positive(values.every_minutes)) problems.every_minutes = "every_required";
@@ -476,6 +484,8 @@ export function sentence(values, t) {
       return fill(t.s_away, { applies, wait: values.max_wait > 0 ? fill(t.s_wait, { n: values.max_wait }) : "" });
     case "fallback":
       return fill(t.s_fallback, { applies, when: t[`w_${values.when}`], channels });
+    case "deliver":
+      return fill(t.s_deliver, { applies, channels });
     default: {
       const critical = values.include_critical ? t.s_critical_held : "";
       return values.summary_mode === "at"
@@ -554,6 +564,10 @@ export function mount(container, ctx) {
         break;
       case "away":
         number("max_wait", t.max_wait, 0);
+        break;
+      case "deliver":
+        channelChips(t.channels);
+        targetBlocks();
         break;
       case "fallback":
         box.append(ui.field(t.when, ui.selectInput(["no_audience", "failed", "both"].map((k) => ({ value: k, label: t.whens[k] })), values.when, (v) => { values.when = v; paint(); })));

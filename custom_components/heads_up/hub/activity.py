@@ -20,6 +20,7 @@ KINDS = (
     "unsnoozed",
     "summary_sent",
     "fallback_sent",
+    "deliver_sent",
     "skipped",
     "failed",
     "expired",

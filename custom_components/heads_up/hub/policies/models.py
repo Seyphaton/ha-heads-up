@@ -67,6 +67,8 @@ class Policy:
             return ("when", self.when)
         if self.type == "summarize":
             return ("summary", self.summary_every, self.summary_at)
+        if self.type == "deliver":
+            return ("deliver", tuple(sorted(self.channels)))
         return (self.type,)
 
     @property

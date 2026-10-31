@@ -45,7 +45,7 @@ from ..const import (
     ZONE_KINDS,
 )
 from .audiences import BUILTINS
-from .policies import away, escalation, fallback, quiet, reminder, summarize
+from .policies import away, deliver, escalation, fallback, quiet, reminder, summarize
 from .policies.matching import duplicate_of
 from .policies.models import (
     DEFAULT_AFTER_MINUTES,
@@ -315,7 +315,7 @@ _MINUTES = NumberSelector(
 
 class PolicySubentryFlow(_HubFlow):
     """The policy types: Escalation, Reminder, Quiet hours, Away, Fallback and Summarize
-    (D-079, D-081, D-112, D-113).
+    (D-079, D-081, D-112, D-113, D-121).
 
     One form for every type; the fields of the other types are ignored and not stored.
     """
@@ -434,6 +434,9 @@ class PolicySubentryFlow(_HubFlow):
             errors.update(away.check(user_input))
         elif kind == "summarize":
             errors.update(summarize.check(user_input))
+        elif kind == "deliver":
+            errors.update(deliver.check(user_input))
+            errors.update(self._check_targets(user_input))
         else:
             errors.update(fallback.check(user_input))
             errors.update(self._check_targets(user_input))
@@ -505,6 +508,8 @@ class PolicySubentryFlow(_HubFlow):
                 data["summary_at"] = str(user_input["summary_at"])
             else:
                 data["summary_every"] = int(user_input["summary_every"])
+        elif kind == "deliver":
+            data.update(channels=channels, targets=self._targets(user_input))
         else:
             data.update(
                 when=user_input.get("when", FALLBACK_WHEN[0]),

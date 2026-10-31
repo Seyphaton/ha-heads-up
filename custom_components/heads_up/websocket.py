@@ -20,7 +20,7 @@ from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, SEVERITIES
 from .frontend import async_popup_url
-from .hub import panel_config, panel_data, panel_test, presets, settings
+from .hub import panel_config, panel_data, panel_test, settings, welcome
 from .manager import BannerManager, HeadsUpError
 
 
@@ -158,7 +158,7 @@ def ws_settings_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict
             "ranges": {key: list(value) for key, value in settings.RANGES.items()},
             "install_token": settings.token(manager),
             "people": settings.people(hass, manager),
-            "presets": presets.overview(entry),
+            "welcome_seen": bool(entry.options.get(welcome.OPT_WELCOME_SEEN, False)),
         },
     )
 
@@ -184,21 +184,59 @@ def ws_settings_set(hass: HomeAssistant, connection: ActiveConnection, msg: dict
     connection.send_result(msg["id"], {"options": settings.read_options(entry.runtime_data)})
 
 
+@websocket_command({vol.Required("type"): "heads_up/welcome_get"})
+@require_admin
+@callback
+def ws_welcome_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """What the welcome shows: the default policies, what is missing and what can be chosen."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    hub = entry.runtime_data.hub
+    connection.send_result(
+        msg["id"],
+        {
+            "show": hub is not None and not entry.options.get(welcome.OPT_WELCOME_SEEN, False),
+            "hub": hub is not None,
+            "items": welcome.overview(entry),
+            "audiences": hub.audiences.names() if hub else [],
+            "default_audience": welcome.DEFAULT_AUDIENCE,
+            "speakers": hub.recipients.known("speak") if hub else [],
+        },
+    )
+
+
 @websocket_command(
     {
-        vol.Required("type"): "heads_up/settings_apply_preset",
-        vol.Required("preset"): vol.In(list(presets.PRESETS)),
+        vol.Required("type"): "heads_up/welcome_apply",
+        vol.Required("items"): [vol.In(list(welcome.ITEMS))],
+        vol.Optional("audience", default=welcome.DEFAULT_AUDIENCE): str,
+        vol.Optional("speakers", default=list): [str],
     }
 )
 @require_admin
 @callback
-def ws_settings_apply_preset(
+def ws_welcome_apply(
     hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
 ) -> None:
-    """Add the policies of a loudness preset that do not exist yet; never change one."""
+    """Create the default policies of the chosen items and remember the welcome was seen."""
     if (entry := _entry(hass, connection, msg["id"])) is None:
         return
-    connection.send_result(msg["id"], presets.apply(hass, entry, msg["preset"]))
+    hub = entry.runtime_data.hub
+    if hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    if msg["audience"] not in hub.audiences.names():
+        connection.send_error(
+            msg["id"], "unknown_audience", f"Audience {msg['audience']} not found"
+        )
+        return
+    known = hub.recipients.known("speak")
+    if unknown := [s for s in msg["speakers"] if s not in known]:
+        connection.send_error(msg["id"], "unknown_recipient", f"Unknown speaker {unknown[0]}")
+        return
+    connection.send_result(
+        msg["id"], welcome.apply(hass, entry, msg["items"], msg["audience"], msg["speakers"])
+    )
 
 
 @websocket_command({vol.Required("type"): "heads_up/panel_overview"})
@@ -495,7 +533,8 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_panel_trace,
         ws_settings_get,
         ws_settings_set,
-        ws_settings_apply_preset,
+        ws_welcome_get,
+        ws_welcome_apply,
         ws_popup_config,
         ws_popup_subscribe,
         ws_snooze,

@@ -142,7 +142,8 @@
         "quiet_hours": "Ruhezeit",
         "away": "Abwesend",
         "fallback": "Ersatz",
-        "summarize": "Zusammenfassen"
+        "summarize": "Zusammenfassen",
+        "deliver": "Zustellen"
       }
     },
     "weekday": {
@@ -835,7 +836,7 @@
       "step": {
         "user": {
           "title": "Richtlinie hinzufügen",
-          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte. Zusammenfassen: Meldungen auf allen Kanälen, auch dem Banner, zurückhalten und eine Zusammenfassung je Empfänger senden.",
+          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte. Zusammenfassen: Meldungen auf allen Kanälen, auch dem Banner, zurückhalten und eine Zusammenfassung je Empfänger senden. Zustellen: passende Meldungen sofort an eine gewählte Zielgruppe auf gewählten Kanälen senden, zusätzlich zu dem, was der Aufruf nennt.",
           "data": {
             "name": "Name",
             "type": "Art",
@@ -888,7 +889,7 @@
         },
         "reconfigure": {
           "title": "Richtlinie",
-          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte. Zusammenfassen: Meldungen auf allen Kanälen, auch dem Banner, zurückhalten und eine Zusammenfassung je Empfänger senden.",
+          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte. Zusammenfassen: Meldungen auf allen Kanälen, auch dem Banner, zurückhalten und eine Zusammenfassung je Empfänger senden. Zustellen: passende Meldungen sofort an eine gewählte Zielgruppe auf gewählten Kanälen senden, zusätzlich zu dem, was der Aufruf nennt.",
           "data": {
             "name": "Name",
             "type": "Art",

@@ -16,7 +16,7 @@ from homeassistant.util import dt as dt_util
 from ..const import POLICY_SUBENTRY, POLICY_TYPES, RULE_SUBENTRY
 from ..manager import BannerManager
 from .ledger import State
-from .policies import away, escalation, fallback, quiet, reminder, summarize
+from .policies import away, deliver, escalation, fallback, quiet, reminder, summarize
 from .policies.matching import applies
 from .policies.models import Policy, parse_policy
 from .presence import UNKNOWN_STATES
@@ -29,6 +29,7 @@ CHECKS = {
     "away": away.check,
     "fallback": fallback.check,
     "summarize": summarize.check,
+    "deliver": deliver.check,
 }
 
 

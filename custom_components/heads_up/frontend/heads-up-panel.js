@@ -279,6 +279,7 @@ class HeadsUpPanel extends Base {
     root.append(this._header, this._nav, this._main);
     this._renderHeader();
     this._open(pageFromPath(this._route?.path));
+    this.openWelcome(false);
   }
 
   _renderHeader() {
@@ -321,6 +322,28 @@ class HeadsUpPanel extends Base {
     }
   }
 
+  // The welcome: default policies switched on or off on the first opening, again on request (D-121).
+  async openWelcome(force = false) {
+    try {
+      const base = this._config?.base ?? "/heads_up/panel";
+      const version = this._config?.v ?? "";
+      this._ui ||= await import(moduleUrl(base, version, "ui.js"));
+      const mod = await import(moduleUrl(base, version, "welcome.js"));
+      this._welcome?.close();
+      this._welcome = await mod.open(this.shadowRoot, {
+        hass: this._hass,
+        t: table(mod.STRINGS, this._hass?.language),
+        s: this._t.shared,
+        ui: this._ui,
+        language: this._hass?.language,
+        force,
+        navigate: (target) => this.navigate(target),
+      });
+    } catch (err) {
+      // The welcome is a convenience: a failure must not block the panel.
+    }
+  }
+
   navigate(page) {
     history.pushState(null, "", pageUrl(page));
     window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
@@ -358,6 +381,7 @@ class HeadsUpPanel extends Base {
         language: this._hass?.language,
         fmt: { timeAgo, inTime, stateText, logText, attentionText, reasonText, channelName, messageTitle },
         navigate: (target) => this.navigate(target),
+        openWelcome: () => this.openWelcome(true),
       });
     } catch (err) {
       if (token === this._token) this._main.replaceChildren(node("div", { className: "note", textContent: t.load_failed }));
