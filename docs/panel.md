@@ -1,6 +1,6 @@
 # The Heads Up panel
 
-The panel is an administrator page in Home Assistant's sidebar. In this version it has the navigation, the Overview, the Messages page, the four Configuration pages, Test send and the Settings page; Watch rules and FAQ say they are not available yet.
+The panel is an administrator page in Home Assistant's sidebar. In this version it has the navigation, the Overview, the Messages page, the four Configuration pages, Test send, the Settings page and the welcome; Watch rules and FAQ say they are not available yet.
 
 ## Show it in the sidebar
 
@@ -23,13 +23,32 @@ The Status page (Overview group) refreshes every 10 seconds.
 - **Watch rules:** "N of M active", with badges for disabled rules and for rules that show a message now. Show list opens every rule with its state and what it watches. Rules are edited under Settings > Devices & services > Heads Up.
 - **Needs attention:** each problem with a button to the page that fixes it. Errors: a watch rule on an unavailable or missing entity, a device without a notify service in Home Assistant, a recipient group without an existing speaker, an invalid policy (with the reason), a policy that names a deleted audience or group. Warnings: a person without a usable device, no escalation policy covering critical messages (without a tag), the hub switched off. With none of these the list says nothing needs attention.
 - **Last actions:** the latest events, newest first: created (with severity and channels), escalation sent, reminder sent, acknowledged (by whom), dismissed, snoozed, snooze ended, summary sent, fallback sent, delivery skipped or failed (with the reason), expired, cleared.
-- A line offers the Settings presets while no policy exists.
+- A line offers the welcome while no policy exists.
 
 ## Messages
 
 The Messages page (Notifications and rules group) lists the recent messages, newest first: severity, title, how long ago, whether it is active or how it ended, and a count of its delivery results ("2 sent, 1 skipped"). Choose a message to see its delivery trace: time, channel, recipient and result with the reason; who acknowledged; and the escalations and reminders with their state and due time.
 
 The recent messages and the log of last actions are kept in memory. They start empty after a restart; messages that are still active are listed again with the time they were created, without delivery history. The History settings (trace entries kept, recent messages kept) set the sizes.
+
+## The welcome
+
+The first time an administrator opens the panel, a dialog explains four defaults. Each has a switch, all on. Create makes the policies of the switched-on items and Not now creates nothing; either way the dialog does not return by itself. The Show the welcome button on Settings opens it again.
+
+| Item | What it creates |
+|---|---|
+| Quiet hours | Night quiet: Quiet hours 22:00 to 07:00, send quietly, critical passes. |
+| Evening summary | Evening summary: messages tagged `digest` are held and sent as one summary at 20:00; critical messages are never held. |
+| Critical messages | Critical delivery (a Deliver policy: critical messages are also pushed at once to the audience you choose, Admins by default), Critical reminder (a push again every 10 minutes, at most 3 times) and, if you choose speakers, Critical escalation (after 10 minutes the message is said on those speakers; dismissing counts as acknowledging). It also sets the push level of critical messages to the iOS critical level. |
+| Warning reminders | Warning reminders: a warning nobody acknowledges is repeated every 30 minutes, at most 3 times. |
+
+Things to know before you switch on Critical messages:
+- It covers every critical message, also those of your existing automations. They get an Acknowledge button on the card and in the push, and a push or speech after 10 minutes without an acknowledgement.
+- The iOS critical level needs the Companion app's permission for critical alerts and plays a sound even in silent mode. Android receives it as time sensitive. You can change the push levels on the Channels page.
+- Speech passes quiet hours, so a critical message that nobody acknowledges is said on the speakers at night too.
+- Evening summary only holds messages that carry the tag `digest`; your automations have to set it.
+
+Create adds only what is missing: a policy with the same name, or one that does the same as a policy you have, is skipped, and nothing you have is changed or deleted. The audience and the speakers are chosen in the dialog because a policy cannot mean "the people of the original call". Edit the policies afterwards on the Policies page.
 
 ## Test send
 
@@ -58,24 +77,13 @@ An audience or a speaker group that a policy uses cannot be deleted in the panel
 | Part | What it does |
 |---|---|
 | Hub | The hub switch (option `hub_enabled`) and the sidebar switch. Off: messages reach only the dashboard banner. |
-| Setup wizard | A button for the wizard. It is not available yet. |
+| Welcome | A button that shows the welcome again. |
 | People and devices | Each person with the number of usable Companion devices and whether a Home Assistant user is linked. A person without a device gets only banner and popup; a person without a user gets no popup. |
-| Loudness | Three presets. A preset adds the policies it names that do not exist yet and never changes or deletes one. A policy with the same name, or one that does the same as an existing policy, is skipped. |
 | Limits | Pushes per device per minute, deliveries per minute for all devices, seconds in which identical updates are ignored. Stored now; not enforced yet. |
 | History | Trace entries kept (50 to 5000) and recent messages kept (10 to 1000). |
 | Identity | The install token, read only. It is part of every push tag. |
 
 Save is enabled only when something changed and every number is inside its range; the page names a number that is not.
-
-### Presets
-
-| Preset | Adds |
-|---|---|
-| Quiet | Night quiet: Quiet hours 22:00 to 07:00, send quietly, critical passes. |
-| Balanced | Night quiet, Water escalation (critical messages tagged `water` go to the Admins audience by push after 5 minutes) and Evening summary (messages tagged `digest` with severity info or success, one summary at 20:00). |
-| Loud | Balanced, plus Warning reminders (every 30 minutes, 3 times, for warnings) and Push failed fallback (a notification in the bell when a push could not be delivered). |
-
-Evening summary only collects messages tagged `digest`, so nothing is held that you did not choose. Edit the policies afterwards in Settings > Devices & services > Heads Up; see [Policies](policies.md).
 
 ## Limits
 

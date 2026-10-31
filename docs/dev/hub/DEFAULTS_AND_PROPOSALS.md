@@ -26,13 +26,14 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 - No default delivery by severity; calls always name channels (D-106).
 - Watch rules frozen (D-100). No named conditions, no "only if" (D-099).
 - Built-in audiences: Everyone, Admins, At home, Not home, Last to leave, First home (D-080, D-088). Custom audiences: persons, or a presence kind including in and not in a zone (D-080).
-- Wizard exists as a panel window and as a config flow entry; presets Quiet, Balanced, Loud (names decided in D-093; contents proposed).
+- The setup wizard and the presets are dropped; a welcome in the panel offers the defaults (D-121).
 
 - Presence delay for Last to leave and First home: 60 seconds, configurable, 0 for none; their state is stored; an area is the speakers assigned to it in Home Assistant; a profile exists for every person without setup (D-109).
 
+- Welcome defaults (all on): Quiet hours 22:00 to 07:00 quiet; Evening summary tag digest at 20:00; Critical (Deliver to Admins by default at the iOS critical level, reminder every 10 minutes at most 3 times on push, escalation to speakers after 10 minutes, dismissing counts as acknowledging); Warning reminders every 30 minutes at most 3 times (D-121).
 - Test send marker: title prefix `Test: `, tag `test`, id `hu_test_`, 10 minutes; no what-if time (D-120).
 - Panel history: recent messages and the log of last actions in memory only, sizes from the History settings (D-118).
-- Panel: title Heads Up, icon mdi:bell-ring-outline, shell plus one module per page, setup toggle starts on, presets Quiet, Balanced, Loud as listed in `docs/panel.md` (D-117).
+- Panel: title Heads Up, icon mdi:bell-ring-outline, shell plus one module per page, setup toggle starts on (D-117).
 - Card acknowledgement: option `show_acknowledged`, on by default; "Acknowledged by Anna" and "and N others" (D-116).
 - Popup: card for success, info and warning, modal for critical, `popup_styles` per severity; Escape and × hide on the page only (D-115).
 - Speech: 200 characters (configurable), same text not repeated on a speaker for 60 seconds (configurable), engine from the option or the only tts entity (D-114).
@@ -46,7 +47,6 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 - Rate limits in the options: 10 pushes per device per minute, 60 deliveries per minute for all devices, identical updates ignored for 30 seconds.
 - History: 500 trace entries, 100 recent messages.
 - Escalation default 5 minutes; reminder default every 30 minutes, at most 3; summary default every 60 minutes or at 20:00; quiet hours default 22:00 to 07:00, all days, critical passes, action quiet.
-- Preset contents: Quiet creates Night quiet; Balanced creates Night quiet, Water escalation, Evening summary; Loud adds Warning reminders and Push failed fallback.
 - Send test uses a test marker in the message (exact form open).
 - Panel sidebar title and icon.
 - Banner line "Acknowledged by <first name>": when several people acknowledged, show the first only (open).

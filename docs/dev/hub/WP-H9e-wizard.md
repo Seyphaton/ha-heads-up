@@ -1,6 +1,6 @@
 # H9e: Setup wizard (window and config flow entry)
 
-Size: medium. Status: not started (the roadmap table in `ROADMAP.md` is the status source). Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
+Size: medium. Status: built differently, on branch `hub/h9e-wizard` (see `ROADMAP.md`): the maintainer replaced the wizard and the presets by a welcome with four default policies and added the policy type Deliver (D-121). The scope below is historical. Build only after the maintainer approves this package (CLAUDE.md rule 1). Nothing is pushed or merged without approval (rule 7).
 
 ## Goal
 Build the four-step wizard as a window in the panel and as a config flow entry on the integration page, creating the same objects.

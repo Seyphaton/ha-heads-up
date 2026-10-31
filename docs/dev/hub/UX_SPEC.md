@@ -17,7 +17,7 @@ Source: the mockup `docs/dev/mockups/hub-panel-mockup.html` (open it in a browse
 - Configuration: Audiences, Recipients, Policies, Channels
 - Settings: General (one page)
 - FAQ and Examples
-- The setup wizard is a window opened by a button, not a page.
+- The welcome is a dialog on the first opening and from a button on Settings, not a page (D-121).
 
 ## Overview (Status)
 A dashboard page, nothing editable.
@@ -34,7 +34,7 @@ A dashboard page, nothing editable.
   - the hub is switched off (warning)
   - "Nothing needs attention" when the list is empty
 - "Last actions": a log of the latest events, newest first, time and one line. Kinds: created (with severity and channels), escalation sent, reminder sent, acknowledged (by whom), dismissed, snoozed, unsnoozed, summary sent, delivery skipped (reason), delivery failed (reason), expired, cleared. A button opens all messages (Messages page). How many entries and how long they are kept is set in Settings (History).
-- A short line offers the setup wizard on first run.
+- A short line offers the welcome while no policy exists.
 
 ## Notifications and Rules
 ### Test send
@@ -83,24 +83,18 @@ Settings by severity (D-097):
 - Speech: language, use announce when the player supports it (never changes or restores volume).
 
 ## Settings (General)
-One page that holds everything the setup wizard sets up, plus the rest.
-- Setup wizard: a button that opens the wizard window (disabled until the wizard is built, H9e).
+One page for the settings that are not policies.
+- Welcome: a button that shows the welcome dialog again.
 - Hub: enabled switch, on by default (D-107). Off means messages reach only the dashboard banner, as before the hub existed.
 - Sidebar: show the Heads Up panel in the sidebar (off until the user enables it during initial setup; changeable here).
 - People and devices: a summary table with a link to Configuration, Recipients.
-- Loudness: Quiet, Balanced, Loud with a description and the policies each creates; an Apply preset button that adds missing policies and never deletes or changes existing ones. Presets: Quiet creates Night quiet; Balanced creates Night quiet, Water escalation, Evening summary; Loud adds Warning reminders and Push failed fallback. Preset contents are sample content to be fixed in the build.
 - Limits: pushes per device per minute, deliveries per minute for all devices, seconds during which identical updates are ignored (proposed defaults 10, 60, 30; suppressed deliveries are counted in the trace).
 - History: trace entries kept and recent messages kept (proposed defaults 500 and 100).
 - Identity: the install token (read-only), used in push tags.
 - Save.
 
-## Setup wizard (window)
-Four steps with Back and Next; the last button reads Create.
-1. People: chips of persons; each chosen person gets a recipient profile.
-2. Devices: the detected devices per person as checkboxes; a person without a device is told that only banner and popup work until one is added.
-3. Loudness: Quiet, Balanced, Loud (radio) with description and the policies created.
-4. Test: a simulated test per person ("push sent, 2 devices" or "skipped, no usable device") and the list of objects the wizard will create. Create writes the profiles and policies and tells the user where to edit them.
-The wizard also exists as a config flow entry on the integration page (D-093).
+## Welcome (dialog)
+Shown the first time an administrator opens the panel, and again from Settings (D-121). Four items, each with a switch, all on: Quiet hours; Evening summary (tag `digest`, 20:00); Critical messages (an audience to push to, defaulting to Admins, and optional speakers; pushed at once at the iOS critical level, a reminder every 10 minutes at most 3 times, speech after 10 minutes, dismissing counts as acknowledging); Warning reminders. Create adds only the missing policies of the switched-on items; Not now creates nothing. The text says that Critical covers every critical message, also from existing automations, and that speech passes quiet hours.
 
 ## FAQ and Examples
 Examples: six calls, from the simplest to the most detailed (banner only; banner and push with matching policies; push, speech and persistent together; a one-off speech call with `policy: none`; the push shortcut with a presence audience; push to one person). Eleven collapsible answers: banners without the hub; audience versus direct recipients; why speech takes no audience; push, speech and persistent in one call; what happens if nobody reacts; quiet nights; someone not home; summaries; replacing a phone; why a notification did not arrive; what happens after a restart. This text becomes user documentation (README and `docs/how-to.md`) when the features exist.

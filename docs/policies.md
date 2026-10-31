@@ -1,6 +1,6 @@
 # Policies
 
-A policy adds behaviour to messages without changing the automation that sends them. Types: Escalation, Reminder, Quiet hours, Away, Fallback and Summarize. Add one in Settings > Devices & services > Heads Up > Add policy.
+A policy adds behaviour to messages without changing the automation that sends them. Types: Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize. Add one in Settings > Devices & services > Heads Up > Add policy.
 
 ## Which messages a policy applies to
 
@@ -94,6 +94,20 @@ If the first delivery of a message reached nobody on a channel, the policy deliv
 - A fallback is judged once, after the first delivery of the message. It is not judged again on updates, and escalations, reminders and fallbacks never start a fallback.
 - A channel with a delivery that was sent or held counts as reached. The banner does not count.
 - Messages from watch rules only have the banner channel, so they have no first delivery to fall back from. Their escalations still pass quiet hours and away.
+
+## Deliver
+
+A call names the channels of its first delivery. A Deliver policy adds channels and targets to it, at once, for the messages it applies to. It is how a critical message reaches phones the moment it appears even when the automation or the watch rule only creates a banner.
+
+| Field | Meaning |
+|---|---|
+| Channels, targets | As for an escalation: an audience or recipients per channel; speech takes recipients only; a bell notification takes none. |
+
+- It fires once per message, at its first delivery. An update to the message replaces what it sent, like it replaces the call's own deliveries.
+- Someone who already has the message on that channel from the call is not notified a second time.
+- It passes quiet hours, away and fallback like any delivery. It does not fire for a message held for a summary, and not for a message that became visible while Home Assistant was starting.
+- A watch rule message gets it when the policy applies to the tag `rule`. With `policy: none` in the call it is switched off for that call.
+- Dismissing, snoozing and acknowledging work as for the call's own deliveries.
 
 ## Summarize
 
