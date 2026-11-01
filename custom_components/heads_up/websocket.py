@@ -155,7 +155,7 @@ def ws_settings_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict
         msg["id"],
         {
             "options": settings.read_options(manager),
-            "ranges": {key: list(value) for key, value in settings.RANGES.items()},
+            "layout": settings.layout(),
             "install_token": settings.token(manager),
             "people": settings.people(hass, manager),
             "welcome_seen": bool(entry.options.get(welcome.OPT_WELCOME_SEEN, False)),
@@ -166,11 +166,7 @@ def ws_settings_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict
 @websocket_command(
     {
         vol.Required("type"): "heads_up/settings_set",
-        **{vol.Optional(key): bool for key in settings.BOOLEANS},
-        **{
-            vol.Optional(key): vol.All(int, vol.Range(min=low, max=high))
-            for key, (low, high) in settings.RANGES.items()
-        },
+        **settings.schema_fields(),
     }
 )
 @require_admin
@@ -179,7 +175,7 @@ def ws_settings_set(hass: HomeAssistant, connection: ActiveConnection, msg: dict
     """Change options. The integration's own options form keeps working (D-117)."""
     if (entry := _entry(hass, connection, msg["id"])) is None:
         return
-    changes = {key: msg[key] for key in settings.EDITABLE if key in msg}
+    changes = settings.to_stored({key: msg[key] for key in settings.EDITABLE if key in msg})
     hass.config_entries.async_update_entry(entry, options={**entry.options, **changes})
     connection.send_result(msg["id"], {"options": settings.read_options(entry.runtime_data)})
 

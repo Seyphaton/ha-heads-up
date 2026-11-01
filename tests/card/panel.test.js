@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   BASE_PATH,
@@ -15,9 +16,14 @@ import {
 import {
   changes,
   devicesLabel,
+  entriesOf,
   fill,
+  joinDuration,
   problems,
+  rangesOf,
+  splitDuration,
   STRINGS as SETTINGS_STRINGS,
+  ttsEntities,
 } from "../../custom_components/heads_up/frontend/panel/settings.js";
 
 describe("panel navigation", () => {
@@ -92,22 +98,49 @@ describe("panel texts", () => {
 });
 
 describe("settings page functions", () => {
-  const ranges = {
-    rate_per_device_per_minute: [1, 600],
-    rate_total_per_minute: [1, 6000],
-    dedupe_seconds: [0, 3600],
-    trace_entries: [50, 5000],
-    recent_messages: [10, 1000],
-  };
+  const layout = [
+    { name: "banners", entries: [{ key: "max_banners", kind: "int", range: [1, 200] }, { key: "default_timeout", kind: "duration", range: [0, 31536000] }] },
+    { name: "limits", entries: [{ key: "rate_per_device_per_minute", kind: "int", range: [1, 600] }, { key: "rate_total_per_minute", kind: "int", range: [1, 6000] }, { key: "dedupe_seconds", kind: "int", range: [0, 3600] }] },
+    { name: "history", entries: [{ key: "trace_entries", kind: "int", range: [50, 5000] }, { key: "recent_messages", kind: "int", range: [10, 1000] }] },
+    { name: "hub", entries: [{ key: "show_panel", kind: "bool" }] },
+  ];
+  const ranges = rangesOf(layout);
   const saved = {
     hub_enabled: true,
     show_panel: false,
+    max_banners: 50,
+    default_timeout: 86400,
+    default_snooze_options: [15, 60, 240],
     rate_per_device_per_minute: 10,
     rate_total_per_minute: 60,
     dedupe_seconds: 30,
     trace_entries: 500,
     recent_messages: 100,
   };
+
+  it("takes the ranges from the layout the server sends", () => {
+    expect(ranges.trace_entries).toEqual([50, 5000]);
+    expect(ranges.show_panel).toBeUndefined();
+  });
+
+  it("splits a duration into days, hours, minutes and seconds and joins it again", () => {
+    expect(splitDuration(90061)).toEqual({ days: 1, hours: 1, minutes: 1, seconds: 1 });
+    expect(joinDuration({ days: 1, hours: 1, minutes: 1, seconds: 1 })).toBe(90061);
+    expect(splitDuration(0)).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    expect(joinDuration({ days: "", hours: -1, minutes: 2.5, seconds: 5 })).toBe(5);
+  });
+
+  it("detects a changed list and sends only that key", () => {
+    expect(changes({ ...saved, default_snooze_options: [15, 60] }, saved)).toEqual({ default_snooze_options: [15, 60] });
+    expect(changes({ ...saved, default_snooze_options: [15, 60, 240] }, saved)).toEqual({});
+  });
+
+  it("lists the tts entities and keeps a stored one that no longer exists", () => {
+    const hass = { states: { "tts.b": {}, "light.x": {}, "tts.a": {} } };
+    expect(ttsEntities(hass, "")).toEqual(["tts.a", "tts.b"]);
+    expect(ttsEntities(hass, "tts.gone")).toEqual(["tts.a", "tts.b", "tts.gone"]);
+    expect(ttsEntities(undefined, "")).toEqual([]);
+  });
 
   it("finds no problem in the saved values", () => {
     expect(problems(saved, ranges)).toEqual([]);
@@ -117,6 +150,17 @@ describe("settings page functions", () => {
     const bad = { ...saved, trace_entries: 10, dedupe_seconds: 1.5, recent_messages: NaN };
     expect(problems(bad, ranges).map((p) => p.key).sort()).toEqual(["dedupe_seconds", "recent_messages", "trace_entries"]);
     expect(problems({ ...saved, dedupe_seconds: 0 }, ranges)).toEqual([]);
+  });
+
+  it("puts a label and a hint on every entry in the order of the layout", () => {
+    const groups = entriesOf(layout, SETTINGS_STRINGS.en);
+    expect(groups.map((g) => g.name)).toEqual(["Banners", "Limits", "History", "Hub"]);
+    expect(groups[1].entries.map((e) => e.label)).toEqual([
+      "Pushes per device per minute",
+      "Deliveries per minute, all devices",
+      "Seconds in which identical updates are ignored",
+    ]);
+    expect(groups[3].entries[0].hint).toMatch(/^Only administrators/);
   });
 
   it("sends only what changed", () => {
@@ -292,5 +336,40 @@ describe("messages functions", () => {
     expect(statusLabel({ active: true }, t, S, reasonText)).toBe("active");
     expect(statusLabel({ active: false, reason: "expired" }, t, S, reasonText)).toBe("ended (expired)");
     expect(statusLabel({ active: false, reason: null }, t, S, reasonText)).toBe("ended (?)");
+  });
+});
+
+describe("settings wording equals the integration's options screen (D-122)", () => {
+  const dir = new URL("../../custom_components/heads_up/", import.meta.url);
+  const files = { en: "strings.json", de: "translations/de.json", fr: "translations/fr.json", es: "translations/es.json" };
+  const SECTIONS = ["hub", "banners", "presence", "speech", "limits", "history"];
+
+  for (const [code, file] of Object.entries(files)) {
+    it(`uses the same section names, labels and hints in ${code}`, () => {
+      const json = JSON.parse(readFileSync(new URL(file, dir), "utf8"));
+      const init = json.options.step.init;
+      const t = SETTINGS_STRINGS[code];
+      expect(Object.keys(init.sections)).toEqual(SECTIONS);
+      for (const name of SECTIONS) {
+        const section = init.sections[name];
+        expect(t.names[name], `${code} ${name}`).toBe(section.name);
+        for (const key of Object.keys(section.data)) {
+          expect(t.label[key], `${code} ${key} label`).toBe(section.data[key]);
+          expect(t.hint[key], `${code} ${key} hint`).toBe(section.data_description[key]);
+        }
+      }
+      expect(init.description).toContain(t.label.install_token);
+      expect(init.description).toContain(t.hint.install_token);
+      expect(t.scope).toEqual(json.selector.dismiss_scope.options);
+      expect(t.scope).toEqual(json.selector.snooze_scope.options);
+      expect(t.minutes).toEqual(json.selector.snooze_minutes.options);
+    });
+  }
+
+  it("has the same nested keys in every language", () => {
+    for (const part of ["names", "label", "hint", "scope", "minutes", "units"]) {
+      const keys = Object.keys(SETTINGS_STRINGS.en[part]).sort();
+      for (const language of Object.values(SETTINGS_STRINGS)) expect(Object.keys(language[part]).sort()).toEqual(keys);
+    }
   });
 });

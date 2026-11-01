@@ -11,6 +11,8 @@ from pytest_homeassistant_custom_component.typing import ClientSessionGenerator
 
 from custom_components.heads_up.const import DOMAIN
 
+from ..conftest import options_input
+
 
 def panel(hass: HomeAssistant) -> Any:
     return hass.data.get(DATA_PANELS, {}).get("heads-up")
@@ -116,10 +118,10 @@ async def test_the_setup_flow_can_leave_the_sidebar_off(hass: HomeAssistant) -> 
 
 async def test_the_options_form_has_the_switch(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     result = await hass.config_entries.options.async_init(entry.entry_id)
-    assert "show_panel" in [str(k) for k in result["data_schema"].schema]
+    hub_section = result["data_schema"].schema["hub"]
+    assert "show_panel" in [str(k) for k in hub_section.schema.schema]
     done = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        {"show_panel": True, "max_banners": 50, "evict": True, "default_dismiss_scope": "user"},
+        result["flow_id"], options_input({"hub": {"show_panel": True}})
     )
     assert done["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()

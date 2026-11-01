@@ -18,37 +18,91 @@
   "options": {
     "step": {
       "init": {
-        "data": {
-          "hub_enabled": "Hub",
-          "max_banners": "Número máximo de avisos",
-          "evict": "Eliminar el aviso más antiguo de menor gravedad cuando se llena",
-          "default_dismiss_scope": "Ámbito de cierre predeterminado",
-          "default_timeout": "Tiempo de caducidad predeterminado",
-          "default_snoozable": "Los avisos se pueden posponer de forma predeterminada",
-          "default_snooze_scope": "Ámbito de posposición predeterminado",
-          "default_snooze_options": "Opciones de posposición predeterminadas",
-          "presence_debounce_seconds": "Retraso de presencia (segundos)",
-          "speak_max_length": "Texto hablado: longitud máxima (caracteres)",
-          "speak_cooldown_seconds": "Texto hablado: pausa de repetición (segundos)",
-          "speak_tts_entity": "Motor de texto a voz",
-          "show_panel": "Mostrar Heads Up en la barra lateral"
-        },
-        "data_description": {
-          "hub_enabled": "Activa o desactiva el hub de notificaciones. Desactivado: solo funciona el canal banner, como antes del hub.",
-          "max_banners": "1–200. Los avisos críticos nunca se eliminan.",
-          "evict": "Si está desactivado, crear un aviso por encima del máximo falla con un error.",
-          "default_dismiss_scope": "Se usa cuando la llamada a la acción no define dismiss_scope.",
-          "default_timeout": "Se usa cuando la llamada a la acción no define timeout. Atención: si vacías este campo, los avisos sin tiempo propio permanecen hasta que se cierran o se eliminan.",
-          "default_snoozable": "Se usa cuando la llamada a la acción no define snoozable. Los avisos que no se pueden cerrar nunca se pueden posponer.",
-          "default_snooze_scope": "Se usa cuando la llamada a la acción no define snooze_scope.",
-          "default_snooze_options": "Se usa cuando la llamada a la acción no define snooze_options. Déjalo vacío para 15 minutos, 1 hora y 4 horas.",
-          "presence_debounce_seconds": "Una persona debe estar en casa o fuera este tiempo antes de que cambien \"Last to leave\" y \"First home\". 0 reacciona al instante.",
-          "speak_max_length": "Los textos más largos se cortan al final de una palabra y terminan con puntos suspensivos.",
-          "speak_cooldown_seconds": "El mismo texto no se repite en el mismo altavoz dentro de este tiempo. 0: hablar siempre.",
-          "speak_tts_entity": "El motor que habla en los reproductores multimedia. Vacío: la única entidad de texto a voz, si solo hay una.",
-          "show_panel": "Mostrar el panel de Heads Up en la barra lateral. Solo lo ven los administradores."
+        "description": "Token de instalación: {install_token}. Parte de cada etiqueta de push, para que dos servidores de Home Assistant nunca borren los push del otro. Solo lectura.",
+        "sections": {
+          "hub": {
+            "name": "Hub",
+            "data": {
+              "hub_enabled": "Hub activado",
+              "show_panel": "Mostrar Heads Up en la barra lateral"
+            },
+            "data_description": {
+              "hub_enabled": "Activa o desactiva el hub de notificaciones. Desactivado: solo funciona el canal banner, como antes del hub.",
+              "show_panel": "Solo los administradores ven la entrada. Aparece y desaparece al guardar."
+            }
+          },
+          "banners": {
+            "name": "Avisos",
+            "data": {
+              "max_banners": "Número máximo de avisos",
+              "evict": "Eliminar el aviso más antiguo de menor gravedad cuando se llena",
+              "default_dismiss_scope": "Ámbito de cierre predeterminado",
+              "default_timeout": "Tiempo de caducidad predeterminado",
+              "default_snoozable": "Los avisos se pueden posponer de forma predeterminada",
+              "default_snooze_scope": "Ámbito de posposición predeterminado",
+              "default_snooze_options": "Opciones de posposición predeterminadas"
+            },
+            "data_description": {
+              "max_banners": "1–200. Los avisos críticos nunca se eliminan.",
+              "evict": "Si está desactivado, crear un aviso por encima del máximo falla con un error.",
+              "default_dismiss_scope": "Se usa cuando la llamada a la acción no define dismiss_scope.",
+              "default_timeout": "Se usa cuando la llamada a la acción no define timeout. Atención: si vacías este campo, los avisos sin tiempo propio permanecen hasta que se cierran o se eliminan.",
+              "default_snoozable": "Se usa cuando la llamada a la acción no define snoozable. Los avisos que no se pueden cerrar nunca se pueden posponer.",
+              "default_snooze_scope": "Se usa cuando la llamada a la acción no define snooze_scope.",
+              "default_snooze_options": "Se usa cuando la llamada a la acción no define snooze_options. Déjalo vacío para 15 minutos, 1 hora y 4 horas."
+            }
+          },
+          "presence": {
+            "name": "Presencia",
+            "data": {
+              "presence_debounce_seconds": "Retraso de presencia (segundos)"
+            },
+            "data_description": {
+              "presence_debounce_seconds": "Una persona debe estar en casa o fuera este tiempo antes de que cambien \"Last to leave\" y \"First home\". 0 reacciona al instante."
+            }
+          },
+          "speech": {
+            "name": "Voz",
+            "data": {
+              "speak_max_length": "Texto hablado: longitud máxima (caracteres)",
+              "speak_cooldown_seconds": "Texto hablado: pausa de repetición (segundos)",
+              "speak_tts_entity": "Motor de texto a voz"
+            },
+            "data_description": {
+              "speak_max_length": "Los textos más largos se cortan al final de una palabra y terminan con puntos suspensivos.",
+              "speak_cooldown_seconds": "El mismo texto no se repite en el mismo altavoz dentro de este tiempo. 0: hablar siempre.",
+              "speak_tts_entity": "El motor que habla en los reproductores multimedia. Vacío: la única entidad de texto a voz, si solo hay una."
+            }
+          },
+          "limits": {
+            "name": "Límites",
+            "data": {
+              "rate_per_device_per_minute": "Pushes por dispositivo y minuto",
+              "rate_total_per_minute": "Entregas por minuto, todos los dispositivos",
+              "dedupe_seconds": "Segundos en que se ignoran las actualizaciones idénticas"
+            },
+            "data_description": {
+              "rate_per_device_per_minute": "1–600. Se guarda, pero aún no se aplica.",
+              "rate_total_per_minute": "1–6000. Se guarda, pero aún no se aplica.",
+              "dedupe_seconds": "0–3600. Se guarda, pero aún no se aplica."
+            }
+          },
+          "history": {
+            "name": "Historial",
+            "data": {
+              "trace_entries": "Entradas de traza guardadas",
+              "recent_messages": "Mensajes recientes guardados"
+            },
+            "data_description": {
+              "trace_entries": "50–5000.",
+              "recent_messages": "10–1000."
+            }
+          }
         }
       }
+    },
+    "error": {
+      "timeout_too_long": "El tiempo predeterminado es de 365 días como máximo."
     }
   },
   "selector": {

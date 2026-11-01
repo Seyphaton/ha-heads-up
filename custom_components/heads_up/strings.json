@@ -18,37 +18,91 @@
   "options": {
     "step": {
       "init": {
-        "data": {
-          "hub_enabled": "Hub",
-          "max_banners": "Maximum number of banners",
-          "evict": "Evict the oldest lowest-severity banner when full",
-          "default_dismiss_scope": "Default dismiss scope",
-          "default_timeout": "Default timeout",
-          "default_snoozable": "Banners can be snoozed by default",
-          "default_snooze_scope": "Default snooze scope",
-          "default_snooze_options": "Default snooze choices",
-          "presence_debounce_seconds": "Presence delay (seconds)",
-          "speak_max_length": "Spoken text: longest (characters)",
-          "speak_cooldown_seconds": "Spoken text: repeat pause (seconds)",
-          "speak_tts_entity": "Text-to-speech engine",
-          "show_panel": "Show Heads Up in the sidebar"
-        },
-        "data_description": {
-          "hub_enabled": "Switch the notification hub on or off. Off: only the banner channel works, as before the hub existed.",
-          "max_banners": "1–200. Critical banners are never evicted.",
-          "evict": "When off, creating a banner beyond the maximum fails with an error.",
-          "default_dismiss_scope": "Used when an action call sets no dismiss_scope.",
-          "default_timeout": "Used when an action call sets no timeout. Warning: if you clear this field, banners without their own timeout stay until they are dismissed or cleared.",
-          "default_snoozable": "Used when an action call sets no snoozable. Banners that are not dismissible are never snoozable.",
-          "default_snooze_scope": "Used when an action call sets no snooze_scope.",
-          "default_snooze_options": "Used when an action call sets no snooze_options. Leave empty for 15 minutes, 1 hour and 4 hours.",
-          "presence_debounce_seconds": "A person must stay home or away this long before \"Last to leave\" and \"First home\" change. 0 reacts at once.",
-          "speak_max_length": "Longer texts are cut at a word and end with an ellipsis.",
-          "speak_cooldown_seconds": "The same text is not spoken again on the same speaker within this time. 0: always speak.",
-          "speak_tts_entity": "The engine that speaks on media players. Empty: the only text-to-speech entity, if there is exactly one.",
-          "show_panel": "Show the Heads Up panel in the sidebar. Only administrators see it."
+        "description": "Install token: {install_token}. Part of every push tag, so two Home Assistant servers never clear each other's pushes. Read only.",
+        "sections": {
+          "hub": {
+            "name": "Hub",
+            "data": {
+              "hub_enabled": "Hub enabled",
+              "show_panel": "Show Heads Up in the sidebar"
+            },
+            "data_description": {
+              "hub_enabled": "Switch the notification hub on or off. Off: only the banner channel works, as before the hub existed.",
+              "show_panel": "Only administrators see the entry. It appears and disappears at once when you save."
+            }
+          },
+          "banners": {
+            "name": "Banners",
+            "data": {
+              "max_banners": "Maximum number of banners",
+              "evict": "Evict the oldest lowest-severity banner when full",
+              "default_dismiss_scope": "Default dismiss scope",
+              "default_timeout": "Default timeout",
+              "default_snoozable": "Banners can be snoozed by default",
+              "default_snooze_scope": "Default snooze scope",
+              "default_snooze_options": "Default snooze choices"
+            },
+            "data_description": {
+              "max_banners": "1–200. Critical banners are never evicted.",
+              "evict": "When off, creating a banner beyond the maximum fails with an error.",
+              "default_dismiss_scope": "Used when an action call sets no dismiss_scope.",
+              "default_timeout": "Used when an action call sets no timeout. Warning: if you clear this field, banners without their own timeout stay until they are dismissed or cleared.",
+              "default_snoozable": "Used when an action call sets no snoozable. Banners that are not dismissible are never snoozable.",
+              "default_snooze_scope": "Used when an action call sets no snooze_scope.",
+              "default_snooze_options": "Used when an action call sets no snooze_options. Leave empty for 15 minutes, 1 hour and 4 hours."
+            }
+          },
+          "presence": {
+            "name": "Presence",
+            "data": {
+              "presence_debounce_seconds": "Presence delay (seconds)"
+            },
+            "data_description": {
+              "presence_debounce_seconds": "A person must stay home or away this long before \"Last to leave\" and \"First home\" change. 0 reacts at once."
+            }
+          },
+          "speech": {
+            "name": "Speech",
+            "data": {
+              "speak_max_length": "Spoken text: longest (characters)",
+              "speak_cooldown_seconds": "Spoken text: repeat pause (seconds)",
+              "speak_tts_entity": "Text-to-speech engine"
+            },
+            "data_description": {
+              "speak_max_length": "Longer texts are cut at a word and end with an ellipsis.",
+              "speak_cooldown_seconds": "The same text is not spoken again on the same speaker within this time. 0: always speak.",
+              "speak_tts_entity": "The engine that speaks on media players. Empty: the only text-to-speech entity, if there is exactly one."
+            }
+          },
+          "limits": {
+            "name": "Limits",
+            "data": {
+              "rate_per_device_per_minute": "Pushes per device per minute",
+              "rate_total_per_minute": "Deliveries per minute, all devices",
+              "dedupe_seconds": "Seconds in which identical updates are ignored"
+            },
+            "data_description": {
+              "rate_per_device_per_minute": "1–600. Stored now; not enforced yet.",
+              "rate_total_per_minute": "1–6000. Stored now; not enforced yet.",
+              "dedupe_seconds": "0–3600. Stored now; not enforced yet."
+            }
+          },
+          "history": {
+            "name": "History",
+            "data": {
+              "trace_entries": "Trace entries kept",
+              "recent_messages": "Recent messages kept"
+            },
+            "data_description": {
+              "trace_entries": "50–5000.",
+              "recent_messages": "10–1000."
+            }
+          }
         }
       }
+    },
+    "error": {
+      "timeout_too_long": "The default timeout is at most 365 days."
     }
   },
   "selector": {

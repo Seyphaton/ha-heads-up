@@ -18,7 +18,7 @@ from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
 from custom_components.heads_up.const import DOMAIN
 
-from .conftest import CreateBanner, banners
+from .conftest import CreateBanner, banners, options_input
 from .test_restart import restart
 from .test_websocket import subscribe
 
@@ -246,14 +246,15 @@ async def test_snooze_choices_come_from_the_options(
     result = await hass.config_entries.options.async_init(entry.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
-        {
-            "max_banners": 50,
-            "evict": True,
-            "default_dismiss_scope": "user",
-            "default_snoozable": True,
-            "default_snooze_scope": "global",
-            "default_snooze_options": ["5", "60"],
-        },
+        options_input(
+            {
+                "banners": {
+                    "default_snoozable": True,
+                    "default_snooze_scope": "global",
+                    "default_snooze_options": ["5", "60"],
+                }
+            }
+        ),
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
@@ -269,12 +270,7 @@ async def test_empty_snooze_choices_in_options_fall_back_to_defaults(
     result = await hass.config_entries.options.async_init(entry.entry_id)
     await hass.config_entries.options.async_configure(
         result["flow_id"],
-        {
-            "max_banners": 50,
-            "evict": True,
-            "default_dismiss_scope": "user",
-            "default_snooze_options": [],
-        },
+        options_input({"banners": {"default_snooze_options": []}}),
     )
     assert entry.options["default_snooze_options"] == [900, 3600, 14400]
 

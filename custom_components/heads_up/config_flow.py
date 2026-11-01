@@ -18,6 +18,7 @@ from homeassistant.config_entries import (
     SubentryFlowResult,
 )
 from homeassistant.core import callback
+from homeassistant.data_entry_flow import section
 from homeassistant.exceptions import TemplateError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.selector import (
@@ -43,26 +44,16 @@ from .const import (
     AUDIENCE_SUBENTRY,
     DEFAULT_OPTIONS,
     DEFAULT_SEVERITY,
-    DEFAULT_SNOOZE_SECONDS,
     DISMISS_SCOPES,
     DOMAIN,
     GROUP_SUBENTRY,
     MAX_FOR_SECONDS,
     MAX_MESSAGE,
     MAX_TITLE,
-    OPT_DEFAULT_DISMISS_SCOPE,
-    OPT_DEFAULT_SNOOZABLE,
     OPT_DEFAULT_SNOOZE_OPTIONS,
-    OPT_DEFAULT_SNOOZE_SCOPE,
     OPT_DEFAULT_TIMEOUT,
-    OPT_EVICT,
-    OPT_HUB_ENABLED,
-    OPT_MAX_BANNERS,
-    OPT_PRESENCE_DEBOUNCE,
+    OPT_INSTALL_TOKEN,
     OPT_SHOW_PANEL,
-    OPT_SPEAK_COOLDOWN,
-    OPT_SPEAK_MAX_LENGTH,
-    OPT_SPEAK_TTS_ENTITY,
     POLICY_SUBENTRY,
     PROFILE_SUBENTRY,
     RULE_SUBENTRY,
@@ -70,6 +61,7 @@ from .const import (
     SNOOZE_PRESET_MINUTES,
     SNOOZE_SCOPES,
 )
+from .hub import settings
 from .hub.flows import (
     AudienceSubentryFlow,
     PolicySubentryFlow,
@@ -124,122 +116,106 @@ def _seconds_to_duration(seconds: int) -> dict[str, int]:
     return {"days": days, "hours": hours, "minutes": minutes, "seconds": secs}
 
 
-def _snooze_seconds(minutes: list[str] | None) -> list[int]:
-    # An empty choice falls back to the defaults, so a snoozable banner always has a menu.
-    chosen = sorted({int(m) * 60 for m in minutes or []})
-    return chosen or list(DEFAULT_SNOOZE_SECONDS)
-
-
 class HeadsUpOptionsFlow(OptionsFlow):
+    """The same sections, order and wording as the panel's Settings page (D-122)."""
+
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is not None:
+            flat: dict[str, Any] = {}
+            for name, _ in settings.SECTIONS:
+                flat.update(user_input.get(name) or {})
+            for key in settings.RANGES:
+                if key in flat:
+                    flat[key] = int(flat[key])  # number selectors return floats
             # An empty duration field means "no default timeout" (D-031).
-            duration = user_input.get(OPT_DEFAULT_TIMEOUT)
-            seconds = int(cv.time_period_dict(duration).total_seconds()) if duration else 0
-            return self.async_create_entry(
-                data={
-                    **self.config_entry.options,  # keeps the install token and the hub limits
-                    OPT_HUB_ENABLED: user_input.get(OPT_HUB_ENABLED, True),
-                    OPT_PRESENCE_DEBOUNCE: int(
-                        user_input.get(
-                            OPT_PRESENCE_DEBOUNCE, DEFAULT_OPTIONS[OPT_PRESENCE_DEBOUNCE]
-                        )
-                    ),
-                    OPT_SHOW_PANEL: user_input.get(OPT_SHOW_PANEL, False),
-                    OPT_SPEAK_MAX_LENGTH: int(
-                        user_input.get(OPT_SPEAK_MAX_LENGTH, DEFAULT_OPTIONS[OPT_SPEAK_MAX_LENGTH])
-                    ),
-                    OPT_SPEAK_COOLDOWN: int(
-                        user_input.get(OPT_SPEAK_COOLDOWN, DEFAULT_OPTIONS[OPT_SPEAK_COOLDOWN])
-                    ),
-                    OPT_SPEAK_TTS_ENTITY: user_input.get(OPT_SPEAK_TTS_ENTITY, ""),
-                    OPT_MAX_BANNERS: int(user_input[OPT_MAX_BANNERS]),
-                    OPT_EVICT: user_input[OPT_EVICT],
-                    OPT_DEFAULT_DISMISS_SCOPE: user_input[OPT_DEFAULT_DISMISS_SCOPE],
-                    OPT_DEFAULT_TIMEOUT: seconds,
-                    OPT_DEFAULT_SNOOZABLE: user_input.get(
-                        OPT_DEFAULT_SNOOZABLE, DEFAULT_OPTIONS[OPT_DEFAULT_SNOOZABLE]
-                    ),
-                    OPT_DEFAULT_SNOOZE_SCOPE: user_input.get(
-                        OPT_DEFAULT_SNOOZE_SCOPE, DEFAULT_OPTIONS[OPT_DEFAULT_SNOOZE_SCOPE]
-                    ),
-                    OPT_DEFAULT_SNOOZE_OPTIONS: _snooze_seconds(
-                        user_input.get(OPT_DEFAULT_SNOOZE_OPTIONS)
-                    ),
-                }
+            duration = flat.get(OPT_DEFAULT_TIMEOUT)
+            flat[OPT_DEFAULT_TIMEOUT] = (
+                int(cv.time_period_dict(duration).total_seconds()) if duration else 0
             )
-
-        current = {**DEFAULT_OPTIONS, **self.config_entry.options}
-        timeout_field = (
-            vol.Optional(
-                OPT_DEFAULT_TIMEOUT,
-                description={"suggested_value": _seconds_to_duration(current[OPT_DEFAULT_TIMEOUT])},
+            if flat[OPT_DEFAULT_TIMEOUT] > settings.MAX_TIMEOUT_SECONDS:
+                return self._show(errors={OPT_DEFAULT_TIMEOUT: "timeout_too_long"})
+            flat[OPT_DEFAULT_SNOOZE_OPTIONS] = settings.snooze_seconds(
+                flat.get(OPT_DEFAULT_SNOOZE_OPTIONS)
             )
-            if current[OPT_DEFAULT_TIMEOUT]
-            else vol.Optional(OPT_DEFAULT_TIMEOUT)
-        )
-        speak_engine_field = (
-            vol.Optional(
-                OPT_SPEAK_TTS_ENTITY, description={"suggested_value": current[OPT_SPEAK_TTS_ENTITY]}
-            )
-            if current[OPT_SPEAK_TTS_ENTITY]
-            else vol.Optional(OPT_SPEAK_TTS_ENTITY)
-        )
-        schema = vol.Schema(
-            {
-                vol.Required(OPT_HUB_ENABLED, default=current[OPT_HUB_ENABLED]): BooleanSelector(),
-                vol.Required(
-                    OPT_PRESENCE_DEBOUNCE, default=current[OPT_PRESENCE_DEBOUNCE]
-                ): NumberSelector(
-                    NumberSelectorConfig(min=0, max=600, step=1, mode=NumberSelectorMode.BOX)
-                ),
-                vol.Required(OPT_SHOW_PANEL, default=current[OPT_SHOW_PANEL]): BooleanSelector(),
-                vol.Required(
-                    OPT_SPEAK_MAX_LENGTH, default=current[OPT_SPEAK_MAX_LENGTH]
-                ): NumberSelector(
-                    NumberSelectorConfig(min=20, max=1000, step=1, mode=NumberSelectorMode.BOX)
-                ),
-                vol.Required(
-                    OPT_SPEAK_COOLDOWN, default=current[OPT_SPEAK_COOLDOWN]
-                ): NumberSelector(
-                    NumberSelectorConfig(min=0, max=3600, step=1, mode=NumberSelectorMode.BOX)
-                ),
-                speak_engine_field: EntitySelector(EntitySelectorConfig(domain="tts")),
-                vol.Required(OPT_MAX_BANNERS, default=current[OPT_MAX_BANNERS]): NumberSelector(
-                    NumberSelectorConfig(min=1, max=200, step=1, mode=NumberSelectorMode.BOX)
-                ),
-                vol.Required(OPT_EVICT, default=current[OPT_EVICT]): BooleanSelector(),
-                vol.Required(
-                    OPT_DEFAULT_DISMISS_SCOPE, default=current[OPT_DEFAULT_DISMISS_SCOPE]
-                ): SelectSelector(
-                    SelectSelectorConfig(
-                        options=list(DISMISS_SCOPES), translation_key="dismiss_scope"
-                    )
-                ),
-                timeout_field: DurationSelector(DurationSelectorConfig(enable_day=True)),
-                vol.Required(
-                    OPT_DEFAULT_SNOOZABLE, default=current[OPT_DEFAULT_SNOOZABLE]
-                ): BooleanSelector(),
-                vol.Required(
-                    OPT_DEFAULT_SNOOZE_SCOPE, default=current[OPT_DEFAULT_SNOOZE_SCOPE]
-                ): SelectSelector(
-                    SelectSelectorConfig(
-                        options=list(SNOOZE_SCOPES), translation_key="snooze_scope"
-                    )
-                ),
-                vol.Required(
-                    OPT_DEFAULT_SNOOZE_OPTIONS,
-                    default=[str(s // 60) for s in current[OPT_DEFAULT_SNOOZE_OPTIONS]],
-                ): SelectSelector(
-                    SelectSelectorConfig(
-                        options=[str(m) for m in SNOOZE_PRESET_MINUTES],
-                        multiple=True,
-                        translation_key="snooze_minutes",
-                    )
-                ),
+            kept = {
+                key: flat[key] if key in flat else DEFAULT_OPTIONS[key]
+                for key in settings.EDITABLE
+                if key in flat or key in DEFAULT_OPTIONS
             }
+            # Everything else (install token, push and popup settings, welcome_seen) stays.
+            return self.async_create_entry(data={**self.config_entry.options, **kept})
+        return self._show()
+
+    def _show(self, errors: dict[str, str] | None = None) -> ConfigFlowResult:
+        current = {**DEFAULT_OPTIONS, **self.config_entry.options}
+        sections: dict[Any, Any] = {}
+        for name, items in settings.SECTIONS:
+            fields: dict[Any, Any] = {}
+            for key, kind in items:
+                field, selector = _option_field(key, kind, current)
+                fields[field] = selector
+            sections[vol.Required(name)] = section(vol.Schema(fields), {"collapsed": False})
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(sections),
+            errors=errors,
+            description_placeholders={
+                "install_token": str(self.config_entry.options.get(OPT_INSTALL_TOKEN) or "")
+            },
         )
-        return self.async_show_form(step_id="init", data_schema=schema)
+
+
+def _required(key: str, value: Any) -> Any:
+    # Both: the default fills a missing value, the suggested value fills the form (the frontend
+    # does not apply defaults inside sections).
+    return vol.Required(key, default=value, description={"suggested_value": value})
+
+
+def _option_field(key: str, kind: str, current: dict[str, Any]) -> tuple[Any, Any]:
+    if kind == "bool":
+        return _required(key, current[key]), BooleanSelector()
+    if kind == "int":
+        low, high = settings.RANGES[key]
+        return (
+            _required(key, current[key]),
+            NumberSelector(
+                NumberSelectorConfig(min=low, max=high, step=1, mode=NumberSelectorMode.BOX)
+            ),
+        )
+    if kind == "choice":
+        return (
+            _required(key, current[key]),
+            SelectSelector(
+                SelectSelectorConfig(
+                    options=list(settings.CHOICES[key]),
+                    translation_key=key.removeprefix("default_"),
+                )
+            ),
+        )
+    if kind == "duration":
+        field = (
+            vol.Optional(key, description={"suggested_value": _seconds_to_duration(current[key])})
+            if current[key]
+            else vol.Optional(key)
+        )
+        return field, DurationSelector(DurationSelectorConfig(enable_day=True))
+    if kind == "minutes":
+        return (
+            _required(key, [str(s // 60) for s in current[key]]),
+            SelectSelector(
+                SelectSelectorConfig(
+                    options=[str(m) for m in SNOOZE_PRESET_MINUTES],
+                    multiple=True,
+                    translation_key="snooze_minutes",
+                )
+            ),
+        )
+    field = (
+        vol.Optional(key, description={"suggested_value": current[key]})
+        if current[key]
+        else vol.Optional(key)
+    )
+    return field, EntitySelector(EntitySelectorConfig(domain="tts"))
 
 
 _RULE_SCHEMA = vol.Schema(
@@ -329,7 +305,7 @@ def _rule_data(user_input: dict[str, Any]) -> dict[str, Any]:
         data["for"] = seconds
     # The form offers minutes; the rule stores seconds. Unset fields use the option defaults.
     if minutes := data.pop("snooze_options", None):
-        data["snooze_options"] = _snooze_seconds(minutes)
+        data["snooze_options"] = settings.snooze_seconds(minutes)
     return data
 
 

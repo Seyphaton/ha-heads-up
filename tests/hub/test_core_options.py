@@ -6,6 +6,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
+from ..conftest import options_input
+
 
 async def test_hub_is_on_by_default(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     assert entry.runtime_data.options["hub_enabled"] is True
@@ -38,12 +40,7 @@ async def test_options_flow_switches_the_hub_off_and_keeps_the_token(
     result = await hass.config_entries.options.async_init(entry.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
-        {
-            "hub_enabled": False,
-            "max_banners": 50,
-            "evict": True,
-            "default_dismiss_scope": "user",
-        },
+        options_input({"hub": {"hub_enabled": False}}),
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()

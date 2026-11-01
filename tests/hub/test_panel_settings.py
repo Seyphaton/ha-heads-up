@@ -34,7 +34,7 @@ async def test_every_settings_command_is_for_admins_only(
     assert not policies(entry)
 
 
-async def test_get_returns_the_editable_options_ranges_and_the_token(
+async def test_get_returns_every_option_the_layout_and_the_token(
     hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
 ) -> None:
     client = await hass_ws_client(hass)
@@ -42,14 +42,81 @@ async def test_get_returns_the_editable_options_ranges_and_the_token(
     assert result["options"] == {
         "hub_enabled": True,
         "show_panel": False,
+        "max_banners": 50,
+        "evict": True,
+        "default_dismiss_scope": "user",
+        "default_timeout": 86400,
+        "default_snoozable": False,
+        "default_snooze_scope": "user",
+        "default_snooze_options": [15, 60, 240],
+        "presence_debounce_seconds": 60,
+        "speak_max_length": 200,
+        "speak_cooldown_seconds": 60,
+        "speak_tts_entity": "",
         "rate_per_device_per_minute": 10,
         "rate_total_per_minute": 60,
         "dedupe_seconds": 30,
         "trace_entries": 500,
         "recent_messages": 100,
     }
-    assert result["ranges"]["trace_entries"] == [50, 5000]
+    assert [s["name"] for s in result["layout"]] == [
+        "hub",
+        "banners",
+        "presence",
+        "speech",
+        "limits",
+        "history",
+    ]
+    trace = next(e for s in result["layout"] for e in s["entries"] if e["key"] == "trace_entries")
+    assert trace == {"key": "trace_entries", "kind": "int", "range": [50, 5000]}
     assert result["install_token"] == entry.options["install_token"]
+
+
+async def test_the_banner_defaults_and_speech_settings_are_set_in_panel_units(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    client = await hass_ws_client(hass)
+    reply = await ask(
+        client,
+        "settings_set",
+        max_banners=10,
+        evict=False,
+        default_dismiss_scope="global",
+        default_timeout=3600,
+        default_snooze_options=[30, 5],
+        speak_tts_entity="tts.home",
+        presence_debounce_seconds=0,
+    )
+    assert reply["success"]
+    assert reply["result"]["options"]["default_snooze_options"] == [5, 30]  # minutes, sorted
+    assert entry.options["default_snooze_options"] == [300, 1800]  # stored in seconds
+    assert entry.options["default_timeout"] == 3600 and entry.options["max_banners"] == 10
+    assert entry.options["speak_tts_entity"] == "tts.home"
+    assert entry.runtime_data.options["max_banners"] == 10  # applied live
+
+
+async def test_an_empty_snooze_choice_falls_back_to_the_defaults(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    client = await hass_ws_client(hass)
+    await ask(client, "settings_set", default_snooze_options=[])
+    assert entry.options["default_snooze_options"] == [900, 3600, 14400]
+
+
+async def test_values_the_options_screen_would_refuse_are_refused(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    client = await hass_ws_client(hass)
+    for bad in (
+        {"max_banners": 0},
+        {"default_dismiss_scope": "nobody"},
+        {"default_timeout": 366 * 86400},
+        {"default_snooze_options": [7]},
+        {"speak_tts_entity": "media_player.kitchen"},
+        {"speak_max_length": 10},
+    ):
+        reply = await ask(client, "settings_set", **bad)
+        assert not reply["success"] and reply["error"]["code"] == "invalid_format", bad
 
 
 async def test_set_writes_the_integration_options_and_keeps_the_others(
@@ -97,3 +164,19 @@ async def test_the_people_summary_counts_usable_devices_and_users(
     people = {p["person"]: p for p in (await ask(client, "settings_get"))["result"]["people"]}
     assert people["person.anna"]["devices"] == 1 and people["person.anna"]["user"] is True
     assert people["person.ben"]["devices_total"] == 0 and people["person.ben"]["user"] is False
+
+
+def test_strings_json_lists_the_sections_and_entries_of_the_layout_in_order() -> None:
+    import json
+    from pathlib import Path
+
+    from custom_components.heads_up.hub import settings
+
+    strings = json.loads(
+        (Path(settings.__file__).parents[1] / "strings.json").read_text(encoding="utf-8")
+    )
+    sections = strings["options"]["step"]["init"]["sections"]
+    assert list(sections) == [name for name, _ in settings.SECTIONS]
+    for name, items in settings.SECTIONS:
+        assert list(sections[name]["data"]) == [key for key, _ in items], name
+        assert list(sections[name]["data_description"]) == [key for key, _ in items], name

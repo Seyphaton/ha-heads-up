@@ -6,7 +6,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from .conftest import CreateBanner, banners
+from .conftest import CreateBanner, banners, options_input
 
 SENSOR = "sensor.heads_up_active_banners"
 
@@ -35,12 +35,19 @@ async def test_options_flow_sets_defaults_for_new_banners(
     assert result["type"] is FlowResultType.FORM
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
-        {
-            "max_banners": 10,
-            "evict": False,
-            "default_dismiss_scope": "global",
-            "default_timeout": {"hours": 1},
-        },
+        options_input(
+            {
+                "banners": {
+                    "max_banners": 10,
+                    "evict": False,
+                    "default_dismiss_scope": "global",
+                    "default_timeout": {"hours": 1},
+                    "default_snoozable": False,
+                    "default_snooze_scope": "user",
+                    "default_snooze_options": ["15", "60", "240"],
+                },
+            }
+        ),
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
@@ -61,6 +68,11 @@ async def test_options_flow_sets_defaults_for_new_banners(
         "default_snoozable": False,
         "default_snooze_scope": "user",
         "default_snooze_options": [900, 3600, 14400],
+        "rate_per_device_per_minute": 10,
+        "rate_total_per_minute": 60,
+        "dedupe_seconds": 30,
+        "trace_entries": 500,
+        "recent_messages": 100,
     }
 
     await create(id="after", message="x")
@@ -77,8 +89,64 @@ async def test_cleared_default_timeout_means_no_expiry(
     result = await hass.config_entries.options.async_init(entry.entry_id)
     await hass.config_entries.options.async_configure(
         result["flow_id"],
-        {"max_banners": 50, "evict": True, "default_dismiss_scope": "user"},
+        options_input(
+            {"banners": {"max_banners": 50, "evict": True, "default_dismiss_scope": "user"}}
+        ),
     )
     await hass.async_block_till_done()
     await create(id="a", message="x")
     assert banners(entry)["a"].expires_at is None
+
+
+async def test_options_screen_has_the_sections_and_entries_of_the_panel_in_the_same_order(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    from custom_components.heads_up.hub import settings
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    schema = result["data_schema"].schema
+    assert [str(name) for name in schema] == [name for name, _ in settings.SECTIONS]
+    for (name, items), section in zip(settings.SECTIONS, schema.values(), strict=True):
+        assert [str(key) for key in section.schema.schema] == [key for key, _ in items], name
+    assert entry.options["install_token"] in result["description_placeholders"]["install_token"]
+
+
+async def test_options_screen_refuses_a_timeout_over_the_limit(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], options_input({"banners": {"default_timeout": {"days": 366}}})
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"default_timeout": "timeout_too_long"}
+    assert "default_timeout" not in entry.options  # nothing was saved
+
+
+async def test_a_value_saved_in_the_options_screen_shows_in_the_panel_data(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    from custom_components.heads_up.hub import settings
+
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        options_input(
+            {
+                "speech": {"speak_max_length": 120},
+                "limits": {"rate_total_per_minute": 90},
+                "history": {"trace_entries": 700},
+            }
+        ),
+    )
+    await hass.async_block_till_done()
+    values = settings.read_options(entry.runtime_data)
+    assert (
+        values["speak_max_length"],
+        values["rate_total_per_minute"],
+        values["trace_entries"],
+    ) == (
+        120,
+        90,
+        700,
+    )

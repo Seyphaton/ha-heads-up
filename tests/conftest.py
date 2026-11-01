@@ -50,3 +50,10 @@ def create(hass: HomeAssistant, entry: MockConfigEntry) -> CreateBanner:
 def banners(entry: MockConfigEntry) -> dict[str, Any]:
     """Current banners by id, as stored by the manager."""
     return {b.id: b for b in entry.runtime_data.banners.values()}
+
+
+def options_input(sections: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """The options form always sends every section; fields left out keep their stored value."""
+    from custom_components.heads_up.hub import settings
+
+    return {name: dict(sections.get(name, {})) for name, _ in settings.SECTIONS}

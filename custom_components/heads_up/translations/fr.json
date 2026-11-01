@@ -18,37 +18,91 @@
   "options": {
     "step": {
       "init": {
-        "data": {
-          "hub_enabled": "Hub",
-          "max_banners": "Nombre maximal de bannières",
-          "evict": "Supprimer la plus ancienne bannière de moindre gravité quand la limite est atteinte",
-          "default_dismiss_scope": "Portée de fermeture par défaut",
-          "default_timeout": "Délai d'expiration par défaut",
-          "default_snoozable": "Les bannières peuvent être reportées par défaut",
-          "default_snooze_scope": "Portée du report par défaut",
-          "default_snooze_options": "Durées de report par défaut",
-          "presence_debounce_seconds": "Délai de présence (secondes)",
-          "speak_max_length": "Texte parlé : longueur maximale (caractères)",
-          "speak_cooldown_seconds": "Texte parlé : pause avant répétition (secondes)",
-          "speak_tts_entity": "Moteur de synthèse vocale",
-          "show_panel": "Afficher Heads Up dans la barre latérale"
-        },
-        "data_description": {
-          "hub_enabled": "Active ou désactive le hub de notifications. Désactivé : seul le canal bannière fonctionne, comme avant le hub.",
-          "max_banners": "1–200. Les bannières critiques ne sont jamais supprimées.",
-          "evict": "Désactivé : créer une bannière au-delà du maximum échoue avec une erreur.",
-          "default_dismiss_scope": "Utilisé quand l'appel d'action ne définit pas dismiss_scope.",
-          "default_timeout": "Utilisé quand l'appel d'action ne définit pas timeout. Attention : si vous videz ce champ, les bannières sans délai propre restent jusqu'à leur fermeture ou suppression.",
-          "default_snoozable": "Utilisé quand l'appel d'action ne définit pas snoozable. Les bannières non fermables ne sont jamais reportables.",
-          "default_snooze_scope": "Utilisé quand l'appel d'action ne définit pas snooze_scope.",
-          "default_snooze_options": "Utilisé quand l'appel d'action ne définit pas snooze_options. Laisser vide pour 15 minutes, 1 heure et 4 heures.",
-          "presence_debounce_seconds": "Une personne doit rester à la maison ou absente ce temps avant que « Last to leave » et « First home » changent. 0 réagit tout de suite.",
-          "speak_max_length": "Les textes plus longs sont coupés à la fin d'un mot et se terminent par des points de suspension.",
-          "speak_cooldown_seconds": "Le même texte n'est pas redit sur le même haut-parleur pendant ce délai. 0 : toujours dire.",
-          "speak_tts_entity": "Le moteur qui parle sur les lecteurs multimédia. Vide : la seule entité de synthèse vocale, s'il n'y en a qu'une.",
-          "show_panel": "Afficher le panneau Heads Up dans la barre latérale. Seuls les administrateurs le voient."
+        "description": "Jeton d'installation: {install_token}. Fait partie de chaque étiquette de push, pour que deux serveurs Home Assistant n'effacent jamais les push de l'autre. Lecture seule.",
+        "sections": {
+          "hub": {
+            "name": "Hub",
+            "data": {
+              "hub_enabled": "Hub activé",
+              "show_panel": "Afficher Heads Up dans la barre latérale"
+            },
+            "data_description": {
+              "hub_enabled": "Active ou désactive le hub de notifications. Désactivé : seul le canal bannière fonctionne, comme avant le hub.",
+              "show_panel": "Seuls les administrateurs voient l'entrée. Elle apparaît et disparaît aussitôt à l'enregistrement."
+            }
+          },
+          "banners": {
+            "name": "Bannières",
+            "data": {
+              "max_banners": "Nombre maximal de bannières",
+              "evict": "Supprimer la plus ancienne bannière de moindre gravité quand la limite est atteinte",
+              "default_dismiss_scope": "Portée de fermeture par défaut",
+              "default_timeout": "Délai d'expiration par défaut",
+              "default_snoozable": "Les bannières peuvent être reportées par défaut",
+              "default_snooze_scope": "Portée du report par défaut",
+              "default_snooze_options": "Durées de report par défaut"
+            },
+            "data_description": {
+              "max_banners": "1–200. Les bannières critiques ne sont jamais supprimées.",
+              "evict": "Désactivé : créer une bannière au-delà du maximum échoue avec une erreur.",
+              "default_dismiss_scope": "Utilisé quand l'appel d'action ne définit pas dismiss_scope.",
+              "default_timeout": "Utilisé quand l'appel d'action ne définit pas timeout. Attention : si vous videz ce champ, les bannières sans délai propre restent jusqu'à leur fermeture ou suppression.",
+              "default_snoozable": "Utilisé quand l'appel d'action ne définit pas snoozable. Les bannières non fermables ne sont jamais reportables.",
+              "default_snooze_scope": "Utilisé quand l'appel d'action ne définit pas snooze_scope.",
+              "default_snooze_options": "Utilisé quand l'appel d'action ne définit pas snooze_options. Laisser vide pour 15 minutes, 1 heure et 4 heures."
+            }
+          },
+          "presence": {
+            "name": "Présence",
+            "data": {
+              "presence_debounce_seconds": "Délai de présence (secondes)"
+            },
+            "data_description": {
+              "presence_debounce_seconds": "Une personne doit rester à la maison ou absente ce temps avant que « Last to leave » et « First home » changent. 0 réagit tout de suite."
+            }
+          },
+          "speech": {
+            "name": "Voix",
+            "data": {
+              "speak_max_length": "Texte parlé : longueur maximale (caractères)",
+              "speak_cooldown_seconds": "Texte parlé : pause avant répétition (secondes)",
+              "speak_tts_entity": "Moteur de synthèse vocale"
+            },
+            "data_description": {
+              "speak_max_length": "Les textes plus longs sont coupés à la fin d'un mot et se terminent par des points de suspension.",
+              "speak_cooldown_seconds": "Le même texte n'est pas redit sur le même haut-parleur pendant ce délai. 0 : toujours dire.",
+              "speak_tts_entity": "Le moteur qui parle sur les lecteurs multimédia. Vide : la seule entité de synthèse vocale, s'il n'y en a qu'une."
+            }
+          },
+          "limits": {
+            "name": "Limites",
+            "data": {
+              "rate_per_device_per_minute": "Push par appareil et par minute",
+              "rate_total_per_minute": "Livraisons par minute, tous appareils",
+              "dedupe_seconds": "Secondes pendant lesquelles les mises à jour identiques sont ignorées"
+            },
+            "data_description": {
+              "rate_per_device_per_minute": "1–600. Enregistré, mais pas encore appliqué.",
+              "rate_total_per_minute": "1–6000. Enregistré, mais pas encore appliqué.",
+              "dedupe_seconds": "0–3600. Enregistré, mais pas encore appliqué."
+            }
+          },
+          "history": {
+            "name": "Historique",
+            "data": {
+              "trace_entries": "Entrées de trace conservées",
+              "recent_messages": "Messages récents conservés"
+            },
+            "data_description": {
+              "trace_entries": "50–5000.",
+              "recent_messages": "10–1000."
+            }
+          }
         }
       }
+    },
+    "error": {
+      "timeout_too_long": "Le délai par défaut est d'au plus 365 jours."
     }
   },
   "selector": {
