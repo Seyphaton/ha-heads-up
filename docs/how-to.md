@@ -251,7 +251,16 @@ Conditions: equals, does not equal, above, below, between, contains text, does n
 
 ## 5. Integration options
 
-Open the integration and choose Configure. Changes apply to banners created afterwards.
+Open the integration and choose Configure, or open Settings in the Heads Up panel: both show the same entries in the same order and wording, and a change in one shows in the other. Banner defaults apply to banners created afterwards.
+
+**Hub**
+
+| Option | Default | Meaning |
+|---|---|---|
+| Hub enabled | on | Off: messages reach only the dashboard banner. |
+| Show Heads Up in the sidebar | off (on in the setup flow) | Only administrators see the entry. |
+
+**Banners**
 
 | Option | Default | Meaning |
 |---|---|---|
@@ -262,6 +271,22 @@ Open the integration and choose Configure. Changes apply to banners created afte
 | Banners can be snoozed by default | off | Used when an action sets no `snoozable`. Banners that are not dismissible are never snoozable. |
 | Default snooze scope | `user` | Used when an action sets no `snooze_scope`. |
 | Default snooze choices | 15 minutes, 1 hour, 4 hours | Used when an action sets no `snooze_options`. Choose from 5 minutes to 24 hours. |
+
+**Presence, Speech, Limits and History**
+
+| Option | Default | Meaning |
+|---|---|---|
+| Presence delay (seconds) | 60 (0–600) | How long a person must stay home or away before Last to leave and First home change. 0 reacts at once. |
+| Spoken text: longest (characters) | 200 (20–1000) | Longer texts are cut at a word. |
+| Spoken text: repeat pause (seconds) | 60 (0–3600) | The same text is not spoken again on the same speaker within this time. 0: always speak. |
+| Text-to-speech engine | automatic | The engine for media players. Automatic: the only text-to-speech entity, if there is exactly one. |
+| Pushes per device per minute | 10 (1–600) | Stored now; not enforced yet. |
+| Deliveries per minute, all devices | 60 (1–6000) | Stored now; not enforced yet. |
+| Seconds in which identical updates are ignored | 30 (0–3600) | Stored now; not enforced yet. |
+| Trace entries kept | 500 (50–5000) | Size of the delivery trace. |
+| Recent messages kept | 100 (10–1000) | Size of the recent messages list. |
+
+The install token is shown on the options screen and in the panel, read only. It is part of every push tag.
 
 ## Reference
 

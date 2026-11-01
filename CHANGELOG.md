@@ -4,6 +4,9 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Changed
+- Settings: the options screen (Configure) and the panel's Settings page now hold the same entries in the same order and wording: Hub, Banners, Presence, Speech, Limits and History. The options screen gained the limits and the history sizes; the panel gained the banner defaults, the presence delay and the speech settings. The options screen is grouped in sections and shows the install token.
+
 ### Added
 - Panel page FAQ and examples: six example calls with a Copy button and eleven questions with answers, in English, German, French and Spanish. The examples are validated against the action schemas by the documentation check.
 - Panel navigation: the pages of a group are pills under the top row instead of a second grey tab bar.

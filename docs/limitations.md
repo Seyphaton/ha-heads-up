@@ -23,7 +23,7 @@
 - When the limit is reached and every stored banner is `critical`, or eviction is off, creating a banner fails.
 - A dashboard page that finishes loading in the first second after Home Assistant starts can miss the card and show "Custom element doesn't exist: heads-up-card". Reload the page once. See [troubleshooting](troubleshooting.md).
 - Installing needs a Home Assistant restart, which pauses all automations until it has finished.
-- Settings changes in the options form apply to new banners only.
+- Banner defaults changed in the options form or in Settings apply to new banners only.
 - Watch rules ([rules](rules.md)) compare one entity's state or attribute as text, like `condition`. A closed rule banner returns after a restart.
 
 ## Tested versions

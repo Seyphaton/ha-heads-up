@@ -76,12 +76,17 @@ An audience or a speaker group that a policy uses cannot be deleted in the panel
 
 | Part | What it does |
 |---|---|
-| Hub | The hub switch (option `hub_enabled`) and the sidebar switch. Off: messages reach only the dashboard banner. |
 | Welcome | A button that shows the welcome again. |
-| People and devices | Each person with the number of usable Companion devices and whether a Home Assistant user is linked. A person without a device gets only banner and popup; a person without a user gets no popup. |
+| Hub | The hub switch (option `hub_enabled`) and the sidebar switch. Off: messages reach only the dashboard banner. |
+| Banners | Maximum number, evict when full, default dismiss scope, default timeout (days, hours, minutes, seconds; empty is none), snoozable by default, default snooze scope and choices. |
+| Presence | The presence delay for Last to leave and First home. |
+| Speech | Longest spoken text, repeat pause and the text-to-speech engine. |
 | Limits | Pushes per device per minute, deliveries per minute for all devices, seconds in which identical updates are ignored. Stored now; not enforced yet. |
 | History | Trace entries kept (50 to 5000) and recent messages kept (10 to 1000). |
 | Identity | The install token, read only. It is part of every push tag. |
+| People and devices | Each person with the number of usable Companion devices and whether a Home Assistant user is linked. A person without a device gets only banner and popup; a person without a user gets no popup. |
+
+Hub to History are the same entries, in the same order and wording, as Settings > Devices & services > Heads Up > Configure (D-122), and a change in one shows in the other. Welcome, Identity and People and devices are only in the panel; the options screen shows the install token at the top.
 
 Save is enabled only when something changed and every number is inside its range; the page names a number that is not.
 
