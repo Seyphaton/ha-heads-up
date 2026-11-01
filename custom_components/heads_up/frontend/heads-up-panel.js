@@ -211,11 +211,12 @@ header { display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 
 header h1 { font-size: 20px; font-weight: 500; margin: 0; }
 button { font: inherit; cursor: pointer; }
 .menu { min-width: 48px; min-height: 48px; border: none; background: transparent; color: inherit; font-size: 22px; }
-nav { background: var(--card-background-color); border-bottom: 1px solid var(--divider-color); }
-nav .row { display: flex; gap: 4px; overflow-x: auto; padding: 0 8px; }
+nav .row { display: flex; gap: 4px; overflow-x: auto; padding: 0 8px; background: var(--card-background-color); border-bottom: 1px solid var(--divider-color); }
 nav button { min-height: 48px; padding: 0 14px; border: none; border-bottom: 3px solid transparent; background: transparent; color: var(--secondary-text-color); white-space: nowrap; }
 nav button[aria-current="page"] { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
-nav .second { background: var(--secondary-background-color); }
+nav .second { gap: 8px; max-width: 900px; margin: 0 auto; padding: 12px 16px 0; background: transparent; border-bottom: none; }
+nav .second button { min-height: 36px; padding: 0 16px; border: 1px solid var(--divider-color); border-radius: 18px; background: transparent; color: var(--primary-text-color); font-weight: 400; }
+nav .second button[aria-current="page"] { background: var(--primary-color); border-color: var(--primary-color); color: var(--text-primary-color, #fff); font-weight: 500; }
 nav button:focus-visible, .menu:focus-visible { outline: 3px solid var(--primary-color); outline-offset: -3px; }
 main { max-width: 900px; margin: 0 auto; padding: 16px; }
 .note { color: var(--secondary-text-color); padding: 24px 0; }
