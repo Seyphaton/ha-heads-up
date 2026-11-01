@@ -18,6 +18,7 @@ export const MODULES = {
   recipients: "recipients.js",
   policies: "policies.js",
   channels: "channels.js",
+  faq: "help.js",
 };
 export const DEFAULT_PAGE = "status";
 export const BASE_PATH = "/heads-up";

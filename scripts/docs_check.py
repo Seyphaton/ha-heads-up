@@ -123,6 +123,32 @@ def check_examples(files: list[Path]) -> tuple[list[str], int]:
     return errors, count
 
 
+PANEL_HELP = ROOT / "custom_components" / "heads_up" / "frontend" / "panel" / "help.js"
+HELP_YAML_RE = re.compile(r"\n    yaml: `(.*?)`,", re.DOTALL)
+
+
+def check_panel_examples() -> tuple[list[str], int]:
+    """The examples on the panel's FAQ page validate against the real action schemas."""
+    import voluptuous as vol
+    import yaml
+
+    from custom_components.heads_up.services import SCHEMAS
+
+    errors, count = [], 0
+    blocks = HELP_YAML_RE.findall(PANEL_HELP.read_text(encoding="utf-8"))
+    if not blocks:
+        return [f"{PANEL_HELP.relative_to(ROOT)}: no examples found"], 0
+    for block in blocks:
+        for call in _action_calls(yaml.safe_load(block)):
+            service = call["action"].removeprefix("heads_up.")
+            count += 1
+            try:
+                SCHEMAS[service](call.get("data") or {})
+            except (KeyError, vol.Invalid) as err:
+                errors.append(f"panel help example for {call['action']} is invalid: {err}")
+    return errors, count
+
+
 def _schema_fields(schema: Any) -> set[str]:
     while not hasattr(schema, "schema") or not isinstance(schema.schema, dict):
         schema = schema.validators[0]  # vol.All(Schema, ...)
@@ -228,7 +254,9 @@ def main() -> int:
     files = markdown_files()
     errors = check_words(files)
     example_errors, examples = check_examples(files)
-    errors += example_errors + check_field_parity() + check_card_options(files)
+    panel_errors, panel_examples = check_panel_examples()
+    examples += panel_examples
+    errors += example_errors + panel_errors + check_field_parity() + check_card_options(files)
     for e in errors:
         print(e)
     print(f"docs-check: {len(files)} files, {examples} examples validated, {len(errors)} errors")
