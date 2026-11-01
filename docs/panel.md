@@ -1,6 +1,6 @@
 # The Heads Up panel
 
-The panel is an administrator page in Home Assistant's sidebar. In this version it has the navigation, the Overview, the Messages page, the four Configuration pages, Test send, the Settings page and the welcome; Watch rules and FAQ say they are not available yet.
+The panel is an administrator page in Home Assistant's sidebar. In this version it has the navigation, the Overview, the Messages page, the four Configuration pages, Test send, the Settings page, the welcome and the FAQ and examples page; Watch rules says it is not available yet.
 
 ## Show it in the sidebar
 
@@ -13,7 +13,7 @@ The entry appears and disappears when you save, without a restart. Only administ
 
 ## Navigation
 
-Five groups in a top row: Overview, Notifications and rules, Configuration, Settings, FAQ and examples. A group with more than one page has a second row with its pages (Notifications and rules: Test send, Watch rules, Messages; Configuration: Audiences, Recipients, Policies, Channels). The address of a page is `/heads-up/<page>`, for example `/heads-up/general`. On a narrow screen the page has a menu button that opens Home Assistant's sidebar.
+Five groups in a top row: Overview, Notifications and rules, Configuration, Settings, FAQ and examples. A group with more than one page shows its pages as pills under the top row (Notifications and rules: Test send, Watch rules, Messages; Configuration: Audiences, Recipients, Policies, Channels). The address of a page is `/heads-up/<page>`, for example `/heads-up/general`. On a narrow screen the page has a menu button that opens Home Assistant's sidebar.
 
 ## Overview
 
@@ -85,9 +85,13 @@ An audience or a speaker group that a policy uses cannot be deleted in the panel
 
 Save is enabled only when something changed and every number is inside its range; the page names a number that is not.
 
+## FAQ and examples
+
+Six example calls, from a banner without the hub to a push to one person, each with a Copy button. Eleven questions open and close: banners without the hub, audience versus direct recipients, why speech takes no audience, several channels in one call, nobody reacting, quiet nights, someone not home, summaries, replacing a phone, a missing notification, and restarts. Names such as Anna and Admins are samples. `make docs-check` validates every example against the action schemas.
+
 ## Limits
 
-- Watch rules and FAQ come in later versions. The Needs attention button for a rule opens a page that says so.
+- Watch rules comes in a later version. The Needs attention button for a rule opens a page that says so.
 - Test send has no "what if" time: it uses the real clock.
 - The pages poll every 10 seconds; they do not update the moment something happens.
 - Not tested on a touch device or with a screen reader.

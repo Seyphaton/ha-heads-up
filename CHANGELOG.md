@@ -5,6 +5,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ## [Unreleased]
 
 ### Added
+- Panel page FAQ and examples: six example calls with a Copy button and eleven questions with answers, in English, German, French and Spanish. The examples are validated against the action schemas by the documentation check.
+- Panel navigation: the pages of a group are pills under the top row instead of a second grey tab bar.
 - Welcome: the first time an administrator opens the panel, a dialog explains four default policies and lets you switch each on or off: Quiet hours (22:00 to 07:00, send quietly, critical passes), Evening summary (messages tagged `digest`, 20:00), Critical messages (pushed at once at the iOS critical level, a reminder every 10 minutes, speech after 10 minutes, dismissing counts as acknowledging) and Warning reminders. It adds only what is missing and changes nothing you have. A button on Settings shows it again. New admin-only WebSocket commands `heads_up/welcome_get` and `heads_up/welcome_apply`. See [The panel](docs/panel.md).
 - Policy type Deliver: sends the messages it applies to to a chosen audience on chosen channels at once, in addition to the call. See [Policies](docs/policies.md).
 - Panel page Test send: a live preview of a call (one row per recipient and channel with the result and reason, a summary, the policies that apply, the later steps, fallback rows), the call as `heads_up.notify` YAML with a Copy button, and one real Send test with a marker (title starting with `Test: `, tag `test`, id `hu_test_…`, 10 minutes). New admin-only WebSocket commands `heads_up/hub_plan` and `heads_up/hub_test_send`. See [The panel](docs/panel.md).
