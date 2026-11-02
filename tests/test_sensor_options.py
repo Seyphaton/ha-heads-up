@@ -68,7 +68,7 @@ async def test_options_flow_sets_defaults_for_new_banners(
         "default_snoozable": False,
         "default_snooze_scope": "user",
         "default_snooze_options": [900, 3600, 14400],
-        "rate_per_device_per_minute": 10,
+        "rate_per_device_per_minute": 5,
         "rate_total_per_minute": 60,
         "dedupe_seconds": 30,
         "trace_entries": 500,

@@ -82,9 +82,9 @@
               "dedupe_seconds": "Seconds in which identical updates are ignored"
             },
             "data_description": {
-              "rate_per_device_per_minute": "1–600. Stored now; not enforced yet.",
-              "rate_total_per_minute": "1–6000. Stored now; not enforced yet.",
-              "dedupe_seconds": "0–3600. Stored now; not enforced yet."
+              "rate_per_device_per_minute": "1–600. A push over the cap is skipped; critical messages are never held back.",
+              "rate_total_per_minute": "1–6000. A push over the cap is skipped; critical messages are never held back.",
+              "dedupe_seconds": "0–3600. An update with the same content is not sent again within this time. 0: off."
             }
           },
           "history": {

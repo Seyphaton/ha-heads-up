@@ -82,9 +82,9 @@
               "dedupe_seconds": "Secondes pendant lesquelles les mises à jour identiques sont ignorées"
             },
             "data_description": {
-              "rate_per_device_per_minute": "1–600. Enregistré, mais pas encore appliqué.",
-              "rate_total_per_minute": "1–6000. Enregistré, mais pas encore appliqué.",
-              "dedupe_seconds": "0–3600. Enregistré, mais pas encore appliqué."
+              "rate_per_device_per_minute": "1–600. Un push au-delà de la limite est ignoré ; les messages critiques ne sont jamais retenus.",
+              "rate_total_per_minute": "1–6000. Un push au-delà de la limite est ignoré ; les messages critiques ne sont jamais retenus.",
+              "dedupe_seconds": "0–3600. Une mise à jour au contenu identique n'est pas renvoyée pendant ce délai. 0 : désactivé."
             }
           },
           "history": {

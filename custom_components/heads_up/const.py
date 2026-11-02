@@ -50,6 +50,7 @@ OPT_DEFAULT_SNOOZE_SCOPE: Final = "default_snooze_scope"
 OPT_DEFAULT_SNOOZE_OPTIONS: Final = "default_snooze_options"  # seconds
 # Hub (DESIGN §23). Channels of a message; only `banner` delivers in H1.
 CHANNEL_BANNER: Final = "banner"
+CHANNEL_PERSISTENT: Final = "persistent"
 CHANNELS: Final = ("banner", "push", "popup", "speak", "persistent")
 TARGET_CHANNELS: Final = ("banner", "push", "popup", "speak")  # channels that accept a target
 SOURCE_ACTION: Final = "action"
@@ -168,7 +169,7 @@ DEFAULT_OPTIONS: Final = {
     OPT_SPEAK_LANGUAGE: "",
     OPT_TRACE_ENTRIES: 500,
     OPT_RECENT_MESSAGES: 100,
-    OPT_RATE_PER_DEVICE: 10,
+    OPT_RATE_PER_DEVICE: 5,
     OPT_RATE_TOTAL: 60,
     OPT_DEDUPE_SECONDS: 30,
 }

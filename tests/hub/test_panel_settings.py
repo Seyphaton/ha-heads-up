@@ -53,7 +53,7 @@ async def test_get_returns_every_option_the_layout_and_the_token(
         "speak_max_length": 200,
         "speak_cooldown_seconds": 60,
         "speak_tts_entity": "",
-        "rate_per_device_per_minute": 10,
+        "rate_per_device_per_minute": 5,
         "rate_total_per_minute": 60,
         "dedupe_seconds": 30,
         "trace_entries": 500,

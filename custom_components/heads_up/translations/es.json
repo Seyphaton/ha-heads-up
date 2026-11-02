@@ -82,9 +82,9 @@
               "dedupe_seconds": "Segundos en que se ignoran las actualizaciones idénticas"
             },
             "data_description": {
-              "rate_per_device_per_minute": "1–600. Se guarda, pero aún no se aplica.",
-              "rate_total_per_minute": "1–6000. Se guarda, pero aún no se aplica.",
-              "dedupe_seconds": "0–3600. Se guarda, pero aún no se aplica."
+              "rate_per_device_per_minute": "1–600. Un push por encima del límite se omite; los mensajes críticos nunca se retienen.",
+              "rate_total_per_minute": "1–6000. Un push por encima del límite se omite; los mensajes críticos nunca se retienen.",
+              "dedupe_seconds": "0–3600. Una actualización con el mismo contenido no se reenvía durante este tiempo. 0: desactivado."
             }
           },
           "history": {

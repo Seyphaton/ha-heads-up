@@ -28,7 +28,7 @@ async def test_limit_and_history_defaults_are_stored(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
     options = entry.runtime_data.options
-    assert (options["rate_per_device_per_minute"], options["rate_total_per_minute"]) == (10, 60)
+    assert (options["rate_per_device_per_minute"], options["rate_total_per_minute"]) == (5, 60)
     assert options["dedupe_seconds"] == 30
     assert (options["trace_entries"], options["recent_messages"]) == (500, 100)
 

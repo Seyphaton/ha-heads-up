@@ -82,9 +82,9 @@
               "dedupe_seconds": "Sekunden, in denen gleiche Aktualisierungen ignoriert werden"
             },
             "data_description": {
-              "rate_per_device_per_minute": "1–600. Wird gespeichert, aber noch nicht durchgesetzt.",
-              "rate_total_per_minute": "1–6000. Wird gespeichert, aber noch nicht durchgesetzt.",
-              "dedupe_seconds": "0–3600. Wird gespeichert, aber noch nicht durchgesetzt."
+              "rate_per_device_per_minute": "1–600. Ein Push über dem Limit wird übersprungen; kritische Meldungen werden nie zurückgehalten.",
+              "rate_total_per_minute": "1–6000. Ein Push über dem Limit wird übersprungen; kritische Meldungen werden nie zurückgehalten.",
+              "dedupe_seconds": "0–3600. Eine Aktualisierung mit gleichem Inhalt wird in dieser Zeit nicht erneut gesendet. 0: aus."
             }
           },
           "history": {
