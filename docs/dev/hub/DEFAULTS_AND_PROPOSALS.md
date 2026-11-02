@@ -3,6 +3,7 @@
 Every concrete value the hub design uses, and whether the maintainer decided it. A build session asks about every "proposed" and "open" item with AskUserQuestion before it relies on it, and records the answer in `docs/DECISIONS.md`.
 
 ## Decided
+- Rate limits (D-123): 5 pushes per device per minute, 60 per minute for all devices, identical updates ignored for 30 seconds; all configurable; critical is never held back; a suppressed delivery shows in the trace and the log.
 - The hub is built (D-107). `hub_enabled` defaults to true with an off switch; the panel sidebar entry is not registered by default and is enabled by the user during initial setup (D-107). All work stays on feature branches until the maintainer confirms.
 - Severities: success, info, warning, critical (existing).
 - Push levels by severity: success and info passive, warning normal, critical time-sensitive; iOS critical only as an opt-in (D-090).
@@ -44,7 +45,7 @@ Every concrete value the hub design uses, and whether the maintainer decided it.
 
 ## Proposed (used in the mockup, not decided)
 - Install token: 6 hexadecimal characters, generated at first setup, shown read-only.
-- Rate limits in the options: 10 pushes per device per minute, 60 deliveries per minute for all devices, identical updates ignored for 30 seconds.
+
 - History: 500 trace entries, 100 recent messages.
 - Escalation default 5 minutes; reminder default every 30 minutes, at most 3; summary default every 60 minutes or at 20:00; quiet hours default 22:00 to 07:00, all days, critical passes, action quiet.
 - Send test uses a test marker in the message (exact form open).

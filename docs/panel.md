@@ -81,7 +81,7 @@ An audience or a speaker group that a policy uses cannot be deleted in the panel
 | Banners | Maximum number, evict when full, default dismiss scope, default timeout (days, hours, minutes, seconds; empty is none), snoozable by default, default snooze scope and choices. |
 | Presence | The presence delay for Last to leave and First home. |
 | Speech | Longest spoken text, repeat pause and the text-to-speech engine. |
-| Limits | Pushes per device per minute, deliveries per minute for all devices, seconds in which identical updates are ignored. Stored now; not enforced yet. |
+| Limits | Pushes per device per minute, deliveries per minute for all devices, seconds in which identical updates are ignored. The limits are enforced; see [Notification hub](hub.md#limits-that-protect-the-phones). |
 | History | Trace entries kept (50 to 5000) and recent messages kept (10 to 1000). |
 | Identity | The install token, read only. It is part of every push tag. |
 | People and devices | Each person with the number of usable Companion devices and whether a Home Assistant user is linked. A person without a device gets only banner and popup; a person without a user gets no popup. |

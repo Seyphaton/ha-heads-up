@@ -5,6 +5,8 @@
 3. Delete the folder `custom_components/heads_up` from your Home Assistant configuration folder, or remove the repository in HACS.
 4. Restart Home Assistant. A restart pauses all automations until it has finished.
 
+Deleting the integration does not take back what it already sent. Notifications on phones stay until someone swipes them away, and entries in the notification bell stay until the next restart of Home Assistant or until you dismiss them. Audiences, recipient profiles, speaker groups and policies are entries of the integration and are deleted with it.
+
 Remove the calls of `heads_up.*` actions from your automations and scripts. A call without the integration fails because the action no longer exists.
 
 Heads Up does not change other integrations, automations or scripts, so nothing else needs to be restored.

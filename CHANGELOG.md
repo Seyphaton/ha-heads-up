@@ -5,6 +5,10 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ## [Unreleased]
 
 ### Changed
+- Rate limits are enforced: a push over 5 per device per minute or over 60 in total is skipped (`rate_limited` in the trace), and an update with the same content as the last one is ignored for 30 seconds (`duplicate`). Critical messages are never held back. The default for pushes per device per minute is 5 instead of 10; the three limits are settings.
+- After a restart of Home Assistant, the entries of active messages in the notification bell come back (Home Assistant empties the bell on a restart).
+- A stored delivery record of the wrong shape no longer stops the integration from starting.
+- README: Heads Up is described as a central hub for notifications, starting from the problems it solves. New page [Notification hub](docs/hub.md).
 - Settings: the options screen (Configure) and the panel's Settings page now hold the same entries in the same order and wording: Hub, Banners, Presence, Speech, Limits and History. The options screen gained the limits and the history sizes; the panel gained the banner defaults, the presence delay and the speech settings. The options screen is grouped in sections and shows the install token.
 
 ### Added

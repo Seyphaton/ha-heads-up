@@ -5,7 +5,7 @@ paths:
 
 # Tests
 
-- `pytest-homeassistant-custom-component==0.13.367` = HA 2026.9.4 (HA_API_NOTES N-20). `enable_custom_integrations` is autouse in `tests/conftest.py`.
+- `pytest-homeassistant-custom-component==0.13.375` = HA 2026.10.4 (HA_API_NOTES N-46); CI also runs 2026.9.4 (0.13.367, N-20). Import `probatio as vol`, not `voluptuous` (N-91). `enable_custom_integrations` is autouse in `tests/conftest.py`.
 - Lifecycle semantics get tests before implementation (Phase 2): upsert, each removal reason, eviction, limits, response data, events, permissions.
 - Restart safety: set up entry → mutate → unload → reload from the persisted store; use `freezer` to move time past `expires_at` across the restart.
 - Time: never `sleep`; use `freezer.tick()` + `async_fire_time_changed`.

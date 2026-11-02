@@ -2,7 +2,7 @@
 
 | What | How | Command |
 |---|---|---|
-| Integration logic | pytest + `pytest-homeassistant-custom-component` 0.13.367 (HA 2026.9.4) | `make test` |
+| Integration logic | pytest + `pytest-homeassistant-custom-component` 0.13.375 (HA 2026.10.4) | `make test` |
 | One test | | `make test ARGS="tests/test_config_flow.py::test_second_entry_aborts"` |
 | Restart safety | unload + reload entry from persisted store; `freezer` moves time past `expires_at` | `tests/test_restart.py` |
 | Real instance | `dev/smoke.py`: REST actions with response, sensor, per-user dismiss over WebSocket as `dev-admin`/`dev-user`, admin-only clear, container restart, persistence; condition on `input_boolean.test_window` + `people: [person.dev_user]`; watch rule added through the REST subentry flow, seen by both users, `not_dismissible` / `rule_banner`, container restart, rule deleted over WebSocket | `make dev-smoke` (calls `clear_all`, so it removes every banner on the dev instance; it deletes only the rule named "Smoke window") |
@@ -85,6 +85,6 @@
 
 ## Notes
 
-`make check` runs lint, types, pytest, docs-check and `make test-card`. CI (`.github/workflows/ci.yml`) runs python checks, the same pytest on HA 2026.10.4 (`python-ha-2026-10`; locally: throwaway venv with `pytest-homeassistant-custom-component==0.13.375` and `home-assistant-frontend==20260930.5`), the card tests (`npm ci`, vitest); `.github/workflows/validate.yml` runs hassfest (with checkout) and the HACS action on push, pull request, daily and on demand. The repository is on GitHub (private); the first workflow results have not been read yet.
+`make check` runs lint, types, pytest, docs-check and `make test-card`. CI (`.github/workflows/ci.yml`) runs python checks, the same pytest on the minimum tested version HA 2026.9.4 (`python-ha-2026-9`; locally: `.venv-ha` with `pytest-homeassistant-custom-component==0.13.367` and `home-assistant-frontend==20260826.7`), the card tests (`npm ci`, vitest); `.github/workflows/validate.yml` runs hassfest (with checkout) and the HACS action on push, pull request, daily and on demand. The repository is on GitHub (private); the first workflow results have not been read yet.
 
 HA logs an `ERROR ... Unauthorized` line when a non-admin calls `heads_up/admin_clear`; that is HA's `require_admin` behaviour, not a failure.

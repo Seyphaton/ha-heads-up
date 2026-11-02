@@ -13,7 +13,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §20 `empty` and `not_empty` operators, rule form without a prefilled State | implemented and tested (Phase 11); card unchanged |
 | §21 banner buttons and snooze | implemented and tested (Phase 12); card checked on the dev HA with a mouse |
 | §22 parity of banner sources, rule buttons, tap action, dismiss scope and template conditions | implemented and tested (Phase 12 follow-up) |
-| §23 notification hub | designed (Phase 15) and approved for build (D-107); built on feature branches only; nothing on `main` |
+| §23 notification hub | designed (Phase 15) and built on feature branches (H0 to H10, D-107, D-123); not merged, not released |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
 | Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
@@ -26,7 +26,7 @@ Goals
 - No caller-specific code; the action schema is the only contract.
 
 Non-goals
-- Delivering push, TTS or mobile notifications was a non-goal until D-107; the hub (§23) now delivers through push, speech, popup and persistent notification. This line is removed from the user documentation when the first channel ships.
+- Heads Up is a central hub for notifications (D-107, D-123). The banner is the core and push, popup, speech and the notification bell are channels on the same level; the user documentation (README, `docs/hub.md`) starts from the problems this solves and lists the banner first. Phone calls, SMS, e-mail and chat services stay out of scope.
 - Access control. Server-side targeting limits what a user's session receives, but admins and anyone with file access can read all banners (D-008).
 - Changing other integrations, automations, scripts or blueprints.
 
@@ -302,7 +302,7 @@ Touch and kiosk use: 48 px touch targets (the compact row is 40 px, the button k
 
 Status: Python tests implemented (121, files listed in `docs/dev/TESTING.md`); card pure functions tested (65 vitest tests); CI matrix job for 2026.10.4 written, all 121 tests also pass on HA 2026.10.4 in a throwaway venv (2026-10-25); the CI jobs are not read yet.
 
-- Python: `pytest-homeassistant-custom-component` 0.13.367 = HA 2026.9.4 (N-25); CI runs the same tests on 2026.10.4 (N-46).
+- Python: `pytest-homeassistant-custom-component` 0.13.375 = HA 2026.10.4, the development version (N-46, D-123); CI runs the same tests on the minimum tested version 2026.9.4 (0.13.367, N-25). mypy runs on 2026.10.4 (N-91).
 - Lifecycle tests first (Phase 2): upsert, each removal reason, eviction order, limits, response data, events, permission checks for `show_all`/`admin_clear`.
 - Restart tests: create → unload/reload entry with persisted store → assert banners, dismissals, `expires_at`; freeze time past expiry across restart → `expired` event.
 - Condition tests (Phase 3): flips, `once` vs `recurring`, `wait_for_condition`, unavailable, entity removed, person `user_id` changes.
@@ -316,8 +316,8 @@ Status: Python tests implemented (121, files listed in `docs/dev/TESTING.md`); c
 - Public GitHub repo (D-020); layout `custom_components/heads_up/` with `brand/icon.png` inside it (N-47), `hacs.json` `{name: "Heads Up", homeassistant: "2026.9.0"}` (N-18, N-19).
 - manifest: `domain`, `name`, `version`, `documentation`, `issue_tracker`, `codeowners`, `config_flow: true`, `integration_type: service`, `iot_class: local_push`, `dependencies: [frontend, http, person]`, `single_config_entry: true` (verified, N-27).
 - SemVer; CHANGELOG (Keep a Changelog); GitHub releases, not only tags (N-18).
-- CI (D-027): `ci.yml` runs ruff, mypy, pytest (HA 2026.9.4 and 2026.10.4), vitest and docs-check; `validate.yml` runs hassfest and the HACS action, also daily and on demand (D-051).
-- Dev environment: Docker `homeassistant/home-assistant:2026.9.4` (verified, N-28), config from `dev/ha-config/`, no notify services; see `docs/dev/DEV_ENVIRONMENT.md`.
+- CI (D-027): `ci.yml` runs ruff, mypy, pytest (HA 2026.10.4 and 2026.9.4), vitest and docs-check; `validate.yml` runs hassfest and the HACS action, also daily and on demand (D-051).
+- Dev environment: Docker `homeassistant/home-assistant:2026.10.4` (N-28, N-92), config from `dev/ha-config/`, no notify services; see `docs/dev/DEV_ENVIRONMENT.md`.
 - Install runbook (Phase 6, for users): backup, HACS custom repo install, restart (all automations pause for the restart duration), add integration, open dashboard, smoke test with one `create_banner`, rollback = remove integration + HACS uninstall + restart.
 
 ## 13. External callability and API stability
@@ -524,6 +524,12 @@ How both sources stay equal:
 | clear by action or by an admin | yes | exception: the rule is disabled or deleted instead (D-056) |
 | stored over a restart (banner, dismissals, snoozes) | yes | exception: a rule is rebuilt from its subentry; dismissals and snoozes are not kept (D-056, D-069) |
 | hub delivery (channels, a target per channel, a named policy) | yes (`notify`) | exception: rules stay banner-channel messages; policies apply by severity and tag (D-100) |
+| acknowledgement (card button, push button, `heads_up/acknowledge`), escalation and reminder by policy | yes | yes: the policies of the tag `rule` apply, and the acknowledgement starts again each time the condition turns false and true |
+| rate limits and ignored identical updates (D-123) | yes, on every delivery | yes, on every delivery that a policy makes for a rule message |
+| Deliver, Quiet hours, Away, Fallback and Summarize policies (D-121) | yes | yes, by severity and tag `rule` (D-100); a Summarize policy holds a rule message on every channel |
+| panel Test send and trace | yes (message id) | trace yes (`rule_<id>`); Test send previews a call, not a stored rule |
+
+Final audit for the hub (H10, 2026-11-02): every banner feature above is in both columns or carries an exception with a decision number.
 
 ### 22.3 Details of the rule additions
 - **Buttons and tap action:** subentry fields `actions` (list, up to 3, normalized with `dismiss: false` defaults) and `tap_action`. A rule's button presses fire `heads_up_banner_action` with `id = rule_<subentry_id>` and `tag = rule`. A button with `dismiss` needs a dismissible rule (`actions_dismiss_needs_dismissible`).

@@ -48,6 +48,8 @@ Ask the trace for the message: the admin WebSocket command `heads_up/hub_trace` 
 - `service_not_found`: `notify.mobile_app_<device name>` does not exist. The app was removed or renamed and has not registered again. Look for the service in Developer tools > Actions.
 - `channel_not_accepted`: the person's recipient profile does not accept push.
 - `send_failed`: the service raised an error; the log has one warning per device and hour.
+- `rate_limited`: the device had 5 pushes in the last minute, or all devices 60. Raise the limits in Settings. Critical messages are never held back.
+- `duplicate`: an update with the same content as the last one arrived within 30 seconds. Change the text, or set the seconds to 0 in Settings.
 - `presence_unknown`: an audience such as `Not home` skipped a person whose presence is unknown. Only `critical` messages include them.
 - A button press that does nothing: the trace says `user_mismatch`, `stale_message` or `unknown_recipient`.
 
@@ -101,7 +103,7 @@ See [Popups](popup.md).
 
 ## An entry is missing in the notification bell
 
-Open the trace of the message (`heads_up/hub_trace`, admin). `service_not_found` or `send_failed` means Home Assistant's `persistent_notification` service failed. If you dismissed the entry in the bell, Heads Up does not know: the next update of the message creates it again. A rule message reaches the bell only through an escalation or fallback policy. See [Persistent notifications](persistent.md).
+Open the trace of the message (`heads_up/hub_trace`, admin). `service_not_found` or `send_failed` means Home Assistant's `persistent_notification` service failed. If you dismissed the entry in the bell, Heads Up does not know: the next update of the message creates it again, and so does a restart of Home Assistant, which empties the bell. A rule message reaches the bell only through an escalation or fallback policy. See [Persistent notifications](persistent.md).
 
 ## The Heads Up entry is not in the sidebar
 

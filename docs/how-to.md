@@ -280,9 +280,9 @@ Open the integration and choose Configure, or open Settings in the Heads Up pane
 | Spoken text: longest (characters) | 200 (20–1000) | Longer texts are cut at a word. |
 | Spoken text: repeat pause (seconds) | 60 (0–3600) | The same text is not spoken again on the same speaker within this time. 0: always speak. |
 | Text-to-speech engine | automatic | The engine for media players. Automatic: the only text-to-speech entity, if there is exactly one. |
-| Pushes per device per minute | 10 (1–600) | Stored now; not enforced yet. |
-| Deliveries per minute, all devices | 60 (1–6000) | Stored now; not enforced yet. |
-| Seconds in which identical updates are ignored | 30 (0–3600) | Stored now; not enforced yet. |
+| Pushes per device per minute | 5 (1–600) | A push over the cap is skipped and the trace says `rate_limited`. Critical messages are never held back. |
+| Deliveries per minute, all devices | 60 (1–6000) | The same, counted over all devices. |
+| Seconds in which identical updates are ignored | 30 (0–3600) | An update with the same content is not sent again within this time (`duplicate`). 0 switches it off. |
 | Trace entries kept | 500 (50–5000) | Size of the delivery trace. |
 | Recent messages kept | 100 (10–1000) | Size of the recent messages list. |
 

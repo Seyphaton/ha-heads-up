@@ -12,7 +12,7 @@
 - Read from the public GitHub API on 2026-10-27: description and topics are set, issues are on, the license is MIT, releases `v0.1.0` to `v0.3.0` exist. Private vulnerability reporting cannot be read without a login (the security page shows a "Report a vulnerability" button). The pull request to `hacs/default` (number 12746) is open in the review queue with one bot comment, no requested changes and a clean merge state; the bot asks submitters not to comment on it.
 - Not checked: the HACS install steps in the README after "Add" (download step) against the now public repository; private vulnerability reporting (`docs/dev/RELEASE.md` step 5).
 - The README has eight screenshots. A GIF of a banner disappearing is not planned (maintainer, 2026-10-27); a produced video is on the deferred list.
-- mypy and the dev HA were not run on 2026.10.
+- Resolved in H10 (2026-11-02): mypy, the tests and the dev HA run on 2026.10.4; 2026.9.4 stays in CI (D-123, N-91, N-92).
 
 ## Resolved
 - Card design follow-ups (compact one-liner, time, title, `show_severity`, severity colors and `colorize`, clear all, swipe, collapsed items, empty message): built in Phase 7 (D-048, D-049, N-49 to N-51).
@@ -93,3 +93,8 @@
 - Follow-up (maintainer, 2026-10-31), decide after trying the integration: move audiences, recipient groups, recipient profiles and policies out of config subentries into one integration-owned store (`heads_up.hub`) written only through an admin-only API, so a delete that would break a reference can be refused with the list of users, ids stay stable on rename, and watch rules remain the only subentries. Cost: the subentry flows of H2 and their tests are replaced, and the panel (H9a, H9c) becomes the only editor, so the panel registration check (N-77) moves to the start of H9a with an options-flow menu as the fallback. Nothing has shipped, so no migration is needed if done before release. Trigger: how often a deleted audience or group breaks a policy in real use (D-111).
 - Test send "what if" time (D-120): preview a call as if it were another time of day. It would need the Quiet hours stage to take a time from the dry run. Not planned.
 - Hub build plan and all open and proposed values: `docs/dev/hub/ROADMAP.md` and `docs/dev/hub/DEFAULTS_AND_PROPOSALS.md`.
+
+## Hub: checks that need real devices (H10, 2026-11-02)
+- Every hub check ran against stub devices (rule 2). Not verified on real hardware: Companion app pushes with buttons, tag replacement and `clear_notification`; the iOS critical level and the Android channel behaviour; a press on Acknowledge, Snooze or Dismiss coming back as an event; speech through `assist_satellite.announce`, `tts.speak` and `media_player.play_media` on real speakers; popups on a wall tablet; the panel on a touch screen.
+- Not verified: a screen reader on the panel and the popup, and the German, French and Spanish text of the panel on screen.
+- Idea: the delivery trace and the recent messages list are kept in memory only; whether they survive a restart is open (D-118).

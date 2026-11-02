@@ -1,7 +1,7 @@
 # Dev environment
 
 ## Python (tests, lint)
-- Python 3.14 via `uv` (HA 2026.9.4 requires `>=3.14.2`, N-23).
+- Python 3.14 via `uv` (HA 2026.9.4 and 2026.10.4 require `>=3.14.2`, N-23).
 - `make setup` creates `.venv/` from `pyproject.toml` + `uv.lock`.
 - `home-assistant-frontend==20260826.7` is a dev dependency because the manifest depends on `frontend`; without it the `frontend` component fails to set up in tests (`No module named 'hass_frontend'`, N-26).
 
@@ -11,7 +11,7 @@
 
 ## Local Home Assistant (Docker)
 - Requires Docker (verified with Docker Desktop 29.9.2 on macOS arm64, 2026-10-25). The Docker Desktop CLI lives in `~/.docker/bin`; add it to `PATH` if `docker` is not found.
-- `make dev-up` starts `homeassistant/home-assistant:2026.9.4` as container `heads-up-dev`.
+- `make dev-up` starts `homeassistant/home-assistant:2026.10.4` as container `heads-up-dev`.
 - URL: http://127.0.0.1:8124 (loopback only).
 - Config: `dev/ha-config/configuration.yaml` (committed). Runtime state (`.storage`, DB, logs) is gitignored.
 - The integration is mounted read-only from `custom_components/heads_up`. After a Python change: `docker restart heads-up-dev`. The card file is read from disk on each request; reload the dashboard after editing `heads-up-card.js`.

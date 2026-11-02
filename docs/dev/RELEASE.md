@@ -3,7 +3,7 @@
 Releases `v0.1.0` to `v0.4.0` follow the steps below (D-020: tags and pushes only with the maintainer's explicit approval).
 
 ## Before the first release (maintainer, on github.com)
-1. CI: open the Actions tab of `Seyphaton/ha-heads-up`. Workflows `CI` (jobs `python`, `python-ha-2026-10`, `card`) and `Validate` (jobs `hacs`, `hassfest`) must be green on `main`. They had never run before the first push.
+1. CI: open the Actions tab of `Seyphaton/ha-heads-up`. Workflows `CI` (jobs `python`, `python-ha-2026-9`, `card`) and `Validate` (jobs `hacs`, `hassfest`) must be green on `main`. They had never run before the first push.
 2. Settings > General > Danger Zone > Change visibility > Public. HACS only works with public repositories (N-18).
 3. About (gear icon on the repository page): set the description and topics.
    - Description: `Dismissible dashboard banners for Home Assistant, created by actions`
@@ -23,6 +23,14 @@ Releases `v0.1.0` to `v0.4.0` follow the steps below (D-020: tags and pushes onl
 
 3. github.com > Releases > Draft a new release > choose tag `v0.1.0` > title `0.1.0` > paste the `[0.1.0]` section of `CHANGELOG.md` as the notes > Publish. HACS reads versions from releases, not tags (N-18).
 4. Add the repository to HACS as a custom repository (README, "With HACS") and download it to check the install path.
+
+## Releasing the hub (prepared in H10, not done)
+The hub, the panel and the new channels are on a chain of feature branches ending in `hub/h9e-wizard`. Nothing is merged, tagged or pushed (D-020, D-123).
+1. Decide the version. The manifest says 0.4.0 and `CHANGELOG.md` has an Unreleased section with every change; rename it to the version and date.
+2. Merge the chain into `main` in the order of `docs/dev/hub/ROADMAP.md`. Every branch continues the one before it, so merging `hub/h9e-wizard` brings all of them.
+3. Run `make check`, `make hassfest` and `make dev-smoke`, and let CI run (jobs `python` on 2026.10.4, `python-ha-2026-9` on 2026.9.4, `card`) before tagging.
+4. Check on real devices what the stub devices could not (`docs/OPEN_QUESTIONS.md`, hub section): a Companion push with buttons, the iOS critical level, snooze and acknowledge from a phone, speech on a speaker and a satellite, the popup on a wall tablet.
+5. Update `version` in `custom_components/heads_up/manifest.json`, commit, tag and push the tag, create the GitHub release as for 0.1.0.
 
 ## Default HACS list (optional)
 Custom-repository installs work without this. For the default list (N-54): the repository is public, the HACS Action and hassfest pass without ignores, a full GitHub release exists. Then fork `hacs/default`, create a branch from `master`, add `Seyphaton/ha-heads-up` to the file `integration` in alphabetical order, and open a pull request from a personal account with the template filled in.
