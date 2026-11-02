@@ -7,10 +7,11 @@ license = "MIT"
 
 [dependency-groups]
 dev = [
-    # 0.13.367 pins homeassistant==2026.9.4 (minimum tested version), see docs/dev/HA_API_NOTES.md N-20
-    "pytest-homeassistant-custom-component==0.13.367",
-    # frontend component requirement at HA 2026.9.4; needed because manifest depends on "frontend"
-    "home-assistant-frontend==20260826.7",
+    # 0.13.375 pins homeassistant==2026.10.4 (development version), see docs/dev/HA_API_NOTES.md N-20 and N-46.
+    # The minimum tested version 2026.9.4 (0.13.367) runs the tests in CI and in .venv-ha.
+    "pytest-homeassistant-custom-component==0.13.375",
+    # frontend component requirement at HA 2026.10.4; needed because manifest depends on "frontend"
+    "home-assistant-frontend==20260930.5",
     "ruff",
     "mypy",
     "pre-commit",

@@ -22,6 +22,7 @@ from homeassistant.util import dt as dt_util
 
 from ..const import (
     CHANNEL_BANNER,
+    CHANNEL_PERSISTENT,
     DEFAULT_OPTIONS,
     GLOBAL_SNOOZE_KEY,
     GROUP_SUFFIX,
@@ -39,6 +40,7 @@ from .activity import Activity, ActivityLog, RecentMessages
 from .channels import ChannelRegistry, Outcome, Result, Target
 from .interfaces import AudienceResolver, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, HeldMessage, State
+from .limits import DUPLICATE, RATE_LIMITED, Limiter
 from .policies import PolicyBook, escalation, fallback, reminder, summarize
 from .policies.away import AwayStage
 from .policies.chain import Chain, Hold, Skip, Step
@@ -74,6 +76,7 @@ class HubEngine:
         self.ledger = DeliveryLedger(hass)
         self.trace = TraceBuffer(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
         self.resolver = HubResolver(hass, options)
+        self.limiter = Limiter(options)
         self.log = ActivityLog(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
         self.recent = RecentMessages(
             options.get(OPT_RECENT_MESSAGES, DEFAULT_OPTIONS[OPT_RECENT_MESSAGES])
@@ -119,12 +122,28 @@ class HubEngine:
         for message_id in sorted(known_ids):
             if (loaded := self.lookup(message_id)) is not None:
                 self.recent.seen(message_id, self._info(loaded))
+        await self._restore_bell()
         self._restore_timers()
         # Arrival releases the deliveries held by Away.
         self._unsub_arrival = self.hass.bus.async_listen(
             EVENT_STATE_CHANGED, self._on_state_change, event_filter=self._is_person
         )
         self._ready.set()
+
+    async def _restore_bell(self) -> None:
+        """The notification bell of Home Assistant lives in memory only. A message that is still
+        active and was shown there gets its entry back after a restart; the same id replaces."""
+        channel = self.channels.get(CHANNEL_PERSISTENT)
+        for row in list(self.ledger.rows.values()):
+            if row.channel != CHANNEL_PERSISTENT or row.state is not State.SENT:
+                continue
+            banner = self.lookup(row.message_id)
+            if banner is None or not banner.active or self.is_held(row.message_id):
+                continue
+            outcome = await channel.deliver(banner, Target(row.recipient))
+            self._trace(row.message_id, row.channel, row.recipient, "sent", "restored_at_startup")
+            if outcome.result is not Result.SENT:
+                self._record(row.message_id, row.channel, row.recipient, outcome)
 
     async def async_unload(self) -> None:
         self._closed = True
@@ -486,8 +505,18 @@ class HubEngine:
                 elif isinstance(step, Hold):
                     outcome = Outcome(Result.HELD, step.reason, due=step.until, hold=step.kind)
                 else:
-                    call = channel.update if update else channel.deliver
-                    outcome = await call(step.banner, step.target)
+                    held_back = self._held_back(step.banner, item, step.target, update)
+                    if held_back is not None:
+                        outcome = Outcome(Result.SKIPPED, held_back)
+                        if row is not None and row.state is State.SENT:
+                            # The earlier delivery stays: a later clear still takes it back.
+                            self._suppressed(banner.id, item, held_back)
+                            results.append((item, outcome))
+                            continue
+                    else:
+                        call = channel.update if update else channel.deliver
+                        outcome = await call(step.banner, step.target)
+                        self._sent(step.banner, item.channel, item.recipient, outcome)
             self._record(
                 banner.id,
                 item.channel,
@@ -497,6 +526,24 @@ class HubEngine:
             )
             results.append((item, outcome))
         return results
+
+    def _held_back(self, banner: Banner, item: Planned, target: Target, update: bool) -> str | None:
+        """Why a delivery is suppressed: an identical update, or a push over its cap (D-123)."""
+        if item.channel == CHANNEL_BANNER:
+            return None
+        if update and self.limiter.duplicate(banner, item.channel, item.recipient):
+            return DUPLICATE
+        if item.channel == "push" and not self.limiter.push_allowed(banner, target.key):
+            return RATE_LIMITED
+        return None
+
+    def _sent(self, banner: Banner, channel: str, recipient: str, outcome: Outcome) -> None:
+        if outcome.result is Result.SENT and channel != CHANNEL_BANNER:
+            self.limiter.sent(banner, channel, recipient)
+
+    def _suppressed(self, message_id: str, item: Planned, reason: str) -> None:
+        self._trace(message_id, item.channel, item.recipient, "skipped", reason)
+        self._log("skipped", message_id, f"{item.channel}|{reason}")
 
     async def _take_back(self, banner: Banner, user_id: str | None) -> None:
         """Clear what one user (or everyone) sees on the per-user channels, keeping the rows."""
@@ -536,6 +583,7 @@ class HubEngine:
                 await self.channels.get(row.channel).clear(banner.id, target, row.ref)
             self._trace(banner.id, row.channel, row.recipient, "cleared", None)
         self.ledger.drop_message(banner.id)
+        self.limiter.forget(banner.id)
 
     # Policies: escalation and reminder timers --------------------------------------------
 
@@ -707,6 +755,11 @@ class HubEngine:
                 reason = step.reason
                 self._trace(banner.id, target_row.channel, target_row.recipient, "skipped", reason)
                 continue
+            if target_row.channel == "push" and not self.limiter.push_allowed(
+                step.banner, step.target.key
+            ):
+                self._trace(banner.id, "push", target_row.recipient, "skipped", RATE_LIMITED)
+                continue
             outcome = await self.channels.get(target_row.channel).deliver(step.banner, step.target)
             self._trace(
                 banner.id,
@@ -801,6 +854,8 @@ class HubEngine:
                 outcome = Outcome(Result.SKIPPED, step.reason)
             elif isinstance(step, Hold):
                 outcome = Outcome(Result.HELD, step.reason, due=step.until, hold=step.kind)
+            elif channel == "push" and not self.limiter.push_allowed(step.banner, step.target.key):
+                outcome = Outcome(Result.SKIPPED, RATE_LIMITED)
             else:
                 outcome = await self.channels.get(channel).deliver(step.banner, step.target)
             self._record(message_id, channel, recipient, outcome, row.person)
@@ -1087,7 +1142,7 @@ class HubEngine:
         self._trace(message_id, channel, recipient, outcome.result.value, outcome.reason)
         if (
             outcome.result in (Result.SKIPPED, Result.FAILED)
-            and outcome.reason not in fallback.IGNORED_REASONS
+            and outcome.reason not in fallback.UNLOGGED_REASONS
         ):
             self._log(outcome.result.value, message_id, f"{channel}|{outcome.reason}")
         if outcome.hold:

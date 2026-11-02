@@ -14,6 +14,9 @@ Run after `make dev-up` + `make dev-onboard`:
   uv run python dev/smoke.py policies # policy form, `policy` field, acknowledge (hub work, H4a)
   uv run python dev/smoke.py policies_verify
   uv run python dev/smoke.py editors  # the panel's way: flows over REST, reconfigure, delete (H9c)
+  uv run python dev/smoke.py hub_e2e  # bell, duplicates, acknowledge, panel data (H10)
+  (restart the container)
+  uv run python dev/smoke.py hub_e2e_verify
 """
 
 import asyncio
@@ -557,6 +560,67 @@ async def policies_verify() -> None:
         print("policies survived the restart")
 
 
+async def persistent_ids(ws: WS) -> list[str]:
+    msg_id = await ws.send({"type": "persistent_notification/get"})
+    return sorted(n["notification_id"] for n in (await ws.recv(msg_id))["result"])
+
+
+async def hub_e2e() -> None:
+    """A message on the banner and the bell, an identical update ignored, acknowledged, the
+    panel's data commands answering, the limits stored (H10). Pushes need a real device (rule 2)."""
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        ws = await connect(s, admin)
+        data = {
+            "id": "smoke_e2e",
+            "message": "End to end",
+            "severity": "warning",
+            "timeout": 0,
+            "channels": ["banner", "persistent"],
+        }
+        result = await call(s, admin, "notify", data)
+        assert result["channels"]["persistent"]["sent"] == 1, result
+        assert "hu_smoke_e2e" in await persistent_ids(ws)
+        await call(s, admin, "notify", data)  # the same update again
+        msg_id = await ws.send({"type": "heads_up/hub_trace", "message_id": "smoke_e2e"})
+        trace = (await ws.recv(msg_id))["result"]["entries"]
+        assert any(e["reason"] == "duplicate" for e in trace), trace
+        ws_user = await connect(s, user)
+        msg_id = await ws_user.send({"type": "heads_up/acknowledge", "banner_id": "smoke_e2e"})
+        assert (await ws_user.recv(msg_id))["success"]
+        for command, extra in (
+            ("panel_overview", {}),
+            ("panel_messages", {}),
+            ("panel_trace", {"message_id": "smoke_e2e"}),
+            ("settings_get", {}),
+            ("welcome_get", {}),
+        ):
+            msg_id = await ws.send({"type": f"heads_up/{command}", **extra})
+            reply = await ws.recv(msg_id)
+            assert reply["success"], (command, reply)
+        msg_id = await ws.send({"type": "heads_up/settings_get"})
+        options = (await ws.recv(msg_id))["result"]["options"]
+        assert options["rate_per_device_per_minute"] == 5, options
+        msg_id = await ws.send({"type": "heads_up/settings_set", "rate_per_device_per_minute": 7})
+        assert (await ws.recv(msg_id))["result"]["options"]["rate_per_device_per_minute"] == 7
+        msg_id = await ws.send({"type": "heads_up/settings_set", "rate_per_device_per_minute": 5})
+        assert (await ws.recv(msg_id))["success"]
+        print("hub e2e ok:", len(trace), "trace entries")
+
+
+async def hub_e2e_verify() -> None:
+    """After the restart: the message and its bell notification are still there, then cleared."""
+    async with aiohttp.ClientSession() as s:
+        admin = await token(s, "ADMIN")
+        ws = await connect(s, admin)
+        assert "smoke_e2e" in [b["id"] for b in await subscribe(await connect(s, admin))]
+        assert "hu_smoke_e2e" in await persistent_ids(ws)
+        await call(s, admin, "clear", {"id": "smoke_e2e"})
+        await asyncio.sleep(0.5)
+        assert "hu_smoke_e2e" not in await persistent_ids(ws)
+        print("hub e2e survived the restart")
+
+
 async def stub() -> None:
     """The stub notify services and fake players record their calls with data (H0a)."""
     async with aiohttp.ClientSession() as s:
@@ -688,5 +752,7 @@ asyncio.run(
         "policies": policies,
         "policies_verify": policies_verify,
         "editors": editors,
+        "hub_e2e": hub_e2e,
+        "hub_e2e_verify": hub_e2e_verify,
     }[sys.argv[1]]()
 )

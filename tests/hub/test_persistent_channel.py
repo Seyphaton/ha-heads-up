@@ -109,13 +109,16 @@ async def test_a_message_waiting_for_its_condition_creates_nothing_yet(
     assert len(persistent_capture.create) == 1
 
 
-async def test_a_restart_does_not_create_the_entry_again(
+async def test_a_restart_creates_the_entry_once_more_because_the_bell_is_in_memory(
     hass: HomeAssistant, entry: MockConfigEntry, persistent_capture: PersistentCapture
 ) -> None:
+    # Home Assistant keeps notifications in memory only (N-90), so an active message gets its
+    # entry back; the id is the same, so it replaces and never stacks.
     await bell(hass, entry)
     await restart(hass, entry)
     await settle(hass, entry)
-    assert len(persistent_capture.create) == 1 and not persistent_capture.dismiss
+    assert len(persistent_capture.create) == 2 and not persistent_capture.dismiss
+    assert {c.data["notification_id"] for c in persistent_capture.create} == {"hu_m"}
 
 
 async def test_an_entry_of_a_message_that_ended_while_stopped_is_dismissed_at_startup(

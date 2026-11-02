@@ -167,7 +167,17 @@ class DeliveryLedger:
 
     async def async_load(self) -> None:
         data = await self._store.async_load() or {}
-        for raw in data.get("deliveries", []):
+        if not isinstance(data, dict):
+            _LOGGER.error("Ignoring the stored deliveries: unexpected layout")
+            return
+        deliveries, held = data.get("deliveries", []), data.get("held", [])
+        if not isinstance(deliveries, list):
+            _LOGGER.error("Ignoring the stored deliveries: not a list")
+            deliveries = []
+        if not isinstance(held, list):
+            _LOGGER.error("Ignoring the stored held messages: not a list")
+            held = []
+        for raw in deliveries:
             try:
                 row = Delivery.from_dict(raw)
             except (TypeError, KeyError, ValueError, AttributeError) as err:
@@ -175,13 +185,13 @@ class DeliveryLedger:
                 _LOGGER.error("Skipping unreadable delivery %r in storage: %s", raw, err)
                 continue
             self.rows[row.key] = row
-        for raw_held in data.get("held", []):
+        for raw_held in held:
             try:
-                held = HeldMessage.from_dict(raw_held)
+                kept = HeldMessage.from_dict(raw_held)
             except (TypeError, KeyError, ValueError, AttributeError) as err:
                 _LOGGER.error("Skipping unreadable held message %r in storage: %s", raw_held, err)
                 continue
-            self.held[held.message_id] = held
+            self.held[kept.message_id] = kept
 
     def put_held(self, held: HeldMessage) -> None:
         self.held[held.message_id] = held

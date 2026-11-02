@@ -9,7 +9,7 @@ from __future__ import annotations
 import secrets
 from typing import Any
 
-import voluptuous as vol
+import probatio as vol
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.util import dt as dt_util

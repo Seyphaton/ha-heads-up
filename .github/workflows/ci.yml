@@ -18,8 +18,8 @@ jobs:
       - run: uv run pytest
       - run: uv run python scripts/docs_check.py
 
-  python-ha-2026-10:
-    # Same tests against Home Assistant 2026.10.4 (HA_API_NOTES N-46).
+  python-ha-2026-9:
+    # Same tests against the minimum tested version, Home Assistant 2026.9.4 (HA_API_NOTES N-20).
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,8 +27,8 @@ jobs:
       - run: uv venv --python 3.14 .venv-ha
       - run: >-
           uv pip install --python .venv-ha/bin/python
-          pytest-homeassistant-custom-component==0.13.375
-          home-assistant-frontend==20260930.5
+          pytest-homeassistant-custom-component==0.13.367
+          home-assistant-frontend==20260826.7
       - run: .venv-ha/bin/python -m pytest
 
   card:

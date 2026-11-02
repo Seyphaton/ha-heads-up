@@ -17,7 +17,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 # Files that quote the banned list on purpose.
 EXEMPT = {".claude/rules/docs-style.md"}
-SKIP_DIRS = {".venv", "node_modules", ".git", ".private"}
+SKIP_DIRS = {".venv", ".venv-ha", "node_modules", ".git", ".private"}
 
 BANNED = [
     r"seamless(ly)?",

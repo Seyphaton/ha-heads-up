@@ -100,6 +100,7 @@ async def _async_entry_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry) -
             manager.hub.trace.resize(manager.options[OPT_TRACE_ENTRIES])
             manager.hub.log.resize(manager.options[OPT_TRACE_ENTRIES])
             manager.hub.recent.resize(manager.options[OPT_RECENT_MESSAGES])
+            manager.hub.limiter.configure(manager.options)
     elif (hub := manager.hub) is not None:
         manager.hub = None
         await hub.async_unload()
