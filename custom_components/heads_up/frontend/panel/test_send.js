@@ -16,7 +16,7 @@ export const STRINGS = {
     policy_all: "All that apply",
     policy_none: "None",
     who: "Who, per channel",
-    banner_hint: "Banner: no target shows it to everyone; choose persons to limit it.",
+    banner_hint: "Banner: no target shows it to everyone; choose an audience or persons to limit it. An audience counts the people it has when the message is created.",
     target_channel: "Channel {channel}",
     target_audience: "Audience",
     target_recipients: "Recipients",
@@ -28,6 +28,7 @@ export const STRINGS = {
     recipient: "Recipient",
     channel: "Channel",
     all_recipients: "everyone",
+    nobody: "nobody",
     held_summary: "Held on every channel for the summary of {policy}.",
     held_until: "held until {when}",
     note_quiet: "quietly",
@@ -79,7 +80,7 @@ export const STRINGS = {
     policy_all: "Alle, die gelten",
     policy_none: "Keine",
     who: "Wer, je Kanal",
-    banner_hint: "Banner: ohne Ziel sehen es alle; wähle Personen, um es einzuschränken.",
+    banner_hint: "Banner: ohne Ziel sehen es alle; wähle eine Zielgruppe oder Personen, um es einzuschränken. Eine Zielgruppe zählt die Personen, die sie beim Erstellen der Meldung hat.",
     target_channel: "Kanal {channel}",
     target_audience: "Zielgruppe",
     target_recipients: "Empfänger",
@@ -91,6 +92,7 @@ export const STRINGS = {
     recipient: "Empfänger",
     channel: "Kanal",
     all_recipients: "alle",
+    nobody: "niemand",
     held_summary: "Auf jedem Kanal für die Zusammenfassung von {policy} zurückgehalten.",
     held_until: "zurückgehalten bis {when}",
     note_quiet: "leise",
@@ -142,7 +144,7 @@ export const STRINGS = {
     policy_all: "Toutes celles qui s'appliquent",
     policy_none: "Aucune",
     who: "Qui, par canal",
-    banner_hint: "Bannière : sans cible, tout le monde la voit ; choisissez des personnes pour la limiter.",
+    banner_hint: "Bannière : sans cible, tout le monde la voit ; choisissez une audience ou des personnes pour la limiter. Une audience compte les personnes qu'elle a à la création du message.",
     target_channel: "Canal {channel}",
     target_audience: "Audience",
     target_recipients: "Destinataires",
@@ -154,6 +156,7 @@ export const STRINGS = {
     recipient: "Destinataire",
     channel: "Canal",
     all_recipients: "tout le monde",
+    nobody: "personne",
     held_summary: "Retenu sur chaque canal pour le résumé de {policy}.",
     held_until: "retenu jusqu'à {when}",
     note_quiet: "discrètement",
@@ -205,7 +208,7 @@ export const STRINGS = {
     policy_all: "Todas las que se apliquen",
     policy_none: "Ninguna",
     who: "Quién, por canal",
-    banner_hint: "Aviso: sin destino lo ve todo el mundo; elige personas para limitarlo.",
+    banner_hint: "Aviso: sin destino lo ve todo el mundo; elige una audiencia o personas para limitarlo. Una audiencia cuenta las personas que tiene al crear el mensaje.",
     target_channel: "Canal {channel}",
     target_audience: "Audiencia",
     target_recipients: "Destinatarios",
@@ -217,6 +220,7 @@ export const STRINGS = {
     recipient: "Destinatario",
     channel: "Canal",
     all_recipients: "todos",
+    nobody: "nadie",
     held_summary: "Retenido en cada canal para el resumen de {policy}.",
     held_until: "retenido hasta {when}",
     note_quiet: "en silencio",
@@ -352,6 +356,24 @@ function el(tag, props = {}, children = []) {
   return created;
 }
 
+// Who a result row is for: the person (with the device on push), the people a banner is limited to,
+// or everyone.
+export function rowRecipient(row, result, choices, t) {
+  const personName = (id) => choices.persons.find((p) => p.id === id)?.name ?? id;
+  if (row.recipient.startsWith("device:")) {
+    const device = choices.registrations.find((r) => `device:${r.id}` === row.recipient)?.name;
+    const who = row.person ? personName(row.person) : "";
+    return [who, device].filter(Boolean).join(" · ") || row.recipient;
+  }
+  if (row.recipient) return row.person ? personName(row.person) : (choices.persons.find((p) => p.id === row.recipient)?.name ?? row.recipient);
+  if (row.channel === "banner") {
+    if (row.result === "skipped") return t.nobody;
+    const people = result.banner_people || [];
+    return people.length ? people.map(personName).join(", ") : t.all_recipients;
+  }
+  return t.all_recipients;
+}
+
 export function mount(container, ctx) {
   const { t, s, ui, fmt } = ctx;
   let hass = ctx.hass;
@@ -420,7 +442,7 @@ export function mount(container, ctx) {
     const head = el("tr", {}, [t.recipient, t.channel, t.result].map((text) => el("th", { textContent: text })));
     const now = Date.now();
     const rows = result.rows.map((row) => {
-      const recipient = row.recipient ? (data.choices.persons.find((p) => p.id === row.person)?.name ?? row.recipient) : t.all_recipients;
+      const recipient = rowRecipient(row, result, data.choices, t);
       const via = row.via ? `${fill(t.via, { policy: row.via })} · ` : "";
       const words = [s.result[row.result] || row.result];
       if (row.result === "held" && row.until) words[0] = fill(t.held_until, { when: fmt.inTime(row.until, now, s) });

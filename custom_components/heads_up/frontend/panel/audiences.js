@@ -30,6 +30,15 @@ export const STRINGS = {
     sentence_persons: "{names} (a fixed list).",
     sentence_presence: "People who are: {kind}{zone}.",
     kinds: KINDS.en,
+    tip_label: "What is {name}?",
+    tips: {
+      everyone: "Every person in Home Assistant, wherever they are. Use it for messages the whole household should get.",
+      admins: "People whose Home Assistant user is an administrator. Use it for technical messages, such as a failed backup.",
+      at_home: "People who are home at the moment the message goes out. Use it to leave out people who are away.",
+      not_home: "People whose state is anything but home, including a zone such as Work. Use it for news that matters to people who are away, such as a window left open.",
+      last_to_leave: "The person whose departure left the house empty; nobody while anyone is home. Use it for messages like lights left on in an empty house.",
+      first_home: "The first person to arrive after the house was empty; nobody while it is empty. Use it for something to know on arrival, such as an alarm still armed.",
+    },
   },
   de: {
     title: "Zielgruppen",
@@ -53,6 +62,15 @@ export const STRINGS = {
     sentence_persons: "{names} (eine feste Liste).",
     sentence_presence: "Personen, die: {kind}{zone}.",
     kinds: KINDS.de,
+    tip_label: "Was ist {name}?",
+    tips: {
+      everyone: "Alle Personen in Home Assistant, wo auch immer sie sind. Für Meldungen, die der ganze Haushalt bekommen soll.",
+      admins: "Personen, deren Home-Assistant-Benutzer Administrator ist. Für technische Meldungen, etwa ein fehlgeschlagenes Backup.",
+      at_home: "Personen, die zu Hause sind, wenn die Meldung versendet wird. Damit lässt du Personen aus, die unterwegs sind.",
+      not_home: "Personen, deren Status nicht „home“ ist, auch in einer Zone wie Arbeit. Für Neuigkeiten, die Abwesende betreffen, etwa ein offenes Fenster.",
+      last_to_leave: "Die Person, mit deren Weggang das Haus leer wurde; niemand, solange jemand zu Hause ist. Für Meldungen wie Licht an in einem leeren Haus.",
+      first_home: "Die erste Person, die ankommt, nachdem das Haus leer war; niemand, solange es leer ist. Für etwas, das man bei der Ankunft wissen sollte, etwa eine noch scharfe Alarmanlage.",
+    },
   },
   fr: {
     title: "Audiences",
@@ -76,6 +94,15 @@ export const STRINGS = {
     sentence_persons: "{names} (une liste fixe).",
     sentence_presence: "Les personnes qui sont : {kind}{zone}.",
     kinds: KINDS.fr,
+    tip_label: "Qu'est-ce que {name} ?",
+    tips: {
+      everyone: "Toutes les personnes de Home Assistant, où qu'elles soient. Pour les messages que tout le foyer doit recevoir.",
+      admins: "Les personnes dont l'utilisateur Home Assistant est administrateur. Pour les messages techniques, comme une sauvegarde échouée.",
+      at_home: "Les personnes à la maison au moment de l'envoi. Pour exclure celles qui sont absentes.",
+      not_home: "Les personnes dont l'état n'est pas « home », y compris dans une zone comme Travail. Pour ce qui concerne les absents, comme une fenêtre restée ouverte.",
+      last_to_leave: "La personne dont le départ a vidé la maison ; personne tant que quelqu'un est là. Pour des messages comme une lumière restée allumée dans une maison vide.",
+      first_home: "La première personne à arriver après que la maison était vide ; personne tant qu'elle est vide. Pour ce qu'il faut savoir en arrivant, comme une alarme encore active.",
+    },
   },
   es: {
     title: "Audiencias",
@@ -99,6 +126,15 @@ export const STRINGS = {
     sentence_persons: "{names} (una lista fija).",
     sentence_presence: "Las personas que están: {kind}{zone}.",
     kinds: KINDS.es,
+    tip_label: "¿Qué es {name}?",
+    tips: {
+      everyone: "Todas las personas de Home Assistant, estén donde estén. Para mensajes que debe recibir todo el hogar.",
+      admins: "Personas cuyo usuario de Home Assistant es administrador. Para mensajes técnicos, como una copia de seguridad fallida.",
+      at_home: "Personas que están en casa cuando sale el mensaje. Sirve para dejar fuera a quien está fuera.",
+      not_home: "Personas cuyo estado no es «home», incluida una zona como Trabajo. Para lo que importa a quien está fuera, como una ventana abierta.",
+      last_to_leave: "La persona cuya salida dejó la casa vacía; nadie mientras haya alguien en casa. Para mensajes como luces encendidas en una casa vacía.",
+      first_home: "La primera persona en llegar tras estar la casa vacía; nadie mientras esté vacía. Para algo que conviene saber al llegar, como una alarma aún activada.",
+    },
   },
 };
 
@@ -173,7 +209,8 @@ export function mount(container, ctx) {
     const box = el("section", {}, [el("h2", { textContent: t.builtin })]);
     const builtin = el("ul", { className: "list" });
     for (const a of data.audiences.filter((x) => x.builtin)) {
-      builtin.append(el("li", {}, [el("div", {}, [el("strong", { textContent: a.name }), el("span", { className: "badge", textContent: t.kinds[a.kind] || a.kind }), el("div", { className: "sub", textContent: `${memberLine(a)} · ${usedLine(a)}` })])]));
+      const tip = t.tips[a.kind] ? ui.helpTip(fill(t.tip_label, { name: a.name }), t.tips[a.kind]) : null;
+      builtin.append(el("li", {}, [el("div", {}, [el("strong", { textContent: a.name }), ...(tip ? [tip.button] : []), el("span", { className: "badge", textContent: t.kinds[a.kind] || a.kind }), ...(tip ? [tip.note] : []), el("div", { className: "sub", textContent: `${memberLine(a)} · ${usedLine(a)}` })])]));
     }
     box.append(builtin);
     const mine = el("section", {}, [el("h2", { textContent: t.custom })]);

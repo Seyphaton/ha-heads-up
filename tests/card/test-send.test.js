@@ -4,12 +4,13 @@ import {
   buildCall,
   callYaml,
   laterText,
+  rowRecipient,
   STRINGS,
   summaryLine,
   validate,
 } from "../../custom_components/heads_up/frontend/panel/test_send.js";
 import { STRINGS as SHELL } from "../../custom_components/heads_up/frontend/heads-up-panel.js";
-import { toYaml } from "../../custom_components/heads_up/frontend/panel/ui.js";
+import { targetMode, toYaml } from "../../custom_components/heads_up/frontend/panel/ui.js";
 
 const S = SHELL.en.shared;
 const T = STRINGS.en;
@@ -121,7 +122,7 @@ describe("test send wording", () => {
     expect(laterText({ type: "away", policy: "Back", max_wait: 0 }, T, S)).toBe("Away Back: people who are not home get it when they arrive.");
     expect(laterText({ type: "away", policy: "Back", max_wait: 20 }, T, S)).toBe("Away Back: people who are not home get it when they arrive, for at most 20 min.");
     expect(laterText({ type: "fallback", policy: "Backup", when: "failed", channels: ["persistent"] }, T, S)).toBe(
-      "Fallback Backup: if delivery fails, it is sent on Bell instead.",
+      "Fallback Backup: if delivery fails, it is sent on Persistent HASS Notification instead.",
     );
     expect(laterText({ type: "summarize", policy: "Digest", summary_every: 60 }, T, S)).toBe("Summary Digest: one summary 60 min after the first held message.");
     expect(laterText({ type: "summarize", policy: "Evening", summary_at: "20:00:00" }, T, S)).toBe("Summary Evening: one summary every day at 20:00.");
@@ -137,5 +138,29 @@ describe("test send wording", () => {
       expect(Object.keys(own).sort(), code).toEqual(Object.keys(english).sort());
       for (const key of Object.keys(english)) expect(holders(own[key]), `${code}.${key}`).toEqual(holders(english[key]));
     }
+  });
+});
+
+describe("test send rows and target mode", () => {
+  const choices = { persons: [{ id: "person.anna", name: "Anna" }, { id: "person.ben", name: "Ben" }], registrations: [{ id: "d1", name: "Pixel" }] };
+
+  it("shows the person and the device on a push row", () => {
+    expect(rowRecipient({ recipient: "device:d1", person: "person.anna", channel: "push" }, {}, choices, T)).toBe("Anna · Pixel");
+    expect(rowRecipient({ recipient: "person.anna", person: "person.anna", channel: "popup" }, {}, choices, T)).toBe("Anna");
+  });
+
+  it("shows who a banner is limited to, everyone, or nobody", () => {
+    const row = { recipient: "", channel: "banner", result: "sent" };
+    expect(rowRecipient(row, { banner_people: ["person.anna", "person.ben"] }, choices, T)).toBe("Anna, Ben");
+    expect(rowRecipient(row, { banner_people: [] }, choices, T)).toBe("everyone");
+    expect(rowRecipient({ ...row, result: "skipped" }, { banner_people: [] }, choices, T)).toBe("nobody");
+  });
+
+  it("keeps a chosen mode while no recipient is ticked", () => {
+    expect(targetMode({}, "push")).toBe("audience");
+    expect(targetMode({ push_recipients: ["person.anna"] }, "push")).toBe("recipients");
+    expect(targetMode({ _mode_push: "recipients", push_recipients: [] }, "push")).toBe("recipients");
+    expect(targetMode({ _mode_push: "audience", push_recipients: ["person.anna"] }, "push")).toBe("audience");
+    expect(targetMode({}, "speak")).toBe("recipients");
   });
 });

@@ -248,11 +248,11 @@ describe("policy editor", () => {
     expect(appliesText({ ...blankPolicy("away"), severities: ["critical", "warning"], tags: "water" }, t)).toBe("Messages with severity Critical, Warning and tag water");
     expect(appliesText({ ...blankPolicy("away"), tags: "smoke_never" }, t)).toBe("Messages with tag smoke_never");
     expect(appliesText({ ...blankPolicy("away"), severities: ["info"] }, t)).toBe("Messages with severity Info");
-    expect(sentence(water, t)).toBe("Messages with severity Critical and tag water: if nobody acknowledges within 5 min, it is also sent on Push, Bell.");
+    expect(sentence(water, t)).toBe("Messages with severity Critical and tag water: if nobody acknowledges within 5 min, it is also sent on Push, Persistent HASS Notification.");
     expect(sentence({ ...blankPolicy("quiet_hours"), days: ["sat", "sun"] }, t)).toBe("Every message: between 22:00 and 07:00 on Saturday, Sunday, deliveries outside the dashboard are sent quietly, critical messages pass.");
     expect(sentence({ ...blankPolicy("reminder"), channels: ["push"] }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times, only on Push.");
     expect(sentence({ ...blankPolicy("away"), max_wait: 30 }, t)).toBe("Every message: a person who is not home gets it when they arrive, for at most 30 min.");
-    expect(sentence({ ...blankPolicy("fallback"), when: "both", channels: ["persistent"] }, t)).toBe("Every message: if the audience is empty or delivery fails, it is sent on Bell instead.");
+    expect(sentence({ ...blankPolicy("fallback"), when: "both", channels: ["persistent"] }, t)).toBe("Every message: if the audience is empty or delivery fails, it is sent on Persistent HASS Notification instead.");
     expect(sentence({ ...blankPolicy("deliver"), severities: ["critical"], channels: ["push"] }, t)).toBe("Messages with severity Critical: it is also sent at once on Push.");
     expect(sentence({ ...blankPolicy("summarize"), include_critical: true }, t)).toBe("Every message: held, and one summary is sent 60 min after the first held message, critical messages included.");
     expect(sentence({ ...blankPolicy("summarize"), summary_mode: "at" }, t)).toBe("Every message: held, and one summary is sent every day at 20:00.");

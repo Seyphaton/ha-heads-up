@@ -8,6 +8,21 @@ export function el(tag, props = {}, children = []) {
   return created;
 }
 
+// A small "?" button with a short explanation. Hover shows the native tooltip; a click or Enter
+// opens the same text under the button, so touch and keyboard users get it too. Place `button`
+// next to the label and `note` where the text may appear.
+export function helpTip(label, text) {
+  const note = el("div", { className: "tip", role: "note", textContent: text });
+  const button = el("button", { type: "button", className: "help", textContent: "?", title: text });
+  button.setAttribute("aria-label", label);
+  button.setAttribute("aria-expanded", "false");
+  button.addEventListener("click", () => {
+    const open = note.classList.toggle("open");
+    button.setAttribute("aria-expanded", String(open));
+  });
+  return { button, note };
+}
+
 export const BASE_CSS = `
 .hu-page section, .hu-page .card { background: var(--card-background-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
 .hu-page h1 { font-size: 22px; margin: 0 0 16px; }
@@ -17,6 +32,11 @@ export const BASE_CSS = `
 .hu-page ul.list { list-style: none; margin: 0; padding: 0; }
 .hu-page ul.list li { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--divider-color); min-height: 48px; }
 .hu-page ul.list li.dim { opacity: .55; }
+.hu-page button.help { min-width: 24px; min-height: 24px; width: 24px; height: 24px; padding: 0; margin-left: 6px; border-radius: 50%; border: 1px solid var(--divider-color); background: transparent; color: var(--secondary-text-color); font: inherit; font-size: 13px; line-height: 1; cursor: help; vertical-align: middle; }
+.hu-page button.help[aria-expanded="true"], .hu-page button.help:hover { color: var(--primary-text-color); border-color: var(--primary-text-color); }
+.hu-page button.help:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
+.hu-page .tip { display: none; margin: 6px 0; padding: 8px 10px; border-radius: 8px; background: var(--secondary-background-color); color: var(--primary-text-color); font-size: 13px; font-weight: normal; max-width: 460px; }
+.hu-page .tip.open { display: block; }
 .hu-page .badge { border-radius: 12px; padding: 2px 10px; font-size: 12px; background: var(--secondary-background-color); border: 1px solid var(--divider-color); margin-left: 6px; }
 .hu-page .badge.bad { color: var(--error-color); border-color: var(--error-color); }
 .hu-page label.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
@@ -299,6 +319,13 @@ export function nameOf(list, id) {
 // The target of one channel: an audience or recipients, never both (DESIGN 23.5). Shared by the
 // Escalation and Fallback policies and by Test send. `values` holds `<channel>_audience` and
 // `<channel>_recipients`; `choices` is the `choices` of heads_up/panel_config.
+// "audience" or "recipients" for a channel's target block: the explicit choice when there is one,
+// else what the data says (speech always takes recipients).
+export function targetMode(values, channel) {
+  if (channel === "speak") return "recipients";
+  return values[`_mode_${channel}`] || ((values[`${channel}_recipients`] || []).length > 0 ? "recipients" : "audience");
+}
+
 export function targetBlock(channel, values, choices, labels, onChange) {
   const box = el("fieldset", {}, [el("legend", { textContent: labels.channel })]);
   if (channel === "persistent") {
@@ -308,9 +335,13 @@ export function targetBlock(channel, values, choices, labels, onChange) {
   const audienceKey = `${channel}_audience`;
   const recipientsKey = `${channel}_recipients`;
   const speech = channel === "speak"; // speech takes recipients, not an audience (D-098)
-  const mode = speech || (values[recipientsKey] || []).length > 0 ? "recipients" : "audience";
+  // The chosen mode is remembered: with no recipient ticked yet it cannot be derived from the data,
+  // and deriving it alone made the Recipients option snap back to Audience.
+  const modeKey = `_mode_${channel}`;
+  const mode = targetMode(values, channel);
   if (!speech) {
     const pick = (value) => {
+      values[modeKey] = value;
       if (value === "audience") values[recipientsKey] = [];
       else values[audienceKey] = "";
       onChange(value);
