@@ -4,6 +4,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [1.0.0-alpha.1] - 2026-11-03
+
 ### Added
 - Mail channel: `channels: [mail]` calls a notify service you choose once per recipient, with a subject and a body made from two templates (`{severity}`, `{title}`, `{message}`, `{person}`, `{id}`, `{tag}`). A person has a mail address and Mail switched on in their profile; a shared Global address can be named as a recipient. Settings are on the Channels page.
 - Event `heads_up_delivery_failed`: fired once per channel and delivery step when a send failed or a message reached nobody on that channel. It carries `id`, `tag`, `channel`, `origin`, `reached` and the failed recipients with a reason.
