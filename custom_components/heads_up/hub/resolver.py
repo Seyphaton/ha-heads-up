@@ -15,6 +15,7 @@ from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
 
 from ..const import (
+    BANNER_NOBODY,
     CHANNEL_MAIL,
     GROUP_SUFFIX,
     MAIL_GLOBAL,
@@ -152,9 +153,9 @@ class HubResolver:
             for person in persons:
                 user_id = self._hass.states.get(person).attributes.get("user_id")  # type: ignore[union-attr]
                 user = await self._hass.auth.async_get_user(user_id) if user_id else None
-                if user is None:
-                    result.skipped.append(Skipped(person, "no_user"))
-                elif user.is_admin:
+                # A person without a Home Assistant user is not an administrator: not a member,
+                # and not listed as skipped either.
+                if user is not None and user.is_admin:
                     result.recipients.append(Recipient(person, "person", person, reason="admin"))
         elif kind in ("last_to_leave", "first_home"):
             person = getattr(self.presence, kind)
@@ -189,6 +190,15 @@ class HubResolver:
             result.recipients.append(
                 Recipient(person, "person", person, reason=f"state:{state.state}")
             )
+
+    async def banner_people(self, name: str, severity: str) -> list[str]:
+        """The `people` of a banner that names an audience, as of now (D-131). Everyone limits
+        nothing; an audience that is empty now gives a banner nobody sees."""
+        audience = self.audience(name)
+        if audience is None or audience.kind == "everyone":
+            return []
+        members = await self.members(audience, severity)
+        return [r.key for r in members.recipients] or [BANNER_NOBODY]
 
     async def resolve(
         self, target: Mapping[str, Any] | None, channel: str, severity: str

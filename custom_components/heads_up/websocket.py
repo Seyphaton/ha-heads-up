@@ -341,7 +341,7 @@ async def ws_hub_plan(
         return
     payload = {k: v for k, v in msg.items() if k not in ("id", "type")}
     try:
-        message = panel_test.build(manager.hub, payload)
+        message = await panel_test.build(manager.hub, payload)
     except panel_test.TestSendError as err:
         connection.send_error(msg["id"], err.code, str(err))
         return

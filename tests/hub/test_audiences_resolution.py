@@ -79,7 +79,8 @@ async def test_admins_are_persons_whose_user_is_an_admin(
     set_person(hass, "person.ben", "home", user_id=hass_read_only_user.id)
     set_person(hass, "person.guest", "home")
     assert await members(entry, "Admins") == {"person.anna": "admin"}
-    assert await skipped(entry, "Admins") == {"person.guest": "no_user"}
+    # A person without a user is not an administrator; it is not listed as skipped either.
+    assert await skipped(entry, "Admins") == {}
 
 
 @pytest.mark.usefixtures("household")

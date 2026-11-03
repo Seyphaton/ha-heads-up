@@ -21,6 +21,7 @@ from homeassistant.helpers.event import async_track_point_in_utc_time
 from homeassistant.util import dt as dt_util
 
 from ..const import (
+    BANNER_NOBODY,
     CHANNEL_BANNER,
     CHANNEL_PERSISTENT,
     DEFAULT_OPTIONS,
@@ -200,6 +201,8 @@ class HubEngine:
             if channel == CHANNEL_BANNER:
                 result = Result.HELD if waiting else Result.SENT
                 reason = "waiting_for_condition" if waiting else None
+                if message.people == [BANNER_NOBODY]:  # the audience was empty at creation (D-131)
+                    result, reason = Result.SKIPPED, "no_recipients"
                 planned.append(Planned(channel, "", result, reason))
                 continue
             if channel not in TARGET_CHANNELS:  # persistent: no target, goes to everyone
@@ -291,6 +294,7 @@ class HubEngine:
             "policies": [{"name": p.name, "type": p.type} for p in applied],
             "later": [self._later(p) for p in applied if p.type not in ("quiet_hours", "deliver")],
             "held_for_summary": summary.name if summary else None,
+            "banner_people": [p for p in message.people if p != BANNER_NOBODY],
         }
 
     def _preview_row(

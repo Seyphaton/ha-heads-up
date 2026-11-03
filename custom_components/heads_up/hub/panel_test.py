@@ -14,9 +14,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.util import dt as dt_util
 
-from ..const import DEFAULT_SEVERITY, DOMAIN
+from ..const import CHANNEL_BANNER, DEFAULT_SEVERITY, DOMAIN
 from ..models import Banner
-from ..services import NOTIFY_SCHEMA, _check_names
+from ..services import NOTIFY_SCHEMA, _check_names, banner_people
 from .engine import HubEngine
 
 TEST_TAG = "test"
@@ -48,14 +48,16 @@ def check(hub: HubEngine, payload: dict[str, Any]) -> dict[str, Any]:
     return data
 
 
-def build(hub: HubEngine, payload: dict[str, Any]) -> Banner:
+async def build(hub: HubEngine, payload: dict[str, Any]) -> Banner:
     """A message for the dry run: never stored, never delivered."""
     data = check(hub, payload)
     now = dt_util.utcnow()
+    severity = data.get("severity", DEFAULT_SEVERITY)
     return Banner(
         id="preview",
         message=data["message"],
-        severity=data.get("severity", DEFAULT_SEVERITY),
+        severity=severity,
+        people=await banner_people(hub, data.get("to", {}).get(CHANNEL_BANNER, {}), severity),
         dismissible=True,
         dismiss_scope="user",
         created_at=now,

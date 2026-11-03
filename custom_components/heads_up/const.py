@@ -101,6 +101,9 @@ TIMER_CHANNEL: Final = "timer"  # ledger rows of this channel hold escalation an
 GROUP_SUFFIX: Final = " (group)"  # how a recipient group is named in calls
 PRESENCE_KEY: Final = "heads_up.presence"
 # Built in, not stored (D-080). Names are the ones calls use.
+# A banner whose audience is empty when it is created is aimed at this person, who does not exist:
+# an empty `people` list would show it to everyone (D-131).
+BANNER_NOBODY: Final = "person.heads_up_nobody"
 BUILTIN_AUDIENCES: Final = {
     "Everyone": "everyone",
     "Admins": "admins",

@@ -366,6 +366,18 @@ def _response(result: dict[str, Any], planned: list[Planned] | None) -> dict[str
     return {**result, "channels": counts}
 
 
+async def banner_people(
+    hub: HubEngine | None, target: dict[str, Any], severity: str | None
+) -> list[str]:
+    """The `people` of a banner for its target: the persons named, or the members of the audience
+    as of now (D-131). Empty means everyone."""
+    if audience := target.get("audience"):
+        if hub is None:
+            return []
+        return await hub.resolver.banner_people(audience, severity or DEFAULT_SEVERITY)
+    return list(target.get("recipients", []))
+
+
 async def _notify(call: ServiceCall) -> ServiceResponse:
     manager = _manager(call.hass)
     data = dict(call.data)
@@ -379,8 +391,8 @@ async def _notify(call: ServiceCall) -> ServiceResponse:
             raise _hub_off()
     else:
         _check_names(hub, to, data.get("policy"))
-    if recipients := to.get(CHANNEL_BANNER, {}).get("recipients"):
-        data["people"] = recipients  # the card's own targeting (D-008)
+    if people := await banner_people(hub, to.get(CHANNEL_BANNER, {}), data.get("severity")):
+        data["people"] = people  # the card's own targeting (D-008, D-131)
     data["targets"] = to
     result = manager.create(data)
     banner = manager.banners.get(result["id"])
