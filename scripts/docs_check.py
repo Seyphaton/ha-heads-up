@@ -5,6 +5,8 @@
 3. Field parity: action schema == services.yaml fields == docs/actions.md field tables.
 4. Card option parity: CONFIG_KEYS in the card module == docs/card.md options table; card YAML
    examples use only those options.
+5. User pages: no decision numbers, build-status promises, version history, bold lead-in
+   sentences or emoji (STYLE_RULES).
 """
 
 from __future__ import annotations
@@ -73,6 +75,56 @@ def check_words(files: list[Path]) -> list[str]:
                 errors.append(f"{rel}:{no}: banned word {m.group(0)!r}")
             if m := PLACEHOLDER_RE.search(line):
                 errors.append(f"{rel}:{no}: placeholder {m.group(0)!r}")
+    return errors
+
+
+# User-facing pages must describe the current behaviour for a reader who was not in the project:
+# no decision numbers, no promises of later work, no version history, no sentence-style bold
+# lead-ins, no emoji headings. Upgrade notes belong in upgrading.md and the changelog.
+STYLE_RULES = [
+    (re.compile(r"\b[DN]-\d{2,3}\b"), "decision or note number a reader cannot open"),
+    (
+        re.compile(
+            r"\b(not built|no form yet|cannot yet|not enforced yet|not released yet|"
+            r"work in progress|in a later version|when they exist|in this version|"
+            r"not available yet)\b",
+            re.IGNORECASE,
+        ),
+        "promise of later work or status of the build",
+    ),
+    (
+        re.compile(r"^\s*(- )?\*\*[^*\n]+\.\*\*", re.MULTILINE),
+        "bold lead-in sentence; use a heading or plain text",
+    ),
+    (
+        re.compile("[\U0001f300-\U0001faff☀-➿]"),
+        "emoji",
+    ),
+]
+VERSION_HISTORY = re.compile(
+    r"\b(since|before|after|from)\s+(version\s+)?v?\d+\.\d+|\bversion\s+\d+\.\d+\s+and\s+earlier",
+    re.IGNORECASE,
+)
+VERSION_OK = {"CHANGELOG.md", "upgrading.md"}
+
+
+def check_style(files: list[Path]) -> list[str]:
+    errors = []
+    pages = [*human_docs(files), ROOT / "CHANGELOG.md"]
+    for path in pages:
+        text = path.read_text(encoding="utf-8")
+        rel = path.relative_to(ROOT)
+        in_fence = False
+        for no, line in enumerate(text.splitlines(), 1):
+            if line.startswith("```"):
+                in_fence = not in_fence
+            if in_fence:
+                continue
+            for regex, reason in STYLE_RULES:
+                if m := regex.search(line):
+                    errors.append(f"{rel}:{no}: {reason}: {m.group(0).strip()!r}")
+            if path.name not in VERSION_OK and (m := VERSION_HISTORY.search(line)):
+                errors.append(f"{rel}:{no}: version history in a user page: {m.group(0)!r}")
     return errors
 
 
@@ -257,6 +309,7 @@ def main() -> int:
     panel_errors, panel_examples = check_panel_examples()
     examples += panel_examples
     errors += example_errors + panel_errors + check_field_parity() + check_card_options(files)
+    errors += check_style(files)
     for e in errors:
         print(e)
     print(f"docs-check: {len(files)} files, {examples} examples validated, {len(errors)} errors")

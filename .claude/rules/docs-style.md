@@ -15,6 +15,13 @@ Human docs
 - Say what the user sees, then what to do. State limitations and non-goals plainly.
 - Every claim is backed by a test, the source, or a screenshot from the dev instance. Remove what you cannot back.
 - Every YAML example is validated by `make docs-check`; every action/card field appears in the docs and vice versa.
+- Describe the current version only. Version history and upgrade notes go to `CHANGELOG.md` and `docs/upgrading.md`. No "since version", "in this version", "yet", "not built", "work in progress", no decision or note numbers (D-xx, N-xx) on user pages; `make docs-check` fails on them.
+- No bold lead-in sentences ("**Label.** text") in bullets or paragraphs; use a heading or plain text. A glossary may bold the term before a colon.
+- Paragraphs of at most 4 sentences, sentences of about 20 words. State a recommendation once, with its reason. Put a constraint in the step it affects, not in a NOTE block.
+- Every "every", "all", "always" and "never" must be true and covered by a test; otherwise give the real limit.
+- Reference tables list fields in one order: name, type, default, effect.
+- The CHANGELOG `[Unreleased]` block has one bullet per feature a user of the last release notices, not one per work package.
+- Troubleshooting pages are organised by symptom and end with what to attach to a bug report.
 
 All docs, ADRs, commits, comments
 - Banned (unless quoting): seamless, robust, powerful, comprehensive, leverage, utilize, elevate, streamline, unlock, empower, effortless, cutting-edge, state-of-the-art, game-changer, next-level, delve, "in today's", "whether you're … or …", "it's worth noting", "please note that", simply, easily, "just works", best-in-class, ultimate, supercharge, "a testament to", "rich ecosystem". Replace adjectives with the number, behaviour or limit.
