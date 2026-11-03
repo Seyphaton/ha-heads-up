@@ -33,7 +33,14 @@ The recent messages and the log of last actions are kept in memory. They start e
 
 ## The welcome
 
-The first time an administrator opens the panel, a dialog explains four defaults. Each has a switch, all on. Create makes the policies of the switched-on items and Not now creates nothing; either way the dialog does not return by itself. The Show the welcome button on Settings opens it again.
+The first time an administrator opens the panel, a tour of four steps opens. Next and Back move between the steps; Skip the tour and Escape close it.
+
+1. What Heads Up does: where a message shows up, who gets it, and when it is loud or quiet.
+2. Channels: the six channels in one line each, with the number of app devices and speakers found and whether a notify service is set for mail. Open Channels leaves the tour for that page.
+3. Recipients: audiences and profiles, with the number of people, app devices, audiences of your own and speaker groups. Open Audiences and Open Recipients leave the tour for those pages.
+4. Policies: four defaults, each with a switch, all on. Create makes the policies of the switched-on items and Not now creates nothing.
+
+Only the last step creates anything. After a visit to a page, a bar above the page offers Continue the tour and End the tour. Closing the tour in any way marks it as seen, so it does not return by itself. The Show the welcome button on Settings opens it again.
 
 | Item | What it creates |
 |---|---|
