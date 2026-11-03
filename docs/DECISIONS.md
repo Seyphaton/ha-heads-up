@@ -824,3 +824,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer): the recommended small change. Title prefixes were not used: the title is the object's name, which calls and policies refer to, so a prefix would break references. The Add buttons follow the panel's order: audience, recipient group, recipient profile, policy, watch rule (before: watch rule first).
 - Not done (maintainer's option): re-sorting stored entries by type at startup. It rewrites stored entries and relies on Home Assistant internals. The grouped place for entries is the panel's Configuration pages.
 - Blast radius: usual restart; only the order of the buttons changes.
+
+## D-133 Pre-release 1.0.0-alpha.2 (2026-11-03)
+- Context: D-131 and D-132 are finished on `hub/h9e-wizard`; the maintainer wants them in a second pre-release.
+- Decision (maintainer, explicit): commit and push the branch, tag `v1.0.0-alpha.2`, publish a GitHub pre-release that is not marked as the latest release. No merge to `main`.
+- Blast radius: the manifest version is `1.0.0-alpha.2`; the pre-release is not offered as the default download.

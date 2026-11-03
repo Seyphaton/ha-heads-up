@@ -4,6 +4,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [1.0.0-alpha.2] - 2026-11-03
+
 ### Added
 - Welcome tour: four steps (what Heads Up does, channels, recipients, policies) with the numbers found in your Home Assistant, links to the pages and a bar to continue after a visit. The four default policies are on the last step.
 - Question marks next to the built-in audiences on the Audiences page explain who each one is.
