@@ -28,7 +28,7 @@ A popup goes to persons, by audience or by `recipients` (person entities). A per
 | critical | A centered window over a dimmed page. |
 
 - A quiet message (a Quiet hours policy with the action Send quietly) is always a card.
-- The option `popup_styles` sets `card`, `modal` or `off` per severity. It has no form yet.
+- The option `popup_styles` sets `card`, `modal` or `off` per severity. Set it on the panel's Channels page.
 - The severity is written out ("Critical"), not only colored, and uses the theme colors.
 - Buttons are at least 48 px high: the message's own buttons, Acknowledge when an escalation or reminder policy applies, Snooze (the first snooze choice) when the message is snoozable, and Dismiss when it can be dismissed. A button's `action` (navigation, confirmation) is not run by the popup; only the event `heads_up_banner_action` is fired.
 - One popup is shown at a time, highest severity first, then the oldest. The next one appears when the first is dismissed, closed or resolved.

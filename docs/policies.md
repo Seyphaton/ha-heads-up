@@ -153,5 +153,3 @@ Home Assistant lets you delete an audience or recipient group even if a policy u
 ## Limits
 
 - A policy added after the message was sent only starts when the message is next updated.
-- Speech and popup channels are not built yet; the `quiet` marker is passed to them when they exist.
-- The panel is not built; use the entry's Add policy form.

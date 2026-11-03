@@ -23,7 +23,7 @@ Everyone who uses Home Assistant: the bell has one list for all users. The chann
 - One entry per message, with the id `hu_<message id>`, the message's title and text.
 - An update to the message replaces the entry.
 - When the message ends (cleared, expired, condition false, dismissed for everyone, evicted), the entry is dismissed. A dismissal or snooze by one user changes nothing, because the bell is shared.
-- A restart does not create the entry again. An entry whose message ended while Home Assistant was stopped is dismissed at startup.
+- Home Assistant empties the notification bell on a restart. At startup Heads Up creates the entry again for every message that is still active, with the same id, so entries do not stack. An entry whose message ended while Home Assistant was stopped is dismissed.
 - Dismissing the entry in the bell is not reported back to Heads Up. The message stays; a later update creates the entry again.
 
 ## Failures

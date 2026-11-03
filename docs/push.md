@@ -44,7 +44,7 @@ Pressing Acknowledge, Dismiss, Snooze or one of the message's own buttons does t
 
 ## Settings
 
-These options have defaults and no form yet. They are read from the integration options.
+Set these options on the panel's Channels page. They are stored in the integration options.
 
 | Option | Default | Meaning |
 |---|---|---|
@@ -56,6 +56,6 @@ These options have defaults and no form yet. They are read from the integration 
 ## Limits
 
 - No retry. A failed push is not tried again.
-- No rate limit yet.
+- A push over 5 per device per minute or 60 in total is skipped (`rate_limited`), and an update with the same content within 30 seconds is ignored (`duplicate`). Critical messages are never held back. See [Notification hub](hub.md#limits-that-protect-the-phones).
 - The Acknowledge button appears only when an escalation or reminder policy applies to the message; see [Policies](policies.md). Pressing it acknowledges the message for the person the notification was sent to.
 - The behavior on real phones was not checked; the tests use a stand-in for the app.

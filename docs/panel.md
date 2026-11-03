@@ -1,6 +1,6 @@
 # The Heads Up panel
 
-The panel is an administrator page in Home Assistant's sidebar. In this version it has the navigation, the Overview, the Messages page, the four Configuration pages, Test send, the Settings page, the welcome and the FAQ and examples page; Watch rules says it is not available yet.
+The panel is an administrator page in Home Assistant's sidebar. In this version it has the navigation, the Overview, the Messages page, the four Configuration pages, Test send, the Settings page, the welcome and the FAQ and examples page. The Watch rules page is empty.
 
 ## Show it in the sidebar
 
@@ -96,7 +96,7 @@ Six example calls, from a banner without the hub to a push to one person, each w
 
 ## Limits
 
-- Watch rules comes in a later version. The Needs attention button for a rule opens a page that says so.
+- The Watch rules page has no editor: it shows "This page is not available". Edit rules under Settings > Devices & services > Heads Up. The Needs attention button for a rule opens that page.
 - Test send has no "what if" time: it uses the real clock.
 - The pages poll every 10 seconds; they do not update the moment something happens.
 - Not tested on a touch device or with a screen reader.
