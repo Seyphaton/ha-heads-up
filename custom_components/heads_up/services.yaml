@@ -89,6 +89,10 @@ create_banner:
       example: '{"action": "navigate", "navigation_path": "/lovelace/0"}'
       selector:
         object: null
+    image: &id023
+      example: /media/local/door.jpg
+      selector:
+        text: null
 clear_banner:
   fields:
     id: &id001
@@ -123,6 +127,7 @@ notify:
     mode: *id017
     wait_for_condition: *id018
     tap_action: *id019
+    image: *id023
     tts_message: &id020
       example: The garage door is open.
       selector:
@@ -159,6 +164,7 @@ push:
     actions: *id014
     tag: *id015
     tap_action: *id019
+    image: *id023
     tts_message: *id020
     recipients: &id021
       example: '["person.anna"]'
@@ -179,6 +185,7 @@ popup:
     actions: *id014
     tag: *id015
     tap_action: *id019
+    image: *id023
     tts_message: *id020
     recipients: *id021
     audience: *id022

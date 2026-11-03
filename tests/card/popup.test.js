@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   buttonsFor,
   current,
+  imageSource,
+  needsSignature,
   mayTakeFocus,
   sortQueue,
   STRINGS,
@@ -90,5 +92,19 @@ describe("popup text", () => {
   it("has the same keys in every language", () => {
     const keys = Object.keys(STRINGS.en).sort();
     for (const table of Object.values(STRINGS)) expect(Object.keys(table).sort()).toEqual(keys);
+  });
+});
+
+describe("images", () => {
+  it("signs paths behind a login only", () => {
+    expect(needsSignature("/api/image_proxy/image.door")).toBe(true);
+    expect(needsSignature("/media/local/door.jpg")).toBe(true);
+    expect(needsSignature("/local/door.jpg")).toBe(false);
+    expect(needsSignature("https://example.com/door.jpg")).toBe(false);
+  });
+
+  it("returns an unsigned path unchanged", async () => {
+    const hass = { callWS: () => Promise.reject(new Error("must not be called")) };
+    expect(await imageSource(hass, "https://example.com/door.jpg")).toBe("https://example.com/door.jpg");
   });
 });

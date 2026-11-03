@@ -503,6 +503,9 @@ Restart: the usual one after a code update. Notification path: not touched. Dash
 - Direct areas: `to.speak.recipients` takes any area id or name (`recipients.find_area`, `HubResolver.accepts`). `known("speak")` lists every area id.
 - Bell entry: `HubEngine._send` calls `persistent.warn_speech` when a speak row is skipped with `group_empty` or fails with `entity_missing`. Not on a dry run (`plan`, `preview`) and not on a startup resume. Id `heads_up_warning_<slug>`, so a repeat replaces it; text names the area, group or speaker, never the message.
 
+### 21.6 Image (D-127)
+- Field `image` on `create_banner`, `notify`, `push`, `popup` and in the rule form; `Banner.image`; shape checked by `services.IMAGE` (http(s) URL or `/path`, up to 2048 characters). Push: `data.image` when the lock screen setting is `full`, otherwise left out with the note `image_hidden`. Card (not compact) and popup: an `<img>` under the message; `/api/` and `/media/` paths go through `auth/sign_path` (N-93), kept 50 minutes. The duplicate signature of `hub/limits.py` includes the image.
+
 ## 22. Parity of banner sources (rule, D-073)
 
 Status: implemented 2026-10-27 (`tests/test_rule_parity.py`, `tests/test_rules_flow.py`). Decision D-073.

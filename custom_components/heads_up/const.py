@@ -38,6 +38,7 @@ RULE_ID_PREFIX: Final = "rule_"
 ID_PATTERN: Final = re.compile(r"^[a-z0-9_-]{1,64}$")
 MAX_TITLE: Final = 100
 MAX_MESSAGE: Final = 1000
+MAX_IMAGE: Final = 2048  # characters of an image URL or path (D-127)
 MAX_TIMEOUT_DAYS: Final = 365
 MAX_FOR_SECONDS: Final = 24 * 3600  # longest `for` of a condition (D-066)
 

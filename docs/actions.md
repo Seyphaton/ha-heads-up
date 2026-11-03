@@ -26,6 +26,7 @@ Shows a banner in every Heads Up card. Calling it again with the same `id` repla
 | `wait_for_condition` | boolean | `true` | What happens when the condition is false at the time of the call. Ignored without `condition`. |
 | `people` | list of person entities | everyone | Show the banner only to the users linked to these people. See [People](#people). |
 | `tap_action` | object with `action` | none | Home Assistant action config run when the banner is tapped. Passed to the card unchanged. Anyone who sees the banner can trigger it; see [SECURITY.md](../SECURITY.md). |
+| `image` | text | none | A picture shown under the message on the card, in the popup and on the push: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/local/door.jpg`, `/media/local/door.jpg`). Up to 2048 characters. Heads Up does not fetch or check it; a wrong path shows no picture. Paths under `/api/` and `/media/` are signed for the card and the popup. The phone loads the picture itself, so it must reach the URL; camera proxy paths (`/api/camera_proxy/...`) work on Android only. The compact card layout shows no picture. With a lock screen setting other than `full`, the push has no picture (`image_hidden` in the trace). |
 
 Response data:
 
@@ -307,6 +308,7 @@ Channels: `banner`, `push`, `popup`, `speak`, `persistent`. All five channels de
 | `mode` | `once`, `recurring` | `once` | As in `create_banner`. |
 | `wait_for_condition` | boolean | `true` | As in `create_banner`. |
 | `tap_action` | object with `action` | none | As in `create_banner`. |
+| `image` | text | none | As in `create_banner`. |
 | `tts_message` | text | the title if set, otherwise the message | Text for the speak channel instead of the title and message. |
 | `channels` | list of channels | required | One or more of the five channels, each at most once. |
 | `to` | object | none | A target per channel: `audience` (a name) or `recipients` (a list), never both. `push`, `popup` and `speak` need a target. Audience and recipient names are described in [Audiences and recipients](audiences.md). `speak` takes recipients only. `persistent` takes no target and goes to everyone (see [Persistent notifications](persistent.md)). `banner` is optional: recipients limit the banner to the users linked to those persons. |
@@ -347,6 +349,7 @@ Shortcut for `notify` with `channels: [push]` and no policies. It needs `audienc
 | `actions` | list of up to 3 buttons | none | As in `create_banner`. |
 | `tag` | text | none | As in `create_banner`. |
 | `tap_action` | object with `action` | none | As in `create_banner`. |
+| `image` | text | none | As in `create_banner`. |
 | `tts_message` | text | the title if set, otherwise the message | Text for the speak channel. |
 | `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
 | `audience` | text | one of `audience` or `recipients` | Name of an audience. Not available for `speak`. |
@@ -374,6 +377,7 @@ Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audien
 | `actions` | list of up to 3 buttons | none | As in `create_banner`. |
 | `tag` | text | none | As in `create_banner`. |
 | `tap_action` | object with `action` | none | As in `create_banner`. |
+| `image` | text | none | As in `create_banner`. |
 | `tts_message` | text | the title if set, otherwise the message | Text for the speak channel. |
 | `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
 | `audience` | text | one of `audience` or `recipients` | Name of an audience. Not available for `speak`. |

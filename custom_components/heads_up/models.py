@@ -54,6 +54,8 @@ class Banner:
     tts_message: str | None = None
     acknowledged_by: list[str] = field(default_factory=list)
     source: str = SOURCE_ACTION
+    # Picture under the message: an http(s) URL or a path starting with `/` (D-127).
+    image: str | None = None
 
     @property
     def on_card(self) -> bool:

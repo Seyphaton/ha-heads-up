@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import secrets
 from collections.abc import Callable, Coroutine
 from datetime import timedelta
@@ -26,6 +27,7 @@ from .const import (
     MAX_ACTION_LABEL,
     MAX_ACTIONS,
     MAX_FOR_SECONDS,
+    MAX_IMAGE,
     MAX_MESSAGE,
     MAX_SNOOZE_OPTIONS,
     MAX_SNOOZE_SECONDS,
@@ -166,6 +168,18 @@ CONDITION_SCHEMA = vol.All(
     _check_condition,
 )
 
+_IMAGE_REF = re.compile(r"^(https?://\S+|/(?!/)\S*)$")
+
+
+def _image(value: str) -> str:
+    """An http(s) URL or a path on this Home Assistant; nothing is fetched or checked (D-127)."""
+    if not _IMAGE_REF.match(value):
+        raise vol.Invalid("image must be an http(s) URL or a path starting with /")
+    return value
+
+
+IMAGE = vol.All(cv.string, vol.Length(min=1, max=MAX_IMAGE), _image)
+
 NAME = vol.All(cv.string, vol.Length(min=1, max=100))  # audience, recipient and policy names
 
 
@@ -226,6 +240,7 @@ _CREATE_FIELDS: dict[Any, Any] = {
     vol.Optional("people"): vol.All(cv.ensure_list, [cv.entity_domain("person")]),
     vol.Optional("actions"): ACTIONS_SCHEMA,
     vol.Optional("tap_action"): TAP_ACTION_SCHEMA,
+    vol.Optional("image"): IMAGE,
 }
 CREATE_SCHEMA = vol.All(vol.Schema(_CREATE_FIELDS), _check_create)
 
@@ -269,6 +284,7 @@ def _shortcut_schema(channel: str) -> VolSchemaType:
     }
     if channel != "speak":  # speech takes speakers, not an audience (D-098)
         fields[vol.Optional("audience")] = NAME
+        fields[vol.Optional("image")] = IMAGE
     needs = ("recipients",) if channel == "speak" else ("audience", "recipients")
     return vol.All(vol.Schema(fields), cv.has_at_least_one_key(*needs), _exclusive_target)
 
@@ -409,6 +425,7 @@ def _shortcut(channel: str) -> Callable[[ServiceCall], Coroutine[Any, Any, Servi
             icon=data.get("icon"),
             tag=data.get("tag"),
             tap_action=data.get("tap_action"),
+            image=data.get("image"),
             actions=[dict(a) for a in data.get("actions", [])],
             tts_message=data.get("tts_message"),
             channels=[channel],

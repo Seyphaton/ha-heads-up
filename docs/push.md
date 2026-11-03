@@ -32,6 +32,7 @@ The response counts of `notify` come from the plan made before sending: `sent` m
 | Level | By severity: `success` and `info` passive, `warning` normal, `critical` time-sensitive. Passive is `importance: low`, normal `default`, time-sensitive `high`. |
 | Android channel | `heads_up_<level>`. Android keeps the importance a channel had when it was first used, so the channel is named after the level. |
 | Tap | A `navigate` tap action opens its `navigation_path`, a `url` tap action its `url_path`. |
+| Image | The message's `image` as `data.image`, which Android and iOS both read. Left out when the lock screen setting is not `full` (`image_hidden` in the trace). Camera proxy paths work on Android only. |
 | Buttons | The message's own `actions`, then Snooze when the message is snoozable, then Dismiss when it is dismissible. Android shows at most 3 buttons and iOS 10; extra buttons are left out and the trace entry says `buttons_clipped:<n>`. |
 
 A message that ends (cleared, expired, its condition false, dismissed for everyone, evicted) is removed from every device with `clear_notification` and its tag. A user who dismisses or snoozes the banner loses only their own notification. When a snooze ends, that user is notified again. Swiping a notification away changes nothing.

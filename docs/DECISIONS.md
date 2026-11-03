@@ -787,6 +787,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Parity: speech from rule messages goes through the same delivery path (escalation, Deliver), so both banner sources behave alike.
 - Blast radius: usual restart; the list of valid speech recipients grows to all areas; a call that named an area before only through a group now also works without one.
 
+## D-127 Image under the message (2026-11-03)
+- Context: D-124. Camera alerts need a picture; no schema, push payload, card or popup had an image.
+- Decisions (maintainer): the field `image` on `create_banner`, `notify`, `push` and `popup`, shown on the push, the card, the popup and the watch rule form. It takes an `http://` or `https://` URL or a path starting with `/` (not `//`), at most 2048 characters, no whitespace; nothing is fetched or checked. The push sends it as `data.image` (both platforms read it, N-93); camera proxy paths work on Android only. A push leaves the image out when the lock screen setting is `title_only` or `generic` (trace reason `image_hidden`).
+- Build details decided without a question: no card option (the card always shows it, except in the compact layout); `/api/` and `/media/` paths are signed with `auth/sign_path` for the card and popup, `/local/` and external URLs are used as written; a picture that fails to load is removed; the duplicate check of D-123 includes the image, so an update that changes only the picture is sent; speech takes no image; the Test send page has no image field.
+- Parity (rule 9): actions and rules both carry the image (rule form field `image`, `rule_banner` payload), so no exception in DESIGN section 22.
+- Blast radius: usual restart; a stored banner without the field loads unchanged; the card and popup request a picture from the given URL (a third-party URL sees the viewer's address).
+
 - Build details decided without a question: payload `id`, `tag`, `channel`, `origin`, `reached`, `failed` (a list of `{recipient, reason, person?}`); the banner channel never fires it; not on a dry run and not on the first delivery after a restart (the same rule as the speech bell entry); a partial failure (one of two devices) fires with `reached: 1`. Escalation, fallback and deliver deliveries use `resume` to skip rows already sent, so D-126's "no bell entry on resume" was narrowed to `resume` with origin `message`; before, an escalation to an empty speaker group left no bell entry.
 - Parity: rule messages use the same delivery path, so both banner sources fire it.
 - Blast radius: usual restart; a new event, no change to existing events; automations triggering on it see a failure per channel and step.

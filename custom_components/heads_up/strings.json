@@ -334,6 +334,10 @@
         "tap_action": {
           "name": "Tap action",
           "description": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "image": {
+          "name": "Image",
+          "description": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
         }
       }
     },
@@ -441,6 +445,10 @@
           "name": "Tap action",
           "description": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
+        "image": {
+          "name": "Image",
+          "description": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
         "tts_message": {
           "name": "Spoken text",
           "description": "Text used for speech instead of the title and message. Default: the title if set, otherwise the message."
@@ -499,6 +507,10 @@
           "name": "Tap action",
           "description": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
+        "image": {
+          "name": "Image",
+          "description": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
         "tts_message": {
           "name": "Spoken text",
           "description": "Text used for speech instead of the title and message. Default: the title if set, otherwise the message."
@@ -552,6 +564,10 @@
         "tap_action": {
           "name": "Tap action",
           "description": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "image": {
+          "name": "Image",
+          "description": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Spoken text",
@@ -648,7 +664,8 @@
             "snooze_scope": "Snooze scope",
             "snooze_options": "Snooze choices",
             "actions": "Buttons",
-            "tap_action": "Tap action"
+            "tap_action": "Tap action",
+            "image": "Image"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -667,7 +684,8 @@
             "snooze_scope": "Per user or everyone. Empty: the setting from the integration options.",
             "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options.",
             "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
-            "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+            "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
+            "image": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         },
         "reconfigure": {
@@ -693,7 +711,8 @@
             "snooze_scope": "Snooze scope",
             "snooze_options": "Snooze choices",
             "actions": "Buttons",
-            "tap_action": "Tap action"
+            "tap_action": "Tap action",
+            "image": "Image"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -712,7 +731,8 @@
             "snooze_scope": "Per user or everyone. Empty: the setting from the integration options.",
             "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options.",
             "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
-            "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+            "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
+            "image": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         }
       },
@@ -732,6 +752,7 @@
         "template_invalid": "The template is not valid.",
         "actions_invalid": "The buttons are not valid. Each needs a key and a label, up to 3.",
         "tap_action_invalid": "The tap action needs an action key.",
+        "image_invalid": "The image must be an http(s) URL or a path starting with /.",
         "actions_dismiss_needs_dismissible": "A button with dismiss needs Dismissible to be on."
       },
       "abort": {

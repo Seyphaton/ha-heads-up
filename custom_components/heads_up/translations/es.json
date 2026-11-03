@@ -334,6 +334,10 @@
         "tap_action": {
           "name": "Acción al tocar",
           "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "image": {
+          "name": "Imagen",
+          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
         }
       }
     },
@@ -441,6 +445,10 @@
           "name": "Acción al tocar",
           "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
+        "image": {
+          "name": "Imagen",
+          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
         "tts_message": {
           "name": "Texto hablado",
           "description": "Texto usado para la voz en lugar del título y el mensaje. Por defecto: el título si existe, si no el mensaje."
@@ -499,6 +507,10 @@
           "name": "Acción al tocar",
           "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
+        "image": {
+          "name": "Imagen",
+          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
         "tts_message": {
           "name": "Texto hablado",
           "description": "Texto usado para la voz en lugar del título y el mensaje. Por defecto: el título si existe, si no el mensaje."
@@ -552,6 +564,10 @@
         "tap_action": {
           "name": "Acción al tocar",
           "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "image": {
+          "name": "Imagen",
+          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Texto hablado",
@@ -648,7 +664,8 @@
             "snooze_scope": "Ámbito de posposición",
             "snooze_options": "Opciones de posposición",
             "actions": "Botones",
-            "tap_action": "Acción al tocar"
+            "tap_action": "Acción al tocar",
+            "image": "Imagen"
           },
           "data_description": {
             "name": "Solo se muestra en la lista de reglas.",
@@ -667,7 +684,8 @@
             "snooze_scope": "Por usuario o todos. Vacío: el ajuste de las opciones de la integración.",
             "snooze_options": "Duraciones que se ofrecen al usuario. Vacío: el ajuste de las opciones de la integración.",
             "actions": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action. «dismiss» requiere «Se puede cerrar».\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
-            "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+            "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
+            "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         },
         "reconfigure": {
@@ -693,7 +711,8 @@
             "snooze_scope": "Ámbito de posposición",
             "snooze_options": "Opciones de posposición",
             "actions": "Botones",
-            "tap_action": "Acción al tocar"
+            "tap_action": "Acción al tocar",
+            "image": "Imagen"
           },
           "data_description": {
             "name": "Solo se muestra en la lista de reglas.",
@@ -712,7 +731,8 @@
             "snooze_scope": "Por usuario o todos. Vacío: el ajuste de las opciones de la integración.",
             "snooze_options": "Duraciones que se ofrecen al usuario. Vacío: el ajuste de las opciones de la integración.",
             "actions": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action. «dismiss» requiere «Se puede cerrar».\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
-            "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+            "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
+            "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         }
       },
@@ -732,6 +752,7 @@
         "template_invalid": "La plantilla no es válida.",
         "actions_invalid": "Los botones no son válidos. Cada uno necesita key y label, como máximo 3.",
         "tap_action_invalid": "La acción al tocar necesita una clave action.",
+        "image_invalid": "La imagen debe ser una URL http(s) o una ruta que empieza por /.",
         "actions_dismiss_needs_dismissible": "Un botón con dismiss requiere que «Se puede cerrar» esté activado."
       },
       "abort": {

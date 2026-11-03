@@ -135,6 +135,13 @@ class PushChannel:
         actions, note = self._buttons(message, target, platform)
         if actions:
             data["actions"] = actions
+        if message.image:
+            # Android and iOS both read `image` (Companion docs, N-93). A picture on the lock
+            # screen would defeat the lock screen setting, so it is left out unless it is `full`.
+            if self._opt(OPT_PUSH_LOCKSCREEN) == "full":
+                data["image"] = message.image
+            else:
+                note = ";".join(n for n in (note, "image_hidden") if n)
         title, body = self._lockscreen(message)
         out: dict[str, Any] = {"message": body, "data": data}
         if title:

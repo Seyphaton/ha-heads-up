@@ -334,6 +334,10 @@
         "tap_action": {
           "name": "Action au toucher",
           "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "image": {
+          "name": "Image",
+          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
         }
       }
     },
@@ -441,6 +445,10 @@
           "name": "Action au toucher",
           "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
+        "image": {
+          "name": "Image",
+          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
         "tts_message": {
           "name": "Texte parlé",
           "description": "Texte utilisé pour la voix à la place du titre et du message. Par défaut : le titre s'il existe, sinon le message."
@@ -499,6 +507,10 @@
           "name": "Action au toucher",
           "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
+        "image": {
+          "name": "Image",
+          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
         "tts_message": {
           "name": "Texte parlé",
           "description": "Texte utilisé pour la voix à la place du titre et du message. Par défaut : le titre s'il existe, sinon le message."
@@ -552,6 +564,10 @@
         "tap_action": {
           "name": "Action au toucher",
           "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "image": {
+          "name": "Image",
+          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Texte parlé",
@@ -648,7 +664,8 @@
             "snooze_scope": "Portée du report",
             "snooze_options": "Durées de report",
             "actions": "Boutons",
-            "tap_action": "Action au toucher"
+            "tap_action": "Action au toucher",
+            "image": "Image"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
@@ -667,7 +684,8 @@
             "snooze_scope": "Par utilisateur ou tout le monde. Vide : le réglage des options de l'intégration.",
             "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration.",
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
-            "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+            "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
+            "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         },
         "reconfigure": {
@@ -693,7 +711,8 @@
             "snooze_scope": "Portée du report",
             "snooze_options": "Durées de report",
             "actions": "Boutons",
-            "tap_action": "Action au toucher"
+            "tap_action": "Action au toucher",
+            "image": "Image"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
@@ -712,7 +731,8 @@
             "snooze_scope": "Par utilisateur ou tout le monde. Vide : le réglage des options de l'intégration.",
             "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration.",
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
-            "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+            "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
+            "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         }
       },
@@ -732,6 +752,7 @@
         "template_invalid": "Le modèle n'est pas valide.",
         "actions_invalid": "Les boutons ne sont pas valides. Chacun a besoin d'une key et d'un label, 3 au maximum.",
         "tap_action_invalid": "L'action au toucher a besoin d'une clé action.",
+        "image_invalid": "L'image doit être une URL http(s) ou un chemin commençant par /.",
         "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé."
       },
       "abort": {

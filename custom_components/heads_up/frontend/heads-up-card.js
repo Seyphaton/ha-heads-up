@@ -559,6 +559,24 @@ export function controlsFor(banner, isAdmin) {
 }
 
 // "Acknowledged by Anna", "... and 2 others", or null when nobody acknowledged (D-116).
+// Paths on this Home Assistant behind a login need a signed URL before an <img> can load them;
+// /local and external URLs do not (N-93).
+export function needsSignature(path) {
+  return typeof path === "string" && (path.startsWith("/api/") || path.startsWith("/media/"));
+}
+
+const signedImages = new Map(); // path -> { src, until }
+
+// The URL an <img> can use now. Signed URLs are kept for 50 of the 60 minutes they last.
+export async function imageSource(hass, path, now = Date.now()) {
+  if (!needsSignature(path)) return path;
+  const known = signedImages.get(path);
+  if (known && known.until > now) return known.src;
+  const signed = await hass.callWS({ type: "auth/sign_path", path, expires: 3600 });
+  signedImages.set(path, { src: signed.path, until: now + 50 * 60 * 1000 });
+  return signed.path;
+}
+
 export function acknowledgedLabel(banner) {
   if (banner.acknowledged !== true) return null;
   const names = Array.isArray(banner.acknowledged_by) ? banner.acknowledged_by : [];
@@ -609,6 +627,7 @@ const STYLE = `
   .time { color: var(--secondary-text-color); white-space: nowrap; }
   .title { font-weight: 500; }
   .message { white-space: pre-line; }
+  .image { display: block; max-width: 100%; max-height: 180px; margin-top: 8px; border-radius: 8px; object-fit: cover; }
   .ack-line { font-size: 12px; color: var(--secondary-text-color); margin-top: 2px; }
   .sr-only {
     position: absolute; width: 1px; height: 1px; overflow: hidden;
@@ -1002,6 +1021,16 @@ class HeadsUpCard extends Base {
     text.append(meta);
     if (banner.title) text.append(el("div", "title", banner.title));
     text.append(el("div", "message", banner.message));
+    if (banner.image && cfg.layout !== "compact") {
+      const picture = el("img", "image");
+      picture.alt = "";
+      picture.loading = "lazy";
+      imageSource(this._hass, banner.image)
+        .then((src) => (picture.src = src))
+        .catch(() => picture.remove());
+      picture.addEventListener("error", () => picture.remove());
+      text.append(picture);
+    }
     const ackLine = cfg.show_acknowledged ? acknowledgedLabel(banner) : null;
     if (ackLine) text.append(el("div", "ack-line", ackLine));
     if (controls.actions.length > 0 || controls.acknowledge) {

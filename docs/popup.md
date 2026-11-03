@@ -27,6 +27,7 @@ A popup goes to persons, by audience or by `recipients` (person entities). A per
 | success, info, warning | A card in the bottom right corner (full width at phone size). |
 | critical | A centered window over a dimmed page. |
 
+- A message with an `image` shows the picture under the text, up to 200 px high; a picture that does not load is left out.
 - A quiet message (a Quiet hours policy with the action Send quietly) is always a card.
 - The option `popup_styles` sets `card`, `modal` or `off` per severity. Set it on the panel's Channels page.
 - The severity is written out ("Critical"), not only colored, and uses the theme colors.

@@ -242,6 +242,7 @@ class BannerManager:
             ),
             tag=data.get("tag"),
             tap_action=data.get("tap_action"),
+            image=data.get("image"),
             actions=[dict(a) for a in data.get("actions", [])],
             condition=condition,
             mode=data.get("mode", "once"),
@@ -589,6 +590,7 @@ class BannerManager:
             dismiss_scope=source.get("dismiss_scope") or "user",
             actions=[{"dismiss": False, **a} for a in source.get("actions", [])],
             tap_action=source.get("tap_action"),
+            image=source.get("image") or None,
             snoozable=dismissible and source.get("snoozable", self.options[OPT_DEFAULT_SNOOZABLE]),
             snooze_scope=source.get("snooze_scope") or self.options[OPT_DEFAULT_SNOOZE_SCOPE],
             snooze_options=list(

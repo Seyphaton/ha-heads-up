@@ -334,6 +334,10 @@
         "tap_action": {
           "name": "Tipp-Aktion",
           "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "image": {
+          "name": "Bild",
+          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
         }
       }
     },
@@ -441,6 +445,10 @@
           "name": "Tipp-Aktion",
           "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
+        "image": {
+          "name": "Bild",
+          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
         "tts_message": {
           "name": "Gesprochener Text",
           "description": "Text für die Sprachausgabe statt Titel und Nachricht. Standard: der Titel, falls gesetzt, sonst die Nachricht."
@@ -499,6 +507,10 @@
           "name": "Tipp-Aktion",
           "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
+        "image": {
+          "name": "Bild",
+          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
         "tts_message": {
           "name": "Gesprochener Text",
           "description": "Text für die Sprachausgabe statt Titel und Nachricht. Standard: der Titel, falls gesetzt, sonst die Nachricht."
@@ -552,6 +564,10 @@
         "tap_action": {
           "name": "Tipp-Aktion",
           "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "image": {
+          "name": "Bild",
+          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Gesprochener Text",
@@ -648,7 +664,8 @@
             "snooze_scope": "Bereich beim Zurückstellen",
             "snooze_options": "Auswahl beim Zurückstellen",
             "actions": "Schaltflächen",
-            "tap_action": "Tipp-Aktion"
+            "tap_action": "Tipp-Aktion",
+            "image": "Bild"
           },
           "data_description": {
             "name": "Wird nur in der Liste der Regeln angezeigt.",
@@ -667,7 +684,8 @@
             "snooze_scope": "Pro Benutzer oder alle. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen.",
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
-            "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+            "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
+            "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         },
         "reconfigure": {
@@ -693,7 +711,8 @@
             "snooze_scope": "Bereich beim Zurückstellen",
             "snooze_options": "Auswahl beim Zurückstellen",
             "actions": "Schaltflächen",
-            "tap_action": "Tipp-Aktion"
+            "tap_action": "Tipp-Aktion",
+            "image": "Bild"
           },
           "data_description": {
             "name": "Wird nur in der Liste der Regeln angezeigt.",
@@ -712,7 +731,8 @@
             "snooze_scope": "Pro Benutzer oder alle. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen.",
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
-            "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+            "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
+            "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         }
       },
@@ -732,6 +752,7 @@
         "template_invalid": "Die Vorlage ist ungültig.",
         "actions_invalid": "Die Schaltflächen sind ungültig. Jede braucht key und label, höchstens 3.",
         "tap_action_invalid": "Die Tipp-Aktion braucht einen action-Schlüssel.",
+        "image_invalid": "Das Bild muss eine http(s)-URL oder ein Pfad sein, der mit / beginnt.",
         "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an."
       },
       "abort": {

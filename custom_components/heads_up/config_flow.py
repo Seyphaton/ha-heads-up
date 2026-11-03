@@ -68,7 +68,7 @@ from .hub.flows import (
     RecipientGroupSubentryFlow,
     RecipientProfileSubentryFlow,
 )
-from .services import ACTIONS_SCHEMA, TAP_ACTION_SCHEMA
+from .services import ACTIONS_SCHEMA, IMAGE, TAP_ACTION_SCHEMA
 
 
 class HeadsUpConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -258,6 +258,7 @@ _RULE_SCHEMA = vol.Schema(
         ),
         vol.Optional("actions"): ObjectSelector(),
         vol.Optional("tap_action"): ObjectSelector(),
+        vol.Optional("image"): TextSelector(),
         vol.Required("enabled", default=True): BooleanSelector(),
     }
 )
@@ -299,6 +300,10 @@ def _rule_data(user_input: dict[str, Any]) -> dict[str, Any]:
         data["tap_action"] = TAP_ACTION_SCHEMA(data["tap_action"])
     else:
         data.pop("tap_action", None)
+    if (data.get("image") or "").strip():
+        data["image"] = IMAGE(data["image"].strip())
+    else:
+        data.pop("image", None)
     # The duration selector gives a dict; the rule stores seconds, none when empty (D-066).
     seconds = _for_seconds(data.pop("for", None))
     if seconds:
@@ -392,6 +397,11 @@ class RuleSubentryFlow(ConfigSubentryFlow):
             errors["for"] = "for_too_long"
         if user_input.get("snoozable") and not user_input.get("dismissible"):
             errors["snoozable"] = "snoozable_needs_dismissible"
+        if image := (user_input.get("image") or "").strip():
+            try:
+                IMAGE(image)
+            except vol.Invalid:
+                errors["image"] = "image_invalid"
         for field, schema in (("actions", ACTIONS_SCHEMA), ("tap_action", TAP_ACTION_SCHEMA)):
             if user_input.get(field):
                 try:

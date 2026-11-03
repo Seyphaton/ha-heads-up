@@ -48,6 +48,23 @@ export function mayTakeFocus(message, activeTag) {
   return !["INPUT", "TEXTAREA", "SELECT"].includes(String(activeTag || "").toUpperCase());
 }
 
+// Paths on this Home Assistant behind a login need a signed URL before an <img> can load them;
+// /local and external URLs do not (N-93). Same rule as the card.
+export function needsSignature(path) {
+  return typeof path === "string" && (path.startsWith("/api/") || path.startsWith("/media/"));
+}
+
+const signedImages = new Map(); // path -> { src, until }
+
+export async function imageSource(hass, path, now = Date.now()) {
+  if (!needsSignature(path)) return path;
+  const known = signedImages.get(path);
+  if (known && known.until > now) return known.src;
+  const signed = await hass.callWS({ type: "auth/sign_path", path, expires: 3600 });
+  signedImages.set(path, { src: signed.path, until: now + 50 * 60 * 1000 });
+  return signed.path;
+}
+
 // Buttons in the order the card uses: the message's own, Acknowledge, Snooze, Dismiss.
 export function buttonsFor(message) {
   const own = (message.actions || []).map((a) => ({ kind: "action", key: a.key, label: a.label }));
@@ -69,6 +86,7 @@ const CSS = `
 .modal { width: min(480px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; padding: 16px 20px; border-top: 8px solid var(--c); }
 .sev { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--c); display: flex; gap: 6px; align-items: center; }
 .title { font-size: 18px; font-weight: 600; margin: 4px 0; overflow-wrap: anywhere; }
+.image { display: block; width: 100%; max-height: 200px; margin: 0 0 12px; border-radius: 8px; object-fit: cover; }
 .msg { margin: 4px 0 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
 button { min-height: 48px; min-width: 48px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--divider-color, #ccc);
@@ -127,6 +145,14 @@ function build(message, language) {
   box.append(label);
   if (message.title) box.append(el("div", { className: "title", textContent: message.title }));
   box.append(el("div", { className: "msg", textContent: message.message }));
+  if (message.image && state.ha?.hass) {
+    const picture = el("img", { className: "image", alt: "", loading: "lazy" });
+    imageSource(state.ha.hass, message.image)
+      .then((src) => (picture.src = src))
+      .catch(() => picture.remove());
+    picture.addEventListener("error", () => picture.remove());
+    box.append(picture);
+  }
   const row = el("div", { className: "row" });
   for (const button of buttonsFor(message)) {
     const labelText = button.kind === "action" ? button.label : t(button.kind === "ack" ? "ack" : button.kind);

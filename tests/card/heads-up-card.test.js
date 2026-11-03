@@ -7,6 +7,8 @@ import {
   acknowledgedLabel,
   controlsFor,
   emptyView,
+  imageSource,
+  needsSignature,
   normalizeConfig,
   reservesActionSpace,
   relativeTime,
@@ -554,5 +556,36 @@ describe("acknowledgement", () => {
     expect(normalizeConfig({}).show_acknowledged).toBe(true);
     expect(normalizeConfig({ show_acknowledged: false }).show_acknowledged).toBe(false);
     expect(CONFIG_KEYS).toContain("show_acknowledged");
+  });
+});
+
+describe("images", () => {
+  it("signs paths behind a login only", () => {
+    expect(needsSignature("/api/camera_proxy/camera.door")).toBe(true);
+    expect(needsSignature("/media/local/door.jpg")).toBe(true);
+    expect(needsSignature("/local/door.jpg")).toBe(false);
+    expect(needsSignature("https://example.com/door.jpg")).toBe(false);
+    expect(needsSignature(undefined)).toBe(false);
+  });
+
+  it("returns an unsigned path unchanged without asking Home Assistant", async () => {
+    const hass = { callWS: () => Promise.reject(new Error("must not be called")) };
+    expect(await imageSource(hass, "/local/door.jpg")).toBe("/local/door.jpg");
+  });
+
+  it("signs a protected path once and reuses it for 50 minutes", async () => {
+    let calls = 0;
+    const hass = {
+      callWS: async ({ path }) => {
+        calls += 1;
+        return { path: `${path}?authSig=${calls}` };
+      },
+    };
+    const first = await imageSource(hass, "/media/local/a.jpg", 1000);
+    expect(first).toBe("/media/local/a.jpg?authSig=1");
+    expect(await imageSource(hass, "/media/local/a.jpg", 1000 + 49 * 60 * 1000)).toBe(first);
+    expect(await imageSource(hass, "/media/local/a.jpg", 1000 + 51 * 60 * 1000)).toBe(
+      "/media/local/a.jpg?authSig=2",
+    );
   });
 });

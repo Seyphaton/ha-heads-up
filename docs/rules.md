@@ -26,6 +26,7 @@ A watch rule shows a banner while an entity is in a state. You set it up once in
 | Dismiss scope | per user | Per user: closing hides it for that user until the condition turns false and true again. Everyone: it hides for all until then. |
 | Buttons | none | Up to 3 buttons, as YAML in the same format as `actions` in [actions](actions.md). Pressing one fires the event `heads_up_banner_action`, with `id` starting with `rule_` and `tag` `rule`. A button with `dismiss: true` needs Dismissible. |
 | Tap action | none | A Home Assistant action run when the banner is tapped, same format as `tap_action` in [actions](actions.md). |
+| Image | none | A picture under the message, same format as `image` in [actions](actions.md). |
 | Enabled | on | Off hides the banner without deleting the rule. |
 
 To change or delete a rule, open it from the same page. Changes apply at once; no restart is needed.
