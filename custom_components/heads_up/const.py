@@ -53,8 +53,15 @@ OPT_DISABLE_ENDED_BUTTONS: Final = "disable_ended_buttons"  # D-125
 # Hub (DESIGN §23). Channels of a message; only `banner` delivers in H1.
 CHANNEL_BANNER: Final = "banner"
 CHANNEL_PERSISTENT: Final = "persistent"
-CHANNELS: Final = ("banner", "push", "popup", "speak", "persistent")
-TARGET_CHANNELS: Final = ("banner", "push", "popup", "speak")  # channels that accept a target
+CHANNEL_MAIL: Final = "mail"
+CHANNELS: Final = ("banner", "push", "popup", "speak", "persistent", "mail")
+TARGET_CHANNELS: Final = (
+    "banner",
+    "push",
+    "popup",
+    "speak",
+    "mail",
+)  # channels that accept a target
 SOURCE_ACTION: Final = "action"
 SOURCE_RULE: Final = "rule"
 SOURCE_SUMMARY: Final = "summary"  # a summary the hub made itself (H4c)
@@ -83,7 +90,13 @@ QUIET_ACTIONS: Final = ("quiet", "wait", "drop")
 FALLBACK_WHEN: Final = ("no_audience", "failed", "both")
 HOLD_QUIET: Final = "quiet_hours"
 HOLD_AWAY: Final = "away"
-POLICY_CHANNELS: Final = ("push", "popup", "speak", "persistent")  # an escalation can add these
+POLICY_CHANNELS: Final = (
+    "push",
+    "popup",
+    "speak",
+    "persistent",
+    "mail",
+)  # an escalation can add these
 TIMER_CHANNEL: Final = "timer"  # ledger rows of this channel hold escalation and reminder due times
 GROUP_SUFFIX: Final = " (group)"  # how a recipient group is named in calls
 PRESENCE_KEY: Final = "heads_up.presence"
@@ -106,7 +119,19 @@ PRESENCE_KINDS: Final = (
     "not_in_zone",
 )
 ZONE_KINDS: Final = ("in_zone", "not_in_zone")
-PROFILE_CHANNELS: Final = ("banner", "push", "popup")  # channels a person's profile can accept
+PROFILE_CHANNELS: Final = (
+    "banner",
+    "push",
+    "popup",
+    "mail",
+)  # channels a person's profile can accept
+DEFAULT_PROFILE_CHANNELS: Final = ("banner", "push", "popup")  # mail is opt-in per person (D-129)
+MAIL_GLOBAL: Final = "Global address"  # the recipient name of the shared mail address (D-129)
+MAIL_GLOBAL_KEY: Final = "mail:global"  # its ledger key
+MAIL_PLACEHOLDERS: Final = ("severity", "title", "message", "person", "id", "tag")
+MAX_MAIL_SUBJECT: Final = 200
+MAX_MAIL_BODY: Final = 2000
+MAX_MAIL_ADDRESS: Final = 254
 OPT_PRESENCE_DEBOUNCE: Final = "presence_debounce_seconds"  # D-109
 # Push settings (D-097, D-110). Edited in the panel (H9c); no form in the options flow.
 OPT_PUSH_LEVELS: Final = "push_levels"  # severity to level
@@ -140,6 +165,11 @@ OPT_SPEAK_MAX_LENGTH: Final = "speak_max_length"  # characters
 OPT_SPEAK_COOLDOWN: Final = "speak_cooldown_seconds"  # 0 for none
 OPT_SPEAK_TTS_ENTITY: Final = "speak_tts_entity"  # empty: the only tts entity
 OPT_SPEAK_LANGUAGE: Final = "speak_language"  # empty: the Home Assistant language
+# Mail settings (D-129). Edited on the panel's Channels page.
+OPT_MAIL_SERVICE: Final = "mail_service"  # name of a notify service, empty: mail is off
+OPT_MAIL_ADDRESS: Final = "mail_global_address"  # the shared address, empty: none
+OPT_MAIL_SUBJECT: Final = "mail_subject"
+OPT_MAIL_BODY: Final = "mail_body"
 OPT_HUB_ENABLED: Final = "hub_enabled"  # D-107: on by default, this is the off switch
 OPT_INSTALL_TOKEN: Final = "install_token"  # 6 hex characters, used in push tags (D-080)
 OPT_TRACE_ENTRIES: Final = "trace_entries"
@@ -170,6 +200,10 @@ DEFAULT_OPTIONS: Final = {
     OPT_SPEAK_COOLDOWN: 60,
     OPT_SPEAK_TTS_ENTITY: "",
     OPT_SPEAK_LANGUAGE: "",
+    OPT_MAIL_SERVICE: "",
+    OPT_MAIL_ADDRESS: "",
+    OPT_MAIL_SUBJECT: "{severity}: {title}",
+    OPT_MAIL_BODY: "{message}",
     OPT_TRACE_ENTRIES: 500,
     OPT_RECENT_MESSAGES: 100,
     OPT_RATE_PER_DEVICE: 5,

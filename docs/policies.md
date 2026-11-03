@@ -30,8 +30,8 @@ If nobody acknowledges within the time, the policy delivers the message on the c
 | Field | Default | Meaning |
 |---|---|---|
 | Escalate after (minutes) | 5 | Time from the moment the message is visible. |
-| Channels | none | `push`, `popup`, `speak`, `persistent`. |
-| Push, popup: audience or recipients | none | Either an audience or recipients per channel, never both. Speak takes recipients only. A persistent notification takes no target. |
+| Channels | none | `push`, `popup`, `speak`, `persistent`, `mail`. |
+| Push, popup: audience or recipients | none | Either an audience or recipients per channel, never both. Speak takes recipients only. Mail takes either, see [Mail](mail.md). A persistent notification takes no target. |
 | Dismissing counts as acknowledging | off | A dismissal by anyone stops this escalation. |
 
 - Someone who already has the message on that channel is not notified a second time.

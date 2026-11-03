@@ -165,7 +165,8 @@
         "push": "Push",
         "popup": "Popup",
         "speak": "Hablar",
-        "persistent": "Notificación persistente"
+        "persistent": "Notificación persistente",
+        "mail": "Correo"
       }
     },
     "audience_kind": {
@@ -188,7 +189,8 @@
       "options": {
         "banner": "Banner",
         "push": "Push",
-        "popup": "Popup"
+        "popup": "Popup",
+        "mail": "Correo"
       }
     },
     "policy_type": {
@@ -868,13 +870,15 @@
             "devices": "Dispositivos añadidos",
             "removed_devices": "Dispositivos quitados",
             "primary": "Dispositivo principal",
-            "channels": "Canales aceptados"
+            "channels": "Canales aceptados",
+            "mail_address": "Dirección de correo"
           },
           "data_description": {
             "devices": "Dispositivos Companion que se usan además de los detectados.",
             "removed_devices": "Dispositivos detectados que se omiten.",
             "primary": "Se lista primero. Los push siguen yendo a todos los dispositivos de la persona. Vacío: el primer dispositivo detectado.",
-            "channels": "Canales que pueden llegar a esta persona. Un canal omitido se salta para ella."
+            "channels": "Canales que pueden llegar a esta persona. Un canal omitido se salta para ella.",
+            "mail_address": "A dónde va el correo de esta persona: la dirección que se pasa como destino del servicio de notificación elegido en la página Canales. Activa Correo en los canales de arriba. Vacío: el correo a esta persona falla con no_mail_address."
           }
         },
         "reconfigure": {
@@ -884,13 +888,15 @@
             "devices": "Dispositivos añadidos",
             "removed_devices": "Dispositivos quitados",
             "primary": "Dispositivo principal",
-            "channels": "Canales aceptados"
+            "channels": "Canales aceptados",
+            "mail_address": "Dirección de correo"
           },
           "data_description": {
             "devices": "Dispositivos Companion que se usan además de los detectados.",
             "removed_devices": "Dispositivos detectados que se omiten.",
             "primary": "Se lista primero. Los push siguen yendo a todos los dispositivos de la persona. Vacío: el primer dispositivo detectado.",
-            "channels": "Canales que pueden llegar a esta persona. Un canal omitido se salta para ella."
+            "channels": "Canales que pueden llegar a esta persona. Un canal omitido se salta para ella.",
+            "mail_address": "A dónde va el correo de esta persona: la dirección que se pasa como destino del servicio de notificación elegido en la página Canales. Activa Correo en los canales de arriba. Vacío: el correo a esta persona falla con no_mail_address."
           }
         }
       },
@@ -899,7 +905,8 @@
         "profile_exists": "Esta persona ya tiene un perfil. Cambie ese.",
         "device_unknown": "Un dispositivo elegido no es un registro de la app Companion.",
         "device_added_and_removed": "Un dispositivo no puede añadirse y quitarse a la vez.",
-        "channels_required": "Elija al menos un canal."
+        "channels_required": "Elija al menos un canal.",
+        "mail_address_too_long": "La dirección puede tener como máximo 254 caracteres."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguración se realizó correctamente."
@@ -929,6 +936,8 @@
             "push_recipients": "Push: destinatarios",
             "popup_audience": "Ventana emergente: audiencia",
             "popup_recipients": "Ventana emergente: destinatarios",
+            "mail_audience": "Correo: audiencia",
+            "mail_recipients": "Correo: destinatarios",
             "speak_recipients": "Voz: destinatarios",
             "from_time": "Silencio desde",
             "to_time": "Silencio hasta",
@@ -961,7 +970,8 @@
             "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló.",
             "summary_every": "Resumir: envía un resumen este número de minutos después del primer mensaje retenido.",
             "summary_at": "Resumir: envía un resumen cada día a esta hora en lugar de por intervalo.",
-            "include_critical": "Resumir: retiene también los mensajes críticos. Desactivado: los mensajes críticos se entregan de inmediato."
+            "include_critical": "Resumir: retiene también los mensajes críticos. Desactivado: los mensajes críticos se entregan de inmediato.",
+            "mail_audience": "Da una audiencia o destinatarios por canal, nunca ambos. El correo llega a las personas cuyo perfil tiene Correo activado y una dirección; sin dirección falla con no_mail_address. El destinatario Global address usa la dirección común de la página Canales."
           }
         },
         "reconfigure": {
@@ -982,6 +992,8 @@
             "push_recipients": "Push: destinatarios",
             "popup_audience": "Ventana emergente: audiencia",
             "popup_recipients": "Ventana emergente: destinatarios",
+            "mail_audience": "Correo: audiencia",
+            "mail_recipients": "Correo: destinatarios",
             "speak_recipients": "Voz: destinatarios",
             "from_time": "Silencio desde",
             "to_time": "Silencio hasta",
@@ -1014,7 +1026,8 @@
             "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló.",
             "summary_every": "Resumir: envía un resumen este número de minutos después del primer mensaje retenido.",
             "summary_at": "Resumir: envía un resumen cada día a esta hora en lugar de por intervalo.",
-            "include_critical": "Resumir: retiene también los mensajes críticos. Desactivado: los mensajes críticos se entregan de inmediato."
+            "include_critical": "Resumir: retiene también los mensajes críticos. Desactivado: los mensajes críticos se entregan de inmediato.",
+            "mail_audience": "Da una audiencia o destinatarios por canal, nunca ambos. El correo llega a las personas cuyo perfil tiene Correo activado y una dirección; sin dirección falla con no_mail_address. El destinatario Global address usa la dirección común de la página Canales."
           }
         }
       },

@@ -19,7 +19,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import slugify
 
-from ..const import GROUP_SUBENTRY, PROFILE_CHANNELS, PROFILE_SUBENTRY
+from ..const import DEFAULT_PROFILE_CHANNELS, GROUP_SUBENTRY, PROFILE_CHANNELS, PROFILE_SUBENTRY
 
 MOBILE_APP = "mobile_app"
 SPEAKER_DOMAINS = ("media_player", "assist_satellite")
@@ -42,7 +42,8 @@ class StoredProfile:
     manual: tuple[str, ...] = ()
     removed: tuple[str, ...] = ()
     primary: str | None = None
-    channels: tuple[str, ...] = PROFILE_CHANNELS
+    channels: tuple[str, ...] = DEFAULT_PROFILE_CHANNELS
+    mail_address: str = ""
 
 
 @dataclass(slots=True)
@@ -50,8 +51,9 @@ class Profile:
     person: str
     devices: list[Device] = field(default_factory=list)
     primary: str | None = None
-    channels: tuple[str, ...] = PROFILE_CHANNELS
+    channels: tuple[str, ...] = DEFAULT_PROFILE_CHANNELS
     customized: bool = False
+    mail_address: str = ""
 
     @property
     def usable(self) -> list[Device]:
@@ -129,8 +131,9 @@ def build_profile(
         person=person_entity_id,
         devices=devices,
         primary=primary,
-        channels=stored.channels if stored else PROFILE_CHANNELS,
+        channels=stored.channels if stored else DEFAULT_PROFILE_CHANNELS,
         customized=stored is not None,
+        mail_address=stored.mail_address if stored else "",
     )
 
 
@@ -138,13 +141,16 @@ def parse_profile(subentry: ConfigSubentry) -> StoredProfile | None:
     data = subentry.data
     if subentry.subentry_type != PROFILE_SUBENTRY or not data.get("person"):
         return None
-    channels = tuple(c for c in data.get("channels", PROFILE_CHANNELS) if c in PROFILE_CHANNELS)
+    channels = tuple(
+        c for c in data.get("channels", DEFAULT_PROFILE_CHANNELS) if c in PROFILE_CHANNELS
+    )
     return StoredProfile(
         person=str(data["person"]),
         manual=tuple(data.get("devices", ())),
         removed=tuple(data.get("removed_devices", ())),
         primary=data.get("primary") or None,
         channels=channels,
+        mail_address=str(data.get("mail_address") or "").strip(),
     )
 
 

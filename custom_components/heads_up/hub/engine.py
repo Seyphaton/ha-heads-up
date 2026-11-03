@@ -74,6 +74,7 @@ NOBODY_REASONS = frozenset(
         "person_not_found",
         "no_user",
         "presence_unknown",
+        "no_mail_address",
         RATE_LIMITED,
     }
 )
@@ -543,6 +544,13 @@ class HubEngine:
                         call = channel.update if update else channel.deliver
                         outcome = await call(step.banner, step.target)
                         self._sent(step.banner, item.channel, item.recipient, outcome)
+            if (
+                item.channel == "mail"
+                and not startup
+                and item.result is Result.SKIPPED
+                and outcome.reason == "no_mail_address"
+            ):
+                channel.warn_missing(item.recipient)  # type: ignore[attr-defined]
             if item.channel == "speak" and not startup and outcome.reason in NO_SPEAKER:
                 await warn_speech(self.hass, item.recipient, outcome.reason or "")
             self._record(

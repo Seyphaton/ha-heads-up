@@ -105,7 +105,7 @@ The card receives banners over the Home Assistant WebSocket connection and does 
 - [How to use Heads Up](docs/how-to.md): options with examples and screenshots.
 - [Notification hub](docs/hub.md): the terms, and examples from a household.
 - [Panel](docs/panel.md), [Policies](docs/policies.md), [Audiences and recipients](docs/audiences.md)
-- Channels: [Push](docs/push.md), [Popup](docs/popup.md), [Speech](docs/speech.md), [Notification bell](docs/persistent.md)
+- Channels: [Push](docs/push.md), [Popup](docs/popup.md), [Speech](docs/speech.md), [Notification bell](docs/persistent.md), [Mail](docs/mail.md)
 - [Actions](docs/actions.md): fields, responses, conditions, people, events.
 - [Card](docs/card.md): options and behaviour.
 - [Watch rules](docs/rules.md): banners from an entity state or value, without an automation.

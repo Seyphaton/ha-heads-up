@@ -104,6 +104,18 @@ See [Popups](popup.md).
 
 Open the trace of the message (`heads_up/hub_trace`, admin). `service_not_found` or `send_failed` means Home Assistant's `persistent_notification` service failed. If you dismissed the entry in the bell, Heads Up does not know: the next update of the message creates it again, and so does a restart of Home Assistant, which empties the bell. A rule message reaches the bell only through an escalation or fallback policy. See [Persistent notifications](persistent.md).
 
+## Mail is not sent
+
+Open the trace of the message (`heads_up/hub_trace`, admin) and read the reason.
+
+- `channel_not_accepted`: Mail is not switched on in the person's profile (Recipients page).
+- `no_mail_address`: the person has Mail on but no address, or the Global address is empty. Heads Up never sends a person's mail to the Global address instead. The log has a warning once an hour per person.
+- `no_mail_service`: no notify service is chosen on the Channels page.
+- `service_not_found`: the chosen notify service no longer exists. Choose it again.
+- `send_failed`: the notify service raised an error. Check its own log lines, for example the SMTP server and login.
+
+The event `heads_up_delivery_failed` carries the same reasons. See [Mail](mail.md).
+
 ## The Heads Up entry is not in the sidebar
 
 The entry exists only while the option is on: Settings > Devices & services > Heads Up > Configure > Show Heads Up in the sidebar. Only administrators see it. If it is on and the entry is still missing, reload the browser page. See [The panel](panel.md).

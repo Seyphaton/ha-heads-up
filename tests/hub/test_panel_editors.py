@@ -172,6 +172,10 @@ async def test_the_config_has_the_entry_id_and_the_channel_settings(
         "push_sticky": False,
         "push_channel_id": "heads_up",
         "speak_language": "",
+        "mail_service": "",
+        "mail_global_address": "",
+        "mail_subject": "{severity}: {title}",
+        "mail_body": "{message}",
     }
 
 

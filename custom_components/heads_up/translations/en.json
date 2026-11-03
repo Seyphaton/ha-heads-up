@@ -165,7 +165,8 @@
         "push": "Push",
         "popup": "Popup",
         "speak": "Speak",
-        "persistent": "Persistent notification"
+        "persistent": "Persistent notification",
+        "mail": "Mail"
       }
     },
     "audience_kind": {
@@ -188,7 +189,8 @@
       "options": {
         "banner": "Banner",
         "push": "Push",
-        "popup": "Popup"
+        "popup": "Popup",
+        "mail": "Mail"
       }
     },
     "policy_type": {
@@ -868,13 +870,15 @@
             "devices": "Added devices",
             "removed_devices": "Removed devices",
             "primary": "Primary device",
-            "channels": "Accepted channels"
+            "channels": "Accepted channels",
+            "mail_address": "Mail address"
           },
           "data_description": {
             "devices": "Companion devices to use in addition to the detected ones.",
             "removed_devices": "Detected devices to leave out.",
             "primary": "Listed first. Pushes still go to every device of the person. Empty: the first detected device.",
-            "channels": "Channels that may reach this person. A channel left out is skipped for them."
+            "channels": "Channels that may reach this person. A channel left out is skipped for them.",
+            "mail_address": "Where mail for this person goes: the address passed as the target of the notify service chosen on the Channels page. Turn on Mail in Channels above. Empty: mail to this person fails with no_mail_address."
           }
         },
         "reconfigure": {
@@ -884,13 +888,15 @@
             "devices": "Added devices",
             "removed_devices": "Removed devices",
             "primary": "Primary device",
-            "channels": "Accepted channels"
+            "channels": "Accepted channels",
+            "mail_address": "Mail address"
           },
           "data_description": {
             "devices": "Companion devices to use in addition to the detected ones.",
             "removed_devices": "Detected devices to leave out.",
             "primary": "Listed first. Pushes still go to every device of the person. Empty: the first detected device.",
-            "channels": "Channels that may reach this person. A channel left out is skipped for them."
+            "channels": "Channels that may reach this person. A channel left out is skipped for them.",
+            "mail_address": "Where mail for this person goes: the address passed as the target of the notify service chosen on the Channels page. Turn on Mail in Channels above. Empty: mail to this person fails with no_mail_address."
           }
         }
       },
@@ -899,7 +905,8 @@
         "profile_exists": "This person already has a profile. Change that one.",
         "device_unknown": "A chosen device is not a Companion app registration.",
         "device_added_and_removed": "A device cannot be both added and removed.",
-        "channels_required": "Choose at least one channel."
+        "channels_required": "Choose at least one channel.",
+        "mail_address_too_long": "The address can be at most 254 characters."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."
@@ -929,6 +936,8 @@
             "push_recipients": "Push: recipients",
             "popup_audience": "Popup: audience",
             "popup_recipients": "Popup: recipients",
+            "mail_audience": "Mail: audience",
+            "mail_recipients": "Mail: recipients",
             "speak_recipients": "Speak: recipients",
             "from_time": "Quiet from",
             "to_time": "Quiet until",
@@ -961,7 +970,8 @@
             "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed.",
             "summary_every": "Summarize: send one summary this many minutes after the first message was held.",
             "summary_at": "Summarize: send one summary at this time every day instead of by the interval.",
-            "include_critical": "Summarize: also hold critical messages. Off: critical messages are delivered at once."
+            "include_critical": "Summarize: also hold critical messages. Off: critical messages are delivered at once.",
+            "mail_audience": "Give either an audience or recipients per channel, never both. Mail reaches persons whose profile has Mail on and an address; a person without one fails with no_mail_address. The recipient Global address uses the shared address of the Channels page."
           }
         },
         "reconfigure": {
@@ -982,6 +992,8 @@
             "push_recipients": "Push: recipients",
             "popup_audience": "Popup: audience",
             "popup_recipients": "Popup: recipients",
+            "mail_audience": "Mail: audience",
+            "mail_recipients": "Mail: recipients",
             "speak_recipients": "Speak: recipients",
             "from_time": "Quiet from",
             "to_time": "Quiet until",
@@ -1014,7 +1026,8 @@
             "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed.",
             "summary_every": "Summarize: send one summary this many minutes after the first message was held.",
             "summary_at": "Summarize: send one summary at this time every day instead of by the interval.",
-            "include_critical": "Summarize: also hold critical messages. Off: critical messages are delivered at once."
+            "include_critical": "Summarize: also hold critical messages. Off: critical messages are delivered at once.",
+            "mail_audience": "Give either an audience or recipients per channel, never both. Mail reaches persons whose profile has Mail on and an address; a person without one fails with no_mail_address. The recipient Global address uses the shared address of the Channels page."
           }
         }
       },

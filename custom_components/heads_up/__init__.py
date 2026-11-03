@@ -18,6 +18,7 @@ from .const import (
     OPT_TRACE_ENTRIES,
 )
 from .frontend import async_add_card, async_register_card_path, async_remove_card
+from .hub.channels.mail import MailChannel
 from .hub.channels.persistent import PersistentChannel
 from .hub.channels.popup import PopupChannel
 from .hub.channels.push import PushChannel
@@ -83,6 +84,7 @@ def _start_hub(hass: HomeAssistant, entry: HeadsUpConfigEntry, manager: BannerMa
     hub.channels.register(SpeakChannel(hass, hub, manager))
     hub.channels.register(PopupChannel(hass, hub, manager))
     hub.channels.register(PersistentChannel(hass))
+    hub.channels.register(MailChannel(hass, hub, manager))
     manager.subscribe_transitions(hub.on_transition)
 
 

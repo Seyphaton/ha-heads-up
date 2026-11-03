@@ -165,7 +165,8 @@
         "push": "Push",
         "popup": "Popup",
         "speak": "Sprechen",
-        "persistent": "Dauerhafte Benachrichtigung"
+        "persistent": "Dauerhafte Benachrichtigung",
+        "mail": "E-Mail"
       }
     },
     "audience_kind": {
@@ -188,7 +189,8 @@
       "options": {
         "banner": "Banner",
         "push": "Push",
-        "popup": "Popup"
+        "popup": "Popup",
+        "mail": "E-Mail"
       }
     },
     "policy_type": {
@@ -868,13 +870,15 @@
             "devices": "Hinzugefügte Geräte",
             "removed_devices": "Entfernte Geräte",
             "primary": "Hauptgerät",
-            "channels": "Akzeptierte Kanäle"
+            "channels": "Akzeptierte Kanäle",
+            "mail_address": "E-Mail-Adresse"
           },
           "data_description": {
             "devices": "Companion-Geräte, die zusätzlich zu den erkannten verwendet werden.",
             "removed_devices": "Erkannte Geräte, die ausgelassen werden.",
             "primary": "Wird zuerst gelistet. Pushes gehen weiterhin an alle Geräte der Person. Leer: das erste erkannte Gerät.",
-            "channels": "Kanäle, die diese Person erreichen dürfen. Ein ausgelassener Kanal wird für sie übersprungen."
+            "channels": "Kanäle, die diese Person erreichen dürfen. Ein ausgelassener Kanal wird für sie übersprungen.",
+            "mail_address": "Wohin die Mail dieser Person geht: die Adresse, die als Ziel des Benachrichtigungsdienstes von der Kanäle-Seite übergeben wird. Aktiviere oben E-Mail bei den Kanälen. Leer: Mail an diese Person scheitert mit no_mail_address."
           }
         },
         "reconfigure": {
@@ -884,13 +888,15 @@
             "devices": "Hinzugefügte Geräte",
             "removed_devices": "Entfernte Geräte",
             "primary": "Hauptgerät",
-            "channels": "Akzeptierte Kanäle"
+            "channels": "Akzeptierte Kanäle",
+            "mail_address": "E-Mail-Adresse"
           },
           "data_description": {
             "devices": "Companion-Geräte, die zusätzlich zu den erkannten verwendet werden.",
             "removed_devices": "Erkannte Geräte, die ausgelassen werden.",
             "primary": "Wird zuerst gelistet. Pushes gehen weiterhin an alle Geräte der Person. Leer: das erste erkannte Gerät.",
-            "channels": "Kanäle, die diese Person erreichen dürfen. Ein ausgelassener Kanal wird für sie übersprungen."
+            "channels": "Kanäle, die diese Person erreichen dürfen. Ein ausgelassener Kanal wird für sie übersprungen.",
+            "mail_address": "Wohin die Mail dieser Person geht: die Adresse, die als Ziel des Benachrichtigungsdienstes von der Kanäle-Seite übergeben wird. Aktiviere oben E-Mail bei den Kanälen. Leer: Mail an diese Person scheitert mit no_mail_address."
           }
         }
       },
@@ -899,7 +905,8 @@
         "profile_exists": "Diese Person hat schon ein Profil. Ändere dieses.",
         "device_unknown": "Ein gewähltes Gerät ist keine Companion-App-Registrierung.",
         "device_added_and_removed": "Ein Gerät kann nicht gleichzeitig hinzugefügt und entfernt werden.",
-        "channels_required": "Mindestens einen Kanal wählen."
+        "channels_required": "Mindestens einen Kanal wählen.",
+        "mail_address_too_long": "Die Adresse darf höchstens 254 Zeichen lang sein."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
@@ -929,6 +936,8 @@
             "push_recipients": "Push: Empfänger",
             "popup_audience": "Popup: Zielgruppe",
             "popup_recipients": "Popup: Empfänger",
+            "mail_audience": "E-Mail: Zielgruppe",
+            "mail_recipients": "E-Mail: Empfänger",
             "speak_recipients": "Sprechen: Empfänger",
             "from_time": "Ruhe ab",
             "to_time": "Ruhe bis",
@@ -961,7 +970,8 @@
             "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl.",
             "summary_every": "Zusammenfassen: eine Zusammenfassung so viele Minuten nach der ersten zurückgehaltenen Meldung senden.",
             "summary_at": "Zusammenfassen: eine Zusammenfassung täglich zu dieser Uhrzeit statt im Intervall senden.",
-            "include_critical": "Zusammenfassen: auch kritische Meldungen zurückhalten. Aus: kritische Meldungen werden sofort zugestellt."
+            "include_critical": "Zusammenfassen: auch kritische Meldungen zurückhalten. Aus: kritische Meldungen werden sofort zugestellt.",
+            "mail_audience": "Gib pro Kanal entweder eine Zielgruppe oder Empfänger an, nie beides. E-Mail erreicht Personen, deren Profil E-Mail aktiviert und eine Adresse hat; ohne Adresse scheitert es mit no_mail_address. Der Empfänger Global address nutzt die gemeinsame Adresse der Kanäle-Seite."
           }
         },
         "reconfigure": {
@@ -982,6 +992,8 @@
             "push_recipients": "Push: Empfänger",
             "popup_audience": "Popup: Zielgruppe",
             "popup_recipients": "Popup: Empfänger",
+            "mail_audience": "E-Mail: Zielgruppe",
+            "mail_recipients": "E-Mail: Empfänger",
             "speak_recipients": "Sprechen: Empfänger",
             "from_time": "Ruhe ab",
             "to_time": "Ruhe bis",
@@ -1014,7 +1026,8 @@
             "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl.",
             "summary_every": "Zusammenfassen: eine Zusammenfassung so viele Minuten nach der ersten zurückgehaltenen Meldung senden.",
             "summary_at": "Zusammenfassen: eine Zusammenfassung täglich zu dieser Uhrzeit statt im Intervall senden.",
-            "include_critical": "Zusammenfassen: auch kritische Meldungen zurückhalten. Aus: kritische Meldungen werden sofort zugestellt."
+            "include_critical": "Zusammenfassen: auch kritische Meldungen zurückhalten. Aus: kritische Meldungen werden sofort zugestellt.",
+            "mail_audience": "Gib pro Kanal entweder eine Zielgruppe oder Empfänger an, nie beides. E-Mail erreicht Personen, deren Profil E-Mail aktiviert und eine Adresse hat; ohne Adresse scheitert es mit no_mail_address. Der Empfänger Global address nutzt die gemeinsame Adresse der Kanäle-Seite."
           }
         }
       },

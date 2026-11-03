@@ -15,7 +15,11 @@ from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
 
 from ..const import (
+    CHANNEL_MAIL,
     GROUP_SUFFIX,
+    MAIL_GLOBAL,
+    MAIL_GLOBAL_KEY,
+    OPT_MAIL_ADDRESS,
     OPT_PRESENCE_DEBOUNCE,
     ZONE_KINDS,
 )
@@ -62,6 +66,7 @@ class Resolution:
 class HubResolver:
     def __init__(self, hass: HomeAssistant, options: Mapping[str, Any]) -> None:
         self._hass = hass
+        self._options = options
         self.presence = PresenceTracker(hass, lambda: int(options[OPT_PRESENCE_DEBOUNCE]))
         self._audiences: dict[str, Audience] = {}
         self._groups: dict[str, Group] = {}
@@ -96,6 +101,8 @@ class HubResolver:
             return [*speaker_entities(self._hass), *groups, *area_ids(self._hass)]
         if channel == "push":
             return [*persons, *registrations(self._hass)]
+        if channel == CHANNEL_MAIL:
+            return [*persons, MAIL_GLOBAL]
         return persons
 
     def accepts(self, channel: str, name: str) -> bool:
@@ -209,16 +216,32 @@ class HubResolver:
                 for item in direct:
                     if item in names:
                         out.recipients.append(self._device_recipient(None, item, names))
+            elif channel == CHANNEL_MAIL:
+                if MAIL_GLOBAL in direct:
+                    self._global_address(out)
+                out.skipped += [
+                    Skipped(p, "unknown_recipient")
+                    for p in direct
+                    if p not in persons and p != MAIL_GLOBAL
+                ]
             elif any(not p.startswith("person.") for p in direct):
                 out.skipped += [Skipped(p, "unknown_recipient") for p in direct if p not in persons]
         for person in unique(persons):
             self._expand_person(out, person, channel)
         return out
 
+    def _global_address(self, out: Resolution) -> None:
+        if str(self._options.get(OPT_MAIL_ADDRESS) or "").strip():
+            out.recipients.append(Recipient(MAIL_GLOBAL_KEY, "address"))
+        else:
+            out.skipped.append(Skipped(MAIL_GLOBAL, "no_mail_address"))
+
     def _expand_person(self, out: Resolution, person: str, channel: str) -> None:
         profile = self.profile(person)
         if channel not in profile.channels:
             out.skipped.append(Skipped(person, "channel_not_accepted"))
+        elif channel == CHANNEL_MAIL and not profile.mail_address:
+            out.skipped.append(Skipped(person, "no_mail_address"))
         elif channel != "push":
             out.recipients.append(Recipient(person, "person", person))
         elif not profile.devices:

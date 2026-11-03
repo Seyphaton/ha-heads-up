@@ -37,7 +37,8 @@ Add a profile entry only to change that:
 - **Added devices**: a Companion device that was not found.
 - **Removed devices**: a detected device to leave out.
 - **Primary device**: listed first. A push still goes to every device of the person.
-- **Accepted channels**: banner, push and popup by default. A channel you remove is skipped for that person.
+- **Accepted channels**: banner, push and popup by default. A channel you remove is skipped for that person. Mail is off until you add it.
+- **Mail address**: where mail to this person goes; see [Mail](mail.md).
 
 A person with no usable device is skipped on push (`no_usable_device`). A device whose notify service does not exist is skipped (`service_not_found`). A renamed device keeps working: the service is worked out from the device's current name each time.
 

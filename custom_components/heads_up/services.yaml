@@ -143,6 +143,7 @@ notify:
           - popup
           - speak
           - persistent
+          - mail
           multiple: true
           translation_key: channel
     to:

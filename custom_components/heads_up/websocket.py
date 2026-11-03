@@ -293,6 +293,10 @@ async def ws_panel_config(
         vol.Optional("push_sticky"): bool,
         vol.Optional("push_channel_id"): str,
         vol.Optional("speak_language"): vol.All(str, vol.Length(max=20)),
+        vol.Optional("mail_service"): str,
+        vol.Optional("mail_global_address"): str,
+        vol.Optional("mail_subject"): str,
+        vol.Optional("mail_body"): str,
     }
 )
 @require_admin
@@ -302,7 +306,7 @@ def ws_channels_set(hass: HomeAssistant, connection: ActiveConnection, msg: dict
     if (entry := _entry(hass, connection, msg["id"])) is None:
         return
     changes = {key: msg[key] for key in panel_config.CHANNEL_KEYS if key in msg}
-    if errors := panel_config.check_channels(changes):
+    if errors := panel_config.check_channels(changes, hass):
         connection.send_error(
             msg["id"], "invalid_format", ", ".join(f"{k}: {v}" for k, v in errors.items())
         )

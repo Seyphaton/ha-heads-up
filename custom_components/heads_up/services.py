@@ -201,7 +201,7 @@ def _check_notify(data: dict[str, Any]) -> dict[str, Any]:
             )
         if channel == "speak" and "audience" in target:
             raise vol.Invalid("speech takes recipients, not an audience", path=["to", channel])
-    for channel in ("push", "popup", "speak"):
+    for channel in ("push", "popup", "speak", "mail"):
         if channel in channels and channel not in to:
             raise vol.Invalid(f"{channel} needs a target in to.{channel}", path=["to"])
     return data

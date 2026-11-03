@@ -509,6 +509,9 @@ Restart: the usual one after a code update. Notification path: not touched. Dash
 ### 21.7 Delivery-failed event (D-128)
 - `HubEngine._report` fires `heads_up_delivery_failed` after each `_send` (origins `message`, `escalation`, `fallback`, `deliver`) and each reminder round. One event per non-banner channel that had a `failed` outcome or a skip in `NOBODY_REASONS`, with `reached`, and `failed` as `{recipient, reason, person?}`. Not fired on the first delivery after a restart (`resume` with origin `message`), not on `plan` or `preview`. Duplicates, quiet hours, holds, cooldown are choices and fire nothing.
 
+### 21.8 Mail channel (D-129)
+- `hub/channels/mail.py` `MailChannel`: capabilities title, per user, no buttons, no clear, no replace. `deliver` renders `mail_subject` and `mail_body` (`{name}` placeholders, `check_template`) and calls `notify.<mail_service>` with `title`, `message`, `target`. Recipients come from `HubResolver`: persons whose profile has `mail` in `channels` and a `mail_address` (`Skipped no_mail_address` otherwise), and `Global address` (key `mail:global`, address from `mail_global_address`). `PROFILE_CHANNELS` gains `mail`; `DEFAULT_PROFILE_CHANNELS` stays banner, push, popup. `NOBODY_REASONS` gains `no_mail_address`.
+
 ## 22. Parity of banner sources (rule, D-073)
 
 Status: implemented 2026-10-27 (`tests/test_rule_parity.py`, `tests/test_rules_flow.py`). Decision D-073.

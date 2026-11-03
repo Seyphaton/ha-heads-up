@@ -256,8 +256,8 @@ export const STRINGS = {
 };
 
 const SEVERITIES = ["success", "info", "warning", "critical"];
-const CHANNELS = ["banner", "push", "popup", "speak", "persistent"];
-const NEEDS_TARGET = ["push", "popup", "speak"];
+const CHANNELS = ["banner", "push", "popup", "speak", "persistent", "mail"];
+const NEEDS_TARGET = ["push", "popup", "speak", "mail"];
 
 export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value ?? ""), template);

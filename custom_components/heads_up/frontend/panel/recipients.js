@@ -21,6 +21,9 @@ export const STRINGS = {
     channel_banner: "Banner",
     channel_push: "Push",
     channel_popup: "Popup",
+    channel_mail: "Mail",
+    mail_address: "Mail address",
+    mail_address_hint: "Where this person's mail goes. Mail also has to be switched on in the accepted channels. Without an address, mail to this person fails.",
     customized: "changed",
     members: "Speakers",
     areas: "Areas",
@@ -51,6 +54,9 @@ export const STRINGS = {
     channel_banner: "Banner",
     channel_push: "Push",
     channel_popup: "Popup",
+    channel_mail: "E-Mail",
+    mail_address: "E-Mail-Adresse",
+    mail_address_hint: "Wohin die Mail dieser Person geht. E-Mail muss auch bei den angenommenen Kanälen aktiviert sein. Ohne Adresse scheitert Mail an diese Person.",
     customized: "geändert",
     members: "Lautsprecher",
     areas: "Bereiche",
@@ -81,6 +87,9 @@ export const STRINGS = {
     channel_banner: "Bannière",
     channel_push: "Push",
     channel_popup: "Fenêtre",
+    channel_mail: "Courriel",
+    mail_address: "Adresse de courriel",
+    mail_address_hint: "Où va le courriel de cette personne. Courriel doit aussi être activé dans les canaux acceptés. Sans adresse, le courriel à cette personne échoue.",
     customized: "modifié",
     members: "Haut-parleurs",
     areas: "Zones",
@@ -111,6 +120,9 @@ export const STRINGS = {
     channel_banner: "Aviso",
     channel_push: "Push",
     channel_popup: "Ventana",
+    channel_mail: "Correo",
+    mail_address: "Dirección de correo",
+    mail_address_hint: "A dónde va el correo de esta persona. Correo también debe estar activado en los canales aceptados. Sin dirección, el correo a esta persona falla.",
     customized: "cambiado",
     members: "Altavoces",
     areas: "Áreas",
@@ -123,7 +135,8 @@ export const STRINGS = {
   },
 };
 
-const PROFILE_CHANNELS = ["banner", "push", "popup"];
+const PROFILE_CHANNELS = ["banner", "push", "popup", "mail"];
+const DEFAULT_CHANNELS = ["banner", "push", "popup"]; // mail is opt-in per person
 
 export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value ?? ""), template);
@@ -136,6 +149,7 @@ export function profileValues(profile) {
     removed: [...(profile.removed || [])],
     primary: profile.primary || "",
     channels: [...profile.channels],
+    mail_address: profile.mail_address || "",
   };
 }
 
@@ -145,7 +159,8 @@ export function isDefault(values) {
     values.manual.length === 0 &&
     values.removed.length === 0 &&
     !values.primary &&
-    PROFILE_CHANNELS.every((c) => values.channels.includes(c))
+    !values.mail_address &&
+    PROFILE_CHANNELS.every((c) => values.channels.includes(c) === DEFAULT_CHANNELS.includes(c))
   );
 }
 
@@ -155,6 +170,7 @@ export function toProfileData(person, values, creating) {
   if (values.manual.length) data.devices = [...values.manual];
   if (values.removed.length) data.removed_devices = [...values.removed];
   if (values.primary) data.primary = values.primary;
+  if (String(values.mail_address || "").trim()) data.mail_address = String(values.mail_address).trim();
   return data;
 }
 
@@ -252,6 +268,7 @@ export function mount(container, ctx) {
     const present = new Set([...view.devices.map((d) => d.device_id), ...values.manual]);
     const options = [{ value: "", label: t.add_device_none }, ...data.choices.registrations.filter((r) => !present.has(r.id) || values.removed.includes(r.id)).map((r) => ({ value: r.id, label: r.name }))];
     box.append(ui.field(t.add_device, ui.selectInput(options, "", (v) => { profile.values = addDevice(values, v); render(); })));
+    box.append(ui.field(t.mail_address, ui.textInput(values.mail_address || "", (v) => { values.mail_address = v; }), t.mail_address_hint));
     box.append(ui.chips(t.channels, PROFILE_CHANNELS.map((c) => ({ value: c, label: t[`channel_${c}`] })), values.channels, (list) => { values.channels = list; }));
     const status = el("div", { className: "hint", textContent: message });
     const save = el("button", { type: "button", className: "primary", textContent: s.common.save });
@@ -266,7 +283,7 @@ export function mount(container, ctx) {
       row.append(reset);
     }
     box.append(status, row);
-    if (view.subentry_id) box.append(el("div", { className: "hint", textContent: s.common.yaml }), el("pre", { textContent: ui.toYaml({ person: view.person, channels: values.channels, devices: values.manual, removed_devices: values.removed, primary: values.primary || null }) }));
+    if (view.subentry_id) box.append(el("div", { className: "hint", textContent: s.common.yaml }), el("pre", { textContent: ui.toYaml({ person: view.person, channels: values.channels, devices: values.manual, removed_devices: values.removed, primary: values.primary || null, mail_address: values.mail_address || null }) }));
     return box;
   }
 

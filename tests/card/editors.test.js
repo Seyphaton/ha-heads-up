@@ -33,6 +33,7 @@ import {
   problems as channelProblems,
   STRINGS as CHANNEL_STRINGS,
   validChannelId,
+  validMailTemplate,
 } from "../../custom_components/heads_up/frontend/panel/channels.js";
 import { errorText, ERRORS, joinTags, splitTags, toYaml } from "../../custom_components/heads_up/frontend/panel/ui.js";
 
@@ -122,7 +123,7 @@ describe("recipient editor", () => {
   };
 
   it("starts from what the profile changes", () => {
-    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"] });
+    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "" });
   });
 
   it("needs no stored profile when nothing differs from the detected devices", () => {
@@ -130,12 +131,15 @@ describe("recipient editor", () => {
     expect(isDefault({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"] })).toBe(false);
     expect(isDefault({ manual: [], removed: [], primary: "d1", channels: ["banner", "push", "popup"] })).toBe(false);
     expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push"] })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup", "mail"] })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "a@b.c" })).toBe(false);
   });
 
   it("builds the flow data, with the person only when creating", () => {
     const values = { manual: ["d2"], removed: ["d9"], primary: "d1", channels: ["popup", "banner"] };
     expect(toProfileData("person.anna", values, true)).toEqual({ person: "person.anna", channels: ["banner", "popup"], devices: ["d2"], removed_devices: ["d9"], primary: "d1" });
     expect(toProfileData("person.anna", { manual: [], removed: [], primary: "", channels: ["push"] }, false)).toEqual({ channels: ["push"] });
+    expect(toProfileData("person.anna", { manual: [], removed: [], primary: "", channels: ["mail", "push"], mail_address: " anna@example.com " }, false)).toEqual({ channels: ["push", "mail"], mail_address: "anna@example.com" });
   });
 
   it("removes a detected device (and drops it as primary), drops an added one, and restores", () => {
@@ -297,6 +301,34 @@ describe("editor texts", () => {
       for (const language of Object.values(strings)) {
         const own = flat(language);
         for (const key of Object.keys(english)) expect(holders(own[key]), key).toEqual(holders(english[key]));
+      }
+    }
+  });
+});
+
+describe("mail settings", () => {
+  it("accepts the known placeholders and refuses anything else", () => {
+    expect(validMailTemplate("{severity}: {title}", 200)).toBe(true);
+    expect(validMailTemplate("{message}", 2000)).toBe(true);
+    expect(validMailTemplate("{who}", 200)).toBe(false);
+    expect(validMailTemplate("{}", 200)).toBe(false);
+    expect(validMailTemplate("   ", 200)).toBe(false);
+    expect(validMailTemplate("x".repeat(201), 200)).toBe(false);
+    expect(validMailTemplate("plain text", 200)).toBe(true);
+  });
+
+  it("reports a bad subject, body or address", () => {
+    const ok = { push_channel_id: "heads_up", mail_subject: "{title}", mail_body: "{message}", mail_global_address: "" };
+    expect(channelProblems(ok)).toEqual([]);
+    expect(channelProblems({ ...ok, mail_subject: "{x}" })).toEqual(["bad_mail_subject"]);
+    expect(channelProblems({ ...ok, mail_body: "" })).toEqual(["bad_mail_body"]);
+    expect(channelProblems({ ...ok, mail_global_address: "a".repeat(255) })).toEqual(["bad_mail_address"]);
+  });
+
+  it("has the mail texts in every language", () => {
+    for (const language of ["en", "de", "fr", "es"]) {
+      for (const key of ["mail", "mail_service", "mail_global_address", "mail_subject", "mail_body", "mail_placeholders", "bad_mail_subject", "bad_mail_body", "bad_mail_address"]) {
+        expect(CHANNEL_STRINGS[language][key], `${language}.${key}`).toBeTruthy();
       }
     }
   });

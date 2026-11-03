@@ -287,7 +287,7 @@ Delivers one message on the channels you name. It takes the content and lifecycl
 
 The hub is on by default. With the hub switched off in the integration options, only `channels: [banner]` works and `notify` behaves like `create_banner`; other channels fail with the error "The hub is switched off".
 
-Channels: `banner`, `push`, `popup`, `speak`, `persistent`. All five channels deliver; see [Push notifications](push.md), [Popups](popup.md), [Speech](speech.md) and [Persistent notifications](persistent.md).
+Channels: `banner`, `push`, `popup`, `speak`, `persistent`, `mail`. See [Push notifications](push.md), [Popups](popup.md), [Speech](speech.md), [Persistent notifications](persistent.md) and [Mail](mail.md).
 
 | Field | Type | Required / default | Meaning |
 |---|---|---|---|
@@ -311,7 +311,7 @@ Channels: `banner`, `push`, `popup`, `speak`, `persistent`. All five channels de
 | `image` | text | none | As in `create_banner`. |
 | `tts_message` | text | the title if set, otherwise the message | Text for the speak channel instead of the title and message. |
 | `channels` | list of channels | required | One or more of the five channels, each at most once. |
-| `to` | object | none | A target per channel: `audience` (a name) or `recipients` (a list), never both. `push`, `popup` and `speak` need a target. Audience and recipient names are described in [Audiences and recipients](audiences.md). `speak` takes recipients only. `persistent` takes no target and goes to everyone (see [Persistent notifications](persistent.md)). `banner` is optional: recipients limit the banner to the users linked to those persons. |
+| `to` | object | none | A target per channel: `audience` (a name) or `recipients` (a list), never both. `push`, `popup`, `speak` and `mail` need a target. Audience and recipient names are described in [Audiences and recipients](audiences.md). `speak` takes recipients only. `persistent` takes no target and goes to everyone (see [Persistent notifications](persistent.md)). `banner` is optional: recipients limit the banner to the users linked to those persons. |
 | `policy` | text | every policy that applies | A policy name, or `none` for no policy behavior. See [Policies](policies.md). |
 
 Response data: `id`, `status` (`created`, `updated`, `waiting` or `condition_false`, as in `create_banner`), and `channels`: for each channel the counts `sent`, `held`, `skipped` and `failed`. A banner that waits for its condition counts as `held`.

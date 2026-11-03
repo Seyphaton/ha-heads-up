@@ -165,7 +165,8 @@
         "push": "Push",
         "popup": "Popup",
         "speak": "Parler",
-        "persistent": "Notification persistante"
+        "persistent": "Notification persistante",
+        "mail": "Courriel"
       }
     },
     "audience_kind": {
@@ -188,7 +189,8 @@
       "options": {
         "banner": "Bannière",
         "push": "Push",
-        "popup": "Popup"
+        "popup": "Popup",
+        "mail": "Courriel"
       }
     },
     "policy_type": {
@@ -868,13 +870,15 @@
             "devices": "Appareils ajoutés",
             "removed_devices": "Appareils retirés",
             "primary": "Appareil principal",
-            "channels": "Canaux acceptés"
+            "channels": "Canaux acceptés",
+            "mail_address": "Adresse de courriel"
           },
           "data_description": {
             "devices": "Appareils Companion à utiliser en plus de ceux détectés.",
             "removed_devices": "Appareils détectés à ignorer.",
             "primary": "Listé en premier. Les push vont toujours à tous les appareils de la personne. Vide : le premier appareil détecté.",
-            "channels": "Canaux pouvant atteindre cette personne. Un canal omis est ignoré pour elle."
+            "channels": "Canaux pouvant atteindre cette personne. Un canal omis est ignoré pour elle.",
+            "mail_address": "Où va le courriel de cette personne : l'adresse transmise comme cible du service de notification choisi sur la page Canaux. Activez Courriel dans les canaux ci-dessus. Vide : le courriel à cette personne échoue avec no_mail_address."
           }
         },
         "reconfigure": {
@@ -884,13 +888,15 @@
             "devices": "Appareils ajoutés",
             "removed_devices": "Appareils retirés",
             "primary": "Appareil principal",
-            "channels": "Canaux acceptés"
+            "channels": "Canaux acceptés",
+            "mail_address": "Adresse de courriel"
           },
           "data_description": {
             "devices": "Appareils Companion à utiliser en plus de ceux détectés.",
             "removed_devices": "Appareils détectés à ignorer.",
             "primary": "Listé en premier. Les push vont toujours à tous les appareils de la personne. Vide : le premier appareil détecté.",
-            "channels": "Canaux pouvant atteindre cette personne. Un canal omis est ignoré pour elle."
+            "channels": "Canaux pouvant atteindre cette personne. Un canal omis est ignoré pour elle.",
+            "mail_address": "Où va le courriel de cette personne : l'adresse transmise comme cible du service de notification choisi sur la page Canaux. Activez Courriel dans les canaux ci-dessus. Vide : le courriel à cette personne échoue avec no_mail_address."
           }
         }
       },
@@ -899,7 +905,8 @@
         "profile_exists": "Cette personne a déjà un profil. Modifiez celui-ci.",
         "device_unknown": "Un appareil choisi n'est pas un enregistrement de l'application Companion.",
         "device_added_and_removed": "Un appareil ne peut pas être à la fois ajouté et retiré.",
-        "channels_required": "Choisissez au moins un canal."
+        "channels_required": "Choisissez au moins un canal.",
+        "mail_address_too_long": "L'adresse ne peut pas dépasser 254 caractères."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."
@@ -929,6 +936,8 @@
             "push_recipients": "Push : destinataires",
             "popup_audience": "Popup : audience",
             "popup_recipients": "Popup : destinataires",
+            "mail_audience": "Courriel : audience",
+            "mail_recipients": "Courriel : destinataires",
             "speak_recipients": "Voix : destinataires",
             "from_time": "Calme de",
             "to_time": "Calme jusqu'à",
@@ -961,7 +970,8 @@
             "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué.",
             "summary_every": "Résumer : envoie un résumé ce nombre de minutes après le premier message retenu.",
             "summary_at": "Résumer : envoie un résumé chaque jour à cette heure plutôt qu'à intervalle.",
-            "include_critical": "Résumer : retient aussi les messages critiques. Désactivé : les messages critiques sont livrés tout de suite."
+            "include_critical": "Résumer : retient aussi les messages critiques. Désactivé : les messages critiques sont livrés tout de suite.",
+            "mail_audience": "Donnez une audience ou des destinataires par canal, jamais les deux. Le courriel atteint les personnes dont le profil a Courriel activé et une adresse ; sans adresse il échoue avec no_mail_address. Le destinataire Global address utilise l'adresse commune de la page Canaux."
           }
         },
         "reconfigure": {
@@ -982,6 +992,8 @@
             "push_recipients": "Push : destinataires",
             "popup_audience": "Popup : audience",
             "popup_recipients": "Popup : destinataires",
+            "mail_audience": "Courriel : audience",
+            "mail_recipients": "Courriel : destinataires",
             "speak_recipients": "Voix : destinataires",
             "from_time": "Calme de",
             "to_time": "Calme jusqu'à",
@@ -1014,7 +1026,8 @@
             "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué.",
             "summary_every": "Résumer : envoie un résumé ce nombre de minutes après le premier message retenu.",
             "summary_at": "Résumer : envoie un résumé chaque jour à cette heure plutôt qu'à intervalle.",
-            "include_critical": "Résumer : retient aussi les messages critiques. Désactivé : les messages critiques sont livrés tout de suite."
+            "include_critical": "Résumer : retient aussi les messages critiques. Désactivé : les messages critiques sont livrés tout de suite.",
+            "mail_audience": "Donnez une audience ou des destinataires par canal, jamais les deux. Le courriel atteint les personnes dont le profil a Courriel activé et une adresse ; sans adresse il échoue avec no_mail_address. Le destinataire Global address utilise l'adresse commune de la page Canaux."
           }
         }
       },

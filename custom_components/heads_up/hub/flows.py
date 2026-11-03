@@ -29,9 +29,11 @@ from homeassistant.helpers.selector import (
 from ..const import (
     AUDIENCE_KINDS,
     AUDIENCE_SUBENTRY,
+    DEFAULT_PROFILE_CHANNELS,
     FALLBACK_WHEN,
     GROUP_SUBENTRY,
     GROUP_SUFFIX,
+    MAX_MAIL_ADDRESS,
     POLICY_CHANNELS,
     POLICY_NONE,
     POLICY_SUBENTRY,
@@ -240,13 +242,14 @@ class RecipientProfileSubentryFlow(_HubFlow):
                 vol.Optional("primary"): SelectSelector(
                     SelectSelectorConfig(options=self._devices(), custom_value=False)
                 ),
-                vol.Required("channels", default=list(PROFILE_CHANNELS)): SelectSelector(
+                vol.Required("channels", default=list(DEFAULT_PROFILE_CHANNELS)): SelectSelector(
                     SelectSelectorConfig(
                         options=list(PROFILE_CHANNELS),
                         multiple=True,
                         translation_key="profile_channel",
                     )
                 ),
+                vol.Optional("mail_address"): TextSelector(),
             }
         )
         return vol.Schema(fields)
@@ -276,6 +279,8 @@ class RecipientProfileSubentryFlow(_HubFlow):
             errors["removed_devices"] = "device_added_and_removed"
         if not user_input.get("channels"):
             errors["channels"] = "channels_required"
+        if len(str(user_input.get("mail_address") or "").strip()) > MAX_MAIL_ADDRESS:
+            errors["mail_address"] = "mail_address_too_long"
         return errors
 
     def _title(self, user_input: dict[str, Any], subentry: ConfigSubentry | None) -> str:
@@ -294,6 +299,8 @@ class RecipientProfileSubentryFlow(_HubFlow):
                 data[field] = list(user_input[field])
         if user_input.get("primary"):
             data["primary"] = user_input["primary"]
+        if address := str(user_input.get("mail_address") or "").strip():
+            data["mail_address"] = address
         return data
 
     def _reconfigure_id(self) -> str | None:
@@ -305,7 +312,12 @@ class RecipientProfileSubentryFlow(_HubFlow):
         return dict(subentry.data)
 
 
-TARGET_CHANNELS_WITH_FIELDS = ("push", "popup", "speak")  # a persistent notification has no target
+TARGET_CHANNELS_WITH_FIELDS = (
+    "push",
+    "popup",
+    "speak",
+    "mail",
+)  # a persistent notification has no target
 _MINUTES = NumberSelector(
     NumberSelectorConfig(
         min=1, max=1440, step=1, mode=NumberSelectorMode.BOX, unit_of_measurement="min"

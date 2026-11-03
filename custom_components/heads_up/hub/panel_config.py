@@ -17,6 +17,11 @@ from ..const import (
     DEFAULT_OPTIONS,
     GROUP_SUBENTRY,
     GROUP_SUFFIX,
+    MAX_MAIL_ADDRESS,
+    OPT_MAIL_ADDRESS,
+    OPT_MAIL_BODY,
+    OPT_MAIL_SERVICE,
+    OPT_MAIL_SUBJECT,
     OPT_POPUP_STYLES,
     OPT_PUSH_CHANNEL_ID,
     OPT_PUSH_LEVELS,
@@ -32,6 +37,7 @@ from ..const import (
 )
 from ..manager import BannerManager
 from .audiences import BUILTINS
+from .channels import mail
 from .recipients import area_speakers, registrations, speaker_entities
 
 CHANNEL_KEYS = (
@@ -41,7 +47,16 @@ CHANNEL_KEYS = (
     OPT_PUSH_STICKY,
     OPT_PUSH_CHANNEL_ID,
     OPT_SPEAK_LANGUAGE,
+    OPT_MAIL_SERVICE,
+    OPT_MAIL_ADDRESS,
+    OPT_MAIL_SUBJECT,
+    OPT_MAIL_BODY,
 )
+
+
+def notify_services(hass: HomeAssistant) -> list[str]:
+    """Names of the notify services a mail channel can call."""
+    return sorted(hass.services.async_services_for_domain("notify"))
 
 
 def channel_settings(manager: BannerManager) -> dict[str, Any]:
@@ -53,9 +68,18 @@ def channel_settings(manager: BannerManager) -> dict[str, Any]:
     return out
 
 
-def check_channels(changes: dict[str, Any]) -> dict[str, str]:
+def check_channels(changes: dict[str, Any], hass: HomeAssistant | None = None) -> dict[str, str]:
     """Problems of a channel settings change, as {field: code}."""
     errors: dict[str, str] = {}
+    service = changes.get(OPT_MAIL_SERVICE)
+    if service and hass is not None and service not in notify_services(hass):
+        errors[OPT_MAIL_SERVICE] = "mail_service_unknown"
+    address = changes.get(OPT_MAIL_ADDRESS)
+    if address is not None and len(address.strip()) > MAX_MAIL_ADDRESS:
+        errors[OPT_MAIL_ADDRESS] = "mail_address_too_long"
+    for key, check in ((OPT_MAIL_SUBJECT, mail.check_subject), (OPT_MAIL_BODY, mail.check_body)):
+        if key in changes and (code := check(changes[key])) is not None:
+            errors[key] = code
     levels = changes.get(OPT_PUSH_LEVELS)
     if levels is not None and (
         set(levels) - set(SEVERITIES) or any(v not in PUSH_LEVELS for v in levels.values())
@@ -144,6 +168,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                 "customized": profile.customized,
                 "primary": profile.primary,
                 "channels": list(profile.channels),
+                "mail_address": profile.mail_address,
                 "devices": [
                     {
                         "device_id": d.device_id,
@@ -162,7 +187,9 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
     ]
     areas = ar.async_get(hass).async_list_areas()
     known = (
-        {c: hub.recipients.known(c) for c in ("banner", "push", "popup", "speak")} if hub else {}
+        {c: hub.recipients.known(c) for c in ("banner", "push", "popup", "speak", "mail")}
+        if hub
+        else {}
     )
     return {
         "entry_id": entry.entry_id,
@@ -186,5 +213,6 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
             "registrations": [{"id": k, "name": v or k} for k, v in registrations(hass).items()],
             "audience_names": hub.audiences.names() if hub else [],
             "recipients": known,
+            "notify_services": notify_services(hass),
         },
     }

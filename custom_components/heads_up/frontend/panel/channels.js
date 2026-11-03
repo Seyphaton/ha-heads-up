@@ -27,6 +27,18 @@ export const STRINGS = {
     valid: "No problems.",
     hub_off: "The hub is switched off. Switch it on in Settings to edit this.",
     bad_channel_id: "The channel name uses lower-case letters, digits and underscores, up to 40 characters.",
+    mail: "Mail",
+    mail_intro: "Mail calls a notify service once per recipient with a subject and a body. A person's address is set under Recipients, where Mail must be switched on for them.",
+    mail_service: "Notify service",
+    mail_service_none: "None (mail is off)",
+    mail_global_address: "Global address",
+    mail_global_note: "Optional. Not tied to a person: name Global address as a recipient to send to it. It is never used for a person without an address.",
+    mail_subject: "Subject",
+    mail_body: "Body",
+    mail_placeholders: "Placeholders: {severity} (for example Critical), {title} (the title, or the message when there is none), {message}, {person} (the person's name, empty for the Global address), {id}, {tag}.",
+    bad_mail_subject: "The subject needs text, up to 200 characters, and may use only the placeholders listed.",
+    bad_mail_body: "The body needs text, up to 2000 characters, and may use only the placeholders listed.",
+    bad_mail_address: "The address can have at most 254 characters.",
   },
   de: {
     title: "Kanäle",
@@ -54,6 +66,18 @@ export const STRINGS = {
     valid: "Keine Probleme.",
     hub_off: "Der Hub ist ausgeschaltet. Schalte ihn in den Einstellungen ein, um dies zu bearbeiten.",
     bad_channel_id: "Der Kanalname besteht aus Kleinbuchstaben, Ziffern und Unterstrichen, höchstens 40 Zeichen.",
+    mail: "E-Mail",
+    mail_intro: "E-Mail ruft einen Benachrichtigungsdienst einmal pro Empfänger mit Betreff und Text auf. Die Adresse einer Person stellst du unter Empfänger ein; dort muss E-Mail für sie aktiviert sein.",
+    mail_service: "Benachrichtigungsdienst",
+    mail_service_none: "Keiner (E-Mail ist aus)",
+    mail_global_address: "Globale Adresse",
+    mail_global_note: "Optional. Nicht an eine Person gebunden: Nenne Global address als Empfänger, um dorthin zu senden. Sie ersetzt nie die Adresse einer Person.",
+    mail_subject: "Betreff",
+    mail_body: "Text",
+    mail_placeholders: "Platzhalter: {severity} (zum Beispiel Kritisch), {title} (der Titel, sonst die Nachricht), {message}, {person} (der Name der Person, leer bei der globalen Adresse), {id}, {tag}.",
+    bad_mail_subject: "Der Betreff braucht Text, höchstens 200 Zeichen, und darf nur die genannten Platzhalter nutzen.",
+    bad_mail_body: "Der Text braucht Inhalt, höchstens 2000 Zeichen, und darf nur die genannten Platzhalter nutzen.",
+    bad_mail_address: "Die Adresse darf höchstens 254 Zeichen lang sein.",
   },
   fr: {
     title: "Canaux",
@@ -81,6 +105,18 @@ export const STRINGS = {
     valid: "Aucun problème.",
     hub_off: "Le hub est désactivé. Activez-le dans Réglages pour modifier ceci.",
     bad_channel_id: "Le nom du canal utilise des minuscules, des chiffres et des tirets bas, 40 caractères au plus.",
+    mail: "Courriel",
+    mail_intro: "Le courriel appelle un service de notification une fois par destinataire avec un objet et un corps. L'adresse d'une personne se règle sous Destinataires, où Courriel doit être activé pour elle.",
+    mail_service: "Service de notification",
+    mail_service_none: "Aucun (courriel désactivé)",
+    mail_global_address: "Adresse globale",
+    mail_global_note: "Facultatif. Non liée à une personne : nommez Global address comme destinataire pour y envoyer. Elle ne remplace jamais l'adresse d'une personne.",
+    mail_subject: "Objet",
+    mail_body: "Corps",
+    mail_placeholders: "Variables : {severity} (par exemple Critique), {title} (le titre, sinon le message), {message}, {person} (le nom de la personne, vide pour l'adresse globale), {id}, {tag}.",
+    bad_mail_subject: "L'objet a besoin de texte, 200 caractères au plus, et n'utilise que les variables listées.",
+    bad_mail_body: "Le corps a besoin de texte, 2000 caractères au plus, et n'utilise que les variables listées.",
+    bad_mail_address: "L'adresse peut avoir 254 caractères au plus.",
   },
   es: {
     title: "Canales",
@@ -108,6 +144,18 @@ export const STRINGS = {
     valid: "Sin problemas.",
     hub_off: "El hub está desactivado. Actívalo en Ajustes para editar esto.",
     bad_channel_id: "El nombre del canal usa minúsculas, dígitos y guiones bajos, hasta 40 caracteres.",
+    mail: "Correo",
+    mail_intro: "El correo llama a un servicio de notificación una vez por destinatario con asunto y cuerpo. La dirección de una persona se define en Destinatarios, donde Correo debe estar activado para ella.",
+    mail_service: "Servicio de notificación",
+    mail_service_none: "Ninguno (correo desactivado)",
+    mail_global_address: "Dirección global",
+    mail_global_note: "Opcional. No ligada a una persona: nombra Global address como destinatario para enviar allí. Nunca sustituye la dirección de una persona.",
+    mail_subject: "Asunto",
+    mail_body: "Cuerpo",
+    mail_placeholders: "Variables: {severity} (por ejemplo Crítico), {title} (el título, si no el mensaje), {message}, {person} (el nombre de la persona, vacío para la dirección global), {id}, {tag}.",
+    bad_mail_subject: "El asunto necesita texto, hasta 200 caracteres, y solo puede usar las variables indicadas.",
+    bad_mail_body: "El cuerpo necesita texto, hasta 2000 caracteres, y solo puede usar las variables indicadas.",
+    bad_mail_address: "La dirección puede tener 254 caracteres como máximo.",
   },
 };
 
@@ -133,8 +181,22 @@ export function changes(values, saved) {
   return out;
 }
 
+export const MAIL_PLACEHOLDERS = ["severity", "title", "message", "person", "id", "tag"];
+
+// A mail template needs text within the limit and may use only the known placeholders.
+export function validMailTemplate(text, limit) {
+  const value = String(text ?? "");
+  if (!value.trim() || value.length > limit) return false;
+  return [...value.matchAll(/\{(\w*)\}/g)].every((m) => MAIL_PLACEHOLDERS.includes(m[1]));
+}
+
 export function problems(values) {
-  return validChannelId(values.push_channel_id) ? [] : ["bad_channel_id"];
+  const found = [];
+  if (!validChannelId(values.push_channel_id)) found.push("bad_channel_id");
+  if (values.mail_subject !== undefined && !validMailTemplate(values.mail_subject, 200)) found.push("bad_mail_subject");
+  if (values.mail_body !== undefined && !validMailTemplate(values.mail_body, 2000)) found.push("bad_mail_body");
+  if (String(values.mail_global_address ?? "").trim().length > 254) found.push("bad_mail_address");
+  return found;
 }
 
 export function mount(container, ctx) {
@@ -180,12 +242,25 @@ export function mount(container, ctx) {
     const speech = el("section", {}, [el("h2", { textContent: t.speech })]);
     speech.append(ui.field(t.language, ui.textInput(values.speak_language, (v) => { values.speak_language = v; paint(); })));
     speech.append(el("div", { className: "hint", textContent: t.speech_note }));
+    const mail = el("section", {}, [el("h2", { textContent: t.mail }), el("div", { className: "hint", textContent: t.mail_intro })]);
+    const services = [...(data.choices?.notify_services || [])];
+    if (values.mail_service && !services.includes(values.mail_service)) services.push(values.mail_service);
+    mail.append(
+      ui.field(
+        t.mail_service,
+        ui.selectInput([{ value: "", label: t.mail_service_none }, ...services.map((n) => ({ value: n, label: `notify.${n}` }))], values.mail_service, (v) => { values.mail_service = v; paint(); }),
+      ),
+    );
+    mail.append(ui.field(t.mail_global_address, ui.textInput(values.mail_global_address, (v) => { values.mail_global_address = v; paint(); }), t.mail_global_note));
+    mail.append(ui.field(t.mail_subject, ui.textInput(values.mail_subject, (v) => { values.mail_subject = v; paint(); })));
+    mail.append(ui.field(t.mail_body, ui.textInput(values.mail_body, (v) => { values.mail_body = v; paint(); })));
+    mail.append(el("div", { className: "hint", textContent: t.mail_placeholders }));
     const status = el("div", { className: "hint" });
     status.setAttribute("role", "status");
     status.setAttribute("aria-live", "polite");
     const save = el("button", { type: "button", className: "primary", textContent: t.save });
     save.addEventListener("click", saveIt);
-    root.append(push, popup, speech, save, status);
+    root.append(push, popup, speech, mail, save, status);
     function paint() {
       const found = problems(values);
       const dirty = Object.keys(changes(values, data.channels)).length > 0;
