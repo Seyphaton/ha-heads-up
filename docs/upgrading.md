@@ -15,4 +15,4 @@ Heads Up uses [semantic versioning](https://semver.org/). Action names, field na
 - A minor version adds to it.
 - A removal or a change of meaning needs a major version. The previous minor version logs a warning when you use the old form.
 
-The storage file has version 1. No release has changed it yet.
+The storage file has version 1.

@@ -1,6 +1,6 @@
 # The Heads Up panel
 
-The panel is an administrator page in Home Assistant's sidebar. In this version it has the navigation, the Overview, the Messages page, the four Configuration pages, Test send, the Settings page, the welcome and the FAQ and examples page. The Watch rules page is empty.
+The panel is an administrator page in Home Assistant's sidebar. It has the navigation, the Overview, the Messages page, the four Configuration pages, Test send, the Settings page, the welcome and the FAQ and examples page. The Watch rules page is empty.
 
 ## Show it in the sidebar
 
@@ -9,7 +9,7 @@ When you add the integration, the first screen asks "Show Heads Up in the sideba
 - Settings > Devices & services > Heads Up > Configure: Show Heads Up in the sidebar.
 - The panel's own Settings page.
 
-The entry appears and disappears when you save, without a restart. Only administrators see it. An installation that existed before the panel keeps the entry off until you switch it on.
+The entry appears and disappears when you save, without a restart. Only administrators see it. On an existing installation the entry is off until you switch it on.
 
 ## Navigation
 
@@ -86,7 +86,7 @@ An audience or a speaker group that a policy uses cannot be deleted in the panel
 | Identity | The install token, read only. It is part of every push tag. |
 | People and devices | Each person with the number of usable Companion devices and whether a Home Assistant user is linked. A person without a device gets only banner and popup; a person without a user gets no popup. |
 
-Hub to History are the same entries, in the same order and wording, as Settings > Devices & services > Heads Up > Configure (D-122), and a change in one shows in the other. Welcome, Identity and People and devices are only in the panel; the options screen shows the install token at the top.
+Hub to History are the same entries, in the same order and wording, as Settings > Devices & services > Heads Up > Configure, and a change in one shows in the other. Welcome, Identity and People and devices are only in the panel; the options screen shows the install token at the top.
 
 Save is enabled only when something changed and every number is inside its range; the page names a number that is not.
 

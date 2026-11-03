@@ -30,13 +30,13 @@ The same message is on the dashboard, on the phones of the administrators and on
 
 ## In a household
 
-- **A leak at 03:00.** A critical message reaches every phone and the dashboard, quiet hours let it pass, and speakers say it. Ben acknowledges on his phone, so the escalation stops. The banner stays until the sensor is dry.
-- **A window left open in an empty house.** The audience Last to leave gets a push. Nobody else is disturbed. The push is taken back when the window closes.
-- **The doorbell.** A short message on the wall tablet and a spoken line. With a timeout of 60 seconds everything clears itself.
-- **The washing machine.** A push to the person who started it. Quiet hours turn it into a banner at night. An Away policy sends it when they arrive.
-- **Nobody reacts to a critical message.** After five minutes an escalation notifies a backup person and the speakers. A reminder repeats it. An acknowledgement stops both.
-- **A phone is replaced.** Edit the person's recipient profile once. No automation changes.
-- **Why did I not get that?** Test send previews a call: who is reached now, and why anyone is skipped, held or dropped. The trace of a message shows what happened, for example "push to Anna skipped: quiet hours".
+- A leak at 03:00: A critical message reaches every phone and the dashboard, quiet hours let it pass, and speakers say it. Ben acknowledges on his phone, so the escalation stops. The banner stays until the sensor is dry.
+- A window left open in an empty house: The audience Last to leave gets a push. Nobody else is disturbed. The push is taken back when the window closes.
+- The doorbell: A short message on the wall tablet and a spoken line. With a timeout of 60 seconds everything clears itself.
+- The washing machine: A push to the person who started it. Quiet hours turn it into a banner at night. An Away policy sends it when they arrive.
+- Nobody reacts to a critical message: After five minutes an escalation notifies a backup person and the speakers. A reminder repeats it. An acknowledgement stops both.
+- A phone is replaced: Edit the person's recipient profile once. No automation changes.
+- Why you did not get a message: Test send previews a call: who is reached now, and why anyone is skipped, held or dropped. The trace of a message shows what happened, for example "push to Anna skipped: quiet hours".
 
 ## Limits that protect the phones
 

@@ -63,7 +63,6 @@ Notes:
 - With "Condition must hold for" set, a true condition first waits. The banner shows after that time, and the "time ago" text counts from then. If the condition turns false first, the wait starts again. Disabling, changing or deleting the rule also starts it again or ends it. For the example "Door open too long" set 5 minutes.
 - While the entity is `unavailable` or `unknown`, or does not exist, the banner is hidden. This includes "does not equal": a rule "is not `on`" does not show for an unavailable entity.
 - A numeric condition hides the banner while the value is not a number. A missing attribute hides it for every condition except equals, where it does not match.
-- Rules saved before conditions existed keep working as "equals".
 - A dismissible rule hides the banner for the user who closed it, until the entity leaves the state and enters it again. A restart also brings it back.
 - Rule banners do not count against the banner limit and are never evicted. `sensor.heads_up_active_banners` counts them.
 - `heads_up.clear_banner` and `heads_up.clear_all` do not remove them, and administrators cannot clear them in the card. Disable or delete the rule instead.

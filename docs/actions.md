@@ -132,7 +132,7 @@ What you see:
 - `mode: recurring`: the banner hides while the entity does not match and shows again when it matches. Users who closed it see it again.
 - `unavailable` and `unknown` do not change anything, for every operator. `not_equals: "on"` does not match an unavailable entity. A banner stays as it was until the entity has a real state again. This also applies while Home Assistant starts and entities are not loaded yet.
 - `empty` and `not_empty` work on the state or the attribute. An empty list or object counts as empty. `unavailable` and `unknown` still change nothing.
-- `above`, `below` and `between` do not change anything while the value is not a number. The other new operators do not change anything while the attribute is missing.
+- `above`, `below` and `between` do not change anything while the value is not a number. The other operators do not change anything while the attribute is missing.
 - If the entity does not match when you call the action, the banner waits and shows when the entity matches. With `wait_for_condition: false`, nothing is stored and the response status is `condition_false`. A banner that already had this `id` is removed.
 - The `timeout` keeps running while a banner waits.
 

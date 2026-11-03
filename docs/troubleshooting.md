@@ -11,7 +11,6 @@ logger:
 ## The card shows "Custom element doesn't exist: heads-up-card"
 
 - Reload the page. If the page loaded in the first second after Home Assistant started, it can miss the card. A reload fixes it.
-- Version 0.3.0 and earlier could show this on some reloads without a restart, mostly on iPhone and iPad (Safari and the Companion app). The card registered itself before Home Assistant's own scripts had finished loading, and Home Assistant then ignored it until the page was reloaded. The card now waits for Home Assistant, see the changelog. Update the integration, then reload the page.
 - If it persists, check that the integration is added (Settings > Devices & services). The card is registered only while the integration is loaded.
 - Open `/heads_up/heads-up-card.js` in the browser. It should return JavaScript. Then reload the page without cache.
 
@@ -141,3 +140,12 @@ If `.storage/heads_up.banners` cannot be read as JSON, Home Assistant renames it
 ## Access denied for `show_all` or "Clear for everyone"
 
 Both are for administrators only. The card ignores `show_all` for other users.
+
+## What to attach to a bug report
+
+- The Home Assistant version and the Heads Up version (Settings > Devices & services > Heads Up).
+- The action call, rule or card configuration that shows the problem.
+- The log lines of `custom_components.heads_up` with debug logging on (see the top of this page).
+- For a message that did not reach someone: its trace from the panel's Messages page, or the reply of `heads_up/hub_trace`.
+
+See also [CONTRIBUTING](../CONTRIBUTING.md#report-a-bug).

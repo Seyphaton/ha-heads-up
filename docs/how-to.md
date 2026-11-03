@@ -1,6 +1,6 @@
 # How to use Heads Up
 
-This page walks through every part of Heads Up with examples: the card, creating banners, buttons and snooze, watch rules and the integration options. Install and set up first, see the [README](../README.md).
+This page walks through the card, creating banners, buttons and snooze, watch rules and the integration options. Install and set up first, see the [README](../README.md).
 
 ## 1. Dashboard card
 
@@ -17,7 +17,9 @@ show_severity: true
 
 All options are in [docs/card.md](card.md). The card also has a visual editor. These variants change one thing each.
 
-**Without severity label and time.** This is the default. The icon and color show the severity.
+### Without severity label and time
+
+This is the default. The icon and color show the severity.
 
 ```yaml
 type: custom:heads-up-card
@@ -26,7 +28,9 @@ title: House Information
 
 ![Card without severity labels and times](images/card-no-label-no-time.png)
 
-**Custom colors.** `colors` sets a color per severity. `colorize: background` colors only the banner background.
+### Custom colors
+
+`colors` sets a color per severity. `colorize: background` colors only the banner background.
 
 ```yaml
 type: custom:heads-up-card
@@ -41,7 +45,9 @@ colors:
 
 ![Card with custom background colors](images/card-custom-colors.png)
 
-**Only the icon colored.** `colorize: icon` leaves the background neutral. `max_items: 3` hides the fourth banner.
+### Only the icon colored
+
+`colorize: icon` leaves the background neutral. `max_items: 3` hides the fourth banner.
 
 ```yaml
 type: custom:heads-up-card
@@ -52,7 +58,9 @@ max_items: 3
 
 ![Card with colored icons and labels on a neutral background](images/card-icon-color.png)
 
-**Collapsed list.** `collapsed_items: 2` shows two banners and a "Show 2 more" button. `clear_all` adds a "Clear all" button that dismisses the banners for you only.
+### Collapsed list
+
+`collapsed_items: 2` shows two banners and a "Show 2 more" button. `clear_all` adds a "Clear all" button that dismisses the banners for you only.
 
 ```yaml
 type: custom:heads-up-card
@@ -64,7 +72,9 @@ clear_all: true
 
 ![Card showing two of four banners with Show 2 more and Clear all](images/card-show-more.png)
 
-**Compact.** `layout: compact` puts each banner on one line and cuts long text with "…".
+### Compact
+
+`layout: compact` puts each banner on one line and cuts long text with "…".
 
 ```yaml
 type: custom:heads-up-card
@@ -76,7 +86,9 @@ show_severity: true
 
 ![Card in compact layout](images/card-compact.png)
 
-**Empty.** With `empty_message` the card stays visible when there are no banners. Without it, the card hides itself.
+### Empty
+
+With `empty_message` the card stays visible when there are no banners. Without it, the card hides itself.
 
 ```yaml
 type: custom:heads-up-card
@@ -90,7 +102,9 @@ empty_message: All clear — no notifications
 
 Run these in Developer tools > Actions (YAML mode) or put them in an automation or script. The banner appears in the card without a reload. Close it with the X button, or remove it with `heads_up.clear_all`. The calls below produce the banners in the first screenshot of section 1.
 
-**Critical.** Sorts first and is never removed to make room for new banners. `timeout: 0` keeps it until someone closes it.
+### Critical
+
+Sorts first and is never removed to make room for new banners. `timeout: 0` keeps it until someone closes it.
 
 ```yaml
 action: heads_up.create_banner
@@ -103,7 +117,9 @@ data:
   timeout: 0
 ```
 
-**Warning.** The default severity. Without `timeout`, the banner disappears after 24 hours.
+### Warning
+
+The default severity. Without `timeout`, the banner disappears after 24 hours.
 
 ```yaml
 action: heads_up.create_banner
@@ -114,7 +130,9 @@ data:
   severity: warning
 ```
 
-**Info.** The icon replaces the default one. The banner disappears after 30 minutes.
+### Info
+
+The icon replaces the default one. The banner disappears after 30 minutes.
 
 ```yaml
 action: heads_up.create_banner
@@ -127,7 +145,9 @@ data:
     minutes: 30
 ```
 
-**Success.** Calling this again with the same `id` replaces the banner instead of adding a second one.
+### Success
+
+Calling this again with the same `id` replaces the banner instead of adding a second one.
 
 ```yaml
 action: heads_up.create_banner
@@ -138,7 +158,9 @@ data:
   severity: success
 ```
 
-**Tied to an entity.** The banner shows while the entity is `on` and is removed the first time it stops matching.
+### Tied to an entity
+
+The banner shows while the entity is `on` and is removed the first time it stops matching.
 
 ```yaml
 action: heads_up.create_banner
@@ -151,7 +173,9 @@ data:
     state: "on"
 ```
 
-**For one person, not closable.** Only the user linked to the person sees it. Nobody can close it. Remove it with `clear_banner`.
+### For one person, not closable
+
+Only the user linked to the person sees it. Nobody can close it. Remove it with `clear_banner`.
 
 ```yaml
 action: heads_up.create_banner
@@ -171,7 +195,9 @@ data:
   id: water_leak
 ```
 
-**With a tap action.** Tapping the banner opens a dashboard view.
+### With a tap action
+
+Tapping the banner opens a dashboard view.
 
 ```yaml
 action: heads_up.create_banner
