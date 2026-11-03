@@ -506,6 +506,9 @@ Restart: the usual one after a code update. Notification path: not touched. Dash
 ### 21.6 Image (D-127)
 - Field `image` on `create_banner`, `notify`, `push`, `popup` and in the rule form; `Banner.image`; shape checked by `services.IMAGE` (http(s) URL or `/path`, up to 2048 characters). Push: `data.image` when the lock screen setting is `full`, otherwise left out with the note `image_hidden`. Card (not compact) and popup: an `<img>` under the message; `/api/` and `/media/` paths go through `auth/sign_path` (N-93), kept 50 minutes. The duplicate signature of `hub/limits.py` includes the image.
 
+### 21.7 Delivery-failed event (D-128)
+- `HubEngine._report` fires `heads_up_delivery_failed` after each `_send` (origins `message`, `escalation`, `fallback`, `deliver`) and each reminder round. One event per non-banner channel that had a `failed` outcome or a skip in `NOBODY_REASONS`, with `reached`, and `failed` as `{recipient, reason, person?}`. Not fired on the first delivery after a restart (`resume` with origin `message`), not on `plan` or `preview`. Duplicates, quiet hours, holds, cooldown are choices and fire nothing.
+
 ## 22. Parity of banner sources (rule, D-073)
 
 Status: implemented 2026-10-27 (`tests/test_rule_parity.py`, `tests/test_rules_flow.py`). Decision D-073.

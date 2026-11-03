@@ -441,8 +441,22 @@ Each change fires an event. Use them as automation triggers.
 | `heads_up_banner_action` | `id`, `tag`, `key`, `user_id` |
 | `heads_up_banner_expired` | `id`, `tag` |
 | `heads_up_banner_cleared` | `id`, `tag`, `reason` (`action`, `clear_all`, `condition`, `evicted`, `admin`, `rule`) |
+| `heads_up_delivery_failed` | `id`, `tag`, `channel`, `origin`, `reached`, `failed` |
 
 Banners from [watch rules](rules.md) fire `created` when the entity enters the state and `cleared` with `reason: rule` when it leaves, or when the rule is disabled or deleted. Their `id` starts with `rule_` and their `tag` is `rule`.
+
+`heads_up_delivery_failed` fires once per channel and delivery step when a send failed or the message reached nobody on that channel. `origin` is `message` (the call itself), `escalation`, `reminder`, `fallback` or `deliver`. `reached` counts the recipients that got it. `failed` lists `{recipient, reason}` and, when the recipient is a person's device, `person`. The reasons are `send_failed`, `service_not_found`, `device_missing`, `entity_missing`, `no_tts_engine`, `no_recipients`, `no_usable_device`, `channel_not_accepted`, `group_empty`, `unknown_audience`, `unknown_recipient`, `person_not_found`, `no_user`, `presence_unknown` and `rate_limited`. Quiet hours, holds, duplicates and the speech cooldown are choices, not failures, and fire nothing. A dry run in the panel fires nothing, and neither does the first delivery after a restart. The banner channel never fires it.
+
+```yaml
+triggers:
+  - trigger: event
+    event_type: heads_up_delivery_failed
+    event_data:
+      channel: push
+conditions:
+  - condition: template
+    value_template: "{{ trigger.event.data.reached == 0 }}"
+```
 
 A banner whose timeout passed while Home Assistant was stopped is removed at the next start and fires `heads_up_banner_expired` then.
 

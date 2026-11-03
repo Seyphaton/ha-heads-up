@@ -24,6 +24,7 @@ from ..const import (
     CHANNEL_BANNER,
     CHANNEL_PERSISTENT,
     DEFAULT_OPTIONS,
+    EVENT_DELIVERY_FAILED,
     GLOBAL_SNOOZE_KEY,
     GROUP_SUFFIX,
     HOLD_AWAY,
@@ -56,6 +57,26 @@ _LOGGER = logging.getLogger(__name__)
 MAX_CONCURRENT = 8
 
 type TaskFactory = Callable[[Coroutine[Any, Any, None], str], asyncio.Task[None]]
+
+
+# Skips that mean a message reached nobody on a channel, as opposed to a choice (quiet hours,
+# a duplicate, a cooldown). They fire the delivery-failed event with every failed send (D-128).
+NOBODY_REASONS = frozenset(
+    {
+        "no_recipients",
+        "no_usable_device",
+        "service_not_found",
+        "device_missing",
+        "channel_not_accepted",
+        "group_empty",
+        "unknown_audience",
+        "unknown_recipient",
+        "person_not_found",
+        "no_user",
+        "presence_unknown",
+        RATE_LIMITED,
+    }
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -492,6 +513,8 @@ class HubEngine:
     ) -> list[tuple[Planned, Outcome]]:
         """Run planned deliveries through the precedence chain and the channels."""
         results: list[tuple[Planned, Outcome]] = []
+        # `resume` also means "skip what was sent" for escalations and fallbacks; only the
+        # first delivery after a restart is silent about problems (D-126, D-128).
         startup = resume and origin == "message"
         for item in planned:
             row = self.ledger.rows.get((banner.id, item.channel, item.recipient))
@@ -530,7 +553,46 @@ class HubEngine:
                 item.who.person if item.who else None,
             )
             results.append((item, outcome))
+        if not startup:
+            self._report(
+                banner,
+                origin,
+                [(i.channel, i.recipient, i.who.person if i.who else None, o) for i, o in results],
+            )
         return results
+
+    def _report(
+        self, banner: Banner, origin: str, rows: list[tuple[str, str, str | None, Outcome]]
+    ) -> None:
+        """Fire `heads_up_delivery_failed` once per channel that had a failed send or reached
+        nobody in this step (D-128). Choices such as quiet hours and duplicates are not failures."""
+        channels: dict[str, tuple[int, list[dict[str, str]]]] = {}
+        for channel, recipient, person, outcome in rows:
+            if channel == CHANNEL_BANNER:
+                continue
+            reached, failed = channels.setdefault(channel, (0, []))
+            if outcome.result is Result.SENT:
+                channels[channel] = (reached + 1, failed)
+            elif outcome.result is Result.FAILED or (
+                outcome.result is Result.SKIPPED and outcome.reason in NOBODY_REASONS
+            ):
+                entry = {"recipient": recipient, "reason": outcome.reason or "unknown"}
+                if person:
+                    entry["person"] = person
+                failed.append(entry)
+        for channel, (reached, failed) in channels.items():
+            if failed:
+                self.hass.bus.async_fire(
+                    EVENT_DELIVERY_FAILED,
+                    {
+                        "id": banner.id,
+                        "tag": banner.tag,
+                        "channel": channel,
+                        "origin": origin,
+                        "reached": reached,
+                        "failed": failed,
+                    },
+                )
 
     def _held_back(self, banner: Banner, item: Planned, target: Target, update: bool) -> str | None:
         """Why a delivery is suppressed: an identical update, or a push over its cap (D-123)."""
@@ -752,6 +814,7 @@ class HubEngine:
         if not sent:
             self._finish(row, State.CLEARED, "nobody_left")
             return
+        report: list[tuple[str, str, str | None, Outcome]] = []
         for target_row in sent:
             step = self.chain.run(
                 Step(banner, target_row.channel, self._row_target(target_row, banner), "reminder")
@@ -764,8 +827,11 @@ class HubEngine:
                 step.banner, step.target.key
             ):
                 self._trace(banner.id, "push", target_row.recipient, "skipped", RATE_LIMITED)
+                limited = Outcome(Result.SKIPPED, RATE_LIMITED)
+                report.append(("push", target_row.recipient, target_row.person, limited))
                 continue
             outcome = await self.channels.get(target_row.channel).deliver(step.banner, step.target)
+            report.append((target_row.channel, target_row.recipient, target_row.person, outcome))
             self._trace(
                 banner.id,
                 target_row.channel,
@@ -773,6 +839,7 @@ class HubEngine:
                 outcome.result.value,
                 "reminder",
             )
+        self._report(banner, "reminder", report)
         self._log("reminder_sent", banner.id, policy.name)
         row.count += 1
         if reminder.finished(policy, row.count):

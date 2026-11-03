@@ -185,3 +185,4 @@ EVENT_CLEARED: Final = f"{DOMAIN}_banner_cleared"
 EVENT_ACTION: Final = f"{DOMAIN}_banner_action"
 EVENT_SNOOZED: Final = f"{DOMAIN}_banner_snoozed"
 EVENT_UNSNOOZED: Final = f"{DOMAIN}_banner_unsnoozed"
+EVENT_DELIVERY_FAILED: Final = f"{DOMAIN}_delivery_failed"  # D-128

@@ -5,6 +5,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ## [Unreleased]
 
 ### Added
+- Event `heads_up_delivery_failed`: fired once per channel and delivery step when a send failed or a message reached nobody on that channel. It carries `id`, `tag`, `channel`, `origin`, `reached` and the failed recipients with a reason.
 - Images: the field `image` (an http(s) URL or a path such as `/media/local/door.jpg`) on `create_banner`, `notify`, `push` and `popup`, and an Image field in the watch rule form. The picture shows under the message on the card (not in the compact layout) and in the popup, and goes to the phone as `data.image`. A push leaves it out when the lock screen setting is not `full`.
 - Notification hub: the actions `heads_up.notify`, `heads_up.push`, `heads_up.popup`, `heads_up.speak` and `heads_up.clear`. `notify` takes a list of channels and a target per channel. The option `hub_enabled` (on by default) switches the hub off; with it off, `notify` accepts only `channels: [banner]` and no hub listener, task or store exists. The option `install_token` is generated once. See [Notification hub](docs/hub.md).
 - Delivery ledger in `.storage/heads_up.deliveries`, a trace of delivery decisions (admin WebSocket command `heads_up/hub_trace`) and optional banner fields `channels`, `targets`, `policy`, `tts_message`, `acknowledged_by` and `source`. Banners saved by an older version load unchanged. After using `notify`, a downgrade needs the banners cleared.

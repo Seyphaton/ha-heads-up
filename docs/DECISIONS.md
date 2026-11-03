@@ -794,6 +794,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Parity (rule 9): actions and rules both carry the image (rule form field `image`, `rule_banner` payload), so no exception in DESIGN section 22.
 - Blast radius: usual restart; a stored banner without the field loads unchanged; the card and popup request a picture from the given URL (a third-party URL sees the viewer's address).
 
+## D-128 Delivery-failed event (2026-11-03)
+- Context: D-124. A script could not react to a message that reached nobody; only the ledger, the trace and the action response showed it.
+- Decisions (maintainer): the event `heads_up_delivery_failed`, one per message, channel and delivery step (not per recipient), after every delivery step with `origin` (`message`, `escalation`, `reminder`, `fallback`, `deliver`), so a failing escalation or fallback is visible too. It fires for send failures, for nobody to deliver to (no recipients, no usable device, unknown audience, empty group...) and for `rate_limited`. Duplicates, quiet hours, holds and the speech cooldown are choices and do not fire it.
 - Build details decided without a question: payload `id`, `tag`, `channel`, `origin`, `reached`, `failed` (a list of `{recipient, reason, person?}`); the banner channel never fires it; not on a dry run and not on the first delivery after a restart (the same rule as the speech bell entry); a partial failure (one of two devices) fires with `reached: 1`. Escalation, fallback and deliver deliveries use `resume` to skip rows already sent, so D-126's "no bell entry on resume" was narrowed to `resume` with origin `message`; before, an escalation to an empty speaker group left no bell entry.
 - Parity: rule messages use the same delivery path, so both banner sources fire it.
 - Blast radius: usual restart; a new event, no change to existing events; automations triggering on it see a failure per channel and step.
