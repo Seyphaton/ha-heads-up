@@ -100,12 +100,14 @@ class HeadsUpConfigFlow(ConfigFlow, domain=DOMAIN):
     def async_get_supported_subentry_types(
         cls, config_entry: ConfigEntry
     ) -> dict[str, type[ConfigSubentryFlow]]:
+        # The order of the "Add ..." buttons on the integration page: who (audience, recipient
+        # group, recipient profile), then when (policy), then watch rules, as in the panel (D-132).
         return {
-            RULE_SUBENTRY: RuleSubentryFlow,
             AUDIENCE_SUBENTRY: AudienceSubentryFlow,
             GROUP_SUBENTRY: RecipientGroupSubentryFlow,
             PROFILE_SUBENTRY: RecipientProfileSubentryFlow,
             POLICY_SUBENTRY: PolicySubentryFlow,
+            RULE_SUBENTRY: RuleSubentryFlow,
         }
 
 
