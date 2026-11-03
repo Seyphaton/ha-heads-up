@@ -40,7 +40,8 @@
               "default_timeout": "Délai d'expiration par défaut",
               "default_snoozable": "Les bannières peuvent être reportées par défaut",
               "default_snooze_scope": "Portée du report par défaut",
-              "default_snooze_options": "Durées de report par défaut"
+              "default_snooze_options": "Durées de report par défaut",
+              "disable_ended_buttons": "Désactiver les boutons du message une fois celui-ci terminé"
             },
             "data_description": {
               "max_banners": "1–200. Les bannières critiques ne sont jamais supprimées.",
@@ -49,7 +50,8 @@
               "default_timeout": "Utilisé quand l'appel d'action ne définit pas timeout. Attention : si vous videz ce champ, les bannières sans délai propre restent jusqu'à leur fermeture ou suppression.",
               "default_snoozable": "Utilisé quand l'appel d'action ne définit pas snoozable. Les bannières non fermables ne sont jamais reportables.",
               "default_snooze_scope": "Utilisé quand l'appel d'action ne définit pas snooze_scope.",
-              "default_snooze_options": "Utilisé quand l'appel d'action ne définit pas snooze_options. Laisser vide pour 15 minutes, 1 heure et 4 heures."
+              "default_snooze_options": "Utilisé quand l'appel d'action ne définit pas snooze_options. Laisser vide pour 15 minutes, 1 heure et 4 heures.",
+              "disable_ended_buttons": "Un appui est ignoré après que le message a été fermé, confirmé ou que sa condition n'est plus vraie. Désactivé : les appuis sont acceptés jusqu'à la suppression du message."
             }
           },
           "presence": {

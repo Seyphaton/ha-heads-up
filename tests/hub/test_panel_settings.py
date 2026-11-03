@@ -49,6 +49,7 @@ async def test_get_returns_every_option_the_layout_and_the_token(
         "default_snoozable": False,
         "default_snooze_scope": "user",
         "default_snooze_options": [15, 60, 240],
+        "disable_ended_buttons": True,
         "presence_debounce_seconds": 60,
         "speak_max_length": 200,
         "speak_cooldown_seconds": 60,

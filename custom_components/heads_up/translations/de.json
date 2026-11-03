@@ -40,7 +40,8 @@
               "default_timeout": "Standard-Zeitlimit",
               "default_snoozable": "Banner sind standardmäßig zurückstellbar",
               "default_snooze_scope": "Standard-Bereich beim Zurückstellen",
-              "default_snooze_options": "Standard-Auswahl beim Zurückstellen"
+              "default_snooze_options": "Standard-Auswahl beim Zurückstellen",
+              "disable_ended_buttons": "Nachrichten-Schaltflächen sperren, sobald die Nachricht beendet ist"
             },
             "data_description": {
               "max_banners": "1–200. Kritische Banner werden nie entfernt.",
@@ -49,7 +50,8 @@
               "default_timeout": "Gilt, wenn ein Aktionsaufruf kein timeout angibt. Achtung: Wenn du dieses Feld leerst, bleiben Banner ohne eigenes Zeitlimit, bis sie geschlossen oder entfernt werden.",
               "default_snoozable": "Gilt, wenn ein Aktionsaufruf kein snoozable angibt. Banner, die nicht schließbar sind, sind nie zurückstellbar.",
               "default_snooze_scope": "Gilt, wenn ein Aktionsaufruf kein snooze_scope angibt.",
-              "default_snooze_options": "Gilt, wenn ein Aktionsaufruf kein snooze_options angibt. Leer lassen für 15 Minuten, 1 Stunde und 4 Stunden."
+              "default_snooze_options": "Gilt, wenn ein Aktionsaufruf kein snooze_options angibt. Leer lassen für 15 Minuten, 1 Stunde und 4 Stunden.",
+              "disable_ended_buttons": "Ein Tastendruck wird ignoriert, wenn die Nachricht geschlossen oder bestätigt wurde oder ihre Bedingung nicht mehr erfüllt ist. Aus: Tastendrücke gelten, bis die Nachricht entfernt wird."
             }
           },
           "presence": {

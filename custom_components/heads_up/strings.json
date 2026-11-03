@@ -40,7 +40,8 @@
               "default_timeout": "Default timeout",
               "default_snoozable": "Banners can be snoozed by default",
               "default_snooze_scope": "Default snooze scope",
-              "default_snooze_options": "Default snooze choices"
+              "default_snooze_options": "Default snooze choices",
+              "disable_ended_buttons": "Disable message buttons once the message has ended"
             },
             "data_description": {
               "max_banners": "1–200. Critical banners are never evicted.",
@@ -49,7 +50,8 @@
               "default_timeout": "Used when an action call sets no timeout. Warning: if you clear this field, banners without their own timeout stay until they are dismissed or cleared.",
               "default_snoozable": "Used when an action call sets no snoozable. Banners that are not dismissible are never snoozable.",
               "default_snooze_scope": "Used when an action call sets no snooze_scope.",
-              "default_snooze_options": "Used when an action call sets no snooze_options. Leave empty for 15 minutes, 1 hour and 4 hours."
+              "default_snooze_options": "Used when an action call sets no snooze_options. Leave empty for 15 minutes, 1 hour and 4 hours.",
+              "disable_ended_buttons": "A button press is ignored after the message was dismissed, acknowledged or its condition turned false. Off: presses are accepted until the message is removed."
             }
           },
           "presence": {

@@ -48,6 +48,7 @@ OPT_DEFAULT_TIMEOUT: Final = "default_timeout"  # seconds; 0 = none
 OPT_DEFAULT_SNOOZABLE: Final = "default_snoozable"
 OPT_DEFAULT_SNOOZE_SCOPE: Final = "default_snooze_scope"
 OPT_DEFAULT_SNOOZE_OPTIONS: Final = "default_snooze_options"  # seconds
+OPT_DISABLE_ENDED_BUTTONS: Final = "disable_ended_buttons"  # D-125
 # Hub (DESIGN §23). Channels of a message; only `banner` delivers in H1.
 CHANNEL_BANNER: Final = "banner"
 CHANNEL_PERSISTENT: Final = "persistent"
@@ -155,6 +156,7 @@ DEFAULT_OPTIONS: Final = {
     OPT_DEFAULT_SNOOZABLE: False,  # existing dashboards look the same after an update (D-069)
     OPT_DEFAULT_SNOOZE_SCOPE: "user",
     OPT_DEFAULT_SNOOZE_OPTIONS: list(DEFAULT_SNOOZE_SECONDS),
+    OPT_DISABLE_ENDED_BUTTONS: True,
     OPT_HUB_ENABLED: True,
     OPT_PRESENCE_DEBOUNCE: 60,
     OPT_PUSH_LEVELS: DEFAULT_PUSH_LEVELS,

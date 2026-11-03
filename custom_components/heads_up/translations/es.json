@@ -40,7 +40,8 @@
               "default_timeout": "Tiempo de caducidad predeterminado",
               "default_snoozable": "Los avisos se pueden posponer de forma predeterminada",
               "default_snooze_scope": "Ámbito de posposición predeterminado",
-              "default_snooze_options": "Opciones de posposición predeterminadas"
+              "default_snooze_options": "Opciones de posposición predeterminadas",
+              "disable_ended_buttons": "Desactivar los botones del mensaje cuando haya terminado"
             },
             "data_description": {
               "max_banners": "1–200. Los avisos críticos nunca se eliminan.",
@@ -49,7 +50,8 @@
               "default_timeout": "Se usa cuando la llamada a la acción no define timeout. Atención: si vacías este campo, los avisos sin tiempo propio permanecen hasta que se cierran o se eliminan.",
               "default_snoozable": "Se usa cuando la llamada a la acción no define snoozable. Los avisos que no se pueden cerrar nunca se pueden posponer.",
               "default_snooze_scope": "Se usa cuando la llamada a la acción no define snooze_scope.",
-              "default_snooze_options": "Se usa cuando la llamada a la acción no define snooze_options. Déjalo vacío para 15 minutos, 1 hora y 4 horas."
+              "default_snooze_options": "Se usa cuando la llamada a la acción no define snooze_options. Déjalo vacío para 15 minutos, 1 hora y 4 horas.",
+              "disable_ended_buttons": "Se ignora una pulsación después de que el mensaje se descarte, se confirme o su condición deje de cumplirse. Desactivado: se aceptan pulsaciones hasta que se elimine el mensaje."
             }
           },
           "presence": {

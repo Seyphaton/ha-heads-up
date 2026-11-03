@@ -297,6 +297,7 @@ Open the integration and choose Configure, or open Settings in the Heads Up pane
 | Banners can be snoozed by default | off | Used when an action sets no `snoozable`. Banners that are not dismissible are never snoozable. |
 | Default snooze scope | `user` | Used when an action sets no `snooze_scope`. |
 | Default snooze choices | 15 minutes, 1 hour, 4 hours | Used when an action sets no `snooze_options`. Choose from 5 minutes to 24 hours. |
+| Disable message buttons once the message has ended | on | A press on the message's own buttons is refused with `message_ended` after the message was dismissed (by that user or for everyone), acknowledged by anyone, or its condition turned false. A snooze does not end it. Off: presses are accepted until the message is removed. |
 
 **Presence, Speech, Limits and History**
 

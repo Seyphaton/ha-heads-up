@@ -52,6 +52,7 @@ from .const import (
     OPT_DEFAULT_SNOOZE_OPTIONS,
     OPT_DEFAULT_SNOOZE_SCOPE,
     OPT_DEFAULT_TIMEOUT,
+    OPT_DISABLE_ENDED_BUTTONS,
     OPT_EVICT,
     OPT_MAX_BANNERS,
     RULE_ID_PREFIX,
@@ -356,10 +357,22 @@ class BannerManager:
             raise HeadsUpError("unknown_action", f"Banner {banner_id} has no button {key}")
         if not self._targets(banner, user_id):
             raise HeadsUpError("not_found", f"Banner {banner_id} not found")
+        if self.options.get(OPT_DISABLE_ENDED_BUTTONS, True) and self._ended(banner, user_id):
+            raise HeadsUpError("message_ended", f"Banner {banner_id} has ended")
         self._fire(EVENT_ACTION, banner, key=key, user_id=user_id)
         if button["dismiss"]:
             self._dismiss_one(banner_id, user_id)
             self._changed()
+
+    def _ended(self, banner: Banner, user_id: str) -> bool:
+        """A message whose buttons no longer act (D-125): dismissed for this user or for all,
+        acknowledged by anyone, or its condition is not true. A snooze does not end it."""
+        return (
+            user_id in banner.dismissed_by
+            or GLOBAL_SNOOZE_KEY in banner.dismissed_by
+            or bool(banner.acknowledged_by)
+            or not banner.active
+        )
 
     @callback
     def snooze(self, banner_id: str, user_id: str, seconds: int) -> None:
