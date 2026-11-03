@@ -4,6 +4,19 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Added
+- Welcome tour: four steps (what Heads Up does, channels, recipients, policies) with the numbers found in your Home Assistant, links to the pages and a bar to continue after a visit. The four default policies are on the last step.
+- Question marks next to the built-in audiences on the Audiences page explain who each one is.
+
+### Changed
+- The Add buttons on the integration page are ordered audience, recipient group, recipient profile, policy, watch rule (before: watch rule first).
+- The channel formerly called Bell is named Persistent HASS Notification in the panel.
+- `to.banner.audience` limits the banner to the persons the audience has when the call is made. Before, the audience was accepted and ignored, so the banner went to everyone.
+- The audience `Admins` no longer lists a person without a Home Assistant user as skipped.
+
+### Fixed
+- Test send: the Recipients option next to Audience can be chosen, and the preview shows who a banner is for and which device each push goes to.
+
 ## [1.0.0-alpha.1] - 2026-11-03
 
 ### Added

@@ -17,9 +17,9 @@ Heads Up is a notification hub for Home Assistant. An automation says what happe
 ## What it does
 
 - Banner: a dismissible banner in a dashboard card. It stays until someone closes it, its condition stops matching, its timeout passes or an action clears it, and it survives a restart. Watch rules show a banner while an entity is in a state, without an automation.
-- Push, popup, speech and the notification bell: one message can reach Companion app notifications, a window over any dashboard, speakers and Assist satellites, and Home Assistant's notification bell. The action `heads_up.notify` names the channels. Each channel also has its own action.
+- Push, popup, speech, mail and Persistent HASS Notification: one message can reach Companion app notifications, a window over any dashboard, speakers and Assist satellites, mail, and Home Assistant's own notification list (the bell). The action `heads_up.notify` names the channels. Each channel also has its own action.
 - Audiences: Everyone, Admins, At home, Not home, Last to leave, First home, persons, a zone, or a speaker group. Phones are found from the person, so replacing a phone is one change.
-- Policies: Escalation, Reminder, Quiet hours, Away, Fallback, Summarize and Deliver. They are kept apart from the automations. The panel's welcome offers four defaults: quiet hours, an evening summary, critical messages and warning reminders.
+- Policies: Escalation, Reminder, Quiet hours, Away, Fallback, Summarize and Deliver. They are kept apart from the automations. The panel's welcome is a four-step tour: what Heads Up does, then channels, recipients and policies. The last step offers four default policies: quiet hours, an evening summary, critical messages and warning reminders.
 - Acknowledgement: it stops escalations and reminders, and the card shows who acknowledged.
 - Explanation: the panel previews who a call would reach right now, and why anyone is skipped, held or dropped. Each message has a trace.
 - Rate limits: 5 pushes per device per minute and 60 in total. Critical messages are never held back.
@@ -86,7 +86,7 @@ The banner appears in the card without a reload. Close it with the X button, or 
 
 ![Card with four banners: critical, warning, info and success, each with a severity label and the time since it was created](docs/images/card-default.png)
 
-Send one message to the banner, the phones of everyone and the notification bell:
+Send one message to the banner, the phones of everyone and the Persistent HASS Notification channel:
 
 ```yaml
 action: heads_up.notify
@@ -105,7 +105,7 @@ The card receives banners over the Home Assistant WebSocket connection and does 
 - [How to use Heads Up](docs/how-to.md): options with examples and screenshots.
 - [Notification hub](docs/hub.md): the terms, and examples from a household.
 - [Panel](docs/panel.md), [Policies](docs/policies.md), [Audiences and recipients](docs/audiences.md)
-- Channels: [Push](docs/push.md), [Popup](docs/popup.md), [Speech](docs/speech.md), [Notification bell](docs/persistent.md), [Mail](docs/mail.md)
+- Channels: [Push](docs/push.md), [Popup](docs/popup.md), [Speech](docs/speech.md), [Persistent HASS Notification](docs/persistent.md), [Mail](docs/mail.md)
 - [Actions](docs/actions.md): fields, responses, conditions, people, events.
 - [Card](docs/card.md): options and behaviour.
 - [Watch rules](docs/rules.md): banners from an entity state or value, without an automation.
