@@ -13,6 +13,7 @@ class AudienceResolver(Protocol):
 
 class RecipientResolver(Protocol):
     def known(self, channel: str) -> list[str]: ...
+    def accepts(self, channel: str, name: str) -> bool: ...
 
 
 class PolicyCatalog(Protocol):

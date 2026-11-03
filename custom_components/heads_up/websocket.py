@@ -226,8 +226,7 @@ def ws_welcome_apply(
             msg["id"], "unknown_audience", f"Audience {msg['audience']} not found"
         )
         return
-    known = hub.recipients.known("speak")
-    if unknown := [s for s in msg["speakers"] if s not in known]:
+    if unknown := [s for s in msg["speakers"] if not hub.recipients.accepts("speak", s)]:
         connection.send_error(msg["id"], "unknown_recipient", f"Unknown speaker {unknown[0]}")
         return
     connection.send_result(

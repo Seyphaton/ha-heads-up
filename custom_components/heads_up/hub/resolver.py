@@ -25,9 +25,10 @@ from .recipients import (
     Group,
     Profile,
     StoredProfile,
-    area_exists,
+    area_ids,
     area_speakers,
     build_profile,
+    find_area,
     notify_service,
     parse_group,
     parse_profile,
@@ -92,11 +93,16 @@ class HubResolver:
         persons = sorted(s.entity_id for s in self._hass.states.async_all("person"))
         if channel == "speak":
             groups = [f"{n}{GROUP_SUFFIX}" for n in self._groups]
-            areas = [a for g in self._groups.values() for a in g.areas]
-            return [*speaker_entities(self._hass), *groups, *unique(areas)]
+            return [*speaker_entities(self._hass), *groups, *area_ids(self._hass)]
         if channel == "push":
             return [*persons, *registrations(self._hass)]
         return persons
+
+    def accepts(self, channel: str, name: str) -> bool:
+        """Whether a call may name this recipient. Speech also takes an area by its name."""
+        if name in self.known(channel):
+            return True
+        return channel == "speak" and find_area(self._hass, name) is not None
 
     def groups(self) -> list[Group]:
         return list(self._groups.values())
@@ -260,11 +266,13 @@ class HubResolver:
                 out.recipients += [
                     Recipient(m, "speaker", reason=f"group:{group.name}") for m in found
                 ]
-            elif area_exists(self._hass, item):
-                found = [m for m in area_speakers(self._hass, item) if m in speakers]
+            elif (found_area := find_area(self._hass, item)) is not None:
+                found = [m for m in area_speakers(self._hass, found_area) if m in speakers]
                 if not found:
                     out.skipped.append(Skipped(item, "group_empty"))
-                out.recipients += [Recipient(m, "speaker", reason=f"area:{item}") for m in found]
+                out.recipients += [
+                    Recipient(m, "speaker", reason=f"area:{found_area}") for m in found
+                ]
             else:
                 out.skipped.append(Skipped(item, "unknown_recipient"))
         by_key = {r.key: r for r in reversed(out.recipients)}  # one delivery per speaker

@@ -38,6 +38,8 @@ from ..const import (
 from ..models import Banner
 from .activity import Activity, ActivityLog, RecentMessages
 from .channels import ChannelRegistry, Outcome, Result, Target
+from .channels.persistent import warn_speech
+from .channels.speak import NO_SPEAKER
 from .interfaces import AudienceResolver, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, HeldMessage, State
 from .limits import DUPLICATE, RATE_LIMITED, Limiter
@@ -490,6 +492,7 @@ class HubEngine:
     ) -> list[tuple[Planned, Outcome]]:
         """Run planned deliveries through the precedence chain and the channels."""
         results: list[tuple[Planned, Outcome]] = []
+        startup = resume and origin == "message"
         for item in planned:
             row = self.ledger.rows.get((banner.id, item.channel, item.recipient))
             if resume and row is not None and (row.state is State.SENT or row.hold):
@@ -517,6 +520,8 @@ class HubEngine:
                         call = channel.update if update else channel.deliver
                         outcome = await call(step.banner, step.target)
                         self._sent(step.banner, item.channel, item.recipient, outcome)
+            if item.channel == "speak" and not startup and outcome.reason in NO_SPEAKER:
+                await warn_speech(self.hass, item.recipient, outcome.reason or "")
             self._record(
                 banner.id,
                 item.channel,

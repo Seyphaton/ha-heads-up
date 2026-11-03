@@ -339,7 +339,7 @@ def _check_names(hub: HubEngine, to: dict[str, dict[str, Any]], policy: str | No
             raise _unknown("unknown_audience", audience, hub.audiences.names())
         known = hub.recipients.known(channel)
         for recipient in target.get("recipients", []):
-            if recipient not in known:
+            if not hub.recipients.accepts(channel, recipient):
                 raise _unknown("unknown_recipient", recipient, known)
     if policy not in (None, POLICY_NONE) and policy not in hub.policies.names():
         raise _unknown("unknown_policy", str(policy), hub.policies.names())

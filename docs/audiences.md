@@ -43,7 +43,7 @@ A person with no usable device is skipped on push (`no_usable_device`). A device
 
 ## Recipient groups
 
-A recipient group is a named set of speakers, Assist satellites and areas for speech. A call names it `<name> (group)`, for example `Ground floor (group)`. An area stands for the speakers and satellites assigned to that area in Home Assistant. A call may also name an area by its area ID.
+A recipient group is a named set of speakers, Assist satellites and areas for speech. A call names it `<name> (group)`, for example `Ground floor (group)`. An area stands for the speakers and satellites assigned to that area in Home Assistant. A call may also name an area by its area ID or its name.
 
 ## Preview
 

@@ -499,6 +499,10 @@ Restart: the usual one after a code update. Notification path: not touched. Dash
 ### 21.4 Tests
 `tests/test_snooze.py`: default off, per-user and global scope, expiry timer, choices, not-dismissible rules, limits, upsert, recurring flip, restart, snooze ended during downtime, `show_all` flag, options flow. `tests/test_actions.py`: payload, event, dismiss button, unknown key, targeted banner, upsert, invalid input, restart. `tests/test_rules.py` and `tests/test_rules_flow.py`: rule snooze and form. vitest: `controlsFor`, `snoozeLabel`, `swipeOutcome`. `dev/smoke.py snooze` and `snooze_verify`: per-user snooze, dismiss button and persistence over a container restart on the dev HA.
 
+### 21.5 Speech areas and the missing-speaker entry (D-126)
+- Direct areas: `to.speak.recipients` takes any area id or name (`recipients.find_area`, `HubResolver.accepts`). `known("speak")` lists every area id.
+- Bell entry: `HubEngine._send` calls `persistent.warn_speech` when a speak row is skipped with `group_empty` or fails with `entity_missing`. Not on a dry run (`plan`, `preview`) and not on a startup resume. Id `heads_up_warning_<slug>`, so a repeat replaces it; text names the area, group or speaker, never the message.
+
 ## 22. Parity of banner sources (rule, D-073)
 
 Status: implemented 2026-10-27 (`tests/test_rule_parity.py`, `tests/test_rules_flow.py`). Decision D-073.

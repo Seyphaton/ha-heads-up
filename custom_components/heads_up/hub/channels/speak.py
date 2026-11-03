@@ -40,6 +40,7 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 WARN_EVERY = 3600  # seconds between log warnings per speaker
 MAX_WAIT = 30  # seconds to wait for a player to finish before the next message
+NO_SPEAKER = frozenset({"group_empty", "entity_missing"})  # reasons that get a bell entry
 SATELLITE = "assist_satellite"
 PLAYER = "media_player"
 

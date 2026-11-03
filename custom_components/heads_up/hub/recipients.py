@@ -177,6 +177,22 @@ def area_exists(hass: HomeAssistant, area_id: str) -> bool:
     return ar.async_get(hass).async_get_area(area_id) is not None
 
 
+def area_ids(hass: HomeAssistant) -> list[str]:
+    return sorted(a.id for a in ar.async_get(hass).async_list_areas())
+
+
+def find_area(hass: HomeAssistant, value: str) -> str | None:
+    """The id of the area a call names by id or by name (case-insensitive), or None."""
+    registry = ar.async_get(hass)
+    if registry.async_get_area(value) is not None:
+        return value
+    wanted = value.casefold()
+    for area in registry.async_list_areas():
+        if area.name.casefold() == wanted:
+            return area.id
+    return None
+
+
 def speaker_entities(hass: HomeAssistant) -> list[str]:
     return sorted(s.entity_id for d in SPEAKER_DOMAINS for s in hass.states.async_all(d))
 

@@ -14,7 +14,7 @@ The speak channel says a message on speakers: media players and Assist satellite
 
 ## Who hears it
 
-`recipients` are media players, Assist satellites, recipient groups (written `Name (group)`) and areas. A group or area stands for its speakers; see [Audiences and recipients](audiences.md). Speech has no audience: it goes to speakers, not to people.
+`recipients` are media players, Assist satellites, recipient groups (written `Name (group)`) and areas. An area is written by its ID (`living_room`) or its name (`Living Room`, any case); it needs no group. A group or area stands for its speakers; see [Audiences and recipients](audiences.md). Speech has no audience: it goes to speakers, not to people.
 
 ## What is said
 
@@ -42,6 +42,8 @@ The text is `tts_message` if you set it, otherwise the title, otherwise the mess
 - A Quiet hours policy with the action Send quietly skips speech (`quiet_hours`).
 
 ## Failures
+
+An area or group with no speaker, and a speaker that no longer exists, also leave one entry in Home Assistant's notification bell: "Heads Up: no speaker" or "Heads Up: speaker not found". It names the area, group or speaker and never the message, because every user sees the bell. A repeat replaces the entry, and it stays until someone dismisses it. A dry run in the panel creates none.
 
 A speaker that no longer exists, a service that is missing or fails, and a missing engine give a `failed` delivery in the trace (`heads_up/hub_trace`) with the reasons `entity_missing`, `service_not_found`, `send_failed` and `no_tts_engine`. A failing service writes one log warning per speaker per hour.
 
