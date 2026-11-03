@@ -98,3 +98,10 @@
 - Every hub check ran against stub devices (rule 2). Not verified on real hardware: Companion app pushes with buttons, tag replacement and `clear_notification`; the iOS critical level and the Android channel behaviour; a press on Acknowledge, Snooze or Dismiss coming back as an event; speech through `assist_satellite.announce`, `tts.speak` and `media_player.play_media` on real speakers; popups on a wall tablet; the panel on a touch screen.
 - Not verified: a screen reader on the panel and the popup, and the German, French and Spanish text of the panel on screen.
 - Idea: the delivery trace and the recent messages list are kept in memory only; whether they survive a restart is open (D-118).
+
+## Capabilities from the script comparison (D-124, 2026-11-03)
+- Image on push: Companion field names (`image` on Android, `attachment` on iOS) are not verified; check current docs and add an HA_API_NOTES row.
+- Mail channel: how a recipient maps to a mail target (profile field or the call), which notify service it calls, and how a failure shows in the ledger.
+- Late button presses: whether the button stays on the phone after the push is cleared; if not, which messages need a different lifetime.
+- Delivery-failure event: name, payload and which outcomes fire it (no audience, failed, rate limited).
+- Whether messages without the banner channel count toward `max_banners` (unverified).

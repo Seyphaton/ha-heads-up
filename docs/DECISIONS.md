@@ -761,3 +761,15 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Build details decided without a question: the limits apply to pushes (per device and in total) and to reminders and released deliveries; the dedupe applies to updates on every channel except the banner; critical messages are counted but never suppressed (the proposed behaviour, accepted with "else as proposed"); a suppressed delivery leaves an earlier push in place and clearable, shows as `rate_limited` or `duplicate` in the trace and the log, and does not start a fallback.
 - Restart: Home Assistant keeps the notification bell in memory only (N-90), so the engine puts back the entry of every active message that was shown there. A ledger of the wrong shape no longer stops setup.
 - Home Assistant 2026.10.4 is the development version (tests, mypy, dev instance, `uv.lock`); 2026.9.4 stays the minimum tested version in CI and `hacs.json`. The code imports `probatio as vol` because only that type-checks on 2026.10 and it runs on both (N-91). This supersedes the pin of D-019 and the pytest pin of the test setup.
+
+## D-124 Capabilities taken from the comparison with an existing notification script (2026-11-03)
+- Context: the maintainer compared the hub with a household script that fans one message out to push, speech and mail. Heads Up stays standalone and knows no caller (CLAUDE.md); each item below is generic.
+- Decisions (maintainer), accepted as features, none approved for a phase yet:
+  - Push `image` field: the Companion field names for iOS and Android are checked against current docs first (rule 4).
+  - Speech accepts any Home Assistant area directly, without a speaker group.
+  - A delivery-failure event: fired when a message reaches nobody or a delivery fails. Not needed for parity; for automations that react to failures.
+  - A mail channel: generic (a notify service called once per recipient with a subject and a body), not specific to one mail forwarder.
+  - A bell entry when a speech area has no speaker.
+  - A setting "Disable buttons when the message has ended" (dismissed, acknowledged, condition no longer true). Global only, default on, which is today's behaviour. Off, a late press still fires `heads_up_banner_action`. It does not keep the button on the phone: the push is cleared when the message ends, so alarm-style buttons also need a message that does not end.
+- Decisions (maintainer), declined: a per-call fallback target on `notify` (fallback policies stay the mechanism); a generic "call a service" channel; an `is_critical` flag separate from severity; a normal push volume; title presets and a default title.
+- Parity (CLAUDE.md rule 9): the image, the bell entry and the button setting touch banners from actions and from watch rules; each ships for both or lists an exception in `docs/DESIGN.md` §22.
