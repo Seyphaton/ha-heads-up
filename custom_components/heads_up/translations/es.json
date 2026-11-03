@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Los administradores ven una página de Heads Up en la barra lateral con los ajustes. Puedes cambiarlo en cualquier momento en los ajustes de la integración o en la página Ajustes del panel. Los avisos se crean con la acción `heads_up.create_banner`.",
+        "description": "Los administradores ven una página de Heads Up en la barra lateral con el resumen, los editores y los ajustes. Puedes cambiarlo en cualquier momento en los ajustes de la integración o en la página Ajustes del panel. Los avisos se crean con la acción `heads_up.create_banner`.",
         "data": {
           "show_panel": "Mostrar Heads Up en la barra lateral"
         },
@@ -27,7 +27,7 @@
               "show_panel": "Mostrar Heads Up en la barra lateral"
             },
             "data_description": {
-              "hub_enabled": "Activa o desactiva el hub de notificaciones. Desactivado: solo funciona el canal banner, como antes del hub.",
+              "hub_enabled": "Activa o desactiva el hub de notificaciones. Desactivado: solo funciona el canal banner.",
               "show_panel": "Solo los administradores ven la entrada. Aparece y desaparece al guardar."
             }
           },
@@ -760,7 +760,7 @@
           }
         },
         "reconfigure": {
-          "title": "Audiencia",
+          "title": "Cambiar audiencia",
           "description": "Un grupo de personas con nombre al que pueden dirigirse las llamadas. Personas: una lista fija. Presencia: quién está en casa, fuera, salió el último, llegó el primero o está en una zona en el momento de la llamada.",
           "data": {
             "name": "Nombre",
@@ -807,7 +807,7 @@
           }
         },
         "reconfigure": {
-          "title": "Grupo de destinatarios",
+          "title": "Cambiar grupo de destinatarios",
           "description": "Un conjunto con nombre de altavoces, satélites y áreas para la voz. En las llamadas se llama \"NOMBRE (group)\". Un área representa los altavoces asignados a ella en Home Assistant.",
           "data": {
             "name": "Nombre",
@@ -855,7 +855,7 @@
           }
         },
         "reconfigure": {
-          "title": "Perfil de destinatario",
+          "title": "Cambiar perfil de destinatario",
           "description": "Cada persona tiene un perfil sin configuración: sus dispositivos de la app Companion se encuentran por los rastreadores de la persona. Añada uno solo para cambiar eso: añadir un dispositivo no encontrado, quitar uno, elegir un dispositivo principal o limitar los canales.",
           "data": {
             "devices": "Dispositivos añadidos",
@@ -942,7 +942,7 @@
           }
         },
         "reconfigure": {
-          "title": "Política",
+          "title": "Cambiar política",
           "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\". Horas de silencio: retener, enviar en silencio o descartar envíos en una franja horaria. Ausente: enviar a las personas que no están en casa cuando lleguen. Alternativa: usar otros canales cuando no se pudo avisar a nadie. Resumir: retener mensajes en todos los canales, incluido el banner, y enviar un resumen por destinatario. Entregar: enviar de inmediato los mensajes que coincidan a una audiencia elegida por canales elegidos, además de lo que nombra la llamada.",
           "data": {
             "name": "Nombre",

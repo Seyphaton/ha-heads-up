@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Les administrateurs voient une page Heads Up dans la barre latérale avec les réglages. Vous pouvez le modifier à tout moment dans les réglages de l'intégration ou sur la page Réglages du panneau. Les bannières sont créées par l'action `heads_up.create_banner`.",
+        "description": "Les administrateurs voient une page Heads Up dans la barre latérale avec l'aperçu, les éditeurs et les réglages. Vous pouvez le modifier à tout moment dans les réglages de l'intégration ou sur la page Réglages du panneau. Les bannières sont créées par l'action `heads_up.create_banner`.",
         "data": {
           "show_panel": "Afficher Heads Up dans la barre latérale"
         },
@@ -27,7 +27,7 @@
               "show_panel": "Afficher Heads Up dans la barre latérale"
             },
             "data_description": {
-              "hub_enabled": "Active ou désactive le hub de notifications. Désactivé : seul le canal bannière fonctionne, comme avant le hub.",
+              "hub_enabled": "Active ou désactive le hub de notifications. Désactivé : seul le canal bannière fonctionne.",
               "show_panel": "Seuls les administrateurs voient l'entrée. Elle apparaît et disparaît aussitôt à l'enregistrement."
             }
           },
@@ -760,7 +760,7 @@
           }
         },
         "reconfigure": {
-          "title": "Public",
+          "title": "Modifier le public",
           "description": "Un groupe de personnes nommé que les appels peuvent viser. Personnes : une liste fixe. Présence : qui est à la maison, absent, parti en dernier, arrivé en premier ou dans une zone au moment de l'appel.",
           "data": {
             "name": "Nom",
@@ -807,7 +807,7 @@
           }
         },
         "reconfigure": {
-          "title": "Groupe de destinataires",
+          "title": "Modifier le groupe de destinataires",
           "description": "Un ensemble nommé d'enceintes, de satellites et de zones pour la voix. Dans les appels il s'appelle « NOM (group) ». Une pièce représente les enceintes qui lui sont attribuées dans Home Assistant.",
           "data": {
             "name": "Nom",
@@ -855,7 +855,7 @@
           }
         },
         "reconfigure": {
-          "title": "Profil de destinataire",
+          "title": "Modifier le profil de destinataire",
           "description": "Chaque personne a un profil sans configuration : ses appareils de l'application Companion sont trouvés par les suivis de la personne. N'en ajoutez un que pour modifier cela : ajouter un appareil non trouvé, en retirer un, choisir un appareil principal ou limiter les canaux.",
           "data": {
             "devices": "Appareils ajoutés",
@@ -942,7 +942,7 @@
           }
         },
         "reconfigure": {
-          "title": "Politique",
+          "title": "Modifier la politique",
           "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\". Heures calmes : retenir, envoyer discrètement ou abandonner les envois dans une plage horaire. Absent : envoyer aux personnes qui ne sont pas à la maison à leur arrivée. Repli : utiliser d'autres canaux quand personne n'a pu être notifié. Résumer : retenir les messages sur tous les canaux, bannière comprise, et envoyer un résumé par destinataire. Livrer : envoyer tout de suite les messages concernés à une audience choisie sur des canaux choisis, en plus de ce que l'appel nomme.",
           "data": {
             "name": "Nom",

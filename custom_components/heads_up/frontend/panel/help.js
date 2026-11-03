@@ -74,7 +74,7 @@ export const STRINGS = {
     copied: "Copied.",
     copy_failed: "Copying is not possible here. Select the text.",
     ex: {
-      e1: { title: "1. Banner only, as before the hub", note: "No hub object is needed. Nothing else is sent." },
+      e1: { title: "1. Banner only", note: "No hub object is needed. Nothing else is sent." },
       e2: { title: "2. Banner and push, policies add the rest", note: "Policies that match the severity and the tag apply as well, for example an escalation to Admins after 5 minutes." },
       e3: { title: "3. Push, speech and persistent notification together", note: "Each channel has its own target. The persistent notification needs none." },
       e4: { title: "4. One call, no policy", note: "Speech on one speaker, ignoring every policy." },
@@ -104,7 +104,7 @@ export const STRINGS = {
     copied: "Kopiert.",
     copy_failed: "Kopieren ist hier nicht möglich. Markiere den Text.",
     ex: {
-      e1: { title: "1. Nur Banner, wie vor dem Hub", note: "Es braucht kein Hub-Objekt. Es wird nichts anderes gesendet." },
+      e1: { title: "1. Nur Banner", note: "Es braucht kein Hub-Objekt. Es wird nichts anderes gesendet." },
       e2: { title: "2. Banner und Push, Richtlinien ergänzen den Rest", note: "Richtlinien, die zu Schweregrad und Tag passen, gelten ebenfalls, zum Beispiel eine Eskalation an Admins nach 5 Minuten." },
       e3: { title: "3. Push, Sprache und dauerhafte Benachrichtigung zusammen", note: "Jeder Kanal hat sein eigenes Ziel. Die dauerhafte Benachrichtigung braucht keines." },
       e4: { title: "4. Ein Aufruf ohne Richtlinie", note: "Sprache auf einem Lautsprecher, alle Richtlinien werden ignoriert." },
@@ -134,7 +134,7 @@ export const STRINGS = {
     copied: "Copié.",
     copy_failed: "La copie n'est pas possible ici. Sélectionnez le texte.",
     ex: {
-      e1: { title: "1. Bannière seule, comme avant le hub", note: "Aucun objet du hub n'est nécessaire. Rien d'autre n'est envoyé." },
+      e1: { title: "1. Bannière seule", note: "Aucun objet du hub n'est nécessaire. Rien d'autre n'est envoyé." },
       e2: { title: "2. Bannière et push, les politiques ajoutent le reste", note: "Les politiques qui correspondent à la gravité et à l'étiquette s'appliquent aussi, par exemple une escalade vers Admins après 5 minutes." },
       e3: { title: "3. Push, voix et notification persistante ensemble", note: "Chaque canal a sa propre cible. La notification persistante n'en a pas besoin." },
       e4: { title: "4. Un appel, sans politique", note: "Voix sur un haut-parleur, en ignorant toutes les politiques." },
@@ -164,7 +164,7 @@ export const STRINGS = {
     copied: "Copiado.",
     copy_failed: "No se puede copiar aquí. Selecciona el texto.",
     ex: {
-      e1: { title: "1. Solo aviso, como antes del hub", note: "No hace falta ningún objeto del hub. No se envía nada más." },
+      e1: { title: "1. Solo aviso", note: "No hace falta ningún objeto del hub. No se envía nada más." },
       e2: { title: "2. Aviso y push, las políticas añaden el resto", note: "Las políticas que coinciden con la gravedad y la etiqueta también se aplican, por ejemplo un escalado a Admins tras 5 minutos." },
       e3: { title: "3. Push, voz y notificación persistente juntos", note: "Cada canal tiene su propio destino. La notificación persistente no necesita ninguno." },
       e4: { title: "4. Una llamada sin política", note: "Voz en un altavoz, ignorando todas las políticas." },

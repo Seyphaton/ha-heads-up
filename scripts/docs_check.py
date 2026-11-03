@@ -128,6 +128,33 @@ def check_style(files: list[Path]) -> list[str]:
     return errors
 
 
+UI_STRINGS = ROOT / "custom_components" / "heads_up" / "strings.json"
+UI_HISTORY = re.compile(
+    r"\b(as before|before the hub|existed|later,|not (built|available) yet|no \w+ yet|"
+    r"in this version|work in progress)\b",
+    re.IGNORECASE,
+)
+
+
+def check_ui_strings() -> list[str]:
+    """English UI texts follow the same rules as the user pages: current behaviour only."""
+    import json
+
+    errors: list[str] = []
+
+    def walk(node: Any, path: str) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                walk(value, f"{path}.{key}" if path else key)
+        elif isinstance(node, str):
+            for regex in (UI_HISTORY, BANNED_RE, STYLE_RULES[0][0]):
+                if m := regex.search(node):
+                    errors.append(f"strings.json {path}: {m.group(0)!r}")
+
+    walk(json.loads(UI_STRINGS.read_text(encoding="utf-8")), "")
+    return errors
+
+
 def human_docs(files: list[Path]) -> list[Path]:
     """README and user pages; design/dev docs may show planned fields and are not checked."""
     internal = {"DESIGN.md", "DECISIONS.md", "OPEN_QUESTIONS.md"}
@@ -309,7 +336,7 @@ def main() -> int:
     panel_errors, panel_examples = check_panel_examples()
     examples += panel_examples
     errors += example_errors + panel_errors + check_field_parity() + check_card_options(files)
-    errors += check_style(files)
+    errors += check_style(files) + check_ui_strings()
     for e in errors:
         print(e)
     print(f"docs-check: {len(files)} files, {examples} examples validated, {len(errors)} errors")

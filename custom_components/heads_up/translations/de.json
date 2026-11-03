@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Administratoren sehen eine Heads-Up-Seite in der Seitenleiste mit den Einstellungen. Du kannst das jederzeit in den Einstellungen der Integration oder auf der Einstellungsseite des Panels ändern. Banner werden mit der Aktion `heads_up.create_banner` erstellt.",
+        "description": "Administratoren sehen eine Heads-Up-Seite in der Seitenleiste mit Übersicht, Editoren und Einstellungen. Du kannst das jederzeit in den Einstellungen der Integration oder auf der Einstellungsseite des Panels ändern. Banner werden mit der Aktion `heads_up.create_banner` erstellt.",
         "data": {
           "show_panel": "Heads Up in der Seitenleiste anzeigen"
         },
@@ -27,7 +27,7 @@
               "show_panel": "Heads Up in der Seitenleiste anzeigen"
             },
             "data_description": {
-              "hub_enabled": "Benachrichtigungs-Hub ein- oder ausschalten. Aus: nur der Banner-Kanal funktioniert, wie vor dem Hub.",
+              "hub_enabled": "Benachrichtigungs-Hub ein- oder ausschalten. Aus: nur der Banner-Kanal funktioniert.",
               "show_panel": "Nur Administratoren sehen den Eintrag. Er erscheint und verschwindet sofort beim Speichern."
             }
           },
@@ -760,7 +760,7 @@
           }
         },
         "reconfigure": {
-          "title": "Zielgruppe",
+          "title": "Zielgruppe ändern",
           "description": "Eine benannte Personengruppe, die Aufrufe ansprechen können. Personen: eine feste Liste. Anwesenheit: wer zum Zeitpunkt des Aufrufs zu Hause, nicht zu Hause, als Letzter gegangen, als Erster angekommen oder in einer Zone ist.",
           "data": {
             "name": "Name",
@@ -807,7 +807,7 @@
           }
         },
         "reconfigure": {
-          "title": "Empfängergruppe",
+          "title": "Empfängergruppe ändern",
           "description": "Eine benannte Menge von Lautsprechern, Satelliten und Bereichen für Sprache. In Aufrufen heißt sie \"NAME (group)\". Ein Bereich steht für die ihm in Home Assistant zugewiesenen Lautsprecher.",
           "data": {
             "name": "Name",
@@ -855,7 +855,7 @@
           }
         },
         "reconfigure": {
-          "title": "Empfängerprofil",
+          "title": "Empfängerprofil ändern",
           "description": "Jede Person hat ohne Einrichtung ein Profil: Ihre Companion-App-Geräte werden über die Tracker der Person gefunden. Ein Profil ist nur nötig, um das zu ändern: ein nicht gefundenes Gerät hinzufügen, eines entfernen, ein Hauptgerät wählen oder die Kanäle einschränken.",
           "data": {
             "devices": "Hinzugefügte Geräte",
@@ -942,7 +942,7 @@
           }
         },
         "reconfigure": {
-          "title": "Richtlinie",
+          "title": "Richtlinie ändern",
           "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte. Zusammenfassen: Meldungen auf allen Kanälen, auch dem Banner, zurückhalten und eine Zusammenfassung je Empfänger senden. Zustellen: passende Meldungen sofort an eine gewählte Zielgruppe auf gewählten Kanälen senden, zusätzlich zu dem, was der Aufruf nennt.",
           "data": {
             "name": "Name",

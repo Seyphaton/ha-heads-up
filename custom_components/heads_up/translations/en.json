@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Administrators see a Heads Up page in the sidebar with Settings and, later, the editors. You can change this at any time in the settings of the integration or on the Settings page of the panel. Banners are created by the `heads_up.create_banner` action.",
+        "description": "Administrators see a Heads Up page in the sidebar with the overview, the editors and the settings. You can change this at any time in the settings of the integration or on the Settings page of the panel. Banners are created by the `heads_up.create_banner` action.",
         "data": {
           "show_panel": "Show Heads Up in the sidebar"
         },
@@ -27,7 +27,7 @@
               "show_panel": "Show Heads Up in the sidebar"
             },
             "data_description": {
-              "hub_enabled": "Switch the notification hub on or off. Off: only the banner channel works, as before the hub existed.",
+              "hub_enabled": "Switch the notification hub on or off. Off: only the banner channel works.",
               "show_panel": "Only administrators see the entry. It appears and disappears at once when you save."
             }
           },
@@ -760,7 +760,7 @@
           }
         },
         "reconfigure": {
-          "title": "Audience",
+          "title": "Change audience",
           "description": "A named group of people that calls can address. Persons: a fixed list. Presence: whoever is at home, not home, the last to leave, the first home, or in a zone, at the moment of the call.",
           "data": {
             "name": "Name",
@@ -807,7 +807,7 @@
           }
         },
         "reconfigure": {
-          "title": "Recipient group",
+          "title": "Change recipient group",
           "description": "A named set of speakers, satellites and areas for speech. In calls it is named \"NAME (group)\". An area stands for the speakers assigned to it in Home Assistant.",
           "data": {
             "name": "Name",
@@ -855,7 +855,7 @@
           }
         },
         "reconfigure": {
-          "title": "Recipient profile",
+          "title": "Change recipient profile",
           "description": "Every person has a profile without any setup: their Companion app devices are found from the person's trackers. Add one only to change that: add a device that was not found, remove one, pick a primary device or limit the channels.",
           "data": {
             "devices": "Added devices",
@@ -942,7 +942,7 @@
           }
         },
         "reconfigure": {
-          "title": "Policy",
+          "title": "Change policy",
           "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: use other channels when nobody could be notified. Summarize: hold messages on every channel, including the banner, and send one summary per recipient. Deliver: send matching messages to a chosen audience on chosen channels at once, in addition to what the call names.",
           "data": {
             "name": "Name",
