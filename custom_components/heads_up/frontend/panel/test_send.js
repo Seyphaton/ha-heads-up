@@ -529,7 +529,7 @@ export function mount(container, ctx) {
   }
 
   function resultNode() {
-    const box = el("section", {}, [el("h2", { textContent: t.result })]);
+    const box = el("section", { className: "hu-result" }, [el("h2", { textContent: t.result })]);
     const problems = validate(values);
     if (problems.length) {
       box.append(el("div", { className: "hint problems", textContent: problems.map((p) => fill(t.problems[p.code], { channel: p.channel ? channelLabel(p.channel) : "" })).join(" ") }));
@@ -585,7 +585,7 @@ export function mount(container, ctx) {
   }
 
   function yamlNode() {
-    const box = el("section", {}, [el("h2", { textContent: t.yaml })]);
+    const box = el("section", { className: "hu-yaml" }, [el("h2", { textContent: t.yaml })]);
     const valid = validate(values).length === 0;
     box.append(el("pre", { textContent: callYaml(values, ui.toYaml) }));
     const copy = el("button", { type: "button", textContent: t.copy });
@@ -624,10 +624,12 @@ export function mount(container, ctx) {
   }
 
   function repaintResult() {
-    const boxes = [...root.querySelectorAll("section")];
-    if (boxes.length < 5) return;
-    boxes[3].replaceWith(resultNode());
-    boxes[4].replaceWith(yamlNode());
+    // Found by class, not by position: a section added to the form must not shift what is replaced.
+    const resultBox = root.querySelector("section.hu-result");
+    const yamlBox = root.querySelector("section.hu-yaml");
+    if (!resultBox || !yamlBox) return;
+    resultBox.replaceWith(resultNode());
+    yamlBox.replaceWith(yamlNode());
   }
 
   async function runPreview() {
