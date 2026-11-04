@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ackText,
   blankValues,
   buildCall,
   callYaml,
@@ -28,6 +29,21 @@ describe("test send call", () => {
   it("adds title, tag, policy and trims the text", () => {
     const call = buildCall(values({ message: "  Door open ", title: " Garage ", tag: "door", policy: "none" }));
     expect(call).toEqual({ message: "Door open", title: "Garage", tag: "door", policy: "none", severity: "warning", channels: ["banner"] });
+  });
+
+  it("adds the dismiss and snooze choices only when they differ from the defaults", () => {
+    expect(buildCall(values({ dismiss_scope: "global", snoozable: true }))).toMatchObject({ dismiss_scope: "global", snoozable: true });
+    const pinned = buildCall(values({ dismissible: false, dismiss_scope: "global", snoozable: true }));
+    expect(pinned.dismissible).toBe(false);
+    expect(pinned.dismiss_scope).toBeUndefined();
+    expect(pinned.snoozable).toBeUndefined();
+    expect(buildCall(values({ dismissible: true }))).not.toHaveProperty("dismissible");
+  });
+
+  it("says whether anything waits for an acknowledgement, and how to make it so", () => {
+    expect(ackText(["Water escalation", "Critical reminder"], T)).toContain("Water escalation, Critical reminder");
+    expect(ackText([], T)).toContain("add an Escalation or Reminder policy");
+    expect(ackText(undefined, T)).toBe(ackText([], T));
   });
 
   it("sends the spoken text only when speech is a channel", () => {
@@ -125,7 +141,7 @@ describe("test send wording", () => {
     expect(laterText({ type: "away", policy: "Back", max_wait: 0 }, T, S)).toBe("Away Back: people who are not home get it when they arrive.");
     expect(laterText({ type: "away", policy: "Back", max_wait: 20 }, T, S)).toBe("Away Back: people who are not home get it when they arrive, for at most 20 min.");
     expect(laterText({ type: "fallback", policy: "Backup", when: "failed", channels: ["persistent"] }, T, S)).toBe(
-      "Fallback Backup: if delivery fails, it is sent on Persistent HASS Notification instead.",
+      "Fallback Backup: if delivery fails, it is sent on Persistent Notification instead.",
     );
     expect(laterText({ type: "summarize", policy: "Digest", summary_every: 60 }, T, S)).toBe("Summary Digest: one summary 60 min after the first held message.");
     expect(laterText({ type: "summarize", policy: "Evening", summary_at: "20:00:00" }, T, S)).toBe("Summary Evening: one summary every day at 20:00.");

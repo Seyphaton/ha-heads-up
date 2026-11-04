@@ -80,7 +80,6 @@ describe("welcome", () => {
   });
 
   const config = {
-    hub: true,
     profiles: [{ devices: [{}, {}] }, { devices: [{}] }, { devices: [] }],
     choices: { persons: [{}, {}, {}], speakers: ["media_player.a"] },
     channels: { mail_service: "" },
@@ -91,7 +90,6 @@ describe("welcome", () => {
   it("counts what the tour shows from the panel config", () => {
     expect(setupSummary(config)).toEqual({ persons: 3, devices: 3, withDevice: 2, speakers: 1, mail: false, audiences: 1, groups: 1 });
     expect(setupSummary(null)).toBeNull();
-    expect(setupSummary({ ...config, hub: false })).toBeNull();
   });
 
   it("words what was found per channel and shows nothing without numbers", () => {

@@ -330,10 +330,6 @@ export function mount(container, ctx) {
 
   function render() {
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
-    if (!data.hub) {
-      root.append(el("div", { className: "hint", textContent: s.common.hub_off }));
-      return;
-    }
     root.append(el("div", { className: "hint", textContent: t.intro }));
     if (editing) root.append(editorNode());
     else root.append(...listNode());

@@ -332,10 +332,6 @@ export function mount(container, ctx) {
 
   function render() {
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
-    if (!data.hub) {
-      root.append(el("div", { className: "hint", textContent: s.common.hub_off }));
-      return;
-    }
     if (profile) return void root.append(profileEditor());
     if (group) return void root.append(groupEditor());
     root.append(el("div", { className: "hint", textContent: t.intro }));

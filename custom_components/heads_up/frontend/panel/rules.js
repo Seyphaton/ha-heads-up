@@ -4,7 +4,7 @@
 export const STRINGS = {
   en: {
     title: "Watch rules",
-    intro: "A watch rule shows a banner while an entity is in a state, or while a template is true. It needs no automation. The banner shows on every Heads Up card for the people you choose.",
+    intro: "A watch rule shows a banner while an entity is in a state, or while a template is true.\n\n- When the condition no longer holds, Heads Up removes the banner by itself.\n- Rules are stored in Heads Up, not in a dashboard. Several cards with different filters share the same rules and messages without copying them.\n\nAn automation can do the same: a trigger that calls heads_up.create_banner, or heads_up.notify with the banner channel, with the condition filled in.",
     none: "You have no watch rules yet.",
     showing: "Showing now",
     not_showing: "Not showing",
@@ -57,7 +57,7 @@ export const STRINGS = {
   },
   de: {
     title: "Überwachungsregeln",
-    intro: "Eine Überwachungsregel zeigt ein Banner, solange eine Entität einen Zustand hat oder eine Vorlage wahr ist. Sie braucht keine Automation. Das Banner erscheint auf jeder Heads-Up-Karte für die Personen, die du wählst.",
+    intro: "Eine Überwachungsregel zeigt ein Banner, solange eine Entität einen Zustand hat oder eine Vorlage wahr ist.\n\n- Gilt die Bedingung nicht mehr, entfernt Heads Up das Banner von selbst.\n- Regeln liegen in Heads Up, nicht in einem Dashboard. Mehrere Karten mit unterschiedlichen Filtern nutzen dieselben Regeln und Meldungen, ohne sie zu kopieren.\n\nEine Automation kann dasselbe: ein Auslöser, der heads_up.create_banner oder heads_up.notify mit dem Kanal Banner aufruft, mit ausgefüllter Bedingung.",
     none: "Du hast noch keine Überwachungsregeln.",
     showing: "Wird gezeigt",
     not_showing: "Wird nicht gezeigt",
@@ -110,7 +110,7 @@ export const STRINGS = {
   },
   fr: {
     title: "Règles de surveillance",
-    intro: "Une règle de surveillance affiche une bannière tant qu'une entité est dans un état, ou tant qu'un modèle est vrai. Elle n'a pas besoin d'automatisation. La bannière apparaît sur chaque carte Heads Up pour les personnes que vous choisissez.",
+    intro: "Une règle de surveillance affiche une bannière tant qu'une entité est dans un état, ou tant qu'un modèle est vrai.\n\n- Quand la condition n'est plus vraie, Heads Up retire la bannière tout seul.\n- Les règles sont stockées dans Heads Up, pas dans un tableau de bord. Plusieurs cartes avec des filtres différents partagent les mêmes règles et messages sans les copier.\n\nUne automatisation peut faire la même chose : un déclencheur qui appelle heads_up.create_banner, ou heads_up.notify avec le canal bannière, avec la condition renseignée.",
     none: "Vous n'avez pas encore de règle de surveillance.",
     showing: "Affichée",
     not_showing: "Non affichée",
@@ -163,7 +163,7 @@ export const STRINGS = {
   },
   es: {
     title: "Reglas de vigilancia",
-    intro: "Una regla de vigilancia muestra un aviso mientras una entidad está en un estado, o mientras una plantilla es verdadera. No necesita automatización. El aviso aparece en cada tarjeta Heads Up para las personas que elijas.",
+    intro: "Una regla de vigilancia muestra un aviso mientras una entidad está en un estado, o mientras una plantilla es verdadera.\n\n- Cuando la condición deja de cumplirse, Heads Up quita el aviso solo.\n- Las reglas se guardan en Heads Up, no en un panel. Varias tarjetas con filtros distintos comparten las mismas reglas y mensajes sin copiarlos.\n\nUna automatización puede hacer lo mismo: un disparador que llama a heads_up.create_banner, o a heads_up.notify con el canal aviso, con la condición rellenada.",
     none: "Aún no tienes reglas de vigilancia.",
     showing: "Mostrándose",
     not_showing: "No se muestra",
@@ -444,7 +444,7 @@ export function mount(container, ctx) {
 
   function render() {
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
-    root.append(el("div", { className: "hint", textContent: t.intro }));
+    root.append(ui.richNode(t.intro, { className: "hint" }));
     if (editing) return void root.append(editor());
     const list = el("ul", { className: "list" }, data.rules.length ? data.rules.map(row) : [el("li", { className: "sub", textContent: t.none })]);
     const add = el("button", { type: "button", className: "primary", textContent: s.common.add });

@@ -23,7 +23,52 @@ export function helpTip(label, text) {
   return { button, note };
 }
 
+// Longer explanations are plain text with paragraphs (a blank line) and bullets ("- " at the start of
+// a line). Home Assistant's own forms show the same strings as Markdown, so one text serves both. The
+// text is never parsed as HTML.
+export function parseRich(text) {
+  const blocks = [];
+  let paragraph = [];
+  let list = null;
+  const flush = () => {
+    if (paragraph.length) blocks.push({ type: "p", text: paragraph.join(" ") });
+    paragraph = [];
+  };
+  for (const raw of String(text ?? "").split("\n")) {
+    const line = raw.trim();
+    if (!line) {
+      flush();
+      list = null;
+    } else if (line.startsWith("- ")) {
+      flush();
+      if (!list) {
+        list = { type: "ul", items: [] };
+        blocks.push(list);
+      }
+      list.items.push(line.slice(2));
+    } else {
+      list = null;
+      paragraph.push(line);
+    }
+  }
+  flush();
+  return blocks;
+}
+
+export function richNode(text, props = {}) {
+  const box = el("div", { ...props, className: `rich ${props.className || ""}`.trim() });
+  for (const block of parseRich(text)) {
+    if (block.type === "p") box.append(el("p", { textContent: block.text }));
+    else box.append(el("ul", {}, block.items.map((item) => el("li", { textContent: item }))));
+  }
+  return box;
+}
+
 export const BASE_CSS = `
+.hu-page .rich p { margin: 0 0 8px; }
+.hu-page .rich ul { margin: 0 0 8px; padding-left: 20px; list-style: disc; }
+.hu-page .rich li { margin: 3px 0; padding: 0; border: 0; }
+.hu-page .rich > :last-child { margin-bottom: 0; }
 .hu-page section, .hu-page .card { background: var(--card-background-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
 .hu-page h1 { font-size: 22px; margin: 0 0 16px; }
 .hu-page h2 { font-size: 16px; margin: 0 0 8px; }
@@ -308,7 +353,7 @@ export function chips(legend, options, selected, onChange, scroll = false) {
 
 export function field(label, control, hint) {
   const wrap = el("label", { className: "field" }, [el("span", { textContent: label }), control]);
-  if (hint) wrap.append(el("span", { className: "hint", textContent: hint }));
+  if (hint) wrap.append(hint.includes("\n") ? richNode(hint, { className: "hint" }) : el("span", { className: "hint", textContent: hint }));
   return wrap;
 }
 

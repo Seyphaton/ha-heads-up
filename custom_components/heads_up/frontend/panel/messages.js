@@ -1,8 +1,8 @@
-// Heads Up panel: Messages page (D-118): recent messages and the delivery trace of one.
+// Heads Up panel: Message Log page (D-118): recent messages and the delivery trace of one.
 
 export const STRINGS = {
   en: {
-    title: "Messages",
+    title: "Message Log",
     recent: "Recent messages",
     recent_hint: "Kept in memory; the list starts empty after a restart.",
     none: "No message yet.",
@@ -34,7 +34,7 @@ export const STRINGS = {
     results: { sent: "sent", held: "held", skipped: "skipped", failed: "failed" },
   },
   de: {
-    title: "Meldungen",
+    title: "Meldungsprotokoll",
     recent: "Letzte Meldungen",
     recent_hint: "Im Speicher gehalten; die Liste ist nach einem Neustart leer.",
     none: "Noch keine Meldung.",
@@ -66,7 +66,7 @@ export const STRINGS = {
     results: { sent: "gesendet", held: "zurückgehalten", skipped: "übersprungen", failed: "fehlgeschlagen" },
   },
   fr: {
-    title: "Messages",
+    title: "Journal des messages",
     recent: "Messages récents",
     recent_hint: "Gardés en mémoire ; la liste est vide après un redémarrage.",
     none: "Aucun message pour l'instant.",
@@ -98,7 +98,7 @@ export const STRINGS = {
     results: { sent: "envoyé", held: "retenu", skipped: "ignoré", failed: "échec" },
   },
   es: {
-    title: "Mensajes",
+    title: "Registro de mensajes",
     recent: "Mensajes recientes",
     recent_hint: "Se guardan en memoria; la lista está vacía tras un reinicio.",
     none: "Aún no hay mensajes.",

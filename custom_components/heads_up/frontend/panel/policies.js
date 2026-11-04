@@ -39,7 +39,7 @@ export const STRINGS = {
     severities: "Severities (none selected: any)",
     tags: "Tags, comma separated (empty: any)",
     severity_names: { success: "Success", info: "Info", warning: "Warning", critical: "Critical" },
-    channel_names: { push: "Push", popup: "Popup", speak: "Speak", persistent: "Persistent HASS Notification", mail: "Mail" },
+    channel_names: { push: "Push", popup: "Popup", speak: "Speak", persistent: "Persistent Notification", mail: "Mail" },
     after: "Escalate after (minutes)",
     channels: "Channels",
     channels_reminder: "Limit to these channels (none selected: all)",
@@ -108,7 +108,7 @@ export const STRINGS = {
     severities: "Schweregrade (keiner gewählt: alle)",
     tags: "Tags, durch Komma getrennt (leer: alle)",
     severity_names: { success: "Erfolg", info: "Info", warning: "Warnung", critical: "Kritisch" },
-    channel_names: { push: "Push", popup: "Popup", speak: "Sprache", persistent: "Persistente HASS-Benachrichtigung", mail: "E-Mail" },
+    channel_names: { push: "Push", popup: "Popup", speak: "Sprache", persistent: "Persistente Benachrichtigung", mail: "E-Mail" },
     after: "Eskalieren nach (Minuten)",
     channels: "Kanäle",
     channels_reminder: "Auf diese Kanäle beschränken (keiner gewählt: alle)",
@@ -177,7 +177,7 @@ export const STRINGS = {
     severities: "Gravités (aucune choisie : toutes)",
     tags: "Étiquettes, séparées par des virgules (vide : toutes)",
     severity_names: { success: "Succès", info: "Info", warning: "Avertissement", critical: "Critique" },
-    channel_names: { push: "Push", popup: "Fenêtre", speak: "Voix", persistent: "Notification persistante HASS", mail: "Courriel" },
+    channel_names: { push: "Push", popup: "Fenêtre", speak: "Voix", persistent: "Notification persistante", mail: "Courriel" },
     after: "Escalader après (minutes)",
     channels: "Canaux",
     channels_reminder: "Limiter à ces canaux (aucun choisi : tous)",
@@ -246,7 +246,7 @@ export const STRINGS = {
     severities: "Gravedades (ninguna elegida: todas)",
     tags: "Etiquetas, separadas por comas (vacío: todas)",
     severity_names: { success: "Éxito", info: "Info", warning: "Aviso", critical: "Crítico" },
-    channel_names: { push: "Push", popup: "Ventana", speak: "Voz", persistent: "Notificación persistente de HASS", mail: "Correo" },
+    channel_names: { push: "Push", popup: "Ventana", speak: "Voz", persistent: "Notificación persistente", mail: "Correo" },
     after: "Escalar tras (minutos)",
     channels: "Canales",
     channels_reminder: "Limitar a estos canales (ninguno elegido: todos)",
@@ -612,10 +612,6 @@ export function mount(container, ctx) {
 
   function render() {
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
-    if (!data.hub) {
-      root.append(el("div", { className: "hint", textContent: s.common.hub_off }));
-      return;
-    }
     root.append(el("div", { className: "hint", textContent: t.intro }));
     if (editing) return void root.append(editor());
     const list = el("ul", { className: "list" }, data.policies.length ? data.policies.map(row) : [el("li", { className: "sub", textContent: t.none })]);

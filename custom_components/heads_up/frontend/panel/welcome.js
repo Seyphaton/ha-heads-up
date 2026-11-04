@@ -15,7 +15,7 @@ export const STRINGS = {
     page_audiences: "Audiences",
     page_recipients: "Recipients",
     intro_title: "The right message, to the right people, at the right time",
-    intro_lead: "Your automations make one call. Heads Up decides where the message shows up, who gets it and how loud it is.",
+    intro_lead: "Your automations make one call. Heads Up orchestrates where the message shows up, who gets it, and when it is delivered or escalated.",
     intro_where: "Where",
     intro_where_text: "A banner on your dashboards, a push on phones, a popup on any open dashboard, speech on speakers, mail, or the entry in Home Assistant's own notification list.",
     intro_who: "Who",
@@ -60,7 +60,6 @@ export const STRINGS = {
     created: "Created: {added}.",
     skipped: "Already there or the same as one you have: {skipped}.",
     nothing: "nothing",
-    hub_off: "The hub is switched off. Switch it on in Settings to use the defaults.",
     failed: "Could not create the policies. Try again.",
   },
   de: {
@@ -75,7 +74,7 @@ export const STRINGS = {
     page_audiences: "Zielgruppen",
     page_recipients: "Empfänger",
     intro_title: "Die richtige Meldung, an die richtigen Leute, zur richtigen Zeit",
-    intro_lead: "Deine Automationen machen einen Aufruf. Heads Up entscheidet, wo die Meldung erscheint, wer sie bekommt und wie laut sie ist.",
+    intro_lead: "Deine Automationen machen einen Aufruf. Heads Up orchestriert, wo die Meldung erscheint, wer sie bekommt und wann sie zugestellt oder eskaliert wird.",
     intro_where: "Wo",
     intro_where_text: "Ein Banner auf deinen Dashboards, ein Push aufs Handy, ein Popup auf jedem offenen Dashboard, Sprache auf Lautsprechern, E-Mail oder der Eintrag in der Benachrichtigungsliste von Home Assistant.",
     intro_who: "Wer",
@@ -120,7 +119,6 @@ export const STRINGS = {
     created: "Erstellt: {added}.",
     skipped: "Schon vorhanden oder wie eine, die du hast: {skipped}.",
     nothing: "nichts",
-    hub_off: "Der Hub ist ausgeschaltet. Schalte ihn in den Einstellungen ein, um die Standards zu nutzen.",
     failed: "Die Richtlinien konnten nicht erstellt werden. Versuche es erneut.",
   },
   fr: {
@@ -135,7 +133,7 @@ export const STRINGS = {
     page_audiences: "Audiences",
     page_recipients: "Destinataires",
     intro_title: "Le bon message, aux bonnes personnes, au bon moment",
-    intro_lead: "Vos automatisations font un seul appel. Heads Up décide où le message apparaît, qui le reçoit et avec quelle force.",
+    intro_lead: "Vos automatisations font un seul appel. Heads Up orchestre où le message apparaît, qui le reçoit, et quand il est livré ou escaladé.",
     intro_where: "Où",
     intro_where_text: "Une bannière sur vos tableaux de bord, un push sur les téléphones, une fenêtre sur tout tableau de bord ouvert, la voix sur des haut-parleurs, un mail, ou l'entrée dans la liste de notifications de Home Assistant.",
     intro_who: "Qui",
@@ -180,7 +178,6 @@ export const STRINGS = {
     created: "Créé : {added}.",
     skipped: "Déjà là ou identique à l'une des vôtres : {skipped}.",
     nothing: "rien",
-    hub_off: "Le hub est désactivé. Activez-le dans Réglages pour utiliser les réglages par défaut.",
     failed: "Les politiques n'ont pas pu être créées. Réessayez.",
   },
   es: {
@@ -195,7 +192,7 @@ export const STRINGS = {
     page_audiences: "Audiencias",
     page_recipients: "Destinatarios",
     intro_title: "El mensaje justo, a las personas justas, en el momento justo",
-    intro_lead: "Tus automatizaciones hacen una sola llamada. Heads Up decide dónde aparece el mensaje, quién lo recibe y con qué fuerza.",
+    intro_lead: "Tus automatizaciones hacen una sola llamada. Heads Up orquesta dónde aparece el mensaje, quién lo recibe y cuándo se entrega o se escala.",
     intro_where: "Dónde",
     intro_where_text: "Un aviso en tus paneles, un push en los móviles, una ventana sobre cualquier panel abierto, voz en altavoces, correo, o la entrada en la lista de notificaciones de Home Assistant.",
     intro_who: "Quién",
@@ -240,7 +237,6 @@ export const STRINGS = {
     created: "Creado: {added}.",
     skipped: "Ya existe o es igual a una tuya: {skipped}.",
     nothing: "nada",
-    hub_off: "El hub está desactivado. Actívalo en Ajustes para usar los valores por defecto.",
     failed: "No se pudieron crear las políticas. Inténtalo de nuevo.",
   },
 };
@@ -274,7 +270,7 @@ export function resultText(result, t) {
 // What the tour shows about this Home Assistant, from `heads_up/panel_config`; null when that
 // call failed, in which case the tour shows no numbers.
 export function setupSummary(config) {
-  if (!config || !config.hub) return null;
+  if (!config) return null;
   const profiles = config.profiles || [];
   return {
     persons: (config.choices?.persons || profiles).length,
@@ -353,7 +349,7 @@ export async function open(host, ctx) {
   const { t, hass, ui } = ctx;
   const data = await hass.callWS({ type: "heads_up/welcome_get" });
   if (!ctx.force && !data.show) return null;
-  const summary = data.hub ? setupSummary(await hass.callWS({ type: "heads_up/panel_config" }).catch(() => null)) : null;
+  const summary = setupSummary(await hass.callWS({ type: "heads_up/panel_config" }).catch(() => null));
   const state = { on: Object.fromEntries(ITEMS.map((id) => [id, true])), audience: data.default_audience, speakers: [], step: Math.min(Math.max(ctx.step || 0, 0), STEPS.length - 1) };
   const scrim = el("div", { className: "hu-scrim" });
   const dialog = el("div", { className: "hu-dialog", role: "dialog" });
@@ -480,10 +476,6 @@ export async function open(host, ctx) {
   }
 
   function render(message = "", done = false) {
-    if (!data.hub) {
-      dialog.replaceChildren(el("h2", { textContent: t.title }), el("div", { className: "hint", textContent: t.hub_off }), el("div", { className: "row" }, [button(t.close, close, "primary")]));
-      return;
-    }
     if (done) {
       dialog.replaceChildren(el("h2", { textContent: t.title }), el("p", { textContent: message }));
       const closeButton = button(t.close, close, "primary");

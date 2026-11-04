@@ -25,7 +25,6 @@ export const STRINGS = {
     saved: "Saved.",
     failed: "Could not save. Try again.",
     valid: "No problems.",
-    hub_off: "The hub is switched off. Switch it on in Settings to edit this.",
     bad_channel_id: "The channel name uses lower-case letters, digits and underscores, up to 40 characters.",
     mail: "Mail",
     mail_intro: "Mail calls a notify service once per recipient with a subject and a body. A person's address is set under Recipients, where Mail must be switched on for them.",
@@ -64,7 +63,6 @@ export const STRINGS = {
     saved: "Gespeichert.",
     failed: "Speichern fehlgeschlagen. Versuche es erneut.",
     valid: "Keine Probleme.",
-    hub_off: "Der Hub ist ausgeschaltet. Schalte ihn in den Einstellungen ein, um dies zu bearbeiten.",
     bad_channel_id: "Der Kanalname besteht aus Kleinbuchstaben, Ziffern und Unterstrichen, höchstens 40 Zeichen.",
     mail: "E-Mail",
     mail_intro: "E-Mail ruft einen Benachrichtigungsdienst einmal pro Empfänger mit Betreff und Text auf. Die Adresse einer Person stellst du unter Empfänger ein; dort muss E-Mail für sie aktiviert sein.",
@@ -103,7 +101,6 @@ export const STRINGS = {
     saved: "Enregistré.",
     failed: "Enregistrement impossible. Réessayez.",
     valid: "Aucun problème.",
-    hub_off: "Le hub est désactivé. Activez-le dans Réglages pour modifier ceci.",
     bad_channel_id: "Le nom du canal utilise des minuscules, des chiffres et des tirets bas, 40 caractères au plus.",
     mail: "Courriel",
     mail_intro: "Le courriel appelle un service de notification une fois par destinataire avec un objet et un corps. L'adresse d'une personne se règle sous Destinataires, où Courriel doit être activé pour elle.",
@@ -142,7 +139,6 @@ export const STRINGS = {
     saved: "Guardado.",
     failed: "No se pudo guardar. Inténtalo de nuevo.",
     valid: "Sin problemas.",
-    hub_off: "El hub está desactivado. Actívalo en Ajustes para editar esto.",
     bad_channel_id: "El nombre del canal usa minúsculas, dígitos y guiones bajos, hasta 40 caracteres.",
     mail: "Correo",
     mail_intro: "El correo llama a un servicio de notificación una vez por destinatario con asunto y cuerpo. La dirección de una persona se define en Destinatarios, donde Correo debe estar activado para ella.",
@@ -211,10 +207,6 @@ export function mount(container, ctx) {
 
   function render() {
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
-    if (!data.hub) {
-      root.append(el("div", { className: "hint", textContent: t.hub_off }));
-      return;
-    }
     root.append(el("div", { className: "hint", textContent: t.intro }));
     const push = el("section", {}, [el("h2", { textContent: t.push })]);
     for (const severity of SEVERITIES) {

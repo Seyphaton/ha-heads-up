@@ -17,6 +17,7 @@ import {
   changes,
   devicesLabel,
   entriesOf,
+  headingOf,
   fill,
   joinDuration,
   problems,
@@ -50,7 +51,8 @@ describe("panel navigation", () => {
     expect(secondRow("test")).toEqual(["test", "rules", "messages"]);
     expect(secondRow("general")).toEqual([]);
     expect(secondRow("status")).toEqual([]);
-    expect(secondRow("faq")).toEqual([]);
+    expect(secondRow("faq")).toEqual(["faq", "examples", "card"]);
+    expect(secondRow("card")).toEqual(["faq", "examples", "card"]);
   });
 
   it("builds page and module URLs", () => {
@@ -99,14 +101,14 @@ describe("panel texts", () => {
 
 describe("settings page functions", () => {
   const layout = [
-    { name: "banners", entries: [{ key: "max_banners", kind: "int", range: [1, 200] }, { key: "default_timeout", kind: "duration", range: [0, 31536000] }] },
-    { name: "limits", entries: [{ key: "rate_per_device_per_minute", kind: "int", range: [1, 600] }, { key: "rate_total_per_minute", kind: "int", range: [1, 6000] }, { key: "dedupe_seconds", kind: "int", range: [0, 3600] }] },
+    { name: "dismiss", entries: [{ key: "default_timeout", kind: "duration", range: [0, 31536000] }] },
+    { name: "snooze_banner", entries: [{ key: "default_snooze_options", kind: "minutes", choices: [5, 15] }] },
+    { name: "limits", entries: [{ key: "max_banners", kind: "int", range: [1, 200] }, { key: "rate_per_device_per_minute", kind: "int", range: [1, 600] }, { key: "rate_total_per_minute", kind: "int", range: [1, 6000] }, { key: "dedupe_seconds", kind: "int", range: [0, 3600] }] },
     { name: "history", entries: [{ key: "trace_entries", kind: "int", range: [50, 5000] }, { key: "recent_messages", kind: "int", range: [10, 1000] }] },
-    { name: "hub", entries: [{ key: "show_panel", kind: "bool" }] },
+    { name: "sidebar", entries: [{ key: "show_panel", kind: "bool" }] },
   ];
   const ranges = rangesOf(layout);
   const saved = {
-    hub_enabled: true,
     show_panel: false,
     max_banners: 50,
     default_timeout: 86400,
@@ -154,13 +156,20 @@ describe("settings page functions", () => {
 
   it("puts a label and a hint on every entry in the order of the layout", () => {
     const groups = entriesOf(layout, SETTINGS_STRINGS.en);
-    expect(groups.map((g) => g.name)).toEqual(["Banners", "Limits", "History", "Hub"]);
-    expect(groups[1].entries.map((e) => e.label)).toEqual([
+    expect(groups.map((g) => g.name)).toEqual(["Messages › Dismiss settings", "Messages › Snooze settings › Banners", "Limits", "History", "Sidebar panel"]);
+    expect(groups[0].desc).toMatch(/banner, the push and the popup/);
+    expect(groups[2].entries.map((e) => e.label)).toEqual([
+      "Maximum number of stored messages",
       "Pushes per device per minute",
       "Deliveries per minute, all devices",
       "Seconds in which identical updates are ignored",
     ]);
-    expect(groups[3].entries[0].hint).toMatch(/^Only administrators/);
+    expect(groups[4].entries[0].hint).toMatch(/^Only administrators/);
+  });
+
+  it("shows a section path as a heading over the cards that share it", () => {
+    expect(headingOf("Messages › Snooze settings › Banners")).toEqual({ group: "Messages", title: "Snooze settings › Banners" });
+    expect(headingOf("Limits")).toEqual({ group: null, title: "Limits" });
   });
 
   it("sends only what changed", () => {
@@ -192,6 +201,8 @@ import {
 } from "../../custom_components/heads_up/frontend/heads-up-panel.js";
 import {
   badgeList,
+  barTip,
+  chartModel,
   fixKey,
   STRINGS as OVERVIEW_STRINGS,
 } from "../../custom_components/heads_up/frontend/panel/overview.js";
@@ -260,7 +271,6 @@ describe("shared wording", () => {
     expect(attentionText({ kind: "policy_invalid", subject: "Odd", detail: "unknown_type" }, S)).toBe(
       "Policy Odd is invalid: unknown policy type.",
     );
-    expect(attentionText({ kind: "hub_off", subject: "", detail: null }, S)).toBe("The hub is switched off.");
     expect(reasonText("something_new", S)).toBe("something_new");
     expect(reasonText(null, S)).toBe("");
   });
@@ -284,6 +294,41 @@ describe("overview functions", () => {
       { key: "acknowledged", n: 3 },
     ]);
     expect(badgeList(undefined)).toEqual([]);
+  });
+
+  it("draws one bar per hour, stacked by severity with the least severe at the bottom", () => {
+    const buckets = Array.from({ length: 24 }, () => ({ total: 0, by: {} }));
+    buckets[23] = { total: 4, by: { critical: 1, info: 3 } };
+    buckets[10] = { total: 2, by: { warning: 2 } };
+    const model = chartModel({ buckets, total: 6, peak: 4 }, { width: 600, height: 120, gap: 6, minimum: 5 });
+    expect(model.bars).toHaveLength(24);
+    expect(model.barWidth).toBeCloseTo((600 - 6 * 23) / 24);
+    const last = model.bars[23];
+    expect(last.height).toBe(120);
+    expect(last.segments.map((seg) => seg.severity)).toEqual(["info", "critical"]);
+    expect(last.segments[0].h).toBeCloseTo(90);
+    expect(last.segments[1].y).toBeCloseTo(0);
+    expect(model.bars[10].height).toBe(60);
+    expect(model.bars[0]).toMatchObject({ empty: true, height: 5, segments: [] });
+    expect(model.bars[23].hoursAgo).toBe(0);
+    expect(model.bars[0].hoursAgo).toBe(23);
+  });
+
+  it("draws a flat chart when there is no history", () => {
+    expect(chartModel(undefined).bars).toEqual([]);
+    const flat = chartModel({ buckets: Array.from({ length: 24 }, () => ({ total: 0, by: {} })), total: 0 });
+    expect(flat.bars.every((bar) => bar.empty)).toBe(true);
+  });
+
+  it("words a bar for the tooltip, with the right plural, in every language", () => {
+    for (const [code, language] of Object.entries(OVERVIEW_STRINGS)) {
+      for (const key of ["chart_title", "chart_one", "chart_many", "chart_empty", "chart_start", "chart_now", "chart_tip_ago", "chart_tip_now", "chart_label"]) {
+        expect(language[key], `${code} ${key}`).toBeTruthy();
+      }
+    }
+    const t = OVERVIEW_STRINGS.en;
+    expect(barTip({ total: 1, hoursAgo: 0 }, t)).toBe("1 message · last hour");
+    expect(barTip({ total: 3, hoursAgo: 5 }, t)).toBe("3 messages · 5 h ago");
   });
 
   it("names the button text key of a fix page", () => {
@@ -323,7 +368,7 @@ describe("messages functions", () => {
 describe("settings wording equals the integration's options screen (D-122)", () => {
   const dir = new URL("../../custom_components/heads_up/", import.meta.url);
   const files = { en: "strings.json", de: "translations/de.json", fr: "translations/fr.json", es: "translations/es.json" };
-  const SECTIONS = ["hub", "banners", "presence", "speech", "limits", "history"];
+  const SECTIONS = ["sidebar", "dismiss", "snooze", "snooze_banner", "snooze_push", "presence", "speech", "limits", "history"];
 
   for (const [code, file] of Object.entries(files)) {
     it(`uses the same section names, labels and hints in ${code}`, () => {
@@ -334,6 +379,7 @@ describe("settings wording equals the integration's options screen (D-122)", () 
       for (const name of SECTIONS) {
         const section = init.sections[name];
         expect(t.names[name], `${code} ${name}`).toBe(section.name);
+        if (section.description) expect(t.desc[name], `${code} ${name} description`).toBe(section.description);
         for (const key of Object.keys(section.data)) {
           expect(t.label[key], `${code} ${key} label`).toBe(section.data[key]);
           expect(t.hint[key], `${code} ${key} hint`).toBe(section.data_description[key]);

@@ -58,16 +58,27 @@ export const STRINGS = {
     sent: "Sent {id}: {summary}",
     what_happened: "What happened",
     outcome_waiting: "Waiting for the delivery…",
-    outcome_none: "No delivery was recorded yet. Open Messages for the trace.",
+    outcome_none: "No delivery was recorded yet. Open Message Log for the trace.",
     log_hint: "A failed delivery is also written to the Home Assistant log (Settings > System > Logs, search for heads_up).",
     clear: "Clear the test message",
     cleared: "Cleared.",
     preview_failed: "The preview is not available: {text}",
     send_failed: "Sending failed: {text}",
-    hub_off: "The hub is switched off. Switch it on in Settings to use this page.",
     valid: "The call is valid.",
     problems: { message_required: "Enter a message.", channels_required: "Choose at least one channel.", target_required: "{channel} needs a target.", target_exclusive: "{channel}: give either an audience or recipients." },
     tag_none: "No tag",
+    behaviour: "Behaviour",
+    dismissible: "Can be dismissed",
+    dismiss_scope: "When someone dismisses it",
+    scope_default: "Use the default from Settings",
+    scope_user: "Hide it for that person only",
+    scope_global: "End it for everyone",
+    snoozable: "Can be snoozed",
+    behaviour_hint: "These choices apply to the real send. The result table does not change with them.",
+    pinned_hint: "Nobody can close it. It ends by its timeout, its condition or a clear action; the test message still ends after 10 minutes.",
+    ack_title: "Acknowledgement",
+    ack_yes: "Someone has to acknowledge it: {policies} escalate or repeat the message until then. Pushes get an Acknowledge button and the card shows one.",
+    ack_no: "Nothing waits for an acknowledgement, because no escalation or reminder policy applies. Acknowledging is not a setting of the call: add an Escalation or Reminder policy for this severity and tag, or choose one under Policy.",
   },
   de: {
     title: "Testsenden",
@@ -126,16 +137,27 @@ export const STRINGS = {
     sent: "Gesendet {id}: {summary}",
     what_happened: "Was passiert ist",
     outcome_waiting: "Warte auf die Zustellung…",
-    outcome_none: "Noch keine Zustellung aufgezeichnet. Öffne Meldungen für das Protokoll.",
+    outcome_none: "Noch keine Zustellung aufgezeichnet. Öffne das Meldungsprotokoll für den Ablauf.",
     log_hint: "Eine fehlgeschlagene Zustellung steht auch im Home-Assistant-Protokoll (Einstellungen > System > Protokolle, nach heads_up suchen).",
     clear: "Testmeldung entfernen",
     cleared: "Entfernt.",
     preview_failed: "Die Vorschau ist nicht verfügbar: {text}",
     send_failed: "Senden fehlgeschlagen: {text}",
-    hub_off: "Der Hub ist ausgeschaltet. Schalte ihn in den Einstellungen ein, um diese Seite zu nutzen.",
     valid: "Der Aufruf ist gültig.",
     problems: { message_required: "Gib eine Meldung ein.", channels_required: "Wähle mindestens einen Kanal.", target_required: "{channel} braucht ein Ziel.", target_exclusive: "{channel}: gib entweder eine Zielgruppe oder Empfänger an." },
     tag_none: "Kein Tag",
+    behaviour: "Verhalten",
+    dismissible: "Kann ausgeblendet werden",
+    dismiss_scope: "Wenn jemand es ausblendet",
+    scope_default: "Standard aus den Einstellungen",
+    scope_user: "Nur für diese Person verbergen",
+    scope_global: "Für alle beenden",
+    snoozable: "Kann zurückgestellt werden",
+    behaviour_hint: "Diese Auswahl gilt für das echte Senden. Die Ergebnistabelle ändert sich dadurch nicht.",
+    pinned_hint: "Niemand kann sie schließen. Sie endet durch ihr Zeitlimit, ihre Bedingung oder eine Löschaktion; die Testmeldung endet trotzdem nach 10 Minuten.",
+    ack_title: "Bestätigung",
+    ack_yes: "Jemand muss sie bestätigen: {policies} eskalieren oder wiederholen die Meldung bis dahin. Pushes bekommen die Schaltfläche Bestätigen, die Karte zeigt sie auch.",
+    ack_no: "Nichts wartet auf eine Bestätigung, weil keine Eskalations- oder Erinnerungsrichtlinie gilt. Bestätigen ist keine Einstellung des Aufrufs: Lege eine Eskalations- oder Erinnerungsrichtlinie für diesen Schweregrad und Tag an oder wähle unter Richtlinie eine.",
   },
   fr: {
     title: "Envoi de test",
@@ -194,16 +216,27 @@ export const STRINGS = {
     sent: "Envoyé {id} : {summary}",
     what_happened: "Ce qui s'est passé",
     outcome_waiting: "En attente de la livraison…",
-    outcome_none: "Aucune livraison enregistrée pour l'instant. Ouvrez Messages pour la trace.",
+    outcome_none: "Aucune livraison enregistrée pour l'instant. Ouvrez le journal des messages pour la trace.",
     log_hint: "Une livraison échouée est aussi écrite dans le journal de Home Assistant (Réglages > Système > Journaux, cherchez heads_up).",
     clear: "Supprimer le message de test",
     cleared: "Supprimé.",
     preview_failed: "L'aperçu n'est pas disponible : {text}",
     send_failed: "Échec de l'envoi : {text}",
-    hub_off: "Le hub est désactivé. Activez-le dans Réglages pour utiliser cette page.",
     valid: "L'appel est valide.",
     problems: { message_required: "Saisissez un message.", channels_required: "Choisissez au moins un canal.", target_required: "{channel} a besoin d'une cible.", target_exclusive: "{channel} : indiquez soit une audience soit des destinataires." },
     tag_none: "Aucune étiquette",
+    behaviour: "Comportement",
+    dismissible: "Peut être masqué",
+    dismiss_scope: "Quand quelqu'un le masque",
+    scope_default: "Valeur par défaut des réglages",
+    scope_user: "Le masquer pour cette personne seulement",
+    scope_global: "Le terminer pour tout le monde",
+    snoozable: "Peut être reporté",
+    behaviour_hint: "Ces choix valent pour l'envoi réel. Le tableau de résultat ne change pas avec eux.",
+    pinned_hint: "Personne ne peut le fermer. Il se termine par son délai, sa condition ou une action d'effacement ; le message de test se termine quand même après 10 minutes.",
+    ack_title: "Confirmation",
+    ack_yes: "Quelqu'un doit le confirmer : {policies} escaladent ou répètent le message jusque-là. Les push reçoivent un bouton Confirmer et la carte en montre un.",
+    ack_no: "Rien n'attend une confirmation, car aucune politique d'escalade ou de rappel ne s'applique. Confirmer n'est pas un réglage de l'appel : ajoutez une politique d'escalade ou de rappel pour cette gravité et cette étiquette, ou choisissez-en une sous Politique.",
   },
   es: {
     title: "Envío de prueba",
@@ -262,16 +295,27 @@ export const STRINGS = {
     sent: "Enviado {id}: {summary}",
     what_happened: "Qué pasó",
     outcome_waiting: "Esperando la entrega…",
-    outcome_none: "Aún no se registró ninguna entrega. Abre Mensajes para ver la traza.",
+    outcome_none: "Aún no se registró ninguna entrega. Abre el registro de mensajes para ver la traza.",
     log_hint: "Una entrega fallida también se escribe en el registro de Home Assistant (Ajustes > Sistema > Registros, busca heads_up).",
     clear: "Borrar el mensaje de prueba",
     cleared: "Borrado.",
     preview_failed: "La vista previa no está disponible: {text}",
     send_failed: "Falló el envío: {text}",
-    hub_off: "El hub está desactivado. Actívalo en Ajustes para usar esta página.",
     valid: "La llamada es válida.",
     problems: { message_required: "Introduce un mensaje.", channels_required: "Elige al menos un canal.", target_required: "{channel} necesita un destino.", target_exclusive: "{channel}: indica una audiencia o destinatarios." },
     tag_none: "Sin etiqueta",
+    behaviour: "Comportamiento",
+    dismissible: "Se puede descartar",
+    dismiss_scope: "Cuando alguien lo descarta",
+    scope_default: "Valor por defecto de los ajustes",
+    scope_user: "Ocultarlo solo a esa persona",
+    scope_global: "Terminarlo para todos",
+    snoozable: "Se puede posponer",
+    behaviour_hint: "Estas opciones valen para el envío real. La tabla de resultados no cambia con ellas.",
+    pinned_hint: "Nadie puede cerrarlo. Termina por su tiempo límite, su condición o una acción de borrado; el mensaje de prueba termina igualmente a los 10 minutos.",
+    ack_title: "Confirmación",
+    ack_yes: "Alguien tiene que confirmarlo: {policies} escalan o repiten el mensaje hasta entonces. Los push reciben un botón Confirmar y la tarjeta muestra uno.",
+    ack_no: "Nada espera una confirmación, porque no se aplica ninguna política de escalado ni de recordatorio. Confirmar no es un ajuste de la llamada: añade una política de escalado o de recordatorio para esta gravedad y etiqueta, o elige una en Política.",
   },
 };
 
@@ -284,7 +328,7 @@ export function fill(template, params) {
 }
 
 export function blankValues() {
-  return { title: "", message: "", tts_message: "", severity: "warning", tag: "", channels: ["banner"], policy: "" };
+  return { title: "", message: "", tts_message: "", severity: "warning", tag: "", channels: ["banner"], policy: "", dismissible: true, dismiss_scope: "", snoozable: false };
 }
 
 // The `notify` call the values describe: only what is set, targets only for the chosen channels.
@@ -294,6 +338,13 @@ export function buildCall(values) {
   if (values.channels.includes("speak") && String(values.tts_message).trim()) data.tts_message = String(values.tts_message).trim();
   if (String(values.tag).trim()) data.tag = String(values.tag).trim();
   if (values.policy) data.policy = values.policy;
+  // Only what differs from the defaults, so the YAML stays short; snooze and scope mean nothing
+  // for a message nobody can dismiss.
+  if (values.dismissible === false) data.dismissible = false;
+  else {
+    if (values.dismiss_scope) data.dismiss_scope = values.dismiss_scope;
+    if (values.snoozable) data.snoozable = true;
+  }
   const to = {};
   for (const channel of values.channels) {
     if (channel === "persistent") continue;
@@ -320,6 +371,12 @@ export function validate(values) {
   const banner = values.banner_audience && (values.banner_recipients || []).length > 0;
   if (values.channels.includes("banner") && banner) found.push({ code: "target_exclusive", channel: "banner" });
   return found;
+}
+
+// Whether anything waits for an acknowledgement, in words. Acknowledging has no field of its own:
+// it matters when an escalation or a reminder applies.
+export function ackText(policies, t) {
+  return policies?.length ? fill(t.ack_yes, { policies: policies.join(", ") }) : t.ack_no;
 }
 
 export function callYaml(values, toYaml) {
@@ -431,10 +488,6 @@ export function mount(container, ctx) {
 
   function render() {
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
-    if (!data.hub) {
-      root.append(el("div", { className: "hint", textContent: t.hub_off }));
-      return;
-    }
     root.append(el("div", { className: "hint", textContent: t.intro }));
     const change = () => schedule();
 
@@ -450,6 +503,17 @@ export function mount(container, ctx) {
     const policies = [{ value: "", label: t.policy_all }, { value: "none", label: t.policy_none }, ...data.policies.map((p) => ({ value: p.name, label: p.name }))];
     callBox.append(ui.field(t.policy, ui.selectInput(policies, values.policy, (v) => { values.policy = v; change(); })));
 
+    const behaviour = el("section", {}, [el("h2", { textContent: t.behaviour })]);
+    behaviour.append(ui.checkbox(t.dismissible, values.dismissible, (on) => { values.dismissible = on; render(); schedule(); }));
+    if (values.dismissible) {
+      const scopes = [{ value: "", label: t.scope_default }, { value: "user", label: t.scope_user }, { value: "global", label: t.scope_global }];
+      behaviour.append(ui.field(t.dismiss_scope, ui.selectInput(scopes, values.dismiss_scope, (v) => { values.dismiss_scope = v; change(); })));
+      behaviour.append(ui.checkbox(t.snoozable, values.snoozable, (on) => { values.snoozable = on; change(); }));
+    } else {
+      behaviour.append(el("div", { className: "hint", textContent: t.pinned_hint }));
+    }
+    behaviour.append(el("div", { className: "hint", textContent: t.behaviour_hint }));
+
     const who = el("section", {}, [el("h2", { textContent: t.who })]);
     const labels = { audience: t.target_audience, recipients: t.target_recipients, persistent: t.target_persistent };
     for (const channel of values.channels) {
@@ -461,7 +525,7 @@ export function mount(container, ctx) {
       }
       if (channel === "banner") who.append(el("div", { className: "hint", textContent: t.banner_hint }));
     }
-    root.append(content, callBox, who, resultNode(), yamlNode());
+    root.append(content, callBox, behaviour, who, resultNode(), yamlNode());
   }
 
   function resultNode() {
@@ -495,6 +559,8 @@ export function mount(container, ctx) {
     box.append(el("h2", { textContent: t.summary, style: "margin-top:12px" }), el("div", { textContent: summaryLine(result.rows, s) }));
     box.append(el("h2", { textContent: t.policies_applied, style: "margin-top:12px" }));
     box.append(el("div", { textContent: result.policies.length ? result.policies.map((p) => p.name).join(", ") : t.none_applied }));
+    box.append(el("h2", { textContent: t.ack_title, style: "margin-top:12px" }));
+    box.append(el("div", { textContent: ackText(result.acknowledge, t) }));
     box.append(el("h2", { textContent: t.later, style: "margin-top:12px" }));
     box.append(result.later.length ? el("ul", {}, result.later.map((step) => el("li", { textContent: laterText(step, t, s) }))) : el("div", { textContent: t.none_later }));
     return box;

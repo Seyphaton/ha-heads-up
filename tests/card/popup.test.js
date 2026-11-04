@@ -69,15 +69,16 @@ describe("popup buttons", () => {
         ack: true,
         snoozable: true,
         snooze_options: [600, 3600],
+        snooze_seconds: 900,
         dismissible: true,
       }),
     );
     expect(buttons.map((b) => b.kind)).toEqual(["action", "ack", "snooze", "dismiss"]);
-    expect(buttons[2].seconds).toBe(600);
+    expect(buttons[2].seconds).toBe(900); // the popup's own snooze time, not the banner choices
   });
 
-  it("has no Snooze without options and no Dismiss when not dismissible", () => {
-    const buttons = buttonsFor(msg("a", "info", "1", { snoozable: true, snooze_options: [], dismissible: false }));
+  it("has no Snooze without a snooze time and no Dismiss when not dismissible", () => {
+    const buttons = buttonsFor(msg("a", "info", "1", { snoozable: true, snooze_seconds: 0, dismissible: false }));
     expect(buttons).toEqual([]);
   });
 });

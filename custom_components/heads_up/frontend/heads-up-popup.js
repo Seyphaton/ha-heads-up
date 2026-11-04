@@ -70,8 +70,8 @@ export function buttonsFor(message) {
   const own = (message.actions || []).map((a) => ({ kind: "action", key: a.key, label: a.label }));
   const out = [...own];
   if (message.ack) out.push({ kind: "ack" });
-  if (message.snoozable && (message.snooze_options || []).length) {
-    out.push({ kind: "snooze", seconds: message.snooze_options[0] });
+  if (message.snoozable && message.snooze_seconds) {
+    out.push({ kind: "snooze", seconds: message.snooze_seconds });
   }
   if (message.dismissible) out.push({ kind: "dismiss" });
   return out;

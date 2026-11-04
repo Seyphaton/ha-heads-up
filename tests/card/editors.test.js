@@ -35,7 +35,7 @@ import {
   validChannelId,
   validMailTemplate,
 } from "../../custom_components/heads_up/frontend/panel/channels.js";
-import { errorText, ERRORS, joinTags, splitTags, toYaml } from "../../custom_components/heads_up/frontend/panel/ui.js";
+import { errorText, ERRORS, joinTags, parseRich, splitTags, toYaml } from "../../custom_components/heads_up/frontend/panel/ui.js";
 
 describe("yaml of stored data", () => {
   it("writes nested maps, lists and scalars", () => {
@@ -248,11 +248,11 @@ describe("policy editor", () => {
     expect(appliesText({ ...blankPolicy("away"), severities: ["critical", "warning"], tags: "water" }, t)).toBe("Messages with severity Critical, Warning and tag water");
     expect(appliesText({ ...blankPolicy("away"), tags: "smoke_never" }, t)).toBe("Messages with tag smoke_never");
     expect(appliesText({ ...blankPolicy("away"), severities: ["info"] }, t)).toBe("Messages with severity Info");
-    expect(sentence(water, t)).toBe("Messages with severity Critical and tag water: if nobody acknowledges within 5 min, it is also sent on Push, Persistent HASS Notification.");
+    expect(sentence(water, t)).toBe("Messages with severity Critical and tag water: if nobody acknowledges within 5 min, it is also sent on Push, Persistent Notification.");
     expect(sentence({ ...blankPolicy("quiet_hours"), days: ["sat", "sun"] }, t)).toBe("Every message: between 22:00 and 07:00 on Saturday, Sunday, deliveries outside the dashboard are sent quietly, critical messages pass.");
     expect(sentence({ ...blankPolicy("reminder"), channels: ["push"] }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times, only on Push.");
     expect(sentence({ ...blankPolicy("away"), max_wait: 30 }, t)).toBe("Every message: a person who is not home gets it when they arrive, for at most 30 min.");
-    expect(sentence({ ...blankPolicy("fallback"), when: "both", channels: ["persistent"] }, t)).toBe("Every message: if the audience is empty or delivery fails, it is sent on Persistent HASS Notification instead.");
+    expect(sentence({ ...blankPolicy("fallback"), when: "both", channels: ["persistent"] }, t)).toBe("Every message: if the audience is empty or delivery fails, it is sent on Persistent Notification instead.");
     expect(sentence({ ...blankPolicy("deliver"), severities: ["critical"], channels: ["push"] }, t)).toBe("Messages with severity Critical: it is also sent at once on Push.");
     expect(sentence({ ...blankPolicy("summarize"), include_critical: true }, t)).toBe("Every message: held, and one summary is sent 60 min after the first held message, critical messages included.");
     expect(sentence({ ...blankPolicy("summarize"), summary_mode: "at" }, t)).toBe("Every message: held, and one summary is sent every day at 20:00.");
@@ -345,3 +345,29 @@ describe("audience limit", () => {
   });
 });
 
+
+describe("long texts with paragraphs and bullets", () => {
+  it("splits paragraphs at a blank line and collects bullets into one list", () => {
+    expect(parseRich("First line.\nSecond line.\n\nWithout the panel you cannot use:\n- Test send\n- the Message Log\n\nThe rest.")).toEqual([
+      { type: "p", text: "First line. Second line." },
+      { type: "p", text: "Without the panel you cannot use:" },
+      { type: "ul", items: ["Test send", "the Message Log"] },
+      { type: "p", text: "The rest." },
+    ]);
+  });
+
+  it("starts a new list after a paragraph and treats a plain text as one paragraph", () => {
+    expect(parseRich("- a\nText\n- b")).toEqual([
+      { type: "ul", items: ["a"] },
+      { type: "p", text: "Text" },
+      { type: "ul", items: ["b"] },
+    ]);
+    expect(parseRich("Only one sentence.")).toEqual([{ type: "p", text: "Only one sentence." }]);
+    expect(parseRich("")).toEqual([]);
+    expect(parseRich(undefined)).toEqual([]);
+  });
+
+  it("keeps markup as text", () => {
+    expect(parseRich("- <b>x</b>")).toEqual([{ type: "ul", items: ["<b>x</b>"] }]);
+  });
+});
