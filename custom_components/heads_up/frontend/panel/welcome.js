@@ -456,7 +456,7 @@ export async function open(host, ctx) {
       if (id === "critical" && state.on.critical) {
         item.append(ui.field(t.audience, ui.selectInput(data.audiences.map((n) => ({ value: n, label: n })), state.audience, (v) => { state.audience = v; })));
         if (data.speakers.length) {
-          item.append(ui.chips(t.speakers, data.speakers.map((id2) => ({ value: id2, label: id2 })), state.speakers, (list) => { state.speakers = list; }, true));
+          item.append(ui.chips(t.speakers, data.speakers.map((id2) => ({ value: id2, label: ui.recipientLabel(id2, data) })), state.speakers, (list) => { state.speakers = list; }, true));
         }
       }
       out.push(item);

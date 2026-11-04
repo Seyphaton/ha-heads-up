@@ -13,6 +13,7 @@ import {
   STRINGS,
   table,
 } from "../../custom_components/heads_up/frontend/heads-up-panel.js";
+import { recipientLabel } from "../../custom_components/heads_up/frontend/panel/ui.js";
 import {
   changes,
   devicesLabel,
@@ -398,5 +399,33 @@ describe("settings wording equals the integration's options screen (D-122)", () 
       const keys = Object.keys(SETTINGS_STRINGS.en[part]).sort();
       for (const language of Object.values(SETTINGS_STRINGS)) expect(Object.keys(language[part]).sort()).toEqual(keys);
     }
+  });
+});
+
+describe("recipient labels", () => {
+  const choices = {
+    persons: [{ id: "person.anna", name: "Anna" }],
+    registrations: [
+      { id: "CF4A4B33-F09E-427E-BE65-3CFC768209E7", name: "Anna's phone" },
+      { id: "C06734F2-5594-55A7-B578-237337248192", name: "Tablet" },
+      { id: "DB21AB31-DA6A-4A56-9AD3-DDA5D1C62FE8", name: "Tablet" },
+    ],
+    speaker_names: { "media_player.kitchen": "Kitchen speaker", "media_player.hall": "media_player.hall" },
+    areas: [{ id: "living_room", name: "Living Room" }],
+  };
+
+  it("names a person, a phone, a speaker and an area instead of showing an id", () => {
+    expect(recipientLabel("person.anna", choices)).toBe("Anna");
+    expect(recipientLabel("CF4A4B33-F09E-427E-BE65-3CFC768209E7", choices)).toBe("Anna's phone");
+    expect(recipientLabel("media_player.kitchen", choices)).toBe("Kitchen speaker (media_player.kitchen)");
+    expect(recipientLabel("living_room", choices)).toBe("Living Room");
+  });
+
+  it("tells phones with the same name apart and keeps unknown values as they are", () => {
+    expect(recipientLabel("C06734F2-5594-55A7-B578-237337248192", choices)).toBe("Tablet (C067)");
+    expect(recipientLabel("DB21AB31-DA6A-4A56-9AD3-DDA5D1C62FE8", choices)).toBe("Tablet (DB21)");
+    expect(recipientLabel("media_player.hall", choices)).toBe("media_player.hall");
+    expect(recipientLabel("Global address", choices)).toBe("Global address");
+    expect(recipientLabel("Ground floor (group)", choices)).toBe("Ground floor (group)");
   });
 });

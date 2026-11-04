@@ -41,6 +41,7 @@ async def test_the_welcome_shows_until_it_was_seen(
     first = (await ask(client, "welcome_get"))["result"]
     assert first["show"] is True and [i["id"] for i in first["items"]] == list(ITEMS)
     assert first["default_audience"] == "Admins" and "Admins" in first["audiences"]
+    assert set(first["speaker_names"]) <= set(first["speakers"])
     await ask(client, "welcome_apply", items=[])
     assert entry.options["welcome_seen"] is True
     assert (await ask(client, "welcome_get"))["result"]["show"] is False

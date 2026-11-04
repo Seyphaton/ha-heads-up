@@ -150,6 +150,9 @@ async def test_the_choices_list_what_a_form_can_pick(
     assert {p["id"] for p in choices["persons"]} == {"person.anna", "person.ben"}
     assert {"id": "zone.work", "name": "Work"} in choices["zones"]
     assert fake_speakers.satellite in choices["speakers"]
+    # Every speaker has a name to show in a list; it falls back to the entity id.
+    assert set(choices["speaker_names"]) == set(choices["speakers"])
+    assert all(choices["speaker_names"].values())
     assert {r["name"] for r in choices["registrations"]} == {"Anna's phone", "Ben's phone"}
     assert "Admins" in choices["audience_names"] and "person.anna" in choices["recipients"]["push"]
     assert fake_speakers.announce_player in choices["recipients"]["speak"]

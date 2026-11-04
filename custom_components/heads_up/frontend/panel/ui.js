@@ -357,6 +357,25 @@ export function field(label, control, hint) {
   return wrap;
 }
 
+// What a recipient value is called in a list: a person by name, a phone by its device name (a
+// registration id is a UUID nobody can read), a speaker by its name and entity, an area by its name.
+// Names that two phones share get the first four characters of the id after them.
+export function recipientLabel(value, choices) {
+  const person = (choices.persons || []).find((p) => p.id === value);
+  if (person) return person.name;
+  const phones = choices.registrations || [];
+  const phone = phones.find((r) => r.id === value);
+  if (phone) {
+    const twin = phones.some((r) => r.id !== value && r.name === phone.name);
+    return twin ? `${phone.name} (${value.slice(0, 4)})` : phone.name;
+  }
+  const speaker = (choices.speaker_names || {})[value];
+  if (speaker) return speaker === value ? value : `${speaker} (${value})`;
+  const area = (choices.areas || []).find((a) => a.id === value);
+  if (area) return area.name;
+  return value;
+}
+
 export function nameOf(list, id) {
   return list.find((item) => item.id === id)?.name ?? id;
 }
@@ -408,7 +427,7 @@ export function targetBlock(channel, values, choices, labels, onChange) {
       onChange();
     }));
   } else {
-    const options = (choices.recipients[channel] || []).map((r) => ({ value: r, label: r }));
+    const options = (choices.recipients[channel] || []).map((r) => ({ value: r, label: recipientLabel(r, choices) }));
     box.append(chips(labels.recipients, options, values[recipientsKey], (list) => {
       values[recipientsKey] = list;
       onChange();

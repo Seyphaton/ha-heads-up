@@ -298,7 +298,7 @@ export function mount(container, ctx) {
     const { own, values } = group;
     const box = el("section", {}, [el("h2", { textContent: own ? t.edit_group : t.new_group })]);
     box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; paint(); })));
-    box.append(ui.chips(t.members, data.choices.speakers.map((id) => ({ value: id, label: id })), values.members, (list) => { values.members = list; paint(); }, true));
+    box.append(ui.chips(t.members, data.choices.speakers.map((id) => ({ value: id, label: ui.recipientLabel(id, data.choices) })), values.members, (list) => { values.members = list; paint(); }, true));
     box.append(ui.chips(t.areas, data.choices.areas.map((a) => ({ value: a.id, label: a.name })), values.areas, (list) => { values.areas = list; paint(); }, true));
     const status = el("div", { className: "hint" });
     status.setAttribute("role", "status");

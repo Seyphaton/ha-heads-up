@@ -204,6 +204,8 @@ def ws_welcome_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
             "audiences": hub.audiences.names() if hub else [],
             "default_audience": welcome.DEFAULT_AUDIENCE,
             "speakers": hub.recipients.known("speak") if hub else [],
+            "speaker_names": panel_config.speaker_names(hass),
+            "areas": panel_config.area_choices(hass),
         },
     )
 

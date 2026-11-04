@@ -41,6 +41,20 @@ from .audiences import BUILTINS
 from .channels import mail
 from .recipients import area_speakers, registrations, speaker_entities
 
+
+def speaker_names(hass: HomeAssistant) -> dict[str, str]:
+    """Entity id to friendly name of every speaker, so a list can show what a person recognises."""
+    names = {}
+    for entity_id in speaker_entities(hass):
+        state = hass.states.get(entity_id)
+        names[entity_id] = (state.attributes.get("friendly_name") if state else None) or entity_id
+    return names
+
+
+def area_choices(hass: HomeAssistant) -> list[dict[str, str]]:
+    return [{"id": a.id, "name": a.name} for a in ar.async_get(hass).async_list_areas()]
+
+
 CHANNEL_KEYS = (
     OPT_PUSH_LEVELS,
     OPT_POPUP_STYLES,
@@ -198,7 +212,6 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
         }
         for s in of(RULE_SUBENTRY)
     ]
-    areas = ar.async_get(hass).async_list_areas()
     known = (
         {c: hub.recipients.known(c) for c in ("banner", "push", "popup", "speak", "mail")}
         if hub
@@ -222,7 +235,8 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                 for s in hass.states.async_all("zone")
             ],
             "speakers": speaker_entities(hass),
-            "areas": [{"id": a.id, "name": a.name} for a in areas],
+            "speaker_names": speaker_names(hass),
+            "areas": area_choices(hass),
             "registrations": [{"id": k, "name": v or k} for k, v in registrations(hass).items()],
             "audience_names": hub.audiences.names() if hub else [],
             "recipients": known,
