@@ -5,28 +5,37 @@ export const STRINGS = {
     title: "Overview",
     active: "Active notifications",
     rules: "Watch rules",
-    rules_active: "{enabled} of {total} active",
     badge_escalating: "escalating",
     badge_reminding: "reminding",
     badge_snoozed: "snoozed",
     badge_held: "in a summary",
     badge_acknowledged: "acknowledged",
-    badge_disabled: "disabled",
-    badge_showing: "showing now",
     show_list: "Show list",
     hide_list: "Hide list",
     none_active: "No message is active.",
-    rule_disabled: "disabled",
-    rule_showing: "showing",
-    rule_waiting: "waiting",
-    rule_watches: "watches {entity} {operator} {state}",
-    rule_template: "watches a template",
+    active_sub: "Messages that have not ended yet. Some wait for someone to acknowledge them; others will come back (reminders, snooze) or escalate.",
+    shortcuts: "Set up",
+    sc_rules: "Watch rules",
+    sc_rules_sub: "{showing} showing now",
+    sc_channels: "Channels",
+    sc_channels_sub_on: "Mail is set up",
+    sc_channels_sub_off: "Mail is not set up",
+    sc_audiences: "Audiences",
+    sc_audiences_sub: "{custom} of your own, {builtin} built in",
+    sc_policies: "Policies",
+    sc_policies_sub: "{enabled} of {total} enabled",
+    sc_open: "Open {page}",
+    hide: "Hide",
+    hidden_line: "{n} hidden.",
+    show_hidden: "Show again",
+    hide_label: "Hide this warning",
     attention: "Needs attention",
     attention_none: "Nothing needs attention.",
     error: "Error",
     warning: "Warning",
     fix_recipients: "Open Recipients",
     fix_rules: "Open Watch rules",
+    fix_messages: "Open Messages",
     fix_policies: "Open Policies",
     fix_general: "Open Settings",
     last_actions: "Last actions",
@@ -38,34 +47,42 @@ export const STRINGS = {
     loading: "Loading…",
     load_failed: "The overview could not be loaded.",
     source_rule: "watch rule",
-    operators: { equals: "equals", not_equals: "does not equal", above: "above", below: "below", between: "between", contains: "contains", not_contains: "does not contain", empty: "is empty", not_empty: "is not empty" },
   },
   de: {
     title: "Übersicht",
     active: "Aktive Benachrichtigungen",
     rules: "Überwachungsregeln",
-    rules_active: "{enabled} von {total} aktiv",
     badge_escalating: "eskaliert",
     badge_reminding: "erinnert",
     badge_snoozed: "zurückgestellt",
     badge_held: "in einer Zusammenfassung",
     badge_acknowledged: "bestätigt",
-    badge_disabled: "deaktiviert",
-    badge_showing: "zeigt gerade",
     show_list: "Liste zeigen",
     hide_list: "Liste verbergen",
     none_active: "Keine Meldung ist aktiv.",
-    rule_disabled: "deaktiviert",
-    rule_showing: "zeigt",
-    rule_waiting: "wartet",
-    rule_watches: "überwacht {entity} {operator} {state}",
-    rule_template: "überwacht eine Vorlage",
+    active_sub: "Meldungen, die noch nicht beendet sind. Manche warten darauf, dass jemand sie bestätigt; andere kommen wieder (Erinnerungen, Zurückstellen) oder eskalieren.",
+    shortcuts: "Einrichten",
+    sc_rules: "Überwachungsregeln",
+    sc_rules_sub: "{showing} werden gerade gezeigt",
+    sc_channels: "Kanäle",
+    sc_channels_sub_on: "E-Mail ist eingerichtet",
+    sc_channels_sub_off: "E-Mail ist nicht eingerichtet",
+    sc_audiences: "Zielgruppen",
+    sc_audiences_sub: "{custom} eigene, {builtin} eingebaute",
+    sc_policies: "Richtlinien",
+    sc_policies_sub: "{enabled} von {total} aktiv",
+    sc_open: "{page} öffnen",
+    hide: "Ausblenden",
+    hidden_line: "{n} ausgeblendet.",
+    show_hidden: "Wieder anzeigen",
+    hide_label: "Diese Warnung ausblenden",
     attention: "Braucht Aufmerksamkeit",
     attention_none: "Nichts braucht Aufmerksamkeit.",
     error: "Fehler",
     warning: "Warnung",
     fix_recipients: "Empfänger öffnen",
     fix_rules: "Überwachungsregeln öffnen",
+    fix_messages: "Meldungen öffnen",
     fix_policies: "Richtlinien öffnen",
     fix_general: "Einstellungen öffnen",
     last_actions: "Letzte Aktionen",
@@ -77,34 +94,42 @@ export const STRINGS = {
     loading: "Lädt…",
     load_failed: "Die Übersicht konnte nicht geladen werden.",
     source_rule: "Überwachungsregel",
-    operators: { equals: "ist gleich", not_equals: "ist ungleich", above: "über", below: "unter", between: "zwischen", contains: "enthält", not_contains: "enthält nicht", empty: "ist leer", not_empty: "ist nicht leer" },
   },
   fr: {
     title: "Vue d'ensemble",
     active: "Notifications actives",
     rules: "Règles de surveillance",
-    rules_active: "{enabled} sur {total} actives",
     badge_escalating: "en escalade",
     badge_reminding: "en rappel",
     badge_snoozed: "reportées",
     badge_held: "dans un résumé",
     badge_acknowledged: "confirmées",
-    badge_disabled: "désactivées",
-    badge_showing: "affichées",
     show_list: "Afficher la liste",
     hide_list: "Masquer la liste",
     none_active: "Aucun message n'est actif.",
-    rule_disabled: "désactivée",
-    rule_showing: "affiche",
-    rule_waiting: "attend",
-    rule_watches: "surveille {entity} {operator} {state}",
-    rule_template: "surveille un modèle",
+    active_sub: "Messages qui ne sont pas encore terminés. Certains attendent une confirmation ; d'autres reviendront (rappels, report) ou seront escaladés.",
+    shortcuts: "Configurer",
+    sc_rules: "Règles de surveillance",
+    sc_rules_sub: "{showing} affichées en ce moment",
+    sc_channels: "Canaux",
+    sc_channels_sub_on: "Le mail est configuré",
+    sc_channels_sub_off: "Le mail n'est pas configuré",
+    sc_audiences: "Audiences",
+    sc_audiences_sub: "{custom} à vous, {builtin} intégrées",
+    sc_policies: "Politiques",
+    sc_policies_sub: "{enabled} sur {total} actives",
+    sc_open: "Ouvrir {page}",
+    hide: "Masquer",
+    hidden_line: "{n} masqué(s).",
+    show_hidden: "Afficher à nouveau",
+    hide_label: "Masquer cet avertissement",
     attention: "À surveiller",
     attention_none: "Rien à surveiller.",
     error: "Erreur",
     warning: "Avertissement",
     fix_recipients: "Ouvrir Destinataires",
     fix_rules: "Ouvrir Règles de surveillance",
+    fix_messages: "Ouvrir Messages",
     fix_policies: "Ouvrir Politiques",
     fix_general: "Ouvrir Réglages",
     last_actions: "Dernières actions",
@@ -116,34 +141,42 @@ export const STRINGS = {
     loading: "Chargement…",
     load_failed: "La vue d'ensemble n'a pas pu être chargée.",
     source_rule: "règle de surveillance",
-    operators: { equals: "égale", not_equals: "diffère de", above: "au-dessus de", below: "au-dessous de", between: "entre", contains: "contient", not_contains: "ne contient pas", empty: "est vide", not_empty: "n'est pas vide" },
   },
   es: {
     title: "Resumen",
     active: "Notificaciones activas",
     rules: "Reglas de vigilancia",
-    rules_active: "{enabled} de {total} activas",
     badge_escalating: "escalando",
     badge_reminding: "recordando",
     badge_snoozed: "pospuestas",
     badge_held: "en un resumen",
     badge_acknowledged: "confirmadas",
-    badge_disabled: "desactivadas",
-    badge_showing: "mostrándose",
     show_list: "Mostrar lista",
     hide_list: "Ocultar lista",
     none_active: "Ningún mensaje está activo.",
-    rule_disabled: "desactivada",
-    rule_showing: "muestra",
-    rule_waiting: "espera",
-    rule_watches: "vigila {entity} {operator} {state}",
-    rule_template: "vigila una plantilla",
+    active_sub: "Mensajes que aún no han terminado. Algunos esperan a que alguien los confirme; otros volverán (recordatorios, pospuestas) o escalarán.",
+    shortcuts: "Configurar",
+    sc_rules: "Reglas de vigilancia",
+    sc_rules_sub: "{showing} mostrándose ahora",
+    sc_channels: "Canales",
+    sc_channels_sub_on: "El correo está configurado",
+    sc_channels_sub_off: "El correo no está configurado",
+    sc_audiences: "Audiencias",
+    sc_audiences_sub: "{custom} propias, {builtin} integradas",
+    sc_policies: "Políticas",
+    sc_policies_sub: "{enabled} de {total} activas",
+    sc_open: "Abrir {page}",
+    hide: "Ocultar",
+    hidden_line: "{n} oculta(s).",
+    show_hidden: "Mostrar de nuevo",
+    hide_label: "Ocultar este aviso",
     attention: "Requiere atención",
     attention_none: "Nada requiere atención.",
     error: "Error",
     warning: "Aviso",
     fix_recipients: "Abrir Destinatarios",
     fix_rules: "Abrir Reglas de vigilancia",
+    fix_messages: "Abrir Mensajes",
     fix_policies: "Abrir Políticas",
     fix_general: "Abrir Ajustes",
     last_actions: "Últimas acciones",
@@ -155,7 +188,6 @@ export const STRINGS = {
     loading: "Cargando…",
     load_failed: "No se pudo cargar el resumen.",
     source_rule: "regla de vigilancia",
-    operators: { equals: "es igual a", not_equals: "es distinto de", above: "por encima de", below: "por debajo de", between: "entre", contains: "contiene", not_contains: "no contiene", empty: "está vacío", not_empty: "no está vacío" },
   },
 };
 
@@ -169,19 +201,6 @@ export function fill(template, params) {
 // The badges of the active tile: only the states that occur, in a fixed order.
 export function badgeList(counts) {
   return BADGES.filter((key) => (counts?.[key] ?? 0) > 0).map((key) => ({ key, n: counts[key] }));
-}
-
-// One line about what a rule watches, from its structured fields.
-export function ruleCondition(rule, t) {
-  if (rule.template) return t.rule_template;
-  const state = Array.isArray(rule.state) ? rule.state.join(", ") : rule.state || "";
-  const operator = t.operators[rule.operator] || rule.operator;
-  return fill(t.rule_watches, { entity: rule.entity_id, operator, state }).trim();
-}
-
-export function ruleState(rule, t) {
-  if (!rule.enabled) return t.rule_disabled;
-  return rule.showing ? t.rule_showing : t.rule_waiting;
 }
 
 // The page that fixes an item of "Needs attention", as the key of the button text.
@@ -201,6 +220,11 @@ const CSS = `
 .hu-overview section { background: var(--card-background-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
 .hu-overview .tiles section { margin-bottom: 0; }
 .hu-overview h2 { font-size: 16px; margin: 0 0 8px; }
+.hu-overview .shortcuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.hu-overview button.shortcut { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; padding: 10px 14px; min-height: 48px; background: var(--card-background-color); border-radius: 12px; }
+.hu-overview button.shortcut:hover { border-color: var(--primary-color); }
+.hu-overview button.shortcut .name { font-size: 14px; font-weight: 600; }
+.hu-overview button.shortcut .big { font-size: 24px; }
 .hu-overview .big { font-size: 32px; font-weight: 600; }
 .hu-overview .badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
 .hu-overview .badge { border-radius: 12px; padding: 2px 10px; font-size: 13px; background: var(--secondary-background-color); border: 1px solid var(--divider-color); }
@@ -219,7 +243,7 @@ export function mount(container, ctx) {
   const { t, s, fmt } = ctx;
   let hass = ctx.hass;
   let data = null;
-  let open = { active: false, rules: false };
+  let open = { active: false };
   let timer = null;
   const root = el("div", { className: "hu-overview" });
   container.append(root);
@@ -231,6 +255,32 @@ export function mount(container, ctx) {
     root.append(box);
     return box;
   };
+
+  // Small cards that open the page where the thing is set up; they show a number and nothing else
+  // the page already shows.
+  function shortcutRow() {
+    const sc = data.shortcuts;
+    const rules = data.rules;
+    const cards = [
+      { page: "rules", title: t.sc_rules, big: rules.enabled, sub: fill(t.sc_rules_sub, { showing: rules.showing }) },
+      { page: "channels", title: t.sc_channels, big: sc.channels.total, sub: sc.channels.mail ? t.sc_channels_sub_on : t.sc_channels_sub_off },
+      { page: "audiences", title: t.sc_audiences, big: sc.audiences.builtin + sc.audiences.custom, sub: fill(t.sc_audiences_sub, sc.audiences) },
+      { page: "policies", title: t.sc_policies, big: sc.policies.enabled, sub: fill(t.sc_policies_sub, sc.policies) },
+    ];
+    const row = el("div", { className: "shortcuts" });
+    row.setAttribute("aria-label", t.shortcuts);
+    for (const card of cards) {
+      const button = el("button", { type: "button", className: "shortcut" }, [
+        el("span", { className: "name", textContent: card.title }),
+        el("span", { className: "big", textContent: String(card.big) }),
+        el("span", { className: "sub", textContent: card.sub }),
+      ]);
+      button.setAttribute("aria-label", `${fill(t.sc_open, { page: card.title })}: ${card.big}, ${card.sub}`);
+      button.addEventListener("click", () => ctx.navigate(card.page));
+      row.append(button);
+    }
+    root.append(row);
+  }
 
   function render() {
     root.replaceChildren(el("style", { textContent: CSS }), el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }));
@@ -276,23 +326,9 @@ export function mount(container, ctx) {
       );
     }
     const badges = badgeList(data.active.counts).map((b) => `${b.n} ${t[`badge_${b.key}`]}`);
-    tile(t.active, String(data.active.count), "", badges, "active", activeList);
+    tile(t.active, String(data.active.count), t.active_sub, badges, "active", activeList);
 
-    const rules = data.rules;
-    const ruleBadges = [];
-    if (rules.disabled) ruleBadges.push(`${rules.disabled} ${t.badge_disabled}`);
-    if (rules.showing) ruleBadges.push(`${rules.showing} ${t.badge_showing}`);
-    const ruleList = el("ul");
-    for (const rule of rules.items) {
-      ruleList.append(
-        el("li", {}, [
-          el("strong", { textContent: rule.name }),
-          el("span", { className: "sub", textContent: ` · ${ruleState(rule, t)}` }),
-          el("div", { className: "sub", textContent: ruleCondition(rule, t) }),
-        ]),
-      );
-    }
-    tile(t.rules, String(rules.total), fill(t.rules_active, { enabled: rules.enabled, total: rules.total }), ruleBadges, "rules", ruleList);
+    shortcutRow();
 
     const attention = data.attention;
     const attList = el("ul");
@@ -308,9 +344,27 @@ export function mount(container, ctx) {
         fix.addEventListener("click", () => ctx.navigate(item.page));
         row.append(fix);
       }
+      if (item.dismissible) {
+        const hide = el("button", { type: "button", textContent: t.hide, style: "margin-left:8px" });
+        hide.setAttribute("aria-label", `${t.hide_label}: ${fmt.attentionText(item, s)}`);
+        hide.addEventListener("click", async () => {
+          await hass.callWS({ type: "heads_up/attention_dismiss", key: item.key });
+          await load();
+        });
+        row.append(hide);
+      }
       attList.append(row);
     }
-    section(t.attention, [attList]);
+    const parts = [attList];
+    if (data.attention_hidden > 0) {
+      const again = el("button", { type: "button", textContent: t.show_hidden });
+      again.addEventListener("click", async () => {
+        await hass.callWS({ type: "heads_up/attention_restore" });
+        await load();
+      });
+      parts.push(el("div", { className: "sub", style: "margin-top:8px" }, [el("span", { textContent: `${fill(t.hidden_line, { n: data.attention_hidden })} ` }), again]));
+    }
+    section(t.attention, parts);
 
     const log = el("ul");
     if (data.log.length === 0) log.append(el("li", { textContent: t.last_none }));

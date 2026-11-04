@@ -1,8 +1,11 @@
 """The checks of "Needs attention": each is a pure function over plain data (D-118)."""
 
+from datetime import UTC, datetime
+
 from custom_components.heads_up.hub.panel_data import (
     check_critical_escalation,
     check_devices,
+    check_failures,
     check_groups,
     check_hub,
     check_people,
@@ -128,3 +131,41 @@ def test_the_hub_being_off_is_a_warning() -> None:
     assert check_hub(True) == []
     (item,) = check_hub(False)
     assert (item.kind, item.level, item.page) == ("hub_off", "warning", "general")
+
+
+def test_a_person_who_does_not_accept_push_is_not_flagged_for_a_missing_device() -> None:
+    profiles = [
+        {"name": "Ben", "channels": ["banner", "popup"], "devices": []},
+        {"name": "Cy", "channels": ["banner", "push"], "devices": []},
+        {"name": "Di", "channels": ["banner", "popup"], "devices": [device("Old", False)]},
+    ]
+    assert [(i.subject) for i in check_people(profiles)] == ["Cy"]
+    assert check_devices(profiles) == []
+
+
+def test_only_warnings_can_be_dismissed_and_the_key_names_problem_and_object() -> None:
+    (warning,) = check_hub(False)
+    assert warning.as_dict()["dismissible"] is True
+    assert warning.key == "hub_off||"
+    (error,) = check_groups([{"name": "Hall", "reachable": False}])
+    assert error.as_dict()["dismissible"] is False
+    assert error.key == "group_empty|Hall|"
+
+
+def test_failed_sends_of_the_last_day_are_counted_per_channel_and_reason() -> None:
+    now = datetime(2026, 11, 4, 12, 0, tzinfo=UTC)
+    log = [
+        {"time": "2026-11-04T11:00:00+00:00", "kind": "failed", "detail": "push|send_failed"},
+        {"time": "2026-11-04T10:00:00+00:00", "kind": "failed", "detail": "push|send_failed"},
+        {"time": "2026-11-04T09:00:00+00:00", "kind": "failed", "detail": "speak|no_tts_engine"},
+        {"time": "2026-11-04T08:00:00+00:00", "kind": "skipped", "detail": "push|quiet_hours"},
+        {"time": "2026-11-03T11:00:00+00:00", "kind": "failed", "detail": "mail|send_failed"},
+    ]
+    found = check_failures(log, now)
+    assert [(i.subject, i.detail, i.count, i.level, i.page) for i in found] == [
+        ("push", "send_failed", 2, "warning", "messages"),
+        ("speak", "no_tts_engine", 1, "warning", "messages"),
+    ]
+    assert found[0].key == "delivery_failed|push|send_failed"  # the count is not part of the key
+    assert found[0].as_dict()["dismissible"] is True
+    assert check_failures([], now) == []

@@ -3,6 +3,7 @@
 from typing import Any
 
 from freezegun.api import FrozenDateTimeFactory
+from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.typing import WebSocketGenerator
@@ -381,3 +382,76 @@ async def test_the_overview_offers_the_first_run_hint_until_a_policy_exists(
     await add_policy(hass, entry, "Water", **ESCALATION)
     assert (await overview(hass, client))["first_run"] is False
     await add_audience(hass, entry, "Family", kind="persons", persons=["person.anna"])
+
+
+async def test_a_warning_can_be_hidden_and_shown_again_but_an_error_stays(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    add_rule(hass, entry, entity_id="binary_sensor.missing")
+    await hass.async_block_till_done()
+    client = await hass_ws_client(hass)
+    first = await overview(hass, client)
+    warning = next(i for i in first["attention"] if i["kind"] == "no_critical_escalation")
+    assert warning["dismissible"] is True and first["attention_hidden"] == 0
+    assert (await ask(client, "attention_dismiss", key=warning["key"]))["success"]
+    hidden = await overview(hass, client)
+    assert "no_critical_escalation" not in [i["kind"] for i in hidden["attention"]]
+    assert hidden["attention_hidden"] == 1
+    assert "rule_entity" in [i["kind"] for i in hidden["attention"]]
+    error = next(i for i in hidden["attention"] if i["kind"] == "rule_entity")
+    assert error["dismissible"] is False
+    # A dismissal of an error key changes nothing: errors are never hidden.
+    await ask(client, "attention_dismiss", key=error["key"])
+    assert "rule_entity" in [i["kind"] for i in (await overview(hass, client))["attention"]]
+    assert (await ask(client, "attention_restore"))["success"]
+    shown = await overview(hass, client)
+    assert shown["attention_hidden"] == 0
+    assert "no_critical_escalation" in [i["kind"] for i in shown["attention"]]
+
+
+async def test_hiding_a_warning_is_for_admins_only(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_access_token: str,
+) -> None:
+    client = await hass_ws_client(hass, hass_read_only_access_token)
+    assert (await ask(client, "attention_dismiss", key="x"))["error"]["code"] == "unauthorized"
+    assert (await ask(client, "attention_restore"))["error"]["code"] == "unauthorized"
+
+
+async def test_a_person_with_push_switched_off_is_not_flagged(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    set_person(hass, "person.anna", "home", user_id="anna-id")
+    set_person(hass, "person.ben", "home", user_id="ben-id")
+    hass.config_entries.async_add_subentry(
+        entry,
+        ConfigSubentry(
+            data={"person": "person.ben", "channels": ["banner", "popup"]},
+            subentry_type="recipient_profile",
+            title="Ben",
+            unique_id=None,
+        ),
+    )
+    await hass.async_block_till_done()
+    client = await hass_ws_client(hass)
+    subjects = [
+        i["subject"]
+        for i in (await overview(hass, client))["attention"]
+        if i["kind"] == "person_no_device"
+    ]
+    assert subjects == ["person.anna"]
+
+
+async def test_the_shortcut_cards_count_audiences_policies_and_channels(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    await add_audience(hass, entry, "Parents", kind="persons", persons=[])
+    await add_policy(hass, entry, "Water", **ESCALATION)
+    await add_policy(hass, entry, "Off", **{**ESCALATION, "enabled": False})
+    client = await hass_ws_client(hass)
+    shortcuts = (await overview(hass, client))["shortcuts"]
+    assert shortcuts["audiences"] == {"builtin": 6, "custom": 1}
+    assert shortcuts["policies"] == {"total": 2, "enabled": 1}
+    assert shortcuts["channels"] == {"total": 6, "mail": False}

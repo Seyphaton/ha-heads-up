@@ -8,12 +8,22 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from ..const import POLICY_SUBENTRY, POLICY_TYPES, RULE_SUBENTRY
+from ..const import (
+    AUDIENCE_SUBENTRY,
+    BUILTIN_AUDIENCES,
+    CHANNELS,
+    OPT_ATTENTION_DISMISSED,
+    OPT_MAIL_SERVICE,
+    POLICY_SUBENTRY,
+    POLICY_TYPES,
+    RULE_SUBENTRY,
+)
 from ..manager import BannerManager
 from .ledger import State
 from .policies import away, deliver, escalation, fallback, quiet, reminder, summarize
@@ -40,14 +50,24 @@ class Attention:
     subject: str  # the object: a rule, person, group, policy or device
     detail: str | None = None  # a reason code or a name
     page: str = ""  # the panel page that fixes it
+    count: int | None = None  # how often, for a problem that repeats
 
-    def as_dict(self) -> dict[str, str | None]:
+    @property
+    def key(self) -> str:
+        """What a dismissal remembers: the same problem on the same object."""
+        return f"{self.kind}|{self.subject}|{self.detail or ''}"
+
+    def as_dict(self) -> dict[str, Any]:
         return {
             "kind": self.kind,
             "level": self.level,
             "subject": self.subject,
             "detail": self.detail,
             "page": self.page,
+            "count": self.count,
+            "key": self.key,
+            # Warnings can be hidden; an error means something is broken and stays.
+            "dismissible": self.level == "warning",
         }
 
 
@@ -69,22 +89,30 @@ def check_rule_entities(
     return found
 
 
+def _accepts_push(profile: dict[str, Any]) -> bool:
+    channels = profile.get("channels")
+    return channels is None or "push" in channels
+
+
 def check_devices(profiles: list[dict[str, Any]]) -> list[Attention]:
-    """A device whose notify service Home Assistant does not have (error)."""
+    """A device whose notify service Home Assistant does not have (error). A person who does not
+    accept push is not checked: nothing is pushed to their devices."""
     return [
         Attention("device_service", "error", p["name"], d["name"] or d["device_id"], "recipients")
         for p in profiles
+        if _accepts_push(p)
         for d in p["devices"]
         if not d["service_found"]
     ]
 
 
 def check_people(profiles: list[dict[str, Any]]) -> list[Attention]:
-    """A person with no usable device: push is skipped (warning)."""
+    """A person with no usable device: push is skipped (warning). Not for a person whose profile
+    does not accept push."""
     return [
         Attention("person_no_device", "warning", p["name"], None, "recipients")
         for p in profiles
-        if not any(d["service_found"] for d in p["devices"])
+        if _accepts_push(p) and not any(d["service_found"] for d in p["devices"])
     ]
 
 
@@ -108,6 +136,29 @@ def check_policies(
         elif (problem := policy["problem"]) is not None:
             found.append(Attention("policy_target", "error", policy["name"], problem, "policies"))
     return found
+
+
+FAILURE_WINDOW = timedelta(hours=24)
+
+
+def check_failures(log: list[dict[str, Any]], now: datetime) -> list[Attention]:
+    """Sends that failed in the last 24 hours, one item per channel and reason (warning).
+
+    The log is memory only, so after a restart this starts empty. Skipped deliveries are
+    choices (quiet hours, a limit) and are not counted here.
+    """
+    counts: dict[tuple[str, str], int] = {}
+    for entry in log:
+        if entry["kind"] != "failed":
+            continue
+        if now - dt_util.parse_datetime(entry["time"]) > FAILURE_WINDOW:  # type: ignore[operator]
+            continue
+        channel, _, reason = str(entry.get("detail") or "").partition("|")
+        counts[(channel, reason or "unknown")] = counts.get((channel, reason or "unknown"), 0) + 1
+    return [
+        Attention("delivery_failed", "warning", channel, reason, "messages", count)
+        for (channel, reason), count in sorted(counts.items())
+    ]
 
 
 def check_critical_escalation(policies: list[Policy]) -> list[Attention]:
@@ -145,6 +196,7 @@ def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[d
             profiles.append(
                 {
                     "name": state.attributes.get("friendly_name") or state.entity_id,
+                    "channels": list(profile.channels),
                     "devices": [
                         {"name": d.name, "device_id": d.device_id, "service_found": d.service_found}
                         for d in profile.devices
@@ -163,6 +215,7 @@ def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[d
         found += check_groups(groups)
         found += check_policies(_policy_inputs(entry, hub))
         found += check_critical_escalation(hub.policies.all())
+        found += check_failures(hub.log.latest(), dt_util.utcnow())
     return [item.as_dict() for item in found]
 
 
@@ -250,6 +303,23 @@ def rule_item(manager: BannerManager, rule: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def shortcuts(entry: Any, manager: BannerManager) -> dict[str, Any]:
+    """The numbers on the Overview's shortcut cards."""
+    subs = list(entry.subentries.values())
+    policies = [s for s in subs if s.subentry_type == POLICY_SUBENTRY]
+    return {
+        "channels": {"total": len(CHANNELS), "mail": bool(manager.options.get(OPT_MAIL_SERVICE))},
+        "audiences": {
+            "builtin": len(BUILTIN_AUDIENCES),
+            "custom": sum(1 for s in subs if s.subentry_type == AUDIENCE_SUBENTRY),
+        },
+        "policies": {
+            "total": len(policies),
+            "enabled": sum(1 for s in policies if s.data.get("enabled", True)),
+        },
+    }
+
+
 def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[str, Any]:
     items = []
     for banner in _messages(manager):
@@ -269,6 +339,10 @@ def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[st
     }
     rules = [rule_item(manager, r) for r in _rule_data(entry)]
     hub = manager.hub
+    dismissed = set(entry.options.get(OPT_ATTENTION_DISMISSED, []))
+    found = attention(hass, manager, entry)
+    shown = [a for a in found if not (a["dismissible"] and a["key"] in dismissed)]
+    hidden = len(found) - len(shown)
     return {
         "active": {"count": len(items), "counts": counts, "items": items},
         "rules": {
@@ -278,7 +352,9 @@ def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[st
             "showing": sum(1 for r in rules if r["showing"]),
             "items": rules,
         },
-        "attention": attention(hass, manager, entry),
+        "attention": shown,
+        "attention_hidden": hidden,
+        "shortcuts": shortcuts(entry, manager),
         "log": hub.log.latest(50) if hub is not None else [],
         "first_run": hub is not None and not hub.policies.all(),
     }

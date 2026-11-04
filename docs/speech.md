@@ -45,7 +45,7 @@ The text is `tts_message` if you set it, otherwise the title, otherwise the mess
 
 An area or group with no speaker, and a speaker that no longer exists, also leave one entry in Home Assistant's notification bell: "Heads Up: no speaker" or "Heads Up: speaker not found". It names the area, group or speaker and never the message, because every user sees the bell. A repeat replaces the entry, and it stays until someone dismisses it. A dry run in the panel creates none.
 
-A speaker that no longer exists, a service that is missing or fails, and a missing engine give a `failed` delivery in the trace (`heads_up/hub_trace`) with the reasons `entity_missing`, `service_not_found`, `send_failed` and `no_tts_engine`. A failing service writes one log warning per speaker per hour.
+A speaker that no longer exists, a service that is missing or fails, and a missing engine give a `failed` delivery in the trace (`heads_up/hub_trace`) with the reasons `entity_missing`, `service_not_found`, `send_failed` and `no_tts_engine`. A failing service, a missing speaker and a missing engine each write a log warning, at most one per speaker per hour. The warning for a missing engine names the engines found. Skips (quiet hours, the pause, nothing to say) are written at debug level only; see [Troubleshooting](troubleshooting.md) to turn debug logging on. Test send in the panel shows each result with its reason.
 
 ## Limits
 

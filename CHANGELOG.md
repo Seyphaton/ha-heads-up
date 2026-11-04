@@ -5,7 +5,16 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ## [Unreleased]
 
 ### Added
+- Needs attention warns about sends that failed in the last 24 hours, per channel and reason.
+- Built-in audiences have a checkbox to switch them off; a presence audience can be limited to chosen persons (for example At home for one person).
+- Test send shows what happened after Send test: the real delivery results with their reasons.
+- Overview: shortcut cards for Watch rules, Channels, Audiences and Policies that open their pages, an explanation under Active notifications, and a Hide button on each warning of Needs attention (Show again restores them).
 - Panel: the Watch rules page lists every rule with its state and adds, edits and deletes rules in a form with sections (When, What to show, Who sees it, Behaviour). Buttons and the tap action stay as they are; change them in the rule form on the integration page.
+
+### Fixed
+- Speech logs a warning when no text-to-speech engine is chosen (naming the engines found) and when the speaker is missing; before these failures were visible only in the trace.
+- The built-in audiences no longer show their name twice on the Audiences page.
+- Needs attention no longer reports a missing device for a person whose profile does not accept push.
 
 ## [1.0.0-alpha.2] - 2026-11-03
 

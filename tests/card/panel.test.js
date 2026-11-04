@@ -193,8 +193,6 @@ import {
 import {
   badgeList,
   fixKey,
-  ruleCondition,
-  ruleState,
   STRINGS as OVERVIEW_STRINGS,
 } from "../../custom_components/heads_up/frontend/panel/overview.js";
 import {
@@ -288,30 +286,13 @@ describe("overview functions", () => {
     expect(badgeList(undefined)).toEqual([]);
   });
 
-  it("describes what a rule watches", () => {
-    const t = OVERVIEW_STRINGS.en;
-    expect(ruleCondition({ entity_id: "binary_sensor.window", operator: "equals", state: ["on"] }, t)).toBe(
-      "watches binary_sensor.window equals on",
-    );
-    expect(ruleCondition({ entity_id: "sensor.t", operator: "above", state: ["30"] }, t)).toBe("watches sensor.t above 30");
-    expect(ruleCondition({ entity_id: "sensor.t", operator: "empty" }, t)).toBe("watches sensor.t is empty");
-    expect(ruleCondition({ template: "{{ 1 }}" }, t)).toBe("watches a template");
-  });
-
-  it("words the state of a rule", () => {
-    const t = OVERVIEW_STRINGS.en;
-    expect(ruleState({ enabled: false }, t)).toBe("disabled");
-    expect(ruleState({ enabled: true, showing: true }, t)).toBe("showing");
-    expect(ruleState({ enabled: true, showing: false }, t)).toBe("waiting");
-  });
-
   it("names the button text key of a fix page", () => {
     expect(fixKey("policies")).toBe("fix_policies");
   });
 
   it("has a text for every fix page of the attention items", () => {
     for (const language of Object.values(OVERVIEW_STRINGS)) {
-      for (const page of ["recipients", "rules", "policies", "general"]) expect(language[fixKey(page)]).toBeTruthy();
+      for (const page of ["recipients", "rules", "policies", "general", "messages"]) expect(language[fixKey(page)]).toBeTruthy();
     }
   });
 
