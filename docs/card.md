@@ -1,6 +1,6 @@
 # Card
 
-The card `custom:heads-up-card` shows the banners created by `heads_up.create_banner`. It is registered when the integration loads. You do not add a dashboard resource.
+The card `custom:heads-up-card` shows the messages that have the `banner` channel, made with `heads_up.notify` or `heads_up.create_banner`. It is registered when the integration loads. You do not add a dashboard resource.
 
 Add it in the dashboard YAML editor:
 
@@ -49,11 +49,104 @@ swipe_to_dismiss: true
 empty_message: All clear
 ```
 
+## Looks
+
+![Card with four banners: critical, warning, info and success, each with a severity label and the time since it was created](images/card-default.png)
+
+The card above uses `show_time: true` and `show_severity: true`. The variants below change one thing each.
+
+### Without severity label and time
+
+This is the default. The icon and color show the severity.
+
+```yaml
+type: custom:heads-up-card
+title: House Information
+```
+
+![Card without severity labels and times](images/card-no-label-no-time.png)
+
+### Custom colors
+
+`colors` sets a color per severity. `colorize: background` colors only the banner background.
+
+```yaml
+type: custom:heads-up-card
+title: House Information (custom colors)
+colorize: background
+colors:
+  critical: "#2d1f33"
+  warning: "#1d2d33"
+  info: "#1c2b2b"
+  success: "#243021"
+```
+
+![Card with custom background colors](images/card-custom-colors.png)
+
+### Only the icon colored
+
+`colorize: icon` leaves the background neutral. `max_items: 3` hides the fourth banner.
+
+```yaml
+type: custom:heads-up-card
+colorize: icon
+show_severity: true
+max_items: 3
+```
+
+![Card with colored icons and labels on a neutral background](images/card-icon-color.png)
+
+### Collapsed list
+
+`collapsed_items: 2` shows two banners and a "Show 2 more" button. `clear_all` adds a "Clear all" button that dismisses the banners for you only.
+
+```yaml
+type: custom:heads-up-card
+title: House Information (max 2 shown)
+show_time: true
+collapsed_items: 2
+clear_all: true
+```
+
+![Card showing two of four banners with Show 2 more and Clear all](images/card-show-more.png)
+
+### Compact
+
+`layout: compact` puts each banner on one line and cuts long text with "…".
+
+```yaml
+type: custom:heads-up-card
+title: House Information (Compact)
+layout: compact
+show_time: true
+show_severity: true
+```
+
+![Card in compact layout](images/card-compact.png)
+
+### Empty
+
+With `empty_message` the card stays visible when there are no banners. Without it, the card hides itself.
+
+```yaml
+type: custom:heads-up-card
+title: Status
+empty_message: All clear — no notifications
+```
+
+![Card with no banners and the text "All clear — no notifications"](images/card-empty.png)
+
+### Buttons and snooze
+
+![A warning banner with a snooze button, a close button and three text buttons](images/card-buttons-snooze.png)
+
+A banner with `snoozable: true` and up to 3 `actions` shows a snooze button and text buttons. See [Snooze and buttons](#snooze-and-buttons) and [Buttons and snooze](actions.md#buttons-and-snooze).
+
 ## What a banner shows
 
 - An icon, the title (if set) and the message. The severity is shown by the icon and its color; `show_severity: true` adds the text label. When the label is hidden, screen readers still get it.
 - With `show_time`, the time since the banner was created or replaced. It updates every 30 seconds.
-- A dismiss button (48×48 px) when the banner is dismissible. What it does depends on `dismiss_scope` (see [actions](actions.md)).
+- A dismiss button (48×48 px) when the banner is dismissible. What it does depends on `dismiss_scope` (see [Actions](actions.md#what-people-can-do-with-it)).
 - For administrators, a "Clear for everyone" button on banners that are not dismissible. Banners from [watch rules](rules.md) have none; disable or delete the rule.
 - When some banners in a card have a button and others do not, the others keep an empty space of the same width, so the text and times line up.
 

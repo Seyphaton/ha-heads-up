@@ -1,48 +1,313 @@
 # Actions
 
-Heads Up has eight actions. `create_banner`, `clear_banner` and `clear_all` are the banner actions. `notify`, `push`, `popup`, `speak` and `clear` belong to the notification hub, which delivers one message on several channels. Call them from automations, scripts, blueprints or Developer tools > Actions.
+Heads Up has one main action, `heads_up.notify`. It sends one message to the channels you name. The other actions are shortcuts for common cases and the actions that take a message back. Call them from automations, scripts, blueprints or Developer tools > Actions.
+
+| You want to | Use |
+|---|---|
+| Send a message to one or more channels (banner, push, popup, speech, mail, bell) | [`heads_up.notify`](#heads_upnotify) |
+| Show a banner on the dashboard and nothing else | [`heads_up.create_banner`](#heads_upcreate_banner), the same as `notify` with `channels: [banner]` |
+| Send a push, a popup or speech and nothing else | [`heads_up.push`](#heads_uppush), [`heads_up.popup`](#heads_uppopup), [`heads_up.speak`](#heads_upspeak) |
+| Take a message back from every channel | [`heads_up.clear`](#heads_upclear) |
+| Remove banners only | [`heads_up.clear_banner`](#heads_upclear_banner), [`heads_up.clear_all`](#heads_upclear_all) |
+
+A banner is not a separate thing. It is the dashboard view of a message, so every field that works for a banner is a field of `notify`.
+
+## `heads_up.notify`
+
+Delivers one message on the channels you name. Calling it again with the same `id` replaces the message.
+
+```yaml
+action: heads_up.notify
+data:
+  id: front_door
+  title: Front door
+  message: The front door has been open for 10 minutes.
+  severity: warning
+  channels: [banner, push]
+  to:
+    push: {audience: At home}
+```
+
+The banner is on the dashboard, and everyone who is home gets a push. When the message ends, both are taken back. Only `message` and `channels` are required.
+
+### What the message says
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `message` | text | required | The text, 1–1000 characters. |
+| `title` | text | none | A heading above the message, up to 100 characters. |
+| `severity` | `success`, `info`, `warning`, `critical` | `warning` | How important the message is. It sets the color, the default icon and the sort order of the banner, the level of a push, the style of a popup, and whether quiet hours let the message pass. |
+| `icon` | icon, for example `mdi:water-alert` | the icon of the severity | Replaces the default icon. |
+| `image` | text | none | A picture shown under the message on the card, in the popup and on the push: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/local/door.jpg`, `/media/local/door.jpg`). Up to 2048 characters. Heads Up does not fetch or check it; a wrong path shows no picture. Paths under `/api/` and `/media/` are signed for the card and the popup. The phone loads the picture itself, so it must reach the URL; camera proxy paths (`/api/camera_proxy/...`) work on Android only. The compact card layout shows no picture. With a lock screen setting other than `full`, the push has no picture (`image_hidden` in the trace). |
+| `tts_message` | text | the title if set, otherwise the message | The text for the speak channel, when it should differ from the written message. |
+| `tap_action` | object with `action` | none | A Home Assistant action that runs when someone taps the banner (the card) or the push. Passed on unchanged. Anyone who sees the banner can trigger it; see [SECURITY.md](../SECURITY.md). |
+
+### Where it goes and who gets it
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `channels` | list of channels | required | One or more of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, each at most once. |
+| `to` | object | none | Who gets the message, per channel. See below. |
+| `policy` | text | every policy that applies | The name of one [policy](policies.md) to use, whatever its severities and tags say. `none` uses no policy. |
+
+`to` holds one entry per channel. Each entry is either `audience` (the name of a group such as `At home`) or `recipients` (a list), never both.
+
+- `push`, `popup` and `mail` need a target: an audience or recipients. Audience and recipient names are described in [Audiences and recipients](audiences.md).
+- `speak` needs recipients (speakers, groups or areas). It takes no audience.
+- `persistent` takes no target. The notification bell is shared, so everyone sees the entry (see [Persistent notifications](persistent.md)).
+- `banner` needs none. Without a target, every user sees the banner. Recipients limit the banner to the users linked to those persons. An audience does the same with the persons it has when the call is made; a person who joins the audience later does not see a banner that already exists, and an empty audience gives a banner nobody sees.
+
+The names in `to` and `policy` are checked when you call the action. A name that does not exist fails with an error that lists the valid names.
+
+### How long it lives
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `id` | text | generated, for example `hu_3f9a1c02b7` | The name of the message. Lowercase letters, digits, `-` and `_`, up to 64 characters. Use your own `id` to replace or clear the message later. |
+| `timeout` | seconds or duration | setting Default timeout, shipped as 24 hours | The message ends on every channel after this time, also across restarts. `0` means no timeout. Maximum 365 days. |
+| `tag` | text | none | A group name, with the same character rules as `id`. Card filters, policies and the clear actions use it to find messages. |
+| `condition` | object | none | Show the message only while an entity matches or a template is true, optionally for a set time. See [Conditions](#conditions). |
+| `mode` | `once`, `recurring` | `once` | What happens when the condition turns false: `once` ends the message, `recurring` hides it until the condition is true again. Ignored without `condition`. |
+| `wait_for_condition` | boolean | `true` | What happens when the condition is false at the time of the call: `true` waits, `false` stores nothing. Ignored without `condition`. |
+
+Replacing a message with the same `id`:
+
+- Every field takes the value of the new call. Fields you leave out get their defaults; they do not keep the old value.
+- The timeout starts again.
+- Users who closed the message see it again.
+
+The setting Maximum number of stored messages (default 50) limits how many messages can exist. When it is reached, Heads Up removes the oldest message with the lowest severity: `success` first, then `info`, then `warning`. It never removes a `critical` message. If none can be removed, the call fails with "Heads Up already holds 50 banners and none can be evicted."
+
+### What people can do with it
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `dismissible` | boolean | `true` | Whether people can close the message. On the banner it shows a close button; the push and the popup get a Dismiss button. |
+| `dismiss_scope` | `user`, `global` | setting Default dismiss scope, shipped as `user` | `user`: closing hides the message only for that person and takes back only their push. `global`: closing ends the message for everyone. |
+| `snoozable` | boolean | setting Messages can be snoozed by default, shipped as `false` | `true`: the banner, the push and the popup offer Snooze. The message hides for the chosen time and then returns. Rejected together with `dismissible: false`. |
+| `snooze_scope` | `user`, `global` | setting Default snooze scope, shipped as `user` | `user`: a snooze hides the message only for that person. `global`: for everyone. |
+| `snooze_options` | list of durations, 1 minute to 7 days, at most 6 | setting Snooze choices on the banner, shipped as 15 minutes, 1 hour, 4 hours | The choices the banner offers. The push and the popup have one Snooze time, the setting Snooze time on push and popup. The timeout and the condition keep running while a message is snoozed. Creating the message again with the same `id`, or a recurring condition turning false and true again, ends all snoozes. |
+| `actions` | list of up to 3 buttons | none | Your own buttons. See [Buttons and snooze](#buttons-and-snooze). |
+
+### Response
+
+| Key | Value |
+|---|---|
+| `id` | The `id` of the message. |
+| `status` | `created`, `updated`, `waiting` (stored, condition not true yet) or `condition_false` (nothing stored). |
+| `channels` | For each channel the counts `sent`, `held`, `skipped` and `failed`. A message that waits for its condition counts as `held`. |
+
+A message without the `banner` channel is stored so that it can be updated and cleared, but the card does not show it. The counts come from the plan made before sending: `sent` means the notification was handed to the channel's service. A service that then fails is a `failed` delivery in the trace, not in the response.
+
+### Buttons and snooze
+
+A message can carry up to 3 buttons of its own. Each button has these keys:
+
+| Key | Default | Meaning |
+|---|---|---|
+| `key` | required | Lowercase letters, digits, `_` and `-`. Names the button in the event. |
+| `label` | required | The text on the button, 1 to 40 characters. |
+| `dismiss` | `false` | `true`: pressing it also closes the message for the person who pressed it. Rejected with `dismissible: false`. |
+| `action` | none | A Home Assistant action the card runs, like `tap_action`. The popup does not run it; it only fires the event. |
+
+Pressing a button fires the event `heads_up_banner_action` with `id`, `tag`, `key` and `user_id`. After the message was dismissed, acknowledged or its condition turned false, a press is refused with `message_ended` and fires no event; the setting "Disable message buttons once the message has ended" turns this off. A press on a message that was removed is always refused (`not_found`).
+
+A message that can be snoozed for 30 minutes or 2 hours, with one button that closes it for the person who pressed it and fires an event:
+
+```yaml
+action: heads_up.notify
+data:
+  id: laundry_done
+  message: The washing machine has finished.
+  severity: info
+  channels: [banner]
+  snoozable: true
+  snooze_options:
+    - minutes: 30
+    - hours: 2
+  actions:
+    - key: ack
+      label: Got it
+      dismiss: true
+```
+
+An automation can react to the button:
+
+```yaml
+triggers:
+  - trigger: event
+    event_type: heads_up_banner_action
+    event_data:
+      id: laundry_done
+      key: ack
+```
+
+Snooze needs `dismissible: true`. The card runs a button's `action` itself, so a button that opens a dashboard works only where a card is open.
+
+### Conditions
+
+`condition` makes a message wait for, and follow, the state of your home. Use either `entity_id` (with `operator`, `state` and `attribute`) or `template`, not both. `for` works with both.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `entity_id` | required unless `template` is set | The entity to watch. It must exist when you call the action. |
+| `template` | none | A Home Assistant template. The condition holds while it renders true (`true`, `on`, `yes`, `1`). It cannot be combined with `entity_id`, `operator`, `state` or `attribute`. |
+| `for` | none | How long the condition must hold without a break before the message shows, for example `{minutes: 5}` or `"00:05:00"`. From 1 second to 24 hours. See below. |
+| `operator` | `equals` | How to compare. See the table below. |
+| `state` | `"on"` for `equals` and `not_equals`; required for the others except `empty` and `not_empty`, which ignore it | The value or values to compare with. |
+| `attribute` | none | Compare this attribute instead of the state. The attribute value is compared as text. |
+
+| `operator` | `state` | Matches when |
+|---|---|---|
+| `equals` | text or list | The value equals any of them. |
+| `not_equals` | text or list | The value equals none of them. |
+| `above` | one number | The value is greater than the number. |
+| `below` | one number | The value is less than the number. |
+| `between` | two numbers, low then high | The value is from low to high, both included. |
+| `contains` | text or list | The value contains any of the texts. |
+| `not_contains` | text or list | The value contains none of the texts. |
+| `empty` | not used | The value is empty or only spaces. A missing attribute counts as empty. |
+| `not_empty` | not used | The value has text other than spaces. A missing attribute does not match. |
+
+What happens:
+
+- While the entity matches, the message shows.
+- `mode: once`: the first time the entity stops matching, the message ends for good. The event `heads_up_banner_cleared` has `reason: condition`.
+- `mode: recurring`: the message hides while the entity does not match and shows again when it matches. Users who closed it see it again.
+- `unavailable` and `unknown` do not change anything, for every operator. `not_equals: "on"` does not match an unavailable entity. A message stays as it was until the entity has a real state again. This also applies while Home Assistant starts and entities are not loaded yet.
+- `empty` and `not_empty` work on the state or the attribute. An empty list or object counts as empty.
+- `above`, `below` and `between` do not change anything while the value is not a number. The other operators do not change anything while the attribute is missing.
+- If the entity does not match when you call the action, the message waits and shows when the entity matches. With `wait_for_condition: false`, nothing is stored and the response status is `condition_false`. A message that already had this `id` is removed.
+- The `timeout` keeps running while a message waits.
+
+#### `for`: hold for a while
+
+- The message shows only after the condition has been true for the whole `for` time. If it turns false first, the wait starts again the next time it is true. While it waits the response status is `waiting`.
+- Once shown, the message follows the condition as usual: `mode: once` ends it, `mode: recurring` hides it and waits `for` again the next time.
+- After a Home Assistant restart or an integration reload, a message that was already shown stays. A message that was still waiting starts its wait again from the restart.
+- If the entity is `unavailable` or `unknown` when the wait ends, nothing is shown; the wait starts again when it has a matching state.
+- `for` is not combined with `wait_for_condition: false`: with a true condition the message would have to wait, so nothing is stored.
+- Keep `for` shorter than `timeout`, which keeps running during the wait.
+
+#### `template`: any condition you can write
+
+- The template is checked when you call the action. A template that does not render yet (for example a missing entity) leaves the message waiting.
+- Home Assistant re-evaluates it when an entity it reads changes, and for time functions such as `now()` on their own schedule.
+- A template that fails to render later leaves the message as it was and logs a message at debug level.
+
+```yaml
+- action: heads_up.notify
+  data:
+    id: window_bedroom
+    message: The bedroom window is open.
+    channels: [banner]
+    condition:
+      entity_id: binary_sensor.bedroom_window
+      state: "on"
+```
+
+```yaml
+- action: heads_up.notify
+  data:
+    id: vacuum_stuck
+    message: The vacuum needs help.
+    channels: [banner]
+    mode: recurring
+    timeout: 0
+    condition:
+      entity_id: vacuum.downstairs
+      state: [error, idle]
+```
+
+```yaml
+- action: heads_up.notify
+  data:
+    id: living_room_hot
+    message: The living room is warm.
+    channels: [banner]
+    mode: recurring
+    timeout: 0
+    condition:
+      entity_id: sensor.living_room_temperature
+      operator: above
+      state: 25
+```
+
+```yaml
+- action: heads_up.notify
+  data:
+    id: note_set
+    message: A note was left.
+    channels: [banner]
+    mode: recurring
+    timeout: 0
+    condition:
+      entity_id: input_text.door_note
+      operator: not_empty
+```
+
+```yaml
+- action: heads_up.notify
+  data:
+    id: garage_open
+    message: The garage door has been open for 10 minutes.
+    channels: [banner, push]
+    to:
+      push: {audience: At home}
+    mode: recurring
+    timeout: 0
+    condition:
+      entity_id: cover.garage_door
+      state: "open"
+      for:
+        minutes: 10
+```
+
+```yaml
+- action: heads_up.notify
+  data:
+    id: evening_window
+    message: A window is open in the evening.
+    channels: [banner]
+    mode: recurring
+    timeout: 0
+    condition:
+      template: "{{ is_state('binary_sensor.bedroom_window', 'on') and now().hour >= 20 }}"
+```
 
 ## `heads_up.create_banner`
 
-Shows a banner in every Heads Up card. Calling it again with the same `id` replaces the banner.
+The shortcut for a message that only shows a banner. It equals `heads_up.notify` with `channels: [banner]`. Every field means the same as in `notify`; follow the links in the table. It has no `channels`, `to`, `tts_message` or `policy` fields, and it adds `people`. Every policy that applies to the message is used.
 
-| Field | Type | Required / default | Meaning |
+| Field | Type | Default | Meaning |
 |---|---|---|---|
-| `message` | text | required | Banner text, 1–1000 characters. |
-| `id` | text | generated, for example `hu_3f9a1c02b7` | Lowercase letters, digits, `-` and `_`, up to 64 characters. Use your own ID to replace or clear the banner later. |
-| `title` | text | none | Up to 100 characters. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | Sets color, default icon and sort order. |
-| `icon` | icon, for example `mdi:water-alert` | icon of the severity | Replaces the default icon. |
-| `timeout` | seconds or duration | integration option, shipped as 24 hours | The banner disappears after this time, also across restarts. `0` means no timeout. Maximum 365 days. |
-| `dismissible` | boolean | `true` | Shows a close button. |
-| `dismiss_scope` | `user`, `global` | integration option, shipped as `user` | `user`: closing hides the banner only for that user. `global`: closing removes it for everyone. |
-| `snoozable` | `true`, `false` | integration option, shipped as `false` | `true`: the card offers a snooze button and, with `swipe_to_dismiss`, a right swipe with quick choices. The banner hides for the chosen time and then returns. Rejected together with `dismissible: false`. |
-| `snooze_scope` | `user`, `global` | integration option, shipped as `user` | `user`: a snooze hides the banner only for that user. `global`: for everyone. |
-| `snooze_options` | list of durations, 1 minute to 7 days, at most 6 | integration option, shipped as 15 minutes, 1 hour, 4 hours | The choices the banner offers. The push and the popup have their own Snooze button with one time, the option Snooze time on push and popup. The timeout and the condition keep running while a banner is snoozed. Creating the banner again with the same `id`, or a recurring condition turning false and true again, ends all snoozes. |
-| `actions` | list of up to 3 buttons | none | Each button has `key` (lowercase letters, digits, `_`, `-`), `label` (1 to 40 characters), optional `dismiss` (`true`: pressing it also closes the banner for that user; rejected with `dismissible: false`) and optional `action` (a Home Assistant action the card runs, like `tap_action`). Pressing a button fires the event `heads_up_banner_action` with `id`, `tag`, `key` and `user_id`. After the message was dismissed, acknowledged or its condition turned false, a press is refused with `message_ended` and fires no event; the option "Disable message buttons once the message has ended" turns this off. A press on a message that was removed is always refused (`not_found`). |
-| `tag` | text | none | Group name, same character rules as `id`. Used by card filters and by `clear_banner`. |
-| `condition` | object | none | Show the banner only while an entity matches or a template is true, optionally for a set time. See [Conditions](#conditions). |
-| `mode` | `once`, `recurring` | `once` | What happens when the condition turns false. Ignored without `condition`. |
-| `wait_for_condition` | boolean | `true` | What happens when the condition is false at the time of the call. Ignored without `condition`. |
-| `people` | list of person entities | everyone | Show the banner only to the users linked to these people. See [People](#people). |
-| `tap_action` | object with `action` | none | Home Assistant action config run when the banner is tapped. Passed to the card unchanged. Anyone who sees the banner can trigger it; see [SECURITY.md](../SECURITY.md). |
-| `image` | text | none | A picture shown under the message on the card, in the popup and on the push: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/local/door.jpg`, `/media/local/door.jpg`). Up to 2048 characters. Heads Up does not fetch or check it; a wrong path shows no picture. Paths under `/api/` and `/media/` are signed for the card and the popup. The phone loads the picture itself, so it must reach the URL; camera proxy paths (`/api/camera_proxy/...`) work on Android only. The compact card layout shows no picture. With a lock screen setting other than `full`, the push has no picture (`image_hidden` in the trace). |
+| `message` | text | required | As in [`notify`](#what-the-message-says). |
+| `id` | text | generated | As in [`notify`](#how-long-it-lives). |
+| `title` | text | none | As in `notify`. |
+| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `notify`. |
+| `icon` | icon | the icon of the severity | As in `notify`. |
+| `image` | text | none | As in `notify`. |
+| `tap_action` | object with `action` | none | As in `notify`. |
+| `timeout` | seconds or duration | setting Default timeout | As in `notify`. |
+| `tag` | text | none | As in `notify`. |
+| `condition` | object | none | As in `notify`. See [Conditions](#conditions). |
+| `mode` | `once`, `recurring` | `once` | As in `notify`. |
+| `wait_for_condition` | boolean | `true` | As in `notify`. |
+| `dismissible` | boolean | `true` | As in `notify`. |
+| `dismiss_scope` | `user`, `global` | setting Default dismiss scope | As in `notify`. |
+| `snoozable` | boolean | setting Messages can be snoozed by default | As in `notify`. |
+| `snooze_scope` | `user`, `global` | setting Default snooze scope | As in `notify`. |
+| `snooze_options` | list of durations | setting Snooze choices on the banner | As in `notify`. |
+| `actions` | list of up to 3 buttons | none | As in `notify`. See [Buttons and snooze](#buttons-and-snooze). |
+| `people` | list of person entities | everyone | Show the banner only to the users linked to these people. The same as `to.banner.recipients` in `notify`. See below. |
 
 Response data:
 
 | Key | Value |
 |---|---|
-| `id` | ID of the banner. |
-| `status` | `created`, `updated`, `waiting` (stored, condition not true yet) or `condition_false` (nothing stored). |
-| `evicted` | Only present when a banner was removed to make room. ID of that banner. |
-
-Replacing a banner with the same `id`:
-
-- Every field takes the value of the new call. Fields you leave out get their defaults; they do not keep the old value.
-- The timeout starts again.
-- Users who closed the banner see it again.
-
-When Heads Up is full (option, default 50 banners), it removes the oldest banner with the lowest severity: `success` first, then `info`, then `warning`. It never removes a `critical` banner. If no banner can be removed, the call fails with "Heads Up already holds 50 banners and none can be evicted."
+| `id` | The `id` of the banner. |
+| `status` | `created`, `updated`, `waiting` or `condition_false`, as in `notify`. |
+| `evicted` | Only present when a banner was removed to make room. The `id` of that banner. |
 
 ```yaml
 - action: heads_up.create_banner
@@ -68,162 +333,6 @@ When Heads Up is full (option, default 50 banners), it removes the oldest banner
   response_variable: banner
 ```
 
-### Buttons and snooze
-
-A banner that can be snoozed for 30 minutes or 2 hours, with one button that closes it for the user who pressed it and fires an event:
-
-```yaml
-action: heads_up.create_banner
-data:
-  id: laundry_done
-  message: The washing machine has finished.
-  severity: info
-  snoozable: true
-  snooze_options:
-    - minutes: 30
-    - hours: 2
-  actions:
-    - key: ack
-      label: Got it
-      dismiss: true
-```
-
-An automation can react to the button:
-
-```yaml
-triggers:
-  - trigger: event
-    event_type: heads_up_banner_action
-    event_data:
-      id: laundry_done
-      key: ack
-```
-
-Snooze needs `dismissible: true`. A new call with the same `id`, or a recurring condition turning false and true again, ends all snoozes. The card runs a button's `action` itself, so a button that opens a dashboard works only where a card is open.
-
-### Conditions
-
-`condition` takes these keys. Use either `entity_id` (with `operator`, `state` and `attribute`) or `template`, not both. `for` works with both.
-
-| Key | Required / default | Meaning |
-|---|---|---|
-| `entity_id` | required unless `template` is set | Entity to watch. It must exist when you call the action. |
-| `template` | none | A Home Assistant template. The condition holds while it renders true (`true`, `on`, `yes`, `1`). It cannot be combined with `entity_id`, `operator`, `state` or `attribute`. |
-| `for` | none | How long the condition must hold without a break before the banner shows, for example `{minutes: 5}` or `"00:05:00"`. From 1 second to 24 hours. See below. |
-| `operator` | `equals` | How to compare. See the table below. |
-| `state` | `"on"` for `equals` and `not_equals`; required for the others except `empty` and `not_empty`, which ignore it | Value or values to compare with. |
-| `attribute` | none | Compare this attribute instead of the state. The attribute value is compared as text. |
-
-| `operator` | `state` | Matches when |
-|---|---|---|
-| `equals` | text or list | The value equals any of them. |
-| `not_equals` | text or list | The value equals none of them. |
-| `above` | one number | The value is greater than the number. |
-| `below` | one number | The value is less than the number. |
-| `between` | two numbers, low then high | The value is from low to high, both included. |
-| `contains` | text or list | The value contains any of the texts. |
-| `not_contains` | text or list | The value contains none of the texts. |
-| `empty` | not used | The value is empty or only spaces. A missing attribute counts as empty. |
-| `not_empty` | not used | The value has text other than spaces. A missing attribute does not match. |
-
-What you see:
-
-- While the entity matches, the banner shows.
-- `mode: once`: the first time the entity stops matching, the banner is removed for good. The event `heads_up_banner_cleared` has `reason: condition`.
-- `mode: recurring`: the banner hides while the entity does not match and shows again when it matches. Users who closed it see it again.
-- `unavailable` and `unknown` do not change anything, for every operator. `not_equals: "on"` does not match an unavailable entity. A banner stays as it was until the entity has a real state again. This also applies while Home Assistant starts and entities are not loaded yet.
-- `empty` and `not_empty` work on the state or the attribute. An empty list or object counts as empty. `unavailable` and `unknown` still change nothing.
-- `above`, `below` and `between` do not change anything while the value is not a number. The other operators do not change anything while the attribute is missing.
-- If the entity does not match when you call the action, the banner waits and shows when the entity matches. With `wait_for_condition: false`, nothing is stored and the response status is `condition_false`. A banner that already had this `id` is removed.
-- The `timeout` keeps running while a banner waits.
-
-#### `for`: hold for a while
-
-- The banner shows only after the condition has been true for the whole `for` time. If it turns false first, the wait starts again the next time it is true. While it waits the response status is `waiting`.
-- Once shown, the banner follows the condition as usual: `mode: once` removes it, `mode: recurring` hides it and waits `for` again the next time.
-- After a Home Assistant restart or an integration reload, a banner that was already shown stays. A banner that was still waiting starts its wait again from the restart.
-- If the entity is `unavailable` or `unknown` when the wait ends, nothing is shown; the wait starts again when it has a matching state.
-- `for` is not combined with `wait_for_condition: false`: with a true condition the banner would have to wait, so nothing is stored.
-- Keep `for` shorter than `timeout`, which keeps running during the wait.
-
-#### `template`: any condition you can write
-
-- The template is checked when you call the action. A template that does not render yet (for example a missing entity) leaves the banner waiting.
-- Home Assistant re-evaluates it when an entity it reads changes, and for time functions such as `now()` on their own schedule.
-- A template that fails to render later leaves the banner as it was and logs a message at debug level.
-
-```yaml
-- action: heads_up.create_banner
-  data:
-    id: window_bedroom
-    message: The bedroom window is open.
-    condition:
-      entity_id: binary_sensor.bedroom_window
-      state: "on"
-```
-
-```yaml
-- action: heads_up.create_banner
-  data:
-    id: vacuum_stuck
-    message: The vacuum needs help.
-    mode: recurring
-    timeout: 0
-    condition:
-      entity_id: vacuum.downstairs
-      state: [error, idle]
-```
-
-```yaml
-- action: heads_up.create_banner
-  data:
-    id: living_room_hot
-    message: The living room is warm.
-    mode: recurring
-    timeout: 0
-    condition:
-      entity_id: sensor.living_room_temperature
-      operator: above
-      state: 25
-```
-
-```yaml
-- action: heads_up.create_banner
-  data:
-    id: note_set
-    message: A note was left.
-    mode: recurring
-    timeout: 0
-    condition:
-      entity_id: input_text.door_note
-      operator: not_empty
-```
-
-```yaml
-- action: heads_up.create_banner
-  data:
-    id: garage_open
-    message: The garage door has been open for 10 minutes.
-    mode: recurring
-    timeout: 0
-    condition:
-      entity_id: cover.garage_door
-      state: "open"
-      for:
-        minutes: 10
-```
-
-```yaml
-- action: heads_up.create_banner
-  data:
-    id: evening_window
-    message: A window is open in the evening.
-    mode: recurring
-    timeout: 0
-    condition:
-      template: "{{ is_state('binary_sensor.bedroom_window', 'on') and now().hour >= 20 }}"
-```
-
 ### People
 
 `people` lists person entities, for example `person.alex`. A user sees the banner if one of the listed people is linked to that user. The link is the person's `user_id` attribute, visible in Developer tools > States. Users without a linked person only see banners without `people`.
@@ -239,16 +348,114 @@ Targeting decides who receives the banner in the card. It is not access control:
       - person.alex
 ```
 
+## `heads_up.push`
+
+Shortcut for `notify` with `channels: [push]` and no policies. It needs `audience` or `recipients`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Push notifications](push.md).
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `message` | text | required | As in `notify`. |
+| `id` | text | none | Tracks the message when set. |
+| `title` | text | none | As in `notify`. |
+| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `notify`. |
+| `icon` | icon | the icon of the severity | As in `notify`. |
+| `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
+| `actions` | list of up to 3 buttons | none | As in `notify`. |
+| `tag` | text | none | As in `notify`. |
+| `tap_action` | object with `action` | none | As in `notify`. |
+| `image` | text | none | As in `notify`. |
+| `tts_message` | text | the title if set, otherwise the message | The text for the speak channel. |
+| `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
+| `audience` | text | one of `audience` or `recipients` | The name of an audience. Not available for `speak`. |
+
+```yaml
+- action: heads_up.push
+  data:
+    message: The washing machine is done.
+    recipients:
+      - person.alex
+```
+
+## `heads_up.popup`
+
+Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audience` or `recipients`; the fields are those of `heads_up.push`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Popups](popup.md).
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `message` | text | required | As in `notify`. |
+| `id` | text | none | Tracks the message when set. |
+| `title` | text | none | As in `notify`. |
+| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `notify`. |
+| `icon` | icon | the icon of the severity | As in `notify`. |
+| `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
+| `actions` | list of up to 3 buttons | none | As in `notify`. |
+| `tag` | text | none | As in `notify`. |
+| `tap_action` | object with `action` | none | As in `notify`. |
+| `image` | text | none | As in `notify`. |
+| `tts_message` | text | the title if set, otherwise the message | The text for the speak channel. |
+| `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
+| `audience` | text | one of `audience` or `recipients` | The name of an audience. Not available for `speak`. |
+
+```yaml
+- action: heads_up.popup
+  data:
+    message: Someone is at the door.
+    audience: At home
+```
+
+## `heads_up.speak`
+
+Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipients` (speakers or groups) and has no `audience` field, because speech goes to speakers, not to people. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Speech](speech.md).
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `message` | text | required | As in `notify`. |
+| `id` | text | none | Tracks the message when set. |
+| `title` | text | none | As in `notify`. |
+| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `notify`. |
+| `icon` | icon | the icon of the severity | As in `notify`. |
+| `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
+| `actions` | list of up to 3 buttons | none | As in `notify`. |
+| `tag` | text | none | As in `notify`. |
+| `tap_action` | object with `action` | none | As in `notify`. |
+| `tts_message` | text | the title if set, otherwise the message | The text for the speak channel. |
+| `recipients` | list | required | Speakers, Assist satellites, groups or areas. |
+
+```yaml
+- action: heads_up.speak
+  data:
+    message: Dinner is ready.
+    recipients:
+      - media_player.kitchen
+```
+
+## `heads_up.clear`
+
+Removes messages by `id`, by `tag`, or both, from every channel: the banner, the push on the phones, the popup and the entry in the notification bell. `clear_banner` removes only messages that have the banner channel; `clear` also removes messages without it, such as a `notify` call with `channels: [push]` and an `id`.
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `id` | text | one of `id` or `tag` | The `id` of the message to remove. |
+| `tag` | text | one of `id` or `tag` | Removes every message with this tag. |
+
+Response data: `cleared`, the number of removed messages. An unknown `id` returns `cleared: 0`; it is not an error.
+
+```yaml
+- action: heads_up.clear
+  data:
+    id: garage_open
+```
+
 ## `heads_up.clear_banner`
 
 Removes banners by `id`, by `tag`, or both. With both, a banner must match both.
 
-| Field | Type | Required / default | Meaning |
+| Field | Type | Default | Meaning |
 |---|---|---|---|
-| `id` | text | one of `id` or `tag` | ID of the banner to remove. |
+| `id` | text | one of `id` or `tag` | The `id` of the banner to remove. |
 | `tag` | text | one of `id` or `tag` | Removes every banner with this tag. |
 
-Response data: `cleared`, the number of removed banners. An unknown ID returns `cleared: 0`; it is not an error.
+Response data: `cleared`, the number of removed banners. An unknown `id` returns `cleared: 0`; it is not an error.
 
 ```yaml
 - action: heads_up.clear_banner
@@ -264,161 +471,12 @@ Removes every banner, including banners that cannot be closed. No fields. Respon
 - action: heads_up.clear_all
 ```
 
-## `heads_up.clear`
-
-Removes messages by `id`, by `tag`, or both, from every channel. `clear_banner` removes only messages that have the banner channel; `clear` also removes messages without it, such as a `notify` call with `channels: [push]` and an `id`.
-
-| Field | Type | Required / default | Meaning |
-|---|---|---|---|
-| `id` | text | one of `id` or `tag` | ID of the message to remove. |
-| `tag` | text | one of `id` or `tag` | Removes every message with this tag. |
-
-Response data: `cleared`, the number of removed messages.
-
-```yaml
-- action: heads_up.clear
-  data:
-    id: garage_open
-```
-
-## `heads_up.notify`
-
-Delivers one message on the channels you name. It takes the content and lifecycle fields of [`create_banner`](#headsupcreate_banner) and adds the channel fields below. It has no `people` field: use `to.banner.recipients`. Calling it again with the same `id` replaces the message.
-
-Channels: `banner`, `push`, `popup`, `speak`, `persistent`, `mail`. See [Push notifications](push.md), [Popups](popup.md), [Speech](speech.md), [Persistent notifications](persistent.md) and [Mail](mail.md).
-
-| Field | Type | Required / default | Meaning |
-|---|---|---|---|
-| `message` | text | required | Message text, 1–1000 characters. |
-| `id` | text | generated | As in `create_banner`. |
-| `title` | text | none | Up to 100 characters. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `create_banner`. |
-| `icon` | icon | icon of the severity | As in `create_banner`. |
-| `timeout` | seconds or duration | integration option | As in `create_banner`. |
-| `dismissible` | boolean | `true` | As in `create_banner`. |
-| `dismiss_scope` | `user`, `global` | integration option | As in `create_banner`. |
-| `snoozable` | `true`, `false` | integration option | As in `create_banner`. |
-| `snooze_scope` | `user`, `global` | integration option | As in `create_banner`. |
-| `snooze_options` | list of durations | integration option | As in `create_banner`. |
-| `actions` | list of up to 3 buttons | none | As in `create_banner`. |
-| `tag` | text | none | As in `create_banner`. |
-| `condition` | object | none | As in `create_banner`. See [Conditions](#conditions). |
-| `mode` | `once`, `recurring` | `once` | As in `create_banner`. |
-| `wait_for_condition` | boolean | `true` | As in `create_banner`. |
-| `tap_action` | object with `action` | none | As in `create_banner`. |
-| `image` | text | none | As in `create_banner`. |
-| `tts_message` | text | the title if set, otherwise the message | Text for the speak channel instead of the title and message. |
-| `channels` | list of channels | required | One or more of the five channels, each at most once. |
-| `to` | object | none | A target per channel: `audience` (a name) or `recipients` (a list), never both. `push`, `popup`, `speak` and `mail` need a target. Audience and recipient names are described in [Audiences and recipients](audiences.md). `speak` takes recipients only. `persistent` takes no target and goes to everyone (see [Persistent notifications](persistent.md)). `banner` is optional: recipients limit the banner to the users linked to those persons. An audience does the same with the persons it has when the call is made; a person who joins the audience later does not see a banner that already exists, and an audience that is empty then gives a banner nobody sees. |
-| `policy` | text | every policy that applies | A policy name, or `none` for no policy behavior. See [Policies](policies.md). |
-
-Response data: `id`, `status` (`created`, `updated`, `waiting` or `condition_false`, as in `create_banner`), and `channels`: for each channel the counts `sent`, `held`, `skipped` and `failed`. A banner that waits for its condition counts as `held`.
-
-A message without the `banner` channel is stored so it can be updated and cleared, but the card does not show it. The names in `to` and `policy` are checked when you call the action; a name that does not exist fails with an error that lists the valid names.
-
-```yaml
-- action: heads_up.notify
-  data:
-    id: garage_open
-    title: Garage
-    message: The garage door has been open for 10 minutes.
-    severity: warning
-    channels:
-      - banner
-      - push
-    to:
-      push:
-        recipients:
-          - person.alex
-```
-
-## `heads_up.push`
-
-Shortcut for `notify` with `channels: [push]` and no policies. It needs `audience` or `recipients`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Push notifications](push.md).
-
-| Field | Type | Required / default | Meaning |
-|---|---|---|---|
-| `message` | text | required | Message text, 1–1000 characters. |
-| `id` | text | none | Tracks the message when set. |
-| `title` | text | none | Up to 100 characters. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `create_banner`. |
-| `icon` | icon | icon of the severity | As in `create_banner`. |
-| `timeout` | seconds or duration | integration option | Only used when `id` is set. |
-| `actions` | list of up to 3 buttons | none | As in `create_banner`. |
-| `tag` | text | none | As in `create_banner`. |
-| `tap_action` | object with `action` | none | As in `create_banner`. |
-| `image` | text | none | As in `create_banner`. |
-| `tts_message` | text | the title if set, otherwise the message | Text for the speak channel. |
-| `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
-| `audience` | text | one of `audience` or `recipients` | Name of an audience. Not available for `speak`. |
-
-```yaml
-- action: heads_up.push
-  data:
-    message: The washing machine is done.
-    recipients:
-      - person.alex
-```
-
-## `heads_up.popup`
-
-Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audience` or `recipients`; the fields are those of `heads_up.push`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Popups](popup.md).
-
-| Field | Type | Required / default | Meaning |
-|---|---|---|---|
-| `message` | text | required | Message text, 1–1000 characters. |
-| `id` | text | none | Tracks the message when set. |
-| `title` | text | none | Up to 100 characters. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `create_banner`. |
-| `icon` | icon | icon of the severity | As in `create_banner`. |
-| `timeout` | seconds or duration | integration option | Only used when `id` is set. |
-| `actions` | list of up to 3 buttons | none | As in `create_banner`. |
-| `tag` | text | none | As in `create_banner`. |
-| `tap_action` | object with `action` | none | As in `create_banner`. |
-| `image` | text | none | As in `create_banner`. |
-| `tts_message` | text | the title if set, otherwise the message | Text for the speak channel. |
-| `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
-| `audience` | text | one of `audience` or `recipients` | Name of an audience. Not available for `speak`. |
-
-```yaml
-- action: heads_up.popup
-  data:
-    message: Someone is at the door.
-    audience: At home
-```
-
-## `heads_up.speak`
-
-Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipients` (speakers or groups) and has no `audience` field, because speech goes to speakers, not to people. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Speech](speech.md).
-
-| Field | Type | Required / default | Meaning |
-|---|---|---|---|
-| `message` | text | required | Message text, 1–1000 characters. |
-| `id` | text | none | Tracks the message when set. |
-| `title` | text | none | Up to 100 characters. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `create_banner`. |
-| `icon` | icon | icon of the severity | As in `create_banner`. |
-| `timeout` | seconds or duration | integration option | Only used when `id` is set. |
-| `actions` | list of up to 3 buttons | none | As in `create_banner`. |
-| `tag` | text | none | As in `create_banner`. |
-| `tap_action` | object with `action` | none | As in `create_banner`. |
-| `tts_message` | text | the title if set, otherwise the message | Text for the speak channel. |
-| `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
-
-```yaml
-- action: heads_up.speak
-  data:
-    message: Dinner is ready.
-    recipients:
-      - media_player.kitchen
-```
-
 ## Errors
 
 | Message | Cause |
 |---|---|
 | Heads Up is not set up. Add the integration first. | The integration is not added or is disabled. |
-| Heads Up already holds N banners and none can be evicted. | The limit is reached and every banner is `critical`, or eviction is turned off. |
+| Heads Up already holds N banners and none can be evicted. | The limit is reached and every message is `critical`, or eviction is turned off. |
 | Condition entity X does not exist. | `condition.entity_id` names an entity Home Assistant does not know. |
 | Validation error on `template`, `for` or an entity field | The template does not parse, `for` is over 24 hours, or `template` is combined with `entity_id`, `operator`, `state` or `attribute`. |
 | Audience, recipient or policy "X" does not exist. | A name in `to`, `audience`, `recipients` or `policy` is unknown. The message lists the valid names. |
@@ -439,6 +497,8 @@ Each change fires an event. Use them as automation triggers.
 | `heads_up_banner_expired` | `id`, `tag` |
 | `heads_up_banner_cleared` | `id`, `tag`, `reason` (`action`, `clear_all`, `condition`, `evicted`, `admin`, `rule`) |
 | `heads_up_delivery_failed` | `id`, `tag`, `channel`, `origin`, `reached`, `failed` |
+
+The event names say "banner" for every message, whatever its channels.
 
 Banners from [watch rules](rules.md) fire `created` when the entity enters the state and `cleared` with `reason: rule` when it leaves, or when the rule is disabled or deleted. Their `id` starts with `rule_` and their `tag` is `rule`.
 

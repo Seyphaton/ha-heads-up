@@ -1,344 +1,196 @@
 # How to use Heads Up
 
-This page walks through the card, creating banners, buttons and snooze, watch rules and the integration options. Install and set up first, see the [README](../README.md).
+This page takes you from your first message to policies and watch rules. Read it in order, or jump to what you need. Install and set up first, see the [README](../README.md).
 
-## 1. Dashboard card
+| You want to | Go to |
+|---|---|
+| Send your first message | [1. Send a message](#1-send-a-message) |
+| Choose who gets it | [3. Choose who gets it](#3-choose-who-gets-it) |
+| Know what a field does and its default | [Actions](actions.md) |
+| Know what a setting does and its default | [Settings](settings.md) |
+| Copy a working example | [Examples](examples.md) |
+| Style the dashboard card | [Card](card.md) |
 
-Add the card to a dashboard in the YAML editor. Without options it shows every banner, most severe first:
+## The idea
 
-```yaml
-type: custom:heads-up-card
-title: House Information
-show_time: true
-show_severity: true
-```
+An automation sends one message. A message has text, a severity and a lifecycle. Three questions decide what happens to it:
 
-![Card with four banners: critical, warning, info and success, each with a severity label and the time since it was created](images/card-default.png)
+- Where does it show up? These are the channels: banner, push, popup, speech, mail and the Persistent Notification bell.
+- Who gets it? This is an audience such as `At home` or `Admins`, or named persons and speakers.
+- When? Policies handle quiet nights, repeats, escalation and summaries, without changing the automation.
 
-All options are in [docs/card.md](card.md). The card also has a visual editor. These variants change one thing each.
+When the message ends, every channel takes it back. The terms are in [Notification hub](hub.md).
 
-### Without severity label and time
+## 1. Send a message
 
-This is the default. The icon and color show the severity.
-
-```yaml
-type: custom:heads-up-card
-title: House Information
-```
-
-![Card without severity labels and times](images/card-no-label-no-time.png)
-
-### Custom colors
-
-`colors` sets a color per severity. `colorize: background` colors only the banner background.
+The action `heads_up.notify` sends a message. The bell needs no card and no target, so it is the simplest first test. Run this in Developer tools > Actions (YAML mode):
 
 ```yaml
-type: custom:heads-up-card
-title: House Information (custom colors)
-colorize: background
-colors:
-  critical: "#2d1f33"
-  warning: "#1d2d33"
-  info: "#1c2b2b"
-  success: "#243021"
-```
-
-![Card with custom background colors](images/card-custom-colors.png)
-
-### Only the icon colored
-
-`colorize: icon` leaves the background neutral. `max_items: 3` hides the fourth banner.
-
-```yaml
-type: custom:heads-up-card
-colorize: icon
-show_severity: true
-max_items: 3
-```
-
-![Card with colored icons and labels on a neutral background](images/card-icon-color.png)
-
-### Collapsed list
-
-`collapsed_items: 2` shows two banners and a "Show 2 more" button. `clear_all` adds a "Clear all" button that dismisses the banners for you only.
-
-```yaml
-type: custom:heads-up-card
-title: House Information (max 2 shown)
-show_time: true
-collapsed_items: 2
-clear_all: true
-```
-
-![Card showing two of four banners with Show 2 more and Clear all](images/card-show-more.png)
-
-### Compact
-
-`layout: compact` puts each banner on one line and cuts long text with "…".
-
-```yaml
-type: custom:heads-up-card
-title: House Information (Compact)
-layout: compact
-show_time: true
-show_severity: true
-```
-
-![Card in compact layout](images/card-compact.png)
-
-### Empty
-
-With `empty_message` the card stays visible when there are no banners. Without it, the card hides itself.
-
-```yaml
-type: custom:heads-up-card
-title: Status
-empty_message: All clear — no notifications
-```
-
-![Card with no banners and the text "All clear — no notifications"](images/card-empty.png)
-
-## 2. Create and clear banners
-
-Run these in Developer tools > Actions (YAML mode) or put them in an automation or script. The banner appears in the card without a reload. Close it with the X button, or remove it with `heads_up.clear_all`. The calls below produce the banners in the first screenshot of section 1.
-
-### Critical
-
-Sorts first and is never removed to make room for new banners. `timeout: 0` keeps it until someone closes it.
-
-```yaml
-action: heads_up.create_banner
+action: heads_up.notify
 data:
-  id: security_alert
-  title: Security Alert
-  message: A sensor in the living room has been activated while armed.
-  severity: critical
-  icon: mdi:account-alert-outline
-  timeout: 0
+  id: hello
+  message: Hello from Heads Up.
+  channels: [persistent]
 ```
 
-### Warning
-
-The default severity. Without `timeout`, the banner disappears after 24 hours.
+Open the bell in the sidebar. The entry is there. Take it back from every channel with its `id`:
 
 ```yaml
-action: heads_up.create_banner
+action: heads_up.clear
+data:
+  id: hello
+```
+
+Only `message` and `channels` are required. Without an `id`, Heads Up generates one and returns it in the response. Every field is explained in [Actions](actions.md#heads_upnotify).
+
+## 2. Show it on a dashboard
+
+The channel `banner` shows the message in the Heads Up card. Add the card to a dashboard in the YAML editor:
+
+```yaml
+type: custom:heads-up-card
+title: House Information
+```
+
+Then send a message to the banner:
+
+```yaml
+action: heads_up.notify
 data:
   id: garage_open
-  title: Warning
-  message: Garage door open after 10pm.
+  title: Garage
+  message: The garage door is open after 10pm.
   severity: warning
+  channels: [banner]
 ```
 
-### Info
+The banner appears without a reload. Close it with the X button, or clear it with `heads_up.clear`. Without a `timeout` it ends after 24 hours (setting Default timeout). A banner is the dashboard view of a message, so `heads_up.create_banner` is only the shortcut for this call. See [Card](card.md) for the card's options and looks.
 
-The icon replaces the default one. The banner disappears after 30 minutes.
+## 3. Choose who gets it
+
+Push and popup need a target. Name an audience for a group that changes over time, or recipients for fixed persons:
 
 ```yaml
-action: heads_up.create_banner
+action: heads_up.notify
 data:
-  title: Dishwasher
-  message: The dishwasher has finished.
-  severity: info
-  icon: mdi:dishwasher
-  timeout:
-    minutes: 30
+  id: garage_open
+  title: Garage
+  message: The garage door is open after 10pm.
+  severity: warning
+  channels: [banner, push]
+  to:
+    push: {audience: At home}
 ```
 
-### Success
+The banner is in the card. Everyone who is home gets a push on every Companion app device of their person. Phones are found from the person, so replacing a phone is one change in the recipient profile.
 
-Calling this again with the same `id` replaces the banner instead of adding a second one.
+| Audience | Who |
+|---|---|
+| `Everyone` | Every person. |
+| `Admins` | Persons whose user is an administrator. |
+| `At home`, `Not home` | Persons by their state. |
+| `Last to leave`, `First home` | The person whose departure emptied the house, and the first one back. |
+
+You can add audiences of your own. See [Audiences and recipients](audiences.md). Speech goes to speakers instead (`recipients: [media_player.kitchen]`); see [Speech](speech.md).
+
+## 4. Choose how long it lives
+
+By default a message ends after 24 hours, or earlier when someone closes it. Three fields change that:
+
+- `timeout` sets the time. `0` keeps the message until someone closes or clears it.
+- `condition` ties the message to an entity or a template. It shows while the entity matches and ends when it stops.
+- `mode: recurring` hides the message while the condition is false and shows it again when it is true.
+
+A banner and a push while a window is open, taken back when it closes:
 
 ```yaml
-action: heads_up.create_banner
-data:
-  id: pv_status
-  title: PV Information
-  message: Autarky today at almost 100%.
-  severity: success
-```
-
-### Tied to an entity
-
-The banner shows while the entity is `on` and is removed the first time it stops matching.
-
-```yaml
-action: heads_up.create_banner
+action: heads_up.notify
 data:
   id: window_bedroom
   message: The bedroom window is open.
+  channels: [banner, push]
+  to:
+    push: {audience: At home}
   timeout: 0
   condition:
     entity_id: binary_sensor.bedroom_window
     state: "on"
+    for:
+      minutes: 5
 ```
 
-### For one person, not closable
+The message appears after the window has been open for 5 minutes. All operators, `for` and templates are in [Conditions](actions.md#conditions).
 
-Only the user linked to the person sees it. Nobody can close it. Remove it with `clear_banner`.
+## 5. Let people react
 
-```yaml
-action: heads_up.create_banner
-data:
-  id: water_leak
-  title: Water leak
-  message: Water detected in the basement.
-  severity: critical
-  dismissible: false
-  people:
-    - person.alex
-```
+- `dismissible` (default `true`) lets people close the message. `dismiss_scope: global` ends it for everyone instead of only for the person who closed it.
+- `snoozable: true` adds Snooze, which hides the message for a while and brings it back.
+- `actions` adds up to 3 buttons of your own. A press fires the event `heads_up_banner_action`, which an automation can use.
 
 ```yaml
-action: heads_up.clear_banner
-data:
-  id: water_leak
-```
-
-### With a tap action
-
-Tapping the banner opens a dashboard view.
-
-```yaml
-action: heads_up.create_banner
-data:
-  message: Water detected under the dishwasher.
-  severity: critical
-  tap_action:
-    action: navigate
-    navigation_path: /lovelace/kitchen
-```
-
-More examples, including REST and WebSocket calls, are in [docs/examples.md](examples.md).
-
-## 3. Buttons and snooze
-
-![A warning banner with a snooze button, a close button and three text buttons](images/card-buttons-snooze.png)
-
-A banner can carry up to 3 text buttons and a snooze button. This call makes the banner above. The first button closes the banner for you; the other two only fire the event.
-
-```yaml
-action: heads_up.create_banner
+action: heads_up.notify
 data:
   id: garage_open
-  message: Garage door open after 10pm.
-  severity: warning
-  timeout: 0
+  message: The garage door is open after 10pm.
+  channels: [banner, push]
+  to:
+    push: {audience: At home}
   snoozable: true
-  snooze_options:
-    - minutes: 15
-    - hours: 1
-    - hours: 4
   actions:
-    - key: dismiss
-      label: Dismiss
-      dismiss: true
-    - key: cls
-      label: Close
     - key: light
       label: Outdoor light
 ```
 
-Pressing a button fires the event `heads_up_banner_action` with the banner `id`, the button `key` and the `user_id`. An automation reacts to it:
+See [Buttons and snooze](actions.md#buttons-and-snooze) for the event and its automation.
+
+## 6. Use a shortcut
+
+| Action | Same as |
+|---|---|
+| `heads_up.create_banner` | `notify` with `channels: [banner]`, and `people` for a banner limited to some users |
+| `heads_up.push` | `notify` with `channels: [push]` and an `audience` or `recipients` |
+| `heads_up.popup` | `notify` with `channels: [popup]` and an `audience` or `recipients` |
+| `heads_up.speak` | `notify` with `channels: [speak]` and `recipients` |
+
+A shortcut has no policies. `heads_up.clear` takes back a message from every channel. `heads_up.clear_banner` and `heads_up.clear_all` remove banners only.
+
+## 7. Add behaviour with policies
+
+A policy changes how messages behave without changing the automation. Types: Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize.
+
+The panel's introduction offers four defaults: quiet hours, an evening summary, critical messages and warning reminders. To escalate a water leak, create an Escalation policy in the panel for severity `critical` and tag `water`, with a push to `Admins` after 5 minutes. The automation only sets the severity and the tag:
 
 ```yaml
-triggers:
-  - trigger: event
-    event_type: heads_up_banner_action
-    event_data:
-      id: garage_open
-      key: light
-actions:
-  - action: light.turn_on
-    target:
-      entity_id: light.outdoor
+action: heads_up.notify
+data:
+  id: water_leak
+  message: Water on the kitchen floor.
+  severity: critical
+  tag: water
+  channels: [banner, push]
+  to:
+    push: {audience: At home}
 ```
 
-A button can also run a Home Assistant action in the card, like a tap action. Add `action:` to the button, for example `action: {action: navigate, navigation_path: /lovelace/garage}`.
+If nobody acknowledges the message within 5 minutes, the policy pushes it to the administrators. See [Policies](policies.md).
 
-The snooze button opens the choices you gave in `snooze_options` (15 min, 1 h, 4 h here). The banner then hides for that time and returns. `snooze_scope: global` hides it for everyone instead of only you. With `swipe_to_dismiss: true` on the card, a right swipe opens the choices and a left swipe dismisses. With `show_snoozed: true` on the card, a "Snoozed (n)" button lists your snoozed banners with the time left and a **Show now** button that ends the snooze early. Details: [card.md](card.md#snooze-and-buttons) and [actions.md](actions.md#buttons-and-snooze).
+## 8. Show a banner without an automation
 
-## 4. Watch rules
+A watch rule shows a banner while an entity is in a state and removes it when the state ends. Add one in the panel's Watch rules page, or under Settings > Devices & services > Heads Up. See [Watch rules](rules.md).
 
-A watch rule shows a banner while an entity matches a condition. It needs no automation and no card setting. Go to Settings > Devices & services > Heads Up and choose "Add watch rule".
+## 9. See what happened
 
-<img src="images/watch-rule.png" width="500" alt="The Add watch rule form: rule name, entity, condition, state">
-
-Examples, as filled into the form. `{name}` in the message becomes the entity's name. The message may also contain a Home Assistant template such as `{{ states('input_text.reason') }}`; it updates when the entities it reads change (not for `now()`).
-
-| Goal | Entity | Condition | State | Message | Severity |
-|---|---|---|---|---|---|
-| Window open | `binary_sensor.bedroom_window` | Equals | `on` | `{name} is open.` | warning |
-| Door not locked | `lock.front_door` | Does not equal | `locked` | `{name} is not locked.` | critical |
-| Room too warm | `sensor.living_room_temperature` | Above | `25` | `The living room is warmer than 25 °C.` | info |
-| Battery low | `sensor.phone_battery` | Between | `5` and `15` | `The phone battery is low.` | warning |
-
-Conditions: equals, does not equal, above, below, between, contains text, does not contain text, is empty, is not empty. A rule banner has no close button unless you turn on "Dismissible", and it goes away when the condition is false. The same conditions work in `heads_up.create_banner` through `condition.operator`, and both accept a duration ("for at least 5 minutes"). `create_banner` also accepts a template as its condition. See [docs/rules.md](rules.md) for every field and more examples.
-
-## 5. Integration options
-
-Open the integration and choose Configure, or open Settings in the Heads Up panel: both show the same entries in the same order and wording, and a change in one shows in the other. Banner defaults apply to banners created afterwards.
-
-**Sidebar panel**
-
-| Option | Default | Meaning |
-|---|---|---|
-| Show Heads Up in the sidebar | off (on in the setup flow) | Only administrators see the entry. Without the panel you cannot use Test send, the Message Log, the Overview, the introduction that creates the default policies, the Channels settings or the Help pages. Audiences, recipients, policies, watch rules and the other settings stay editable under Devices & services. |
-
-**Messages**
-
-These options belong to the message, not to one channel. They apply to the banner, the push and the popup of a message, and to a message that has no banner. The panel and the options screen group them in clusters.
-
-Dismiss settings:
-
-| Option | Default | Meaning |
-|---|---|---|
-| Default dismiss scope | `user` | Used when an action sets no `dismiss_scope`. `user`: closing hides the message only for that person and takes back only their push. `global`: closing ends it for everyone. |
-| Default timeout | 24 hours | Used when an action sets no `timeout`. The message ends on every channel after it. Clearing it keeps messages until they are closed or cleared. |
-| Disable message buttons once the message has ended | on | A press on the message's own buttons, on the banner, the push or the popup, is refused with `message_ended` after the message was dismissed (by that user or for everyone), acknowledged by anyone, or its condition turned false. A snooze does not end it. Dismiss, Snooze and Acknowledge are not affected. Off: presses are accepted until the message is removed. |
-
-Snooze settings (banner, push and popup):
-
-| Option | Default | Meaning |
-|---|---|---|
-| Messages can be snoozed by default | off | Used when an action sets no `snoozable`. Adds Snooze to the banner, the push and the popup. Messages that are not dismissible are never snoozable. |
-| Default snooze scope | `user` | Used when an action sets no `snooze_scope`. `user`: a snooze hides the message only for that person. `global`: for everyone. Applies to the banner, the push and the popup. |
-
-Snooze settings for the banner:
-
-| Option | Default | Meaning |
-|---|---|---|
-| Snooze choices on the banner | 15 minutes, 1 hour, 4 hours | Used when an action sets no `snooze_options`. Choose from 5 minutes to 24 hours. The banner offers all choices. |
-
-Snooze settings for push and popup:
-
-| Option | Default | Meaning |
-|---|---|---|
-| Snooze time on push and popup (minutes) | 15 (1–1440) | The Snooze button of the push and of the popup snoozes for this time, whatever `snooze_options` says. |
-
-**Presence, Speech, Limits and History**
-
-| Option | Default | Meaning |
-|---|---|---|
-| Presence delay (seconds) | 60 (0–600) | How long a person must stay home or away before Last to leave and First home change. 0 reacts at once. |
-| Spoken text: longest (characters) | 200 (20–1000) | Longer texts are cut at a word. |
-| Spoken text: repeat pause (seconds) | 60 (0–3600) | The same text is not spoken again on the same speaker within this time. 0: always speak. |
-| Text-to-speech engine | automatic | The engine for media players. Automatic: the only text-to-speech entity, if there is exactly one. |
-| Maximum number of stored messages | 50 (1–200) | How many messages from action calls can exist at once, on any channel. Watch rules do not count. It protects storage and timers, not the phones or the card (the card has `max_items`). It is not a rate limit. |
-| Evict the oldest lowest-severity message when full | on | When off, creating a message beyond the limit fails. `critical` messages are never evicted, so a full house of critical messages fails new calls. An evicted message ends on every channel. |
-| Pushes per device per minute | 5 (1–600) | A push over the cap is skipped and the trace says `rate_limited`. Critical messages are never held back. |
-| Deliveries per minute, all devices | 60 (1–6000) | The same, counted over all devices. |
-| Seconds in which identical updates are ignored | 30 (0–3600) | An update with the same content is not sent again within this time (`duplicate`). 0 switches it off. |
-| Trace entries kept | 500 (50–5000) | Size of the delivery trace. |
-| Recent messages kept | 100 (10–1000) | Size of the recent messages list. |
-
-The install token is shown on the options screen and in the panel, read only. It is part of every push tag.
+- Test send in the panel previews a call: who it reaches now, and why anyone is skipped, held or dropped.
+- The Message Log lists recent messages with the delivery trace of each.
+- [Troubleshooting](troubleshooting.md) explains each reason by symptom.
 
 ## Reference
 
 | Page | Covers |
 |---|---|
-| [card.md](card.md) | Every card option, colors, swipe, snooze and buttons in the card. |
-| [actions.md](actions.md) | Every field of `create_banner`, `clear_banner`, `clear_all`, conditions, people, errors, events. |
-| [rules.md](rules.md) | Every field of a watch rule. |
-| [examples.md](examples.md) | More calls, including REST and WebSocket. |
+| [Actions](actions.md) | Every field of every action, with defaults, conditions, errors and events. |
+| [Settings](settings.md) | Every setting with its default, including limits. |
+| [Card](card.md) | Every card option, looks and screenshots. |
+| [Examples](examples.md) | Working examples from simple to complex, including REST and WebSocket. |
+| [Policies](policies.md), [Audiences and recipients](audiences.md), [Watch rules](rules.md) | The hub objects. |
+| [Push](push.md), [Popup](popup.md), [Speech](speech.md), [Mail](mail.md), [Persistent notifications](persistent.md) | One page per channel. |

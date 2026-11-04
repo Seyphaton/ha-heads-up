@@ -2,7 +2,10 @@
 
 ## What Heads Up does not do
 
-- Popups are described in [Popups](popup.md), the Persistent Notification channel in [Persistent notifications](persistent.md). Speech works through `heads_up.notify` and `heads_up.speak` ([Speech](speech.md)) without volume handling or an all-clear. Push to the Companion app works through `heads_up.notify` and `heads_up.push` ([Push notifications](push.md)), without retry or rate limit. The policies (escalation, reminders, quiet hours, away, fallback and summaries) are described in [Policies](policies.md).
+- Push has no retry: a failed push is not tried again, and a push over the rate limit is skipped ([Push notifications](push.md), [Settings](settings.md#limits)).
+- Speech has no volume handling and no all-clear announcement ([Speech](speech.md)).
+- Mail delivery is the job of the notify service you choose; Heads Up knows only whether the call returned an error ([Mail](mail.md)).
+- A popup needs an open Home Assistant page ([Popups](popup.md)). A persistent notification goes to everyone ([Persistent notifications](persistent.md)).
 - It keeps no history of messages. Each change fires an event; see [actions](actions.md#events). The panel's trace, recent messages and log of last actions are kept in memory and start empty after a restart.
 - Pushes were tried with stub devices only, not with a real Companion app. iOS critical notifications need the app's permission and play a sound in silent mode; Android shows them as time sensitive.
 - A watch rule watches one entity (its state or one attribute) or one template. The state is compared as text unless the condition is above, below or between.

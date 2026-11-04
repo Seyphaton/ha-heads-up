@@ -40,7 +40,7 @@ The same message is on the dashboard, on the phones of the administrators and on
 
 ## Limits that protect the phones
 
-A push over 5 per device per minute, or over 60 in total, is skipped and shows in the trace as `rate_limited`. An update with the same content as the last one is not sent again for 30 seconds (`duplicate`). Critical messages are never held back. All three are settings.
+A push over 5 per device per minute, or over 60 in total, is skipped and shows in the trace as `rate_limited`. An update with the same content as the last one is not sent again for 30 seconds (`duplicate`). Critical messages are never held back. All three are settings; see [Settings](settings.md#limits).
 
 ## After a restart
 
@@ -48,6 +48,6 @@ Timers keep their due times. A step that was due during the restart runs once if
 
 ## Where to configure
 
-- Settings > Devices & services > Heads Up > Configure, and the panel's Settings page: the same entries. See [Panel](panel.md).
+- Settings > Devices & services > Heads Up > Configure, and the panel's Settings page: the same entries. Every setting with its default is in [Settings](settings.md).
 - Audiences, recipients, policies and channels: the panel, or the entries of the integration.
 - Banners from entities without an automation: [Watch rules](rules.md).

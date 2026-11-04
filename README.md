@@ -90,7 +90,7 @@ show_time: true
 show_severity: true
 ```
 
-Create a banner:
+Create a banner. `heads_up.create_banner` is the shortcut for `heads_up.notify` with `channels: [banner]`:
 
 ```yaml
 action: heads_up.create_banner
@@ -109,14 +109,15 @@ The card receives banners over the Home Assistant WebSocket connection and does 
 
 ## Documentation
 
-- [How to use Heads Up](docs/how-to.md): options with examples and screenshots.
+- [How to use Heads Up](docs/how-to.md): from the first message to policies, step by step.
+- [Actions](docs/actions.md): every field of every action with its default, conditions, errors, events.
+- [Settings](docs/settings.md): every setting with its default, including limits.
+- [Examples](docs/examples.md): working examples from simple to complex, REST and WebSocket.
 - [Notification hub](docs/hub.md): the terms, and examples from a household.
 - [Panel](docs/panel.md), [Policies](docs/policies.md), [Audiences and recipients](docs/audiences.md)
 - Channels: [Push](docs/push.md), [Popup](docs/popup.md), [Speech](docs/speech.md), [Persistent Notification](docs/persistent.md), [Mail](docs/mail.md)
-- [Actions](docs/actions.md): fields, responses, conditions, people, events.
-- [Card](docs/card.md): options and behaviour.
+- [Card](docs/card.md): options, looks and behaviour.
 - [Watch rules](docs/rules.md): banners from an entity state or value, without an automation.
-- [Examples](docs/examples.md): window with a condition, alert for one person, tap action, REST and WebSocket.
 - [Troubleshooting](docs/troubleshooting.md)
 - [Limitations](docs/limitations.md)
 - [Upgrading](docs/upgrading.md) and [uninstalling](docs/uninstall.md)
