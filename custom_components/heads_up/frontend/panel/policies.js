@@ -72,9 +72,8 @@ export const STRINGS = {
     sentence: "In words",
     s_applies_any: "Every message",
     enabled_hint: "A disabled policy is never used, not even when a call names it.",
-    tab_does: "What it does",
-    tab_when: "When it applies",
-    tab_problems: "{tab}: needs attention",
+    sec_when: "Which messages",
+    sec_does: "What it does",
     type_desc: {"escalation": "If nobody acknowledges within the time, the message is also delivered on the channels and to the targets you choose.", "reminder": "While nobody acknowledges, the message is repeated at an interval, up to a maximum.", "quiet_hours": "Between two times of day, deliveries outside the dashboard are sent quietly, held until the end or dropped.", "away": "A person who is not home gets the message when they arrive, if it is still there.", "fallback": "If the first delivery reached nobody, the message is delivered on other channels or to other targets.", "summarize": "Matching messages are held on every channel, the banner included, and one summary is sent instead.", "deliver": "Matching messages are also delivered at once to the audience and channels you choose."},
     apply_label: "Attaches to messages",
     apply_auto: "Automatically",
@@ -169,9 +168,8 @@ export const STRINGS = {
     sentence: "In Worten",
     s_applies_any: "Jede Meldung",
     enabled_hint: "Eine deaktivierte Richtlinie wird nie genutzt, auch nicht, wenn ein Aufruf sie nennt.",
-    tab_does: "Was sie tut",
-    tab_when: "Wann sie gilt",
-    tab_problems: "{tab}: braucht Aufmerksamkeit",
+    sec_when: "Welche Meldungen",
+    sec_does: "Was sie tut",
     type_desc: {"escalation": "Bestätigt niemand innerhalb der Zeit, wird die Meldung zusätzlich auf den gewählten Kanälen und an die gewählten Ziele zugestellt.", "reminder": "Solange niemand bestätigt, wird die Meldung in einem Abstand wiederholt, höchstens so oft wie eingestellt.", "quiet_hours": "Zwischen zwei Uhrzeiten werden Zustellungen außerhalb des Dashboards leise gesendet, bis zum Ende zurückgehalten oder verworfen.", "away": "Eine Person, die nicht zu Hause ist, bekommt die Meldung bei der Ankunft, wenn sie noch da ist.", "fallback": "Hat die erste Zustellung niemanden erreicht, wird die Meldung auf anderen Kanälen oder an andere Ziele zugestellt.", "summarize": "Passende Meldungen werden auf jedem Kanal zurückgehalten, auch im Banner, und stattdessen wird eine Zusammenfassung gesendet.", "deliver": "Passende Meldungen werden zusätzlich sofort an die gewählte Zielgruppe auf den gewählten Kanälen zugestellt."},
     apply_label: "Gilt für Meldungen",
     apply_auto: "Automatisch",
@@ -266,9 +264,8 @@ export const STRINGS = {
     sentence: "En clair",
     s_applies_any: "Tout message",
     enabled_hint: "Une politique désactivée n'est jamais utilisée, même si un appel la nomme.",
-    tab_does: "Ce qu'elle fait",
-    tab_when: "Quand elle s'applique",
-    tab_problems: "{tab} : à corriger",
+    sec_when: "Quels messages",
+    sec_does: "Ce qu'elle fait",
     type_desc: {"escalation": "Si personne ne confirme dans le délai, le message est aussi remis sur les canaux et aux cibles que vous choisissez.", "reminder": "Tant que personne ne confirme, le message est répété à intervalle régulier, jusqu'à un maximum.", "quiet_hours": "Entre deux heures de la journée, les remises hors tableau de bord sont envoyées discrètement, retenues jusqu'à la fin ou abandonnées.", "away": "Une personne absente reçoit le message à son arrivée, s'il est encore là.", "fallback": "Si la première remise n'a joint personne, le message est remis sur d'autres canaux ou à d'autres cibles.", "summarize": "Les messages correspondants sont retenus sur chaque canal, bannière comprise, et un seul résumé est envoyé à la place.", "deliver": "Les messages correspondants sont aussi remis tout de suite à l'audience et sur les canaux que vous choisissez."},
     apply_label: "S'applique aux messages",
     apply_auto: "Automatiquement",
@@ -363,9 +360,8 @@ export const STRINGS = {
     sentence: "En palabras",
     s_applies_any: "Todos los mensajes",
     enabled_hint: "Una política desactivada nunca se usa, ni siquiera si una llamada la nombra.",
-    tab_does: "Qué hace",
-    tab_when: "Cuándo se aplica",
-    tab_problems: "{tab}: requiere atención",
+    sec_when: "Qué mensajes",
+    sec_does: "Qué hace",
     type_desc: {"escalation": "Si nadie confirma en el tiempo, el mensaje se entrega también por los canales y a los destinos que elijas.", "reminder": "Mientras nadie confirma, el mensaje se repite a intervalos, hasta un máximo.", "quiet_hours": "Entre dos horas del día, las entregas fuera del panel se envían en silencio, se retienen hasta el final o se descartan.", "away": "Una persona que no está en casa recibe el mensaje al llegar, si sigue ahí.", "fallback": "Si la primera entrega no llegó a nadie, el mensaje se entrega por otros canales o a otros destinos.", "summarize": "Los mensajes que coinciden se retienen en todos los canales, el aviso incluido, y se envía un solo resumen.", "deliver": "Los mensajes que coinciden también se entregan al instante a la audiencia y por los canales que elijas."},
     apply_label: "Se aplica a los mensajes",
     apply_auto: "Automáticamente",
@@ -417,14 +413,9 @@ export const STRINGS = {
 };
 
 const CSS = `
-.hu-page .summary { background: var(--secondary-background-color); border-radius: 8px; padding: 10px 12px; margin: 12px 0; }
+.hu-page h3.sec { font-size: 15px; margin: 20px 0 6px; padding-top: 12px; border-top: 1px solid var(--divider-color); }
+.hu-page .summary { background: var(--secondary-background-color); border-radius: 8px; padding: 10px 12px; margin: 16px 0 12px; }
 .hu-page .summary .sentence { margin: 4px 0; }
-.hu-page .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--divider-color); margin: 16px 0 12px; }
-.hu-page .tab { min-height: 44px; padding: 0 16px; background: transparent; border: 0; border-bottom: 3px solid transparent; color: var(--secondary-text-color); font: inherit; cursor: pointer; }
-.hu-page .tab.on { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
-.hu-page .tab.problem::after { content: " •"; color: var(--error-color); }
-.hu-page .tab:focus-visible { outline: 3px solid var(--primary-color); outline-offset: -3px; }
-.hu-page .tabpanel[hidden] { display: none; }
 .hu-page label.radio { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; cursor: pointer; }
 .hu-page label.radio input { margin-top: 4px; width: 20px; height: 20px; }
 .hu-page .type-desc { margin-top: 0; }
@@ -629,12 +620,6 @@ export function overlapNames({ values, own, policies, mode }) {
     .map((p) => p.name);
 }
 
-// The tab of the editor that holds a problem: the name is in the header, every other field is under
-// "What it does"; "When it applies" has no field that can be wrong.
-export function tabsWithProblems(problems) {
-  return { does: Object.keys(problems).some((field) => field !== "name"), when: false };
-}
-
 export function appliesText(values, t) {
   if (values.apply === "manual") return t.s_applies_manual;
   const tags = splitTags(values.tags);
@@ -788,7 +773,6 @@ export function mount(container, ctx) {
   function editor() {
     const { own, values } = editing;
     const existing = data.policies.map((p) => p.name);
-    editing.tab ||= "does";
     const box = el("section", {}, [el("h2", { textContent: own ? t.editing : t.new })]);
     const again = () => render();
 
@@ -799,16 +783,15 @@ export function mount(container, ctx) {
     box.append(ui.field(t.type, ui.selectInput(TYPES.map((k) => ({ value: k, label: t.types[k] })), values.type, (v) => { values.type = v; again(); })));
     box.append(el("div", { className: "hint type-desc", textContent: t.type_desc[values.type] }));
 
-    // The sentence and the status stay above the tabs, so a problem in one tab is seen from the other.
+    // The sentence and the status come under the buttons, above the stored YAML.
     const words = el("div", { className: "sentence" });
     const status = el("div", { className: "hint" });
     status.setAttribute("role", "status");
     status.setAttribute("aria-live", "polite");
-    box.append(el("div", { className: "summary" }, [el("strong", { textContent: t.sentence }), words, status]));
 
     const noteUpdaters = [];
-    const does = el("div", { className: "tabpanel", id: "tab-does" });
-    const when = el("div", { className: "tabpanel", id: "tab-when" });
+    const does = el("div");
+    const when = el("div");
     const number = (key, label, min = 1) => does.append(ui.field(label, ui.numberInput(values[key], (v) => { values[key] = v; paint(); }, { min })));
     const channelChips = (label) =>
       does.append(ui.chips(label, POLICY_CHANNELS.map((c) => ({ value: c, label: t.channel_names[c] })), values.channels, (list) => { values.channels = list; again(); }));
@@ -883,40 +866,8 @@ export function mount(container, ctx) {
       when.append(note);
     }
 
-    // The tabs: What it does, When it applies.
-    const names = { does: t.tab_does, when: t.tab_when };
-    const panels = { does, when };
-    const tabs = {};
-    const tablist = el("div", { className: "tabs", role: "tablist" });
-    const choose = (name, focus = false) => {
-      editing.tab = name;
-      for (const key of Object.keys(panels)) {
-        const on = key === name;
-        tabs[key].setAttribute("aria-selected", String(on));
-        tabs[key].tabIndex = on ? 0 : -1;
-        tabs[key].classList.toggle("on", on);
-        panels[key].hidden = !on;
-      }
-      if (focus) tabs[name].focus();
-    };
-    for (const key of Object.keys(panels)) {
-      const tab = el("button", { type: "button", className: "tab", id: `tabbtn-${key}`, textContent: names[key] });
-      tab.setAttribute("role", "tab");
-      tab.setAttribute("aria-controls", `tab-${key}`);
-      tab.addEventListener("click", () => choose(key));
-      tab.addEventListener("keydown", (event) => {
-        if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
-          event.preventDefault();
-          choose(key === "does" ? "when" : "does", true);
-        }
-      });
-      panels[key].setAttribute("role", "tabpanel");
-      panels[key].setAttribute("aria-labelledby", `tabbtn-${key}`);
-      tabs[key] = tab;
-      tablist.append(tab);
-    }
-    box.append(tablist, does, when);
-    choose(editing.tab);
+    // Two blocks under a heading each: which messages the policy applies to, then what it does.
+    box.append(el("h3", { className: "sec", textContent: t.sec_when }), when, el("h3", { className: "sec", textContent: t.sec_does }), does);
 
     const save = el("button", { type: "button", className: "primary", textContent: s.common.save });
     save.addEventListener("click", saveIt);
@@ -928,7 +879,7 @@ export function mount(container, ctx) {
       del.addEventListener("click", remove);
       buttons.append(del);
     }
-    box.append(buttons);
+    box.append(buttons, el("div", { className: "summary" }, [el("strong", { textContent: t.sentence }), words, status]));
     if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), el("pre", { textContent: ui.toYaml({ name: own.name, ...own.data }) }));
     function paint() {
       const found = validate(values, existing, own?.name);
@@ -938,11 +889,6 @@ export function mount(container, ctx) {
       status.className = codes.length ? "hint problems" : "hint ok";
       status.textContent = codes.length ? codes.map((c) => ui.errorText(c, ctx.language)).join(" ") : message || s.common.valid;
       noteUpdaters.forEach((update) => update());
-      const marks = tabsWithProblems(found);
-      for (const key of Object.keys(tabs)) {
-        tabs[key].classList.toggle("problem", marks[key]);
-        tabs[key].setAttribute("aria-label", marks[key] ? fill(t.tab_problems, { tab: names[key] }) : names[key]);
-      }
     }
     paint();
     return box;

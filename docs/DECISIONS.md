@@ -955,3 +955,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Existing tests that stack policies run with `policy_mode` `all` (the hub test fixture); `tests/hub/test_policy_mode.py` and `test_welcome_modes.py` cover the default.
 - Blast radius: usual restart; with the default, an installation that stacks policies on one message now runs only the first. The household fallback under Away still needs the order or recipients; it is part of the design for `all`.
 
+## D-153 Policy form with headed blocks instead of tabs (2026-11-04)
+- Context: the maintainer asked to drop the two tabs of D-146 and to structure the form with subheadings, "Applicability" and "Impact", names open for review.
+- Decision (maintainer): the editor shows both blocks one under the other, applicability first. The headings are "Which messages" and "What it does": plain questions a user asks, instead of the abstract Applicability and Impact; "What it does" also matches the text under Type. The tab markers and the code for them are removed; the sentence and the problems stay at the top.
+- The integration's own form is unchanged (one step, fixed text).
+- Blast radius: panel only; usual restart.
+- Follow-up (maintainer): the line "In words" with the problems moved from the top to under the Save button, above the stored YAML.

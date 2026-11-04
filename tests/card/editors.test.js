@@ -29,7 +29,6 @@ import {
   sentence,
   splitTags as policyTags,
   STRINGS as POLICY_STRINGS,
-  tabsWithProblems,
   toFlowData as policyData,
   validate as validatePolicy,
 } from "../../custom_components/heads_up/frontend/panel/policies.js";
@@ -400,15 +399,9 @@ describe("manual and automatic policies", () => {
     expect(sentence(manual, t)).toContain("Calls that name this policy");
   });
 
-  it("marks the tab that holds a problem, never for the name", () => {
-    expect(tabsWithProblems({ name: "name_required" })).toEqual({ does: false, when: false });
-    expect(tabsWithProblems({ after_minutes: "after_required" })).toEqual({ does: true, when: false });
-    expect(tabsWithProblems({})).toEqual({ does: false, when: false });
-  });
-
-  it("has the tab labels, the type texts and the choice texts in every language", () => {
+  it("has the headings of the two blocks, the type texts and the choice texts in every language", () => {
     for (const [code, language] of Object.entries(POLICY_STRINGS)) {
-      for (const key of ["enabled_hint", "tab_does", "tab_when", "tab_problems", "apply_label", "apply_auto", "apply_auto_hint", "apply_manual", "apply_manual_hint", "manual_how", "manual_note", "badge_manual", "s_applies_manual"]) {
+      for (const key of ["enabled_hint", "sec_when", "sec_does", "apply_label", "apply_auto", "apply_auto_hint", "apply_manual", "apply_manual_hint", "manual_how", "manual_note", "badge_manual", "s_applies_manual"]) {
         expect(language[key], `${code} ${key}`).toBeTruthy();
       }
       for (const type of Object.keys(language.types)) expect(language.type_desc[type], `${code} ${type}`).toBeTruthy();

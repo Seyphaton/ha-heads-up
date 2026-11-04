@@ -15,12 +15,12 @@ Policies that have no stored order start in this order: Summarize, Quiet hours, 
 
 ## Which messages a policy applies to
 
-A policy attaches to messages in one of two ways, chosen in the editor under When it applies.
+A policy attaches to messages in one of two ways, chosen in the editor under Which messages.
 
 - Automatically: the policy has two lists. A message gets it when its severity is in the first list and its tag in the second. An empty list matches everything.
 - Manually: the policy has no lists and never attaches by itself. Only a call that names it in the `policy` field gets it.
 
-The editor has two tabs. What it does holds the fields of the type. When it applies holds the choice between automatic and manual, and the lists of an automatic policy. A disabled policy is never used.
+The editor has two blocks under headings. Which messages holds the choice between automatic and manual, and the lists of an automatic policy. What it does holds the fields of the type. A disabled policy is never used.
 
 - Messages from watch rules have the tag `rule`.
 - A message without a tag matches only a policy whose tag list is empty.
