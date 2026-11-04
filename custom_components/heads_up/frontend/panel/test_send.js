@@ -56,6 +56,10 @@ export const STRINGS = {
     send: "Send test",
     send_hint: "Sends one real message with the marker: the title starts with Test, the tag is test, and it ends after 10 minutes. Policies apply.",
     sent: "Sent {id}: {summary}",
+    what_happened: "What happened",
+    outcome_waiting: "Waiting for the delivery…",
+    outcome_none: "No delivery was recorded yet. Open Messages for the trace.",
+    log_hint: "A failed delivery is also written to the Home Assistant log (Settings > System > Logs, search for heads_up).",
     clear: "Clear the test message",
     cleared: "Cleared.",
     preview_failed: "The preview is not available: {text}",
@@ -120,6 +124,10 @@ export const STRINGS = {
     send: "Test senden",
     send_hint: "Sendet eine echte Meldung mit der Markierung: Der Titel beginnt mit Test, der Tag ist test, und sie endet nach 10 Minuten. Richtlinien gelten.",
     sent: "Gesendet {id}: {summary}",
+    what_happened: "Was passiert ist",
+    outcome_waiting: "Warte auf die Zustellung…",
+    outcome_none: "Noch keine Zustellung aufgezeichnet. Öffne Meldungen für das Protokoll.",
+    log_hint: "Eine fehlgeschlagene Zustellung steht auch im Home-Assistant-Protokoll (Einstellungen > System > Protokolle, nach heads_up suchen).",
     clear: "Testmeldung entfernen",
     cleared: "Entfernt.",
     preview_failed: "Die Vorschau ist nicht verfügbar: {text}",
@@ -184,6 +192,10 @@ export const STRINGS = {
     send: "Envoyer le test",
     send_hint: "Envoie un vrai message avec le marqueur : le titre commence par Test, l'étiquette est test, et il se termine après 10 minutes. Les politiques s'appliquent.",
     sent: "Envoyé {id} : {summary}",
+    what_happened: "Ce qui s'est passé",
+    outcome_waiting: "En attente de la livraison…",
+    outcome_none: "Aucune livraison enregistrée pour l'instant. Ouvrez Messages pour la trace.",
+    log_hint: "Une livraison échouée est aussi écrite dans le journal de Home Assistant (Réglages > Système > Journaux, cherchez heads_up).",
     clear: "Supprimer le message de test",
     cleared: "Supprimé.",
     preview_failed: "L'aperçu n'est pas disponible : {text}",
@@ -248,6 +260,10 @@ export const STRINGS = {
     send: "Enviar prueba",
     send_hint: "Envía un mensaje real con la marca: el título empieza por Test, la etiqueta es test y termina a los 10 minutos. Se aplican las políticas.",
     sent: "Enviado {id}: {summary}",
+    what_happened: "Qué pasó",
+    outcome_waiting: "Esperando la entrega…",
+    outcome_none: "Aún no se registró ninguna entrega. Abre Mensajes para ver la traza.",
+    log_hint: "Una entrega fallida también se escribe en el registro de Home Assistant (Ajustes > Sistema > Registros, busca heads_up).",
     clear: "Borrar el mensaje de prueba",
     cleared: "Borrado.",
     preview_failed: "La vista previa no está disponible: {text}",
@@ -330,6 +346,29 @@ export function summaryLine(rows, s) {
     .join("; ");
 }
 
+// The trace entries that are real delivery results of a message, without the banner and without
+// housekeeping such as a clear.
+export function outcomeRows(entries, channels) {
+  const wanted = channels.filter((c) => c !== "banner");
+  return (entries || []).filter((e) => wanted.includes(e.channel) && ["sent", "failed", "skipped", "held"].includes(e.result));
+}
+
+// True once every channel the call named (besides the banner) has a result.
+export function outcomeDone(entries, channels) {
+  const rows = outcomeRows(entries, channels);
+  return channels.filter((c) => c !== "banner").every((c) => rows.some((r) => r.channel === c));
+}
+
+// "Speak: 1 sent, 1 skipped" from the counts of the `notify` response, in the order the call named.
+export function plannedLine(counts, s) {
+  return Object.entries(counts || {})
+    .map(([channel, c]) => {
+      const parts = ["sent", "held", "skipped", "failed"].filter((k) => c[k]).map((k) => `${c[k]} ${s.result[k] || k}`);
+      return `${s.channel[channel] || channel}: ${parts.join(", ") || "0"}`;
+    })
+    .join("; ");
+}
+
 export function laterText(step, t, s) {
   const channels = (step.channels || []).map((c) => s.channel[c] || c).join(", ");
   const only = channels ? fill(t.later_only, { channels }) : "";
@@ -383,6 +422,8 @@ export function mount(container, ctx) {
   let notice = "";
   let timer = null;
   let testId = null;
+  let outcome = null; // the trace rows of the real send, filled in when they arrive
+  let waiting = false;
   const root = el("div", { className: "hu-page" });
   container.append(root);
 
@@ -459,6 +500,24 @@ export function mount(container, ctx) {
     return box;
   }
 
+  function outcomeNode() {
+    const box = el("div", {}, [el("h2", { textContent: t.what_happened, style: "margin-top:12px" })]);
+    if (outcome.length === 0) {
+      box.append(el("div", { className: "hint", textContent: waiting ? t.outcome_waiting : t.outcome_none }));
+      return box;
+    }
+    const head = el("tr", {}, [t.recipient, t.channel, t.result].map((text) => el("th", { textContent: text })));
+    const rows = outcome.map((entry) => {
+      const words = [s.result[entry.result] || entry.result];
+      if (entry.reason) words.push(fmt.reasonText(entry.reason, s));
+      const who = rowRecipient({ recipient: entry.recipient || "", channel: entry.channel, result: entry.result }, {}, data.choices, t);
+      return el("tr", {}, [el("td", { textContent: who }), el("td", { textContent: channelLabel(entry.channel) }), el("td", { textContent: words.filter(Boolean).join(" · ") })]);
+    });
+    box.append(el("table", {}, [el("thead", {}, [head]), el("tbody", {}, rows)]));
+    if (outcome.some((entry) => entry.result === "failed")) box.append(el("div", { className: "hint problems", textContent: t.log_hint }));
+    return box;
+  }
+
   function yamlNode() {
     const box = el("section", {}, [el("h2", { textContent: t.yaml })]);
     const valid = validate(values).length === 0;
@@ -480,6 +539,7 @@ export function mount(container, ctx) {
     const row = el("div", { className: "row" }, [copy, send, status]);
     box.append(row, el("div", { className: "hint", textContent: t.send_hint }));
     if (notice) box.append(el("div", { className: "hint", textContent: notice }));
+    if (outcome !== null) box.append(outcomeNode());
     if (testId) {
       const clear = el("button", { type: "button", textContent: t.clear });
       clear.addEventListener("click", clearTest);
@@ -521,11 +581,30 @@ export function mount(container, ctx) {
     try {
       const response = await hass.callWS({ type: "heads_up/hub_test_send", ...buildCall(values) });
       testId = response.id;
-      const counts = Object.entries(response.channels || {}).map(([c, v]) => `${channelLabel(c)}: ${v.sent} ${s.result.sent}`).join("; ");
-      notice = fill(t.sent, { id: response.id, summary: counts });
+      notice = fill(t.sent, { id: response.id, summary: plannedLine(response.channels, s) });
+      outcome = [];
+      waiting = true;
+      repaintResult();
+      await collectOutcome(response.id, [...values.channels]);
     } catch (err) {
       notice = fill(t.send_failed, { text: err?.message || "" });
     }
+    repaintResult();
+  }
+
+  // The delivery runs after the call returns, so the real results come from the trace a moment later.
+  async function collectOutcome(id, channels) {
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      try {
+        const trace = await hass.callWS({ type: "heads_up/panel_trace", message_id: id });
+        outcome = outcomeRows(trace.entries, channels);
+        if (outcomeDone(trace.entries, channels)) break;
+      } catch (err) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 600));
+    }
+    waiting = false;
     repaintResult();
   }
 
@@ -534,6 +613,7 @@ export function mount(container, ctx) {
       await hass.callWS({ type: "heads_up/admin_clear", banner_id: testId });
       notice = t.cleared;
       testId = null;
+      outcome = null;
     } catch (err) {
       notice = fill(t.send_failed, { text: err?.message || "" });
     }

@@ -98,17 +98,23 @@ class SpeakChannel:
     # Delivery ---------------------------------------------------------------------------
 
     async def deliver(self, message: Banner, target: Target) -> Outcome:
-        if target.quiet:
-            return Outcome(Result.SKIPPED, "quiet_hours")  # quiet hours: speech is skipped
         entity = target.key
+        if target.quiet:
+            _LOGGER.debug("Speech on %s skipped: quiet hours", entity)
+            return Outcome(Result.SKIPPED, "quiet_hours")  # quiet hours: speech is skipped
         state = self._hass.states.get(entity)
         if state is None:
+            self._warn(entity, "Speech on %s failed: the speaker does not exist", entity)
             return Outcome(Result.FAILED, "entity_missing")
         text = speech_text(message, int(self._opt(OPT_SPEAK_MAX_LENGTH)))
         if not text:
+            _LOGGER.debug("Speech on %s skipped: nothing to say", entity)
             return Outcome(Result.SKIPPED, "nothing_to_say")
         async with self._locks.setdefault(entity, asyncio.Lock()):
             if self._repeated(entity, text):
+                _LOGGER.debug(
+                    "Speech on %s skipped: the same text was said within the pause", entity
+                )
                 return Outcome(Result.SKIPPED, "cooldown")
             outcome = await self._speak(entity, state.attributes, text)
             if outcome.result is Result.SENT:
@@ -142,6 +148,17 @@ class SpeakChannel:
             )
         engine = self._tts_entity()
         if engine is None:
+            engines = [s.entity_id for s in self._hass.states.async_all("tts")]
+            self._warn(
+                "tts_engine",
+                "Speech on %s failed: no text-to-speech engine is chosen. %s",
+                entity,
+                (
+                    f"Found {len(engines)}: {', '.join(engines)}. Choose one in Speech settings."
+                    if engines
+                    else "None is set up in Home Assistant."
+                ),
+            )
             return Outcome(Result.FAILED, "no_tts_engine")
         features = int(attributes.get("supported_features", 0))
         if features & MediaPlayerEntityFeature.MEDIA_ANNOUNCE:
@@ -154,12 +171,14 @@ class SpeakChannel:
             return await self._call(entity, "tts", "speak", data)
         try:
             media_id = media_source_id(self._hass, text, engine, language)
-        except HomeAssistantError:
+        except HomeAssistantError as err:
+            self._warn("tts_engine", "Speech on %s failed: %s", entity, err)
             return Outcome(Result.FAILED, "no_tts_engine")
         media = {"media_content_id": media_id, "media_content_type": "music"}
         return await self._call(entity, PLAYER, "play_media", {"entity_id": entity, **media})
 
     async def _call(self, entity: str, domain: str, service: str, data: dict[str, Any]) -> Outcome:
+        _LOGGER.debug("Speaking on %s through %s.%s", entity, domain, service)
         try:
             await self._hass.services.async_call(domain, service, data, blocking=True)
         except ServiceNotFound:

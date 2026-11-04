@@ -229,19 +229,27 @@ async def test_a_missing_service_is_reported(
 
 
 async def test_a_player_needs_a_text_to_speech_engine(
-    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    fake_speakers: FakeSpeakers,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     hass.states.async_remove(fake_speakers.tts_entity)
     await say(hass, entry, fake_speakers.announce_player)
     assert "no_tts_engine" in reasons(entry) and not fake_speakers.tts_speak
+    assert "no text-to-speech engine is chosen" in caplog.text  # the log says why
 
 
 async def test_several_engines_need_the_option(
-    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    fake_speakers: FakeSpeakers,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
     hass.states.async_set("tts.other", "unknown", {})
     await say(hass, entry, fake_speakers.announce_player)
     assert "no_tts_engine" in reasons(entry)
+    assert "Found 2" in caplog.text and "tts.other" in caplog.text  # the log names the engines
     entry.runtime_data.options["speak_tts_entity"] = "tts.other"
     await say(hass, entry, fake_speakers.announce_player, id="n")
     assert fake_speakers.tts_speak[-1].data["entity_id"] == "tts.other"

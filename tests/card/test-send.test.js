@@ -4,6 +4,9 @@ import {
   buildCall,
   callYaml,
   laterText,
+  outcomeDone,
+  outcomeRows,
+  plannedLine,
   rowRecipient,
   STRINGS,
   summaryLine,
@@ -164,3 +167,29 @@ describe("test send rows and target mode", () => {
     expect(targetMode({}, "speak")).toBe("recipients");
   });
 });
+
+describe("test send outcome", () => {
+  const entries = [
+    { channel: "banner", recipient: "", result: "sent" },
+    { channel: "speak", recipient: "media_player.k", result: "failed", reason: "no_tts_engine" },
+    { channel: "push", recipient: "device:d1", result: "cleared" },
+  ];
+
+  it("keeps only real delivery results of the named channels, without the banner", () => {
+    expect(outcomeRows(entries, ["banner", "speak", "push"])).toEqual([entries[1]]);
+    expect(outcomeRows(entries, ["banner"])).toEqual([]);
+  });
+
+  it("is done once every non-banner channel has a result", () => {
+    expect(outcomeDone(entries, ["banner", "speak"])).toBe(true);
+    expect(outcomeDone(entries, ["banner", "speak", "push"])).toBe(false);
+    expect(outcomeDone([], ["banner"])).toBe(true);
+  });
+
+  it("words the planned counts with every kind, not only sent", () => {
+    expect(plannedLine({ speak: { sent: 0, held: 0, skipped: 1, failed: 0 }, banner: { sent: 1, held: 0, skipped: 0, failed: 0 } }, S)).toBe(
+      "Speak: 1 skipped; Banner: 1 sent",
+    );
+  });
+});
+
