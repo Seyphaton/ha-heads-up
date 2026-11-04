@@ -7,29 +7,32 @@ Heads Up is a notification hub for Home Assistant. Your automations make one cal
 
 ![Your automation makes one call, and Heads Up orchestrates where the message shows up (banner, push, popup, speech, mail, Persistent Notification), who gets it (everyone, admins, whoever is home, the last one to leave, one person) and when (quiet at night, repeat until acknowledged, escalate, evening summary, send on arrival).](docs/images/where-who-when.svg)
 
-## Problems it solves
-
-- Every automation and script hard-codes phones, speakers and quiet-hour templates. Replacing a phone means editing thirty automations.
-- Dashboard banners differ from setup to setup. Heads Up has one banner with a timeout, a condition, a closed state per person and a snooze.
-- A critical alert looks like any other message. Heads Up can open it as a window over any dashboard.
-- A critical alert that nobody read stays unread. An escalation notifies more people or channels after a delay, until someone acknowledges it.
-- A message is sent once and forgotten. A reminder repeats it while nobody acknowledges it.
-- A message closed on the phone is still on the wall tablet and is spoken again. When a message is cleared or expires, every channel takes it back. When one person closes it, it is gone for that person.
-
 ## What it does
 
-- Banner: a dismissible banner in a dashboard card. It stays until someone closes it, its condition stops matching, its timeout passes or an action clears it, and it survives a restart. Watch rules show a banner while an entity is in a state, without an automation.
-- Push, popup, speech, mail and Persistent Notification: one message can reach Companion app notifications, a window over any dashboard, speakers and Assist satellites, mail, and Home Assistant's own notification list (the bell). The action `heads_up.notify` names the channels. Each channel also has its own action.
-- Audiences: Everyone, Admins, At home, Not home, Last to leave, First home, persons, a zone, or a speaker group. Phones are found from the person, so replacing a phone is one change.
-- Policies: Escalation, Reminder, Quiet hours, Away, Fallback, Summarize and Deliver. They are kept apart from the automations. The panel's introduction is a four-step tour: what Heads Up does, then channels, recipients and policies. The last step offers four default policies: quiet hours, an evening summary, critical messages and warning reminders.
-- Acknowledgement: it stops escalations and reminders, and the card shows who acknowledged.
-- Explanation: the panel previews who a call would reach right now, and why anyone is skipped, held or dropped. Each message has a trace.
-- Rate limits: 5 pushes per device per minute and 60 in total. Critical messages are never held back.
-- Panel: an administrator page in the sidebar. See [Panel](docs/panel.md).
+- One call, many **channels**: banner in a dashboard card, Companion app push, popup over any dashboard, speech, mail and the Persistent Notification bell.
+- **Audiences** instead of device names: Everyone, Admins, At home, Not home, Last to leave, First home, persons, a zone or a speaker group. Phones are found from the person, so replacing a phone is one change.
+- **Policies** kept apart from the automations: escalation, reminder, quiet hours, away, fallback and summary. Acknowledging a message stops its escalations and reminders.
+- One **lifecycle** for every channel: a message ends when someone closes it, its condition stops matching, its timeout passes or an action clears it. Then every channel takes it back.
+- **Explanations**: the panel previews who a call would reach right now and why anyone is skipped, held or dropped. Each message has a trace.
 
-Banners, rules and the card work without any hub object.
+Banners, watch rules and the card work without any hub object.
 
-Start with [How to use Heads Up](docs/how-to.md). The terms are in [Notification hub](docs/hub.md).
+## Defaults and limits
+
+| Topic | Behaviour |
+|---|---|
+| Push rate limit | 5 pushes per device per minute and 60 in total. A push over the limit is skipped and the trace says `rate_limited`. |
+| Duplicate updates | An update with the same content is not sent again to the same recipient for 30 seconds (`duplicate`). |
+| Critical messages | Never held back by the rate limits or the duplicate check. |
+| Push retry | None. A failed push is not tried again. |
+| Push buttons | Android shows at most 3, iOS 10. Extra buttons are left out and the trace says `buttons_clipped`. |
+| Spoken text | Cut to 200 characters. The same text is not said again on the same speaker within 60 seconds. |
+| Banner timeout | 24 hours unless you set `timeout`. `timeout: 0` keeps the banner until it is cleared. |
+| Banner count | 50 stored banners. When the limit is reached, the banner with the lowest severity is removed, the oldest first. Critical banners are never removed this way, and creating a banner fails when none can be. |
+| Snooze | Choices of 15 minutes, 1 hour and 4 hours when a banner is snoozable. Banners are not snoozable by default. |
+| Memory | The trace keeps 500 entries and the panel lists the last 100 messages. Both start empty after a restart. |
+
+Rate limits, the duplicate window, the banner count and the spoken text settings can be changed in the integration options. See [Notification hub](docs/hub.md#limits-that-protect-the-phones) and [Limitations](docs/limitations.md).
 
 Everything was tested on local Home Assistant instances with stub devices, not on real phones or speakers. Make a backup before you install.
 
@@ -42,21 +45,10 @@ Everything was tested on local Home Assistant instances with stub devices, not o
 
 Make a backup first. Installing needs a Home Assistant restart, which pauses all automations until it has finished.
 
-### With HACS
+1. In HACS, search for "Heads Up" and click "Download".
+2. Restart Home Assistant.
 
 The first button at the top opens the repository in HACS on your Home Assistant. The second opens the setup dialog of the integration after it is installed.
-
-Heads Up is not in the default HACS list. Add it as a custom repository:
-
-1. In HACS, click the three dots in the top right corner and choose "Custom repositories".
-2. Enter `https://github.com/Seyphaton/ha-heads-up` and select the type "Integration".
-3. Click "Add", then find Heads Up in HACS and download it.
-4. Restart Home Assistant.
-
-### By hand
-
-1. Copy the folder `custom_components/heads_up` of this repository to `custom_components/heads_up` in your Home Assistant configuration folder.
-2. Restart Home Assistant.
 
 ## Set up
 
@@ -64,7 +56,32 @@ Go to Settings > Devices & services and add the integration Heads Up. It asks wh
 
 ## Quick start
 
-Add the card to a dashboard in the YAML editor:
+Send one message to the phones of everyone and the Persistent Notification channel. Developer tools > Actions (YAML mode), an automation or a script can make this call:
+
+```yaml
+action: heads_up.notify
+data:
+  id: water_leak
+  message: Water leak
+  severity: critical
+  channels: [push, persistent]
+  to:
+    push: {audience: Everyone}
+```
+
+Remove the message from every channel with its `id`:
+
+```yaml
+action: heads_up.clear
+data:
+  id: water_leak
+```
+
+Use `heads_up.push`, `heads_up.popup` and `heads_up.speak` as shortcuts for one channel. See [How to use Heads Up](docs/how-to.md) for audiences, policies and more examples.
+
+### Banner
+
+A banner stays in a dashboard card until someone closes it, its condition stops matching, its timeout passes or an action clears it. It survives a restart. Add the card to a dashboard in the YAML editor:
 
 ```yaml
 type: custom:heads-up-card
@@ -73,7 +90,7 @@ show_time: true
 show_severity: true
 ```
 
-Create a banner in Developer tools > Actions (YAML mode), or from an automation or script:
+Create a banner:
 
 ```yaml
 action: heads_up.create_banner
@@ -84,23 +101,11 @@ data:
   severity: warning
 ```
 
-The banner appears in the card without a reload. Close it with the X button, or remove it with `heads_up.clear_all`. Without `timeout` it disappears after 24 hours.
+The banner appears in the card without a reload. Close it with the X button, or remove it with `heads_up.clear_banner` or `heads_up.clear_all`.
 
 ![Card with four banners: critical, warning, info and success, each with a severity label and the time since it was created](docs/images/card-default.png)
 
-Send one message to the banner, the phones of everyone and the Persistent Notification channel:
-
-```yaml
-action: heads_up.notify
-data:
-  message: Water leak
-  severity: critical
-  channels: [banner, push, persistent]
-  to:
-    push: {audience: Everyone}
-```
-
-The card receives banners over the Home Assistant WebSocket connection and does not poll. The integration creates one entity, `sensor.heads_up_active_banners`, with the number of active banners, including active watch-rule banners.
+The card receives banners over the Home Assistant WebSocket connection and does not poll. The integration creates one entity, `sensor.heads_up_active_banners`, with the number of active banners, including active watch-rule banners. [Watch rules](docs/rules.md) show a banner while an entity is in a state, without an automation.
 
 ## Documentation
 
