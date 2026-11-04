@@ -35,6 +35,7 @@ async def test_add_an_escalation_stores_its_targets_per_channel(
         "severities": ["critical"],
         "tags": [],
         "enabled": True,
+        "apply": "auto",
         "after_minutes": 5,
         "channels": ["push"],
         "targets": {"push": {"recipients": ["person.ben"]}},
@@ -151,6 +152,7 @@ async def test_add_quiet_hours_with_the_confirmed_defaults(
         "severities": [],
         "tags": [],
         "enabled": True,
+        "apply": "auto",
         "from_time": "22:00:00",
         "to_time": "07:00:00",
         "days": [],
@@ -259,3 +261,24 @@ async def test_a_deliver_policy_needs_channels_and_a_target(
         hass, entry, "policy", {"name": "D", "type": "deliver", "channels": ["push"]}
     )
     assert no_target["errors"]["push_audience"] == "target_exclusive"
+
+
+async def test_a_manual_policy_keeps_no_conditions(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    set_person(hass, "person.ben", "home")
+    manual = {**ESCALATION, "apply": "manual", "tags": ["water"]}
+    result = await run(hass, entry, "policy", manual)
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (sub,) = subentries(entry, "policy")
+    assert sub.data["apply"] == "manual"
+    assert sub.data["severities"] == [] and sub.data["tags"] == []
+
+
+async def test_a_manual_policy_may_repeat_an_automatic_one(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    set_person(hass, "person.ben", "home")
+    assert (await run(hass, entry, "policy", ESCALATION))["type"] is FlowResultType.CREATE_ENTRY
+    twin = {**ESCALATION, "name": "Water escalation, by hand", "apply": "manual"}
+    assert (await run(hass, entry, "policy", twin))["type"] is FlowResultType.CREATE_ENTRY

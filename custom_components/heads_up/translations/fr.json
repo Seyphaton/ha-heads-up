@@ -253,6 +253,12 @@
         "failed": "Échec de l'envoi",
         "both": "L'un ou l'autre"
       }
+    },
+    "policy_apply": {
+      "options": {
+        "auto": "Automatiquement, par gravité et étiquette",
+        "manual": "Manuellement, seulement quand un appel la nomme"
+      }
     }
   },
   "entity": {
@@ -692,7 +698,8 @@
             "snooze_options": "Durées de report",
             "actions": "Boutons",
             "tap_action": "Action au toucher",
-            "image": "Image"
+            "image": "Image",
+            "policy": "Politique"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
@@ -712,7 +719,8 @@
             "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration.",
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
+            "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
+            "policy": "Le nom d'une politique, ou none. Vide : chaque politique automatique qui s'applique à un message de règle (étiquette rule). Un nom n'utilise que cette politique, none n'en utilise aucune."
           }
         },
         "reconfigure": {
@@ -780,7 +788,8 @@
         "actions_invalid": "Les boutons ne sont pas valides. Chacun a besoin d'une key et d'un label, 3 au maximum.",
         "tap_action_invalid": "L'action au toucher a besoin d'une clé action.",
         "image_invalid": "L'image doit être une URL http(s) ou un chemin commençant par /.",
-        "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé."
+        "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé.",
+        "policy_unknown": "Cette politique n'existe pas. Utilisez le nom d'une politique, ou none."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."
@@ -953,13 +962,14 @@
       "step": {
         "user": {
           "title": "Ajouter une politique",
-          "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\". Heures calmes : retenir, envoyer discrètement ou abandonner les envois dans une plage horaire. Absent : envoyer aux personnes qui ne sont pas à la maison à leur arrivée. Repli : utiliser d'autres canaux quand personne n'a pu être notifié. Résumer : retenir les messages sur tous les canaux, bannière comprise, et envoyer un résumé par destinataire. Livrer : envoyer tout de suite les messages concernés à une audience choisie sur des canaux choisis, en plus de ce que l'appel nomme.",
+          "description": "Ce que fait la politique (le type) et quand elle s'applique :\n\n- Escalade : si personne ne confirme dans le délai, remettre sur d'autres canaux.\n- Rappel : répéter la notification tant que personne ne confirme.\n- Heures calmes : retenir, envoyer discrètement ou abandonner les remises dans une plage horaire.\n- Absence : envoyer aux personnes absentes quand elles arrivent.\n- Repli : utiliser d'autres canaux quand personne n'a pu être prévenu.\n- Résumé : retenir les messages sur chaque canal, bannière comprise, et envoyer un résumé par destinataire.\n- Remise : envoyer tout de suite les messages correspondants à une audience choisie sur des canaux choisis, en plus de ce que l'appel demandait.\n\nUne politique s'applique automatiquement aux messages dont la gravité et l'étiquette correspondent (une liste vide correspond à tout ; les messages de règles ont l'étiquette \"rule\"), ou manuellement, seulement quand un appel la nomme dans son champ policy.",
           "data": {
+            "enabled": "Activée",
             "name": "Nom",
             "type": "Type",
+            "apply": "S'applique aux messages",
             "severities": "Gravités",
             "tags": "Étiquettes",
-            "enabled": "Activée",
             "after_minutes": "Escalader après (minutes)",
             "channels": "Canaux",
             "dismiss_acks": "Masquer vaut acquittement",
@@ -984,9 +994,10 @@
             "include_critical": "Inclure les messages critiques"
           },
           "data_description": {
+            "enabled": "Une politique désactivée n'est jamais utilisée, même si un appel la nomme.",
             "name": "Utilisé par le champ policy d'un appel. Doit être unique et ne peut pas être \"none\".",
-            "severities": "Seulement les messages de ces gravités. Vide : toutes.",
-            "tags": "Seulement les messages avec l'une de ces étiquettes. Vide : toutes.",
+            "severities": "Politiques automatiques : seulement les messages de ces gravités. Vide : toutes. Une politique manuelle ne l'utilise pas.",
+            "tags": "Politiques automatiques : seulement les messages avec l'une de ces étiquettes. Vide : toutes. Une politique manuelle ne l'utilise pas.",
             "after_minutes": "Escalade : minutes sans acquittement avant d'utiliser les canaux ci-dessous.",
             "channels": "Escalade : canaux à ajouter. Rappel : limiter à ces canaux, vide pour tous.",
             "dismiss_acks": "Escalade : masquer arrête l'escalade, comme un acquittement.",
@@ -1004,7 +1015,8 @@
             "summary_every": "Résumer : envoie un résumé ce nombre de minutes après le premier message retenu.",
             "summary_at": "Résumer : envoie un résumé chaque jour à cette heure plutôt qu'à intervalle.",
             "include_critical": "Résumer : retient aussi les messages critiques. Désactivé : les messages critiques sont livrés tout de suite.",
-            "mail_audience": "Donnez une audience ou des destinataires par canal, jamais les deux. Le courriel atteint les personnes dont le profil a Courriel activé et une adresse ; sans adresse il échoue avec no_mail_address. Le destinataire Global address utilise l'adresse commune de la page Canaux."
+            "mail_audience": "Donnez une audience ou des destinataires par canal, jamais les deux. Le courriel atteint les personnes dont le profil a Courriel activé et une adresse ; sans adresse il échoue avec no_mail_address. Le destinataire Global address utilise l'adresse commune de la page Canaux.",
+            "apply": "Automatiquement : chaque message dont la gravité et l'étiquette correspondent reçoit la politique. Manuellement : seul un appel qui nomme cette politique dans son champ policy la reçoit. Un appel peut aussi désactiver toutes les politiques avec la politique none."
           }
         },
         "reconfigure": {

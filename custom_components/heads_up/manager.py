@@ -603,6 +603,7 @@ class BannerManager:
                 source.get("snooze_options") or self.options[OPT_DEFAULT_SNOOZE_OPTIONS]
             ),
             tag=RULE_TAG,
+            policy=(source.get("policy") or None),
             source=SOURCE_RULE,
             acknowledged_by=(
                 list(old.acknowledged_by)

@@ -162,3 +162,8 @@ def test_failed_sends_of_the_last_day_are_counted_per_channel_and_reason() -> No
     assert found[0].key == "delivery_failed|push|send_failed"  # the count is not part of the key
     assert found[0].as_dict()["dismissible"] is True
     assert check_failures([], now) == []
+
+
+def test_a_manual_escalation_does_not_cover_critical_messages() -> None:
+    manual = Policy(name="By hand", type="escalation", after_minutes=5, apply="manual")
+    assert kinds(check_critical_escalation([manual])) == ["no_critical_escalation"]

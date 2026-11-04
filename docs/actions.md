@@ -48,7 +48,7 @@ The banner is on the dashboard, and everyone who is home gets a push. When the m
 |---|---|---|---|
 | `channels` | list of channels | required | One or more of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, each at most once. |
 | `to` | object | none | Who gets the message, per channel. See below. |
-| `policy` | text | every policy that applies | The name of one [policy](policies.md) to use, whatever its severities and tags say. `none` uses no policy. |
+| `policy` | text | every policy that applies | The name of one [policy](policies.md) to use, whatever its severities and tags say; it is the only policy used for the call, and it may be a manual policy. `none` uses no policy. |
 
 `to` holds one entry per channel. Each entry is either `audience` (the name of a group such as `At home`) or `recipients` (a list), never both.
 

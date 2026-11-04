@@ -268,3 +268,28 @@ async def test_dismiss_button_needs_a_dismissible_rule(
         hass, entry, entity_id=WINDOW, actions=[{"key": "ack", "label": "Got it", "dismiss": True}]
     )
     assert result["errors"] == {"actions": "actions_dismiss_needs_dismissible"}
+
+
+async def test_a_rule_can_name_a_policy_or_none(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(WINDOW, "off")
+    flow_id = await start(hass, entry)
+    result = await hass.config_entries.subentries.async_configure(
+        flow_id, {"name": "Window", "entity_id": WINDOW, "message": "x", "policy": " none "}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (subentry,) = entry.subentries.values()
+    assert subentry.data["policy"] == "none"
+
+
+async def test_a_rule_refuses_a_policy_that_does_not_exist(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(WINDOW, "off")
+    flow_id = await start(hass, entry)
+    result = await hass.config_entries.subentries.async_configure(
+        flow_id, {"name": "Window", "entity_id": WINDOW, "message": "x", "policy": "Nope"}
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"policy": "policy_unknown"}

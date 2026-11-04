@@ -253,6 +253,12 @@
         "failed": "Zustellung fehlgeschlagen",
         "both": "Eines von beiden"
       }
+    },
+    "policy_apply": {
+      "options": {
+        "auto": "Automatisch, nach Schweregrad und Tag",
+        "manual": "Manuell, nur wenn ein Aufruf sie nennt"
+      }
     }
   },
   "entity": {
@@ -692,7 +698,8 @@
             "snooze_options": "Auswahl beim Zurückstellen",
             "actions": "Schaltflächen",
             "tap_action": "Tipp-Aktion",
-            "image": "Bild"
+            "image": "Bild",
+            "policy": "Richtlinie"
           },
           "data_description": {
             "name": "Wird nur in der Liste der Regeln angezeigt.",
@@ -712,7 +719,8 @@
             "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen.",
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
+            "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
+            "policy": "Der Name einer Richtlinie oder none. Leer: jede automatische Richtlinie, die für eine Regelmeldung gilt (Tag rule). Ein Name nutzt nur diese Richtlinie, none keine."
           }
         },
         "reconfigure": {
@@ -780,7 +788,8 @@
         "actions_invalid": "Die Schaltflächen sind ungültig. Jede braucht key und label, höchstens 3.",
         "tap_action_invalid": "Die Tipp-Aktion braucht einen action-Schlüssel.",
         "image_invalid": "Das Bild muss eine http(s)-URL oder ein Pfad sein, der mit / beginnt.",
-        "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an."
+        "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an.",
+        "policy_unknown": "Diese Richtlinie gibt es nicht. Nimm den Namen einer Richtlinie oder none."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
@@ -953,13 +962,14 @@
       "step": {
         "user": {
           "title": "Richtlinie hinzufügen",
-          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte. Zusammenfassen: Meldungen auf allen Kanälen, auch dem Banner, zurückhalten und eine Zusammenfassung je Empfänger senden. Zustellen: passende Meldungen sofort an eine gewählte Zielgruppe auf gewählten Kanälen senden, zusätzlich zu dem, was der Aufruf nennt.",
+          "description": "Was die Richtlinie tut (der Typ) und wann sie gilt:\n\n- Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt.\n- Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt.\n- Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen.\n- Abwesenheit: sendet an Personen, die nicht zu Hause sind, wenn sie ankommen.\n- Ersatz: nutzt andere Kanäle, wenn niemand benachrichtigt werden konnte.\n- Zusammenfassen: hält Meldungen auf jedem Kanal zurück, auch den Banner, und sendet eine Zusammenfassung pro Empfänger.\n- Zustellen: sendet passende Meldungen sofort an eine gewählte Zielgruppe auf gewählten Kanälen, zusätzlich zu dem, was der Aufruf verlangt hat.\n\nEine Richtlinie gilt automatisch für Meldungen, deren Schweregrad und Tag passen (leere Listen passen auf alles; Regelmeldungen haben den Tag \"rule\"), oder manuell, nur wenn ein Aufruf sie im Feld policy nennt.",
           "data": {
+            "enabled": "Aktiv",
             "name": "Name",
             "type": "Art",
+            "apply": "Gilt für Meldungen",
             "severities": "Schweregrade",
             "tags": "Tags",
-            "enabled": "Aktiv",
             "after_minutes": "Eskalieren nach (Minuten)",
             "channels": "Kanäle",
             "dismiss_acks": "Ausblenden zählt als Bestätigung",
@@ -984,9 +994,10 @@
             "include_critical": "Kritische Meldungen einschließen"
           },
           "data_description": {
+            "enabled": "Eine deaktivierte Richtlinie wird nie genutzt, auch nicht, wenn ein Aufruf sie nennt.",
             "name": "Wird vom Feld policy eines Aufrufs verwendet. Muss eindeutig sein und darf nicht \"none\" heißen.",
-            "severities": "Nur Meldungen dieser Schweregrade. Leer: alle.",
-            "tags": "Nur Meldungen mit einem dieser Tags. Leer: alle.",
+            "severities": "Automatische Richtlinien: nur Meldungen dieser Schweregrade. Leer: alle. Eine manuelle Richtlinie nutzt das nicht.",
+            "tags": "Automatische Richtlinien: nur Meldungen mit einem dieser Tags. Leer: alle. Eine manuelle Richtlinie nutzt das nicht.",
             "after_minutes": "Eskalation: Minuten ohne Bestätigung, bevor die folgenden Kanäle genutzt werden.",
             "channels": "Eskalation: hinzuzufügende Kanäle. Erinnerung: auf diese Kanäle beschränken, leer für alle.",
             "dismiss_acks": "Eskalation: Ausblenden beendet die Eskalation, wie eine Bestätigung.",
@@ -1004,7 +1015,8 @@
             "summary_every": "Zusammenfassen: eine Zusammenfassung so viele Minuten nach der ersten zurückgehaltenen Meldung senden.",
             "summary_at": "Zusammenfassen: eine Zusammenfassung täglich zu dieser Uhrzeit statt im Intervall senden.",
             "include_critical": "Zusammenfassen: auch kritische Meldungen zurückhalten. Aus: kritische Meldungen werden sofort zugestellt.",
-            "mail_audience": "Gib pro Kanal entweder eine Zielgruppe oder Empfänger an, nie beides. E-Mail erreicht Personen, deren Profil E-Mail aktiviert und eine Adresse hat; ohne Adresse scheitert es mit no_mail_address. Der Empfänger Global address nutzt die gemeinsame Adresse der Kanäle-Seite."
+            "mail_audience": "Gib pro Kanal entweder eine Zielgruppe oder Empfänger an, nie beides. E-Mail erreicht Personen, deren Profil E-Mail aktiviert und eine Adresse hat; ohne Adresse scheitert es mit no_mail_address. Der Empfänger Global address nutzt die gemeinsame Adresse der Kanäle-Seite.",
+            "apply": "Automatisch: Jede Meldung, deren Schweregrad und Tag passen, bekommt die Richtlinie. Manuell: Nur ein Aufruf, der diese Richtlinie im Feld policy nennt, bekommt sie. Ein Aufruf kann auch alle Richtlinien mit der Richtlinie none abschalten."
           }
         },
         "reconfigure": {

@@ -25,6 +25,7 @@ import {
   sentence,
   splitTags as policyTags,
   STRINGS as POLICY_STRINGS,
+  tabsWithProblems,
   toFlowData as policyData,
   validate as validatePolicy,
 } from "../../custom_components/heads_up/frontend/panel/policies.js";
@@ -182,6 +183,7 @@ describe("policy editor", () => {
     expect(policyData(water)).toEqual({
       name: "Water",
       type: "escalation",
+      apply: "auto",
       severities: ["critical"],
       tags: ["water"],
       enabled: true,
@@ -200,7 +202,7 @@ describe("policy editor", () => {
     expect(policyData({ ...blankPolicy("away"), name: "Back", max_wait: 0 })).toMatchObject({ max_wait: 0 });
     expect(policyData({ ...blankPolicy("fallback"), name: "Backup", channels: ["speak"], speak_recipients: ["media_player.k"] })).toMatchObject({ when: "no_audience", channels: ["speak"], speak_recipients: ["media_player.k"] });
     expect(policyData({ ...blankPolicy("deliver"), name: "Crit", severities: ["critical"], channels: ["push"], push_audience: "Admins" })).toEqual({
-      name: "Crit", type: "deliver", severities: ["critical"], tags: [], enabled: true, channels: ["push"], push_audience: "Admins",
+      name: "Crit", type: "deliver", apply: "auto", severities: ["critical"], tags: [], enabled: true, channels: ["push"], push_audience: "Admins",
     });
     const every = policyData({ ...blankPolicy("summarize"), name: "Digest" });
     expect(every).toMatchObject({ summary_every: 60, include_critical: false });
@@ -369,5 +371,43 @@ describe("long texts with paragraphs and bullets", () => {
 
   it("keeps markup as text", () => {
     expect(parseRich("- <b>x</b>")).toEqual([{ type: "ul", items: ["<b>x</b>"] }]);
+  });
+});
+
+describe("manual and automatic policies", () => {
+  const manual = { ...blankPolicy("escalation"), name: "By hand", apply: "manual", severities: ["critical"], tags: "water", channels: ["push"], push_audience: "Admins" };
+
+  it("keeps no conditions for a manual policy", () => {
+    const data = policyData(manual);
+    expect(data.apply).toBe("manual");
+    expect(data.severities).toEqual([]);
+    expect(data.tags).toEqual([]);
+    expect(policyData({ ...manual, apply: "auto" }).severities).toEqual(["critical"]);
+  });
+
+  it("reads the choice back from a stored policy and defaults to automatic", () => {
+    expect(fromPolicy({ name: "A", data: { type: "away", apply: "manual" } }).apply).toBe("manual");
+    expect(fromPolicy({ name: "A", data: { type: "away" } }).apply).toBe("auto");
+  });
+
+  it("says in words that a manual policy applies to the calls that name it", () => {
+    const t = POLICY_STRINGS.en;
+    expect(appliesText(manual, t)).toBe("Calls that name this policy");
+    expect(sentence(manual, t)).toContain("Calls that name this policy");
+  });
+
+  it("marks the tab that holds a problem, never for the name", () => {
+    expect(tabsWithProblems({ name: "name_required" })).toEqual({ does: false, when: false });
+    expect(tabsWithProblems({ after_minutes: "after_required" })).toEqual({ does: true, when: false });
+    expect(tabsWithProblems({})).toEqual({ does: false, when: false });
+  });
+
+  it("has the tab labels, the type texts and the choice texts in every language", () => {
+    for (const [code, language] of Object.entries(POLICY_STRINGS)) {
+      for (const key of ["enabled_hint", "tab_does", "tab_when", "tab_problems", "apply_label", "apply_auto", "apply_auto_hint", "apply_manual", "apply_manual_hint", "manual_how", "manual_note", "badge_manual", "s_applies_manual"]) {
+        expect(language[key], `${code} ${key}`).toBeTruthy();
+      }
+      for (const type of Object.keys(language.types)) expect(language.type_desc[type], `${code} ${type}`).toBeTruthy();
+    }
   });
 });

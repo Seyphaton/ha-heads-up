@@ -4,14 +4,19 @@ A policy adds behaviour to messages without changing the automation that sends t
 
 ## Which messages a policy applies to
 
-Every policy has two lists. A message matches when its severity is in the first list and its tag in the second. An empty list matches everything.
+A policy attaches to messages in one of two ways, chosen in the editor under When it applies.
+
+- Automatically: the policy has two lists. A message gets it when its severity is in the first list and its tag in the second. An empty list matches everything.
+- Manually: the policy has no lists and never attaches by itself. Only a call that names it in the `policy` field gets it.
+
+The editor has two tabs. What it does holds the fields of the type. When it applies holds the choice between automatic and manual, and the lists of an automatic policy. A disabled policy is never used.
 
 - Messages from watch rules have the tag `rule`.
 - A message without a tag matches only a policy whose tag list is empty.
-- The `policy` field of `heads_up.notify` changes this. A name uses that one policy, whatever its lists say. Leave the field out to use every policy that matches. `none` uses no policy.
+- The `policy` field of `heads_up.notify` changes this. A name uses that one policy, manual or automatic, whatever its lists say; it replaces the automatic policies for that call. Leave the field out to use every automatic policy that matches. `none` uses no policy. A watch rule has the same choice in its form.
 - A disabled policy is never used.
 - Names must be unique, and `none` is reserved.
-- The form refuses a second policy of the same type with the same severities, tags and time, because it would do the same thing twice.
+- The form refuses a second automatic policy of the same type with the same severities, tags and time, because it would do the same thing twice. Manual policies are not compared.
 
 ## Acknowledging
 

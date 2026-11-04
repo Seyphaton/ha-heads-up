@@ -84,3 +84,25 @@ def test_a_different_trigger_type_or_applies_to_is_not_a_duplicate() -> None:
 def test_a_policy_is_not_a_duplicate_of_itself() -> None:
     only = policy("A")
     assert duplicate_of([only], only) is None
+
+
+def test_a_manual_policy_never_applies_by_itself() -> None:
+    manual = policy("M", apply="manual")
+    assert not applies(manual, "critical", None)
+    assert select([manual, policy("A")], message("critical")) == [policy("A")]
+
+
+def test_a_manual_policy_applies_when_the_call_names_it() -> None:
+    manual = policy("M", apply="manual")
+    assert [p.name for p in select([manual, policy("A")], message(policy="M"))] == ["M"]
+    assert select([manual, policy("A")], message(policy="none")) == []
+
+
+def test_a_disabled_manual_policy_is_not_used_even_when_named() -> None:
+    assert select([policy("M", apply="manual", enabled=False)], message(policy="M")) == []
+
+
+def test_a_manual_policy_is_never_the_duplicate_of_another() -> None:
+    existing = [policy("A")]
+    assert duplicate_of(existing, policy("B", apply="manual")) is None
+    assert duplicate_of([policy("M", apply="manual")], policy("B")) is None

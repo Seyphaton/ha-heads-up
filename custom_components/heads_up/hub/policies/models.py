@@ -31,6 +31,7 @@ class Policy:
     severities: frozenset[str] = frozenset()  # empty means any
     tags: frozenset[str] = frozenset()  # empty means any
     enabled: bool = True
+    apply: str = "auto"  # auto: by severity and tag; manual: only when a call names the policy
     # Escalation and Fallback
     after_minutes: int = 0
     channels: tuple[str, ...] = ()  # a reminder may limit itself to these; empty means all
@@ -86,6 +87,7 @@ def policy_from_data(name: str, subentry_id: str, data: Mapping[str, Any]) -> Po
         severities=frozenset(data.get("severities") or ()),
         tags=frozenset(data.get("tags") or ()),
         enabled=bool(data.get("enabled", True)),
+        apply="manual" if data.get("apply") == "manual" else "auto",
         after_minutes=int(data.get("after_minutes", 0)),
         channels=tuple(data.get("channels") or ()),
         targets={k: dict(v) for k, v in (data.get("targets") or {}).items()},

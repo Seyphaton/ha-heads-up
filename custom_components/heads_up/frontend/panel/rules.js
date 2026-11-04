@@ -30,6 +30,10 @@ export const STRINGS = {
     f_image: "Image (optional, a URL or a path)",
     f_people: "People (none: everyone)",
     f_dismissible: "Viewers can dismiss it",
+    f_policy: "Policy",
+    policy_all: "All that apply (automatic)",
+    policy_none: "None",
+    policy_hint: "A policy that is not automatic applies only when it is named here. A named policy is the only one used for this rule.",
     f_dismiss_scope: "Dismissing hides it for",
     scope_default: "Default (each user)",
     scope_user: "Each user",
@@ -53,7 +57,7 @@ export const STRINGS = {
     severities: {"success": "Success", "info": "Info", "warning": "Warning", "critical": "Critical"},
     saved: "Saved.",
     failed: "Could not save. Try again.",
-    errors: {"entity_not_found": "This entity does not exist.", "message_required": "Enter a message.", "message_too_long": "The message can have up to 1000 characters.", "message_template_invalid": "The message contains an invalid template.", "title_too_long": "The title can have up to 100 characters.", "state_count": "Above and below need one number, between needs two.", "state_not_numeric": "Enter numbers only for this condition.", "state_required": "Enter at least one value.", "for_too_long": "Use 24 hours or less.", "snoozable_needs_dismissible": "Snoozable needs Dismissible to be on.", "entity_and_template": "Use an entity or a template, not both.", "entity_or_template_required": "Choose an entity or enter a template.", "template_invalid": "The template is not valid.", "actions_invalid": "The buttons are not valid. Each needs a key and a label, up to 3.", "tap_action_invalid": "The tap action needs an action key.", "image_invalid": "The image must be an http(s) URL or a path starting with /.", "actions_dismiss_needs_dismissible": "A button with dismiss needs Dismissible to be on.", "name_required": "Enter a name.", "name_exists": "This name is already used."},
+    errors: {"entity_not_found": "This entity does not exist.", "message_required": "Enter a message.", "message_too_long": "The message can have up to 1000 characters.", "message_template_invalid": "The message contains an invalid template.", "title_too_long": "The title can have up to 100 characters.", "state_count": "Above and below need one number, between needs two.", "state_not_numeric": "Enter numbers only for this condition.", "state_required": "Enter at least one value.", "for_too_long": "Use 24 hours or less.", "snoozable_needs_dismissible": "Snoozable needs Dismissible to be on.", "entity_and_template": "Use an entity or a template, not both.", "entity_or_template_required": "Choose an entity or enter a template.", "template_invalid": "The template is not valid.", "actions_invalid": "The buttons are not valid. Each needs a key and a label, up to 3.", "tap_action_invalid": "The tap action needs an action key.", "image_invalid": "The image must be an http(s) URL or a path starting with /.", "actions_dismiss_needs_dismissible": "A button with dismiss needs Dismissible to be on.", "policy_unknown": "This policy does not exist. Use the name of a policy, or none.", "name_required": "Enter a name.", "name_exists": "This name is already used."},
   },
   de: {
     title: "Überwachungsregeln",
@@ -83,6 +87,10 @@ export const STRINGS = {
     f_image: "Bild (optional, eine URL oder ein Pfad)",
     f_people: "Personen (keine: alle)",
     f_dismissible: "Betrachter können es ausblenden",
+    f_policy: "Richtlinie",
+    policy_all: "Alle, die gelten (automatisch)",
+    policy_none: "Keine",
+    policy_hint: "Eine Richtlinie, die nicht automatisch gilt, wirkt nur, wenn sie hier genannt ist. Eine genannte Richtlinie ist die einzige für diese Regel.",
     f_dismiss_scope: "Ausblenden gilt für",
     scope_default: "Standard (jeder Benutzer)",
     scope_user: "Jeder Benutzer",
@@ -106,7 +114,7 @@ export const STRINGS = {
     severities: {"success": "Erfolg", "info": "Info", "warning": "Warnung", "critical": "Kritisch"},
     saved: "Gespeichert.",
     failed: "Speichern fehlgeschlagen. Versuche es erneut.",
-    errors: {"entity_not_found": "Diese Entität existiert nicht.", "message_required": "Gib eine Nachricht ein.", "message_too_long": "Die Nachricht darf bis zu 1000 Zeichen haben.", "message_template_invalid": "Die Nachricht enthält eine ungültige Vorlage.", "title_too_long": "Der Titel darf bis zu 100 Zeichen haben.", "state_count": "„Über“ und „Unter“ brauchen eine Zahl, „Zwischen“ braucht zwei.", "state_not_numeric": "Gib für diese Bedingung nur Zahlen ein.", "state_required": "Gib mindestens einen Wert ein.", "for_too_long": "Verwende 24 Stunden oder weniger.", "snoozable_needs_dismissible": "„Zurückstellbar“ benötigt, dass „Schließbar“ an ist.", "entity_and_template": "Verwende eine Entität oder eine Vorlage, nicht beides.", "entity_or_template_required": "Wähle eine Entität oder gib eine Vorlage ein.", "template_invalid": "Die Vorlage ist ungültig.", "actions_invalid": "Die Schaltflächen sind ungültig. Jede braucht key und label, höchstens 3.", "tap_action_invalid": "Die Tipp-Aktion braucht einen action-Schlüssel.", "image_invalid": "Das Bild muss eine http(s)-URL oder ein Pfad sein, der mit / beginnt.", "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an.", "name_required": "Gib einen Namen ein.", "name_exists": "Dieser Name wird schon verwendet."},
+    errors: {"entity_not_found": "Diese Entität existiert nicht.", "message_required": "Gib eine Nachricht ein.", "message_too_long": "Die Nachricht darf bis zu 1000 Zeichen haben.", "message_template_invalid": "Die Nachricht enthält eine ungültige Vorlage.", "title_too_long": "Der Titel darf bis zu 100 Zeichen haben.", "state_count": "„Über“ und „Unter“ brauchen eine Zahl, „Zwischen“ braucht zwei.", "state_not_numeric": "Gib für diese Bedingung nur Zahlen ein.", "state_required": "Gib mindestens einen Wert ein.", "for_too_long": "Verwende 24 Stunden oder weniger.", "snoozable_needs_dismissible": "„Zurückstellbar“ benötigt, dass „Schließbar“ an ist.", "entity_and_template": "Verwende eine Entität oder eine Vorlage, nicht beides.", "entity_or_template_required": "Wähle eine Entität oder gib eine Vorlage ein.", "template_invalid": "Die Vorlage ist ungültig.", "actions_invalid": "Die Schaltflächen sind ungültig. Jede braucht key und label, höchstens 3.", "tap_action_invalid": "Die Tipp-Aktion braucht einen action-Schlüssel.", "image_invalid": "Das Bild muss eine http(s)-URL oder ein Pfad sein, der mit / beginnt.", "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an.", "policy_unknown": "Diese Richtlinie gibt es nicht. Nimm den Namen einer Richtlinie oder none.", "name_required": "Gib einen Namen ein.", "name_exists": "Dieser Name wird schon verwendet."},
   },
   fr: {
     title: "Règles de surveillance",
@@ -136,6 +144,10 @@ export const STRINGS = {
     f_image: "Image (facultatif, une URL ou un chemin)",
     f_people: "Personnes (aucune : tout le monde)",
     f_dismissible: "Les spectateurs peuvent la masquer",
+    f_policy: "Politique",
+    policy_all: "Toutes celles qui s'appliquent (automatiques)",
+    policy_none: "Aucune",
+    policy_hint: "Une politique non automatique ne s'applique que si elle est nommée ici. Une politique nommée est la seule utilisée pour cette règle.",
     f_dismiss_scope: "Masquer vaut pour",
     scope_default: "Par défaut (chaque utilisateur)",
     scope_user: "Chaque utilisateur",
@@ -159,7 +171,7 @@ export const STRINGS = {
     severities: {"success": "Succès", "info": "Info", "warning": "Avertissement", "critical": "Critique"},
     saved: "Enregistré.",
     failed: "Échec de l'enregistrement. Réessayez.",
-    errors: {"entity_not_found": "Cette entité n'existe pas.", "message_required": "Saisissez un message.", "message_too_long": "Le message peut contenir jusqu'à 1000 caractères.", "message_template_invalid": "Le message contient un modèle non valide.", "title_too_long": "Le titre peut contenir jusqu'à 100 caractères.", "state_count": "« Supérieur » et « Inférieur » demandent un nombre, « Entre » en demande deux.", "state_not_numeric": "Saisissez uniquement des nombres pour cette condition.", "state_required": "Saisissez au moins une valeur.", "for_too_long": "Utilisez 24 heures ou moins.", "snoozable_needs_dismissible": "« Reportable » nécessite que « Fermable » soit activé.", "entity_and_template": "Utilisez une entité ou un modèle, pas les deux.", "entity_or_template_required": "Choisissez une entité ou saisissez un modèle.", "template_invalid": "Le modèle n'est pas valide.", "actions_invalid": "Les boutons ne sont pas valides. Chacun a besoin d'une key et d'un label, 3 au maximum.", "tap_action_invalid": "L'action au toucher a besoin d'une clé action.", "image_invalid": "L'image doit être une URL http(s) ou un chemin commençant par /.", "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé.", "name_required": "Saisissez un nom.", "name_exists": "Ce nom est déjà utilisé."},
+    errors: {"entity_not_found": "Cette entité n'existe pas.", "message_required": "Saisissez un message.", "message_too_long": "Le message peut contenir jusqu'à 1000 caractères.", "message_template_invalid": "Le message contient un modèle non valide.", "title_too_long": "Le titre peut contenir jusqu'à 100 caractères.", "state_count": "« Supérieur » et « Inférieur » demandent un nombre, « Entre » en demande deux.", "state_not_numeric": "Saisissez uniquement des nombres pour cette condition.", "state_required": "Saisissez au moins une valeur.", "for_too_long": "Utilisez 24 heures ou moins.", "snoozable_needs_dismissible": "« Reportable » nécessite que « Fermable » soit activé.", "entity_and_template": "Utilisez une entité ou un modèle, pas les deux.", "entity_or_template_required": "Choisissez une entité ou saisissez un modèle.", "template_invalid": "Le modèle n'est pas valide.", "actions_invalid": "Les boutons ne sont pas valides. Chacun a besoin d'une key et d'un label, 3 au maximum.", "tap_action_invalid": "L'action au toucher a besoin d'une clé action.", "image_invalid": "L'image doit être une URL http(s) ou un chemin commençant par /.", "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé.", "policy_unknown": "Cette politique n'existe pas. Utilisez le nom d'une politique, ou none.", "name_required": "Saisissez un nom.", "name_exists": "Ce nom est déjà utilisé."},
   },
   es: {
     title: "Reglas de vigilancia",
@@ -189,6 +201,10 @@ export const STRINGS = {
     f_image: "Imagen (opcional, una URL o una ruta)",
     f_people: "Personas (ninguna: todos)",
     f_dismissible: "Quien lo ve puede descartarlo",
+    f_policy: "Política",
+    policy_all: "Todas las que se aplican (automáticas)",
+    policy_none: "Ninguna",
+    policy_hint: "Una política que no es automática solo se aplica si se nombra aquí. Una política nombrada es la única que se usa para esta regla.",
     f_dismiss_scope: "Descartar vale para",
     scope_default: "Por defecto (cada usuario)",
     scope_user: "Cada usuario",
@@ -212,7 +228,7 @@ export const STRINGS = {
     severities: {"success": "Éxito", "info": "Info", "warning": "Aviso", "critical": "Crítico"},
     saved: "Guardado.",
     failed: "No se pudo guardar. Inténtalo de nuevo.",
-    errors: {"entity_not_found": "Esta entidad no existe.", "message_required": "Introduce un mensaje.", "message_too_long": "El mensaje puede tener hasta 1000 caracteres.", "message_template_invalid": "El mensaje contiene una plantilla no válida.", "title_too_long": "El título puede tener hasta 100 caracteres.", "state_count": "«Por encima» y «Por debajo» necesitan un número, «Entre» necesita dos.", "state_not_numeric": "Introduce solo números para esta condición.", "state_required": "Introduce al menos un valor.", "for_too_long": "Usa 24 horas o menos.", "snoozable_needs_dismissible": "«Se puede posponer» requiere que «Se puede cerrar» esté activado.", "entity_and_template": "Usa una entidad o una plantilla, no ambas.", "entity_or_template_required": "Elige una entidad o introduce una plantilla.", "template_invalid": "La plantilla no es válida.", "actions_invalid": "Los botones no son válidos. Cada uno necesita key y label, como máximo 3.", "tap_action_invalid": "La acción al tocar necesita una clave action.", "image_invalid": "La imagen debe ser una URL http(s) o una ruta que empieza por /.", "actions_dismiss_needs_dismissible": "Un botón con dismiss requiere que «Se puede cerrar» esté activado.", "name_required": "Introduce un nombre.", "name_exists": "Este nombre ya se usa."},
+    errors: {"entity_not_found": "Esta entidad no existe.", "message_required": "Introduce un mensaje.", "message_too_long": "El mensaje puede tener hasta 1000 caracteres.", "message_template_invalid": "El mensaje contiene una plantilla no válida.", "title_too_long": "El título puede tener hasta 100 caracteres.", "state_count": "«Por encima» y «Por debajo» necesitan un número, «Entre» necesita dos.", "state_not_numeric": "Introduce solo números para esta condición.", "state_required": "Introduce al menos un valor.", "for_too_long": "Usa 24 horas o menos.", "snoozable_needs_dismissible": "«Se puede posponer» requiere que «Se puede cerrar» esté activado.", "entity_and_template": "Usa una entidad o una plantilla, no ambas.", "entity_or_template_required": "Elige una entidad o introduce una plantilla.", "template_invalid": "La plantilla no es válida.", "actions_invalid": "Los botones no son válidos. Cada uno necesita key y label, como máximo 3.", "tap_action_invalid": "La acción al tocar necesita una clave action.", "image_invalid": "La imagen debe ser una URL http(s) o una ruta que empieza por /.", "actions_dismiss_needs_dismissible": "Un botón con dismiss requiere que «Se puede cerrar» esté activado.", "policy_unknown": "Esta política no existe. Usa el nombre de una política, o none.", "name_required": "Introduce un nombre.", "name_exists": "Este nombre ya se usa."},
   },
 };
 
@@ -229,7 +245,7 @@ export function blankValues() {
   return {
     name: "", kind: "entity", entity_id: "", operator: "equals", state: "", attribute: "", for_minutes: "", template: "",
     message: "", title: "", severity: "warning", icon: "", image: "", people: [],
-    dismissible: false, dismiss_scope: "", snoozable: "", snooze_scope: "", snooze_minutes: [], enabled: true,
+    dismissible: false, dismiss_scope: "", snoozable: "", snooze_scope: "", snooze_minutes: [], policy: "", enabled: true,
   };
 }
 
@@ -259,6 +275,7 @@ export function fromRule(rule) {
     snoozable: d.snoozable === undefined ? "" : d.snoozable ? "on" : "off",
     snooze_scope: text(d.snooze_scope),
     snooze_minutes: (d.snooze_options || []).map((s) => String(Math.round(s / 60))),
+    policy: text(d.policy),
     enabled: d.enabled !== false,
   };
 }
@@ -293,6 +310,7 @@ export function toFlowData(values, own) {
   if (values.snoozable) data.snoozable = values.snoozable === "on";
   if (values.snooze_scope) data.snooze_scope = values.snooze_scope;
   if (values.snooze_minutes.length) data.snooze_options = [...values.snooze_minutes];
+  if (values.policy) data.policy = values.policy;
   const kept = own?.data || {};
   if (kept.actions) data.actions = kept.actions;
   if (kept.tap_action) data.tap_action = kept.tap_action;
@@ -411,6 +429,10 @@ export function mount(container, ctx) {
     box.append(ui.field(t.f_snoozable, ui.selectInput([{ value: "", label: t.snooze_default }, { value: "on", label: t.snooze_on }, { value: "off", label: t.snooze_off }], values.snoozable, (v) => { values.snoozable = v; paint(); })));
     box.append(ui.field(t.f_snooze_scope, ui.selectInput(scopes.map((o) => (o.value === "" ? { ...o, label: t.snooze_default } : o)), values.snooze_scope, (v) => { values.snooze_scope = v; paint(); })));
     box.append(ui.chips(t.f_snooze_minutes, SNOOZE_MINUTES.map((m) => ({ value: String(m), label: String(m) })), values.snooze_minutes, (list) => { values.snooze_minutes = list; paint(); }));
+    const names = (data.policies || []).map((p) => p.name);
+    if (values.policy && values.policy !== "none" && !names.includes(values.policy)) names.push(values.policy);
+    const policies = [{ value: "", label: t.policy_all }, { value: "none", label: t.policy_none }, ...names.map((n) => ({ value: n, label: n }))];
+    box.append(ui.field(t.f_policy, ui.selectInput(policies, values.policy, (v) => { values.policy = v; paint(); }), t.policy_hint));
     box.append(ui.checkbox(t.f_enabled, values.enabled, (on) => { values.enabled = on; paint(); }));
     if (own && (own.data.actions || own.data.tap_action)) box.append(el("div", { className: "hint", textContent: t.kept }));
     box.append(el("a", { href: "/config/integrations/integration/heads_up", textContent: t.full_form, className: "hint" }));

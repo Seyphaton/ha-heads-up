@@ -71,6 +71,20 @@ export const STRINGS = {
     target_persistent: "No target: it goes to everyone.",
     sentence: "In words",
     s_applies_any: "Every message",
+    enabled_hint: "A disabled policy is never used, not even when a call names it.",
+    tab_does: "What it does",
+    tab_when: "When it applies",
+    tab_problems: "{tab}: needs attention",
+    type_desc: {"escalation": "If nobody acknowledges within the time, the message is also delivered on the channels and to the targets you choose.", "reminder": "While nobody acknowledges, the message is repeated at an interval, up to a maximum.", "quiet_hours": "Between two times of day, deliveries outside the dashboard are sent quietly, held until the end or dropped.", "away": "A person who is not home gets the message when they arrive, if it is still there.", "fallback": "If the first delivery reached nobody, the message is delivered on other channels or to other targets.", "summarize": "Matching messages are held on every channel, the banner included, and one summary is sent instead.", "deliver": "Matching messages are also delivered at once to the audience and channels you choose."},
+    apply_label: "Attaches to messages",
+    apply_auto: "Automatically",
+    apply_auto_hint: "Every message whose severity and tag match gets this policy. An empty list matches any.",
+    apply_manual: "Manually",
+    apply_manual_hint: "Only a call that names this policy gets it. The severity and the tag of the message do not matter.",
+    manual_how: "Name it in a call:",
+    manual_note: "A call that names a policy uses only that policy, not the automatic ones. policy: none switches every policy off for a call.",
+    badge_manual: "manual",
+    s_applies_manual: "Calls that name this policy",
     s_applies: "Messages with {parts}",
     s_severity: "severity {severities}",
     s_tag: "tag {tags}",
@@ -140,6 +154,20 @@ export const STRINGS = {
     target_persistent: "Kein Ziel: geht an alle.",
     sentence: "In Worten",
     s_applies_any: "Jede Meldung",
+    enabled_hint: "Eine deaktivierte Richtlinie wird nie genutzt, auch nicht, wenn ein Aufruf sie nennt.",
+    tab_does: "Was sie tut",
+    tab_when: "Wann sie gilt",
+    tab_problems: "{tab}: braucht Aufmerksamkeit",
+    type_desc: {"escalation": "Bestätigt niemand innerhalb der Zeit, wird die Meldung zusätzlich auf den gewählten Kanälen und an die gewählten Ziele zugestellt.", "reminder": "Solange niemand bestätigt, wird die Meldung in einem Abstand wiederholt, höchstens so oft wie eingestellt.", "quiet_hours": "Zwischen zwei Uhrzeiten werden Zustellungen außerhalb des Dashboards leise gesendet, bis zum Ende zurückgehalten oder verworfen.", "away": "Eine Person, die nicht zu Hause ist, bekommt die Meldung bei der Ankunft, wenn sie noch da ist.", "fallback": "Hat die erste Zustellung niemanden erreicht, wird die Meldung auf anderen Kanälen oder an andere Ziele zugestellt.", "summarize": "Passende Meldungen werden auf jedem Kanal zurückgehalten, auch im Banner, und stattdessen wird eine Zusammenfassung gesendet.", "deliver": "Passende Meldungen werden zusätzlich sofort an die gewählte Zielgruppe auf den gewählten Kanälen zugestellt."},
+    apply_label: "Gilt für Meldungen",
+    apply_auto: "Automatisch",
+    apply_auto_hint: "Jede Meldung, deren Schweregrad und Tag passen, bekommt diese Richtlinie. Eine leere Liste passt auf alles.",
+    apply_manual: "Manuell",
+    apply_manual_hint: "Nur ein Aufruf, der diese Richtlinie nennt, bekommt sie. Schweregrad und Tag der Meldung spielen keine Rolle.",
+    manual_how: "In einem Aufruf nennen:",
+    manual_note: "Ein Aufruf, der eine Richtlinie nennt, nutzt nur diese, nicht die automatischen. policy: none schaltet alle Richtlinien für einen Aufruf ab.",
+    badge_manual: "manuell",
+    s_applies_manual: "Aufrufe, die diese Richtlinie nennen",
     s_applies: "Meldungen mit {parts}",
     s_severity: "Schweregrad {severities}",
     s_tag: "Tag {tags}",
@@ -209,6 +237,20 @@ export const STRINGS = {
     target_persistent: "Pas de cible : va à tout le monde.",
     sentence: "En clair",
     s_applies_any: "Tout message",
+    enabled_hint: "Une politique désactivée n'est jamais utilisée, même si un appel la nomme.",
+    tab_does: "Ce qu'elle fait",
+    tab_when: "Quand elle s'applique",
+    tab_problems: "{tab} : à corriger",
+    type_desc: {"escalation": "Si personne ne confirme dans le délai, le message est aussi remis sur les canaux et aux cibles que vous choisissez.", "reminder": "Tant que personne ne confirme, le message est répété à intervalle régulier, jusqu'à un maximum.", "quiet_hours": "Entre deux heures de la journée, les remises hors tableau de bord sont envoyées discrètement, retenues jusqu'à la fin ou abandonnées.", "away": "Une personne absente reçoit le message à son arrivée, s'il est encore là.", "fallback": "Si la première remise n'a joint personne, le message est remis sur d'autres canaux ou à d'autres cibles.", "summarize": "Les messages correspondants sont retenus sur chaque canal, bannière comprise, et un seul résumé est envoyé à la place.", "deliver": "Les messages correspondants sont aussi remis tout de suite à l'audience et sur les canaux que vous choisissez."},
+    apply_label: "S'applique aux messages",
+    apply_auto: "Automatiquement",
+    apply_auto_hint: "Chaque message dont la gravité et l'étiquette correspondent reçoit cette politique. Une liste vide correspond à tout.",
+    apply_manual: "Manuellement",
+    apply_manual_hint: "Seul un appel qui nomme cette politique la reçoit. La gravité et l'étiquette du message n'ont pas d'importance.",
+    manual_how: "La nommer dans un appel :",
+    manual_note: "Un appel qui nomme une politique n'utilise que celle-là, pas les automatiques. policy: none désactive toutes les politiques pour un appel.",
+    badge_manual: "manuelle",
+    s_applies_manual: "Appels qui nomment cette politique",
     s_applies: "Messages avec {parts}",
     s_severity: "la gravité {severities}",
     s_tag: "l'étiquette {tags}",
@@ -278,6 +320,20 @@ export const STRINGS = {
     target_persistent: "Sin destino: va a todos.",
     sentence: "En palabras",
     s_applies_any: "Todos los mensajes",
+    enabled_hint: "Una política desactivada nunca se usa, ni siquiera si una llamada la nombra.",
+    tab_does: "Qué hace",
+    tab_when: "Cuándo se aplica",
+    tab_problems: "{tab}: requiere atención",
+    type_desc: {"escalation": "Si nadie confirma en el tiempo, el mensaje se entrega también por los canales y a los destinos que elijas.", "reminder": "Mientras nadie confirma, el mensaje se repite a intervalos, hasta un máximo.", "quiet_hours": "Entre dos horas del día, las entregas fuera del panel se envían en silencio, se retienen hasta el final o se descartan.", "away": "Una persona que no está en casa recibe el mensaje al llegar, si sigue ahí.", "fallback": "Si la primera entrega no llegó a nadie, el mensaje se entrega por otros canales o a otros destinos.", "summarize": "Los mensajes que coinciden se retienen en todos los canales, el aviso incluido, y se envía un solo resumen.", "deliver": "Los mensajes que coinciden también se entregan al instante a la audiencia y por los canales que elijas."},
+    apply_label: "Se aplica a los mensajes",
+    apply_auto: "Automáticamente",
+    apply_auto_hint: "Cada mensaje cuya gravedad y etiqueta coinciden recibe esta política. Una lista vacía coincide con todo.",
+    apply_manual: "Manualmente",
+    apply_manual_hint: "Solo una llamada que nombra esta política la recibe. La gravedad y la etiqueta del mensaje no importan.",
+    manual_how: "Nómbrala en una llamada:",
+    manual_note: "Una llamada que nombra una política usa solo esa, no las automáticas. policy: none desactiva todas las políticas para una llamada.",
+    badge_manual: "manual",
+    s_applies_manual: "Llamadas que nombran esta política",
     s_applies: "Mensajes con {parts}",
     s_severity: "gravedad {severities}",
     s_tag: "etiqueta {tags}",
@@ -304,6 +360,20 @@ export const STRINGS = {
   },
 };
 
+const CSS = `
+.hu-page .summary { background: var(--secondary-background-color); border-radius: 8px; padding: 10px 12px; margin: 12px 0; }
+.hu-page .summary .sentence { margin: 4px 0; }
+.hu-page .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--divider-color); margin: 16px 0 12px; }
+.hu-page .tab { min-height: 44px; padding: 0 16px; background: transparent; border: 0; border-bottom: 3px solid transparent; color: var(--secondary-text-color); font: inherit; cursor: pointer; }
+.hu-page .tab.on { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 600; }
+.hu-page .tab.problem::after { content: " •"; color: var(--error-color); }
+.hu-page .tab:focus-visible { outline: 3px solid var(--primary-color); outline-offset: -3px; }
+.hu-page .tabpanel[hidden] { display: none; }
+.hu-page label.radio { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; cursor: pointer; }
+.hu-page label.radio input { margin-top: 4px; width: 20px; height: 20px; }
+.hu-page .type-desc { margin-top: 0; }
+`;
+
 const TYPES = ["escalation", "reminder", "quiet_hours", "away", "fallback", "deliver", "summarize"];
 const SEVERITIES = ["success", "info", "warning", "critical"];
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -321,6 +391,7 @@ export function blankValues(type = "escalation") {
     severities: [],
     tags: "",
     enabled: true,
+    apply: "auto",
     after_minutes: 5,
     channels: [],
     dismiss_acks: false,
@@ -351,6 +422,7 @@ export function fromPolicy(policy) {
   const values = { ...blankValues(data.type), name: policy.name };
   for (const key of ["severities", "channels", "days"]) values[key] = [...(data[key] || [])];
   values.tags = (data.tags || []).join(", ");
+  values.apply = data.apply === "manual" ? "manual" : "auto";
   for (const key of ["enabled", "dismiss_acks", "critical_passes", "include_critical"]) {
     if (key in data) values[key] = Boolean(data[key]);
   }
@@ -377,8 +449,10 @@ export function toFlowData(values) {
   const data = {
     name: String(values.name).trim(),
     type: values.type,
-    severities: [...values.severities],
-    tags: splitTags(values.tags),
+    apply: values.apply === "manual" ? "manual" : "auto",
+    // A manual policy has no conditions.
+    severities: values.apply === "manual" ? [] : [...values.severities],
+    tags: values.apply === "manual" ? [] : splitTags(values.tags),
     enabled: Boolean(values.enabled),
   };
   const targets = () => {
@@ -450,7 +524,14 @@ export function validate(values, existingNames, ownName) {
   return problems;
 }
 
+// The tab of the editor that holds a problem: the name is in the header, every other field is under
+// "What it does"; "When it applies" has no field that can be wrong.
+export function tabsWithProblems(problems) {
+  return { does: Object.keys(problems).some((field) => field !== "name"), when: false };
+}
+
 export function appliesText(values, t) {
+  if (values.apply === "manual") return t.s_applies_manual;
   const tags = splitTags(values.tags);
   if (values.severities.length === 0 && tags.length === 0) return t.s_applies_any;
   const parts = [];
@@ -513,6 +594,7 @@ export function mount(container, ctx) {
       el("div", {}, [
         el("strong", { textContent: policy.name }),
         el("span", { className: "badge", textContent: t.types[values.type] || values.type }),
+        ...(values.apply === "manual" ? [el("span", { className: "badge", textContent: t.badge_manual })] : []),
         ...(values.enabled ? [] : [el("span", { className: "badge", textContent: t.disabled })]),
         el("div", { className: "sub", textContent: appliesText(values, t) }),
       ]),
@@ -524,21 +606,33 @@ export function mount(container, ctx) {
   function editor() {
     const { own, values } = editing;
     const existing = data.policies.map((p) => p.name);
+    editing.tab ||= "does";
     const box = el("section", {}, [el("h2", { textContent: own ? t.editing : t.new })]);
     const again = () => render();
+
+    // Header: always visible. Enabled first, then what the policy is called and what type it is.
+    box.append(ui.checkbox(s.common.enabled, values.enabled, (on) => { values.enabled = on; paint(); }));
+    box.append(el("div", { className: "hint", textContent: t.enabled_hint }));
     box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; paint(); })));
     box.append(ui.field(t.type, ui.selectInput(TYPES.map((k) => ({ value: k, label: t.types[k] })), values.type, (v) => { values.type = v; again(); })));
-    box.append(ui.chips(t.severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.severities, (list) => { values.severities = list; paint(); }));
-    box.append(ui.field(t.tags, ui.textInput(values.tags, (v) => { values.tags = v; paint(); })));
-    box.append(ui.checkbox(s.common.enabled, values.enabled, (on) => { values.enabled = on; paint(); }));
+    box.append(el("div", { className: "hint type-desc", textContent: t.type_desc[values.type] }));
 
-    const number = (key, label, min = 1) => box.append(ui.field(label, ui.numberInput(values[key], (v) => { values[key] = v; paint(); }, { min })));
+    // The sentence and the status stay above the tabs, so a problem in one tab is seen from the other.
+    const words = el("div", { className: "sentence" });
+    const status = el("div", { className: "hint" });
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    box.append(el("div", { className: "summary" }, [el("strong", { textContent: t.sentence }), words, status]));
+
+    const does = el("div", { className: "tabpanel", id: "tab-does" });
+    const when = el("div", { className: "tabpanel", id: "tab-when" });
+    const number = (key, label, min = 1) => does.append(ui.field(label, ui.numberInput(values[key], (v) => { values[key] = v; paint(); }, { min })));
     const channelChips = (label) =>
-      box.append(ui.chips(label, POLICY_CHANNELS.map((c) => ({ value: c, label: t.channel_names[c] })), values.channels, (list) => { values.channels = list; again(); }));
+      does.append(ui.chips(label, POLICY_CHANNELS.map((c) => ({ value: c, label: t.channel_names[c] })), values.channels, (list) => { values.channels = list; again(); }));
     const targetBlocks = () => {
       const labels = { audience: t.target_audience, recipients: t.target_recipients, persistent: t.target_persistent };
       for (const channel of values.channels) {
-        box.append(ui.targetBlock(channel, values, data.choices, { ...labels, channel: fill(t.target_channel, { channel: t.channel_names[channel] }) }, (mode) => (mode ? again() : paint())));
+        does.append(ui.targetBlock(channel, values, data.choices, { ...labels, channel: fill(t.target_channel, { channel: t.channel_names[channel] }) }, (mode) => (mode ? again() : paint())));
       }
     };
     switch (values.type) {
@@ -546,21 +640,21 @@ export function mount(container, ctx) {
         number("after_minutes", t.after);
         channelChips(t.channels);
         targetBlocks();
-        box.append(ui.checkbox(t.dismiss_acks, values.dismiss_acks, (on) => { values.dismiss_acks = on; paint(); }));
-        box.append(el("div", { className: "hint", textContent: t.ack_note }));
+        does.append(ui.checkbox(t.dismiss_acks, values.dismiss_acks, (on) => { values.dismiss_acks = on; paint(); }));
+        does.append(el("div", { className: "hint", textContent: t.ack_note }));
         break;
       case "reminder":
         number("every_minutes", t.every);
         number("max_count", t.max_count);
         channelChips(t.channels_reminder);
-        box.append(el("div", { className: "hint", textContent: t.ack_note }));
+        does.append(el("div", { className: "hint", textContent: t.ack_note }));
         break;
       case "quiet_hours":
-        box.append(ui.field(t.from, ui.timeInput(values.from_time, (v) => { values.from_time = v; paint(); })));
-        box.append(ui.field(t.to, ui.timeInput(values.to_time, (v) => { values.to_time = v; paint(); })));
-        box.append(ui.chips(t.days, DAYS.map((d) => ({ value: d, label: t.days_names[d] })), values.days, (list) => { values.days = list; paint(); }));
-        box.append(ui.field(t.action, ui.selectInput(["quiet", "wait", "drop"].map((k) => ({ value: k, label: t.actions[k] })), values.action, (v) => { values.action = v; paint(); })));
-        box.append(ui.checkbox(t.critical_passes, values.critical_passes, (on) => { values.critical_passes = on; paint(); }));
+        does.append(ui.field(t.from, ui.timeInput(values.from_time, (v) => { values.from_time = v; paint(); })));
+        does.append(ui.field(t.to, ui.timeInput(values.to_time, (v) => { values.to_time = v; paint(); })));
+        does.append(ui.chips(t.days, DAYS.map((d) => ({ value: d, label: t.days_names[d] })), values.days, (list) => { values.days = list; paint(); }));
+        does.append(ui.field(t.action, ui.selectInput(["quiet", "wait", "drop"].map((k) => ({ value: k, label: t.actions[k] })), values.action, (v) => { values.action = v; paint(); })));
+        does.append(ui.checkbox(t.critical_passes, values.critical_passes, (on) => { values.critical_passes = on; paint(); }));
         break;
       case "away":
         number("max_wait", t.max_wait, 0);
@@ -570,22 +664,69 @@ export function mount(container, ctx) {
         targetBlocks();
         break;
       case "fallback":
-        box.append(ui.field(t.when, ui.selectInput(["no_audience", "failed", "both"].map((k) => ({ value: k, label: t.whens[k] })), values.when, (v) => { values.when = v; paint(); })));
+        does.append(ui.field(t.when, ui.selectInput(["no_audience", "failed", "both"].map((k) => ({ value: k, label: t.whens[k] })), values.when, (v) => { values.when = v; paint(); })));
         channelChips(t.channels);
         targetBlocks();
         break;
       default:
-        box.append(ui.field(t.summary_mode, ui.selectInput([{ value: "every", label: t.summary_every_mode }, { value: "at", label: t.summary_at_mode }], values.summary_mode, (v) => { values.summary_mode = v; again(); })));
-        if (values.summary_mode === "at") box.append(ui.field(t.summary_at, ui.timeInput(values.summary_at, (v) => { values.summary_at = v; paint(); })));
+        does.append(ui.field(t.summary_mode, ui.selectInput([{ value: "every", label: t.summary_every_mode }, { value: "at", label: t.summary_at_mode }], values.summary_mode, (v) => { values.summary_mode = v; again(); })));
+        if (values.summary_mode === "at") does.append(ui.field(t.summary_at, ui.timeInput(values.summary_at, (v) => { values.summary_at = v; paint(); })));
         else number("summary_every", t.summary_every);
-        box.append(ui.checkbox(t.include_critical, values.include_critical, (on) => { values.include_critical = on; again(); }));
-        if (values.include_critical) box.append(el("div", { className: "hint problems", textContent: t.critical_warning }));
-        box.append(el("div", { className: "hint", textContent: t.summarize_note }));
+        does.append(ui.checkbox(t.include_critical, values.include_critical, (on) => { values.include_critical = on; again(); }));
+        if (values.include_critical) does.append(el("div", { className: "hint problems", textContent: t.critical_warning }));
+        does.append(el("div", { className: "hint", textContent: t.summarize_note }));
     }
-    const words = el("div", { className: "hint" });
-    const status = el("div", { className: "hint" });
-    status.setAttribute("role", "status");
-    status.setAttribute("aria-live", "polite");
+
+    // When it applies: automatic (conditions) or manual (named in a call).
+    const radio = (value, label, hint) => {
+      const input = el("input", { type: "radio", name: "apply", checked: values.apply === value });
+      input.addEventListener("change", () => { values.apply = value; again(); });
+      return el("label", { className: "radio" }, [input, el("span", {}, [el("strong", { textContent: label }), el("div", { className: "hint", textContent: hint })])]);
+    };
+    const choice = el("fieldset", {}, [el("legend", { textContent: t.apply_label }), radio("auto", t.apply_auto, t.apply_auto_hint), radio("manual", t.apply_manual, t.apply_manual_hint)]);
+    when.append(choice);
+    if (values.apply === "manual") {
+      when.append(el("div", { className: "hint", textContent: t.manual_how }), el("pre", { textContent: `policy: ${String(values.name).trim() || "…"}` }), el("div", { className: "hint", textContent: t.manual_note }));
+    } else {
+      when.append(ui.chips(t.severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.severities, (list) => { values.severities = list; paint(); }));
+      when.append(ui.field(t.tags, ui.textInput(values.tags, (v) => { values.tags = v; paint(); })));
+    }
+
+    // The tabs: What it does, When it applies.
+    const names = { does: t.tab_does, when: t.tab_when };
+    const panels = { does, when };
+    const tabs = {};
+    const tablist = el("div", { className: "tabs", role: "tablist" });
+    const choose = (name, focus = false) => {
+      editing.tab = name;
+      for (const key of Object.keys(panels)) {
+        const on = key === name;
+        tabs[key].setAttribute("aria-selected", String(on));
+        tabs[key].tabIndex = on ? 0 : -1;
+        tabs[key].classList.toggle("on", on);
+        panels[key].hidden = !on;
+      }
+      if (focus) tabs[name].focus();
+    };
+    for (const key of Object.keys(panels)) {
+      const tab = el("button", { type: "button", className: "tab", id: `tabbtn-${key}`, textContent: names[key] });
+      tab.setAttribute("role", "tab");
+      tab.setAttribute("aria-controls", `tab-${key}`);
+      tab.addEventListener("click", () => choose(key));
+      tab.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+          event.preventDefault();
+          choose(key === "does" ? "when" : "does", true);
+        }
+      });
+      panels[key].setAttribute("role", "tabpanel");
+      panels[key].setAttribute("aria-labelledby", `tabbtn-${key}`);
+      tabs[key] = tab;
+      tablist.append(tab);
+    }
+    box.append(tablist, does, when);
+    choose(editing.tab);
+
     const save = el("button", { type: "button", className: "primary", textContent: s.common.save });
     save.addEventListener("click", saveIt);
     const cancel = el("button", { type: "button", textContent: s.common.cancel });
@@ -596,7 +737,7 @@ export function mount(container, ctx) {
       del.addEventListener("click", remove);
       buttons.append(del);
     }
-    box.append(el("h2", { textContent: t.sentence, style: "margin-top:12px" }), words, status, buttons);
+    box.append(buttons);
     if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), el("pre", { textContent: ui.toYaml({ name: own.name, ...own.data }) }));
     function paint() {
       const found = validate(values, existing, own?.name);
@@ -605,13 +746,18 @@ export function mount(container, ctx) {
       save.disabled = codes.length > 0;
       status.className = codes.length ? "hint problems" : "hint ok";
       status.textContent = codes.length ? codes.map((c) => ui.errorText(c, ctx.language)).join(" ") : message || s.common.valid;
+      const marks = tabsWithProblems(found);
+      for (const key of Object.keys(tabs)) {
+        tabs[key].classList.toggle("problem", marks[key]);
+        tabs[key].setAttribute("aria-label", marks[key] ? fill(t.tab_problems, { tab: names[key] }) : names[key]);
+      }
     }
     paint();
     return box;
   }
 
   function render() {
-    root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
+    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
     if (editing) return void root.append(editor());
     const list = el("ul", { className: "list" }, data.policies.length ? data.policies.map(row) : [el("li", { className: "sub", textContent: t.none })]);

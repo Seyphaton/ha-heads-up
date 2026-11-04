@@ -30,6 +30,21 @@ const rule = {
 };
 
 describe("watch rule form", () => {
+  it("keeps the policy a rule names, sends none as a name and leaves an empty choice out", () => {
+    expect(fromRule(rule).policy).toBe("");
+    expect(fromRule({ ...rule, data: { ...rule.data, policy: "By hand" } }).policy).toBe("By hand");
+    expect(toFlowData({ ...fromRule(rule), policy: "By hand" }, rule).policy).toBe("By hand");
+    expect(toFlowData({ ...fromRule(rule), policy: "none" }, rule).policy).toBe("none");
+    expect(toFlowData(fromRule(rule), rule)).not.toHaveProperty("policy");
+  });
+
+  it("has the policy texts in every language", () => {
+    for (const [code, language] of Object.entries(STRINGS)) {
+      for (const key of ["f_policy", "policy_all", "policy_none", "policy_hint"]) expect(language[key], `${code} ${key}`).toBeTruthy();
+      expect(language.errors.policy_unknown, code).toBeTruthy();
+    }
+  });
+
   it("reads a stored rule into form values", () => {
     expect(fromRule(rule)).toMatchObject({
       name: "Door", kind: "entity", entity_id: "binary_sensor.door", state: "on", for_minutes: "2",

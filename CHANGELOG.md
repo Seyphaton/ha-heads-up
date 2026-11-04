@@ -22,6 +22,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - The Channels names in the FAQ and the panel read Persistent Notification instead of Persistent HASS Notification.
 
 - Maximum number of stored messages and Evict are in the Limits section, next to the rate limits, and the texts say they count messages on every channel.
+- Policies: the editor has Enabled at the top, a short text for the chosen type and two tabs, What it does and When it applies. A policy can be automatic (severity and tag, as before) or manual (only when a call or a watch rule names it). The Watch rules form has a Policy field.
 - Every block of the panel's Settings page has a heading of its own (Introduction, Sidebar panel, Messages, Presence, Speech, Limits, History, Identity, People and devices), so a card no longer looks like part of the heading above it.
 - The Messages settings are grouped in clusters: Dismiss settings, Snooze settings, and under snooze one card for the banner and one for push and popup. Each card says which channels it applies to, and the snooze scope names them.
 - Snooze has a separate setting for the push and the popup: Snooze time on push and popup (15 minutes by default). The snooze choices of a message are now only for the banner; before, the push and the popup used the first choice.

@@ -253,6 +253,12 @@
         "failed": "Falló el envío",
         "both": "Cualquiera de los dos"
       }
+    },
+    "policy_apply": {
+      "options": {
+        "auto": "Automáticamente, por gravedad y etiqueta",
+        "manual": "Manualmente, solo cuando una llamada la nombra"
+      }
     }
   },
   "entity": {
@@ -692,7 +698,8 @@
             "snooze_options": "Opciones de posposición",
             "actions": "Botones",
             "tap_action": "Acción al tocar",
-            "image": "Imagen"
+            "image": "Imagen",
+            "policy": "Política"
           },
           "data_description": {
             "name": "Solo se muestra en la lista de reglas.",
@@ -712,7 +719,8 @@
             "snooze_options": "Duraciones que se ofrecen al usuario. Vacío: el ajuste de las opciones de la integración.",
             "actions": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action. «dismiss» requiere «Se puede cerrar».\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
+            "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```",
+            "policy": "El nombre de una política, o none. Vacío: cada política automática que se aplica a un mensaje de regla (etiqueta rule). Un nombre usa solo esa política, none ninguna."
           }
         },
         "reconfigure": {
@@ -780,7 +788,8 @@
         "actions_invalid": "Los botones no son válidos. Cada uno necesita key y label, como máximo 3.",
         "tap_action_invalid": "La acción al tocar necesita una clave action.",
         "image_invalid": "La imagen debe ser una URL http(s) o una ruta que empieza por /.",
-        "actions_dismiss_needs_dismissible": "Un botón con dismiss requiere que «Se puede cerrar» esté activado."
+        "actions_dismiss_needs_dismissible": "Un botón con dismiss requiere que «Se puede cerrar» esté activado.",
+        "policy_unknown": "Esta política no existe. Usa el nombre de una política, o none."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguración se realizó correctamente."
@@ -953,13 +962,14 @@
       "step": {
         "user": {
           "title": "Añadir política",
-          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\". Horas de silencio: retener, enviar en silencio o descartar envíos en una franja horaria. Ausente: enviar a las personas que no están en casa cuando lleguen. Alternativa: usar otros canales cuando no se pudo avisar a nadie. Resumir: retener mensajes en todos los canales, incluido el banner, y enviar un resumen por destinatario. Entregar: enviar de inmediato los mensajes que coincidan a una audiencia elegida por canales elegidos, además de lo que nombra la llamada.",
+          "description": "Qué hace la política (el tipo) y cuándo se aplica:\n\n- Escalado: si nadie confirma en el tiempo, entrega por más canales.\n- Recordatorio: repite la notificación mientras nadie confirma.\n- Horas de silencio: retiene, envía en silencio o descarta entregas en una franja horaria.\n- Ausencia: envía a las personas que no están en casa cuando llegan.\n- Alternativa: usa otros canales cuando no se pudo avisar a nadie.\n- Resumen: retiene mensajes en todos los canales, el aviso incluido, y envía un resumen por destinatario.\n- Entrega: envía al instante los mensajes que coinciden a una audiencia elegida por canales elegidos, además de lo que pidió la llamada.\n\nUna política se aplica automáticamente a los mensajes cuya gravedad y etiqueta coinciden (una lista vacía coincide con todo; los mensajes de reglas tienen la etiqueta \"rule\"), o manualmente, solo cuando una llamada la nombra en su campo policy.",
           "data": {
+            "enabled": "Activa",
             "name": "Nombre",
             "type": "Tipo",
+            "apply": "Se aplica a los mensajes",
             "severities": "Gravedades",
             "tags": "Etiquetas",
-            "enabled": "Activa",
             "after_minutes": "Escalar tras (minutos)",
             "channels": "Canales",
             "dismiss_acks": "Descartar cuenta como confirmar",
@@ -984,9 +994,10 @@
             "include_critical": "Incluir mensajes críticos"
           },
           "data_description": {
+            "enabled": "Una política desactivada nunca se usa, ni siquiera si una llamada la nombra.",
             "name": "Lo usa el campo policy de una llamada. Debe ser único y no puede ser \"none\".",
-            "severities": "Solo mensajes de estas gravedades. Vacío: todas.",
-            "tags": "Solo mensajes con una de estas etiquetas. Vacío: todas.",
+            "severities": "Políticas automáticas: solo mensajes de estas gravedades. Vacío: cualquiera. Una política manual no lo usa.",
+            "tags": "Políticas automáticas: solo mensajes con una de estas etiquetas. Vacío: cualquiera. Una política manual no lo usa.",
             "after_minutes": "Escalado: minutos sin confirmación antes de usar los canales siguientes.",
             "channels": "Escalado: canales que añadir. Recordatorio: limitar a estos canales, vacío para todos.",
             "dismiss_acks": "Escalado: descartar detiene el escalado, como una confirmación.",
@@ -1004,7 +1015,8 @@
             "summary_every": "Resumir: envía un resumen este número de minutos después del primer mensaje retenido.",
             "summary_at": "Resumir: envía un resumen cada día a esta hora en lugar de por intervalo.",
             "include_critical": "Resumir: retiene también los mensajes críticos. Desactivado: los mensajes críticos se entregan de inmediato.",
-            "mail_audience": "Da una audiencia o destinatarios por canal, nunca ambos. El correo llega a las personas cuyo perfil tiene Correo activado y una dirección; sin dirección falla con no_mail_address. El destinatario Global address usa la dirección común de la página Canales."
+            "mail_audience": "Da una audiencia o destinatarios por canal, nunca ambos. El correo llega a las personas cuyo perfil tiene Correo activado y una dirección; sin dirección falla con no_mail_address. El destinatario Global address usa la dirección común de la página Canales.",
+            "apply": "Automáticamente: cada mensaje cuya gravedad y etiqueta coinciden recibe la política. Manualmente: solo una llamada que nombra esta política en su campo policy la recibe. Una llamada también puede desactivar todas las políticas con la política none."
           }
         },
         "reconfigure": {

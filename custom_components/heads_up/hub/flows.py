@@ -22,6 +22,7 @@ from homeassistant.helpers.selector import (
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
+    SelectSelectorMode,
     TextSelector,
     TimeSelector,
 )
@@ -34,6 +35,7 @@ from ..const import (
     GROUP_SUBENTRY,
     GROUP_SUFFIX,
     MAX_MAIL_ADDRESS,
+    POLICY_APPLY,
     POLICY_CHANNELS,
     POLICY_NONE,
     POLICY_SUBENTRY,
@@ -356,9 +358,17 @@ class PolicySubentryFlow(_HubFlow):
         hub = self._hub()
         audiences = hub.audiences.names() if hub else []
         fields: dict[Any, Any] = {
+            vol.Required("enabled", default=True): BooleanSelector(),
             vol.Required("name"): TextSelector(),
             vol.Required("type", default=POLICY_TYPES[0]): SelectSelector(
                 SelectSelectorConfig(options=list(POLICY_TYPES), translation_key="policy_type")
+            ),
+            vol.Required("apply", default=POLICY_APPLY[0]): SelectSelector(
+                SelectSelectorConfig(
+                    options=list(POLICY_APPLY),
+                    translation_key="policy_apply",
+                    mode=SelectSelectorMode.LIST,
+                )
             ),
             vol.Optional("severities"): SelectSelector(
                 SelectSelectorConfig(
@@ -368,7 +378,6 @@ class PolicySubentryFlow(_HubFlow):
             vol.Optional("tags"): SelectSelector(
                 SelectSelectorConfig(options=[], custom_value=True, multiple=True)
             ),
-            vol.Required("enabled", default=True): BooleanSelector(),
             vol.Optional("after_minutes", default=DEFAULT_AFTER_MINUTES): _MINUTES,
             vol.Optional("channels"): SelectSelector(
                 SelectSelectorConfig(
@@ -491,10 +500,13 @@ class PolicySubentryFlow(_HubFlow):
         return errors
 
     def _data(self, user_input: dict[str, Any]) -> dict[str, Any]:
+        manual = user_input.get("apply") == "manual"
         data: dict[str, Any] = {
             "type": user_input["type"],
-            "severities": list(user_input.get("severities") or []),
-            "tags": list(user_input.get("tags") or []),
+            "apply": "manual" if manual else "auto",
+            # A manual policy has no conditions to keep.
+            "severities": [] if manual else list(user_input.get("severities") or []),
+            "tags": [] if manual else list(user_input.get("tags") or []),
             "enabled": bool(user_input.get("enabled", True)),
         }
         channels = list(user_input.get("channels") or [])

@@ -54,6 +54,7 @@ from .const import (
     OPT_DEFAULT_TIMEOUT,
     OPT_INSTALL_TOKEN,
     OPT_SHOW_PANEL,
+    POLICY_NONE,
     POLICY_SUBENTRY,
     PROFILE_SUBENTRY,
     RULE_SUBENTRY,
@@ -261,6 +262,8 @@ _RULE_SCHEMA = vol.Schema(
         vol.Optional("actions"): ObjectSelector(),
         vol.Optional("tap_action"): ObjectSelector(),
         vol.Optional("image"): TextSelector(),
+        # A policy name, or none; empty means every automatic policy that applies (D-145).
+        vol.Optional("policy"): TextSelector(),
         vol.Required("enabled", default=True): BooleanSelector(),
     }
 )
@@ -290,9 +293,11 @@ def _rule_data(user_input: dict[str, Any]) -> dict[str, Any]:
     else:
         data.pop("state", None)
     data["message"] = data["message"].strip()
-    for key in ("attribute", "title", "icon"):
+    for key in ("attribute", "title", "icon", "policy"):
         if not (data.get(key) or "").strip():
             data.pop(key, None)
+    if "policy" in data:
+        data["policy"] = data["policy"].strip()
     # Buttons and tap action go through the same schemas as the action (DESIGN §22).
     if data.get("actions"):
         data["actions"] = ACTIONS_SCHEMA(data["actions"])
@@ -416,4 +421,12 @@ class RuleSubentryFlow(ConfigSubentryFlow):
                     errors[field] = "actions_dismiss_needs_dismissible"
         if len(user_input.get("title") or "") > MAX_TITLE:
             errors["title"] = "title_too_long"
+        if policy := (user_input.get("policy") or "").strip():
+            hub = getattr(getattr(self._get_entry(), "runtime_data", None), "hub", None)
+            if (
+                policy.casefold() != POLICY_NONE
+                and hub is not None
+                and policy not in hub.policies.names()
+            ):
+                errors["policy"] = "policy_unknown"
         return errors
