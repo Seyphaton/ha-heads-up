@@ -18,7 +18,14 @@ from homeassistant.components.websocket_api.decorators import (
 )
 from homeassistant.core import HomeAssistant, callback
 
-from .const import DOMAIN, SEVERITIES
+from .const import (
+    BUILTIN_AUDIENCES,
+    DOMAIN,
+    MAX_ATTENTION_DISMISSED,
+    OPT_ATTENTION_DISMISSED,
+    OPT_AUDIENCES_DISABLED,
+    SEVERITIES,
+)
 from .frontend import async_popup_url
 from .hub import panel_config, panel_data, panel_test, settings, welcome
 from .manager import BannerManager, HeadsUpError
@@ -244,6 +251,78 @@ def ws_panel_overview(
     if (entry := _entry(hass, connection, msg["id"])) is None:
         return
     connection.send_result(msg["id"], panel_data.overview(hass, entry.runtime_data, entry))
+
+
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/attention_dismiss",
+        vol.Required("key"): vol.All(str, vol.Length(min=1, max=300)),
+    }
+)
+@require_admin
+@callback
+def ws_attention_dismiss(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Hide one warning of Needs attention until it is shown again (D-135)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    keys = [k for k in entry.options.get(OPT_ATTENTION_DISMISSED, []) if k != msg["key"]]
+    keys = [*keys, msg["key"]][-MAX_ATTENTION_DISMISSED:]
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, OPT_ATTENTION_DISMISSED: keys}
+    )
+    connection.send_result(msg["id"], {"hidden": len(keys)})
+
+
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/audience_enable",
+        vol.Required("name"): str,
+        vol.Required("enabled"): bool,
+    }
+)
+@require_admin
+@callback
+def ws_audience_enable(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Switch a built-in audience on or off (D-136). One that a policy uses stays on."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    hub = entry.runtime_data.hub
+    if hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    name = msg["name"]
+    if name not in BUILTIN_AUDIENCES:
+        connection.send_error(msg["id"], "not_found", f"{name} is not a built-in audience")
+        return
+    disabled = [n for n in entry.options.get(OPT_AUDIENCES_DISABLED, []) if n != name]
+    if not msg["enabled"]:
+        if users := hub.policies.usage(name):
+            connection.send_error(msg["id"], "in_use", f"{name} is used by {', '.join(users)}")
+            return
+        disabled.append(name)
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, OPT_AUDIENCES_DISABLED: disabled}
+    )
+    connection.send_result(msg["id"], {"disabled": disabled})
+
+
+@websocket_command({vol.Required("type"): "heads_up/attention_restore"})
+@require_admin
+@callback
+def ws_attention_restore(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Show every hidden warning of Needs attention again (D-135)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, OPT_ATTENTION_DISMISSED: []}
+    )
+    connection.send_result(msg["id"], {"hidden": 0})
 
 
 @websocket_command({vol.Required("type"): "heads_up/panel_messages"})
@@ -528,6 +607,9 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_panel_config,
         ws_channels_set,
         ws_panel_overview,
+        ws_attention_dismiss,
+        ws_attention_restore,
+        ws_audience_enable,
         ws_panel_messages,
         ws_panel_trace,
         ws_settings_get,

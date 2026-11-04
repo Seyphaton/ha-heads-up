@@ -104,6 +104,11 @@ PRESENCE_KEY: Final = "heads_up.presence"
 # A banner whose audience is empty when it is created is aimed at this person, who does not exist:
 # an empty `people` list would show it to everyone (D-131).
 BANNER_NOBODY: Final = "person.heads_up_nobody"
+# Needs-attention warnings the admin chose to hide, as a list of keys in the entry options (D-135).
+OPT_ATTENTION_DISMISSED: Final = "attention_dismissed"
+# Built-in audiences the admin switched off, as a list of names in the entry options (D-136).
+OPT_AUDIENCES_DISABLED: Final = "audiences_disabled"
+MAX_ATTENTION_DISMISSED: Final = 200
 BUILTIN_AUDIENCES: Final = {
     "Everyone": "everyone",
     "Admins": "admins",

@@ -118,6 +118,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                     "name": name,
                     "kind": audience.kind,
                     "builtin": True,
+                    "enabled": name not in hub.resolver.disabled_audiences(),
                     "subentry_id": None,
                     "data": {},
                     "members": [r.key for r in now.recipients],

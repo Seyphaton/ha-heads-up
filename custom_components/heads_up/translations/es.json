@@ -775,13 +775,15 @@
             "kind": "Tipo",
             "persons": "Personas",
             "presence": "Presencia",
-            "zone": "Zona"
+            "zone": "Zona",
+            "limit": "Limitar a personas"
           },
           "data_description": {
             "name": "Se usa en las llamadas, por ejemplo \"At home\". Debe diferir de las audiencias integradas y de otras audiencias.",
             "persons": "Para el tipo Personas: las personas de esta audiencia.",
             "presence": "Para el tipo Presencia: qué personas cuentan. La presencia desconocida solo cuenta para mensajes críticos.",
-            "zone": "Para En una zona y No en una zona."
+            "zone": "Para En una zona y No en una zona.",
+            "limit": "Opcional, para Presencia. Solo estas personas pueden estar en la audiencia, por ejemplo una persona para «En casa». Para El último en salir y El primero en llegar, esa persona debe ser también la última en salir o la primera en llegar. Vacío: todas las personas."
           }
         },
         "reconfigure": {
@@ -792,13 +794,15 @@
             "kind": "Tipo",
             "persons": "Personas",
             "presence": "Presencia",
-            "zone": "Zona"
+            "zone": "Zona",
+            "limit": "Limitar a personas"
           },
           "data_description": {
             "name": "Se usa en las llamadas, por ejemplo \"At home\". Debe diferir de las audiencias integradas y de otras audiencias.",
             "persons": "Para el tipo Personas: las personas de esta audiencia.",
             "presence": "Para el tipo Presencia: qué personas cuentan. La presencia desconocida solo cuenta para mensajes críticos.",
-            "zone": "Para En una zona y No en una zona."
+            "zone": "Para En una zona y No en una zona.",
+            "limit": "Opcional, para Presencia. Solo estas personas pueden estar en la audiencia, por ejemplo una persona para «En casa». Para El último en salir y El primero en llegar, esa persona debe ser también la última en salir o la primera en llegar. Vacío: todas las personas."
           }
         }
       },

@@ -775,13 +775,15 @@
             "kind": "Art",
             "persons": "Personen",
             "presence": "Anwesenheit",
-            "zone": "Zone"
+            "zone": "Zone",
+            "limit": "Auf Personen beschränken"
           },
           "data_description": {
             "name": "Wird in Aufrufen verwendet, zum Beispiel \"At home\". Muss sich von den eingebauten und anderen Zielgruppen unterscheiden.",
             "persons": "Für die Art Personen: die Personen dieser Zielgruppe.",
             "presence": "Für die Art Anwesenheit: welche Personen zählen. Unbekannte Anwesenheit zählt nur bei kritischen Nachrichten.",
-            "zone": "Für In einer Zone und Nicht in einer Zone."
+            "zone": "Für In einer Zone und Nicht in einer Zone.",
+            "limit": "Optional, für Anwesenheit. Nur diese Personen können in der Zielgruppe sein, zum Beispiel eine Person für „Zu Hause“. Bei „Als Letzter gegangen“ und „Als Erster angekommen“ muss diese Person auch die letzte beziehungsweise erste sein. Leer: jede Person."
           }
         },
         "reconfigure": {
@@ -792,13 +794,15 @@
             "kind": "Art",
             "persons": "Personen",
             "presence": "Anwesenheit",
-            "zone": "Zone"
+            "zone": "Zone",
+            "limit": "Auf Personen beschränken"
           },
           "data_description": {
             "name": "Wird in Aufrufen verwendet, zum Beispiel \"At home\". Muss sich von den eingebauten und anderen Zielgruppen unterscheiden.",
             "persons": "Für die Art Personen: die Personen dieser Zielgruppe.",
             "presence": "Für die Art Anwesenheit: welche Personen zählen. Unbekannte Anwesenheit zählt nur bei kritischen Nachrichten.",
-            "zone": "Für In einer Zone und Nicht in einer Zone."
+            "zone": "Für In einer Zone und Nicht in einer Zone.",
+            "limit": "Optional, für Anwesenheit. Nur diese Personen können in der Zielgruppe sein, zum Beispiel eine Person für „Zu Hause“. Bei „Als Letzter gegangen“ und „Als Erster angekommen“ muss diese Person auch die letzte beziehungsweise erste sein. Leer: jede Person."
           }
         }
       },

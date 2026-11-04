@@ -252,3 +252,22 @@ async def test_rules_come_with_their_stored_data_and_whether_they_show_now(
     assert rules[idle.subentry_id]["showing"] is False
     assert rules[showing.subentry_id]["data"]["entity_id"] == "binary_sensor.door"
     assert rules[showing.subentry_id]["name"] == "Rule"
+
+
+async def test_a_built_in_audience_can_be_switched_off_unless_a_policy_uses_it(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    policy = {**ESCALATION, "targets": {"push": {"audience": "Admins"}}}
+    await add_policy(hass, entry, "Water", **policy)
+    client = await hass_ws_client(hass)
+    refused = await ask(client, "audience_enable", name="Admins", enabled=False)
+    assert refused["error"]["code"] == "in_use" and "Water" in refused["error"]["message"]
+    assert (await ask(client, "audience_enable", name="At home", enabled=False))["success"]
+    audiences = {a["name"]: a for a in (await config(hass, client))["audiences"]}
+    assert audiences["At home"]["enabled"] is False and audiences["Admins"]["enabled"] is True
+    assert "At home" not in (await config(hass, client))["choices"]["audience_names"]
+    assert (await ask(client, "audience_enable", name="At home", enabled=True))["success"]
+    assert {a["name"]: a for a in (await config(hass, client))["audiences"]}["At home"]["enabled"]
+    assert (await ask(client, "audience_enable", name="Nope", enabled=False))["error"][
+        "code"
+    ] == "not_found"

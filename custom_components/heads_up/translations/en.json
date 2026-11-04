@@ -775,13 +775,15 @@
             "kind": "Kind",
             "persons": "Persons",
             "presence": "Presence",
-            "zone": "Zone"
+            "zone": "Zone",
+            "limit": "Limit to persons"
           },
           "data_description": {
             "name": "Used in calls, for example \"At home\". Must differ from the built-in audiences and from other audiences.",
             "persons": "For kind Persons: the people in this audience.",
             "presence": "For kind Presence: which people count. Unknown presence counts for critical messages only.",
-            "zone": "For In a zone and Not in a zone."
+            "zone": "For In a zone and Not in a zone.",
+            "limit": "Optional, for Presence. Only these persons can be in the audience, for example one person for \"At home\". For Last to leave and First home that person must also be the last to leave or the first home. Empty: every person."
           }
         },
         "reconfigure": {
@@ -792,13 +794,15 @@
             "kind": "Kind",
             "persons": "Persons",
             "presence": "Presence",
-            "zone": "Zone"
+            "zone": "Zone",
+            "limit": "Limit to persons"
           },
           "data_description": {
             "name": "Used in calls, for example \"At home\". Must differ from the built-in audiences and from other audiences.",
             "persons": "For kind Persons: the people in this audience.",
             "presence": "For kind Presence: which people count. Unknown presence counts for critical messages only.",
-            "zone": "For In a zone and Not in a zone."
+            "zone": "For In a zone and Not in a zone.",
+            "limit": "Optional, for Presence. Only these persons can be in the audience, for example one person for \"At home\". For Last to leave and First home that person must also be the last to leave or the first home. Empty: every person."
           }
         }
       },

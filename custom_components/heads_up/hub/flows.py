@@ -146,6 +146,9 @@ class AudienceSubentryFlow(_HubFlow):
                     )
                 ),
                 vol.Optional("zone"): EntitySelector(EntitySelectorConfig(domain="zone")),
+                vol.Optional("limit"): EntitySelector(
+                    EntitySelectorConfig(domain="person", multiple=True)
+                ),
             }
         )
 
@@ -175,6 +178,8 @@ class AudienceSubentryFlow(_HubFlow):
         data: dict[str, Any] = {"kind": "presence", "presence": user_input["presence"]}
         if user_input["presence"] in ZONE_KINDS:
             data["zone"] = user_input["zone"]
+        if user_input.get("limit"):
+            data["limit"] = list(user_input["limit"])
         return data
 
 

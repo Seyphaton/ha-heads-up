@@ -333,3 +333,15 @@ describe("mail settings", () => {
     }
   });
 });
+
+describe("audience limit", () => {
+  it("sends and reads the limit of a presence audience", () => {
+    const values = { ...blankAudience(), name: "Anna home", kind: "presence", presence: "at_home", limit: ["person.anna"] };
+    expect(audienceData(values)).toEqual({ name: "Anna home", kind: "presence", presence: "at_home", limit: ["person.anna"] });
+    expect(audienceData({ ...values, limit: [] }).limit).toBeUndefined();
+    expect(audienceData({ ...values, kind: "persons", persons: ["person.a"] }).limit).toBeUndefined();
+    expect(fromAudience({ name: "Anna home", data: { kind: "presence", presence: "at_home", limit: ["person.anna"] } }).limit).toEqual(["person.anna"]);
+    expect(fromAudience({ name: "P", data: { kind: "persons", persons: ["person.a"] } }).limit).toEqual([]);
+  });
+});
+

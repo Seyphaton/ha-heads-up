@@ -20,6 +20,7 @@ from ..const import (
     GROUP_SUFFIX,
     MAIL_GLOBAL,
     MAIL_GLOBAL_KEY,
+    OPT_AUDIENCES_DISABLED,
     OPT_MAIL_ADDRESS,
     OPT_PRESENCE_DEBOUNCE,
     ZONE_KINDS,
@@ -92,7 +93,7 @@ class HubResolver:
 
     def names(self) -> list[str]:
         """Audience names (implements the H1 interface)."""
-        return [*BUILTINS, *self._audiences]
+        return [*(n for n in BUILTINS if n not in self.disabled_audiences()), *self._audiences]
 
     def known(self, channel: str) -> list[str]:
         """Recipients a channel accepts (implements the H1 interface)."""
@@ -115,8 +116,14 @@ class HubResolver:
     def groups(self) -> list[Group]:
         return list(self._groups.values())
 
+    def disabled_audiences(self) -> set[str]:
+        """Built-in audiences the admin switched off (D-136): not offered, refused in calls."""
+        return set(self._options.get(OPT_AUDIENCES_DISABLED, []))
+
     def audience(self, name: str) -> Audience | None:
-        return BUILTINS.get(name) or self._audiences.get(name)
+        if name in BUILTINS and name not in self.disabled_audiences():
+            return BUILTINS[name]
+        return self._audiences.get(name)
 
     def persons_of_user(self, user_id: str) -> list[str]:
         """Persons linked to a Home Assistant user (N-10)."""
@@ -159,10 +166,16 @@ class HubResolver:
                     result.recipients.append(Recipient(person, "person", person, reason="admin"))
         elif kind in ("last_to_leave", "first_home"):
             person = getattr(self.presence, kind)
-            if person and self._hass.states.get(person) is not None:
+            if (
+                person
+                and self._hass.states.get(person) is not None
+                and (not audience.limit or person in audience.limit)
+            ):
                 result.recipients.append(Recipient(person, "person", person, reason=kind))
         else:
             for person in persons:
+                if audience.limit and person not in audience.limit:
+                    continue
                 self._presence_member(result, person, kind, audience.zone, severity)
         return result
 

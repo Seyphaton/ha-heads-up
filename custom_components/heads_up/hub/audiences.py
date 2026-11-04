@@ -18,6 +18,8 @@ class Audience:
     builtin: bool = False
     persons: tuple[str, ...] = ()
     zone: str | None = None
+    # Presence audiences only: the persons the audience is limited to; empty means every person.
+    limit: tuple[str, ...] = ()
 
 
 BUILTINS: dict[str, Audience] = {
@@ -32,5 +34,10 @@ def parse_audience(subentry: ConfigSubentry) -> Audience | None:
     if data.get("kind") == "persons":
         return Audience(subentry.title, "persons", persons=tuple(data.get("persons", ())))
     if data.get("presence"):
-        return Audience(subentry.title, str(data["presence"]), zone=data.get("zone"))
+        return Audience(
+            subentry.title,
+            str(data["presence"]),
+            zone=data.get("zone"),
+            limit=tuple(data.get("limit", ())),
+        )
     return None

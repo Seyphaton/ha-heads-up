@@ -775,13 +775,15 @@
             "kind": "Type",
             "persons": "Personnes",
             "presence": "Présence",
-            "zone": "Zone"
+            "zone": "Zone",
+            "limit": "Limiter à des personnes"
           },
           "data_description": {
             "name": "Utilisé dans les appels, par exemple « At home ». Doit différer des publics intégrés et des autres publics.",
             "persons": "Pour le type Personnes : les personnes de ce public.",
             "presence": "Pour le type Présence : quelles personnes comptent. Une présence inconnue ne compte que pour les messages critiques.",
-            "zone": "Pour Dans une zone et Pas dans une zone."
+            "zone": "Pour Dans une zone et Pas dans une zone.",
+            "limit": "Facultatif, pour Présence. Seules ces personnes peuvent faire partie de l'audience, par exemple une personne pour « À la maison ». Pour Dernier parti et Premier arrivé, cette personne doit aussi être la dernière partie ou la première arrivée. Vide : toutes les personnes."
           }
         },
         "reconfigure": {
@@ -792,13 +794,15 @@
             "kind": "Type",
             "persons": "Personnes",
             "presence": "Présence",
-            "zone": "Zone"
+            "zone": "Zone",
+            "limit": "Limiter à des personnes"
           },
           "data_description": {
             "name": "Utilisé dans les appels, par exemple « At home ». Doit différer des publics intégrés et des autres publics.",
             "persons": "Pour le type Personnes : les personnes de ce public.",
             "presence": "Pour le type Présence : quelles personnes comptent. Une présence inconnue ne compte que pour les messages critiques.",
-            "zone": "Pour Dans une zone et Pas dans une zone."
+            "zone": "Pour Dans une zone et Pas dans une zone.",
+            "limit": "Facultatif, pour Présence. Seules ces personnes peuvent faire partie de l'audience, par exemple une personne pour « À la maison ». Pour Dernier parti et Premier arrivé, cette personne doit aussi être la dernière partie ou la première arrivée. Vide : toutes les personnes."
           }
         }
       },

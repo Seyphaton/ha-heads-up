@@ -29,6 +29,12 @@ export const STRINGS = {
     unknown_presence: "Unknown presence counts for critical messages only; lower severities skip those people with a trace entry.",
     sentence_persons: "{names} (a fixed list).",
     sentence_presence: "People who are: {kind}{zone}.",
+    limit_label: "Only these persons (none: everyone)",
+    limit_hint: "Limits the audience, for example to one person for At home. For Last to leave and First home the person must also be the last to leave or the first home.",
+    limited_to: " Limited to {names}.",
+    off_failed: "Could not change this audience. Try again.",
+    off: "Off",
+    off_hint: "Switched off: calls and policies cannot use it.",
     kinds: KINDS.en,
     tip_label: "What is {name}?",
     tips: {
@@ -61,6 +67,12 @@ export const STRINGS = {
     unknown_presence: "Unbekannte Anwesenheit zählt nur für kritische Meldungen; niedrigere Schweregrade überspringen diese Personen mit einem Protokolleintrag.",
     sentence_persons: "{names} (eine feste Liste).",
     sentence_presence: "Personen, die: {kind}{zone}.",
+    limit_label: "Nur diese Personen (keine: alle)",
+    limit_hint: "Beschränkt die Zielgruppe, zum Beispiel auf eine Person für „Zu Hause“. Bei „Als Letzter gegangen“ und „Als Erster angekommen“ muss die Person auch die letzte beziehungsweise erste sein.",
+    limited_to: " Beschränkt auf {names}.",
+    off_failed: "Diese Zielgruppe konnte nicht geändert werden. Versuche es erneut.",
+    off: "Aus",
+    off_hint: "Ausgeschaltet: Aufrufe und Richtlinien können sie nicht nutzen.",
     kinds: KINDS.de,
     tip_label: "Was ist {name}?",
     tips: {
@@ -93,6 +105,12 @@ export const STRINGS = {
     unknown_presence: "Une présence inconnue ne compte que pour les messages critiques ; les gravités plus basses ignorent ces personnes avec une entrée de trace.",
     sentence_persons: "{names} (une liste fixe).",
     sentence_presence: "Les personnes qui sont : {kind}{zone}.",
+    limit_label: "Seulement ces personnes (aucune : toutes)",
+    limit_hint: "Limite l'audience, par exemple à une personne pour À la maison. Pour Dernier parti et Premier arrivé, la personne doit aussi être la dernière partie ou la première arrivée.",
+    limited_to: " Limitée à {names}.",
+    off_failed: "Cette audience n'a pas pu être modifiée. Réessayez.",
+    off: "Désactivée",
+    off_hint: "Désactivée : les appels et les politiques ne peuvent pas l'utiliser.",
     kinds: KINDS.fr,
     tip_label: "Qu'est-ce que {name} ?",
     tips: {
@@ -125,6 +143,12 @@ export const STRINGS = {
     unknown_presence: "La presencia desconocida solo cuenta para mensajes críticos; las gravedades menores omiten a esas personas con una entrada de traza.",
     sentence_persons: "{names} (una lista fija).",
     sentence_presence: "Las personas que están: {kind}{zone}.",
+    limit_label: "Solo estas personas (ninguna: todas)",
+    limit_hint: "Limita la audiencia, por ejemplo a una persona para En casa. Para El último en salir y El primero en llegar, la persona debe ser también la última en salir o la primera en llegar.",
+    limited_to: " Limitada a {names}.",
+    off_failed: "No se pudo cambiar esta audiencia. Inténtalo de nuevo.",
+    off: "Desactivada",
+    off_hint: "Desactivada: las llamadas y las políticas no pueden usarla.",
     kinds: KINDS.es,
     tip_label: "¿Qué es {name}?",
     tips: {
@@ -146,13 +170,13 @@ export function fill(template, params) {
 }
 
 export function blankValues() {
-  return { name: "", kind: "persons", persons: [], presence: "at_home", zone: "" };
+  return { name: "", kind: "persons", persons: [], presence: "at_home", zone: "", limit: [] };
 }
 
 export function fromAudience(audience) {
   const data = audience.data || {};
-  if (data.kind === "persons") return { name: audience.name, kind: "persons", persons: [...(data.persons || [])], presence: "at_home", zone: "" };
-  return { name: audience.name, kind: "presence", persons: [], presence: data.presence || "at_home", zone: data.zone || "" };
+  if (data.kind === "persons") return { name: audience.name, kind: "persons", persons: [...(data.persons || [])], presence: "at_home", zone: "", limit: [] };
+  return { name: audience.name, kind: "presence", persons: [], presence: data.presence || "at_home", zone: data.zone || "", limit: [...(data.limit || [])] };
 }
 
 // Problems as { field: code }; the codes are the integration's own flow error keys.
@@ -175,6 +199,7 @@ export function toFlowData(values) {
   else {
     data.presence = values.presence;
     if (ZONE_KINDS.includes(values.presence)) data.zone = values.zone;
+    if ((values.limit || []).length) data.limit = [...values.limit];
   }
   return data;
 }
@@ -186,7 +211,9 @@ export function describe(values, choices, t) {
   }
   const zoneName = choices.zones.find((z) => z.id === values.zone)?.name ?? values.zone;
   const zone = ZONE_KINDS.includes(values.presence) ? ` (${zoneName || "—"})` : "";
-  return fill(t.sentence_presence, { kind: t.kinds[values.presence] || values.presence, zone });
+  const limited = (values.limit || []).map((id) => choices.persons.find((p) => p.id === id)?.name ?? id);
+  const limit = limited.length ? fill(t.limited_to, { names: limited.join(", ") }) : "";
+  return fill(t.sentence_presence, { kind: t.kinds[values.presence] || values.presence, zone }) + limit;
 }
 
 export function mount(container, ctx) {
@@ -205,12 +232,32 @@ export function mount(container, ctx) {
   const usedLine = (audience) =>
     audience.used_by.length ? fill(t.used_by, { names: audience.used_by.join(", ") }) : t.unused;
 
+  async function toggle(audience, enabled) {
+    try {
+      await hass.callWS({ type: "heads_up/audience_enable", name: audience.name, enabled });
+      message = "";
+    } catch (err) {
+      message = err?.code === "in_use" ? fill(s.common.in_use, { names: String(err.message || "").replace(/^.* is used by /, "") }) : t.off_failed;
+    }
+    await load();
+  }
+
   function listNode() {
     const box = el("section", {}, [el("h2", { textContent: t.builtin })]);
+    if (message) box.append(el("div", { className: "hint problems", textContent: message, role: "alert" }));
     const builtin = el("ul", { className: "list" });
     for (const a of data.audiences.filter((x) => x.builtin)) {
       const tip = t.tips[a.kind] ? ui.helpTip(fill(t.tip_label, { name: a.name }), t.tips[a.kind]) : null;
-      builtin.append(el("li", {}, [el("div", {}, [el("strong", { textContent: a.name }), ...(tip ? [tip.button] : []), el("span", { className: "badge", textContent: t.kinds[a.kind] || a.kind }), ...(tip ? [tip.note] : []), el("div", { className: "sub", textContent: `${memberLine(a)} · ${usedLine(a)}` })])]));
+      const box2 = el("input", { type: "checkbox", checked: a.enabled !== false });
+      box2.setAttribute("aria-label", `${s.common.enabled}: ${a.name}`);
+      box2.addEventListener("change", () => toggle(a, box2.checked));
+      const lines = a.enabled === false ? t.off_hint : `${memberLine(a)} · ${usedLine(a)}`;
+      builtin.append(
+        el("li", { className: a.enabled === false ? "dim" : "" }, [
+          el("div", {}, [el("strong", { textContent: a.name }), ...(tip ? [tip.button] : []), ...(a.enabled === false ? [el("span", { className: "badge", textContent: t.off })] : []), ...(tip ? [tip.note] : []), el("div", { className: "sub", textContent: lines })]),
+          el("label", { className: "inline" }, [box2]),
+        ]),
+      );
     }
     box.append(builtin);
     const mine = el("section", {}, [el("h2", { textContent: t.custom })]);
@@ -247,6 +294,8 @@ export function mount(container, ctx) {
       if (ZONE_KINDS.includes(values.presence)) {
         box.append(ui.field(t.zone, ui.selectInput([{ value: "", label: "—" }, ...data.choices.zones.map((z) => ({ value: z.id, label: z.name }))], values.zone, (v) => { values.zone = v; paint(); })));
       }
+      box.append(ui.chips(t.limit_label, data.choices.persons.map((p) => ({ value: p.id, label: p.name })), values.limit, (list) => { values.limit = list; paint(); }));
+      box.append(el("div", { className: "hint", textContent: t.limit_hint }));
       box.append(el("div", { className: "hint", textContent: t.unknown_presence }));
     }
     const sentence = el("div", { className: "hint", id: "sentence" });

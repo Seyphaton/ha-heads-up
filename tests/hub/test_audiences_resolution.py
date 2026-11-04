@@ -128,3 +128,38 @@ async def test_unknown_presence_does_not_apply_to_fixed_audiences(
 ) -> None:
     set_person(hass, "person.ben", None)
     assert set(await members(entry, "Everyone")) == {"person.ben"}
+
+
+@pytest.mark.usefixtures("household")
+async def test_a_presence_audience_can_be_limited_to_chosen_persons(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    set_person(hass, "person.dora", "home")
+    add_audience(
+        hass, entry, "Anna home", kind="presence", presence="at_home", limit=["person.anna"]
+    )
+    add_audience(
+        hass,
+        entry,
+        "Two away",
+        kind="presence",
+        presence="not_home",
+        limit=["person.ben", "person.dora"],
+    )
+    add_audience(hass, entry, "Anyone home", kind="presence", presence="at_home")
+    await hass.async_block_till_done()
+    assert set(await members(entry, "Anna home")) == {"person.anna"}
+    assert set(await members(entry, "Two away")) == {"person.ben"}  # Dora is home, Cleo not listed
+    assert set(await members(entry, "Anyone home")) == {"person.anna", "person.dora"}
+
+
+async def test_a_switched_off_built_in_audience_is_not_offered_and_not_found(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, "audiences_disabled": ["Not home"]}
+    )
+    await hass.async_block_till_done()
+    assert "Not home" not in resolver(entry).names() and "At home" in resolver(entry).names()
+    assert resolver(entry).audience("Not home") is None
+    assert resolver(entry).audience("At home") is not None

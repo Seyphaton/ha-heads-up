@@ -22,6 +22,10 @@ You can add your own:
 - **Persons**: a fixed list of persons.
 - **Presence**: one of at home, not home, last to leave, first home, in a zone, not in a zone (with a zone).
 
+A presence audience can be limited to chosen persons, for example `At home` for one person only, or `Last to leave` for two persons. A limited `Last to leave` or `First home` names the person only when that person is also the last to leave or the first home of the whole house; it does not look for the last of the chosen persons.
+
+In the panel each built-in audience has a checkbox. One that is switched off is not offered, and a call that names it fails with the list of valid names. A built-in audience that a policy uses cannot be switched off.
+
 A custom name must differ, ignoring case, from the built-in names and from other audiences.
 
 A person whose state is `unknown`, `unavailable` or has no usable tracker has unknown presence. Presence audiences include that person for `critical` messages and skip them for lower severities. The trace says why (`presence_unknown`).

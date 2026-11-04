@@ -9,6 +9,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from ..test_restart import restart
 from .helpers import set_person, tick
+from .policy_support import add_audience
 
 
 def audience_members(entry: MockConfigEntry, name: str) -> Any:
@@ -141,3 +142,23 @@ async def test_last_to_leave_survives_a_restart(
     await hass.async_block_till_done()
     await restart(hass, entry)
     assert await audience_members(entry, "Last to leave") == ["person.anna"]
+
+
+async def test_a_limited_last_to_leave_names_the_person_only_when_they_are_in_the_limit(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    set_person(hass, "person.anna", "home")
+    set_person(hass, "person.ben", "home")
+    await add_audience(
+        hass, entry, "Anna last", kind="presence", presence="last_to_leave", limit=["person.anna"]
+    )
+    await add_audience(
+        hass, entry, "Ben last", kind="presence", presence="last_to_leave", limit=["person.ben"]
+    )
+    set_person(hass, "person.anna", "not_home")
+    await hass.async_block_till_done()
+    set_person(hass, "person.ben", "not_home")
+    await hass.async_block_till_done()
+    assert await audience_members(entry, "Last to leave") == ["person.ben"]
+    assert await audience_members(entry, "Anna last") == []
+    assert await audience_members(entry, "Ben last") == ["person.ben"]
