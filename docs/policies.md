@@ -101,7 +101,7 @@ A call names the channels of its first delivery. A Deliver policy adds channels 
 
 | Field | Meaning |
 |---|---|
-| Channels, targets | As for an escalation: an audience or recipients per channel; speech takes recipients only; Persistent HASS Notification takes none. |
+| Channels, targets | As for an escalation: an audience or recipients per channel; speech takes recipients only; Persistent Notification takes none. |
 
 - It fires once per message, at its first delivery. An update to the message replaces what it sent, like it replaces the call's own deliveries.
 - Someone who already has the message on that channel from the call is not notified a second time.

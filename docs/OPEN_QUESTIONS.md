@@ -104,4 +104,3 @@
 - Mail channel: how a recipient maps to a mail target (profile field or the call), which notify service it calls, and how a failure shows in the ledger.
 - Late button presses: whether the button stays on the phone after the push is cleared; if not, which messages need a different lifetime.
 - Delivery-failure event: name, payload and which outcomes fire it (no audience, failed, rate limited).
-- Whether messages without the banner channel count toward `max_banners` (unverified).

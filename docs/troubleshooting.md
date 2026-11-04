@@ -158,6 +158,6 @@ Both are for administrators only. The card ignores `show_all` for other users.
 - The Home Assistant version and the Heads Up version (Settings > Devices & services > Heads Up).
 - The action call, rule or card configuration that shows the problem.
 - The log lines of `custom_components.heads_up` with debug logging on (see the top of this page).
-- For a message that did not reach someone: its trace from the panel's Messages page, or the reply of `heads_up/hub_trace`.
+- For a message that did not reach someone: its trace from the panel's Message Log, or the reply of `heads_up/hub_trace`.
 
 See also [CONTRIBUTING](../CONTRIBUTING.md#report-a-bug).

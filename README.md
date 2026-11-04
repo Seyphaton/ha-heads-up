@@ -3,7 +3,9 @@
 [![Open your Home Assistant instance and open this repository in the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Seyphaton&repository=ha-heads-up&category=integration)
 [![Open your Home Assistant instance and start setting up the Heads Up integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=heads_up)
 
-Heads Up is a notification hub for Home Assistant. An automation says what happened; Heads Up chooses who is told, on which channel and how loudly, and removes the message from every channel when it ends.
+Heads Up is a notification hub for Home Assistant. Your automations make one call. Heads Up orchestrates where the message shows up, who gets it, and when it is delivered or escalated. It removes the message from every channel when it ends.
+
+![Your automation makes one call, and Heads Up orchestrates where the message shows up (banner, push, popup, speech, mail, Persistent Notification), who gets it (everyone, admins, whoever is home, the last one to leave, one person) and when (quiet at night, repeat until acknowledged, escalate, evening summary, send on arrival).](docs/images/where-who-when.svg)
 
 ## Problems it solves
 
@@ -17,15 +19,15 @@ Heads Up is a notification hub for Home Assistant. An automation says what happe
 ## What it does
 
 - Banner: a dismissible banner in a dashboard card. It stays until someone closes it, its condition stops matching, its timeout passes or an action clears it, and it survives a restart. Watch rules show a banner while an entity is in a state, without an automation.
-- Push, popup, speech, mail and Persistent HASS Notification: one message can reach Companion app notifications, a window over any dashboard, speakers and Assist satellites, mail, and Home Assistant's own notification list (the bell). The action `heads_up.notify` names the channels. Each channel also has its own action.
+- Push, popup, speech, mail and Persistent Notification: one message can reach Companion app notifications, a window over any dashboard, speakers and Assist satellites, mail, and Home Assistant's own notification list (the bell). The action `heads_up.notify` names the channels. Each channel also has its own action.
 - Audiences: Everyone, Admins, At home, Not home, Last to leave, First home, persons, a zone, or a speaker group. Phones are found from the person, so replacing a phone is one change.
-- Policies: Escalation, Reminder, Quiet hours, Away, Fallback, Summarize and Deliver. They are kept apart from the automations. The panel's welcome is a four-step tour: what Heads Up does, then channels, recipients and policies. The last step offers four default policies: quiet hours, an evening summary, critical messages and warning reminders.
+- Policies: Escalation, Reminder, Quiet hours, Away, Fallback, Summarize and Deliver. They are kept apart from the automations. The panel's introduction is a four-step tour: what Heads Up does, then channels, recipients and policies. The last step offers four default policies: quiet hours, an evening summary, critical messages and warning reminders.
 - Acknowledgement: it stops escalations and reminders, and the card shows who acknowledged.
 - Explanation: the panel previews who a call would reach right now, and why anyone is skipped, held or dropped. Each message has a trace.
 - Rate limits: 5 pushes per device per minute and 60 in total. Critical messages are never held back.
 - Panel: an administrator page in the sidebar. See [Panel](docs/panel.md).
 
-Banners, rules and the card work without any hub object. You can switch the hub off in the settings.
+Banners, rules and the card work without any hub object.
 
 Start with [How to use Heads Up](docs/how-to.md). The terms are in [Notification hub](docs/hub.md).
 
@@ -58,7 +60,7 @@ Heads Up is not in the default HACS list. Add it as a custom repository:
 
 ## Set up
 
-Go to Settings > Devices & services and add the integration Heads Up. It asks whether to show Heads Up in the sidebar. The integration registers the card, so you add no dashboard resource. Open the panel to see the welcome.
+Go to Settings > Devices & services and add the integration Heads Up. It asks whether to show Heads Up in the sidebar. The integration registers the card, so you add no dashboard resource. Open the panel to see the introduction.
 
 ## Quick start
 
@@ -86,7 +88,7 @@ The banner appears in the card without a reload. Close it with the X button, or 
 
 ![Card with four banners: critical, warning, info and success, each with a severity label and the time since it was created](docs/images/card-default.png)
 
-Send one message to the banner, the phones of everyone and the Persistent HASS Notification channel:
+Send one message to the banner, the phones of everyone and the Persistent Notification channel:
 
 ```yaml
 action: heads_up.notify
@@ -105,7 +107,7 @@ The card receives banners over the Home Assistant WebSocket connection and does 
 - [How to use Heads Up](docs/how-to.md): options with examples and screenshots.
 - [Notification hub](docs/hub.md): the terms, and examples from a household.
 - [Panel](docs/panel.md), [Policies](docs/policies.md), [Audiences and recipients](docs/audiences.md)
-- Channels: [Push](docs/push.md), [Popup](docs/popup.md), [Speech](docs/speech.md), [Persistent HASS Notification](docs/persistent.md), [Mail](docs/mail.md)
+- Channels: [Push](docs/push.md), [Popup](docs/popup.md), [Speech](docs/speech.md), [Persistent Notification](docs/persistent.md), [Mail](docs/mail.md)
 - [Actions](docs/actions.md): fields, responses, conditions, people, events.
 - [Card](docs/card.md): options and behaviour.
 - [Watch rules](docs/rules.md): banners from an entity state or value, without an automation.

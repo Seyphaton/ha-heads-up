@@ -1,6 +1,6 @@
 # Persistent notifications
 
-The persistent channel, named Persistent HASS Notification in the panel, shows a message in Home Assistant's notification list, the bell in the sidebar. Use it with `heads_up.notify` (`channels: [persistent]`). There is no shortcut action.
+The persistent channel, named Persistent Notification in the panel, shows a message in Home Assistant's notification list, the bell in the sidebar. Use it with `heads_up.notify` (`channels: [persistent]`). There is no shortcut action.
 
 ```yaml
 - action: heads_up.notify

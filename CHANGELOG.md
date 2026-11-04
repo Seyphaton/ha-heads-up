@@ -5,11 +5,28 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ## [Unreleased]
 
 ### Added
+- Panel: the FAQ page is now the Help group with three pills: FAQ, Notify examples and Card examples (six `custom:heads-up-card` configurations with a Copy button). Each Help page has a link to the GitHub issues page next to its intro line.
 - Needs attention warns about sends that failed in the last 24 hours, per channel and reason.
 - Built-in audiences have a checkbox to switch them off; a presence audience can be limited to chosen persons (for example At home for one person).
 - Test send shows what happened after Send test: the real delivery results with their reasons.
+- FAQ: how to set up mail (SMTP): why it does not work out of the box and what it needs.
+- Overview: a chart of the messages created in the last 24 hours, one bar per hour stacked by severity, in the Active notifications card.
+- Test send: a Behaviour section for dismissible, dismiss scope and snoozable, and a line that says whether any policy makes acknowledging matter.
 - Overview: shortcut cards for Watch rules, Channels, Audiences and Policies that open their pages, an explanation under Active notifications, and a Hide button on each warning of Needs attention (Show again restores them).
 - Panel: the Watch rules page lists every rule with its state and adds, edits and deletes rules in a form with sections (When, What to show, Who sees it, Behaviour). Buttons and the tap action stay as they are; change them in the rule form on the integration page.
+
+### Changed
+- The hub is always on. The option Hub enabled is removed from the integration options and the panel's Settings page; a stored value is ignored. The sidebar switch explains what you cannot use without the panel: Test send, the Message Log, the Overview, the welcome, the Channels settings and the Help pages.
+- The panel page Messages is called Message Log. The Watch rules page and the FAQ explain that rules are stored in Heads Up and that an automation with a condition does the same.
+- The Channels names in the FAQ and the panel read Persistent Notification instead of Persistent HASS Notification.
+
+- Maximum number of stored messages and Evict are in the Limits section, next to the rate limits, and the texts say they count messages on every channel.
+- Every block of the panel's Settings page has a heading of its own (Introduction, Sidebar panel, Messages, Presence, Speech, Limits, History, Identity, People and devices), so a card no longer looks like part of the heading above it.
+- The Messages settings are grouped in clusters: Dismiss settings, Snooze settings, and under snooze one card for the banner and one for push and popup. Each card says which channels it applies to, and the snooze scope names them.
+- Snooze has a separate setting for the push and the popup: Snooze time on push and popup (15 minutes by default). The snooze choices of a message are now only for the banner; before, the push and the popup used the first choice.
+- The Settings section Banners is called Messages: its options (dismiss scope, timeout, snooze, ended buttons) apply to the banner, the push and the popup of a message, and the texts now say so.
+- The button Show the welcome is Restart introduction, and the welcome is called the introduction in the panel.
+- Longer explanations (FAQ answers, the Watch rules text, the sidebar text) have paragraphs and bullet lists.
 
 ### Fixed
 - Speech logs a warning when no text-to-speech engine is chosen (naming the engines found) and when the speaker is missing; before these failures were visible only in the trace.
@@ -24,7 +41,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ### Changed
 - The Add buttons on the integration page are ordered audience, recipient group, recipient profile, policy, watch rule (before: watch rule first).
-- The channel formerly called Bell is named Persistent HASS Notification in the panel.
+- The channel formerly called Bell is named Persistent Notification in the panel.
 - `to.banner.audience` limits the banner to the persons the audience has when the call is made. Before, the audience was accepted and ignored, so the banner went to everyone.
 - The audience `Admins` no longer lists a person without a Home Assistant user as skipped.
 

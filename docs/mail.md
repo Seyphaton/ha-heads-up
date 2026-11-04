@@ -23,12 +23,15 @@ The mail channel calls a Home Assistant notify service once per recipient, with 
 
 ## Set it up
 
-1. Open the panel, Configuration, Channels, section Mail.
-2. Choose the notify service. Without one, mail fails with `no_mail_service`.
-3. Optional: enter a Global address.
-4. Open Recipients. For each person who gets mail, switch Mail on and enter the person's mail address.
+Heads Up does not send e-mail itself, so mail does not work until a mail notify service exists.
 
-Mail is off for everyone until step 4. An audience such as Everyone therefore reaches only the persons who opted in.
+1. Add the SMTP integration under Settings > Devices & services. It asks for the server, port, connection security, sender, user name and password. It creates a notify service named after the entry.
+2. Open the panel, Configuration, Channels, section Mail.
+3. Choose the notify service from step 1. Without one, mail fails with `no_mail_service`.
+4. Optional: enter a Global address.
+5. Open Recipients. For each person who gets mail, switch Mail on and enter the person's mail address.
+
+Mail is off for everyone until step 5. An audience such as Everyone therefore reaches only the persons who opted in.
 
 ## Who gets it
 
@@ -69,4 +72,5 @@ For a shared mailbox that tells recipients apart by subject, give every person t
 
 - Delivery is the notify service's job. Heads Up knows only whether the service call returned an error, not whether the mail arrived.
 - A Quiet hours policy with the action Drop or Wait applies to mail like to other channels.
+- After a mail went through the SMTP integration's notify service, the SMTP integration raises a repair that the service is deprecated and due to be removed in Home Assistant 2027.3 (from its source in 2026.10.4).
 - Not tested with a real mail server.

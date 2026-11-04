@@ -1,6 +1,6 @@
 # Audiences, recipient groups and recipient profiles
 
-These objects say who a [`heads_up.notify`](actions.md#headsupnotify) call is for. An audience applies to the push and popup channels. The speak channel takes recipients instead (see [Speech](speech.md)). Persistent HASS Notification takes no target.
+These objects say who a [`heads_up.notify`](actions.md#headsupnotify) call is for. An audience applies to the push and popup channels. The speak channel takes recipients instead (see [Speech](speech.md)). Persistent Notification takes no target.
 
 Add custom objects under Settings > Devices & services > Heads Up > Add entry. Edit them with the pencil next to the entry.
 

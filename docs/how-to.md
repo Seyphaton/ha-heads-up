@@ -279,25 +279,42 @@ Conditions: equals, does not equal, above, below, between, contains text, does n
 
 Open the integration and choose Configure, or open Settings in the Heads Up panel: both show the same entries in the same order and wording, and a change in one shows in the other. Banner defaults apply to banners created afterwards.
 
-**Hub**
+**Sidebar panel**
 
 | Option | Default | Meaning |
 |---|---|---|
-| Hub enabled | on | Off: messages reach only the dashboard banner. |
-| Show Heads Up in the sidebar | off (on in the setup flow) | Only administrators see the entry. |
+| Show Heads Up in the sidebar | off (on in the setup flow) | Only administrators see the entry. Without the panel you cannot use Test send, the Message Log, the Overview, the introduction that creates the default policies, the Channels settings or the Help pages. Audiences, recipients, policies, watch rules and the other settings stay editable under Devices & services. |
 
-**Banners**
+**Messages**
+
+These options belong to the message, not to one channel. They apply to the banner, the push and the popup of a message, and to a message that has no banner. The panel and the options screen group them in clusters.
+
+Dismiss settings:
 
 | Option | Default | Meaning |
 |---|---|---|
-| Maximum number of banners | 50 (1–200) | Limit for stored banners. |
-| Evict the oldest lowest-severity banner when full | on | When off, creating a banner beyond the limit fails. `critical` banners are never evicted. |
-| Default dismiss scope | `user` | Used when an action sets no `dismiss_scope`. |
-| Default timeout | 24 hours | Used when an action sets no `timeout`. Clearing it keeps banners until they are closed or cleared. |
-| Banners can be snoozed by default | off | Used when an action sets no `snoozable`. Banners that are not dismissible are never snoozable. |
-| Default snooze scope | `user` | Used when an action sets no `snooze_scope`. |
-| Default snooze choices | 15 minutes, 1 hour, 4 hours | Used when an action sets no `snooze_options`. Choose from 5 minutes to 24 hours. |
-| Disable message buttons once the message has ended | on | A press on the message's own buttons is refused with `message_ended` after the message was dismissed (by that user or for everyone), acknowledged by anyone, or its condition turned false. A snooze does not end it. Off: presses are accepted until the message is removed. |
+| Default dismiss scope | `user` | Used when an action sets no `dismiss_scope`. `user`: closing hides the message only for that person and takes back only their push. `global`: closing ends it for everyone. |
+| Default timeout | 24 hours | Used when an action sets no `timeout`. The message ends on every channel after it. Clearing it keeps messages until they are closed or cleared. |
+| Disable message buttons once the message has ended | on | A press on the message's own buttons, on the banner, the push or the popup, is refused with `message_ended` after the message was dismissed (by that user or for everyone), acknowledged by anyone, or its condition turned false. A snooze does not end it. Dismiss, Snooze and Acknowledge are not affected. Off: presses are accepted until the message is removed. |
+
+Snooze settings (banner, push and popup):
+
+| Option | Default | Meaning |
+|---|---|---|
+| Messages can be snoozed by default | off | Used when an action sets no `snoozable`. Adds Snooze to the banner, the push and the popup. Messages that are not dismissible are never snoozable. |
+| Default snooze scope | `user` | Used when an action sets no `snooze_scope`. `user`: a snooze hides the message only for that person. `global`: for everyone. Applies to the banner, the push and the popup. |
+
+Snooze settings for the banner:
+
+| Option | Default | Meaning |
+|---|---|---|
+| Snooze choices on the banner | 15 minutes, 1 hour, 4 hours | Used when an action sets no `snooze_options`. Choose from 5 minutes to 24 hours. The banner offers all choices. |
+
+Snooze settings for push and popup:
+
+| Option | Default | Meaning |
+|---|---|---|
+| Snooze time on push and popup (minutes) | 15 (1–1440) | The Snooze button of the push and of the popup snoozes for this time, whatever `snooze_options` says. |
 
 **Presence, Speech, Limits and History**
 
@@ -307,6 +324,8 @@ Open the integration and choose Configure, or open Settings in the Heads Up pane
 | Spoken text: longest (characters) | 200 (20–1000) | Longer texts are cut at a word. |
 | Spoken text: repeat pause (seconds) | 60 (0–3600) | The same text is not spoken again on the same speaker within this time. 0: always speak. |
 | Text-to-speech engine | automatic | The engine for media players. Automatic: the only text-to-speech entity, if there is exactly one. |
+| Maximum number of stored messages | 50 (1–200) | How many messages from action calls can exist at once, on any channel. Watch rules do not count. It protects storage and timers, not the phones or the card (the card has `max_items`). It is not a rate limit. |
+| Evict the oldest lowest-severity message when full | on | When off, creating a message beyond the limit fails. `critical` messages are never evicted, so a full house of critical messages fails new calls. An evicted message ends on every channel. |
 | Pushes per device per minute | 5 (1–600) | A push over the cap is skipped and the trace says `rate_limited`. Critical messages are never held back. |
 | Deliveries per minute, all devices | 60 (1–6000) | The same, counted over all devices. |
 | Seconds in which identical updates are ignored | 30 (0–3600) | An update with the same content is not sent again within this time (`duplicate`). 0 switches it off. |

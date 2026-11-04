@@ -41,7 +41,7 @@ An update to a message replaces the notification in place. An iOS critical notif
 
 ## Buttons
 
-Pressing Acknowledge, Dismiss, Snooze or one of the message's own buttons does the same as pressing it on the banner, for the person the notification was sent to. Snooze uses the first snooze choice of the message. The button's ID is `hu:<message>:<person>:<action>`; the hub trusts nothing else in the event. If the event carries a Home Assistant user and it is not the person's user, the press is ignored and the trace says `user_mismatch`. A press for a message that no longer exists is ignored (`stale_message`). Buttons of other automations are not touched.
+Pressing Acknowledge, Dismiss, Snooze or one of the message's own buttons does the same as pressing it on the banner, for the person the notification was sent to. Snooze uses one time, the option Snooze time on push and popup (15 minutes by default). The choices of `snooze_options` are for the banner. The button's ID is `hu:<message>:<person>:<action>`; the hub trusts nothing else in the event. If the event carries a Home Assistant user and it is not the person's user, the press is ignored and the trace says `user_mismatch`. A press for a message that no longer exists is ignored (`stale_message`). Buttons of other automations are not touched.
 
 ## Settings
 

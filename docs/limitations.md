@@ -2,7 +2,7 @@
 
 ## What Heads Up does not do
 
-- Popups are described in [Popups](popup.md), the Persistent HASS Notification channel in [Persistent notifications](persistent.md). Speech works through `heads_up.notify` and `heads_up.speak` ([Speech](speech.md)) without volume handling or an all-clear. Push to the Companion app works through `heads_up.notify` and `heads_up.push` ([Push notifications](push.md)), without retry or rate limit. The policies (escalation, reminders, quiet hours, away, fallback and summaries) are described in [Policies](policies.md).
+- Popups are described in [Popups](popup.md), the Persistent Notification channel in [Persistent notifications](persistent.md). Speech works through `heads_up.notify` and `heads_up.speak` ([Speech](speech.md)) without volume handling or an all-clear. Push to the Companion app works through `heads_up.notify` and `heads_up.push` ([Push notifications](push.md)), without retry or rate limit. The policies (escalation, reminders, quiet hours, away, fallback and summaries) are described in [Policies](policies.md).
 - It keeps no history of messages. Each change fires an event; see [actions](actions.md#events). The panel's trace, recent messages and log of last actions are kept in memory and start empty after a restart.
 - Pushes were tried with stub devices only, not with a real Companion app. iOS critical notifications need the app's permission and play a sound in silent mode; Android shows them as time sensitive.
 - A watch rule watches one entity (its state or one attribute) or one template. The state is compared as text unless the condition is above, below or between.

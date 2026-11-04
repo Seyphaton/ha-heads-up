@@ -31,7 +31,7 @@ A popup goes to persons, by audience or by `recipients` (person entities). A per
 - A quiet message (a Quiet hours policy with the action Send quietly) is always a card.
 - The option `popup_styles` sets `card`, `modal` or `off` per severity. Set it on the panel's Channels page.
 - The severity is written out ("Critical"), not only colored, and uses the theme colors.
-- Buttons are at least 48 px high: the message's own buttons, Acknowledge when an escalation or reminder policy applies, Snooze (the first snooze choice) when the message is snoozable, and Dismiss when it can be dismissed. A button's `action` (navigation, confirmation) is not run by the popup; only the event `heads_up_banner_action` is fired.
+- Buttons are at least 48 px high: the message's own buttons, Acknowledge when an escalation or reminder policy applies, Snooze (for the option Snooze time on push and popup) when the message is snoozable, and Dismiss when it can be dismissed. A button's `action` (navigation, confirmation) is not run by the popup; only the event `heads_up_banner_action` is fired.
 - One popup is shown at a time, highest severity first, then the oldest. The next one appears when the first is dismissed, closed or resolved.
 - The close button (×) and Escape hide the popup on that page only. They do not dismiss the message, and the popup comes back after a reload.
 - Dismiss hides it for you on every device and keeps the message for others. Snooze hides it until the snooze ends. Acknowledge hides it on that page and stops escalation and reminders for the message.

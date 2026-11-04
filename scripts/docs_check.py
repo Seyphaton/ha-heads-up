@@ -206,8 +206,14 @@ PANEL_HELP = ROOT / "custom_components" / "heads_up" / "frontend" / "panel" / "h
 HELP_YAML_RE = re.compile(r"\n    yaml: `(.*?)`,", re.DOTALL)
 
 
+def _card_keys() -> set[str]:
+    match = re.search(r"export const CONFIG_KEYS = \[(.*?)\];", CARD_JS.read_text(), re.DOTALL)
+    return set(re.findall(r'"([a-z_]+)"', match.group(1))) if match else set()
+
+
 def check_panel_examples() -> tuple[list[str], int]:
-    """The examples on the panel's FAQ page validate against the real action schemas."""
+    """The examples on the panel's help pages validate: calls against the real action schemas,
+    card configurations against the card's options."""
     import voluptuous as vol
     import yaml
 
@@ -217,8 +223,15 @@ def check_panel_examples() -> tuple[list[str], int]:
     blocks = HELP_YAML_RE.findall(PANEL_HELP.read_text(encoding="utf-8"))
     if not blocks:
         return [f"{PANEL_HELP.relative_to(ROOT)}: no examples found"], 0
+    card_keys = _card_keys()
     for block in blocks:
-        for call in _action_calls(yaml.safe_load(block)):
+        parsed = yaml.safe_load(block)
+        for card in _card_configs(parsed):
+            count += 1
+            unknown = set(card) - card_keys - {"type"}
+            if unknown:
+                errors.append(f"panel help card example uses unknown options {sorted(unknown)}")
+        for call in _action_calls(parsed):
             service = call["action"].removeprefix("heads_up.")
             count += 1
             try:

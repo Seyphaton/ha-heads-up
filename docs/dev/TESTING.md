@@ -40,7 +40,7 @@
 | `tests/hub/test_core_notify.py` | `notify` and the shortcuts: banner-only like `create_banner`, response counts, channel and target shapes, unknown names, `clear` versus `clear_banner`, banner recipients, hub off |
 | `tests/hub/test_core_engine.py` | ledger and trace bookkeeping, dry-run `plan`, per-message ordering, a failing channel, cancellation on unload, restart without re-sending, vanished messages, hub switched on and off at runtime. `settle()` in `helpers.py` waits for the background deliveries, which `async_block_till_done` does not |
 | `tests/hub/test_core_ledger.py` | deliveries store: key and versions, migration hook, damaged rows, removal with the entry |
-| `tests/hub/test_core_options.py` | `hub_enabled`, install token, limit and history defaults, options flow keeps the token |
+| `tests/hub/test_core_options.py` | the hub is always on, install token, limit and history defaults, options flow keeps the token |
 | `tests/hub/test_audiences_resolution.py` | built-in and custom audiences (every kind), admins, zones, unknown presence per severity |
 | `tests/hub/test_audiences_presence.py` | Last to leave and First home sequences, debounce with the time freezer, unknown states, new entity at startup, deleted person, restart |
 | `tests/hub/test_recipients_profiles.py` | profile detection with the fake registration (other-integration tracker, missing service, manual add and remove, missing device, rename, channels), push expansion |

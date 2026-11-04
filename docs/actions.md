@@ -18,7 +18,7 @@ Shows a banner in every Heads Up card. Calling it again with the same `id` repla
 | `dismiss_scope` | `user`, `global` | integration option, shipped as `user` | `user`: closing hides the banner only for that user. `global`: closing removes it for everyone. |
 | `snoozable` | `true`, `false` | integration option, shipped as `false` | `true`: the card offers a snooze button and, with `swipe_to_dismiss`, a right swipe with quick choices. The banner hides for the chosen time and then returns. Rejected together with `dismissible: false`. |
 | `snooze_scope` | `user`, `global` | integration option, shipped as `user` | `user`: a snooze hides the banner only for that user. `global`: for everyone. |
-| `snooze_options` | list of durations, 1 minute to 7 days, at most 6 | integration option, shipped as 15 minutes, 1 hour, 4 hours | The choices the viewer gets. The timeout and the condition keep running while a banner is snoozed. Creating the banner again with the same `id`, or a recurring condition turning false and true again, ends all snoozes. |
+| `snooze_options` | list of durations, 1 minute to 7 days, at most 6 | integration option, shipped as 15 minutes, 1 hour, 4 hours | The choices the banner offers. The push and the popup have their own Snooze button with one time, the option Snooze time on push and popup. The timeout and the condition keep running while a banner is snoozed. Creating the banner again with the same `id`, or a recurring condition turning false and true again, ends all snoozes. |
 | `actions` | list of up to 3 buttons | none | Each button has `key` (lowercase letters, digits, `_`, `-`), `label` (1 to 40 characters), optional `dismiss` (`true`: pressing it also closes the banner for that user; rejected with `dismissible: false`) and optional `action` (a Home Assistant action the card runs, like `tap_action`). Pressing a button fires the event `heads_up_banner_action` with `id`, `tag`, `key` and `user_id`. After the message was dismissed, acknowledged or its condition turned false, a press is refused with `message_ended` and fires no event; the option "Disable message buttons once the message has ended" turns this off. A press on a message that was removed is always refused (`not_found`). |
 | `tag` | text | none | Group name, same character rules as `id`. Used by card filters and by `clear_banner`. |
 | `condition` | object | none | Show the banner only while an entity matches or a template is true, optionally for a set time. See [Conditions](#conditions). |
@@ -285,8 +285,6 @@ Response data: `cleared`, the number of removed messages.
 
 Delivers one message on the channels you name. It takes the content and lifecycle fields of [`create_banner`](#headsupcreate_banner) and adds the channel fields below. It has no `people` field: use `to.banner.recipients`. Calling it again with the same `id` replaces the message.
 
-The hub is on by default. With the hub switched off in the integration options, only `channels: [banner]` works and `notify` behaves like `create_banner`; other channels fail with the error "The hub is switched off".
-
 Channels: `banner`, `push`, `popup`, `speak`, `persistent`, `mail`. See [Push notifications](push.md), [Popups](popup.md), [Speech](speech.md), [Persistent notifications](persistent.md) and [Mail](mail.md).
 
 | Field | Type | Required / default | Meaning |
@@ -423,7 +421,6 @@ Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipi
 | Heads Up already holds N banners and none can be evicted. | The limit is reached and every banner is `critical`, or eviction is turned off. |
 | Condition entity X does not exist. | `condition.entity_id` names an entity Home Assistant does not know. |
 | Validation error on `template`, `for` or an entity field | The template does not parse, `for` is over 24 hours, or `template` is combined with `entity_id`, `operator`, `state` or `attribute`. |
-| The hub is switched off. | `notify` names a channel other than `banner`, or a shortcut is called, while the hub is off. |
 | Audience, recipient or policy "X" does not exist. | A name in `to`, `audience`, `recipients` or `policy` is unknown. The message lists the valid names. |
 | Validation error naming the field | A field breaks the rules in the tables above. Nothing is stored. |
 

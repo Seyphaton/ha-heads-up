@@ -1,6 +1,8 @@
 # Watch rules
 
-A watch rule shows a banner while an entity is in a state. You set it up once in the panel's Watch rules page or in the integration. No automation, script or dashboard setting is needed, and every Heads Up card shows the banner.
+A watch rule shows a banner while an entity is in a state or a template is true. When the condition no longer holds, Heads Up removes the banner. You set it up once in the panel's Watch rules page or in the integration. Rules are stored in Heads Up, not in a dashboard, so several cards with different filters share the same rules and messages without copying them, and every Heads Up card shows the banner.
+
+An automation does the same: a trigger that calls `heads_up.create_banner`, or `heads_up.notify` with `channels: [banner]`, with `condition` filled in. See [Conditions](actions.md#conditions).
 
 ## Add a rule
 
