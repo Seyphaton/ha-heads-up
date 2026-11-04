@@ -4,6 +4,10 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [1.0.0-alpha.5] - 2026-11-04
+
+Includes the changes tagged as 1.0.0-alpha.3 and 1.0.0-alpha.4.
+
 ### Added
 - Recipients: a profile has a Receives notifications switch. Off, the person gets nothing on any channel: not in an audience, not when named in a call, not for critical messages. Banners without a target stay visible on their dashboard.
 - Panel: the FAQ page is now the Help group with three pills: FAQ, Notify examples and Card examples (six `custom:heads-up-card` configurations with a Copy button). Each Help page has a link to the GitHub issues page next to its intro line.

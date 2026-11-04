@@ -961,3 +961,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - The integration's own form is unchanged (one step, fixed text).
 - Blast radius: panel only; usual restart.
 - Follow-up (maintainer): the line "In words" with the problems moved from the top to under the Save button, above the stored YAML.
+
+## D-154 Pre-release 1.0.0-alpha.5 (2026-11-04)
+- Context: the policy work (D-145 to D-153) and the settings, FAQ and panel changes since 1.0.0-alpha.2 are finished on `hub/h9e-wizard`. The tags `v1.0.0-alpha.3` and `v1.0.0-alpha.4` were set on earlier commits without a version commit, so the manifest still said `1.0.0-alpha.2`.
+- Decision (maintainer, explicit): commit and push the branch and tag `v1.0.0-alpha.5`. The manifest version and the changelog heading are set to `1.0.0-alpha.5` in a commit of their own, so the release reports its version inside Home Assistant. The GitHub pre-release, not marked as the latest release, is created by the maintainer. No merge to `main`.
+- Blast radius: the manifest version is `1.0.0-alpha.5`; the pre-release is not offered as the default download.
+
