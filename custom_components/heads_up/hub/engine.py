@@ -109,7 +109,7 @@ class HubEngine:
         # The names a call may use come from the resolver (H2) and the policy book (H4a).
         self.audiences: AudienceResolver = self.resolver
         self.recipients: RecipientResolver = self.resolver
-        self.policies = PolicyBook()
+        self.policies = PolicyBook(options)
         self.chain = Chain()
         self.chain.replace(QuietHoursStage(self.policies))
         self.chain.replace(AwayStage(hass, self.policies))

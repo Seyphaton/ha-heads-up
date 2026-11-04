@@ -1,6 +1,7 @@
 """Fixtures for the hub tests; see helpers.py for what each fake stands for."""
 
 from collections.abc import Awaitable, Callable
+from typing import Any
 
 import pytest
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -17,6 +18,13 @@ from .helpers import (
 
 type AddDevice = Callable[..., Awaitable[FakeDevice]]
 type AddNotify = Callable[[str], list[ServiceCall]]
+
+
+@pytest.fixture
+def options() -> dict[str, Any]:  # type: ignore[override]
+    """Most hub tests stack several policies on one message, which is the mode "all". The tests
+    of the default mode set `policy_mode` themselves."""
+    return {"policy_mode": "all"}
 
 
 @pytest.fixture

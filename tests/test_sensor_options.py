@@ -50,6 +50,7 @@ async def test_options_flow_sets_defaults_for_new_banners(
     assert len(token) == 6  # generated at setup, kept by the options flow
     assert entry.options == {
         "install_token": token,
+        "policy_order": [],
         "presence_debounce_seconds": 60,
         "show_panel": False,
         "speak_max_length": 200,

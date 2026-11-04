@@ -24,6 +24,10 @@ from .const import (
     MAX_ATTENTION_DISMISSED,
     OPT_ATTENTION_DISMISSED,
     OPT_AUDIENCES_DISABLED,
+    OPT_POLICY_MODE,
+    OPT_POLICY_ORDER,
+    POLICY_MODES,
+    POLICY_SUBENTRY,
     SEVERITIES,
 )
 from .frontend import async_popup_url
@@ -200,7 +204,9 @@ def ws_welcome_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
         {
             "show": hub is not None and not entry.options.get(welcome.OPT_WELCOME_SEEN, False),
             "hub": hub is not None,
-            "items": welcome.overview(entry),
+            "policy_mode": hub.policies.mode if hub else "first",
+            "items": welcome.overview(entry, hub.policies.mode if hub else "first"),
+            "items_by_mode": {mode: welcome.overview(entry, mode) for mode in POLICY_MODES},
             "audiences": hub.audiences.names() if hub else [],
             "default_audience": welcome.DEFAULT_AUDIENCE,
             "speakers": hub.recipients.known("speak") if hub else [],
@@ -216,6 +222,7 @@ def ws_welcome_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
         vol.Required("items"): [vol.In(list(welcome.ITEMS))],
         vol.Optional("audience", default=welcome.DEFAULT_AUDIENCE): str,
         vol.Optional("speakers", default=list): [str],
+        vol.Optional("mode"): vol.In(POLICY_MODES),
     }
 )
 @require_admin
@@ -238,8 +245,10 @@ def ws_welcome_apply(
     if unknown := [s for s in msg["speakers"] if not hub.recipients.accepts("speak", s)]:
         connection.send_error(msg["id"], "unknown_recipient", f"Unknown speaker {unknown[0]}")
         return
+    mode = msg.get("mode") or hub.policies.mode
     connection.send_result(
-        msg["id"], welcome.apply(hass, entry, msg["items"], msg["audience"], msg["speakers"])
+        msg["id"],
+        welcome.apply(hass, entry, msg["items"], msg["audience"], msg["speakers"], mode),
     )
 
 
@@ -275,6 +284,45 @@ def ws_attention_dismiss(
         entry, options={**entry.options, OPT_ATTENTION_DISMISSED: keys}
     )
     connection.send_result(msg["id"], {"hidden": len(keys)})
+
+
+@websocket_command(
+    {vol.Required("type"): "heads_up/policy_mode_set", vol.Required("mode"): vol.In(POLICY_MODES)}
+)
+@require_admin
+@callback
+def ws_policy_mode_set(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """How the automatic policies interact: the first that applies, or every one (D-148)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, OPT_POLICY_MODE: msg["mode"]}
+    )
+    connection.send_result(msg["id"], {"mode": msg["mode"]})
+
+
+@websocket_command(
+    {vol.Required("type"): "heads_up/policy_order_set", vol.Required("order"): [str]}
+)
+@require_admin
+@callback
+def ws_policy_order_set(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The order of the policy list, first to last: every policy exactly once (D-148)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    known = {s.subentry_id for s in entry.subentries.values() if s.subentry_type == POLICY_SUBENTRY}
+    order = list(msg["order"])
+    if len(order) != len(set(order)) or set(order) != known:
+        connection.send_error(msg["id"], "invalid_order", "The order must list every policy once")
+        return
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, OPT_POLICY_ORDER: order}
+    )
+    connection.send_result(msg["id"], {"order": order})
 
 
 @websocket_command(
@@ -616,6 +664,8 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_attention_dismiss,
         ws_attention_restore,
         ws_audience_enable,
+        ws_policy_mode_set,
+        ws_policy_order_set,
         ws_panel_messages,
         ws_panel_trace,
         ws_settings_get,

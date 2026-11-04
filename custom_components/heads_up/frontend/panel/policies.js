@@ -29,7 +29,7 @@ export const STRINGS = {
   en: {
     title: "Policies",
     intro: "A policy adds behavior to messages: escalate, remind, keep quiet at night, wait for people to come home, send somewhere else, or summarize.",
-    none: "You have no policies yet. The presets in Settings add a starting set.",
+    none: "You have no policies yet. The introduction (Settings, Restart introduction) offers a starting set.",
     new: "New policy",
     editing: "Edit policy",
     type: "Type",
@@ -84,6 +84,20 @@ export const STRINGS = {
     manual_how: "Name it in a call:",
     manual_note: "A call that names a policy uses only that policy, not the automatic ones. policy: none switches every policy off for a call.",
     badge_manual: "manual",
+    mode_title: "How policies interact",
+    mode_first: "Only the first policy that applies runs",
+    mode_first_hint: "Each message gets one policy: the first in the list below that fits. A call or a watch rule that names a policy uses only that one.",
+    mode_all: "Every policy that applies runs",
+    mode_all_hint: "A message can get several policies at once, for example quiet hours and a reminder. They can interfere, so check them with Test send.",
+    order_first: "The list decides. Drag a policy, or use the arrows, to change the order.",
+    order_all: "In this mode the order of the list does not matter.",
+    move_up: "Move up",
+    move_down: "Move down",
+    handle: "Drag to change the order",
+    position: "Position {n}",
+    overlap_first: "These policies come first and also match some of the same messages, so they run instead: {names}",
+    overlap_all: "Other policies of this type that match some of the same messages: {names}",
+    order_failed: "The order could not be saved. Try again.",
     s_applies_manual: "Calls that name this policy",
     s_applies: "Messages with {parts}",
     s_severity: "severity {severities}",
@@ -112,7 +126,7 @@ export const STRINGS = {
   de: {
     title: "Richtlinien",
     intro: "Eine Richtlinie ergänzt Meldungen um Verhalten: eskalieren, erinnern, nachts ruhig sein, auf Heimkehrende warten, anderswohin senden oder zusammenfassen.",
-    none: "Du hast noch keine Richtlinien. Die Voreinstellungen in den Einstellungen fügen einen Grundstock hinzu.",
+    none: "Du hast noch keine Richtlinien. Die Einführung (Einstellungen, Einführung neu starten) bietet einen Grundstock an.",
     new: "Neue Richtlinie",
     editing: "Richtlinie bearbeiten",
     type: "Art",
@@ -167,6 +181,20 @@ export const STRINGS = {
     manual_how: "In einem Aufruf nennen:",
     manual_note: "Ein Aufruf, der eine Richtlinie nennt, nutzt nur diese, nicht die automatischen. policy: none schaltet alle Richtlinien für einen Aufruf ab.",
     badge_manual: "manuell",
+    mode_title: "Wie Richtlinien zusammenwirken",
+    mode_first: "Nur die erste passende Richtlinie läuft",
+    mode_first_hint: "Jede Meldung bekommt eine Richtlinie: die erste in der Liste unten, die passt. Ein Aufruf oder eine Überwachungsregel, die eine Richtlinie nennt, nutzt nur diese.",
+    mode_all: "Jede passende Richtlinie läuft",
+    mode_all_hint: "Eine Meldung kann mehrere Richtlinien gleichzeitig bekommen, zum Beispiel Ruhezeit und eine Erinnerung. Sie können sich stören, prüfe sie daher mit Testsenden.",
+    order_first: "Die Liste entscheidet. Ziehe eine Richtlinie oder nutze die Pfeile, um die Reihenfolge zu ändern.",
+    order_all: "In diesem Modus spielt die Reihenfolge der Liste keine Rolle.",
+    move_up: "Nach oben",
+    move_down: "Nach unten",
+    handle: "Ziehen, um die Reihenfolge zu ändern",
+    position: "Position {n}",
+    overlap_first: "Diese Richtlinien stehen weiter oben und passen auch auf einige derselben Meldungen, laufen also stattdessen: {names}",
+    overlap_all: "Andere Richtlinien dieses Typs, die auf einige derselben Meldungen passen: {names}",
+    order_failed: "Die Reihenfolge konnte nicht gespeichert werden. Versuche es erneut.",
     s_applies_manual: "Aufrufe, die diese Richtlinie nennen",
     s_applies: "Meldungen mit {parts}",
     s_severity: "Schweregrad {severities}",
@@ -195,7 +223,7 @@ export const STRINGS = {
   fr: {
     title: "Politiques",
     intro: "Une politique ajoute un comportement aux messages : escalader, rappeler, rester discret la nuit, attendre le retour des personnes, envoyer ailleurs ou résumer.",
-    none: "Vous n'avez pas encore de politique. Les préréglages dans Réglages ajoutent un jeu de départ.",
+    none: "Vous n'avez pas encore de politique. L'introduction (Réglages, Relancer l'introduction) propose un jeu de départ.",
     new: "Nouvelle politique",
     editing: "Modifier la politique",
     type: "Type",
@@ -250,6 +278,20 @@ export const STRINGS = {
     manual_how: "La nommer dans un appel :",
     manual_note: "Un appel qui nomme une politique n'utilise que celle-là, pas les automatiques. policy: none désactive toutes les politiques pour un appel.",
     badge_manual: "manuelle",
+    mode_title: "Comment les politiques interagissent",
+    mode_first: "Seule la première politique qui s'applique agit",
+    mode_first_hint: "Chaque message reçoit une politique : la première de la liste ci-dessous qui convient. Un appel ou une règle de surveillance qui nomme une politique n'utilise que celle-là.",
+    mode_all: "Chaque politique qui s'applique agit",
+    mode_all_hint: "Un message peut recevoir plusieurs politiques à la fois, par exemple des heures calmes et un rappel. Elles peuvent se gêner : vérifiez-les avec Envoi de test.",
+    order_first: "La liste décide. Faites glisser une politique, ou utilisez les flèches, pour changer l'ordre.",
+    order_all: "Dans ce mode, l'ordre de la liste n'a pas d'importance.",
+    move_up: "Monter",
+    move_down: "Descendre",
+    handle: "Faire glisser pour changer l'ordre",
+    position: "Position {n}",
+    overlap_first: "Ces politiques sont plus haut et correspondent aussi à certains des mêmes messages, elles agissent donc à la place : {names}",
+    overlap_all: "Autres politiques de ce type qui correspondent à certains des mêmes messages : {names}",
+    order_failed: "L'ordre n'a pas pu être enregistré. Réessayez.",
     s_applies_manual: "Appels qui nomment cette politique",
     s_applies: "Messages avec {parts}",
     s_severity: "la gravité {severities}",
@@ -278,7 +320,7 @@ export const STRINGS = {
   es: {
     title: "Políticas",
     intro: "Una política añade comportamiento a los mensajes: escalar, recordar, callar de noche, esperar a que la gente vuelva a casa, enviar a otro sitio o resumir.",
-    none: "Aún no tienes políticas. Los ajustes preestablecidos en Ajustes añaden un conjunto inicial.",
+    none: "Aún no tienes políticas. La introducción (Ajustes, Reiniciar la introducción) ofrece un conjunto inicial.",
     new: "Nueva política",
     editing: "Editar política",
     type: "Tipo",
@@ -333,6 +375,20 @@ export const STRINGS = {
     manual_how: "Nómbrala en una llamada:",
     manual_note: "Una llamada que nombra una política usa solo esa, no las automáticas. policy: none desactiva todas las políticas para una llamada.",
     badge_manual: "manual",
+    mode_title: "Cómo interactúan las políticas",
+    mode_first: "Solo actúa la primera política que se aplica",
+    mode_first_hint: "Cada mensaje recibe una política: la primera de la lista de abajo que encaja. Una llamada o una regla de vigilancia que nombra una política usa solo esa.",
+    mode_all: "Actúa cada política que se aplica",
+    mode_all_hint: "Un mensaje puede recibir varias políticas a la vez, por ejemplo horas de silencio y un recordatorio. Pueden estorbarse: compruébalas con Envío de prueba.",
+    order_first: "La lista decide. Arrastra una política, o usa las flechas, para cambiar el orden.",
+    order_all: "En este modo el orden de la lista no importa.",
+    move_up: "Subir",
+    move_down: "Bajar",
+    handle: "Arrastra para cambiar el orden",
+    position: "Posición {n}",
+    overlap_first: "Estas políticas van antes y también coinciden con algunos de los mismos mensajes, así que actúan en su lugar: {names}",
+    overlap_all: "Otras políticas de este tipo que coinciden con algunos de los mismos mensajes: {names}",
+    order_failed: "No se pudo guardar el orden. Inténtalo de nuevo.",
     s_applies_manual: "Llamadas que nombran esta política",
     s_applies: "Mensajes con {parts}",
     s_severity: "gravedad {severities}",
@@ -372,6 +428,14 @@ const CSS = `
 .hu-page label.radio { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; cursor: pointer; }
 .hu-page label.radio input { margin-top: 4px; width: 20px; height: 20px; }
 .hu-page .type-desc { margin-top: 0; }
+.hu-page li.dragging { opacity: .4; }
+.hu-page li.over { outline: 2px dashed var(--primary-color); }
+.hu-page li.drop-end { height: 12px; padding: 0; border: 0; }
+.hu-page .handle { cursor: grab; user-select: none; padding: 0 8px; color: var(--secondary-text-color); }
+.hu-page .position { min-width: 1.6em; text-align: right; font-weight: 600; color: var(--secondary-text-color); }
+.hu-page button.move { min-width: 44px; padding: 0; }
+.hu-page li.policy { display: flex; align-items: center; gap: 4px; }
+.hu-page li.policy .grow { flex: 1; }
 `;
 
 const TYPES = ["escalation", "reminder", "quiet_hours", "away", "fallback", "deliver", "summarize"];
@@ -524,6 +588,47 @@ export function validate(values, existingNames, ownName) {
   return problems;
 }
 
+// The ids of the list with one moved up or down; unchanged at the ends.
+export function moveItem(ids, id, delta) {
+  const from = ids.indexOf(id);
+  const to = from + delta;
+  const next = [...ids];
+  if (from < 0 || to < 0 || to >= next.length) return next;
+  [next[from], next[to]] = [next[to], next[from]];
+  return next;
+}
+
+// The ids with `dragId` dropped in front of `targetId`; at the end when the target is null.
+export function dropItem(ids, dragId, targetId) {
+  if (!ids.includes(dragId) || dragId === targetId) return [...ids];
+  const rest = ids.filter((id) => id !== dragId);
+  const at = targetId === null ? rest.length : rest.indexOf(targetId);
+  if (at < 0) return [...ids];
+  rest.splice(at, 0, dragId);
+  return rest;
+}
+
+// Two policies overlap when some message can match both: an empty list matches any.
+export function overlaps(a, b) {
+  const meet = (x, y) => x.length === 0 || y.length === 0 || x.some((item) => y.includes(item));
+  return meet(a.severities, b.severities) && meet(a.tags, b.tags);
+}
+
+// The names the editor lists as a note: in the mode "first" the policies above this one that also
+// match some of its messages (they run instead); in the mode "all" the other policies of the same
+// type that do. `policies` is the list in order; a policy that is not saved yet goes to the bottom.
+export function overlapNames({ values, own, policies, mode }) {
+  if (values.apply === "manual") return [];
+  const mine = { severities: values.severities, tags: splitTags(values.tags) };
+  const at = own ? policies.findIndex((p) => p.subentry_id === own.subentry_id) : policies.length;
+  const pool = mode === "first" ? policies.slice(0, at < 0 ? policies.length : at) : policies.filter((p) => p.subentry_id !== own?.subentry_id);
+  return pool
+    .filter((p) => p.data.apply !== "manual" && p.data.enabled !== false)
+    .filter((p) => mode === "first" || p.data.type === values.type)
+    .filter((p) => overlaps(mine, { severities: p.data.severities || [], tags: p.data.tags || [] }))
+    .map((p) => p.name);
+}
+
 // The tab of the editor that holds a problem: the name is in the header, every other field is under
 // "What it does"; "When it applies" has no field that can be wrong.
 export function tabsWithProblems(problems) {
@@ -586,21 +691,98 @@ export function mount(container, ctx) {
   const root = el("div", { className: "hu-page" });
   container.append(root);
 
-  function row(policy) {
+  let dragging = null;
+  const ordered = () => data.policies.map((p) => p.subentry_id);
+
+  async function saveOrder(ids) {
+    try {
+      await hass.callWS({ type: "heads_up/policy_order_set", order: ids });
+      message = "";
+    } catch (err) {
+      message = t.order_failed;
+    }
+    await load();
+  }
+
+  function row(policy, index) {
     const values = fromPolicy(policy);
+    const first = data.policy_mode !== "all";
     const edit = el("button", { type: "button", textContent: s.common.edit });
     edit.addEventListener("click", () => { message = ""; editing = { own: policy, values }; render(); });
-    const li = el("li", { className: values.enabled ? "" : "dim" }, [
-      el("div", {}, [
-        el("strong", { textContent: policy.name }),
-        el("span", { className: "badge", textContent: t.types[values.type] || values.type }),
-        ...(values.apply === "manual" ? [el("span", { className: "badge", textContent: t.badge_manual })] : []),
-        ...(values.enabled ? [] : [el("span", { className: "badge", textContent: t.disabled })]),
-        el("div", { className: "sub", textContent: appliesText(values, t) }),
-      ]),
-      edit,
+    const body = el("div", { className: "grow" }, [
+      el("strong", { textContent: policy.name }),
+      el("span", { className: "badge", textContent: t.types[values.type] || values.type }),
+      ...(values.apply === "manual" ? [el("span", { className: "badge", textContent: t.badge_manual })] : []),
+      ...(values.enabled ? [] : [el("span", { className: "badge", textContent: t.disabled })]),
+      el("div", { className: "sub", textContent: appliesText(values, t) }),
     ]);
+    const parts = [];
+    if (first) {
+      const handle = el("span", { className: "handle", textContent: "⠿", title: t.handle });
+      handle.setAttribute("aria-hidden", "true");
+      const position = el("span", { className: "position", textContent: String(index + 1) });
+      position.setAttribute("aria-label", fill(t.position, { n: index + 1 }));
+      parts.push(handle, position);
+    }
+    parts.push(body);
+    if (first) {
+      const move = (label, glyph, delta, disabled) => {
+        const button = el("button", { type: "button", className: "move", textContent: glyph, disabled });
+        button.setAttribute("aria-label", `${label}: ${policy.name}`);
+        button.addEventListener("click", () => saveOrder(moveItem(ordered(), policy.subentry_id, delta)));
+        return button;
+      };
+      parts.push(move(t.move_up, "↑", -1, index === 0), move(t.move_down, "↓", 1, index === data.policies.length - 1));
+    }
+    parts.push(edit);
+    const li = el("li", { className: `policy${values.enabled ? "" : " dim"}` }, parts);
+    if (first) {
+      li.draggable = true;
+      li.addEventListener("dragstart", (event) => {
+        dragging = policy.subentry_id;
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", dragging);
+        li.classList.add("dragging");
+      });
+      li.addEventListener("dragend", () => {
+        dragging = null;
+        li.classList.remove("dragging");
+      });
+      li.addEventListener("dragover", (event) => {
+        if (!dragging) return;
+        event.preventDefault();
+        li.classList.add("over");
+      });
+      li.addEventListener("dragleave", () => li.classList.remove("over"));
+      li.addEventListener("drop", (event) => {
+        event.preventDefault();
+        li.classList.remove("over");
+        if (dragging) saveOrder(dropItem(ordered(), dragging, policy.subentry_id));
+      });
+    }
     return li;
+  }
+
+  async function setMode(mode) {
+    try {
+      await hass.callWS({ type: "heads_up/policy_mode_set", mode });
+      message = "";
+    } catch (err) {
+      message = t.order_failed;
+    }
+    await load();
+  }
+
+  function modeBox() {
+    const box = el("section", {}, [el("h2", { textContent: t.mode_title })]);
+    const choice = el("fieldset", {});
+    for (const mode of ["first", "all"]) {
+      const input = el("input", { type: "radio", name: "mode", checked: (data.policy_mode || "first") === mode });
+      input.addEventListener("change", () => setMode(mode));
+      choice.append(el("label", { className: "radio" }, [input, el("span", {}, [el("strong", { textContent: t[`mode_${mode}`] }), el("div", { className: "hint", textContent: t[`mode_${mode}_hint`] })])]));
+    }
+    box.append(choice, el("div", { className: "hint", textContent: data.policy_mode === "all" ? t.order_all : t.order_first }));
+    return box;
   }
 
   function editor() {
@@ -624,6 +806,7 @@ export function mount(container, ctx) {
     status.setAttribute("aria-live", "polite");
     box.append(el("div", { className: "summary" }, [el("strong", { textContent: t.sentence }), words, status]));
 
+    const noteUpdaters = [];
     const does = el("div", { className: "tabpanel", id: "tab-does" });
     const when = el("div", { className: "tabpanel", id: "tab-when" });
     const number = (key, label, min = 1) => does.append(ui.field(label, ui.numberInput(values[key], (v) => { values[key] = v; paint(); }, { min })));
@@ -690,6 +873,14 @@ export function mount(container, ctx) {
     } else {
       when.append(ui.chips(t.severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.severities, (list) => { values.severities = list; paint(); }));
       when.append(ui.field(t.tags, ui.textInput(values.tags, (v) => { values.tags = v; paint(); })));
+      const note = el("div", { className: "hint" });
+      const paintNote = () => {
+        const names = overlapNames({ values, own, policies: data.policies, mode: data.policy_mode || "first" });
+        note.textContent = names.length ? fill((data.policy_mode || "first") === "first" ? t.overlap_first : t.overlap_all, { names: names.join(", ") }) : "";
+      };
+      paintNote();
+      noteUpdaters.push(paintNote);
+      when.append(note);
     }
 
     // The tabs: What it does, When it applies.
@@ -746,6 +937,7 @@ export function mount(container, ctx) {
       save.disabled = codes.length > 0;
       status.className = codes.length ? "hint problems" : "hint ok";
       status.textContent = codes.length ? codes.map((c) => ui.errorText(c, ctx.language)).join(" ") : message || s.common.valid;
+      noteUpdaters.forEach((update) => update());
       const marks = tabsWithProblems(found);
       for (const key of Object.keys(tabs)) {
         tabs[key].classList.toggle("problem", marks[key]);
@@ -760,9 +952,23 @@ export function mount(container, ctx) {
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS + CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
     if (editing) return void root.append(editor());
-    const list = el("ul", { className: "list" }, data.policies.length ? data.policies.map(row) : [el("li", { className: "sub", textContent: t.none })]);
+    const items = data.policies.length ? data.policies.map(row) : [el("li", { className: "sub", textContent: t.none })];
+    if (data.policies.length && data.policy_mode !== "all") {
+      const end = el("li", { className: "drop-end" });
+      end.addEventListener("dragover", (event) => {
+        if (dragging) event.preventDefault();
+      });
+      end.addEventListener("drop", (event) => {
+        event.preventDefault();
+        if (dragging) saveOrder(dropItem(ordered(), dragging, null));
+      });
+      items.push(end);
+    }
+    const list = el("ul", { className: "list" }, items);
     const add = el("button", { type: "button", className: "primary", textContent: s.common.add });
     add.addEventListener("click", () => { message = ""; editing = { own: null, values: blankValues() }; render(); });
+    root.append(modeBox());
+    if (message) root.append(el("div", { className: "hint problems", textContent: message }));
     root.append(el("section", {}, [list, add]));
   }
 

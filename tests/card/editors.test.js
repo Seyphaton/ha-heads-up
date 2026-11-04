@@ -21,6 +21,10 @@ import {
 import {
   appliesText,
   blankValues as blankPolicy,
+  dropItem,
+  moveItem,
+  overlapNames,
+  overlaps,
   fromPolicy,
   sentence,
   splitTags as policyTags,
@@ -408,6 +412,67 @@ describe("manual and automatic policies", () => {
         expect(language[key], `${code} ${key}`).toBeTruthy();
       }
       for (const type of Object.keys(language.types)) expect(language.type_desc[type], `${code} ${type}`).toBeTruthy();
+    }
+  });
+});
+
+describe("the policy list order and the overlap note", () => {
+  it("moves a policy up or down and leaves the ends alone", () => {
+    expect(moveItem(["a", "b", "c"], "b", -1)).toEqual(["b", "a", "c"]);
+    expect(moveItem(["a", "b", "c"], "b", 1)).toEqual(["a", "c", "b"]);
+    expect(moveItem(["a", "b", "c"], "a", -1)).toEqual(["a", "b", "c"]);
+    expect(moveItem(["a", "b", "c"], "c", 1)).toEqual(["a", "b", "c"]);
+    expect(moveItem(["a", "b"], "x", 1)).toEqual(["a", "b"]);
+  });
+
+  it("drops a policy in front of another or at the end, and does not change the input", () => {
+    const ids = ["a", "b", "c", "d"];
+    expect(dropItem(ids, "d", "b")).toEqual(["a", "d", "b", "c"]);
+    expect(dropItem(ids, "a", "d")).toEqual(["b", "c", "a", "d"]);
+    expect(dropItem(ids, "a", null)).toEqual(["b", "c", "d", "a"]);
+    expect(dropItem(ids, "b", "b")).toEqual(ids);
+    expect(dropItem(ids, "x", "b")).toEqual(ids);
+    expect(ids).toEqual(["a", "b", "c", "d"]);
+  });
+
+  it("says two policies overlap when some message can match both, an empty list matching any", () => {
+    expect(overlaps({ severities: [], tags: [] }, { severities: ["critical"], tags: ["water"] })).toBe(true);
+    expect(overlaps({ severities: ["info"], tags: [] }, { severities: ["critical"], tags: [] })).toBe(false);
+    expect(overlaps({ severities: ["info"], tags: ["digest"] }, { severities: ["info", "success"], tags: [] })).toBe(true);
+    expect(overlaps({ severities: ["info"], tags: ["digest"] }, { severities: ["info"], tags: ["door"] })).toBe(false);
+  });
+
+  const list = [
+    { name: "Critical delivery", subentry_id: "1", data: { type: "deliver", severities: ["critical"], tags: [], enabled: true } },
+    { name: "Everything", subentry_id: "2", data: { type: "quiet_hours", severities: [], tags: [], enabled: true } },
+    { name: "By hand", subentry_id: "3", data: { type: "quiet_hours", severities: [], tags: [], apply: "manual", enabled: true } },
+    { name: "Off", subentry_id: "4", data: { type: "quiet_hours", severities: [], tags: [], enabled: false } },
+    { name: "Quiet", subentry_id: "5", data: { type: "quiet_hours", severities: ["info"], tags: [], enabled: true } },
+  ];
+  const mine = (extra) => ({ ...blankPolicy("quiet_hours"), severities: ["info"], tags: "", ...extra });
+
+  it("lists in the mode first the policies above that match some of the same messages", () => {
+    const names = overlapNames({ values: mine(), own: list[4], policies: list, mode: "first" });
+    expect(names).toEqual(["Everything"]); // not the manual, the disabled or the critical-only one
+    expect(overlapNames({ values: mine(), own: null, policies: list, mode: "first" })).toEqual(["Everything", "Quiet"]);
+  });
+
+  it("lists in the mode all the other policies of the same type that match", () => {
+    const names = overlapNames({ values: mine(), own: list[4], policies: list, mode: "all" });
+    expect(names).toEqual(["Everything"]);
+    const escalation = { ...blankPolicy("escalation"), severities: ["critical"] };
+    expect(overlapNames({ values: escalation, own: null, policies: list, mode: "all" })).toEqual([]);
+  });
+
+  it("lists nothing for a manual policy", () => {
+    expect(overlapNames({ values: mine({ apply: "manual" }), own: null, policies: list, mode: "first" })).toEqual([]);
+  });
+
+  it("has the texts of the mode choice and the order in every language", () => {
+    for (const [code, language] of Object.entries(POLICY_STRINGS)) {
+      for (const key of ["mode_title", "mode_first", "mode_first_hint", "mode_all", "mode_all_hint", "order_first", "order_all", "move_up", "move_down", "handle", "position", "overlap_first", "overlap_all", "order_failed"]) {
+        expect(language[key], `${code} ${key}`).toBeTruthy();
+      }
     }
   });
 });

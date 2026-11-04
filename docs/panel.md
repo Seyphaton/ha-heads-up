@@ -40,9 +40,22 @@ The first time an administrator opens the panel, a tour of four steps opens. Nex
 1. What Heads Up does: where a message shows up, who gets it, and when it is loud or quiet.
 2. Channels: the six channels in one line each, with the number of app devices and speakers found and whether a notify service is set for mail. Open Channels leaves the tour for that page.
 3. Recipients: audiences and profiles, with the number of people, app devices, audiences of your own and speaker groups. Open Audiences and Open Recipients leave the tour for those pages.
-4. Policies: four defaults, each with a switch, all on. Create makes the policies of the switched-on items and Not now creates nothing.
+4. Policies: first the choice of how policies interact (see below), then the defaults of that choice, each with a switch, all on. Create makes the policies of the switched-on items and Not now creates nothing.
 
 Only the last step creates anything. After a visit to a page, a bar above the page offers Continue the tour and End the tour. Closing the tour in any way marks it as seen, so it does not return by itself. The Restart introduction button on Settings opens it again.
+
+How policies interact is a setting with two values, also on the Policies page. The default is Only the first policy that applies runs: a message gets one policy, the first in the list that fits. The other value is Every policy that applies runs.
+
+Defaults under "only the first policy that applies runs", in this order. Together they do not overlap: each kind of message meets exactly one of them.
+
+| Item | What it creates |
+|---|---|
+| Critical messages | Critical delivery: critical messages are pushed at once to the audience you choose (Admins by default). It also sets the push level of critical messages to the iOS critical level. A critical message gets this and nothing else, so no reminder. |
+| Warning reminders | Warning reminders: a warning nobody acknowledges is repeated every 30 minutes, at most 3 times. |
+| Evening summary | Evening summary: info and success messages tagged `digest` are held and sent as one summary at 20:00. |
+| Quiet hours | Night quiet: info and success messages without that tag are sent quietly from 22:00 to 07:00. |
+
+Defaults under "every policy that applies runs":
 
 | Item | What it creates |
 |---|---|
@@ -51,7 +64,7 @@ Only the last step creates anything. After a visit to a page, a bar above the pa
 | Critical messages | Critical delivery (a Deliver policy: critical messages are also pushed at once to the audience you choose, Admins by default), Critical reminder (a push again every 10 minutes, at most 3 times) and, if you choose speakers, Critical escalation (after 10 minutes the message is said on those speakers; dismissing counts as acknowledging). It also sets the push level of critical messages to the iOS critical level. |
 | Warning reminders | Warning reminders: a warning nobody acknowledges is repeated every 30 minutes, at most 3 times. |
 
-Things to know before you switch on Critical messages:
+Things to know before you switch on Critical messages under "every policy that applies runs":
 - It covers every critical message, also those of your existing automations. They get an Acknowledge button on the card and in the push, and a push or speech after 10 minutes without an acknowledgement.
 - The iOS critical level needs the Companion app's permission for critical alerts and plays a sound even in silent mode. Android receives it as time sensitive. You can change the push levels on the Channels page.
 - Speech passes quiet hours, so a critical message that nobody acknowledges is said on the speakers at night too.
@@ -82,7 +95,7 @@ The editors save through the integration's own forms, so the rules are the same 
 
 - Audiences: the six built-in audiences are listed with who is in them right now. Each has a checkbox: an audience that is switched off is not offered and calls that name it fail with the list of valid names; one that a policy uses cannot be switched off. Your own audiences are edited in a form: a name and either a fixed list of persons or a presence (at home, not home, last to leave, first home, in a zone, not in a zone, with a zone choice). A presence audience can be limited to chosen persons. The list says which policies use each audience.
 - Recipients: one profile per person with a Receives notifications switch (off: nothing reaches the person on any channel), the devices found automatically, a badge for added devices and for a notify service that is missing, a primary device, devices you removed (which you can bring back), a device you add by name, and the channels the person accepts. A profile that equals the detected devices is not stored. Speaker groups have a name, speakers and areas, and show how the group is written in calls ("Name (group)") and how many speakers reach it now.
-- Policies: all seven types in one form: name, type, severities, tags, enabled and the fields of the type, with a target block per channel for Escalation and Fallback (an audience or recipients, never both; speech takes recipients only; a bell notification takes none). When it applies has the choice between Automatically (severities and tags) and Manually (only a call that names the policy, shown with the line to use). A tab with a problem is marked with a dot. A second automatic policy of the same type with the same severities, tags and trigger is refused.
+- Policies: all seven types in one form: name, type, severities, tags, enabled and the fields of the type, with a target block per channel for Escalation and Fallback (an audience or recipients, never both; speech takes recipients only; a bell notification takes none). When it applies has the choice between Automatically (severities and tags) and Manually (only a call that names the policy, shown with the line to use). A tab with a problem is marked with a dot. The When it applies tab also lists the policies that overlap: under the first setting the policies above this one that match some of the same messages (they run instead), under the other the policies of the same type that do. A second automatic policy of the same type with the same severities, tags and trigger is refused.
 - Channels: the push level per severity, the popup style per severity (card, window or off), the lock-screen text, whether the push stays after a tap, the Android channel name, the spoken language and the mail settings (notify service, Global address, subject and body). These are the options `push_levels`, `popup_styles`, `push_lockscreen`, `push_sticky`, `push_channel_id`, `speak_language`, `mail_service`, `mail_global_address`, `mail_subject` and `mail_body`.
 
 An audience or a speaker group that a policy uses cannot be deleted in the panel: the Delete button is disabled and the page names the policies. Home Assistant's own screen does not enforce this; if it is deleted there, Needs attention on the Overview reports the policy.

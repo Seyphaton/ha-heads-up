@@ -198,9 +198,12 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                 "removed": list(sub.data.get("removed_devices", [])) if sub else [],
             }
         )
+    in_order = {p.subentry_id: n for n, p in enumerate(hub.policies.ordered())} if hub else {}
     policies = [
         {"name": s.title, "subentry_id": s.subentry_id, "data": dict(s.data)}
-        for s in of(POLICY_SUBENTRY)
+        for s in sorted(
+            of(POLICY_SUBENTRY), key=lambda s: in_order.get(s.subentry_id, len(in_order))
+        )
     ]
     rules = [
         {
@@ -224,6 +227,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
         "groups": groups,
         "profiles": profiles,
         "policies": policies,
+        "policy_mode": hub.policies.mode if hub else "first",
         "rules": rules,
         "channels": channel_settings(manager),
         "choices": {

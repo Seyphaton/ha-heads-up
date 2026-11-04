@@ -4,6 +4,7 @@ An automatic policy applies when the message severity is among its severities an
 among its tags; an empty list means any. A rule message has the tag `rule`. A manual policy never
 applies by itself. The call's `policy` field names one policy (manual or automatic, used whatever
 its filters say), is omitted to use every automatic policy that applies, or is `none`.
+In the mode "first" only the first automatic policy that applies is used (D-148).
 """
 
 from __future__ import annotations
@@ -21,13 +22,14 @@ def applies(policy: Policy, severity: str, tag: str | None) -> bool:
     return not policy.tags or tag in policy.tags
 
 
-def select(policies: list[Policy], message: Banner) -> list[Policy]:
+def select(policies: list[Policy], message: Banner, first_only: bool = False) -> list[Policy]:
     enabled = [p for p in policies if p.enabled]
     if message.policy == POLICY_NONE:
         return []
     if message.policy:
         return [p for p in enabled if p.name == message.policy]
-    return [p for p in enabled if applies(p, message.severity, message.tag)]
+    found = [p for p in enabled if applies(p, message.severity, message.tag)]
+    return found[:1] if first_only else found
 
 
 def duplicate_of(policies: list[Policy], candidate: Policy) -> Policy | None:

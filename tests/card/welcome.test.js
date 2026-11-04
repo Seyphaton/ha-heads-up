@@ -3,6 +3,8 @@ import {
   channelStatus,
   fill,
   ITEMS,
+  itemsFor,
+  MODES,
   payloadFor,
   recipientsStatus,
   resultText,
@@ -12,6 +14,7 @@ import {
 } from "../../custom_components/heads_up/frontend/panel/welcome.js";
 
 const state = (on = {}, extra = {}) => ({
+  mode: "all",
   on: { quiet: true, digest: true, critical: true, warnings: true, ...on },
   audience: "Admins",
   speakers: [],
@@ -28,6 +31,7 @@ describe("welcome", () => {
     expect(payloadFor(state({ quiet: false, digest: false, critical: false, warnings: false }))).toEqual({
       type: "heads_up/welcome_apply",
       items: [],
+      mode: "all",
     });
   });
 
@@ -37,6 +41,26 @@ describe("welcome", () => {
     const without = payloadFor(state({ critical: false }, { audience: "Everyone", speakers: ["media_player.k"] }));
     expect(without.audience).toBeUndefined();
     expect(without.speakers).toBeUndefined();
+  });
+
+  it("offers the list of the mode in its order and sends the mode", () => {
+    expect(MODES).toEqual(["first", "all"]);
+    expect(itemsFor("first")).toEqual(["critical", "warnings", "digest", "quiet"]);
+    expect(itemsFor("all")).toEqual(["quiet", "digest", "critical", "warnings"]);
+    expect(itemsFor(undefined)).toEqual(itemsFor("first"));
+    const first = payloadFor(state({ digest: false }, { mode: "first", speakers: ["media_player.k"] }));
+    expect(first.mode).toBe("first");
+    expect(first.items).toEqual(["critical", "warnings", "quiet"]);
+    expect(first.speakers).toEqual([]); // no escalation by speech under "first"
+  });
+
+  it("has the mode texts and the texts of the first list in every language", () => {
+    for (const [code, language] of Object.entries(STRINGS)) {
+      for (const key of ["mode_title", "mode_first", "mode_first_hint", "mode_all", "mode_all_hint", "policies_lead_first"]) {
+        expect(language[key], `${code} ${key}`).toBeTruthy();
+      }
+      for (const id of ITEMS) expect(language[`desc_first_${id}`], `${code} ${id}`).toBeTruthy();
+    }
   });
 
   it("does not change the state it is given", () => {

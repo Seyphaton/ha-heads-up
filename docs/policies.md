@@ -2,6 +2,17 @@
 
 A policy adds behaviour to messages without changing the automation that sends them. Types: Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize. Add one in Settings > Devices & services > Heads Up > Add policy.
 
+## How policies interact
+
+A setting on the Policies page, and the first question of the policies step of the introduction, decides what happens when several automatic policies match one message.
+
+- Only the first policy that applies runs (the default). The Policies page is one ordered list, and a message gets the first enabled automatic policy of the list that matches its severity and tag. Drag a policy or use the arrows to change the order. Policies of the introduction are created in an order in which none of them overlaps.
+- Every policy that applies runs. A message can get several policies at once, for example quiet hours and a reminder. The order of the list does not matter. Policies can interfere with each other: check a call with Test send.
+
+A call or a watch rule that names a policy uses only that policy under both settings. `none` uses no policy.
+
+Policies that have no stored order start in this order: Summarize, Quiet hours, Away, Escalation, Reminder, Fallback, Deliver, each type by name.
+
 ## Which messages a policy applies to
 
 A policy attaches to messages in one of two ways, chosen in the editor under When it applies.

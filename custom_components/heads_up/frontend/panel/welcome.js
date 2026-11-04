@@ -52,6 +52,16 @@ export const STRINGS = {
     desc_critical: "Every critical message, also from your existing automations, gets an Acknowledge button and is pushed at once to the audience below at the iOS critical level (the Companion app must allow critical alerts; it plays a sound even in silent mode). Without an acknowledgement it is pushed again every 10 minutes, 3 times, and after 10 minutes it is said on the speakers below. Dismissing counts as acknowledging.",
     item_warnings: "Warning reminders",
     desc_warnings: "A warning that nobody acknowledges is repeated every 30 minutes, at most 3 times.",
+    mode_title: "How should policies interact?",
+    mode_first: "Only the first policy that applies runs",
+    mode_first_hint: "The simplest: each message gets one policy, the first one in your list that fits. You can change this later on the Policies page.",
+    mode_all: "Every policy that applies runs",
+    mode_all_hint: "A message can get several policies at once, for example quiet hours and a reminder. They can interfere, so check them with Test send.",
+    policies_lead_first: "Each message gets one policy: the first in this list that fits. These four do not overlap, and you can reorder them later.",
+    desc_first_critical: "Critical messages are pushed at once to the audience below. Nothing else runs for them, so there is no reminder.",
+    desc_first_warnings: "A warning that nobody acknowledges is repeated every 30 minutes, at most 3 times.",
+    desc_first_digest: "Info and success messages that your automations tag digest are held and sent as one summary at 20:00.",
+    desc_first_quiet: "The other info and success messages go out without sound from 22:00 to 07:00.",
     audience: "Push critical messages to",
     speakers: "Speak after 10 minutes on (none: no speech)",
     create: "Create the selected",
@@ -111,6 +121,16 @@ export const STRINGS = {
     desc_critical: "Jede kritische Meldung, auch aus deinen bestehenden Automationen, bekommt eine Schaltfläche Bestätigen und wird sofort an die Zielgruppe unten auf der kritischen Stufe von iOS gepusht (die Companion-App muss kritische Hinweise erlauben; sie spielt auch im Lautlosmodus einen Ton). Ohne Bestätigung wird sie alle 10 Minuten erneut gepusht, 3 Mal, und nach 10 Minuten auf den Lautsprechern unten gesprochen. Ausblenden zählt als Bestätigung.",
     item_warnings: "Warnungs-Erinnerungen",
     desc_warnings: "Eine Warnung, die niemand bestätigt, wird alle 30 Minuten wiederholt, höchstens 3 Mal.",
+    mode_title: "Wie sollen Richtlinien zusammenwirken?",
+    mode_first: "Nur die erste passende Richtlinie läuft",
+    mode_first_hint: "Am einfachsten: Jede Meldung bekommt eine Richtlinie, die erste deiner Liste, die passt. Das kannst du später auf der Seite Richtlinien ändern.",
+    mode_all: "Jede passende Richtlinie läuft",
+    mode_all_hint: "Eine Meldung kann mehrere Richtlinien gleichzeitig bekommen, zum Beispiel Ruhezeit und eine Erinnerung. Sie können sich stören, prüfe sie daher mit Testsenden.",
+    policies_lead_first: "Jede Meldung bekommt eine Richtlinie: die erste in dieser Liste, die passt. Diese vier überschneiden sich nicht, und du kannst sie später umsortieren.",
+    desc_first_critical: "Kritische Meldungen werden sofort an die Zielgruppe unten gepusht. Sonst läuft nichts für sie, es gibt also keine Erinnerung.",
+    desc_first_warnings: "Eine Warnung, die niemand bestätigt, wird alle 30 Minuten wiederholt, höchstens 3 Mal.",
+    desc_first_digest: "Info- und Erfolgsmeldungen, die deine Automationen mit digest markieren, werden zurückgehalten und um 20:00 als eine Zusammenfassung gesendet.",
+    desc_first_quiet: "Die übrigen Info- und Erfolgsmeldungen gehen von 22:00 bis 07:00 ohne Ton raus.",
     audience: "Kritische Meldungen pushen an",
     speakers: "Nach 10 Minuten sprechen auf (keiner: keine Sprachausgabe)",
     create: "Auswahl erstellen",
@@ -170,6 +190,16 @@ export const STRINGS = {
     desc_critical: "Chaque message critique, aussi ceux de vos automatisations existantes, reçoit un bouton Confirmer et est envoyé tout de suite à l'audience ci-dessous au niveau critique d'iOS (l'app Companion doit autoriser les alertes critiques ; elle joue un son même en mode silencieux). Sans confirmation, il est renvoyé toutes les 10 minutes, 3 fois, et après 10 minutes il est dit sur les haut-parleurs ci-dessous. Masquer vaut confirmer.",
     item_warnings: "Rappels d'avertissement",
     desc_warnings: "Un avertissement que personne ne confirme est répété toutes les 30 minutes, au plus 3 fois.",
+    mode_title: "Comment les politiques doivent-elles interagir ?",
+    mode_first: "Seule la première politique qui s'applique agit",
+    mode_first_hint: "Le plus simple : chaque message reçoit une politique, la première de votre liste qui convient. Vous pourrez le changer plus tard sur la page Politiques.",
+    mode_all: "Chaque politique qui s'applique agit",
+    mode_all_hint: "Un message peut recevoir plusieurs politiques à la fois, par exemple des heures calmes et un rappel. Elles peuvent se gêner : vérifiez-les avec Envoi de test.",
+    policies_lead_first: "Chaque message reçoit une politique : la première de cette liste qui convient. Ces quatre ne se recouvrent pas, et vous pourrez les réordonner plus tard.",
+    desc_first_critical: "Les messages critiques sont envoyés tout de suite à l'audience ci-dessous. Rien d'autre n'agit pour eux, donc pas de rappel.",
+    desc_first_warnings: "Un avertissement que personne ne confirme est répété toutes les 30 minutes, au plus 3 fois.",
+    desc_first_digest: "Les messages d'info et de succès que vos automatisations marquent digest sont retenus et envoyés en un résumé à 20:00.",
+    desc_first_quiet: "Les autres messages d'info et de succès partent sans son de 22:00 à 07:00.",
     audience: "Envoyer les messages critiques à",
     speakers: "Dire après 10 minutes sur (aucun : pas de voix)",
     create: "Créer la sélection",
@@ -229,6 +259,16 @@ export const STRINGS = {
     desc_critical: "Cada mensaje crítico, también los de tus automatizaciones existentes, recibe un botón Confirmar y se envía de inmediato a la audiencia de abajo con el nivel crítico de iOS (la app Companion debe permitir alertas críticas; suena incluso en modo silencio). Sin confirmación se vuelve a enviar cada 10 minutos, 3 veces, y a los 10 minutos se dice en los altavoces de abajo. Descartar cuenta como confirmar.",
     item_warnings: "Recordatorios de avisos",
     desc_warnings: "Un aviso que nadie confirma se repite cada 30 minutos, como máximo 3 veces.",
+    mode_title: "¿Cómo deben interactuar las políticas?",
+    mode_first: "Solo actúa la primera política que se aplica",
+    mode_first_hint: "Lo más simple: cada mensaje recibe una política, la primera de tu lista que encaja. Puedes cambiarlo después en la página Políticas.",
+    mode_all: "Actúa cada política que se aplica",
+    mode_all_hint: "Un mensaje puede recibir varias políticas a la vez, por ejemplo horas de silencio y un recordatorio. Pueden estorbarse: compruébalas con Envío de prueba.",
+    policies_lead_first: "Cada mensaje recibe una política: la primera de esta lista que encaja. Estas cuatro no se solapan, y puedes reordenarlas después.",
+    desc_first_critical: "Los mensajes críticos se envían de inmediato a la audiencia de abajo. No actúa nada más para ellos, así que no hay recordatorio.",
+    desc_first_warnings: "Un aviso que nadie confirma se repite cada 30 minutos, como máximo 3 veces.",
+    desc_first_digest: "Los mensajes de info y éxito que tus automatizaciones marcan con digest se retienen y se envían como un resumen a las 20:00.",
+    desc_first_quiet: "Los demás mensajes de info y éxito salen sin sonido de 22:00 a 07:00.",
     audience: "Enviar los mensajes críticos a",
     speakers: "Decir a los 10 minutos en (ninguno: sin voz)",
     create: "Crear la selección",
@@ -242,6 +282,16 @@ export const STRINGS = {
 };
 
 export const ITEMS = ["quiet", "digest", "critical", "warnings"];
+// The items offered per mode, in the order their policies are created (D-150).
+export const ITEMS_BY_MODE = {
+  first: ["critical", "warnings", "digest", "quiet"],
+  all: ["quiet", "digest", "critical", "warnings"],
+};
+export const MODES = ["first", "all"];
+
+export function itemsFor(mode) {
+  return ITEMS_BY_MODE[mode === "all" ? "all" : "first"];
+}
 export const STEPS = ["intro", "channels", "recipients", "policies"];
 const CHANNEL_ORDER = ["banner", "push", "popup", "speak", "persistent", "mail"];
 
@@ -251,11 +301,13 @@ export function fill(template, params) {
 
 // The call to heads_up/welcome_apply for the state of the dialog: only the switched-on items.
 export function payloadFor(state) {
-  const items = ITEMS.filter((id) => state.on[id]);
-  const payload = { type: "heads_up/welcome_apply", items };
+  const mode = state.mode === "all" ? "all" : "first";
+  const items = itemsFor(mode).filter((id) => state.on[id]);
+  const payload = { type: "heads_up/welcome_apply", items, mode };
   if (items.includes("critical")) {
     payload.audience = state.audience;
-    payload.speakers = [...state.speakers];
+    // Only the mode "all" creates the escalation that says the message on speakers.
+    payload.speakers = mode === "all" ? [...state.speakers] : [];
   }
   return payload;
 }
@@ -331,6 +383,8 @@ const CSS = `
 .hu-dialog .item { border: 1px solid var(--divider-color); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
 .hu-dialog label.inline { display: flex; align-items: center; gap: 10px; min-height: 48px; font-weight: 600; }
 .hu-dialog input[type=checkbox] { width: 22px; height: 22px; }
+.hu-dialog label.inline .hint { font-weight: 400; }
+.hu-dialog fieldset.modes { max-height: none; overflow: visible; padding: 4px 12px; }
 .hu-dialog select { min-height: 40px; max-width: 100%; padding: 0 8px; border-radius: 6px; border: 1px solid var(--divider-color); background: var(--secondary-background-color); color: var(--primary-text-color); font: inherit; }
 .hu-dialog fieldset { border: 1px solid var(--divider-color); border-radius: 8px; max-height: 160px; overflow: auto; margin: 8px 0; }
 .hu-dialog legend { color: var(--secondary-text-color); font-size: 13px; }
@@ -350,7 +404,7 @@ export async function open(host, ctx) {
   const data = await hass.callWS({ type: "heads_up/welcome_get" });
   if (!ctx.force && !data.show) return null;
   const summary = setupSummary(await hass.callWS({ type: "heads_up/panel_config" }).catch(() => null));
-  const state = { on: Object.fromEntries(ITEMS.map((id) => [id, true])), audience: data.default_audience, speakers: [], step: Math.min(Math.max(ctx.step || 0, 0), STEPS.length - 1) };
+  const state = { mode: data.policy_mode === "all" ? "all" : "first", on: Object.fromEntries(ITEMS.map((id) => [id, true])), audience: data.default_audience, speakers: [], step: Math.min(Math.max(ctx.step || 0, 0), STEPS.length - 1) };
   const scrim = el("div", { className: "hu-scrim" });
   const dialog = el("div", { className: "hu-dialog", role: "dialog" });
   dialog.setAttribute("aria-modal", "true");
@@ -442,25 +496,35 @@ export async function open(host, ctx) {
   }
 
   function stepPolicies(message) {
-    const out = [el("p", { textContent: t.policies_lead })];
-    for (const id of ITEMS) {
+    const out = [el("p", { textContent: state.mode === "first" ? t.policies_lead_first : t.policies_lead })];
+    // First the choice of how policies interact: it decides which policies are offered.
+    const choice = el("fieldset", { className: "modes" }, [el("legend", { textContent: t.mode_title })]);
+    for (const mode of MODES) {
+      const input = el("input", { type: "radio", name: "mode", checked: state.mode === mode });
+      input.addEventListener("change", () => {
+        state.mode = mode;
+        render();
+      });
+      choice.append(el("label", { className: "inline" }, [input, el("span", {}, [el("span", { textContent: t[`mode_${mode}`] }), el("div", { className: "hint", textContent: t[`mode_${mode}_hint`] })])]));
+    }
+    out.push(choice);
+    itemsFor(state.mode).forEach((id, index) => {
       const box = el("input", { type: "checkbox", checked: state.on[id] });
       box.addEventListener("change", () => {
         state.on[id] = box.checked;
         render();
       });
-      const item = el("div", { className: "item" }, [
-        el("label", { className: "inline" }, [box, el("span", { textContent: t[`item_${id}`] })]),
-        el("div", { className: "hint", textContent: t[`desc_${id}`] }),
-      ]);
+      const name = state.mode === "first" ? `${index + 1}. ${t[`item_${id}`]}` : t[`item_${id}`];
+      const text = state.mode === "first" ? t[`desc_first_${id}`] : t[`desc_${id}`];
+      const item = el("div", { className: "item" }, [el("label", { className: "inline" }, [box, el("span", { textContent: name })]), el("div", { className: "hint", textContent: text })]);
       if (id === "critical" && state.on.critical) {
         item.append(ui.field(t.audience, ui.selectInput(data.audiences.map((n) => ({ value: n, label: n })), state.audience, (v) => { state.audience = v; })));
-        if (data.speakers.length) {
+        if (state.mode === "all" && data.speakers.length) {
           item.append(ui.chips(t.speakers, data.speakers.map((id2) => ({ value: id2, label: ui.recipientLabel(id2, data) })), state.speakers, (list) => { state.speakers = list; }, true));
         }
       }
       out.push(item);
-    }
+    });
     const create = button(t.create, async () => {
       try {
         const result = await hass.callWS(payloadFor(state));
