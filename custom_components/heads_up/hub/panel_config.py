@@ -33,6 +33,7 @@ from ..const import (
     PROFILE_SUBENTRY,
     PUSH_LEVELS,
     PUSH_LOCKSCREEN,
+    RULE_SUBENTRY,
     SEVERITIES,
 )
 from ..manager import BannerManager
@@ -185,6 +186,17 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
         {"name": s.title, "subentry_id": s.subentry_id, "data": dict(s.data)}
         for s in of(POLICY_SUBENTRY)
     ]
+    rules = [
+        {
+            "name": s.title,
+            "subentry_id": s.subentry_id,
+            "data": dict(s.data),
+            "showing": bool(
+                (shown := manager.rules.get(f"rule_{s.subentry_id}")) is not None and shown.active
+            ),
+        }
+        for s in of(RULE_SUBENTRY)
+    ]
     areas = ar.async_get(hass).async_list_areas()
     known = (
         {c: hub.recipients.known(c) for c in ("banner", "push", "popup", "speak", "mail")}
@@ -198,6 +210,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
         "groups": groups,
         "profiles": profiles,
         "policies": policies,
+        "rules": rules,
         "channels": channel_settings(manager),
         "choices": {
             "persons": [

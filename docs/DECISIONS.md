@@ -829,3 +829,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: D-131 and D-132 are finished on `hub/h9e-wizard`; the maintainer wants them in a second pre-release.
 - Decision (maintainer, explicit): commit and push the branch, tag `v1.0.0-alpha.2`, publish a GitHub pre-release that is not marked as the latest release. No merge to `main`.
 - Blast radius: the manifest version is `1.0.0-alpha.2`; the pre-release is not offered as the default download.
+
+## D-134 Watch rules page in the panel (2026-11-04)
+- Context: the Watch rules tab showed "This page is not available"; rules could only be edited on the integration page. The maintainer chose to build the page.
+- Decisions (maintainer): a list with the state of each rule (showing now, not showing, off), severity, what it watches and its message, plus add, edit and delete. It saves through the integration's own rule flow over the REST API, like the other editors (D-119), so validation and error texts are the flow's and a change shows on both screens.
+- Build details decided without a question: the form covers condition (entity or template, operator, value, attribute, hold time), message, title, severity, icon, image, people, dismissible, dismiss scope, snooze, snooze scope and choices, enabled. Buttons and the tap action are not editable in the panel (they need YAML); an edit passes the stored values through unchanged and a link opens the full form. `heads_up/panel_config` gains `rules` (name, subentry_id, stored data, showing). The error texts in the page are copied from the rule form's four translations. The page works with the hub off.
+- Parity (rule 9): not a new banner feature; rule and action banners keep the features of D-073 and D-100.
+- Blast radius: usual restart; admin panel only; no change to how rules evaluate.

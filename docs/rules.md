@@ -1,6 +1,6 @@
 # Watch rules
 
-A watch rule shows a banner while an entity is in a state. You set it up once in the integration. No automation, script or dashboard setting is needed, and every Heads Up card shows the banner.
+A watch rule shows a banner while an entity is in a state. You set it up once in the panel's Watch rules page or in the integration. No automation, script or dashboard setting is needed, and every Heads Up card shows the banner.
 
 ## Add a rule
 

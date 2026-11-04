@@ -7,6 +7,7 @@ from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
+from ..test_rules import add_rule
 from .conftest import AddDevice
 from .helpers import FakeSpeakers, set_person
 from .policy_support import ESCALATION, add_audience, add_policy, make_household
@@ -235,3 +236,19 @@ async def test_invalid_channel_settings_are_refused_and_change_nothing(
         reply = await ask(client, "channels_set", **bad)
         assert not reply["success"] and reply["error"]["code"] == "invalid_format", bad
     assert "push_lockscreen" not in entry.options and "push_channel_id" not in entry.options
+
+
+async def test_rules_come_with_their_stored_data_and_whether_they_show_now(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    hass.states.async_set("binary_sensor.door", "on")
+    hass.states.async_set("binary_sensor.window", "off")
+    showing = add_rule(hass, entry, entity_id="binary_sensor.door", state=["on"])
+    idle = add_rule(hass, entry, entity_id="binary_sensor.window", state=["on"])
+    await hass.async_block_till_done()
+    client = await hass_ws_client(hass)
+    rules = {r["subentry_id"]: r for r in (await config(hass, client))["rules"]}
+    assert rules[showing.subentry_id]["showing"] is True
+    assert rules[idle.subentry_id]["showing"] is False
+    assert rules[showing.subentry_id]["data"]["entity_id"] == "binary_sensor.door"
+    assert rules[showing.subentry_id]["name"] == "Rule"

@@ -1,6 +1,6 @@
 # The Heads Up panel
 
-The panel is an administrator page in Home Assistant's sidebar. It has the navigation, the Overview, the Messages page, the four Configuration pages, Test send, the Settings page, the welcome and the FAQ and examples page. The Watch rules page is empty.
+The panel is an administrator page in Home Assistant's sidebar. It has the navigation, the Overview, the Messages page, the Watch rules page, the four Configuration pages, Test send, the Settings page, the welcome and the FAQ and examples page.
 
 ## Show it in the sidebar
 
@@ -20,7 +20,7 @@ Five groups in a top row: Overview, Notifications and rules, Configuration, Sett
 The Status page (Overview group) refreshes every 10 seconds.
 
 - **Active notifications:** the number of messages that are active now, with a badge for each state that occurs: escalating, reminding, snoozed, in a summary and acknowledged. Show list opens a list with each message's severity, title and a one-line explanation of each state, for example "Escalation Water sends in 3 min unless someone acknowledges". Watch rule messages are listed too.
-- **Watch rules:** "N of M active", with badges for disabled rules and for rules that show a message now. Show list opens every rule with its state and what it watches. Rules are edited under Settings > Devices & services > Heads Up.
+- **Watch rules:** "N of M active", with badges for disabled rules and for rules that show a message now. Show list opens every rule with its state and what it watches. Rules are edited on the Watch rules page.
 - **Needs attention:** each problem with a button to the page that fixes it. Errors: a watch rule on an unavailable or missing entity, a device without a notify service in Home Assistant, a recipient group without an existing speaker, an invalid policy (with the reason), a policy that names a deleted audience or group. Warnings: a person without a usable device, no escalation policy covering critical messages (without a tag), the hub switched off. With none of these the list says nothing needs attention.
 - **Last actions:** the latest events, newest first: created (with severity and channels), escalation sent, reminder sent, acknowledged (by whom), dismissed, snoozed, snooze ended, summary sent, fallback sent, delivery skipped or failed (with the reason), expired, cleared.
 - A line offers the welcome while no policy exists.
@@ -68,6 +68,12 @@ The page (Notifications and rules group) previews a call and can send it once. I
 
 The preview runs the engine's own planning and the same precedence chain as a delivery, with the real clock and the real presence, so it shows what the same call does now. It stores nothing and sends nothing. A call that `notify` would refuse (an unknown audience, recipient or policy, a missing target) is refused in the preview with the same reason.
 
+## Watch rules
+
+The page lists every rule with a badge for its state (showing now, not showing, off) and its severity, what it watches and its message. Add opens an empty form and Edit opens the stored rule. Save, Delete and the error texts are those of the rule form under Settings > Devices & services > Heads Up, because the page saves through that form.
+
+The form has four sections. When: an entity in a state (entity, condition, value, optional attribute) or a template, and an optional time the condition must hold. What to show: message, title, severity, icon and image. Who sees it: the people, none meaning everyone. Behaviour: dismissible, dismiss scope, snooze, snooze scope and choices, enabled. A sentence under the form says in words what the rule does. The page works with the hub switched off.
+
 ## Configuration pages
 
 The editors save through the integration's own forms, so the rules are the same as in Settings > Devices & services > Heads Up, and a change made there shows here. Every editor shows the stored data as YAML and a list of problems; Save is disabled while there are problems. The pages need the hub switched on.
@@ -103,7 +109,7 @@ Six example calls, from a banner without the hub to a push to one person, each w
 
 ## Limits
 
-- The Watch rules page has no editor: it shows "This page is not available". Edit rules under Settings > Devices & services > Heads Up. The Needs attention button for a rule opens that page.
+- The Watch rules page does not edit the buttons and the tap action of a rule; it keeps them as they are. Change them in the rule form under Settings > Devices & services > Heads Up.
 - Test send has no "what if" time: it uses the real clock.
 - The pages poll every 10 seconds; they do not update the moment something happens.
 - Not tested on a touch device or with a screen reader.

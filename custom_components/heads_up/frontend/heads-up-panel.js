@@ -13,6 +13,7 @@ export const MODULES = {
   status: "overview.js",
   test: "test_send.js",
   messages: "messages.js",
+  rules: "rules.js",
   general: "settings.js",
   audiences: "audiences.js",
   recipients: "recipients.js",
