@@ -5,6 +5,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ## [Unreleased]
 
 ### Added
+- Recipients: a profile has a Receives notifications switch. Off, the person gets nothing on any channel: not in an audience, not when named in a call, not for critical messages. Banners without a target stay visible on their dashboard.
 - Panel: the FAQ page is now the Help group with three pills: FAQ, Notify examples and Card examples (six `custom:heads-up-card` configurations with a Copy button). Each Help page has a link to the GitHub issues page next to its intro line.
 - Needs attention warns about sends that failed in the last 24 hours, per channel and reason.
 - Built-in audiences have a checkbox to switch them off; a presence audience can be limited to chosen persons (for example At home for one person).

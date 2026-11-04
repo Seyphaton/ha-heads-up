@@ -183,6 +183,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                 "subentry_id": sub.subentry_id if sub else None,
                 "customized": profile.customized,
                 "primary": profile.primary,
+                "enabled": profile.enabled,
                 "channels": list(profile.channels),
                 "mail_address": profile.mail_address,
                 "devices": [

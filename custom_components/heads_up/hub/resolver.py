@@ -177,7 +177,24 @@ class HubResolver:
                 if audience.limit and person not in audience.limit:
                     continue
                 self._presence_member(result, person, kind, audience.zone, severity)
+        return self._without_disabled(result)
+
+    def _without_disabled(self, result: Resolution) -> Resolution:
+        """A disabled recipient is in no audience: the member becomes a skip (D-147)."""
+        kept: list[Recipient] = []
+        for member in result.recipients:
+            if self.profile(member.key).enabled:
+                kept.append(member)
+            else:
+                result.skipped.append(Skipped(member.key, "recipient_disabled"))
+        result.recipients = kept
         return result
+
+    def enabled_people(self, people: list[str]) -> list[str]:
+        """The persons of a banner call that are not disabled; a banner for persons who are all
+        disabled is shown to nobody, not to everyone."""
+        kept = [p for p in people if self.profile(p).enabled]
+        return kept or ([BANNER_NOBODY] if people else [])
 
     def _presence_member(
         self, result: Resolution, person: str, kind: str, zone: str | None, severity: str
@@ -261,7 +278,9 @@ class HubResolver:
 
     def _expand_person(self, out: Resolution, person: str, channel: str) -> None:
         profile = self.profile(person)
-        if channel not in profile.channels:
+        if not profile.enabled:
+            out.skipped.append(Skipped(person, "recipient_disabled"))
+        elif channel not in profile.channels:
             out.skipped.append(Skipped(person, "channel_not_accepted"))
         elif channel == CHANNEL_MAIL and not profile.mail_address:
             out.skipped.append(Skipped(person, "no_mail_address"))

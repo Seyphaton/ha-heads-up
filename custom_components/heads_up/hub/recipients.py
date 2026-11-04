@@ -44,6 +44,7 @@ class StoredProfile:
     primary: str | None = None
     channels: tuple[str, ...] = DEFAULT_PROFILE_CHANNELS
     mail_address: str = ""
+    enabled: bool = True
 
 
 @dataclass(slots=True)
@@ -54,6 +55,7 @@ class Profile:
     channels: tuple[str, ...] = DEFAULT_PROFILE_CHANNELS
     customized: bool = False
     mail_address: str = ""
+    enabled: bool = True  # off: the person gets nothing on any channel (D-147)
 
     @property
     def usable(self) -> list[Device]:
@@ -134,6 +136,7 @@ def build_profile(
         channels=stored.channels if stored else DEFAULT_PROFILE_CHANNELS,
         customized=stored is not None,
         mail_address=stored.mail_address if stored else "",
+        enabled=stored.enabled if stored else True,
     )
 
 
@@ -151,6 +154,7 @@ def parse_profile(subentry: ConfigSubentry) -> StoredProfile | None:
         primary=data.get("primary") or None,
         channels=channels,
         mail_address=str(data.get("mail_address") or "").strip(),
+        enabled=bool(data.get("enabled", True)),
     )
 
 

@@ -896,6 +896,7 @@
           "description": "Chaque personne a un profil sans configuration : ses appareils de l'application Companion sont trouvés par les suivis de la personne. N'en ajoutez un que pour modifier cela : ajouter un appareil non trouvé, en retirer un, choisir un appareil principal ou limiter les canaux.",
           "data": {
             "person": "Personne",
+            "enabled": "Reçoit les notifications",
             "devices": "Appareils ajoutés",
             "removed_devices": "Appareils retirés",
             "primary": "Appareil principal",
@@ -903,6 +904,7 @@
             "mail_address": "Adresse de courriel"
           },
           "data_description": {
+            "enabled": "Désactivé : cette personne ne reçoit rien sur aucun canal, pas même les messages critiques ni quand elle est nommée directement. Les bannières sans cible restent visibles sur son tableau de bord.",
             "devices": "Appareils Companion à utiliser en plus de ceux détectés.",
             "removed_devices": "Appareils détectés à ignorer.",
             "primary": "Listé en premier. Les push vont toujours à tous les appareils de la personne. Vide : le premier appareil détecté.",
@@ -914,6 +916,7 @@
           "title": "Modifier le profil de destinataire",
           "description": "Chaque personne a un profil sans configuration : ses appareils de l'application Companion sont trouvés par les suivis de la personne. N'en ajoutez un que pour modifier cela : ajouter un appareil non trouvé, en retirer un, choisir un appareil principal ou limiter les canaux.",
           "data": {
+            "enabled": "Reçoit les notifications",
             "devices": "Appareils ajoutés",
             "removed_devices": "Appareils retirés",
             "primary": "Appareil principal",
@@ -921,6 +924,7 @@
             "mail_address": "Adresse de courriel"
           },
           "data_description": {
+            "enabled": "Désactivé : cette personne ne reçoit rien sur aucun canal, pas même les messages critiques ni quand elle est nommée directement. Les bannières sans cible restent visibles sur son tableau de bord.",
             "devices": "Appareils Companion à utiliser en plus de ceux détectés.",
             "removed_devices": "Appareils détectés à ignorer.",
             "primary": "Listé en premier. Les push vont toujours à tous les appareils de la personne. Vide : le premier appareil détecté.",

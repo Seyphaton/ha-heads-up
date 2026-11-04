@@ -240,6 +240,7 @@ class RecipientProfileSubentryFlow(_HubFlow):
         fields: dict[Any, Any] = {}
         if not reconfigure:
             fields[vol.Required("person")] = EntitySelector(EntitySelectorConfig(domain="person"))
+        fields[vol.Required("enabled", default=True)] = BooleanSelector()
         fields.update(
             {
                 vol.Optional("devices"): SelectSelector(devices),
@@ -299,6 +300,8 @@ class RecipientProfileSubentryFlow(_HubFlow):
             "person": self._person(user_input, own),
             "channels": list(user_input["channels"]),
         }
+        if not user_input.get("enabled", True):
+            data["enabled"] = False
         for field in ("devices", "removed_devices"):
             if user_input.get(field):
                 data[field] = list(user_input[field])

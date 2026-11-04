@@ -18,6 +18,9 @@ export const STRINGS = {
     add_device: "Add a device",
     add_device_none: "Choose a device…",
     channels: "Accepted channels",
+    enabled: "Receives notifications",
+    enabled_hint: "Off: this person gets nothing on any channel, also not critical messages or messages that name them directly. Banners without a target stay visible on their dashboard. Devices and channels below are kept for when you switch it on again.",
+    disabled: "disabled",
     channel_banner: "Banner",
     channel_push: "Push",
     channel_popup: "Popup",
@@ -51,6 +54,9 @@ export const STRINGS = {
     add_device: "Gerät hinzufügen",
     add_device_none: "Gerät wählen…",
     channels: "Angenommene Kanäle",
+    enabled: "Erhält Benachrichtigungen",
+    enabled_hint: "Aus: Diese Person erhält auf keinem Kanal etwas, auch keine kritischen Meldungen und auch nicht, wenn sie direkt genannt wird. Banner ohne Ziel bleiben auf ihrem Dashboard sichtbar. Geräte und Kanäle unten bleiben für das Wiedereinschalten erhalten.",
+    disabled: "deaktiviert",
     channel_banner: "Banner",
     channel_push: "Push",
     channel_popup: "Popup",
@@ -84,6 +90,9 @@ export const STRINGS = {
     add_device: "Ajouter un appareil",
     add_device_none: "Choisir un appareil…",
     channels: "Canaux acceptés",
+    enabled: "Reçoit les notifications",
+    enabled_hint: "Désactivé : cette personne ne reçoit rien sur aucun canal, pas même les messages critiques ni quand elle est nommée directement. Les bannières sans cible restent visibles sur son tableau de bord. Les appareils et canaux ci-dessous sont conservés pour la réactivation.",
+    disabled: "désactivé",
     channel_banner: "Bannière",
     channel_push: "Push",
     channel_popup: "Fenêtre",
@@ -117,6 +126,9 @@ export const STRINGS = {
     add_device: "Añadir un dispositivo",
     add_device_none: "Elige un dispositivo…",
     channels: "Canales aceptados",
+    enabled: "Recibe notificaciones",
+    enabled_hint: "Desactivado: esta persona no recibe nada por ningún canal, ni mensajes críticos ni aunque se la nombre directamente. Los banners sin destino siguen visibles en su panel. Los dispositivos y canales de abajo se conservan para cuando la reactives.",
+    disabled: "desactivado",
     channel_banner: "Aviso",
     channel_push: "Push",
     channel_popup: "Ventana",
@@ -150,12 +162,14 @@ export function profileValues(profile) {
     primary: profile.primary || "",
     channels: [...profile.channels],
     mail_address: profile.mail_address || "",
+    enabled: profile.enabled !== false,
   };
 }
 
 // A profile equal to the detected devices needs no subentry.
 export function isDefault(values) {
   return (
+    values.enabled !== false &&
     values.manual.length === 0 &&
     values.removed.length === 0 &&
     !values.primary &&
@@ -167,6 +181,7 @@ export function isDefault(values) {
 export function toProfileData(person, values, creating) {
   const data = { channels: PROFILE_CHANNELS.filter((c) => values.channels.includes(c)) };
   if (creating) data.person = person;
+  if (values.enabled === false) data.enabled = false;
   if (values.manual.length) data.devices = [...values.manual];
   if (values.removed.length) data.removed_devices = [...values.removed];
   if (values.primary) data.primary = values.primary;
@@ -230,6 +245,7 @@ export function mount(container, ctx) {
       render();
     });
     const badges = [];
+    if (p.enabled === false) badges.push(el("span", { className: "badge bad", textContent: t.disabled }));
     if (p.customized) badges.push(el("span", { className: "badge", textContent: t.customized }));
     if (!p.user) badges.push(el("span", { className: "badge bad", textContent: t.no_user }));
     return el("li", {}, [el("div", {}, [el("strong", { textContent: p.name }), ...badges, el("div", { className: "sub", textContent: devices })]), edit]);
@@ -239,6 +255,8 @@ export function mount(container, ctx) {
     const { view } = profile;
     const values = profile.values;
     const box = el("section", {}, [el("h2", { textContent: view.name })]);
+    box.append(ui.checkbox(t.enabled, values.enabled !== false, (on) => { values.enabled = on; render(); }));
+    box.append(el("div", { className: "hint", textContent: t.enabled_hint }));
     const devices = [];
     for (const d of view.devices) {
       const kept = d.source === "manual" ? values.manual.includes(d.device_id) : !values.removed.includes(d.device_id);
@@ -283,7 +301,7 @@ export function mount(container, ctx) {
       row.append(reset);
     }
     box.append(status, row);
-    if (view.subentry_id) box.append(el("div", { className: "hint", textContent: s.common.yaml }), el("pre", { textContent: ui.toYaml({ person: view.person, channels: values.channels, devices: values.manual, removed_devices: values.removed, primary: values.primary || null, mail_address: values.mail_address || null }) }));
+    if (view.subentry_id) box.append(el("div", { className: "hint", textContent: s.common.yaml }), el("pre", { textContent: ui.toYaml({ person: view.person, enabled: values.enabled !== false, channels: values.channels, devices: values.manual, removed_devices: values.removed, primary: values.primary || null, mail_address: values.mail_address || null }) }));
     return box;
   }
 

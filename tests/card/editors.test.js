@@ -123,7 +123,7 @@ describe("recipient editor", () => {
   };
 
   it("starts from what the profile changes", () => {
-    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "" });
+    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "", enabled: true });
   });
 
   it("needs no stored profile when nothing differs from the detected devices", () => {

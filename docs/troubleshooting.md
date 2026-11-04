@@ -46,6 +46,7 @@ Ask the trace for the message: the admin WebSocket command `heads_up/hub_trace` 
 - `no_usable_device`: the person has no Companion device. Check that a `device_tracker` of the app is in the person's trackers, or add the device in a recipient profile.
 - `service_not_found`: `notify.mobile_app_<device name>` does not exist. The app was removed or renamed and has not registered again. Look for the service in Developer tools > Actions.
 - `channel_not_accepted`: the person's recipient profile does not accept push.
+- `recipient_disabled`: Receives notifications is switched off in the person's recipient profile. It stops every channel, also critical messages. Switch it on again on the Recipients page.
 - `send_failed`: the service raised an error; the log has one warning per device and hour.
 - `rate_limited`: the device had 5 pushes in the last minute, or all devices 60. Raise the limits in Settings. Critical messages are never held back.
 - `duplicate`: an update with the same content as the last one arrived within 30 seconds. Change the text, or set the seconds to 0 in Settings.

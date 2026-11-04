@@ -14,6 +14,7 @@ import {
   table,
 } from "../../custom_components/heads_up/frontend/heads-up-panel.js";
 import { recipientLabel } from "../../custom_components/heads_up/frontend/panel/ui.js";
+import { isDefault, profileValues, toProfileData } from "../../custom_components/heads_up/frontend/panel/recipients.js";
 import {
   changes,
   devicesLabel,
@@ -427,5 +428,26 @@ describe("recipient labels", () => {
     expect(recipientLabel("media_player.hall", choices)).toBe("media_player.hall");
     expect(recipientLabel("Global address", choices)).toBe("Global address");
     expect(recipientLabel("Ground floor (group)", choices)).toBe("Ground floor (group)");
+  });
+});
+
+describe("recipient profile enabled switch", () => {
+  const base = { devices: [], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "" };
+
+  it("reads enabled from the profile and treats a missing value as on", () => {
+    expect(profileValues({ ...base, enabled: false }).enabled).toBe(false);
+    expect(profileValues({ ...base, enabled: true }).enabled).toBe(true);
+    expect(profileValues({ ...base }).enabled).toBe(true);
+  });
+
+  it("is not a default profile when it is off, so it is stored", () => {
+    expect(isDefault({ manual: [], removed: [], primary: "", mail_address: "", channels: ["banner", "push", "popup"], enabled: true })).toBe(true);
+    expect(isDefault({ manual: [], removed: [], primary: "", mail_address: "", channels: ["banner", "push", "popup"], enabled: false })).toBe(false);
+  });
+
+  it("sends enabled only when it is off", () => {
+    const values = { manual: [], removed: [], primary: "", mail_address: "", channels: ["push"], enabled: false };
+    expect(toProfileData("person.anna", values, true).enabled).toBe(false);
+    expect("enabled" in toProfileData("person.anna", { ...values, enabled: true }, true)).toBe(false);
   });
 });

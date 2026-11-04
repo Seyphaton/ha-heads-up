@@ -168,6 +168,7 @@ def people(hass: HomeAssistant, manager: BannerManager) -> list[dict[str, Any]]:
                 "user": bool(state.attributes.get("user_id")),
                 "devices": len(profile.usable),
                 "devices_total": len(profile.devices),
+                "enabled": profile.enabled,
                 "channels": list(profile.channels),
             }
         )

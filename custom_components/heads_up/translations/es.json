@@ -896,6 +896,7 @@
           "description": "Cada persona tiene un perfil sin configuración: sus dispositivos de la app Companion se encuentran por los rastreadores de la persona. Añada uno solo para cambiar eso: añadir un dispositivo no encontrado, quitar uno, elegir un dispositivo principal o limitar los canales.",
           "data": {
             "person": "Persona",
+            "enabled": "Recibe notificaciones",
             "devices": "Dispositivos añadidos",
             "removed_devices": "Dispositivos quitados",
             "primary": "Dispositivo principal",
@@ -903,6 +904,7 @@
             "mail_address": "Dirección de correo"
           },
           "data_description": {
+            "enabled": "Desactivado: esta persona no recibe nada por ningún canal, ni mensajes críticos ni aunque se la nombre directamente. Los banners sin destino siguen visibles en su panel.",
             "devices": "Dispositivos Companion que se usan además de los detectados.",
             "removed_devices": "Dispositivos detectados que se omiten.",
             "primary": "Se lista primero. Los push siguen yendo a todos los dispositivos de la persona. Vacío: el primer dispositivo detectado.",
@@ -914,6 +916,7 @@
           "title": "Cambiar perfil de destinatario",
           "description": "Cada persona tiene un perfil sin configuración: sus dispositivos de la app Companion se encuentran por los rastreadores de la persona. Añada uno solo para cambiar eso: añadir un dispositivo no encontrado, quitar uno, elegir un dispositivo principal o limitar los canales.",
           "data": {
+            "enabled": "Recibe notificaciones",
             "devices": "Dispositivos añadidos",
             "removed_devices": "Dispositivos quitados",
             "primary": "Dispositivo principal",
@@ -921,6 +924,7 @@
             "mail_address": "Dirección de correo"
           },
           "data_description": {
+            "enabled": "Desactivado: esta persona no recibe nada por ningún canal, ni mensajes críticos ni aunque se la nombre directamente. Los banners sin destino siguen visibles en su panel.",
             "devices": "Dispositivos Companion que se usan además de los detectados.",
             "removed_devices": "Dispositivos detectados que se omiten.",
             "primary": "Se lista primero. Los push siguen yendo a todos los dispositivos de la persona. Vacío: el primer dispositivo detectado.",

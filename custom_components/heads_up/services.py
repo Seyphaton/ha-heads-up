@@ -375,7 +375,8 @@ async def banner_people(
         if hub is None:
             return []
         return await hub.resolver.banner_people(audience, severity or DEFAULT_SEVERITY)
-    return list(target.get("recipients", []))
+    people = list(target.get("recipients", []))
+    return hub.resolver.enabled_people(people) if hub is not None else people
 
 
 async def _notify(call: ServiceCall) -> ServiceResponse:

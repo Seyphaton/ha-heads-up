@@ -26,6 +26,8 @@ A presence audience can be limited to chosen persons, for example `At home` for 
 
 In the panel each built-in audience has a checkbox. One that is switched off is not offered, and a call that names it fails with the list of valid names. A built-in audience that a policy uses cannot be switched off.
 
+A person who has Receives notifications switched off is in no audience. The trace says `recipient_disabled`.
+
 A custom name must differ, ignoring case, from the built-in names and from other audiences.
 
 A person whose state is `unknown`, `unavailable` or has no usable tracker has unknown presence. Presence audiences include that person for `critical` messages and skip them for lower severities. The trace says why (`presence_unknown`).
@@ -38,6 +40,7 @@ Every person has a recipient profile without any setup. Their Companion app devi
 
 Add a profile entry only to change that:
 
+- **Receives notifications**: on by default. Off, the person gets nothing on any channel: not in an audience, not when a call names them, not for critical messages. Devices, channels and address stay saved. Banners without a target stay visible on their dashboard.
 - **Added devices**: a Companion device that was not found.
 - **Removed devices**: a detected device to leave out.
 - **Primary device**: listed first. A push still goes to every device of the person.

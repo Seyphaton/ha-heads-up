@@ -91,6 +91,8 @@ def check_rule_entities(
 
 
 def _accepts_push(profile: dict[str, Any]) -> bool:
+    if not profile.get("enabled", True):
+        return False
     channels = profile.get("channels")
     return channels is None or "push" in channels
 
@@ -192,6 +194,7 @@ def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[d
             profiles.append(
                 {
                     "name": state.attributes.get("friendly_name") or state.entity_id,
+                    "enabled": profile.enabled,
                     "channels": list(profile.channels),
                     "devices": [
                         {"name": d.name, "device_id": d.device_id, "service_found": d.service_found}

@@ -896,6 +896,7 @@
           "description": "Jede Person hat ohne Einrichtung ein Profil: Ihre Companion-App-Geräte werden über die Tracker der Person gefunden. Ein Profil ist nur nötig, um das zu ändern: ein nicht gefundenes Gerät hinzufügen, eines entfernen, ein Hauptgerät wählen oder die Kanäle einschränken.",
           "data": {
             "person": "Person",
+            "enabled": "Erhält Benachrichtigungen",
             "devices": "Hinzugefügte Geräte",
             "removed_devices": "Entfernte Geräte",
             "primary": "Hauptgerät",
@@ -903,6 +904,7 @@
             "mail_address": "E-Mail-Adresse"
           },
           "data_description": {
+            "enabled": "Aus: Diese Person erhält auf keinem Kanal etwas, auch keine kritischen Meldungen und auch nicht, wenn sie direkt genannt wird. Banner ohne Ziel bleiben auf ihrem Dashboard sichtbar.",
             "devices": "Companion-Geräte, die zusätzlich zu den erkannten verwendet werden.",
             "removed_devices": "Erkannte Geräte, die ausgelassen werden.",
             "primary": "Wird zuerst gelistet. Pushes gehen weiterhin an alle Geräte der Person. Leer: das erste erkannte Gerät.",
@@ -914,6 +916,7 @@
           "title": "Empfängerprofil ändern",
           "description": "Jede Person hat ohne Einrichtung ein Profil: Ihre Companion-App-Geräte werden über die Tracker der Person gefunden. Ein Profil ist nur nötig, um das zu ändern: ein nicht gefundenes Gerät hinzufügen, eines entfernen, ein Hauptgerät wählen oder die Kanäle einschränken.",
           "data": {
+            "enabled": "Erhält Benachrichtigungen",
             "devices": "Hinzugefügte Geräte",
             "removed_devices": "Entfernte Geräte",
             "primary": "Hauptgerät",
@@ -921,6 +924,7 @@
             "mail_address": "E-Mail-Adresse"
           },
           "data_description": {
+            "enabled": "Aus: Diese Person erhält auf keinem Kanal etwas, auch keine kritischen Meldungen und auch nicht, wenn sie direkt genannt wird. Banner ohne Ziel bleiben auf ihrem Dashboard sichtbar.",
             "devices": "Companion-Geräte, die zusätzlich zu den erkannten verwendet werden.",
             "removed_devices": "Erkannte Geräte, die ausgelassen werden.",
             "primary": "Wird zuerst gelistet. Pushes gehen weiterhin an alle Geräte der Person. Leer: das erste erkannte Gerät.",
