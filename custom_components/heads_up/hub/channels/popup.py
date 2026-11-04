@@ -97,5 +97,6 @@ class PopupChannel:
             quiet = row.ref == QUIET
             payload["style"] = "card" if quiet else self.styles().get(message.severity, "card")
             payload["ack"] = self._hub.ack_applies(message) and not message.acknowledged_by
+            payload["snooze_seconds"] = self._manager.quick_snooze_seconds
             found[message.id] = payload
         return list(found.values())

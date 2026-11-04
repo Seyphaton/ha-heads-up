@@ -28,7 +28,7 @@ async def test_every_settings_command_is_for_admins_only(
     client = await hass_ws_client(hass, hass_read_only_access_token)
     for command, data in (
         ("settings_get", {}),
-        ("settings_set", {"hub_enabled": True}),
+        ("settings_set", {"show_panel": True}),
     ):
         assert (await ask(client, command, **data))["error"]["code"] == "unauthorized"
     assert not policies(entry)
@@ -40,7 +40,6 @@ async def test_get_returns_every_option_the_layout_and_the_token(
     client = await hass_ws_client(hass)
     result = (await ask(client, "settings_get"))["result"]
     assert result["options"] == {
-        "hub_enabled": True,
         "show_panel": False,
         "max_banners": 50,
         "evict": True,
@@ -49,6 +48,7 @@ async def test_get_returns_every_option_the_layout_and_the_token(
         "default_snoozable": False,
         "default_snooze_scope": "user",
         "default_snooze_options": [15, 60, 240],
+        "quick_snooze_minutes": 15,
         "disable_ended_buttons": True,
         "presence_debounce_seconds": 60,
         "speak_max_length": 200,
@@ -61,8 +61,11 @@ async def test_get_returns_every_option_the_layout_and_the_token(
         "recent_messages": 100,
     }
     assert [s["name"] for s in result["layout"]] == [
-        "hub",
-        "banners",
+        "sidebar",
+        "dismiss",
+        "snooze",
+        "snooze_banner",
+        "snooze_push",
         "presence",
         "speech",
         "limits",
@@ -140,14 +143,12 @@ async def test_a_value_outside_its_range_is_refused(
     assert entry.options.get("trace_entries", 500) == 500
 
 
-async def test_the_hub_switch_works_from_settings(
+async def test_the_hub_cannot_be_switched_off_from_settings(
     hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
 ) -> None:
     client = await hass_ws_client(hass)
-    await ask(client, "settings_set", hub_enabled=False)
-    await hass.async_block_till_done()
-    assert entry.runtime_data.hub is None
-    await ask(client, "settings_set", hub_enabled=True)
+    reply = await ask(client, "settings_set", hub_enabled=False)
+    assert not reply["success"] and reply["error"]["code"] == "invalid_format"
     await hass.async_block_till_done()
     assert entry.runtime_data.hub is not None
 

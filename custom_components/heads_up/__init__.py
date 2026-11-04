@@ -12,7 +12,6 @@ from homeassistant.helpers.typing import ConfigType
 
 from .const import (
     DOMAIN,
-    OPT_HUB_ENABLED,
     OPT_INSTALL_TOKEN,
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
@@ -66,8 +65,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> b
 
 
 def _start_hub(hass: HomeAssistant, entry: HeadsUpConfigEntry, manager: BannerManager) -> None:
-    """Create the engine when the hub is on (D-107). Nothing is created while it is off."""
-    if manager.hub is not None or not manager.options[OPT_HUB_ENABLED]:
+    """Create the engine. The hub is always on (D-139)."""
+    if manager.hub is not None:
         return
     hub = HubEngine(
         hass,
@@ -93,20 +92,11 @@ async def _async_entry_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry) -
     # also runs when a rule subentry is added, changed or removed (HA_API_NOTES N-57).
     manager = entry.runtime_data
     manager.options.update(entry.options)
-    if manager.options[OPT_HUB_ENABLED]:
-        if manager.hub is None:
-            _start_hub(hass, entry, manager)
-            assert manager.hub is not None
-            await manager.hub.async_start(set(manager.banners) | set(manager.rules))
-        else:
-            manager.hub.trace.resize(manager.options[OPT_TRACE_ENTRIES])
-            manager.hub.log.resize(manager.options[OPT_TRACE_ENTRIES])
-            manager.hub.recent.resize(manager.options[OPT_RECENT_MESSAGES])
-            manager.hub.limiter.configure(manager.options)
-    elif (hub := manager.hub) is not None:
-        manager.hub = None
-        await hub.async_unload()
     if manager.hub is not None:
+        manager.hub.trace.resize(manager.options[OPT_TRACE_ENTRIES])
+        manager.hub.log.resize(manager.options[OPT_TRACE_ENTRIES])
+        manager.hub.recent.resize(manager.options[OPT_RECENT_MESSAGES])
+        manager.hub.limiter.configure(manager.options)
         manager.hub.resolver.sync(entry.subentries)
         manager.hub.policies.sync(entry.subentries)
         manager.hub.on_policies_changed()

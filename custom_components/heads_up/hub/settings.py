@@ -20,10 +20,10 @@ from ..const import (
     OPT_DEFAULT_TIMEOUT,
     OPT_DISABLE_ENDED_BUTTONS,
     OPT_EVICT,
-    OPT_HUB_ENABLED,
     OPT_INSTALL_TOKEN,
     OPT_MAX_BANNERS,
     OPT_PRESENCE_DEBOUNCE,
+    OPT_QUICK_SNOOZE,
     OPT_RATE_PER_DEVICE,
     OPT_RATE_TOTAL,
     OPT_RECENT_MESSAGES,
@@ -42,20 +42,18 @@ from ..manager import BannerManager
 # its kind. Texts live in strings.json (options.step.init.sections); the panel keeps the same
 # wording in its own tables and a test compares them.
 SECTIONS: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
-    ("hub", ((OPT_HUB_ENABLED, "bool"), (OPT_SHOW_PANEL, "bool"))),
+    ("sidebar", ((OPT_SHOW_PANEL, "bool"),)),
     (
-        "banners",
+        "dismiss",
         (
-            (OPT_MAX_BANNERS, "int"),
-            (OPT_EVICT, "bool"),
             (OPT_DEFAULT_DISMISS_SCOPE, "choice"),
             (OPT_DEFAULT_TIMEOUT, "duration"),
-            (OPT_DEFAULT_SNOOZABLE, "bool"),
-            (OPT_DEFAULT_SNOOZE_SCOPE, "choice"),
-            (OPT_DEFAULT_SNOOZE_OPTIONS, "minutes"),
             (OPT_DISABLE_ENDED_BUTTONS, "bool"),
         ),
     ),
+    ("snooze", ((OPT_DEFAULT_SNOOZABLE, "bool"), (OPT_DEFAULT_SNOOZE_SCOPE, "choice"))),
+    ("snooze_banner", ((OPT_DEFAULT_SNOOZE_OPTIONS, "minutes"),)),
+    ("snooze_push", ((OPT_QUICK_SNOOZE, "int"),)),
     ("presence", ((OPT_PRESENCE_DEBOUNCE, "int"),)),
     (
         "speech",
@@ -63,7 +61,13 @@ SECTIONS: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
     ),
     (
         "limits",
-        ((OPT_RATE_PER_DEVICE, "int"), (OPT_RATE_TOTAL, "int"), (OPT_DEDUPE_SECONDS, "int")),
+        (
+            (OPT_MAX_BANNERS, "int"),
+            (OPT_EVICT, "bool"),
+            (OPT_RATE_PER_DEVICE, "int"),
+            (OPT_RATE_TOTAL, "int"),
+            (OPT_DEDUPE_SECONDS, "int"),
+        ),
     ),
     ("history", ((OPT_TRACE_ENTRIES, "int"), (OPT_RECENT_MESSAGES, "int"))),
 )
@@ -71,6 +75,7 @@ SECTIONS: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
 # option -> (minimum, maximum) for numbers
 RANGES: dict[str, tuple[int, int]] = {
     OPT_MAX_BANNERS: (1, 200),
+    OPT_QUICK_SNOOZE: (1, 1440),
     OPT_PRESENCE_DEBOUNCE: (0, 600),
     OPT_SPEAK_MAX_LENGTH: (20, 1000),
     OPT_SPEAK_COOLDOWN: (0, 3600),
@@ -149,7 +154,7 @@ def token(manager: BannerManager) -> str:
 
 
 def people(hass: HomeAssistant, manager: BannerManager) -> list[dict[str, Any]]:
-    """Persons with their usable devices, for the summary table. Empty while the hub is off."""
+    """Persons with their usable devices, for the summary table."""
     hub = manager.hub
     if hub is None:
         return []

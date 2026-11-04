@@ -206,7 +206,6 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
     )
     return {
         "entry_id": entry.entry_id,
-        "hub": hub is not None,
         "audiences": audiences,
         "groups": groups,
         "profiles": profiles,

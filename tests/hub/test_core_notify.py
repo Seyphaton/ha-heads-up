@@ -252,39 +252,3 @@ async def test_shortcut_needs_a_target(hass: HomeAssistant, entry: MockConfigEnt
 @pytest.fixture
 def options() -> dict[str, Any]:
     return {}
-
-
-class TestHubOff:
-    @pytest.fixture
-    def options(self) -> dict[str, Any]:  # type: ignore[override]
-        return {"hub_enabled": False}
-
-    async def test_banner_only_notify_still_works(
-        self, hass: HomeAssistant, entry: MockConfigEntry
-    ) -> None:
-        assert entry.runtime_data.hub is None
-        result = await notify(hass, id="a", message="x", channels=["banner"])
-        assert result["status"] == "created"
-        assert result["channels"]["banner"]["sent"] == 1
-
-    async def test_other_channels_say_the_hub_is_off(
-        self, hass: HomeAssistant, entry: MockConfigEntry
-    ) -> None:
-        hass.states.async_set("person.anna", "home")
-        with pytest.raises(ServiceValidationError) as err:
-            await notify(
-                hass,
-                message="x",
-                channels=["push"],
-                to={"push": {"recipients": ["person.anna"]}},
-            )
-        assert err.value.translation_key == "hub_off"
-
-    async def test_shortcuts_say_the_hub_is_off(
-        self, hass: HomeAssistant, entry: MockConfigEntry
-    ) -> None:
-        with pytest.raises(ServiceValidationError) as err:
-            await hass.services.async_call(
-                DOMAIN, "push", {"message": "x", "recipients": ["person.a"]}, blocking=True
-            )
-        assert err.value.translation_key == "hub_off"

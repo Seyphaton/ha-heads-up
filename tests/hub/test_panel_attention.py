@@ -7,7 +7,6 @@ from custom_components.heads_up.hub.panel_data import (
     check_devices,
     check_failures,
     check_groups,
-    check_hub,
     check_people,
     check_policies,
     check_rule_entities,
@@ -127,12 +126,6 @@ def test_an_escalation_that_does_not_cover_critical_does_not_count() -> None:
     assert kinds(check_critical_escalation([reminder])) == ["no_critical_escalation"]
 
 
-def test_the_hub_being_off_is_a_warning() -> None:
-    assert check_hub(True) == []
-    (item,) = check_hub(False)
-    assert (item.kind, item.level, item.page) == ("hub_off", "warning", "general")
-
-
 def test_a_person_who_does_not_accept_push_is_not_flagged_for_a_missing_device() -> None:
     profiles = [
         {"name": "Ben", "channels": ["banner", "popup"], "devices": []},
@@ -144,9 +137,9 @@ def test_a_person_who_does_not_accept_push_is_not_flagged_for_a_missing_device()
 
 
 def test_only_warnings_can_be_dismissed_and_the_key_names_problem_and_object() -> None:
-    (warning,) = check_hub(False)
+    (warning,) = check_critical_escalation([])
     assert warning.as_dict()["dismissible"] is True
-    assert warning.key == "hub_off||"
+    assert warning.key == "no_critical_escalation||"
     (error,) = check_groups([{"name": "Hall", "reachable": False}])
     assert error.as_dict()["dismissible"] is False
     assert error.key == "group_empty|Hall|"

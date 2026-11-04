@@ -55,6 +55,7 @@ from .const import (
     OPT_DISABLE_ENDED_BUTTONS,
     OPT_EVICT,
     OPT_MAX_BANNERS,
+    OPT_QUICK_SNOOZE,
     RULE_ID_PREFIX,
     RULE_SUBENTRY,
     RULE_TAG,
@@ -375,12 +376,17 @@ class BannerManager:
             or not banner.active
         )
 
+    @property
+    def quick_snooze_seconds(self) -> int:
+        """The one snooze time of the push and popup buttons (D-142)."""
+        return int(self.options[OPT_QUICK_SNOOZE]) * 60
+
     @callback
     def snooze(self, banner_id: str, user_id: str, seconds: int) -> None:
         banner = self.rules.get(banner_id) or self._get(banner_id)
         if not banner.snoozable:
             raise HeadsUpError("not_snoozable", f"Banner {banner_id} cannot be snoozed")
-        if seconds not in banner.snooze_options:
+        if seconds not in banner.snooze_options and seconds != self.quick_snooze_seconds:
             raise HeadsUpError(
                 "invalid_snooze", f"{seconds} s is not a choice of banner {banner_id}"
             )

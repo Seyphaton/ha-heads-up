@@ -295,6 +295,9 @@ class HubEngine:
             "later": [self._later(p) for p in applied if p.type not in ("quiet_hours", "deliver")],
             "held_for_summary": summary.name if summary else None,
             "banner_people": [p for p in message.people if p != BANNER_NOBODY],
+            # Acknowledging is not a field of the call: it matters when an escalation or a
+            # reminder applies, so the panel shows which ones do.
+            "acknowledge": [p.name for p in self.policies.timed_for(message)],
         }
 
     def _preview_row(

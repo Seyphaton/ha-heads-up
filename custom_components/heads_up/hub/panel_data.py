@@ -25,6 +25,7 @@ from ..const import (
     RULE_SUBENTRY,
 )
 from ..manager import BannerManager
+from .activity import ActivityLog
 from .ledger import State
 from .policies import away, deliver, escalation, fallback, quiet, reminder, summarize
 from .policies.matching import applies
@@ -169,10 +170,6 @@ def check_critical_escalation(policies: list[Policy]) -> list[Attention]:
     return [Attention("no_critical_escalation", "warning", "", None, "policies")]
 
 
-def check_hub(enabled: bool) -> list[Attention]:
-    return [] if enabled else [Attention("hub_off", "warning", "", None, "general")]
-
-
 # Collectors --------------------------------------------------------------------------------
 
 
@@ -187,8 +184,7 @@ def _rule_data(entry: Any) -> list[dict[str, Any]]:
 def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[dict[str, Any]]:
     hub = manager.hub
     states = {s.entity_id: s.state for s in hass.states.async_all()}
-    found = check_hub(hub is not None)
-    found += check_rule_entities(_rule_data(entry), states)
+    found = check_rule_entities(_rule_data(entry), states)
     if hub is not None:
         profiles = []
         for state in sorted(hass.states.async_all("person"), key=lambda s: s.entity_id):
@@ -356,6 +352,9 @@ def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[st
         "attention_hidden": hidden,
         "shortcuts": shortcuts(entry, manager),
         "log": hub.log.latest(50) if hub is not None else [],
+        "activity": (hub.log if hub is not None else ActivityLog(1)).created_histogram(
+            dt_util.utcnow().timestamp()
+        ),
         "first_run": hub is not None and not hub.policies.all(),
     }
 

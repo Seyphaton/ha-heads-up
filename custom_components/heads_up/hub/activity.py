@@ -8,7 +8,11 @@ from __future__ import annotations
 
 from collections import OrderedDict, deque
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from typing import Any
+
+# The newest messages that the hourly chart counts; a busier house undercounts the oldest hours.
+CREATED_KEEP = 5000
 
 KINDS = (
     "created",
@@ -41,12 +45,37 @@ class Activity:
 class ActivityLog:
     def __init__(self, size: int) -> None:
         self._entries: deque[Activity] = deque(maxlen=max(1, size))
+        self._created: deque[tuple[float, str]] = deque(maxlen=CREATED_KEEP)
 
     def resize(self, size: int) -> None:
         self._entries = deque(self._entries, maxlen=max(1, size))
 
     def add(self, entry: Activity) -> None:
         self._entries.append(entry)
+        if entry.kind == "created":
+            stamp = datetime.fromisoformat(entry.time).timestamp()
+            self._created.append((stamp, entry.severity or "info"))
+
+    def created_histogram(self, now: float, hours: int = 24) -> dict[str, Any]:
+        """Messages created per hour over the last `hours` hours, oldest hour first.
+
+        Hours are rolling: the last bucket holds the last 60 minutes before `now`. Each bucket
+        counts by severity so the panel can stack it. Memory only, like the log.
+        """
+        buckets: list[dict[str, Any]] = [{"total": 0, "by": {}} for _ in range(hours)]
+        for stamp, severity in self._created:
+            age = now - stamp
+            if age < 0 or age >= hours * 3600:
+                continue
+            bucket = buckets[hours - 1 - int(age // 3600)]
+            bucket["total"] += 1
+            bucket["by"][severity] = bucket["by"].get(severity, 0) + 1
+        return {
+            "hours": hours,
+            "buckets": buckets,
+            "total": sum(b["total"] for b in buckets),
+            "peak": max(b["total"] for b in buckets),
+        }
 
     def latest(self, limit: int | None = None) -> list[dict[str, Any]]:
         """Newest first."""

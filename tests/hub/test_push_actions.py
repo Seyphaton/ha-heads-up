@@ -58,13 +58,27 @@ async def test_dismiss_hides_the_banner_for_the_person_and_clears_the_push(
     assert last_trace(entry)["reason"] == "ok"
 
 
-async def test_snooze_uses_the_first_snooze_option(
+async def test_snooze_uses_the_snooze_time_of_the_push_not_the_banner_choices(
     hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
 ) -> None:
     await press(hass, entry, "hu:m:person.anna:snooze", user_id="anna-id")
-    until = entry.runtime_data.banners["m"].snoozed_until["anna-id"]
-    assert (until - entry.runtime_data.banners["m"].updated_at).total_seconds() == pytest.approx(
-        600, abs=5
+    message = entry.runtime_data.banners["m"]
+    assert (message.snoozed_until["anna-id"] - message.updated_at).total_seconds() == pytest.approx(
+        900, abs=5
+    )  # the default 15 minutes, although the message's own choices start at 10
+
+
+async def test_the_snooze_time_of_the_push_is_a_setting(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, "quick_snooze_minutes": 30}
+    )
+    await hass.async_block_till_done()
+    await press(hass, entry, "hu:m:person.anna:snooze", user_id="anna-id")
+    message = entry.runtime_data.banners["m"]
+    assert (message.snoozed_until["anna-id"] - message.updated_at).total_seconds() == pytest.approx(
+        1800, abs=5
     )
 
 
@@ -156,3 +170,13 @@ async def test_the_listener_is_removed_on_unload(
     assert await hass.config_entries.async_unload(entry.entry_id)
     await fire_app_action(hass, "hu:m:person.anna:dismiss", user_id="anna-id")
     assert banner.dismissed_by == []
+
+
+async def test_an_own_button_of_an_ended_message_is_refused_on_the_phone_too(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    events = async_capture_events(hass, "heads_up_banner_action")
+    entry.runtime_data.acknowledge("m", "anna-id")
+    await press(hass, entry, "hu:m:person.anna:b-seen", user_id="anna-id")
+    assert events == []
+    assert last_trace(entry)["reason"] == "message_ended"

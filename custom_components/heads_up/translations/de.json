@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Administratoren sehen eine Heads-Up-Seite in der Seitenleiste mit Übersicht, Editoren und Einstellungen. Du kannst das jederzeit in den Einstellungen der Integration oder auf der Einstellungsseite des Panels ändern. Banner werden mit der Aktion `heads_up.create_banner` erstellt.",
+        "description": "Administratoren sehen eine Heads-Up-Seite in der Seitenleiste.\n\nOhne sie kannst du nicht nutzen:\n- Testsenden\n- das Meldungsprotokoll mit dem Ablauf jeder Meldung\n- die Übersicht\n- die Einführung mit den Standardrichtlinien\n- die Kanal-Einstellungen\n- die Hilfe-Seiten\n\nZielgruppen, Empfänger, Richtlinien, Überwachungsregeln und die übrigen Einstellungen bleiben unter Geräte & Dienste bearbeitbar. Du kannst das jederzeit in den Einstellungen der Integration oder auf der Einstellungsseite des Panels ändern. Banner werden mit der Aktion `heads_up.create_banner` erstellt.",
         "data": {
           "show_panel": "Heads Up in der Seitenleiste anzeigen"
         },
@@ -20,38 +20,59 @@
       "init": {
         "description": "Installations-Token: {install_token}. Teil jedes Push-Tags, damit zwei Home-Assistant-Server die Pushes des anderen nie löschen. Nur lesbar.",
         "sections": {
-          "hub": {
-            "name": "Hub",
+          "sidebar": {
+            "name": "Seitenleisten-Panel",
             "data": {
-              "hub_enabled": "Hub aktiv",
               "show_panel": "Heads Up in der Seitenleiste anzeigen"
             },
             "data_description": {
-              "hub_enabled": "Benachrichtigungs-Hub ein- oder ausschalten. Aus: nur der Banner-Kanal funktioniert.",
-              "show_panel": "Nur Administratoren sehen den Eintrag. Er erscheint und verschwindet sofort beim Speichern."
+              "show_panel": "Nur Administratoren sehen den Eintrag. Er erscheint und verschwindet sofort beim Speichern.\n\nOhne das Panel kannst du nicht nutzen:\n- Testsenden\n- das Meldungsprotokoll mit dem Ablauf jeder Meldung\n- die Übersicht mit Braucht Aufmerksamkeit\n- die Einführung mit den Standardrichtlinien\n- die Kanal-Einstellungen (Push-Stufen, Popup-Stile, Mail)\n- die Hilfe-Seiten\n\nZielgruppen, Empfänger, Richtlinien, Überwachungsregeln und die übrigen Einstellungen bleiben unter Geräte & Dienste verfügbar."
             }
           },
-          "banners": {
-            "name": "Banner",
+          "dismiss": {
+            "name": "Meldungen › Einstellungen zum Schließen",
+            "description": "Diese Einstellungen gelten für Banner, Push und Popup einer Meldung.",
             "data": {
-              "max_banners": "Maximale Anzahl Banner",
-              "evict": "Ältestes Banner mit der niedrigsten Dringlichkeit entfernen, wenn voll",
               "default_dismiss_scope": "Standard-Bereich beim Schließen",
               "default_timeout": "Standard-Zeitlimit",
-              "default_snoozable": "Banner sind standardmäßig zurückstellbar",
-              "default_snooze_scope": "Standard-Bereich beim Zurückstellen",
-              "default_snooze_options": "Standard-Auswahl beim Zurückstellen",
-              "disable_ended_buttons": "Nachrichten-Schaltflächen sperren, sobald die Nachricht beendet ist"
+              "disable_ended_buttons": "Meldungs-Schaltflächen sperren, sobald die Meldung beendet ist"
             },
             "data_description": {
-              "max_banners": "1–200. Kritische Banner werden nie entfernt.",
-              "evict": "Wenn aus, schlägt das Erstellen eines Banners über dem Maximum mit einem Fehler fehl.",
-              "default_dismiss_scope": "Gilt, wenn ein Aktionsaufruf kein dismiss_scope angibt.",
-              "default_timeout": "Gilt, wenn ein Aktionsaufruf kein timeout angibt. Achtung: Wenn du dieses Feld leerst, bleiben Banner ohne eigenes Zeitlimit, bis sie geschlossen oder entfernt werden.",
-              "default_snoozable": "Gilt, wenn ein Aktionsaufruf kein snoozable angibt. Banner, die nicht schließbar sind, sind nie zurückstellbar.",
-              "default_snooze_scope": "Gilt, wenn ein Aktionsaufruf kein snooze_scope angibt.",
-              "default_snooze_options": "Gilt, wenn ein Aktionsaufruf kein snooze_options angibt. Leer lassen für 15 Minuten, 1 Stunde und 4 Stunden.",
-              "disable_ended_buttons": "Ein Tastendruck wird ignoriert, wenn die Nachricht geschlossen oder bestätigt wurde oder ihre Bedingung nicht mehr erfüllt ist. Aus: Tastendrücke gelten, bis die Nachricht entfernt wird."
+              "default_dismiss_scope": "Gilt, wenn ein Aktionsaufruf kein dismiss_scope angibt. user: Schließen verbirgt die Meldung nur für diese Person, im Banner, im Push und im Popup. global: Schließen beendet sie für alle.",
+              "default_timeout": "Gilt, wenn ein Aktionsaufruf kein timeout angibt. Die Meldung endet nach dieser Zeit auf jedem Kanal. Achtung: Wenn du dieses Feld leerst, bleiben Meldungen ohne eigenes Zeitlimit, bis sie geschlossen oder entfernt werden.",
+              "disable_ended_buttons": "Ein Tastendruck auf die eigenen Schaltflächen der Meldung wird ignoriert, wenn die Meldung geschlossen oder bestätigt wurde oder ihre Bedingung nicht mehr erfüllt ist, im Banner, im Push und im Popup. Schließen, Zurückstellen und Bestätigen sind nicht betroffen. Aus: Tastendrücke gelten, bis die Meldung entfernt wird."
+            }
+          },
+          "snooze": {
+            "name": "Meldungen › Einstellungen zum Zurückstellen",
+            "description": "Ob eine Meldung zurückgestellt werden kann und für wen. Gilt für Banner, Push und Popup.",
+            "data": {
+              "default_snoozable": "Meldungen sind standardmäßig zurückstellbar",
+              "default_snooze_scope": "Standard-Bereich beim Zurückstellen"
+            },
+            "data_description": {
+              "default_snoozable": "Gilt, wenn ein Aktionsaufruf kein snoozable angibt. Fügt dem Banner, dem Push und dem Popup eine Schaltfläche Zurückstellen hinzu. Meldungen, die nicht schließbar sind, sind nie zurückstellbar.",
+              "default_snooze_scope": "Gilt, wenn ein Aktionsaufruf kein snooze_scope angibt. user: Zurückstellen verbirgt die Meldung nur für diese Person. global: für alle. Gilt für Banner, Push und Popup."
+            }
+          },
+          "snooze_banner": {
+            "name": "Meldungen › Einstellungen zum Zurückstellen › Banner",
+            "description": "Die Banner-Karte bietet ein Menü mit diesen Zeiten an.",
+            "data": {
+              "default_snooze_options": "Auswahl beim Zurückstellen im Banner"
+            },
+            "data_description": {
+              "default_snooze_options": "Gilt, wenn ein Aktionsaufruf kein snooze_options angibt. Der Banner bietet alle Möglichkeiten an. Push und Popup nutzen die Zeit darunter. Leer lassen für 15 Minuten, 1 Stunde und 4 Stunden."
+            }
+          },
+          "snooze_push": {
+            "name": "Meldungen › Einstellungen zum Zurückstellen › Push & Popup",
+            "description": "Push und Popup haben eine Schaltfläche Zurückstellen mit einer Zeit.",
+            "data": {
+              "quick_snooze_minutes": "Zurückstellzeit bei Push und Popup (Minuten)"
+            },
+            "data_description": {
+              "quick_snooze_minutes": "1–1440. Die Schaltfläche Zurückstellen von Push und Popup stellt für diese Zeit zurück. Der Banner hat oben seine eigene Auswahl."
             }
           },
           "presence": {
@@ -79,11 +100,15 @@
           "limits": {
             "name": "Grenzen",
             "data": {
+              "max_banners": "Maximale Anzahl gespeicherter Meldungen",
+              "evict": "Älteste Meldung mit der niedrigsten Dringlichkeit entfernen, wenn voll",
               "rate_per_device_per_minute": "Pushes pro Gerät und Minute",
               "rate_total_per_minute": "Zustellungen pro Minute, alle Geräte",
               "dedupe_seconds": "Sekunden, in denen gleiche Aktualisierungen ignoriert werden"
             },
             "data_description": {
+              "max_banners": "1–200. Wie viele Meldungen aus Aktionsaufrufen gleichzeitig bestehen können, auf jedem Kanal; Überwachungsregeln zählen nicht. Es schützt Speicher und Timer von Home Assistant, nicht die Telefone oder die Karte (die Karte hat ihr eigenes max_items). Kritische Meldungen werden nie entfernt.",
+              "evict": "Wenn aus, schlägt das Erstellen einer Meldung über dem Maximum mit einem Fehler fehl. Eine entfernte Meldung endet auf jedem Kanal.",
               "rate_per_device_per_minute": "1–600. Ein Push über dem Limit wird übersprungen; kritische Meldungen werden nie zurückgehalten.",
               "rate_total_per_minute": "1–6000. Ein Push über dem Limit wird übersprungen; kritische Meldungen werden nie zurückgehalten.",
               "dedupe_seconds": "0–3600. Eine Aktualisierung mit gleichem Inhalt wird in dieser Zeit nicht erneut gesendet. 0: aus."
@@ -248,7 +273,7 @@
       "message": "Die Bedingungs-Entität {entity_id} existiert nicht."
     },
     "hub_off": {
-      "message": "Der Hub ist ausgeschaltet. Bis er in den Integrationsoptionen eingeschaltet wird, funktioniert nur der Banner-Kanal."
+      "message": "Der Benachrichtigungs-Hub läuft nicht. Lade die Integration Heads Up neu."
     },
     "unknown_audience": {
       "message": "Die Zielgruppe \"{name}\" gibt es nicht. Gültige Zielgruppen: {valid}."

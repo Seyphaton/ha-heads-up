@@ -269,16 +269,6 @@ async def test_a_call_with_a_wrong_name_or_shape_is_refused_like_notify_would(
     assert both["error"]["code"] == "invalid_format"
 
 
-async def test_with_the_hub_off_both_commands_say_so(
-    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
-) -> None:
-    hass.config_entries.async_update_entry(entry, options={**entry.options, "hub_enabled": False})
-    await hass.async_block_till_done()
-    client = await hass_ws_client(hass)
-    assert (await ask(client, "hub_plan", **call()))["error"]["code"] == "hub_off"
-    assert (await ask(client, "hub_test_send", **call()))["error"]["code"] == "hub_off"
-
-
 async def test_send_test_sends_exactly_one_real_message_with_the_marker(
     hass: HomeAssistant,
     entry: MockConfigEntry,
@@ -347,3 +337,36 @@ async def test_an_invalid_call_sends_nothing(
     reply = await ask(client, "hub_test_send", **call(to={"push": {"audience": "Nobody"}}))
     assert reply["error"]["code"] == "unknown_audience"
     assert not entry.runtime_data.banners
+
+
+async def test_the_preview_accepts_the_dismiss_and_snooze_choices_of_a_call(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    client = await hass_ws_client(hass)
+    open_choices = await preview(
+        client, dismissible=True, dismiss_scope="global", snoozable=True, snooze_scope="global"
+    )
+    assert shown(open_choices)[("banner", "")] == "sent"
+    pinned = await preview(client, dismissible=False)
+    assert shown(pinned)[("banner", "")] == "sent"
+    refused = await ask(client, "hub_plan", **call(dismissible=False, snoozable=True))
+    assert refused["error"]["code"] == "invalid_format"
+
+
+async def test_the_preview_names_the_policies_that_make_acknowledging_matter(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    client = await hass_ws_client(hass)
+    assert (await preview(client))["acknowledge"] == []
+    await add_policy(hass, entry, "Water escalation", **ESCALATION)
+    await add_policy(hass, entry, "Quiet night", **QUIET)
+    assert (await preview(client))["acknowledge"] == ["Water escalation"]
+    assert (await preview(client, policy="none"))["acknowledge"] == []

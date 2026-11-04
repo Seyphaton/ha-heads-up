@@ -109,8 +109,10 @@ async def test_snooze_must_be_one_of_the_banner_choices(
 ) -> None:
     await create(id="a", message="x", snoozable=True, snooze_options=[{"minutes": 10}])
     client = await hass_ws_client(hass)
-    assert (await snooze(client, "a", 900))["error"]["code"] == "invalid_snooze"
+    assert (await snooze(client, "a", 1200))["error"]["code"] == "invalid_snooze"
     assert (await snooze(client, "a", 600))["success"]
+    # The snooze time of the push and popup buttons is valid too (D-142).
+    assert (await snooze(client, "a", 900))["success"]
 
 
 async def test_snooze_of_unknown_banner_fails(
@@ -248,11 +250,8 @@ async def test_snooze_choices_come_from_the_options(
         result["flow_id"],
         options_input(
             {
-                "banners": {
-                    "default_snoozable": True,
-                    "default_snooze_scope": "global",
-                    "default_snooze_options": ["5", "60"],
-                }
+                "snooze": {"default_snoozable": True, "default_snooze_scope": "global"},
+                "snooze_banner": {"default_snooze_options": ["5", "60"]},
             }
         ),
     )
@@ -270,7 +269,7 @@ async def test_empty_snooze_choices_in_options_fall_back_to_defaults(
     result = await hass.config_entries.options.async_init(entry.entry_id)
     await hass.config_entries.options.async_configure(
         result["flow_id"],
-        options_input({"banners": {"default_snooze_options": []}}),
+        options_input({"snooze_banner": {"default_snooze_options": []}}),
     )
     assert entry.options["default_snooze_options"] == [900, 3600, 14400]
 

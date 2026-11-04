@@ -403,6 +403,10 @@ _TEST_CALL: dict[Any, Any] = {
     vol.Optional("tag"): str,
     vol.Optional("policy"): str,
     vol.Optional("to"): {str: dict},
+    vol.Optional("dismissible"): bool,
+    vol.Optional("dismiss_scope"): str,
+    vol.Optional("snoozable"): bool,
+    vol.Optional("snooze_scope"): str,
 }
 
 

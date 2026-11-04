@@ -167,7 +167,7 @@ class PushChannel:
         extra: list[dict[str, str]] = []
         if target.ack_button:
             extra.append({"action": button_id(message.id, who, "ack"), "title": self._text("ack")})
-        if message.snoozable and message.snooze_options:
+        if message.snoozable:
             extra.append(
                 {"action": button_id(message.id, who, "snooze"), "title": self._text("snooze")}
             )
@@ -276,15 +276,15 @@ class PushChannel:
             if action == "dismiss":
                 manager.dismiss(message_id, user_id)
             elif action == "snooze":
-                manager.snooze(message_id, user_id, banner.snooze_options[0])
+                manager.snooze(message_id, user_id, manager.quick_snooze_seconds)
             elif action == "ack":
                 manager.acknowledge(message_id, user_id)
             elif action.startswith(OWN_PREFIX):
                 manager.press(message_id, user_id, action.removeprefix(OWN_PREFIX))
             else:
                 return "unknown_action"
-        except (HeadsUpError, IndexError) as err:
-            return getattr(err, "code", "no_snooze_option")
+        except HeadsUpError as err:
+            return err.code
         return "ok"
 
 

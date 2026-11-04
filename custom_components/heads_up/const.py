@@ -49,6 +49,8 @@ OPT_DEFAULT_TIMEOUT: Final = "default_timeout"  # seconds; 0 = none
 OPT_DEFAULT_SNOOZABLE: Final = "default_snoozable"
 OPT_DEFAULT_SNOOZE_SCOPE: Final = "default_snooze_scope"
 OPT_DEFAULT_SNOOZE_OPTIONS: Final = "default_snooze_options"  # seconds
+# One snooze time for the buttons of the push and the popup; the banner offers the choices above.
+OPT_QUICK_SNOOZE: Final = "quick_snooze_minutes"
 OPT_DISABLE_ENDED_BUTTONS: Final = "disable_ended_buttons"  # D-125
 # Hub (DESIGN §23). Channels of a message; only `banner` delivers in H1.
 CHANNEL_BANNER: Final = "banner"
@@ -178,7 +180,6 @@ OPT_MAIL_SERVICE: Final = "mail_service"  # name of a notify service, empty: mai
 OPT_MAIL_ADDRESS: Final = "mail_global_address"  # the shared address, empty: none
 OPT_MAIL_SUBJECT: Final = "mail_subject"
 OPT_MAIL_BODY: Final = "mail_body"
-OPT_HUB_ENABLED: Final = "hub_enabled"  # D-107: on by default, this is the off switch
 OPT_INSTALL_TOKEN: Final = "install_token"  # 6 hex characters, used in push tags (D-080)
 OPT_TRACE_ENTRIES: Final = "trace_entries"
 OPT_RECENT_MESSAGES: Final = "recent_messages"
@@ -195,8 +196,8 @@ DEFAULT_OPTIONS: Final = {
     OPT_DEFAULT_SNOOZABLE: False,  # existing dashboards look the same after an update (D-069)
     OPT_DEFAULT_SNOOZE_SCOPE: "user",
     OPT_DEFAULT_SNOOZE_OPTIONS: list(DEFAULT_SNOOZE_SECONDS),
+    OPT_QUICK_SNOOZE: 15,
     OPT_DISABLE_ENDED_BUTTONS: True,
-    OPT_HUB_ENABLED: True,
     OPT_PRESENCE_DEBOUNCE: 60,
     OPT_PUSH_LEVELS: DEFAULT_PUSH_LEVELS,
     OPT_PUSH_LOCKSCREEN: "full",

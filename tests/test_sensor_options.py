@@ -37,15 +37,10 @@ async def test_options_flow_sets_defaults_for_new_banners(
         result["flow_id"],
         options_input(
             {
-                "banners": {
-                    "max_banners": 10,
-                    "evict": False,
-                    "default_dismiss_scope": "global",
-                    "default_timeout": {"hours": 1},
-                    "default_snoozable": False,
-                    "default_snooze_scope": "user",
-                    "default_snooze_options": ["15", "60", "240"],
-                },
+                "limits": {"max_banners": 10, "evict": False},
+                "dismiss": {"default_dismiss_scope": "global", "default_timeout": {"hours": 1}},
+                "snooze": {"default_snoozable": False, "default_snooze_scope": "user"},
+                "snooze_banner": {"default_snooze_options": ["15", "60", "240"]},
             }
         ),
     )
@@ -55,7 +50,6 @@ async def test_options_flow_sets_defaults_for_new_banners(
     assert len(token) == 6  # generated at setup, kept by the options flow
     assert entry.options == {
         "install_token": token,
-        "hub_enabled": True,
         "presence_debounce_seconds": 60,
         "show_panel": False,
         "speak_max_length": 200,
@@ -68,6 +62,7 @@ async def test_options_flow_sets_defaults_for_new_banners(
         "default_snoozable": False,
         "default_snooze_scope": "user",
         "default_snooze_options": [900, 3600, 14400],
+        "quick_snooze_minutes": 15,
         "disable_ended_buttons": True,
         "rate_per_device_per_minute": 5,
         "rate_total_per_minute": 60,
@@ -91,7 +86,10 @@ async def test_cleared_default_timeout_means_no_expiry(
     await hass.config_entries.options.async_configure(
         result["flow_id"],
         options_input(
-            {"banners": {"max_banners": 50, "evict": True, "default_dismiss_scope": "user"}}
+            {
+                "limits": {"max_banners": 50, "evict": True},
+                "dismiss": {"default_dismiss_scope": "user"},
+            }
         ),
     )
     await hass.async_block_till_done()
@@ -117,7 +115,7 @@ async def test_options_screen_refuses_a_timeout_over_the_limit(
 ) -> None:
     result = await hass.config_entries.options.async_init(entry.entry_id)
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], options_input({"banners": {"default_timeout": {"days": 366}}})
+        result["flow_id"], options_input({"dismiss": {"default_timeout": {"days": 366}}})
     )
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {"default_timeout": "timeout_too_long"}

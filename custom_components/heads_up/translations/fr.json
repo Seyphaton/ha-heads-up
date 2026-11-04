@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Les administrateurs voient une page Heads Up dans la barre latérale avec l'aperçu, les éditeurs et les réglages. Vous pouvez le modifier à tout moment dans les réglages de l'intégration ou sur la page Réglages du panneau. Les bannières sont créées par l'action `heads_up.create_banner`.",
+        "description": "Les administrateurs voient une page Heads Up dans la barre latérale.\n\nSans elle, vous ne pouvez pas utiliser :\n- Envoi de test\n- le journal des messages avec sa trace\n- la vue d'ensemble\n- l'introduction qui crée les politiques par défaut\n- les réglages des canaux\n- les pages d'aide\n\nLes audiences, destinataires, politiques, règles de surveillance et les autres réglages restent modifiables sous Appareils et services. Vous pouvez le changer à tout moment dans les réglages de l'intégration ou sur la page Réglages du panneau. Les bannières sont créées par l'action `heads_up.create_banner`.",
         "data": {
           "show_panel": "Afficher Heads Up dans la barre latérale"
         },
@@ -20,38 +20,59 @@
       "init": {
         "description": "Jeton d'installation: {install_token}. Fait partie de chaque étiquette de push, pour que deux serveurs Home Assistant n'effacent jamais les push de l'autre. Lecture seule.",
         "sections": {
-          "hub": {
-            "name": "Hub",
+          "sidebar": {
+            "name": "Panneau de la barre latérale",
             "data": {
-              "hub_enabled": "Hub activé",
               "show_panel": "Afficher Heads Up dans la barre latérale"
             },
             "data_description": {
-              "hub_enabled": "Active ou désactive le hub de notifications. Désactivé : seul le canal bannière fonctionne.",
-              "show_panel": "Seuls les administrateurs voient l'entrée. Elle apparaît et disparaît aussitôt à l'enregistrement."
+              "show_panel": "Seuls les administrateurs voient l'entrée. Elle apparaît et disparaît tout de suite à l'enregistrement.\n\nSans le panneau, vous ne pouvez pas utiliser :\n- Envoi de test\n- le journal des messages avec la trace de chaque message\n- la vue d'ensemble avec À surveiller\n- l'introduction qui crée les politiques par défaut\n- les réglages des canaux (niveaux de push, styles de popup, mail)\n- les pages d'aide\n\nLes audiences, destinataires, politiques, règles de surveillance et les autres réglages restent disponibles sous Appareils et services."
             }
           },
-          "banners": {
-            "name": "Bannières",
+          "dismiss": {
+            "name": "Messages › Réglages de fermeture",
+            "description": "Ces réglages valent pour la bannière, le push et le popup d'un message.",
             "data": {
-              "max_banners": "Nombre maximal de bannières",
-              "evict": "Supprimer la plus ancienne bannière de moindre gravité quand la limite est atteinte",
               "default_dismiss_scope": "Portée de fermeture par défaut",
               "default_timeout": "Délai d'expiration par défaut",
-              "default_snoozable": "Les bannières peuvent être reportées par défaut",
-              "default_snooze_scope": "Portée du report par défaut",
-              "default_snooze_options": "Durées de report par défaut",
               "disable_ended_buttons": "Désactiver les boutons du message une fois celui-ci terminé"
             },
             "data_description": {
-              "max_banners": "1–200. Les bannières critiques ne sont jamais supprimées.",
-              "evict": "Désactivé : créer une bannière au-delà du maximum échoue avec une erreur.",
-              "default_dismiss_scope": "Utilisé quand l'appel d'action ne définit pas dismiss_scope.",
-              "default_timeout": "Utilisé quand l'appel d'action ne définit pas timeout. Attention : si vous videz ce champ, les bannières sans délai propre restent jusqu'à leur fermeture ou suppression.",
-              "default_snoozable": "Utilisé quand l'appel d'action ne définit pas snoozable. Les bannières non fermables ne sont jamais reportables.",
-              "default_snooze_scope": "Utilisé quand l'appel d'action ne définit pas snooze_scope.",
-              "default_snooze_options": "Utilisé quand l'appel d'action ne définit pas snooze_options. Laisser vide pour 15 minutes, 1 heure et 4 heures.",
-              "disable_ended_buttons": "Un appui est ignoré après que le message a été fermé, confirmé ou que sa condition n'est plus vraie. Désactivé : les appuis sont acceptés jusqu'à la suppression du message."
+              "default_dismiss_scope": "Utilisé quand l'appel d'action ne définit pas dismiss_scope. user : fermer ne masque le message que pour cette personne, sur la bannière, le push et le popup. global : fermer le termine pour tout le monde.",
+              "default_timeout": "Utilisé quand l'appel d'action ne définit pas timeout. Le message se termine sur tous les canaux après ce délai. Attention : si vous videz ce champ, les messages sans délai propre restent jusqu'à leur fermeture ou suppression.",
+              "disable_ended_buttons": "Un appui sur les boutons propres du message est ignoré après que le message a été fermé, confirmé ou que sa condition n'est plus vraie, sur la bannière, le push et le popup. Fermer, Reporter et Confirmer ne sont pas concernés. Désactivé : les appuis sont acceptés jusqu'à la suppression du message."
+            }
+          },
+          "snooze": {
+            "name": "Messages › Réglages du report",
+            "description": "Si un message peut être reporté, et pour qui. Valable pour la bannière, le push et le popup.",
+            "data": {
+              "default_snoozable": "Les messages peuvent être reportés par défaut",
+              "default_snooze_scope": "Portée du report par défaut"
+            },
+            "data_description": {
+              "default_snoozable": "Utilisé quand l'appel d'action ne définit pas snoozable. Ajoute un bouton Reporter à la bannière, au push et au popup. Les messages non fermables ne sont jamais reportables.",
+              "default_snooze_scope": "Utilisé quand l'appel d'action ne définit pas snooze_scope. user : un report ne masque le message que pour cette personne. global : pour tout le monde. Valable pour la bannière, le push et le popup."
+            }
+          },
+          "snooze_banner": {
+            "name": "Messages › Réglages du report › Bannières",
+            "description": "La carte bannière propose un menu avec ces durées.",
+            "data": {
+              "default_snooze_options": "Durées de report sur la bannière"
+            },
+            "data_description": {
+              "default_snooze_options": "Utilisé quand l'appel d'action ne définit pas snooze_options. La bannière propose toutes les durées. Le push et le popup utilisent la durée ci-dessous. Laisser vide pour 15 minutes, 1 heure et 4 heures."
+            }
+          },
+          "snooze_push": {
+            "name": "Messages › Réglages du report › Push et popup",
+            "description": "Le push et le popup ont un bouton Reporter avec une seule durée.",
+            "data": {
+              "quick_snooze_minutes": "Durée de report sur le push et le popup (minutes)"
+            },
+            "data_description": {
+              "quick_snooze_minutes": "1–1440. Le bouton Reporter du push et du popup reporte pour cette durée. La bannière a ses propres durées ci-dessus."
             }
           },
           "presence": {
@@ -79,11 +100,15 @@
           "limits": {
             "name": "Limites",
             "data": {
+              "max_banners": "Nombre maximal de messages conservés",
+              "evict": "Supprimer le plus ancien message de moindre gravité quand la limite est atteinte",
               "rate_per_device_per_minute": "Push par appareil et par minute",
               "rate_total_per_minute": "Livraisons par minute, tous appareils",
               "dedupe_seconds": "Secondes pendant lesquelles les mises à jour identiques sont ignorées"
             },
             "data_description": {
+              "max_banners": "1–200. Combien de messages d'appels d'action peuvent exister en même temps, sur tout canal ; les règles de surveillance ne comptent pas. Cela protège le stockage et les minuteries de Home Assistant, pas les téléphones ni la carte (la carte a son propre max_items). Les messages critiques ne sont jamais supprimés.",
+              "evict": "Désactivé : créer un message au-delà du maximum échoue avec une erreur. Un message supprimé se termine sur tous les canaux.",
               "rate_per_device_per_minute": "1–600. Un push au-delà de la limite est ignoré ; les messages critiques ne sont jamais retenus.",
               "rate_total_per_minute": "1–6000. Un push au-delà de la limite est ignoré ; les messages critiques ne sont jamais retenus.",
               "dedupe_seconds": "0–3600. Une mise à jour au contenu identique n'est pas renvoyée pendant ce délai. 0 : désactivé."
@@ -248,7 +273,7 @@
       "message": "L'entité de condition {entity_id} n'existe pas."
     },
     "hub_off": {
-      "message": "Le hub est désactivé. Seul le canal bannière fonctionne tant qu'il n'est pas activé dans les options de l'intégration."
+      "message": "Le hub de notifications ne fonctionne pas. Rechargez l'intégration Heads Up."
     },
     "unknown_audience": {
       "message": "Le public « {name} » n'existe pas. Publics valides : {valid}."

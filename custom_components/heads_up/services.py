@@ -382,15 +382,9 @@ async def _notify(call: ServiceCall) -> ServiceResponse:
     manager = _manager(call.hass)
     data = dict(call.data)
     to: dict[str, dict[str, Any]] = data.pop("to", {})
-    hub = manager.hub
-    if hub is None:
-        # Hub switched off: `notify` is `create_banner` with extra names (D-107).
-        if data["channels"] != [CHANNEL_BANNER] or data.get("policy") not in (None, POLICY_NONE):
-            raise _hub_off()
-        if any("audience" in t for t in to.values()):
-            raise _hub_off()
-    else:
-        _check_names(hub, to, data.get("policy"))
+    if (hub := manager.hub) is None:
+        raise _hub_off()
+    _check_names(hub, to, data.get("policy"))
     if people := await banner_people(hub, to.get(CHANNEL_BANNER, {}), data.get("severity")):
         data["people"] = people  # the card's own targeting (D-008, D-131)
     data["targets"] = to
@@ -398,16 +392,7 @@ async def _notify(call: ServiceCall) -> ServiceResponse:
     banner = manager.banners.get(result["id"])
     if banner is None:
         return _response(result, [])
-    if hub is None:
-        return _response(result, _banner_only(banner))
     return _response(result, await hub.plan(banner, waiting=result["status"] == "waiting"))
-
-
-def _banner_only(banner: Banner) -> list[Planned]:
-    from .hub.channels import Result
-
-    result = Result.SENT if banner.active else Result.HELD
-    return [Planned(CHANNEL_BANNER, "", result, None if banner.active else "waiting_for_condition")]
 
 
 def _shortcut(channel: str) -> Callable[[ServiceCall], Coroutine[Any, Any, ServiceResponse]]:

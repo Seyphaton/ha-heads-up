@@ -207,17 +207,6 @@ async def test_the_config_says_how_each_severity_looks_and_where_the_module_is(
     assert result["module"].startswith("/heads_up/heads-up-popup.js?v=")
 
 
-async def test_the_config_says_off_when_the_hub_is_off(
-    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
-) -> None:
-    entry.runtime_data.options["hub_enabled"] = False
-    hass.config_entries.async_update_entry(entry, options={**entry.options, "hub_enabled": False})
-    await hass.async_block_till_done()
-    client = await hass_ws_client(hass)
-    await client.send_json_auto_id({"type": "heads_up/popup_config"})
-    assert (await client.receive_json())["result"] == {"enabled": False}
-
-
 async def test_a_user_gets_the_list_now_and_again_when_it_changes(
     hass: HomeAssistant,
     entry: MockConfigEntry,

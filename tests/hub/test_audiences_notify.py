@@ -103,22 +103,3 @@ async def test_audiences_groups_and_profiles_survive_a_restart(
     await hass.async_block_till_done()
     await restart(hass, entry)
     assert "Home crowd" in entry.runtime_data.hub.resolver.names()
-
-
-async def test_subentries_of_the_hub_are_ignored_while_the_hub_is_off(
-    hass: HomeAssistant, entry: MockConfigEntry
-) -> None:
-    hass.config_entries.async_update_entry(entry, options={**entry.options, "hub_enabled": False})
-    await hass.async_block_till_done()
-    assert entry.runtime_data.hub is None
-    hass.config_entries.async_add_subentry(
-        entry,
-        ConfigSubentry(
-            data={"kind": "presence", "presence": "at_home"},
-            subentry_type="audience",
-            title="Home crowd",
-            unique_id=None,
-        ),
-    )
-    await hass.async_block_till_done()  # no hub: nothing to sync, nothing raises
-    assert entry.runtime_data.rules == {}

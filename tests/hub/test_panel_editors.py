@@ -160,7 +160,7 @@ async def test_the_config_has_the_entry_id_and_the_channel_settings(
 ) -> None:
     client = await hass_ws_client(hass)
     result = await config(hass, client)
-    assert result["entry_id"] == entry.entry_id and result["hub"] is True
+    assert result["entry_id"] == entry.entry_id and "hub" not in result
     assert result["channels"] == {
         "push_levels": {
             "success": "passive",
@@ -178,16 +178,6 @@ async def test_the_config_has_the_entry_id_and_the_channel_settings(
         "mail_subject": "{severity}: {title}",
         "mail_body": "{message}",
     }
-
-
-async def test_with_the_hub_off_the_editors_have_no_hub_data(
-    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
-) -> None:
-    hass.config_entries.async_update_entry(entry, options={**entry.options, "hub_enabled": False})
-    await hass.async_block_till_done()
-    client = await hass_ws_client(hass)
-    result = await config(hass, client)
-    assert result["hub"] is False and result["audiences"] == [] and result["profiles"] == []
 
 
 async def test_channel_settings_are_written_to_the_options_and_used(

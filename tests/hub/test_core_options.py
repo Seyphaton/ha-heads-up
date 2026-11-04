@@ -1,4 +1,4 @@
-"""Hub options: switch, install token, limits (D-107, D-080)."""
+"""Hub options: install token, limits (D-107, D-080, D-139)."""
 
 import re
 
@@ -9,8 +9,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from ..conftest import options_input
 
 
-async def test_hub_is_on_by_default(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    assert entry.runtime_data.options["hub_enabled"] is True
+async def test_the_hub_is_always_on(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    assert "hub_enabled" not in entry.runtime_data.options
     assert entry.runtime_data.hub is not None
 
 
@@ -33,17 +33,17 @@ async def test_limit_and_history_defaults_are_stored(
     assert (options["trace_entries"], options["recent_messages"]) == (500, 100)
 
 
-async def test_options_flow_switches_the_hub_off_and_keeps_the_token(
+async def test_options_flow_keeps_the_token_and_the_hub_running(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
     token = entry.options["install_token"]
     result = await hass.config_entries.options.async_init(entry.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
-        options_input({"hub": {"hub_enabled": False}}),
+        options_input({"sidebar": {"show_panel": False}}),
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
     assert entry.options["install_token"] == token
-    assert entry.options["hub_enabled"] is False
-    assert entry.runtime_data.hub is None
+    assert entry.options["show_panel"] is False
+    assert entry.runtime_data.hub is not None

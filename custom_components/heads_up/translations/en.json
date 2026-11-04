@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Administrators see a Heads Up page in the sidebar with the overview, the editors and the settings. You can change this at any time in the settings of the integration or on the Settings page of the panel. Banners are created by the `heads_up.create_banner` action.",
+        "description": "Administrators see a Heads Up page in the sidebar.\n\nWithout it you cannot use:\n- Test send\n- the Message Log with the delivery trace\n- the Overview\n- the introduction that creates the default policies\n- the Channels settings\n- the Help pages\n\nAudiences, recipients, policies, watch rules and the other settings stay editable under Devices & services. You can change this at any time in the settings of the integration or on the Settings page of the panel. Banners are created by the `heads_up.create_banner` action.",
         "data": {
           "show_panel": "Show Heads Up in the sidebar"
         },
@@ -20,38 +20,59 @@
       "init": {
         "description": "Install token: {install_token}. Part of every push tag, so two Home Assistant servers never clear each other's pushes. Read only.",
         "sections": {
-          "hub": {
-            "name": "Hub",
+          "sidebar": {
+            "name": "Sidebar panel",
             "data": {
-              "hub_enabled": "Hub enabled",
               "show_panel": "Show Heads Up in the sidebar"
             },
             "data_description": {
-              "hub_enabled": "Switch the notification hub on or off. Off: only the banner channel works.",
-              "show_panel": "Only administrators see the entry. It appears and disappears at once when you save."
+              "show_panel": "Only administrators see the entry. It appears and disappears at once when you save.\n\nWithout the panel you cannot use:\n- Test send\n- the Message Log with the delivery trace of each message\n- the Overview with Needs attention\n- the introduction that creates the default policies\n- the Channels settings (push levels, popup styles, mail)\n- the Help pages\n\nAudiences, recipients, policies, watch rules and the other settings stay available under Devices & services."
             }
           },
-          "banners": {
-            "name": "Banners",
+          "dismiss": {
+            "name": "Messages › Dismiss settings",
+            "description": "These settings apply to the banner, the push and the popup of a message.",
             "data": {
-              "max_banners": "Maximum number of banners",
-              "evict": "Evict the oldest lowest-severity banner when full",
               "default_dismiss_scope": "Default dismiss scope",
               "default_timeout": "Default timeout",
-              "default_snoozable": "Banners can be snoozed by default",
-              "default_snooze_scope": "Default snooze scope",
-              "default_snooze_options": "Default snooze choices",
               "disable_ended_buttons": "Disable message buttons once the message has ended"
             },
             "data_description": {
-              "max_banners": "1–200. Critical banners are never evicted.",
-              "evict": "When off, creating a banner beyond the maximum fails with an error.",
-              "default_dismiss_scope": "Used when an action call sets no dismiss_scope.",
-              "default_timeout": "Used when an action call sets no timeout. Warning: if you clear this field, banners without their own timeout stay until they are dismissed or cleared.",
-              "default_snoozable": "Used when an action call sets no snoozable. Banners that are not dismissible are never snoozable.",
-              "default_snooze_scope": "Used when an action call sets no snooze_scope.",
-              "default_snooze_options": "Used when an action call sets no snooze_options. Leave empty for 15 minutes, 1 hour and 4 hours.",
-              "disable_ended_buttons": "A button press is ignored after the message was dismissed, acknowledged or its condition turned false. Off: presses are accepted until the message is removed."
+              "default_dismiss_scope": "Used when an action call sets no dismiss_scope. user: closing hides the message only for that person, on the banner, the push and the popup. global: closing ends it for everyone.",
+              "default_timeout": "Used when an action call sets no timeout. The message ends on every channel after this time. Warning: if you clear this field, messages without their own timeout stay until they are dismissed or cleared.",
+              "disable_ended_buttons": "A press of the message's own buttons is ignored after the message was dismissed, acknowledged or its condition turned false, on the banner, the push and the popup. Dismiss, Snooze and Acknowledge are not affected. Off: presses are accepted until the message is removed."
+            }
+          },
+          "snooze": {
+            "name": "Messages › Snooze settings",
+            "description": "Whether a message can be snoozed and for whom. Applies to the banner, the push and the popup.",
+            "data": {
+              "default_snoozable": "Messages can be snoozed by default",
+              "default_snooze_scope": "Default snooze scope"
+            },
+            "data_description": {
+              "default_snoozable": "Used when an action call sets no snoozable. Adds a Snooze button to the banner, the push and the popup. Messages that are not dismissible are never snoozable.",
+              "default_snooze_scope": "Used when an action call sets no snooze_scope. user: a snooze hides the message only for that person. global: for everyone. Applies to the banner, the push and the popup."
+            }
+          },
+          "snooze_banner": {
+            "name": "Messages › Snooze settings › Banners",
+            "description": "The banner card offers a menu with these snooze times.",
+            "data": {
+              "default_snooze_options": "Snooze choices on the banner"
+            },
+            "data_description": {
+              "default_snooze_options": "Used when an action call sets no snooze_options. The banner offers all choices. The push and the popup use the snooze time below. Leave empty for 15 minutes, 1 hour and 4 hours."
+            }
+          },
+          "snooze_push": {
+            "name": "Messages › Snooze settings › Push & Popup",
+            "description": "The push and the popup have one Snooze button with one snooze time.",
+            "data": {
+              "quick_snooze_minutes": "Snooze time on push and popup (minutes)"
+            },
+            "data_description": {
+              "quick_snooze_minutes": "1–1440. The Snooze button of the push and of the popup snoozes for this time. The banner has its own choices above."
             }
           },
           "presence": {
@@ -79,11 +100,15 @@
           "limits": {
             "name": "Limits",
             "data": {
+              "max_banners": "Maximum number of stored messages",
+              "evict": "Evict the oldest lowest-severity message when full",
               "rate_per_device_per_minute": "Pushes per device per minute",
               "rate_total_per_minute": "Deliveries per minute, all devices",
               "dedupe_seconds": "Seconds in which identical updates are ignored"
             },
             "data_description": {
+              "max_banners": "1–200. How many messages from action calls can exist at once, on any channel; watch rules do not count. It protects Home Assistant's storage and timers, not the phones or the card (the card has its own max_items). Critical messages are never evicted.",
+              "evict": "When off, creating a message beyond the maximum fails with an error. An evicted message ends on every channel.",
               "rate_per_device_per_minute": "1–600. A push over the cap is skipped; critical messages are never held back.",
               "rate_total_per_minute": "1–6000. A push over the cap is skipped; critical messages are never held back.",
               "dedupe_seconds": "0–3600. An update with the same content is not sent again within this time. 0: off."
@@ -248,7 +273,7 @@
       "message": "Condition entity {entity_id} does not exist."
     },
     "hub_off": {
-      "message": "The hub is switched off. Only the banner channel works until it is switched on in the integration options."
+      "message": "The notification hub is not running. Reload the Heads Up integration."
     },
     "unknown_audience": {
       "message": "Audience \"{name}\" does not exist. Valid audiences: {valid}."

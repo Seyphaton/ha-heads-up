@@ -190,17 +190,6 @@ async def test_a_healthy_setup_has_nothing_to_attend_to_and_no_critical_warning_
     assert (await overview(hass, client))["attention"] == []
 
 
-async def test_the_hub_being_off_is_reported(
-    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
-) -> None:
-    hass.config_entries.async_update_entry(entry, options={**entry.options, "hub_enabled": False})
-    await hass.async_block_till_done()
-    client = await hass_ws_client(hass)
-    result = await overview(hass, client)
-    assert [i["kind"] for i in result["attention"]] == ["hub_off"]
-    assert result["log"] == [] and result["active"]["count"] == 0
-
-
 async def test_the_log_records_the_kinds_of_the_specification_newest_first(
     hass: HomeAssistant,
     entry: MockConfigEntry,
@@ -455,3 +444,50 @@ async def test_the_shortcut_cards_count_audiences_policies_and_channels(
     assert shortcuts["audiences"] == {"builtin": 6, "custom": 1}
     assert shortcuts["policies"] == {"total": 2, "enabled": 1}
     assert shortcuts["channels"] == {"total": 6, "mail": False}
+
+
+def test_the_hourly_history_counts_created_messages_by_severity() -> None:
+    from custom_components.heads_up.hub.activity import Activity, ActivityLog
+
+    now = 1_800_000_000.0
+
+    def created(seconds_ago: float, severity: str | None, kind: str = "created") -> Activity:
+        from datetime import UTC, datetime
+
+        stamp = datetime.fromtimestamp(now - seconds_ago, UTC).isoformat()
+        return Activity(stamp, kind, "m", None, severity)
+
+    log = ActivityLog(50)
+    log.add(created(10, "critical"))
+    log.add(created(3599, "info"))  # still the last hour
+    log.add(created(3600, "info"))  # the hour before
+    log.add(created(5 * 3600 + 5, "warning"))
+    log.add(created(24 * 3600 - 1, "success"))  # the oldest hour
+    log.add(created(24 * 3600, "success"))  # out of range
+    log.add(created(60, "warning", kind="acknowledged"))  # not a creation
+
+    history = log.created_histogram(now)
+    buckets = history["buckets"]
+    assert history["hours"] == len(buckets) == 24
+    assert buckets[23] == {"total": 2, "by": {"critical": 1, "info": 1}}
+    assert buckets[22] == {"total": 1, "by": {"info": 1}}
+    assert buckets[18] == {"total": 1, "by": {"warning": 1}}
+    assert buckets[0] == {"total": 1, "by": {"success": 1}}
+    assert history["total"] == 5
+    assert history["peak"] == 2
+
+
+async def test_the_overview_carries_the_hourly_history(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    quiet = (await overview(hass, client))["activity"]
+    assert quiet["total"] == 0 and len(quiet["buckets"]) == 24
+    await hass.services.async_call(
+        "heads_up", "create_banner", {"message": "Window open", "severity": "info"}, blocking=True
+    )
+    busy = (await overview(hass, client))["activity"]
+    assert busy["total"] == 1
+    assert busy["buckets"][23]["by"] == {"info": 1}

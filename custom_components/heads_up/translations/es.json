@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Los administradores ven una página de Heads Up en la barra lateral con el resumen, los editores y los ajustes. Puedes cambiarlo en cualquier momento en los ajustes de la integración o en la página Ajustes del panel. Los avisos se crean con la acción `heads_up.create_banner`.",
+        "description": "Los administradores ven una página de Heads Up en la barra lateral.\n\nSin ella no puedes usar:\n- Envío de prueba\n- el registro de mensajes con su rastro\n- el resumen\n- la introducción que crea las políticas por defecto\n- los ajustes de canales\n- las páginas de ayuda\n\nLas audiencias, destinatarios, políticas, reglas de vigilancia y los demás ajustes siguen editables en Dispositivos y servicios. Puedes cambiarlo en cualquier momento en los ajustes de la integración o en la página Ajustes del panel. Los avisos se crean con la acción `heads_up.create_banner`.",
         "data": {
           "show_panel": "Mostrar Heads Up en la barra lateral"
         },
@@ -20,38 +20,59 @@
       "init": {
         "description": "Token de instalación: {install_token}. Parte de cada etiqueta de push, para que dos servidores de Home Assistant nunca borren los push del otro. Solo lectura.",
         "sections": {
-          "hub": {
-            "name": "Hub",
+          "sidebar": {
+            "name": "Panel de la barra lateral",
             "data": {
-              "hub_enabled": "Hub activado",
               "show_panel": "Mostrar Heads Up en la barra lateral"
             },
             "data_description": {
-              "hub_enabled": "Activa o desactiva el hub de notificaciones. Desactivado: solo funciona el canal banner.",
-              "show_panel": "Solo los administradores ven la entrada. Aparece y desaparece al guardar."
+              "show_panel": "Solo los administradores ven la entrada. Aparece y desaparece al guardar.\n\nSin el panel no puedes usar:\n- Envío de prueba\n- el registro de mensajes con el rastro de cada mensaje\n- el resumen con Requiere atención\n- la introducción que crea las políticas por defecto\n- los ajustes de canales (niveles de push, estilos de ventana, correo)\n- las páginas de ayuda\n\nLas audiencias, destinatarios, políticas, reglas de vigilancia y los demás ajustes siguen disponibles en Dispositivos y servicios."
             }
           },
-          "banners": {
-            "name": "Avisos",
+          "dismiss": {
+            "name": "Mensajes › Ajustes de cierre",
+            "description": "Estos ajustes valen para el aviso, el push y la ventana emergente de un mensaje.",
             "data": {
-              "max_banners": "Número máximo de avisos",
-              "evict": "Eliminar el aviso más antiguo de menor gravedad cuando se llena",
               "default_dismiss_scope": "Ámbito de cierre predeterminado",
               "default_timeout": "Tiempo de caducidad predeterminado",
-              "default_snoozable": "Los avisos se pueden posponer de forma predeterminada",
-              "default_snooze_scope": "Ámbito de posposición predeterminado",
-              "default_snooze_options": "Opciones de posposición predeterminadas",
               "disable_ended_buttons": "Desactivar los botones del mensaje cuando haya terminado"
             },
             "data_description": {
-              "max_banners": "1–200. Los avisos críticos nunca se eliminan.",
-              "evict": "Si está desactivado, crear un aviso por encima del máximo falla con un error.",
-              "default_dismiss_scope": "Se usa cuando la llamada a la acción no define dismiss_scope.",
-              "default_timeout": "Se usa cuando la llamada a la acción no define timeout. Atención: si vacías este campo, los avisos sin tiempo propio permanecen hasta que se cierran o se eliminan.",
-              "default_snoozable": "Se usa cuando la llamada a la acción no define snoozable. Los avisos que no se pueden cerrar nunca se pueden posponer.",
-              "default_snooze_scope": "Se usa cuando la llamada a la acción no define snooze_scope.",
-              "default_snooze_options": "Se usa cuando la llamada a la acción no define snooze_options. Déjalo vacío para 15 minutos, 1 hora y 4 horas.",
-              "disable_ended_buttons": "Se ignora una pulsación después de que el mensaje se descarte, se confirme o su condición deje de cumplirse. Desactivado: se aceptan pulsaciones hasta que se elimine el mensaje."
+              "default_dismiss_scope": "Se usa cuando la llamada a la acción no define dismiss_scope. user: cerrar oculta el mensaje solo a esa persona, en el aviso, el push y la ventana emergente. global: cerrar lo termina para todos.",
+              "default_timeout": "Se usa cuando la llamada a la acción no define timeout. El mensaje termina en todos los canales tras este tiempo. Atención: si vacías este campo, los mensajes sin tiempo propio permanecen hasta que se cierran o se eliminan.",
+              "disable_ended_buttons": "Se ignora una pulsación en los botones propios del mensaje después de que el mensaje se descarte, se confirme o su condición deje de cumplirse, en el aviso, el push y la ventana emergente. Descartar, Posponer y Confirmar no se ven afectados. Desactivado: se aceptan pulsaciones hasta que se elimine el mensaje."
+            }
+          },
+          "snooze": {
+            "name": "Mensajes › Ajustes de posposición",
+            "description": "Si un mensaje se puede posponer y para quién. Vale para el aviso, el push y la ventana emergente.",
+            "data": {
+              "default_snoozable": "Los mensajes se pueden posponer de forma predeterminada",
+              "default_snooze_scope": "Ámbito de posposición predeterminado"
+            },
+            "data_description": {
+              "default_snoozable": "Se usa cuando la llamada a la acción no define snoozable. Añade un botón Posponer al aviso, al push y a la ventana emergente. Los mensajes que no se pueden cerrar nunca se pueden posponer.",
+              "default_snooze_scope": "Se usa cuando la llamada a la acción no define snooze_scope. user: posponer oculta el mensaje solo a esa persona. global: a todos. Vale para el aviso, el push y la ventana emergente."
+            }
+          },
+          "snooze_banner": {
+            "name": "Mensajes › Ajustes de posposición › Avisos",
+            "description": "La tarjeta de avisos ofrece un menú con estos tiempos.",
+            "data": {
+              "default_snooze_options": "Opciones de posposición en el aviso"
+            },
+            "data_description": {
+              "default_snooze_options": "Se usa cuando la llamada a la acción no define snooze_options. El aviso ofrece todas las opciones. El push y la ventana emergente usan el tiempo de abajo. Déjalo vacío para 15 minutos, 1 hora y 4 horas."
+            }
+          },
+          "snooze_push": {
+            "name": "Mensajes › Ajustes de posposición › Push y ventana emergente",
+            "description": "El push y la ventana emergente tienen un botón Posponer con un solo tiempo.",
+            "data": {
+              "quick_snooze_minutes": "Tiempo de posposición en push y ventana emergente (minutos)"
+            },
+            "data_description": {
+              "quick_snooze_minutes": "1–1440. El botón Posponer del push y de la ventana emergente pospone durante este tiempo. El aviso tiene sus propias opciones arriba."
             }
           },
           "presence": {
@@ -79,11 +100,15 @@
           "limits": {
             "name": "Límites",
             "data": {
+              "max_banners": "Número máximo de mensajes guardados",
+              "evict": "Eliminar el mensaje más antiguo de menor gravedad cuando se llena",
               "rate_per_device_per_minute": "Pushes por dispositivo y minuto",
               "rate_total_per_minute": "Entregas por minuto, todos los dispositivos",
               "dedupe_seconds": "Segundos en que se ignoran las actualizaciones idénticas"
             },
             "data_description": {
+              "max_banners": "1–200. Cuántos mensajes de llamadas a la acción pueden existir a la vez, en cualquier canal; las reglas de vigilancia no cuentan. Protege el almacenamiento y los temporizadores de Home Assistant, no los teléfonos ni la tarjeta (la tarjeta tiene su propio max_items). Los mensajes críticos nunca se eliminan.",
+              "evict": "Si está desactivado, crear un mensaje por encima del máximo falla con un error. Un mensaje eliminado termina en todos los canales.",
               "rate_per_device_per_minute": "1–600. Un push por encima del límite se omite; los mensajes críticos nunca se retienen.",
               "rate_total_per_minute": "1–6000. Un push por encima del límite se omite; los mensajes críticos nunca se retienen.",
               "dedupe_seconds": "0–3600. Una actualización con el mismo contenido no se reenvía durante este tiempo. 0: desactivado."
@@ -248,7 +273,7 @@
       "message": "La entidad de condición {entity_id} no existe."
     },
     "hub_off": {
-      "message": "El hub está desactivado. Solo funciona el canal banner hasta activarlo en las opciones de la integración."
+      "message": "El hub de notificaciones no está en marcha. Recarga la integración Heads Up."
     },
     "unknown_audience": {
       "message": "La audiencia \"{name}\" no existe. Audiencias válidas: {valid}."

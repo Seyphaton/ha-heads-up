@@ -3,7 +3,6 @@
 import asyncio
 from typing import Any
 
-import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -202,32 +201,3 @@ async def test_expiry_clears_the_ledger(
     await tick(hass, freezer, 61)
     await settle(hass, entry)
     assert entry.runtime_data.hub.ledger.for_message("a") == []
-
-
-class TestHubOff:
-    @pytest.fixture
-    def options(self) -> dict[str, Any]:  # type: ignore[override]
-        return {"hub_enabled": False}
-
-    async def test_nothing_is_created_while_the_hub_is_off(
-        self, hass: HomeAssistant, entry: MockConfigEntry, create: CreateBanner, hass_storage: Any
-    ) -> None:
-        await create(id="a", message="x")
-        await settle(hass, entry)
-        assert entry.runtime_data.hub is None
-        assert entry.runtime_data._transition_listeners == []
-        assert await hass.config_entries.async_unload(entry.entry_id)
-        assert "heads_up.deliveries" not in hass_storage
-
-    async def test_switching_the_hub_on_starts_the_engine_without_a_reload(
-        self, hass: HomeAssistant, entry: MockConfigEntry, create: CreateBanner
-    ) -> None:
-        await create(id="a", message="x")
-        hass.config_entries.async_update_entry(
-            entry, options={**entry.options, "hub_enabled": True}
-        )
-        await settle(hass, entry)
-        assert entry.runtime_data.hub is not None
-        await create(id="b", message="x")
-        await settle(hass, entry)
-        assert ("b", "banner", "") in entry.runtime_data.hub.ledger.rows

@@ -118,10 +118,10 @@ async def test_the_setup_flow_can_leave_the_sidebar_off(hass: HomeAssistant) -> 
 
 async def test_the_options_form_has_the_switch(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     result = await hass.config_entries.options.async_init(entry.entry_id)
-    hub_section = result["data_schema"].schema["hub"]
-    assert "show_panel" in [str(k) for k in hub_section.schema.schema]
+    sidebar_section = result["data_schema"].schema["sidebar"]
+    assert [str(k) for k in sidebar_section.schema.schema] == ["show_panel"]
     done = await hass.config_entries.options.async_configure(
-        result["flow_id"], options_input({"hub": {"show_panel": True}})
+        result["flow_id"], options_input({"sidebar": {"show_panel": True}})
     )
     assert done["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()

@@ -257,15 +257,6 @@ async def test_a_push_of_a_message_that_ended_while_stopped_is_cleared_at_startu
     assert [c.data["data"]["tag"] for c in clears] == [tag]
 
 
-async def test_with_the_hub_off_nothing_is_pushed(
-    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
-) -> None:
-    hass.config_entries.async_update_entry(entry, options={**entry.options, "hub_enabled": False})
-    await hass.async_block_till_done()
-    assert entry.runtime_data.hub is None
-    assert anna.calls == []
-
-
 async def test_push_shortcut_without_an_id_sends_once_and_keeps_no_record(
     hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
 ) -> None:
