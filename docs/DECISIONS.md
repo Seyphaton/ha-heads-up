@@ -1125,3 +1125,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Strings: panel texts in four languages, plus the reasons `no_mail_address` and `no_mail_service`.
 - Tests: `tests/hub/test_mail_channel.py`, `tests/card/test-send.test.js`. Checked in the browser pane (tag text, both hints); the address rows are covered by pytest only, because the dev instance has no mail service.
 - Blast radius: panel and one extra key in the rows of `hub_plan`; usual restart.
+
+## D-179 Recipients page: a person per row with the channels (2026-11-05)
+- Context: maintainer note on the first list (a row per person with its devices, a "changed" badge and the missing-user text). The list was hard to scan and showed devices nobody needed to see there.
+- Decision (maintainer, recommended options): on a wide screen a table with one row per person and a column per channel (banner, push, popup, mail); a cell is a tick (accepted and can work), a dash (not accepted) or a warning mark with a tooltip (accepted but cannot work: push without a usable device, popup without a Home Assistant user, mail without an address; `channelState`). Below 560 px the channels are written under the name and a problem after its channel ("Push (no device)"). The "changed" badge and the device list are gone from the list. A disabled person is greyed out with a small "disabled" badge. The text "No Home Assistant user: no popup." appears only when a person is opened. The Edit button stays.
+- Strings: new words in four languages, `customized` removed. Tests: `tests/card/editors.test.js` (channel states, words in four languages).
+- Checked in the browser pane at desktop and at 375 px with the dev persons, including a disabled person. Not checked: a person with a Companion device, a person with mail set up, the German, French and Spanish texts on screen.
+- Blast radius: panel only; usual restart.

@@ -9,6 +9,8 @@ import {
 } from "../../custom_components/heads_up/frontend/panel/audiences.js";
 import {
   addDevice,
+  channelState,
+  PROFILE_CHANNELS,
   groupData,
   isDefault,
   profileValues,
@@ -497,6 +499,39 @@ describe("the policy list order and the overlap note", () => {
       for (const key of ["mode_title", "mode_first", "mode_first_hint", "mode_all", "mode_all_hint", "order_first", "order_all", "move_up", "move_down", "handle", "position", "overlap_first", "overlap_all", "order_failed"]) {
         expect(language[key], `${code} ${key}`).toBeTruthy();
       }
+    }
+  });
+});
+
+describe("recipients list channel states", () => {
+  const anna = { channels: ["banner", "push", "popup", "mail"], devices: [{ service_found: true }], user: true, mail_address: "a@example.com" };
+
+  it("lists the channels in the order of the table", () => {
+    expect(PROFILE_CHANNELS).toEqual(["banner", "push", "popup", "mail"]);
+  });
+
+  it("is on for an accepted channel that can work", () => {
+    for (const channel of PROFILE_CHANNELS) expect(channelState(anna, channel)).toEqual({ channel, state: "on", warn: null });
+  });
+
+  it("is off for a channel the profile does not accept", () => {
+    expect(channelState({ ...anna, channels: ["banner"] }, "push").state).toBe("off");
+  });
+
+  it("warns for an accepted channel that cannot work", () => {
+    expect(channelState({ ...anna, devices: [] }, "push").warn).toBe("device");
+    expect(channelState({ ...anna, devices: [{ service_found: false }] }, "push").warn).toBe("device");
+    expect(channelState({ ...anna, user: false }, "popup").warn).toBe("user");
+    expect(channelState({ ...anna, mail_address: "  " }, "mail").warn).toBe("address");
+    expect(channelState({ ...anna, user: false }, "banner").warn).toBeNull();
+  });
+
+  it("has the words for every warning in all four languages", () => {
+    for (const lang of ["en", "de", "fr", "es"]) {
+      for (const key of ["ch_warn_device", "ch_warn_user", "ch_warn_address", "ch_none", "ch_on", "ch_off", "person"]) {
+        expect(RECIPIENT_STRINGS[lang][key], `${lang}.${key}`).toBeTruthy();
+      }
+      expect(RECIPIENT_STRINGS[lang].customized).toBeUndefined();
     }
   });
 });

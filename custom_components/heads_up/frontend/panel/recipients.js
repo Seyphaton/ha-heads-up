@@ -3,8 +3,8 @@
 export const STRINGS = {
   en: {
     title: "Recipients",
-    intro: "A profile says which devices of a person get push and which channels they accept. Devices are found automatically; you only change what differs.",
-    profiles: "People and their devices",
+    intro: "Who can receive what. A tick means the person accepts the channel and it can work. A mark means it is accepted but cannot work yet; point at it for the reason. Open a person to change devices, channels and the mail address.",
+    profiles: "People",
     groups: "Speaker groups",
     group_intro: "A group stands for its speakers. In calls it is written as the group name followed by (group).",
     device_detected: "detected",
@@ -27,7 +27,13 @@ export const STRINGS = {
     channel_mail: "Mail",
     mail_address: "Mail address",
     mail_address_hint: "Where this person's mail goes. Mail also has to be switched on in the accepted channels. Without an address, mail to this person fails.",
-    customized: "changed",
+    person: "Person",
+    ch_none: "no channel",
+    ch_on: "accepted",
+    ch_off: "not accepted",
+    ch_warn_device: "no device",
+    ch_warn_user: "no Home Assistant user",
+    ch_warn_address: "no address",
     members: "Speakers",
     areas: "Areas",
     new_group: "New group",
@@ -39,8 +45,8 @@ export const STRINGS = {
   },
   de: {
     title: "Empfänger",
-    intro: "Ein Profil sagt, welche Geräte einer Person Push erhalten und welche Kanäle sie annimmt. Geräte werden automatisch gefunden; du änderst nur, was abweicht.",
-    profiles: "Personen und ihre Geräte",
+    intro: "Wer was erhalten kann. Ein Haken heißt: Die Person nimmt den Kanal an und er kann funktionieren. Ein Zeichen heißt: angenommen, aber noch nicht nutzbar; zeige darauf für den Grund. Öffne eine Person, um Geräte, Kanäle und die E-Mail-Adresse zu ändern.",
+    profiles: "Personen",
     groups: "Lautsprechergruppen",
     group_intro: "Eine Gruppe steht für ihre Lautsprecher. In Aufrufen wird sie als Gruppenname gefolgt von (group) geschrieben.",
     device_detected: "gefunden",
@@ -63,7 +69,13 @@ export const STRINGS = {
     channel_mail: "E-Mail",
     mail_address: "E-Mail-Adresse",
     mail_address_hint: "Wohin die Mail dieser Person geht. E-Mail muss auch bei den angenommenen Kanälen aktiviert sein. Ohne Adresse scheitert Mail an diese Person.",
-    customized: "geändert",
+    person: "Person",
+    ch_none: "kein Kanal",
+    ch_on: "angenommen",
+    ch_off: "nicht angenommen",
+    ch_warn_device: "kein Gerät",
+    ch_warn_user: "kein Home-Assistant-Benutzer",
+    ch_warn_address: "keine Adresse",
     members: "Lautsprecher",
     areas: "Bereiche",
     new_group: "Neue Gruppe",
@@ -75,8 +87,8 @@ export const STRINGS = {
   },
   fr: {
     title: "Destinataires",
-    intro: "Un profil dit quels appareils d'une personne reçoivent le push et quels canaux elle accepte. Les appareils sont trouvés automatiquement ; vous ne changez que ce qui diffère.",
-    profiles: "Personnes et leurs appareils",
+    intro: "Qui peut recevoir quoi. Une coche signifie que la personne accepte le canal et qu'il peut fonctionner. Un signe signifie accepté mais pas encore utilisable ; survolez-le pour la raison. Ouvrez une personne pour changer appareils, canaux et adresse e-mail.",
+    profiles: "Personnes",
     groups: "Groupes de haut-parleurs",
     group_intro: "Un groupe représente ses haut-parleurs. Dans les appels, il s'écrit avec le nom du groupe suivi de (group).",
     device_detected: "détecté",
@@ -99,7 +111,13 @@ export const STRINGS = {
     channel_mail: "Courriel",
     mail_address: "Adresse de courriel",
     mail_address_hint: "Où va le courriel de cette personne. Courriel doit aussi être activé dans les canaux acceptés. Sans adresse, le courriel à cette personne échoue.",
-    customized: "modifié",
+    person: "Personne",
+    ch_none: "aucun canal",
+    ch_on: "accepté",
+    ch_off: "non accepté",
+    ch_warn_device: "aucun appareil",
+    ch_warn_user: "aucun utilisateur Home Assistant",
+    ch_warn_address: "aucune adresse",
     members: "Haut-parleurs",
     areas: "Zones",
     new_group: "Nouveau groupe",
@@ -111,8 +129,8 @@ export const STRINGS = {
   },
   es: {
     title: "Destinatarios",
-    intro: "Un perfil dice qué dispositivos de una persona reciben push y qué canales acepta. Los dispositivos se encuentran solos; solo cambias lo que difiere.",
-    profiles: "Personas y sus dispositivos",
+    intro: "Quién puede recibir qué. Una marca de verificación significa que la persona acepta el canal y puede funcionar. Un signo significa aceptado pero aún sin poder funcionar; apunta a él para ver el motivo. Abre una persona para cambiar dispositivos, canales y la dirección de correo.",
+    profiles: "Personas",
     groups: "Grupos de altavoces",
     group_intro: "Un grupo representa a sus altavoces. En las llamadas se escribe con el nombre del grupo seguido de (group).",
     device_detected: "detectado",
@@ -135,7 +153,13 @@ export const STRINGS = {
     channel_mail: "Correo",
     mail_address: "Dirección de correo",
     mail_address_hint: "A dónde va el correo de esta persona. Correo también debe estar activado en los canales aceptados. Sin dirección, el correo a esta persona falla.",
-    customized: "cambiado",
+    person: "Persona",
+    ch_none: "ningún canal",
+    ch_on: "aceptado",
+    ch_off: "no aceptado",
+    ch_warn_device: "sin dispositivo",
+    ch_warn_user: "sin usuario de Home Assistant",
+    ch_warn_address: "sin dirección",
     members: "Altavoces",
     areas: "Áreas",
     new_group: "Nuevo grupo",
@@ -147,7 +171,8 @@ export const STRINGS = {
   },
 };
 
-const PROFILE_CHANNELS = ["banner", "push", "popup", "mail"];
+// The channels a profile can accept, in the order of the list.
+export const PROFILE_CHANNELS = ["banner", "push", "popup", "mail"];
 const DEFAULT_CHANNELS = ["banner", "push", "popup"]; // mail is opt-in per person
 
 export function fill(template, params) {
@@ -222,6 +247,35 @@ export function groupData(values) {
   return { name: String(values.name).trim(), members: [...values.members], areas: [...values.areas] };
 }
 
+// How one channel stands for one person: "off" (not accepted), "on", or "on" with a `warn` when it
+// is accepted but cannot work: push without a usable device, popup without a Home Assistant user,
+// mail without an address.
+export function channelState(profile, channel) {
+  if (!(profile.channels || []).includes(channel)) return { channel, state: "off", warn: null };
+  let warn = null;
+  if (channel === "push" && !(profile.devices || []).some((d) => d.service_found)) warn = "device";
+  if (channel === "popup" && !profile.user) warn = "user";
+  if (channel === "mail" && !String(profile.mail_address || "").trim()) warn = "address";
+  return { channel, state: "on", warn };
+}
+
+const PEOPLE_CSS = `
+table.people { width: 100%; border-collapse: collapse; }
+table.people th, table.people td { text-align: left; padding: 8px; border-top: 1px solid var(--divider-color); vertical-align: middle; }
+table.people thead th { border-top: 0; font-weight: 500; color: var(--secondary-text-color); }
+table.people .ch { text-align: center; width: 72px; }
+table.people td.ch.on { color: var(--success-color, #2e7d32); }
+table.people td.ch.warn { color: var(--warning-color, #b26a00); font-weight: 700; }
+table.people td.ch.off { color: var(--secondary-text-color); }
+table.people .go { width: 1%; white-space: nowrap; text-align: right; }
+table.people tr.dim .who, table.people tr.dim td.ch { opacity: .55; }
+table.people .sub.narrow { display: none; }
+@media (max-width: 560px) {
+  table.people thead, table.people td.ch { display: none; }
+  table.people .sub.narrow { display: block; }
+}
+`;
+
 export function mount(container, ctx) {
   const { t, s, ui } = ctx;
   const { el } = ui;
@@ -235,20 +289,42 @@ export function mount(container, ctx) {
   const regName = (id) => data.choices.registrations.find((r) => r.id === id)?.name ?? id;
 
   function profileRow(p) {
-    const devices = p.devices.length
-      ? p.devices.map((d) => `${d.name || d.device_id} (${d.source === "manual" ? t.device_manual : t.device_detected}${d.service_found ? "" : `, ${t.device_missing_service}`})`).join(", ")
-      : t.no_devices;
     const edit = el("button", { type: "button", textContent: s.common.edit });
     edit.addEventListener("click", () => {
       message = "";
       profile = { person: p.person, view: p, values: profileValues(p) };
       render();
     });
-    const badges = [];
-    if (p.enabled === false) badges.push(el("span", { className: "badge bad", textContent: t.disabled }));
-    if (p.customized) badges.push(el("span", { className: "badge", textContent: t.customized }));
-    if (!p.user) badges.push(el("span", { className: "badge bad", textContent: t.no_user }));
-    return el("li", {}, [el("div", {}, [el("strong", { textContent: p.name }), ...badges, el("div", { className: "sub", textContent: devices })]), edit]);
+    const off = p.enabled === false;
+    const states = PROFILE_CHANNELS.map((channel) => channelState(p, channel));
+    // Narrow screens: the accepted channels under the name, a problem written after its channel.
+    const words = states
+      .filter((c) => c.state !== "off")
+      .map((c) => `${s.channel[c.channel]}${c.warn ? ` (${t[`ch_warn_${c.warn}`]})` : ""}`);
+    const sub = words.join(", ") || t.ch_none;
+    const name = [el("strong", { textContent: p.name })];
+    if (off) name.push(el("span", { className: "badge", textContent: t.disabled }));
+    const cells = states.map((c) => {
+      const mark = c.state === "off" ? "–" : c.warn ? "!" : "✓";
+      const cell = el("td", { className: `ch ${c.state === "off" ? "off" : c.warn ? "warn" : "on"}`, textContent: mark });
+      cell.setAttribute("aria-label", `${s.channel[c.channel]}: ${c.state === "off" ? t.ch_off : c.warn ? t[`ch_warn_${c.warn}`] : t.ch_on}`);
+      if (c.warn) cell.title = t[`ch_warn_${c.warn}`];
+      return cell;
+    });
+    return el("tr", { className: off ? "dim" : "" }, [
+      el("td", { className: "who" }, [el("div", {}, name), el("div", { className: "sub narrow", textContent: sub })]),
+      ...cells,
+      el("td", { className: "go" }, [edit]),
+    ]);
+  }
+
+  function peopleTable() {
+    const head = el("tr", {}, [
+      el("th", { textContent: t.person }),
+      ...PROFILE_CHANNELS.map((c) => el("th", { className: "ch", textContent: s.channel[c] })),
+      el("th", { className: "go" }),
+    ]);
+    return el("table", { className: "people" }, [el("thead", {}, [head]), el("tbody", {}, data.profiles.map(profileRow))]);
   }
 
   function profileEditor() {
@@ -257,6 +333,7 @@ export function mount(container, ctx) {
     const box = el("section", {}, [el("h2", { textContent: view.name })]);
     box.append(ui.checkbox(t.enabled, values.enabled !== false, (on) => { values.enabled = on; render(); }));
     box.append(el("div", { className: "hint", textContent: t.enabled_hint }));
+    if (!view.user) box.append(el("div", { className: "hint problems", textContent: t.no_user }));
     const devices = [];
     for (const d of view.devices) {
       const kept = d.source === "manual" ? values.manual.includes(d.device_id) : !values.removed.includes(d.device_id);
@@ -349,11 +426,11 @@ export function mount(container, ctx) {
   const validate = () => validateGroup(group.values, data.groups.map((g) => g.name), group.own?.name);
 
   function render() {
-    root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
+    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + PEOPLE_CSS }), el("h1", { textContent: t.title }));
     if (profile) return void root.append(profileEditor());
     if (group) return void root.append(groupEditor());
     root.append(el("div", { className: "hint", textContent: t.intro }));
-    root.append(el("section", {}, [el("h2", { textContent: t.profiles }), el("ul", { className: "list" }, data.profiles.map(profileRow))]));
+    root.append(el("section", {}, [el("h2", { textContent: t.profiles }), peopleTable()]));
     const groups = el("ul", { className: "list" }, data.groups.length ? data.groups.map(groupRow) : [el("li", { className: "sub", textContent: t.none_groups })]);
     const add = el("button", { type: "button", className: "primary", textContent: s.common.add });
     add.addEventListener("click", () => { message = ""; group = { own: null, values: { name: "", members: [], areas: [] } }; render(); });
