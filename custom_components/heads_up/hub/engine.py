@@ -514,6 +514,7 @@ class HubEngine:
         if transition.ends_message:
             await self._end(banner)
         elif kind is Kind.HIDDEN and transition.reason == Reason.DISMISSED:
+            self.note(banner.id, "", self._user_name(transition.user_id) or "", "dismissed", "")
             await self._take_back(banner, transition.user_id)
             self._dismissed(banner)
         elif kind is Kind.ACKNOWLEDGED:
@@ -523,8 +524,10 @@ class HubEngine:
             self._restart_timers(banner)
         elif kind is Kind.SNOOZED:
             everyone = banner.snooze_scope == "global"
+            self.note(banner.id, "", self._user_name(transition.user_id) or "", "snoozed", "")
             await self._take_back(banner, None if everyone else transition.user_id)
         elif kind is Kind.UNSNOOZED:
+            self.note(banner.id, "", self._user_name(transition.user_id) or "", "unsnoozed", "")
             await self._resend(banner, transition.user_id)
         elif kind in (Kind.APPEARED, Kind.BECAME_VISIBLE, Kind.UPDATED):
             if kind is not Kind.UPDATED:

@@ -278,3 +278,43 @@ async def test_push_shortcut_without_an_id_sends_once_and_keeps_no_record(
     assert result is not None and result["channels"]["push"]["sent"] == 1
     assert entry.runtime_data.banners == {}
     assert anna.calls[0].data["message"] == "Dinner"
+
+
+@pytest.mark.parametrize("how", ["dismiss", "dismiss_many", "button"])
+async def test_dismissing_from_the_dashboard_clears_the_push_of_an_audience_member(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice, how: str
+) -> None:
+    await notify(
+        hass,
+        entry,
+        channels=["banner", "push"],
+        to={"push": {"audience": "Everyone"}},
+        actions=[{"key": "ok", "label": "OK", "dismiss": True}],
+    )
+    manager = entry.runtime_data
+    if how == "dismiss":
+        manager.dismiss("m", "anna-id")
+    elif how == "dismiss_many":
+        manager.dismiss_many(["m"], "anna-id")
+    else:
+        manager.press("m", "anna-id", "ok")
+    await settle(hass, entry)
+    assert [is_clear(c) for c in anna.calls] == [False, True]
+
+
+async def test_the_message_log_records_a_dismissal_snooze_and_its_end(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    anna: FakeDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    await notify(hass, entry, channels=["banner", "push"], snoozable=True, dismissible=True)
+    manager = entry.runtime_data
+    manager.snooze("m", "anna-id", 900)
+    await settle(hass, entry)
+    await tick(hass, freezer, 901)
+    await settle(hass, entry)
+    manager.dismiss("m", "anna-id")
+    await settle(hass, entry)
+    results = [e["result"] for e in manager.hub.trace.entries("m")]
+    assert {"snoozed", "unsnoozed", "dismissed"} <= set(results)

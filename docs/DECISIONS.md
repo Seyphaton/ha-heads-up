@@ -1110,3 +1110,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer): the README uses `raw.githubusercontent.com` URLs for images and `github.com/.../blob` URLs for the documents and the licence, both on the branch `hub/h9e-wizard`. Committed and pushed on the maintainer's explicit answer; no new tag, so the installed alpha shows it only if HACS reads the branch README.
 - Follow-up: when the branch is merged to `main`, the URLs must point at `main` (or at the release tag), or they break when the branch is deleted. Added to `docs/dev/RELEASE.md`.
 - Blast radius: README only.
+
+## D-177 Dismissals and snoozes are written to the Message Log (2026-11-05)
+- Context: maintainer report, with a trace: a banner and push message was dismissed on the dashboard, the Message Log showed the three `cleared` rows of the push devices but no row for the dismissal, and the push stayed on the device.
+- Finding: the clear was sent to all three devices (rows `cleared`, no reason), with the payload of the Companion documentation (`clear_notification` with `data.tag`); the app then did not remove the notification. The documentation says a clear can need recent use of the app (iOS, and Android for non-critical notifications) and says nothing about macOS. Not reproducible in tests: dismissal through the X button, Clear all and a button, with a named recipient or an audience, clears the push.
+- Decision: the engine writes a trace row for a dismissal, a snooze and the end of a snooze (`dismissed`, `snoozed`, `unsnoozed`, with the first name of the person), as it already does for an acknowledgement. Four languages for the result words. The troubleshooting page and the push section say what the rows mean and the platform limits.
+- Not done: nothing on the server can make the app remove a notification; which of the three devices kept it is unknown (open question to the maintainer).
+- Tests: `tests/hub/test_push_lifecycle.py`.
+- Blast radius: new trace rows; panel words in four languages; usual restart.

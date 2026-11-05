@@ -424,6 +424,10 @@ Check, in this order:
 
 For a banner from a watch rule, see [A watch rule shows no banner](#a-watch-rule-shows-no-banner).
 
+### A push stays on the phone after I dismissed the banner
+
+Open the message in the Message Log. A dismissal shows a `dismissed` row, then one `cleared` row for each of your devices that got a push. With `cleared` rows and no problem reason, Heads Up asked every device to remove the notification, and the app on the phone did not. Open the Companion app once and try again; the app documents that a clear can need recent use. A reason such as `send_failed` or `service_not_found` means Home Assistant could not reach that device. Without `cleared` rows, the user who dismissed is not linked to the person that owns the phone (Settings > People).
+
 ### A push did not arrive
 
 Open Heads Up > Notifications and rules > Message Log and choose the message. Each recipient has a result and a reason.
