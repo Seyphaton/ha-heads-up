@@ -1076,3 +1076,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: review finding E-011. Any timer row that was not an escalation was worded "Reminder", so a Deliver policy showed as "Reminder Critical delivery".
 - Decision (maintainer): `timerName` in `panel/messages.js` words escalation, reminder and a new "Delivery {policy}" (Deliver); any other type shows only the policy name. Four languages.
 - Tests: `tests/card/panel.test.js`. Panel only; not checked in the browser pane.
+
+## D-171 Snoozed banners can be brought back by default (2026-11-05)
+- Context: review finding F-003. `show_snoozed` defaulted to off, so a viewer who snoozed a banner saw nothing on the dashboard that said where it went or how to bring it back.
+- Decision (maintainer): the card option `show_snoozed` defaults to `true`. The footer "Snoozed (n)" with Show now per banner appears only while the viewer has snoozed banners; a card with nothing else to show appears as that footer while something is snoozed. `false` restores the old look. The WebSocket `subscribe` field keeps its own default `false`; the card sends its value. Applies to action and rule banners alike (D-073).
+- Tests: `tests/card/heads-up-card.test.js`. Not checked in the browser pane.
+- Blast radius: changes what existing dashboards show (only for viewers with snoozed banners); usual restart.

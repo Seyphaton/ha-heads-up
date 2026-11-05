@@ -660,7 +660,7 @@ The card shows a banner while it is active, not dismissed by you, and not remove
 | `colors` | map of severity to color | theme colors | CSS color or theme variable per severity, for example `critical: "#c62828"` or `info: var(--primary-color)`. |
 | `clear_all` | boolean | `false` | Show a "Clear all" button in the header. |
 | `swipe_to_dismiss` | boolean | `false` | Swipe a banner sideways to dismiss it. |
-| `show_snoozed` | boolean | `false` | List your snoozed banners under the card with a Show now button. |
+| `show_snoozed` | boolean | `true` | List your snoozed banners under the card with a Show now button. `false` hides the list. |
 | `show_acknowledged` | boolean | `true` | Show the line "Acknowledged by Anna" under a banner that someone acknowledged. `false` hides the line; the Acknowledge button stays. |
 | `show_all` | boolean | `false` | Administrators only: also show banners that are targeted at other people. Ignored for other users. |
 | `show_empty` | boolean | `false` | Show an empty card when there are no banners. |
@@ -811,7 +811,7 @@ A banner created with `snoozable: true` shows a snooze button (an alarm icon) ne
 
 With `swipe_to_dismiss: true`, swiping a snoozable banner to the right opens the same row of choices; swiping left dismisses it. On other banners both directions dismiss.
 
-With `show_snoozed: true`, a "Snoozed (2)" button appears under the card whenever you have snoozed banners. It opens a list with the time left ("back in 12 min") and a **Show now** button per banner that ends the snooze at once. A snooze with `snooze_scope: global` ends for everyone. The card shows even when all its banners are snoozed. It follows the `severity` and `tag` filters.
+By default (`show_snoozed: true`), a "Snoozed (2)" button appears under the card whenever you have snoozed banners; nothing appears while none is snoozed. Set `show_snoozed: false` to hide it. It opens a list with the time left ("back in 12 min") and a **Show now** button per banner that ends the snooze at once. A snooze with `snooze_scope: global` ends for everyone. The card shows even when all its banners are snoozed. It follows the `severity` and `tag` filters.
 
 A banner with `actions` shows up to 3 text buttons under its message. A button fires the event `heads_up_banner_action`, can close the banner for you (`dismiss: true`) and can run a Home Assistant action, the same way a `tap_action` does. The compact layout shows no buttons. See [the action fields](#heads_upnotify) for the fields.
 

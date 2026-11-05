@@ -411,7 +411,7 @@ export function normalizeConfig(config) {
     colorize,
     clear_all: toBool(config.clear_all),
     swipe_to_dismiss: toBool(config.swipe_to_dismiss),
-    show_snoozed: toBool(config.show_snoozed),
+    show_snoozed: config.show_snoozed === undefined ? true : toBool(config.show_snoozed),
     show_acknowledged: config.show_acknowledged === undefined ? true : toBool(config.show_acknowledged),
     collapsed_items: collapsed,
     empty_message: toText(config.empty_message, "empty_message"),

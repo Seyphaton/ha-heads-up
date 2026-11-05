@@ -518,8 +518,9 @@ describe("snoozed banners", () => {
     expect(backInLabel("nonsense", now)).toBe("back in 1 min");
   });
 
-  it("show_snoozed is off by default and must be a boolean", () => {
-    expect(config.show_snoozed).toBe(false);
+  it("show_snoozed is on by default and must be a boolean", () => {
+    expect(config.show_snoozed).toBe(true);
+    expect(normalizeConfig({ show_snoozed: false }).show_snoozed).toBe(false);
     expect(normalizeConfig({ show_snoozed: true }).show_snoozed).toBe(true);
   });
 });
