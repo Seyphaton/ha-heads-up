@@ -211,6 +211,7 @@ import {
 import {
   resultsLine,
   statusLabel,
+  timerName,
   STRINGS as MESSAGES_STRINGS,
 } from "../../custom_components/heads_up/frontend/panel/messages.js";
 
@@ -400,6 +401,15 @@ describe("settings wording equals the integration's options screen (D-122)", () 
       const keys = Object.keys(SETTINGS_STRINGS.en[part]).sort();
       for (const language of Object.values(SETTINGS_STRINGS)) expect(Object.keys(language[part]).sort()).toEqual(keys);
     }
+  });
+
+  it("words a timer row by its policy type", () => {
+    const t = MESSAGES_STRINGS.en;
+    expect(timerName({ type: "escalation", policy: "Water" }, t)).toBe("Escalation Water");
+    expect(timerName({ type: "reminder", policy: "Water" }, t)).toBe("Reminder Water");
+    expect(timerName({ type: "deliver", policy: "Critical delivery" }, t)).toBe("Delivery Critical delivery");
+    expect(timerName({ type: "summarize", policy: "Evening" }, t)).toBe("Evening");
+    expect(MESSAGES_STRINGS.de.timer_deliver && MESSAGES_STRINGS.fr.timer_deliver && MESSAGES_STRINGS.es.timer_deliver).toBeTruthy();
   });
 });
 

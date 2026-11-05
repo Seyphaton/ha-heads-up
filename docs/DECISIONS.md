@@ -1071,3 +1071,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer): What happened lists the banner like any channel, with the people it is for (or "everyone"). The wait for the delivery covers every channel the call named, so a banner-only send waits for its row. Panel only.
 - Tests: `tests/card/test-send.test.js`. Not checked in the browser pane.
 - Blast radius: panel only; usual restart (the panel URL carries a hash).
+
+## D-170 Message Log words timer rows by policy type (2026-11-05)
+- Context: review finding E-011. Any timer row that was not an escalation was worded "Reminder", so a Deliver policy showed as "Reminder Critical delivery".
+- Decision (maintainer): `timerName` in `panel/messages.js` words escalation, reminder and a new "Delivery {policy}" (Deliver); any other type shows only the policy name. Four languages.
+- Tests: `tests/card/panel.test.js`. Panel only; not checked in the browser pane.

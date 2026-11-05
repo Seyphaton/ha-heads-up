@@ -18,6 +18,7 @@ export const STRINGS = {
     timers: "Escalations and reminders",
     timer_escalation: "Escalation {policy}",
     timer_reminder: "Reminder {policy}",
+    timer_deliver: "Delivery {policy}",
     timer_state_planned: "waiting, {when}",
     timer_state_sent: "done",
     timer_state_cleared: "stopped",
@@ -50,6 +51,7 @@ export const STRINGS = {
     timers: "Eskalationen und Erinnerungen",
     timer_escalation: "Eskalation {policy}",
     timer_reminder: "Erinnerung {policy}",
+    timer_deliver: "Zustellung {policy}",
     timer_state_planned: "wartet, {when}",
     timer_state_sent: "erledigt",
     timer_state_cleared: "gestoppt",
@@ -82,6 +84,7 @@ export const STRINGS = {
     timers: "Escalades et rappels",
     timer_escalation: "Escalade {policy}",
     timer_reminder: "Rappel {policy}",
+    timer_deliver: "Livraison {policy}",
     timer_state_planned: "en attente, {when}",
     timer_state_sent: "terminé",
     timer_state_cleared: "arrêté",
@@ -114,6 +117,7 @@ export const STRINGS = {
     timers: "Escalados y recordatorios",
     timer_escalation: "Escalado {policy}",
     timer_reminder: "Recordatorio {policy}",
+    timer_deliver: "Entrega {policy}",
     timer_state_planned: "esperando, {when}",
     timer_state_sent: "hecho",
     timer_state_cleared: "detenido",
@@ -171,6 +175,13 @@ const CSS = `
 .hu-messages .refresh { min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--divider-color); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
 `;
 
+// "Escalation Water", "Reminder Water", "Delivery Critical delivery"; any other type shows only the
+// policy name instead of a wrong word.
+export function timerName(row, t) {
+  const text = { escalation: t.timer_escalation, reminder: t.timer_reminder, deliver: t.timer_deliver }[row.type];
+  return text ? fill(text, { policy: row.policy }) : row.policy;
+}
+
 export function mount(container, ctx) {
   const { t, s, fmt } = ctx;
   let hass = ctx.hass;
@@ -217,7 +228,7 @@ export function mount(container, ctx) {
     if (trace.timers.length > 0) {
       box.append(el("h2", { textContent: t.timers, style: "margin-top:16px" }));
       const items = trace.timers.map((row) => {
-        const name = fill(row.type === "escalation" ? t.timer_escalation : t.timer_reminder, { policy: row.policy });
+        const name = timerName(row, t);
         const state = fill(t[`timer_state_${row.state}`] || row.state, { when: row.due ? fmt.inTime(row.due, now(), s) : "" });
         return el("li", {}, [el("span", { textContent: `${name}: ${state}` })]);
       });

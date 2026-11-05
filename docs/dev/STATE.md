@@ -95,3 +95,4 @@ Follow `docs/dev/RELEASE.md`, "Before the first release". Needs the maintainer: 
 - 2026-11-05: pre-release fix P9 step 3 (D-167): audience, recipient and policy names in `notify` ignore case and a close name gets "Did you mean"; strings in four languages.
 - 2026-11-05: pre-release fix P9 steps 4 and 5 (D-168): validation errors of the call actions are sentences (`_Readable`); R-019 turned out to be a docs error (channel settings are panel-only), docs corrected. P9 done.
 - 2026-11-05: pre-release fix P10 item E-008 (D-169): Test send lists the banner row in What happened. vitest updated; not checked in the browser pane.
+- 2026-11-05: P10 item E-011 (D-170): Message Log words a Deliver timer row "Delivery ...", other types by name. Panel only.
