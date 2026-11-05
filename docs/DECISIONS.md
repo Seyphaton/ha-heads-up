@@ -1099,3 +1099,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer): below 480 px the group row wraps so every group stays visible and tappable, and each trace row of the Message Log becomes a small block: channel and recipient first, the result and reason under them, the time last. Wider screens keep the table. CSS only, in `heads-up-panel.js` and `panel/messages.js`.
 - Checked in the browser pane at 375 px against the dev instance (a trace with a long push row added to the page): no horizontal overflow, Result visible, all five groups visible. Not checked: other panel tables (Test send results, Overview lists), real phones, light theme.
 - Blast radius: panel only; usual restart.
+
+## D-175 Pre-release 1.0.0-alpha.6 (2026-11-05)
+- Context: the review fixes (D-156 to D-174) and the documentation restructure are finished on `hub/h9e-wizard`, and the maintainer asked to commit, push and tag a new pre-release.
+- Decision (maintainer, explicit): set the manifest version and the changelog heading to `1.0.0-alpha.6` (date 2026-11-05) in one commit, push the branch and push the annotated tag `v1.0.0-alpha.6`. The changelog lists the P9 and P10 features that were still missing from `[Unreleased]`. The GitHub pre-release (not marked latest) is created by the maintainer; HACS shows it only with "Show beta versions". No merge to `main`, no 1.0.0.
+- Blast radius: the manifest version is `1.0.0-alpha.6`; the card address carries the new version, so browsers load the new card after the restart.

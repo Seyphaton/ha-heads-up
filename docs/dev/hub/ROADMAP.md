@@ -1,6 +1,6 @@
 # Hub roadmap: work packages, order and parallel lanes
 
-Status: the hub is built (D-107, 2026-10-30) on the branch chain ending in `hub/h9e-wizard`, which is pushed together with the pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.5; nothing reaches `main` until the maintainer confirms (`docs/dev/RELEASE.md`, "Releasing 1.0.0"). Each package below is one phase approval (CLAUDE.md rule 1); a session builds exactly one package, then stops. The status column is updated by the maintainer or the session that finishes a package, on the branch it merges to.
+Status: the hub is built (D-107, 2026-10-30) on the branch chain ending in `hub/h9e-wizard`, which is pushed together with the pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.6; nothing reaches `main` until the maintainer confirms (`docs/dev/RELEASE.md`, "Releasing 1.0.0"). Each package below is one phase approval (CLAUDE.md rule 1); a session builds exactly one package, then stops. The status column is updated by the maintainer or the session that finishes a package, on the branch it merges to.
 
 ## Packages
 - H0a Test fixtures and dev stubs. Small. Needs nothing. `WP-H0a-test-scaffolding.md`

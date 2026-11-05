@@ -3,7 +3,7 @@
 Updated 2026-11-05. Read this first in a new session, then `docs/DESIGN.md` §0 and §8. Start each phase session with the prompt in `docs/dev/PHASE_PROMPT.md`; its documentation checklist is the definition of done.
 
 ## Where we are
-- Branch `hub/h9e-wizard` holds the notification hub, the panel and every change since 0.4.0 (about 140 commits ahead of `main`, which has nothing the branch lacks). It is pushed. Manifest version `1.0.0-alpha.5`; the tags `v1.0.0-alpha.2` to `v1.0.0-alpha.5` are pushed, the GitHub pre-release of each is the maintainer's step. Changes after the alpha.5 tag are in `CHANGELOG.md` `[Unreleased]`.
+- Branch `hub/h9e-wizard` holds the notification hub, the panel and every change since 0.4.0 (about 140 commits ahead of `main`, which has nothing the branch lacks). It is pushed. Manifest version `1.0.0-alpha.6`; the tags `v1.0.0-alpha.2` to `v1.0.0-alpha.6` are pushed, the GitHub pre-release of each is the maintainer's step. Changes after the alpha.6 tag go to `CHANGELOG.md` `[Unreleased]`.
 - `main` is at 0.4.0 (tags `v0.1.0` to `v0.4.0`). Nothing is merged, and there is no 1.0.0 (D-020). The runbook is `docs/dev/RELEASE.md`, "Releasing 1.0.0".
 - Open before 1.0.0: the real-device checks in `docs/OPEN_QUESTIONS.md`, the pre-release review fixes (P1 to P10 session of 2026-11-05, notes below) and the maintainer's decision on version and merge.
 - Phases 0 to 12 and 15 are delivered on their branches; the phase list in `CLAUDE.md` is current.
@@ -100,3 +100,4 @@ Follow `docs/dev/RELEASE.md`, "Before the first release". Needs the maintainer: 
 - 2026-11-05: P10 item R-014 (D-172): banner buttons have accessible names with the banner title. Not tested with a screen reader.
 - 2026-11-05: P10 item R-015 (D-173): docs and SECURITY.md say an external image URL reveals the viewer's address. No code.
 - 2026-11-05: P10 item E-010 (D-174): group row wraps and Message Log trace rows stack below 480 px; checked in the browser pane at 375 px. P10 items done: E-008, E-011, F-003, R-014, R-015, E-010. The dev instance holds a rule "Populated" and `sensor.populated`.
+- 2026-11-05 (release): version `1.0.0-alpha.6` (D-175): manifest and changelog set, branch pushed and tag `v1.0.0-alpha.6` pushed at the maintainer's explicit request; the GitHub pre-release is the maintainer's step. No merge.

@@ -4,10 +4,18 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [1.0.0-alpha.6] - 2026-11-05
+
 ### Added
 - Action `heads_up.clear_notifications` takes messages back from every channel, selected by `id`, `tag`, `severity` or `channels`; `all: true` removes every message. A call with no field is refused.
 
 ### Changed
+- The response of `heads_up.notify` and the shortcuts has `reasons`: for every held or skipped delivery the channel, recipient, result and reason. An update of a message counts speech and mail the recipient already got as skipped.
+- Audience, speaker group, recipient and policy names in a call ignore case, and an unknown name close to a valid one fails with "Did you mean ...?".
+- An invalid call is explained in a sentence, for example "The field message is required." instead of the raw schema text.
+- The card option `show_snoozed` is on by default: a viewer with snoozed banners sees "Snoozed (n)" with Show now. Set `show_snoozed: false` for the old look.
+- Buttons on a banner name the banner for screen readers ("Dismiss: Garage door open").
+- Panel: Test send lists the banner after Send test; the Message Log words a Deliver policy as "Delivery"; on a phone the groups wrap and each trace row stacks; dark-mode controls and form spacing are clearer.
 - Documentation is in five documents (Setup guide, Actions with watch rules and card, Configuration, Settings, Examples and FAQ) and a shorter README. The earlier pages are merged into them; the README no longer lists defaults.
 - Push level critical is an alarm on Android too: it uses the alarm channel (sounds in vibrate and silent mode) with `priority: high` and `ttl: 0`; time-sensitive messages on Android are delivered at once as well. The level is called Critical (alarm). When a push has more buttons than the phone shows, Acknowledge and Dismiss are kept before the message's own buttons and Snooze goes first.
 
