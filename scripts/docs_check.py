@@ -80,7 +80,7 @@ def check_words(files: list[Path]) -> list[str]:
 
 # User-facing pages must describe the current behaviour for a reader who was not in the project:
 # no decision numbers, no promises of later work, no version history, no sentence-style bold
-# lead-ins, no emoji headings. Upgrade notes belong in upgrading.md and the changelog.
+# lead-ins, no emoji headings. Upgrade notes belong in setup.md#upgrading and the changelog.
 STYLE_RULES = [
     (re.compile(r"\b[DN]-\d{2,3}\b"), "decision or note number a reader cannot open"),
     (
@@ -105,7 +105,7 @@ VERSION_HISTORY = re.compile(
     r"\b(since|before|after|from)\s+(version\s+)?v?\d+\.\d+|\bversion\s+\d+\.\d+\s+and\s+earlier",
     re.IGNORECASE,
 )
-VERSION_OK = {"CHANGELOG.md", "upgrading.md"}
+VERSION_OK = {"CHANGELOG.md", "setup.md"}
 
 
 def check_style(files: list[Path]) -> list[str]:

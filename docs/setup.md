@@ -112,6 +112,15 @@ Previews a call and can send it once. Enter the content, the call (severity, tag
 
 Send test sends one real message with the title prefix `Test: `, the tag `test` and an id that starts with `hu_test_`. It ends by itself after 10 minutes. Policies apply to it like to any message. Clear the test message removes it at once. Test send uses the real clock and the real presence.
 
+### Watch rules, configuration, settings and help
+
+- Watch rules (Notifications and rules group): lists every rule with its state, what it watches and its message. Add opens an empty form and Edit opens the stored rule. The page saves through the rule form under Settings > Devices & services > Heads Up, so Save, Delete and the error texts are the same. It does not edit a rule's buttons and tap action; it keeps them as they are. See [Watch rules](actions.md#watch-rules).
+- Audiences, Recipients, Policies and Channels (Configuration group): see [Configuration](configuration.md).
+- Settings: see [Settings](settings.md).
+- Help: three pages. FAQ has the questions of [Examples and FAQ](examples.md#frequently-asked-questions) and more. Notify examples has six calls from a banner to a push to one person, each with a Copy button; the names in them are samples, so replace them with your own audiences, persons and speakers. Card examples has six configurations of the card, each with a Copy button. Every Help page links to the project's GitHub issues page.
+
+The panel polls every 10 seconds, so pages do not update the moment something happens. It was not tested on a touch device or with a screen reader.
+
 ### The introduction
 
 The first time an administrator opens the panel, a tour of four steps opens: what Heads Up does, the channels, the recipients, and the default policies. Only the last step creates anything, and Not now creates nothing. The Restart introduction button on Settings opens it again.

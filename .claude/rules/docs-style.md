@@ -15,7 +15,7 @@ Human docs
 - Say what the user sees, then what to do. State limitations and non-goals plainly.
 - Every claim is backed by a test, the source, or a screenshot from the dev instance. Remove what you cannot back.
 - Every YAML example is validated by `make docs-check`; every action/card field appears in the docs and vice versa.
-- Describe the current version only. Version history and upgrade notes go to `CHANGELOG.md` and `docs/upgrading.md`. No "since version", "in this version", "yet", "not built", "work in progress", no decision or note numbers (D-xx, N-xx) on user pages; `make docs-check` fails on them.
+- Describe the current version only. Version history and upgrade notes go to `CHANGELOG.md` and `docs/setup.md#upgrading`. No "since version", "in this version", "yet", "not built", "work in progress", no decision or note numbers (D-xx, N-xx) on user pages; `make docs-check` fails on them.
 - No bold lead-in sentences ("**Label.** text") in bullets or paragraphs; use a heading or plain text. A glossary may bold the term before a colon.
 - Paragraphs of at most 4 sentences, sentences of about 20 words. State a recommendation once, with its reason. Put a constraint in the step it affects, not in a NOTE block.
 - Every "every", "all", "always" and "never" must be true and covered by a test; otherwise give the real limit.

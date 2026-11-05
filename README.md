@@ -32,7 +32,7 @@ Banners, watch rules and the card work without any hub object.
 | Snooze | Choices of 15 minutes, 1 hour and 4 hours when a banner is snoozable. Banners are not snoozable by default. |
 | Memory | The trace keeps 500 entries and the panel lists the last 100 messages. Both start empty after a restart. |
 
-Rate limits, the duplicate window, the banner count and the spoken text settings can be changed in the integration options. See [Notification hub](docs/hub.md#limits-that-protect-the-phones) and [Limitations](docs/limitations.md).
+Rate limits, the duplicate window, the banner count and the spoken text settings can be changed in the integration options. See [Notification hub](docs/setup.md) and [Limitations](docs/examples.md#limitations).
 
 Everything was tested on local Home Assistant instances with stub devices, not on real phones or speakers. Make a backup before you install.
 
@@ -77,7 +77,7 @@ data:
   id: water_leak
 ```
 
-Use `heads_up.push`, `heads_up.popup` and `heads_up.speak` as shortcuts for one channel. See [How to use Heads Up](docs/how-to.md) for audiences, policies and more examples.
+Use `heads_up.push`, `heads_up.popup` and `heads_up.speak` as shortcuts for one channel. See [How to use Heads Up](docs/setup.md) for audiences, policies and more examples.
 
 ### Banner
 
@@ -109,18 +109,18 @@ The card receives banners over the Home Assistant WebSocket connection and does 
 
 ## Documentation
 
-- [How to use Heads Up](docs/how-to.md): from the first message to policies, step by step.
+- [How to use Heads Up](docs/setup.md): from the first message to policies, step by step.
 - [Actions](docs/actions.md): every field of every action with its default, conditions, errors, events.
 - [Settings](docs/settings.md): every setting with its default, including limits.
 - [Examples](docs/examples.md): working examples from simple to complex, REST and WebSocket.
-- [Notification hub](docs/hub.md): the terms, and examples from a household.
-- [Panel](docs/panel.md), [Policies](docs/configuration.md#policies), [Audiences and recipients](docs/configuration.md#audiences)
+- [Notification hub](docs/setup.md): the terms, and examples from a household.
+- [Panel](docs/setup.md#the-panel), [Policies](docs/configuration.md#policies), [Audiences and recipients](docs/configuration.md#audiences)
 - Channels: [Push](docs/configuration.md#push), [Popup](docs/configuration.md#popup), [Speech](docs/configuration.md#speech), [Persistent Notification](docs/configuration.md#persistent-notification), [Mail](docs/configuration.md#mail)
 - [Card](docs/actions.md): options, looks and behaviour.
 - [Watch rules](docs/actions.md#watch-rules): banners from an entity state or value, without an automation.
-- [Troubleshooting](docs/troubleshooting.md)
-- [Limitations](docs/limitations.md)
-- [Upgrading](docs/upgrading.md) and [uninstalling](docs/uninstall.md)
+- [Troubleshooting](docs/examples.md#troubleshooting)
+- [Limitations](docs/examples.md#limitations)
+- [Upgrading](docs/setup.md#upgrading) and [uninstalling](docs/setup.md#uninstalling)
 - [Security](SECURITY.md)
 
 ## License
