@@ -95,7 +95,10 @@ class PopupChannel:
                 continue
             payload = message.to_client(user_id)
             quiet = row.ref == QUIET
-            payload["style"] = "card" if quiet else self.styles().get(message.severity, "card")
+            style = self.styles().get(message.severity, "card")
+            # A quiet message is always a card: in its corner, or at the bottom right when the
+            # severity is shown in the middle.
+            payload["style"] = "card" if quiet and not style.startswith("card") else style
             payload["ack"] = self._hub.ack_applies(message) and not message.acknowledged_by
             payload["snooze_seconds"] = self._manager.quick_snooze_seconds
             found[message.id] = payload

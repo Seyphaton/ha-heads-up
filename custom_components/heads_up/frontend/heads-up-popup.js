@@ -36,9 +36,15 @@ export function current(messages, closed) {
   return sortQueue(messages).find((m) => !closed.has(m.id)) || null;
 }
 
-// "card" in the corner or "modal" in the middle; the server decides per severity (D-090).
+// "card" in a corner or "modal" in the middle; the server decides per severity (D-090, D-180).
 export function styleOf(message) {
   return message.style === "modal" ? "modal" : "card";
+}
+
+// The corner of a card: br (the default), bl, tr or tl.
+const CORNERS = { card: "br", card_bottom_left: "bl", card_top_right: "tr", card_top_left: "tl" };
+export function cornerOf(message) {
+  return CORNERS[message.style] || "br";
 }
 
 // A modal may take focus when it is critical or nothing is being typed; a card never does.
@@ -82,6 +88,9 @@ const CSS = `
 .card, .modal { font-family: var(--paper-font-body1_-_font-family, Roboto, sans-serif); color: var(--primary-text-color, #212121);
   background: var(--card-background-color, #fff); border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,.3); }
 .card { position: fixed; right: 16px; bottom: 16px; width: min(360px, calc(100vw - 32px)); z-index: 8; padding: 12px 16px; border-left: 6px solid var(--c); }
+.card[data-pos="bl"] { left: 16px; right: auto; }
+.card[data-pos="tr"] { top: 16px; bottom: auto; }
+.card[data-pos="tl"] { left: 16px; right: auto; top: 16px; bottom: auto; }
 .scrim { position: fixed; inset: 0; z-index: 9; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; }
 .modal { width: min(480px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; padding: 16px 20px; border-top: 8px solid var(--c); }
 .sev { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--c); display: flex; gap: 6px; align-items: center; }
@@ -95,7 +104,8 @@ button:focus-visible { outline: 3px solid var(--primary-color, #03a9f4); outline
 button.main { background: var(--primary-color, #03a9f4); color: var(--text-primary-color, #fff); border-color: transparent; }
 .x { position: absolute; top: 4px; right: 4px; border: none; font-size: 20px; }
 .modal { position: relative; }
-@media (prefers-reduced-motion: no-preference) { .card, .modal { animation: in .2s ease-out; } @keyframes in { from { opacity: 0; transform: translateY(8px); } } }
+@media (prefers-reduced-motion: no-preference) { .card, .modal { animation: in .2s ease-out; } @keyframes in { from { opacity: 0; transform: translateY(8px); } }
+  .card[data-pos="tr"], .card[data-pos="tl"] { animation-name: in-top; } @keyframes in-top { from { opacity: 0; transform: translateY(-8px); } } }
 `;
 
 let host = null;
@@ -137,6 +147,7 @@ function build(message, language) {
     tabIndex: -1,
   });
   box.style.setProperty("--c", COLOR[message.severity] || COLOR.info);
+  if (style === "card") box.dataset.pos = cornerOf(message);
   if (style === "modal") box.setAttribute("aria-modal", "true");
   box.setAttribute("aria-label", message.title || message.message);
   const label = el("div", { className: "sev" });

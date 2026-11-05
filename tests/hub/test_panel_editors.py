@@ -222,6 +222,7 @@ async def test_invalid_channel_settings_are_refused_and_change_nothing(
         {"push_levels": {"info": "loud"}},
         {"push_levels": {"urgent": "normal"}},
         {"popup_styles": {"info": "banner"}},
+        {"popup_styles": {"info": "card_middle"}},
         {"push_lockscreen": "nothing"},
         {"push_channel_id": "Has Spaces"},
         {"push_channel_id": ""},

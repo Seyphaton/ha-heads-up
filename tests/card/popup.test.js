@@ -8,6 +8,7 @@ import {
   sortQueue,
   STRINGS,
   styleOf,
+  cornerOf,
   text,
 } from "../../custom_components/heads_up/frontend/heads-up-popup.js";
 
@@ -107,5 +108,20 @@ describe("images", () => {
   it("returns an unsigned path unchanged", async () => {
     const hass = { callWS: () => Promise.reject(new Error("must not be called")) };
     expect(await imageSource(hass, "https://example.com/door.jpg")).toBe("https://example.com/door.jpg");
+  });
+});
+
+describe("popup corners", () => {
+  it("maps each style to its corner, the bottom right by default", () => {
+    expect(cornerOf({ style: "card" })).toBe("br");
+    expect(cornerOf({ style: "card_bottom_left" })).toBe("bl");
+    expect(cornerOf({ style: "card_top_right" })).toBe("tr");
+    expect(cornerOf({ style: "card_top_left" })).toBe("tl");
+    expect(cornerOf({})).toBe("br");
+  });
+
+  it("shows every corner style as a card and only modal in the middle", () => {
+    for (const style of ["card", "card_bottom_left", "card_top_right", "card_top_left"]) expect(styleOf({ style })).toBe("card");
+    expect(styleOf({ style: "modal" })).toBe("modal");
   });
 });

@@ -9,7 +9,7 @@ export const STRINGS = {
     speech: "Speech",
     severities: { success: "Success", info: "Info", warning: "Warning", critical: "Critical" },
     levels: { passive: "Passive (no sound)", normal: "Normal", "time-sensitive": "Time sensitive", critical: "Critical (alarm)" },
-    styles: { card: "Card in the corner", modal: "Centered window", off: "Off" },
+    styles: { card: "Corner, bottom right", card_bottom_left: "Corner, bottom left", card_top_right: "Corner, top right", card_top_left: "Corner, top left", modal: "Centered window", off: "Off" },
     push_level: "Push level when the severity is {severity}",
     popup_style: "Popup when the severity is {severity}",
     critical_note: "The level critical is an alarm on both platforms. iOS: the critical alert; it needs the app's permission, plays a sound even in silent mode and cannot be replaced or grouped. Android: the alarm channel; it sounds even in vibrate and silent mode and is delivered at once. Do Not Disturb is only overridden if you allow it for that channel in the Android settings. Time sensitive is delivered at once on Android too.",
@@ -47,7 +47,7 @@ export const STRINGS = {
     speech: "Sprache",
     severities: { success: "Erfolg", info: "Info", warning: "Warnung", critical: "Kritisch" },
     levels: { passive: "Passiv (kein Ton)", normal: "Normal", "time-sensitive": "Zeitkritisch", critical: "Kritisch (Alarm)" },
-    styles: { card: "Karte in der Ecke", modal: "Zentriertes Fenster", off: "Aus" },
+    styles: { card: "Ecke unten rechts", card_bottom_left: "Ecke unten links", card_top_right: "Ecke oben rechts", card_top_left: "Ecke oben links", modal: "Zentriertes Fenster", off: "Aus" },
     push_level: "Push-Stufe bei Schweregrad {severity}",
     popup_style: "Popup bei Schweregrad {severity}",
     critical_note: "Die Stufe kritisch ist auf beiden Plattformen ein Alarm. iOS: die kritische Mitteilung; sie braucht die Erlaubnis der App, spielt auch im Lautlosmodus einen Ton und kann nicht ersetzt oder gruppiert werden. Android: der Alarmkanal; er ertönt auch im Vibrations- und Lautlosmodus und wird sofort zugestellt. Nicht stören wird nur übergangen, wenn du es in den Android-Einstellungen für diesen Kanal erlaubst. Zeitkritisch wird auch auf Android sofort zugestellt.",
@@ -85,7 +85,7 @@ export const STRINGS = {
     speech: "Voix",
     severities: { success: "Succès", info: "Info", warning: "Avertissement", critical: "Critique" },
     levels: { passive: "Passif (sans son)", normal: "Normal", "time-sensitive": "Urgent", critical: "Critique (alarme)" },
-    styles: { card: "Carte dans le coin", modal: "Fenêtre centrée", off: "Désactivé" },
+    styles: { card: "Coin en bas à droite", card_bottom_left: "Coin en bas à gauche", card_top_right: "Coin en haut à droite", card_top_left: "Coin en haut à gauche", modal: "Fenêtre centrée", off: "Désactivé" },
     push_level: "Niveau du push quand la gravité est {severity}",
     popup_style: "Fenêtre quand la gravité est {severity}",
     critical_note: "Le niveau critique est une alarme sur les deux plateformes. iOS : l'alerte critique ; elle demande l'autorisation de l'app, joue un son même en mode silencieux et ne peut être ni remplacée ni groupée. Android : le canal d'alarme ; il sonne même en mode vibreur et silencieux et est livré tout de suite. Ne pas déranger n'est contourné que si vous l'autorisez pour ce canal dans les réglages d'Android. Urgent est aussi livré tout de suite sur Android.",
@@ -123,7 +123,7 @@ export const STRINGS = {
     speech: "Voz",
     severities: { success: "Éxito", info: "Info", warning: "Aviso", critical: "Crítico" },
     levels: { passive: "Pasivo (sin sonido)", normal: "Normal", "time-sensitive": "Urgente", critical: "Crítico (alarma)" },
-    styles: { card: "Tarjeta en la esquina", modal: "Ventana centrada", off: "Desactivado" },
+    styles: { card: "Esquina inferior derecha", card_bottom_left: "Esquina inferior izquierda", card_top_right: "Esquina superior derecha", card_top_left: "Esquina superior izquierda", modal: "Ventana centrada", off: "Desactivado" },
     push_level: "Nivel del push cuando la gravedad es {severity}",
     popup_style: "Ventana cuando la gravedad es {severity}",
     critical_note: "El nivel crítico es una alarma en ambas plataformas. iOS: la alerta crítica; necesita el permiso de la app, suena incluso en modo silencio y no se puede reemplazar ni agrupar. Android: el canal de alarma; suena incluso en modo vibración y silencio y se entrega de inmediato. No molestar solo se anula si lo permites para ese canal en los ajustes de Android. Urgente también se entrega de inmediato en Android.",
@@ -157,7 +157,7 @@ export const STRINGS = {
 
 const SEVERITIES = ["success", "info", "warning", "critical"];
 const LEVELS = ["passive", "normal", "time-sensitive", "critical"];
-const STYLES = ["card", "modal", "off"];
+const STYLES = ["card", "card_bottom_left", "card_top_right", "card_top_left", "modal", "off"];
 const LOCKSCREENS = ["full", "title_only", "generic"];
 
 export function fill(template, params) {

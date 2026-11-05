@@ -73,6 +73,27 @@ async def test_the_style_follows_the_severity(hass: HomeAssistant, entry: MockCo
     assert styles == {"info": "card", "warning": "card", "critical": "modal"}
 
 
+async def test_a_severity_can_be_shown_in_any_corner_or_the_middle(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    set_person(hass, "person.anna", "home", user_id="anna-id")
+    entry.runtime_data.options["popup_styles"] = {
+        "success": "card_top_left",
+        "info": "card_top_right",
+        "warning": "card_bottom_left",
+        "critical": "modal",
+    }
+    for severity in ("success", "info", "warning", "critical"):
+        await pop(hass, entry, id=severity, severity=severity)
+    styles = {p["id"]: p["style"] for p in popups(entry)}
+    assert styles == {
+        "success": "card_top_left",
+        "info": "card_top_right",
+        "warning": "card_bottom_left",
+        "critical": "modal",
+    }
+
+
 async def test_a_severity_set_to_off_shows_no_popup(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
@@ -141,6 +162,18 @@ async def test_a_quiet_popup_is_a_card_even_when_critical(
     await add_policy(hass, entry, "Night", **{**QUIET, "critical_passes": False})
     await pop(hass, entry, severity="critical")
     assert popups(entry)[0]["style"] == "card"
+
+
+async def test_a_quiet_message_keeps_the_corner_of_its_severity(
+    hass: HomeAssistant, entry: MockConfigEntry, freezer: FrozenDateTimeFactory
+) -> None:
+    await hass.config.async_set_time_zone("Europe/Berlin")
+    freezer.move_to("2026-11-02 23:00:00+01:00")
+    set_person(hass, "person.anna", "home", user_id="anna-id")
+    entry.runtime_data.options["popup_styles"] = {"critical": "card_top_left"}
+    await add_policy(hass, entry, "Night", **{**QUIET, "critical_passes": False})
+    await pop(hass, entry, severity="critical")
+    assert popups(entry)[0]["style"] == "card_top_left"
 
 
 async def test_the_acknowledge_button_is_offered_when_a_policy_applies(

@@ -92,7 +92,7 @@ See [Push notifications](configuration.md#push).
 
 | Setting | Default | Meaning |
 |---|---|---|
-| Popup style per severity (`popup_styles`) | success, info and warning `card`; critical `modal` | `card` is a card in the bottom right corner, `modal` a centered window over a dimmed page, `off` shows nothing. |
+| Popup style per severity (`popup_styles`) | success, info and warning `card`; critical `modal` | `card` is a card in the bottom right corner, `card_bottom_left`, `card_top_right` and `card_top_left` are cards in the other corners, `modal` a centered window over a dimmed page, `off` shows nothing. |
 
 See [Popups](configuration.md#popup).
 

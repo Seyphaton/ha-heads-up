@@ -171,7 +171,16 @@ PANEL_TITLE: Final = "Heads Up"
 PANEL_ICON: Final = "mdi:bell-ring-outline"
 # Popup settings (D-090, D-115): how a popup looks per severity. Edited in the panel (H9c).
 OPT_POPUP_STYLES: Final = "popup_styles"
-POPUP_STYLES: Final = ("card", "modal", "off")
+# `card` is the corner card at the bottom right; the other corners and the centred window are the
+# alternatives (D-180). A stored `card` keeps its meaning.
+POPUP_STYLES: Final = (
+    "card",
+    "card_bottom_left",
+    "card_top_right",
+    "card_top_left",
+    "modal",
+    "off",
+)
 DEFAULT_POPUP_STYLES: Final[dict[str, str]] = {
     "success": "card",
     "info": "card",

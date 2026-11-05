@@ -1132,3 +1132,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Strings: new words in four languages, `customized` removed. Tests: `tests/card/editors.test.js` (channel states, words in four languages).
 - Checked in the browser pane at desktop and at 375 px with the dev persons, including a disabled person. Not checked: a person with a Companion device, a person with mail set up, the German, French and Spanish texts on screen.
 - Blast radius: panel only; usual restart.
+
+## D-180 Popup style per severity: four corners or the middle (2026-11-05)
+- Context: maintainer note 4. The style per severity was a card in the bottom right corner, a centered window or off.
+- Decision (maintainer): the same per-severity setting offers a card in any of the four corners, the centered window or off, instead of a separate position setting. The values are `card` (bottom right, so a stored `card` keeps its meaning), `card_bottom_left`, `card_top_right`, `card_top_left`, `modal` and `off`. A quiet message is a card in the corner of its severity, or at the bottom right when the severity is centered. At phone width the card is full width and keeps top or bottom; left and right make no difference. Top cards slide in from above.
+- Strings: the style words of the Channels page in four languages. Tests: `tests/hub/test_popup_channel.py`, `tests/hub/test_panel_editors.py`, `tests/card/popup.test.js`.
+- Checked in the browser pane: the Channels page lists the six styles and saves them, and a warning popup appeared at the top left; settings restored afterwards. Not checked: the other corners on screen, phone width, the animation.
+- Blast radius: panel and popup module; usual restart.

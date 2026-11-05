@@ -25,7 +25,7 @@ The panel's Channels page sets the options below. They are stored in the integra
 | `push_lockscreen` | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
 | `push_channel_id` | `heads_up` | Prefix of the Android notification channel. |
 | `push_sticky` | off | Keeps the notification after a tap (Android). |
-| `popup_styles` | corner card for success, info and warning, window for critical | `card`, `modal` or `off` per severity. |
+| `popup_styles` | corner card (bottom right) for success, info and warning, centered window for critical | Per severity: `card` (bottom right), `card_bottom_left`, `card_top_right`, `card_top_left`, `modal` (centered window) or `off`. The Channels page words them as the corner or the centered window. |
 | `speak_language` | the Home Assistant language | Language of the spoken text. |
 | `mail_service`, `mail_global_address`, `mail_subject`, `mail_body` | none, none, `{severity}: {title}`, `{message}` | The mail channel, see Mail below. |
 
@@ -85,7 +85,7 @@ data:
 
 A popup goes to persons, by audience or by `recipients`. A person needs a linked Home Assistant user; a person without one is skipped (`no_user`). The popup appears on every dashboard and device where that user has Home Assistant open. Areas are not supported.
 
-- success, info and warning are a card in the bottom right corner (full width at phone size); critical is a centered window over a dimmed page. A quiet message (Quiet hours with the action Send quietly) is always a card.
+- Each severity is shown as a card in one of the four corners (bottom right by default for success, info and warning), as a centered window over a dimmed page (the default for critical) or not at all. At phone width a card spans the screen and sits at the top or the bottom, as chosen; left and right make no difference there. A quiet message (Quiet hours with the action Send quietly) is always a card.
 - An `image` shows under the text, up to 200 px high; a picture that does not load is left out.
 - Buttons are at least 48 px high: the message's own, Acknowledge when an escalation or reminder policy applies, Snooze when the message is snoozable, Dismiss when it can be dismissed. A button's `action` is not run by the popup; only `heads_up_banner_action` is fired.
 - One popup is shown at a time, highest severity first, then the oldest. The close button and Escape hide the popup on that page only and the popup returns after a reload. Dismiss hides it for you on every device and keeps the message for others. Acknowledge stops escalation and reminders.
