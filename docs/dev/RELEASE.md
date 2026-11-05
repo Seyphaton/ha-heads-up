@@ -31,7 +31,7 @@ State: `main` is at 0.4.0 and has no commit that `hub/h9e-wizard` lacks, so the 
 3. `make check`, `make hassfest` and `make dev-smoke` green on a clean instance (`make dev-reset`, `make dev-up`, `make dev-onboard`); push the branch and read the CI result (jobs `python` on 2026.10.4, `python-ha-2026-9` on 2026.9.4, `card`; workflow `Validate`).
 4. Merge `hub/h9e-wizard` into `main` (fast-forward) and push `main`, only on the maintainer's explicit approval.
 5. Tag `v1.0.0` on the merge commit, push the tag, create the GitHub release (not a pre-release) with the 1.0.0 section as notes.
-6. Update the README status and the HACS notes if they changed.
+6. Update the README status and the HACS notes if they changed. Point the README's absolute image and document URLs at `main` (they name the branch `hub/h9e-wizard`, D-176).
 
 ## Default HACS list (optional)
 Custom-repository installs work without this. For the default list (N-54): the repository is public, the HACS Action and hassfest pass without ignores, a full GitHub release exists. Then fork `hacs/default`, create a branch from `master`, add `Seyphaton/ha-heads-up` to the file `integration` in alphabetical order, and open a pull request from a personal account with the template filled in.

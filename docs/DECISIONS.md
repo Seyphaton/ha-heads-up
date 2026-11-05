@@ -1104,3 +1104,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: the review fixes (D-156 to D-174) and the documentation restructure are finished on `hub/h9e-wizard`, and the maintainer asked to commit, push and tag a new pre-release.
 - Decision (maintainer, explicit): set the manifest version and the changelog heading to `1.0.0-alpha.6` (date 2026-11-05) in one commit, push the branch and push the annotated tag `v1.0.0-alpha.6`. The changelog lists the P9 and P10 features that were still missing from `[Unreleased]`. The GitHub pre-release (not marked latest) is created by the maintainer; HACS shows it only with "Show beta versions". No merge to `main`, no 1.0.0.
 - Blast radius: the manifest version is `1.0.0-alpha.6`; the card address carries the new version, so browsers load the new card after the restart.
+
+## D-176 README links and images are absolute (2026-11-05)
+- Context: HACS shows the README inside Home Assistant, which resolves relative paths against the user's own address. The diagram showed as an empty box and the doc links would have been dead.
+- Decision (maintainer): the README uses `raw.githubusercontent.com` URLs for images and `github.com/.../blob` URLs for the documents and the licence, both on the branch `hub/h9e-wizard`. Committed and pushed on the maintainer's explicit answer; no new tag, so the installed alpha shows it only if HACS reads the branch README.
+- Follow-up: when the branch is merged to `main`, the URLs must point at `main` (or at the release tag), or they break when the branch is deleted. Added to `docs/dev/RELEASE.md`.
+- Blast radius: README only.

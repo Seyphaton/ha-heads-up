@@ -101,3 +101,4 @@ Follow `docs/dev/RELEASE.md`, "Before the first release". Needs the maintainer: 
 - 2026-11-05: P10 item R-015 (D-173): docs and SECURITY.md say an external image URL reveals the viewer's address. No code.
 - 2026-11-05: P10 item E-010 (D-174): group row wraps and Message Log trace rows stack below 480 px; checked in the browser pane at 375 px. P10 items done: E-008, E-011, F-003, R-014, R-015, E-010. The dev instance holds a rule "Populated" and `sensor.populated`.
 - 2026-11-05 (release): version `1.0.0-alpha.6` (D-175): manifest and changelog set, branch pushed and tag `v1.0.0-alpha.6` pushed at the maintainer's explicit request; the GitHub pre-release is the maintainer's step. No merge.
+- 2026-11-05: README images and links are absolute (D-176) so HACS shows them; they name the branch `hub/h9e-wizard` and must move to `main` at the merge.
