@@ -191,15 +191,17 @@ describe("test send outcome", () => {
     { channel: "push", recipient: "device:d1", result: "cleared" },
   ];
 
-  it("keeps only real delivery results of the named channels, without the banner", () => {
-    expect(outcomeRows(entries, ["banner", "speak", "push"])).toEqual([entries[1]]);
-    expect(outcomeRows(entries, ["banner"])).toEqual([]);
+  it("keeps the real delivery results of the named channels, the banner included", () => {
+    expect(outcomeRows(entries, ["banner", "speak", "push"])).toEqual([entries[0], entries[1]]);
+    expect(outcomeRows(entries, ["banner"])).toEqual([entries[0]]);
+    expect(outcomeRows(entries, ["speak"])).toEqual([entries[1]]);
   });
 
-  it("is done once every non-banner channel has a result", () => {
+  it("is done once every named channel has a result", () => {
     expect(outcomeDone(entries, ["banner", "speak"])).toBe(true);
     expect(outcomeDone(entries, ["banner", "speak", "push"])).toBe(false);
-    expect(outcomeDone([], ["banner"])).toBe(true);
+    expect(outcomeDone([], ["banner"])).toBe(false); // a banner-only send waits for its row
+    expect(outcomeDone(entries, ["banner"])).toBe(true);
   });
 
   it("words the planned counts with every kind, not only sent", () => {

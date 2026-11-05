@@ -403,17 +403,16 @@ export function summaryLine(rows, s) {
     .join("; ");
 }
 
-// The trace entries that are real delivery results of a message, without the banner and without
+// The trace entries that are real delivery results of a message, banner included, without
 // housekeeping such as a clear.
 export function outcomeRows(entries, channels) {
-  const wanted = channels.filter((c) => c !== "banner");
-  return (entries || []).filter((e) => wanted.includes(e.channel) && ["sent", "failed", "skipped", "held"].includes(e.result));
+  return (entries || []).filter((e) => channels.includes(e.channel) && ["sent", "failed", "skipped", "held"].includes(e.result));
 }
 
-// True once every channel the call named (besides the banner) has a result.
+// True once every channel the call named has a result.
 export function outcomeDone(entries, channels) {
   const rows = outcomeRows(entries, channels);
-  return channels.filter((c) => c !== "banner").every((c) => rows.some((r) => r.channel === c));
+  return channels.every((c) => rows.some((r) => r.channel === c));
 }
 
 // "Speak: 1 sent, 1 skipped" from the counts of the `notify` response, in the order the call named.
@@ -576,7 +575,7 @@ export function mount(container, ctx) {
     const rows = outcome.map((entry) => {
       const words = [s.result[entry.result] || entry.result];
       if (entry.reason) words.push(fmt.reasonText(entry.reason, s));
-      const who = rowRecipient({ recipient: entry.recipient || "", channel: entry.channel, result: entry.result }, {}, data.choices, t);
+      const who = rowRecipient({ recipient: entry.recipient || "", channel: entry.channel, result: entry.result }, result || {}, data.choices, t);
       return el("tr", {}, [el("td", { textContent: who }), el("td", { textContent: channelLabel(entry.channel) }), el("td", { textContent: words.filter(Boolean).join(" · ") })]);
     });
     box.append(el("table", {}, [el("thead", {}, [head]), el("tbody", {}, rows)]));

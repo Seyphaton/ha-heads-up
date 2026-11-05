@@ -1065,3 +1065,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Correction found while building: the options screen (Configure) has no push, popup or mail settings; they exist only on the panel's Channels page, which already checks them (mail placeholders included) and shows the error under the field. The forms of the integration already key every error to its field. So no code was added for R-019; `docs/settings.md` no longer says the channel settings are under Configure. The generic "Not all required fields are filled in" is Home Assistant's own frontend text.
 - Tests: `tests/hub/test_core_notify.py`.
 - Blast radius: the text of validation errors changes; callers that match the old text break (the error type is the same).
+
+## D-169 Test send shows the banner row after Send test (2026-11-05)
+- Context: review finding E-008. After a banner-only Send test the table said "No delivery was recorded yet", because the outcome rows left the banner out and the call had no other channel.
+- Decision (maintainer): What happened lists the banner like any channel, with the people it is for (or "everyone"). The wait for the delivery covers every channel the call named, so a banner-only send waits for its row. Panel only.
+- Tests: `tests/card/test-send.test.js`. Not checked in the browser pane.
+- Blast radius: panel only; usual restart (the panel URL carries a hash).
