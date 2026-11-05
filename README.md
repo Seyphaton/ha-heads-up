@@ -105,7 +105,7 @@ The banner appears in the card without a reload. Close it with the X button, or 
 
 ![Card with four banners: critical, warning, info and success, each with a severity label and the time since it was created](docs/images/card-default.png)
 
-The card receives banners over the Home Assistant WebSocket connection and does not poll. The integration creates one entity, `sensor.heads_up_active_banners`, with the number of active banners, including active watch-rule banners. [Watch rules](docs/rules.md) show a banner while an entity is in a state, without an automation.
+The card receives banners over the Home Assistant WebSocket connection and does not poll. The integration creates one entity, `sensor.heads_up_active_banners`, with the number of active banners, including active watch-rule banners. [Watch rules](docs/actions.md#watch-rules) show a banner while an entity is in a state, without an automation.
 
 ## Documentation
 
@@ -116,8 +116,8 @@ The card receives banners over the Home Assistant WebSocket connection and does 
 - [Notification hub](docs/hub.md): the terms, and examples from a household.
 - [Panel](docs/panel.md), [Policies](docs/policies.md), [Audiences and recipients](docs/audiences.md)
 - Channels: [Push](docs/push.md), [Popup](docs/popup.md), [Speech](docs/speech.md), [Persistent Notification](docs/persistent.md), [Mail](docs/mail.md)
-- [Card](docs/card.md): options, looks and behaviour.
-- [Watch rules](docs/rules.md): banners from an entity state or value, without an automation.
+- [Card](docs/actions.md): options, looks and behaviour.
+- [Watch rules](docs/actions.md#watch-rules): banners from an entity state or value, without an automation.
 - [Troubleshooting](docs/troubleshooting.md)
 - [Limitations](docs/limitations.md)
 - [Upgrading](docs/upgrading.md) and [uninstalling](docs/uninstall.md)

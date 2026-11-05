@@ -3,7 +3,7 @@
 1. Banned words and placeholders in every committed Markdown file.
 2. YAML examples in user docs that call heads_up.* validate against the real action schemas.
 3. Field parity: action schema == services.yaml fields == docs/actions.md field tables.
-4. Card option parity: CONFIG_KEYS in the card module == docs/card.md options table; card YAML
+4. Card option parity: CONFIG_KEYS in the card module == docs/actions.md options table; card YAML
    examples use only those options.
 5. User pages: no decision numbers, build-status promises, version history, bold lead-in
    sentences or emoji (STYLE_RULES).
@@ -299,7 +299,7 @@ def check_card_options(files: list[Path]) -> list[str]:
         return [f"{CARD_JS.relative_to(ROOT)}: CONFIG_KEYS not found"]
     in_card = set(re.findall(r'"([a-z_]+)"', match.group(1)))
 
-    page = (ROOT / "docs" / "card.md").read_text(encoding="utf-8")
+    page = (ROOT / "docs" / "actions.md").read_text(encoding="utf-8")
     in_docs: set[str] = set()
     in_table = False
     for line in page.splitlines():
@@ -312,7 +312,7 @@ def check_card_options(files: list[Path]) -> list[str]:
     errors = []
     if in_docs != in_card:
         errors.append(
-            "docs/card.md: options differ from CONFIG_KEYS: "
+            "docs/actions.md: card options differ from CONFIG_KEYS: "
             f"missing {sorted(in_card - in_docs)}, extra {sorted(in_docs - in_card)}"
         )
 

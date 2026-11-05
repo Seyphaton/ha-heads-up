@@ -50,4 +50,4 @@ Timers keep their due times. A step that was due during the restart runs once if
 
 - Settings > Devices & services > Heads Up > Configure, and the panel's Settings page: the same entries. Every setting with its default is in [Settings](settings.md).
 - Audiences, recipients, policies and channels: the panel, or the entries of the integration.
-- Banners from entities without an automation: [Watch rules](rules.md).
+- Banners from entities without an automation: [Watch rules](actions.md#watch-rules).

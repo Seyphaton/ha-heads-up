@@ -9,7 +9,7 @@ This page takes you from your first message to policies and watch rules. Read it
 | Know what a field does and its default | [Actions](actions.md) |
 | Know what a setting does and its default | [Settings](settings.md) |
 | Copy a working example | [Examples](examples.md) |
-| Style the dashboard card | [Card](card.md) |
+| Style the dashboard card | [Card](actions.md#the-card) |
 
 ## The idea
 
@@ -64,7 +64,7 @@ data:
   channels: [banner]
 ```
 
-The banner appears without a reload. Close it with the X button, or clear it with `heads_up.clear_notifications`. Without a `timeout` it ends after 24 hours (setting Default timeout). A banner is the dashboard view of a message, so `heads_up.create_banner` is only the shortcut for this call. See [Card](card.md) for the card's options and looks.
+The banner appears without a reload. Close it with the X button, or clear it with `heads_up.clear_notifications`. Without a `timeout` it ends after 24 hours (setting Default timeout). A banner is the dashboard view of a message, so `heads_up.create_banner` is only the shortcut for this call. See [Card](actions.md#the-card) for the card's options and looks.
 
 ## 3. Choose who gets it
 
@@ -176,7 +176,7 @@ If nobody acknowledges the message within 5 minutes, the policy pushes it to the
 
 ## 8. Show a banner without an automation
 
-A watch rule shows a banner while an entity is in a state and removes it when the state ends. Add one in the panel's Watch rules page, or under Settings > Devices & services > Heads Up. See [Watch rules](rules.md).
+A watch rule shows a banner while an entity is in a state and removes it when the state ends. Add one in the panel's Watch rules page, or under Settings > Devices & services > Heads Up. See [Watch rules](actions.md#watch-rules).
 
 ## 9. See what happened
 
@@ -190,7 +190,7 @@ A watch rule shows a banner while an entity is in a state and removes it when th
 |---|---|
 | [Actions](actions.md) | Every field of every action, with defaults, conditions, errors and events. |
 | [Settings](settings.md) | Every setting with its default, including limits. |
-| [Card](card.md) | Every card option, looks and screenshots. |
+| [Card](actions.md#the-card) | Every card option, looks and screenshots. |
 | [Examples](examples.md) | Working examples from simple to complex, including REST and WebSocket. |
-| [Policies](policies.md), [Audiences and recipients](audiences.md), [Watch rules](rules.md) | The hub objects. |
+| [Policies](policies.md), [Audiences and recipients](audiences.md), [Watch rules](actions.md#watch-rules) | The hub objects. |
 | [Push](push.md), [Popup](popup.md), [Speech](speech.md), [Mail](mail.md), [Persistent notifications](persistent.md) | One page per channel. |

@@ -6,7 +6,7 @@ Working examples from simple to complex. Each uses the actions from [Actions](ac
 
 ### A message on the dashboard
 
-The banner appears in every Heads Up card ([Card](card.md)). Without `timeout` it ends after 24 hours.
+The banner appears in every Heads Up card ([Card](actions.md#the-card)). Without `timeout` it ends after 24 hours.
 
 ```yaml
 action: heads_up.notify
@@ -111,7 +111,7 @@ data:
       minutes: 10
 ```
 
-Call it once, for example when Home Assistant starts. A [watch rule](rules.md) does the same from a form and needs no call at all.
+Call it once, for example when Home Assistant starts. A [watch rule](actions.md#watch-rules) does the same from a form and needs no call at all.
 
 ## People and reactions
 

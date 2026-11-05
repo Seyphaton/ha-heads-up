@@ -10,7 +10,7 @@ const SEVERITY_COLOR = {
   info: "--info-color",
   success: "--success-color",
 };
-// Read by scripts/docs_check.py to keep docs/card.md in step with the card.
+// Read by scripts/docs_check.py to keep docs/actions.md in step with the card.
 export const CONFIG_KEYS = [
   "severity",
   "tag",

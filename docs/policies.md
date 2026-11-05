@@ -35,7 +35,7 @@ Acknowledging says that someone has seen a message. It stops every escalation an
 
 - On a phone, pushes of a message that has an escalation or reminder policy carry an Acknowledge button.
 - A dashboard or panel can call the WebSocket command `heads_up/acknowledge` with `banner_id`.
-- On the card, an Acknowledge button and the line "Acknowledged by Anna" show this; see [Card](card.md#acknowledge).
+- On the card, an Acknowledge button and the line "Acknowledged by Anna" show this; see [Card](actions.md#acknowledge).
 - The acknowledgement stays when the message is updated with the same severity. A new severity starts again. A watch rule message starts again each time its condition turns false and true.
 - Home Assistant stores who acknowledged in `acknowledged_by`. No event is fired.
 
