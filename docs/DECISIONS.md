@@ -996,3 +996,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Scope kept for later (`docs/OPEN_QUESTIONS.md`): taking a message back from chosen channels only, and clearing for chosen audiences or recipients. Both change what a stored message means and need engine work.
 - Tests: `tests/test_clear.py`. Strings: four languages, hassfest green.
 - Blast radius: usual restart; an automation that called `heads_up.clear` (pre-release only) fails with an unknown action until it is renamed.
+
+## D-159 Action texts say "message" (2026-11-05)
+- Context: review findings E-006, D-011, R-021. The setup dialog named `create_banner`; the fields of `notify`, `push`, `popup` and `speak` said "Banner text" and "The banner disappears"; `image` said "An https:// URL" while `http://` is accepted; the `notify` channel list missed `mail`; snoozable said "Ignored (error)".
+- Decision (maintainer): "message" for the thing an action sends, "banner" only for the card and for `create_banner`, the banner-only shortcut, and for card effects such as the close button. Done in `strings.json`, the four translations (key sets compared by `tests/test_translations.py`) and `docs/actions.md`, which gets a one-line definition. The setup dialog names `heads_up.notify`. The watch rule form's image text is corrected too.
+- Not changed: the sensor name "Active banners", the event names `heads_up_banner_*`, error texts such as "holds N banners", the `clear_banner` name (R-016 terminology rename stays on the post-1.0 list).
+- Blast radius: texts only; no restart needed beyond reloading the translations.

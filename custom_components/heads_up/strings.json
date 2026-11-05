@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Administrators see a Heads Up page in the sidebar.\n\nWithout it you cannot use:\n- Test send\n- the Message Log with the delivery trace\n- the Overview\n- the introduction that creates the default policies\n- the Channels settings\n- the Help pages\n\nAudiences, recipients, policies, watch rules and the other settings stay editable under Devices & services. You can change this at any time in the settings of the integration or on the Settings page of the panel. Banners are created by the `heads_up.create_banner` action.",
+        "description": "Administrators see a Heads Up page in the sidebar.\n\nWithout it you cannot use:\n- Test send\n- the Message Log with the delivery trace\n- the Overview\n- the introduction that creates the default policies\n- the Channels settings\n- the Help pages\n\nAudiences, recipients, policies, watch rules and the other settings stay editable under Devices & services. You can change this at any time in the settings of the integration or on the Settings page of the panel. Messages are sent with the `heads_up.notify` action.",
         "data": {
           "show_panel": "Show Heads Up in the sidebar"
         },
@@ -330,7 +330,7 @@
         },
         "snoozable": {
           "name": "Snoozable",
-          "description": "Lets viewers hide the banner for a while; it returns afterwards. Ignored (error) together with dismissible off. Default: the setting from the integration options (off unless changed)."
+          "description": "Lets viewers hide the banner for a while; it returns afterwards. The call fails with an error together with dismissible off. Default: the setting from the integration options (off unless changed)."
         },
         "snooze_scope": {
           "name": "Snooze scope",
@@ -370,7 +370,7 @@
         },
         "image": {
           "name": "Image",
-          "description": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
         }
       }
     },
@@ -424,7 +424,7 @@
       "fields": {
         "message": {
           "name": "Message",
-          "description": "Banner text, 1–1000 characters."
+          "description": "Message text, 1–1000 characters."
         },
         "id": {
           "name": "ID",
@@ -444,7 +444,7 @@
         },
         "timeout": {
           "name": "Timeout",
-          "description": "The banner disappears after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
+          "description": "The message ends after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
         },
         "dismissible": {
           "name": "Dismissible",
@@ -456,7 +456,7 @@
         },
         "snoozable": {
           "name": "Snoozable",
-          "description": "Lets viewers hide the banner for a while; it returns afterwards. Ignored (error) together with dismissible off. Default: the setting from the integration options (off unless changed)."
+          "description": "Lets viewers hide the message for a while; it returns afterwards. The call fails with an error together with dismissible off. Default: the setting from the integration options (off unless changed)."
         },
         "snooze_scope": {
           "name": "Snooze scope",
@@ -472,11 +472,11 @@
         },
         "tag": {
           "name": "Tag",
-          "description": "Group name for card filters and for clearing several banners at once. Lowercase letters, digits, - and _, up to 64 characters, no spaces. Example: laundry. Default: no tag."
+          "description": "Group name for card filters and for clearing several messages at once. Lowercase letters, digits, - and _, up to 64 characters, no spaces. Example: laundry. Default: no tag."
         },
         "condition": {
           "name": "Condition",
-          "description": "Show the banner only while an entity matches or a template is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+          "description": "Show the message only while an entity matches or a template is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Mode",
@@ -484,15 +484,15 @@
         },
         "wait_for_condition": {
           "name": "Wait for condition",
-          "description": "On: a banner whose condition is false now waits until it turns true. Off: nothing is stored and the response status is condition_false. Default: on. Ignored without a condition."
+          "description": "On: a message whose condition is false now waits until it turns true. Off: nothing is stored and the response status is condition_false. Default: on. Ignored without a condition."
         },
         "tap_action": {
           "name": "Tap action",
-          "description": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Home Assistant action run when the message is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Image",
-          "description": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Spoken text",
@@ -500,7 +500,7 @@
         },
         "channels": {
           "name": "Channels",
-          "description": "Where the message is delivered: banner, push, popup, speak, persistent.\n\nExample:\n```yaml\n- banner\n- push\n```"
+          "description": "Where the message is delivered: banner, push, popup, speak, persistent, mail.\n\nExample:\n```yaml\n- banner\n- push\n```"
         },
         "to": {
           "name": "Targets",
@@ -518,7 +518,7 @@
       "fields": {
         "message": {
           "name": "Message",
-          "description": "Banner text, 1–1000 characters."
+          "description": "Message text, 1–1000 characters."
         },
         "id": {
           "name": "ID",
@@ -538,7 +538,7 @@
         },
         "timeout": {
           "name": "Timeout",
-          "description": "The banner disappears after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
+          "description": "The message ends after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
         },
         "actions": {
           "name": "Buttons",
@@ -546,15 +546,15 @@
         },
         "tag": {
           "name": "Tag",
-          "description": "Group name for card filters and for clearing several banners at once. Lowercase letters, digits, - and _, up to 64 characters, no spaces. Example: laundry. Default: no tag."
+          "description": "Group name for card filters and for clearing several messages at once. Lowercase letters, digits, - and _, up to 64 characters, no spaces. Example: laundry. Default: no tag."
         },
         "tap_action": {
           "name": "Tap action",
-          "description": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Home Assistant action run when the message is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Image",
-          "description": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Spoken text",
@@ -576,7 +576,7 @@
       "fields": {
         "message": {
           "name": "Message",
-          "description": "Banner text, 1–1000 characters."
+          "description": "Message text, 1–1000 characters."
         },
         "id": {
           "name": "ID",
@@ -596,7 +596,7 @@
         },
         "timeout": {
           "name": "Timeout",
-          "description": "The banner disappears after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
+          "description": "The message ends after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
         },
         "actions": {
           "name": "Buttons",
@@ -604,15 +604,15 @@
         },
         "tag": {
           "name": "Tag",
-          "description": "Group name for card filters and for clearing several banners at once. Lowercase letters, digits, - and _, up to 64 characters, no spaces. Example: laundry. Default: no tag."
+          "description": "Group name for card filters and for clearing several messages at once. Lowercase letters, digits, - and _, up to 64 characters, no spaces. Example: laundry. Default: no tag."
         },
         "tap_action": {
           "name": "Tap action",
-          "description": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Home Assistant action run when the message is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Image",
-          "description": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Spoken text",
@@ -634,7 +634,7 @@
       "fields": {
         "message": {
           "name": "Message",
-          "description": "Banner text, 1–1000 characters."
+          "description": "Message text, 1–1000 characters."
         },
         "id": {
           "name": "ID",
@@ -654,7 +654,7 @@
         },
         "timeout": {
           "name": "Timeout",
-          "description": "The banner disappears after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
+          "description": "The message ends after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
         },
         "actions": {
           "name": "Buttons",
@@ -662,11 +662,11 @@
         },
         "tag": {
           "name": "Tag",
-          "description": "Group name for card filters and for clearing several banners at once. Lowercase letters, digits, - and _, up to 64 characters, no spaces. Example: laundry. Default: no tag."
+          "description": "Group name for card filters and for clearing several messages at once. Lowercase letters, digits, - and _, up to 64 characters, no spaces. Example: laundry. Default: no tag."
         },
         "tap_action": {
           "name": "Tap action",
-          "description": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Home Assistant action run when the message is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "tts_message": {
           "name": "Spoken text",
@@ -731,7 +731,7 @@
             "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options.",
             "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
+            "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "A policy name, or none. Empty: every automatic policy that applies to a rule message (tag rule). A name uses only that policy; none uses no policy."
           }
         },
@@ -779,7 +779,7 @@
             "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options.",
             "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Picture shown under the message on the card, in the popup and on the push. An https:// URL or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
+            "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         }
       },

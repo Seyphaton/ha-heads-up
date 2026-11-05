@@ -10,7 +10,7 @@ Heads Up has one main action, `heads_up.notify`. It sends one message to the cha
 | Take messages back, from every channel or chosen ones | [`heads_up.clear_notifications`](#heads_upclear_notifications) |
 | Remove banners only (deprecated) | [`heads_up.clear_banner`](#heads_upclear_banner), [`heads_up.clear_all`](#heads_upclear_all) |
 
-A banner is not a separate thing. It is the dashboard view of a message, so every field that works for a banner is a field of `notify`.
+A message is what an action sends, on one or more channels. A banner is the dashboard view of a message, so every field that works for a banner is a field of `notify`. The action texts in Home Assistant say "message" for the thing and "banner" only for the card.
 
 ## `heads_up.notify`
 

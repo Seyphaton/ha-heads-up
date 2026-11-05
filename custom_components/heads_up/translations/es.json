@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Los administradores ven una página de Heads Up en la barra lateral.\n\nSin ella no puedes usar:\n- Envío de prueba\n- el registro de mensajes con su rastro\n- el resumen\n- la introducción que crea las políticas por defecto\n- los ajustes de canales\n- las páginas de ayuda\n\nLas audiencias, destinatarios, políticas, reglas de vigilancia y los demás ajustes siguen editables en Dispositivos y servicios. Puedes cambiarlo en cualquier momento en los ajustes de la integración o en la página Ajustes del panel. Los avisos se crean con la acción `heads_up.create_banner`.",
+        "description": "Los administradores ven una página de Heads Up en la barra lateral.\n\nSin ella no puedes usar:\n- Envío de prueba\n- el registro de mensajes con su rastro\n- el resumen\n- la introducción que crea las políticas por defecto\n- los ajustes de canales\n- las páginas de ayuda\n\nLas audiencias, destinatarios, políticas, reglas de vigilancia y los demás ajustes siguen editables en Dispositivos y servicios. Puedes cambiarlo en cualquier momento en los ajustes de la integración o en la página Ajustes del panel. Los mensajes se envían con la acción `heads_up.notify`.",
         "data": {
           "show_panel": "Mostrar Heads Up en la barra lateral"
         },
@@ -330,7 +330,7 @@
         },
         "snoozable": {
           "name": "Se puede posponer",
-          "description": "Permite ocultar el aviso un tiempo; después vuelve. Es un error junto con «Se puede cerrar» desactivado. Predeterminado: el ajuste de las opciones de la integración (desactivado salvo cambios)."
+          "description": "Permite ocultar el aviso un tiempo; después vuelve. La llamada falla con un error si «Se puede cerrar» está desactivado. Predeterminado: el ajuste de las opciones de la integración (desactivado salvo cambios)."
         },
         "snooze_scope": {
           "name": "Ámbito de posposición",
@@ -370,7 +370,7 @@
         },
         "image": {
           "name": "Imagen",
-          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
         }
       }
     },
@@ -424,7 +424,7 @@
       "fields": {
         "message": {
           "name": "Mensaje",
-          "description": "Texto del aviso, de 1 a 1000 caracteres."
+          "description": "Texto del mensaje, de 1 a 1000 caracteres."
         },
         "id": {
           "name": "ID",
@@ -444,7 +444,7 @@
         },
         "timeout": {
           "name": "Tiempo de caducidad",
-          "description": "El aviso desaparece tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
+          "description": "El mensaje termina tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
         },
         "dismissible": {
           "name": "Se puede cerrar",
@@ -456,7 +456,7 @@
         },
         "snoozable": {
           "name": "Se puede posponer",
-          "description": "Permite ocultar el aviso un tiempo; después vuelve. Es un error junto con «Se puede cerrar» desactivado. Predeterminado: el ajuste de las opciones de la integración (desactivado salvo cambios)."
+          "description": "Permite ocultar el mensaje un tiempo; después vuelve. La llamada falla con un error si «Se puede cerrar» está desactivado. Predeterminado: el ajuste de las opciones de la integración (desactivado salvo cambios)."
         },
         "snooze_scope": {
           "name": "Ámbito de posposición",
@@ -472,11 +472,11 @@
         },
         "tag": {
           "name": "Etiqueta",
-          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios avisos a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
+          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios mensajes a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
         },
         "condition": {
           "name": "Condición",
-          "description": "Mostrar el aviso solo mientras una entidad coincida o una plantilla sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+          "description": "Mostrar el mensaje solo mientras una entidad coincida o una plantilla sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Modo",
@@ -484,15 +484,15 @@
         },
         "wait_for_condition": {
           "name": "Esperar a la condición",
-          "description": "Activado: un aviso cuya condición es falsa espera hasta que sea verdadera. Desactivado: no se guarda nada y el estado de la respuesta es condition_false. Predeterminado: activado. Se ignora sin condición."
+          "description": "Activado: un mensaje cuya condición es falsa espera hasta que sea verdadera. Desactivado: no se guarda nada y el estado de la respuesta es condition_false. Predeterminado: activado. Se ignora sin condición."
         },
         "tap_action": {
           "name": "Acción al tocar",
-          "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Acción de Home Assistant que se ejecuta al tocar el mensaje.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Imagen",
-          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Texto hablado",
@@ -500,7 +500,7 @@
         },
         "channels": {
           "name": "Canales",
-          "description": "Dónde se entrega el mensaje: banner, push, popup, speak, persistent.\n\nEjemplo:\n```yaml\n- banner\n- push\n```"
+          "description": "Dónde se entrega el mensaje: banner, push, popup, speak, persistent, mail.\n\nEjemplo:\n```yaml\n- banner\n- push\n```"
         },
         "to": {
           "name": "Destinatarios",
@@ -518,7 +518,7 @@
       "fields": {
         "message": {
           "name": "Mensaje",
-          "description": "Texto del aviso, de 1 a 1000 caracteres."
+          "description": "Texto del mensaje, de 1 a 1000 caracteres."
         },
         "id": {
           "name": "ID",
@@ -538,7 +538,7 @@
         },
         "timeout": {
           "name": "Tiempo de caducidad",
-          "description": "El aviso desaparece tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
+          "description": "El mensaje termina tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
         },
         "actions": {
           "name": "Botones",
@@ -546,15 +546,15 @@
         },
         "tag": {
           "name": "Etiqueta",
-          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios avisos a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
+          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios mensajes a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
         },
         "tap_action": {
           "name": "Acción al tocar",
-          "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Acción de Home Assistant que se ejecuta al tocar el mensaje.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Imagen",
-          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Texto hablado",
@@ -576,7 +576,7 @@
       "fields": {
         "message": {
           "name": "Mensaje",
-          "description": "Texto del aviso, de 1 a 1000 caracteres."
+          "description": "Texto del mensaje, de 1 a 1000 caracteres."
         },
         "id": {
           "name": "ID",
@@ -596,7 +596,7 @@
         },
         "timeout": {
           "name": "Tiempo de caducidad",
-          "description": "El aviso desaparece tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
+          "description": "El mensaje termina tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
         },
         "actions": {
           "name": "Botones",
@@ -604,15 +604,15 @@
         },
         "tag": {
           "name": "Etiqueta",
-          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios avisos a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
+          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios mensajes a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
         },
         "tap_action": {
           "name": "Acción al tocar",
-          "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Acción de Home Assistant que se ejecuta al tocar el mensaje.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Imagen",
-          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Texto hablado",
@@ -634,7 +634,7 @@
       "fields": {
         "message": {
           "name": "Mensaje",
-          "description": "Texto del aviso, de 1 a 1000 caracteres."
+          "description": "Texto del mensaje, de 1 a 1000 caracteres."
         },
         "id": {
           "name": "ID",
@@ -654,7 +654,7 @@
         },
         "timeout": {
           "name": "Tiempo de caducidad",
-          "description": "El aviso desaparece tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
+          "description": "El mensaje termina tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
         },
         "actions": {
           "name": "Botones",
@@ -662,11 +662,11 @@
         },
         "tag": {
           "name": "Etiqueta",
-          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios avisos a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
+          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios mensajes a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
         },
         "tap_action": {
           "name": "Acción al tocar",
-          "description": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Acción de Home Assistant que se ejecuta al tocar el mensaje.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "tts_message": {
           "name": "Texto hablado",
@@ -731,7 +731,7 @@
             "snooze_options": "Duraciones que se ofrecen al usuario. Vacío: el ajuste de las opciones de la integración.",
             "actions": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action. «dismiss» requiere «Se puede cerrar».\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```",
+            "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "El nombre de una política, o none. Vacío: cada política automática que se aplica a un mensaje de regla (etiqueta rule). Un nombre usa solo esa política, none ninguna."
           }
         },
@@ -779,7 +779,7 @@
             "snooze_options": "Duraciones que se ofrecen al usuario. Vacío: el ajuste de las opciones de la integración.",
             "actions": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action. «dismiss» requiere «Se puede cerrar».\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
+            "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         }
       },

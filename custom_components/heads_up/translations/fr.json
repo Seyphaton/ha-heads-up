@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Les administrateurs voient une page Heads Up dans la barre latérale.\n\nSans elle, vous ne pouvez pas utiliser :\n- Envoi de test\n- le journal des messages avec sa trace\n- la vue d'ensemble\n- l'introduction qui crée les politiques par défaut\n- les réglages des canaux\n- les pages d'aide\n\nLes audiences, destinataires, politiques, règles de surveillance et les autres réglages restent modifiables sous Appareils et services. Vous pouvez le changer à tout moment dans les réglages de l'intégration ou sur la page Réglages du panneau. Les bannières sont créées par l'action `heads_up.create_banner`.",
+        "description": "Les administrateurs voient une page Heads Up dans la barre latérale.\n\nSans elle, vous ne pouvez pas utiliser :\n- Envoi de test\n- le journal des messages avec sa trace\n- la vue d'ensemble\n- l'introduction qui crée les politiques par défaut\n- les réglages des canaux\n- les pages d'aide\n\nLes audiences, destinataires, politiques, règles de surveillance et les autres réglages restent modifiables sous Appareils et services. Vous pouvez le changer à tout moment dans les réglages de l'intégration ou sur la page Réglages du panneau. Les messages sont envoyés avec l'action `heads_up.notify`.",
         "data": {
           "show_panel": "Afficher Heads Up dans la barre latérale"
         },
@@ -330,7 +330,7 @@
         },
         "snoozable": {
           "name": "Reportable",
-          "description": "Permet de masquer la bannière un moment ; elle revient ensuite. Erreur avec « Fermable » désactivé. Par défaut : le réglage des options de l'intégration (désactivé sauf modification)."
+          "description": "Permet de masquer la bannière un moment ; elle revient ensuite. L'appel échoue avec une erreur si « Fermable » est désactivé. Par défaut : le réglage des options de l'intégration (désactivé sauf modification)."
         },
         "snooze_scope": {
           "name": "Portée du report",
@@ -370,7 +370,7 @@
         },
         "image": {
           "name": "Image",
-          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
         }
       }
     },
@@ -424,7 +424,7 @@
       "fields": {
         "message": {
           "name": "Message",
-          "description": "Texte de la bannière, 1 à 1000 caractères."
+          "description": "Texte du message, 1 à 1000 caractères."
         },
         "id": {
           "name": "ID",
@@ -444,7 +444,7 @@
         },
         "timeout": {
           "name": "Délai d'expiration",
-          "description": "La bannière disparaît après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
+          "description": "Le message se termine après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
         },
         "dismissible": {
           "name": "Fermable",
@@ -456,7 +456,7 @@
         },
         "snoozable": {
           "name": "Reportable",
-          "description": "Permet de masquer la bannière un moment ; elle revient ensuite. Erreur avec « Fermable » désactivé. Par défaut : le réglage des options de l'intégration (désactivé sauf modification)."
+          "description": "Permet de masquer le message un moment ; il revient ensuite. L'appel échoue avec une erreur si « Fermable » est désactivé. Par défaut : le réglage des options de l'intégration (désactivé sauf modification)."
         },
         "snooze_scope": {
           "name": "Portée du report",
@@ -472,11 +472,11 @@
         },
         "tag": {
           "name": "Étiquette",
-          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs bannières à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
+          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs messages à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
         },
         "condition": {
           "name": "Condition",
-          "description": "Afficher la bannière seulement tant qu'une entité correspond ou qu'un modèle est vrai. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+          "description": "Afficher le message seulement tant qu'une entité correspond ou qu'un modèle est vrai. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Mode",
@@ -484,15 +484,15 @@
         },
         "wait_for_condition": {
           "name": "Attendre la condition",
-          "description": "Activé : une bannière dont la condition est fausse attend qu'elle devienne vraie. Désactivé : rien n'est enregistré et le statut de la réponse est condition_false. Par défaut : activé. Ignoré sans condition."
+          "description": "Activé : un message dont la condition est fausse attend qu'elle devienne vraie. Désactivé : rien n'est enregistré et le statut de la réponse est condition_false. Par défaut : activé. Ignoré sans condition."
         },
         "tap_action": {
           "name": "Action au toucher",
-          "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Action Home Assistant exécutée quand on touche le message.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Image",
-          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Texte parlé",
@@ -500,7 +500,7 @@
         },
         "channels": {
           "name": "Canaux",
-          "description": "Où le message est livré : banner, push, popup, speak, persistent.\n\nExemple :\n```yaml\n- banner\n- push\n```"
+          "description": "Où le message est livré : banner, push, popup, speak, persistent, mail.\n\nExemple :\n```yaml\n- banner\n- push\n```"
         },
         "to": {
           "name": "Destinataires",
@@ -518,7 +518,7 @@
       "fields": {
         "message": {
           "name": "Message",
-          "description": "Texte de la bannière, 1 à 1000 caractères."
+          "description": "Texte du message, 1 à 1000 caractères."
         },
         "id": {
           "name": "ID",
@@ -538,7 +538,7 @@
         },
         "timeout": {
           "name": "Délai d'expiration",
-          "description": "La bannière disparaît après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
+          "description": "Le message se termine après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
         },
         "actions": {
           "name": "Boutons",
@@ -546,15 +546,15 @@
         },
         "tag": {
           "name": "Étiquette",
-          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs bannières à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
+          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs messages à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
         },
         "tap_action": {
           "name": "Action au toucher",
-          "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Action Home Assistant exécutée quand on touche le message.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Image",
-          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Texte parlé",
@@ -576,7 +576,7 @@
       "fields": {
         "message": {
           "name": "Message",
-          "description": "Texte de la bannière, 1 à 1000 caractères."
+          "description": "Texte du message, 1 à 1000 caractères."
         },
         "id": {
           "name": "ID",
@@ -596,7 +596,7 @@
         },
         "timeout": {
           "name": "Délai d'expiration",
-          "description": "La bannière disparaît après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
+          "description": "Le message se termine après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
         },
         "actions": {
           "name": "Boutons",
@@ -604,15 +604,15 @@
         },
         "tag": {
           "name": "Étiquette",
-          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs bannières à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
+          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs messages à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
         },
         "tap_action": {
           "name": "Action au toucher",
-          "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Action Home Assistant exécutée quand on touche le message.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Image",
-          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Texte parlé",
@@ -634,7 +634,7 @@
       "fields": {
         "message": {
           "name": "Message",
-          "description": "Texte de la bannière, 1 à 1000 caractères."
+          "description": "Texte du message, 1 à 1000 caractères."
         },
         "id": {
           "name": "ID",
@@ -654,7 +654,7 @@
         },
         "timeout": {
           "name": "Délai d'expiration",
-          "description": "La bannière disparaît après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
+          "description": "Le message se termine après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
         },
         "actions": {
           "name": "Boutons",
@@ -662,11 +662,11 @@
         },
         "tag": {
           "name": "Étiquette",
-          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs bannières à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
+          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs messages à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
         },
         "tap_action": {
           "name": "Action au toucher",
-          "description": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Action Home Assistant exécutée quand on touche le message.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "tts_message": {
           "name": "Texte parlé",
@@ -731,7 +731,7 @@
             "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration.",
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
+            "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Le nom d'une politique, ou none. Vide : chaque politique automatique qui s'applique à un message de règle (étiquette rule). Un nom n'utilise que cette politique, none n'en utilise aucune."
           }
         },
@@ -779,7 +779,7 @@
             "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration.",
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
+            "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         }
       },

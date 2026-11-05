@@ -14,6 +14,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - `heads_up.clear`, which existed only in the 1.0.0 pre-releases. Use `heads_up.clear_notifications`.
 
 ### Fixed
+- Action and setup texts in Home Assistant: the setup dialog names `heads_up.notify` instead of `create_banner`; the fields of `notify`, `push`, `popup` and `speak` say "message" where they said "banner"; `image` accepts `http://` as well as `https://`; the `notify` channel list names `mail`; the snoozable text says the call fails together with dismissible off. German, French and Spanish follow.
 - A signed-in user can no longer dismiss, snooze or unsnooze a banner that is addressed to other people. The commands answer `not_targeted`; `heads_up/dismiss_many` counts such banners as skipped.
 
 ## [1.0.0-alpha.5] - 2026-11-04

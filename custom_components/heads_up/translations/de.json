@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Administratoren sehen eine Heads-Up-Seite in der Seitenleiste.\n\nOhne sie kannst du nicht nutzen:\n- Testsenden\n- das Meldungsprotokoll mit dem Ablauf jeder Meldung\n- die Übersicht\n- die Einführung mit den Standardrichtlinien\n- die Kanal-Einstellungen\n- die Hilfe-Seiten\n\nZielgruppen, Empfänger, Richtlinien, Überwachungsregeln und die übrigen Einstellungen bleiben unter Geräte & Dienste bearbeitbar. Du kannst das jederzeit in den Einstellungen der Integration oder auf der Einstellungsseite des Panels ändern. Banner werden mit der Aktion `heads_up.create_banner` erstellt.",
+        "description": "Administratoren sehen eine Heads-Up-Seite in der Seitenleiste.\n\nOhne sie kannst du nicht nutzen:\n- Testsenden\n- das Meldungsprotokoll mit dem Ablauf jeder Meldung\n- die Übersicht\n- die Einführung mit den Standardrichtlinien\n- die Kanal-Einstellungen\n- die Hilfe-Seiten\n\nZielgruppen, Empfänger, Richtlinien, Überwachungsregeln und die übrigen Einstellungen bleiben unter Geräte & Dienste bearbeitbar. Du kannst das jederzeit in den Einstellungen der Integration oder auf der Einstellungsseite des Panels ändern. Nachrichten werden mit der Aktion `heads_up.notify` gesendet.",
         "data": {
           "show_panel": "Heads Up in der Seitenleiste anzeigen"
         },
@@ -330,7 +330,7 @@
         },
         "snoozable": {
           "name": "Zurückstellbar",
-          "description": "Erlaubt es, das Banner für eine Weile auszublenden; danach kehrt es zurück. Zusammen mit „Schließbar“ aus ist es ein Fehler. Standard: die Einstellung aus den Integrationsoptionen (aus, sofern nicht geändert)."
+          "description": "Erlaubt es, das Banner für eine Weile auszublenden; danach kehrt es zurück. Zusammen mit „Schließbar“ aus schlägt der Aufruf mit einem Fehler fehl. Standard: die Einstellung aus den Integrationsoptionen (aus, sofern nicht geändert)."
         },
         "snooze_scope": {
           "name": "Bereich beim Zurückstellen",
@@ -370,7 +370,7 @@
         },
         "image": {
           "name": "Bild",
-          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
         }
       }
     },
@@ -424,7 +424,7 @@
       "fields": {
         "message": {
           "name": "Nachricht",
-          "description": "Bannertext, 1–1000 Zeichen."
+          "description": "Nachrichtentext, 1–1000 Zeichen."
         },
         "id": {
           "name": "ID",
@@ -444,7 +444,7 @@
         },
         "timeout": {
           "name": "Zeitlimit",
-          "description": "Das Banner verschwindet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
+          "description": "Die Nachricht endet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
         },
         "dismissible": {
           "name": "Schließbar",
@@ -456,7 +456,7 @@
         },
         "snoozable": {
           "name": "Zurückstellbar",
-          "description": "Erlaubt es, das Banner für eine Weile auszublenden; danach kehrt es zurück. Zusammen mit „Schließbar“ aus ist es ein Fehler. Standard: die Einstellung aus den Integrationsoptionen (aus, sofern nicht geändert)."
+          "description": "Erlaubt es, die Nachricht für eine Weile auszublenden; danach kehrt sie zurück. Zusammen mit „Schließbar“ aus schlägt der Aufruf mit einem Fehler fehl. Standard: die Einstellung aus den Integrationsoptionen (aus, sofern nicht geändert)."
         },
         "snooze_scope": {
           "name": "Bereich beim Zurückstellen",
@@ -472,11 +472,11 @@
         },
         "tag": {
           "name": "Tag",
-          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Banner. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
+          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Nachrichten. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
         },
         "condition": {
           "name": "Bedingung",
-          "description": "Das Banner nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+          "description": "Die Nachricht nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Modus",
@@ -484,15 +484,15 @@
         },
         "wait_for_condition": {
           "name": "Auf Bedingung warten",
-          "description": "An: Ein Banner, dessen Bedingung jetzt falsch ist, wartet, bis sie wahr wird. Aus: nichts wird gespeichert und der Antwortstatus ist condition_false. Standard: an. Ohne Bedingung wirkungslos."
+          "description": "An: Eine Nachricht, deren Bedingung jetzt falsch ist, wartet, bis sie wahr wird. Aus: nichts wird gespeichert und der Antwortstatus ist condition_false. Standard: an. Ohne Bedingung wirkungslos."
         },
         "tap_action": {
           "name": "Tipp-Aktion",
-          "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Home-Assistant-Aktion, die beim Antippen der Nachricht ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Bild",
-          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Gesprochener Text",
@@ -500,7 +500,7 @@
         },
         "channels": {
           "name": "Kanäle",
-          "description": "Wohin die Nachricht geht: banner, push, popup, speak, persistent.\n\nBeispiel:\n```yaml\n- banner\n- push\n```"
+          "description": "Wohin die Nachricht geht: banner, push, popup, speak, persistent, mail.\n\nBeispiel:\n```yaml\n- banner\n- push\n```"
         },
         "to": {
           "name": "Empfänger",
@@ -518,7 +518,7 @@
       "fields": {
         "message": {
           "name": "Nachricht",
-          "description": "Bannertext, 1–1000 Zeichen."
+          "description": "Nachrichtentext, 1–1000 Zeichen."
         },
         "id": {
           "name": "ID",
@@ -538,7 +538,7 @@
         },
         "timeout": {
           "name": "Zeitlimit",
-          "description": "Das Banner verschwindet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
+          "description": "Die Nachricht endet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
         },
         "actions": {
           "name": "Schaltflächen",
@@ -546,15 +546,15 @@
         },
         "tag": {
           "name": "Tag",
-          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Banner. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
+          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Nachrichten. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
         },
         "tap_action": {
           "name": "Tipp-Aktion",
-          "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Home-Assistant-Aktion, die beim Antippen der Nachricht ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Bild",
-          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Gesprochener Text",
@@ -576,7 +576,7 @@
       "fields": {
         "message": {
           "name": "Nachricht",
-          "description": "Bannertext, 1–1000 Zeichen."
+          "description": "Nachrichtentext, 1–1000 Zeichen."
         },
         "id": {
           "name": "ID",
@@ -596,7 +596,7 @@
         },
         "timeout": {
           "name": "Zeitlimit",
-          "description": "Das Banner verschwindet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
+          "description": "Die Nachricht endet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
         },
         "actions": {
           "name": "Schaltflächen",
@@ -604,15 +604,15 @@
         },
         "tag": {
           "name": "Tag",
-          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Banner. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
+          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Nachrichten. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
         },
         "tap_action": {
           "name": "Tipp-Aktion",
-          "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Home-Assistant-Aktion, die beim Antippen der Nachricht ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "image": {
           "name": "Bild",
-          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
+          "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
         },
         "tts_message": {
           "name": "Gesprochener Text",
@@ -634,7 +634,7 @@
       "fields": {
         "message": {
           "name": "Nachricht",
-          "description": "Bannertext, 1–1000 Zeichen."
+          "description": "Nachrichtentext, 1–1000 Zeichen."
         },
         "id": {
           "name": "ID",
@@ -654,7 +654,7 @@
         },
         "timeout": {
           "name": "Zeitlimit",
-          "description": "Das Banner verschwindet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
+          "description": "Die Nachricht endet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
         },
         "actions": {
           "name": "Schaltflächen",
@@ -662,11 +662,11 @@
         },
         "tag": {
           "name": "Tag",
-          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Banner. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
+          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Nachrichten. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
         },
         "tap_action": {
           "name": "Tipp-Aktion",
-          "description": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+          "description": "Home-Assistant-Aktion, die beim Antippen der Nachricht ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
         },
         "tts_message": {
           "name": "Gesprochener Text",
@@ -731,7 +731,7 @@
             "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen.",
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
+            "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Der Name einer Richtlinie oder none. Leer: jede automatische Richtlinie, die für eine Regelmeldung gilt (Tag rule). Ein Name nutzt nur diese Richtlinie, none keine."
           }
         },
@@ -779,7 +779,7 @@
             "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen.",
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine https://-URL oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
+            "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
           }
         }
       },
