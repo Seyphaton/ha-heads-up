@@ -1,4 +1,4 @@
-// Heads Up popup loader (docs/popup.md)
+// Heads Up popup loader (docs/configuration.md#popup)
 (async () => {
  const ha = () => document.querySelector("home-assistant");
  let un, mod, busy;

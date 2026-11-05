@@ -50,13 +50,13 @@ The banner is on the dashboard, and everyone who is home gets a push. When the m
 |---|---|---|---|
 | `channels` | list of channels | required | One or more of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, each at most once. |
 | `to` | object | none | Who gets the message, per channel. See below. |
-| `policy` | text | every policy that applies | The name of one [policy](policies.md) to use, whatever its severities and tags say; it is the only policy used for the call, and it may be a manual policy. `none` uses no policy. |
+| `policy` | text | every policy that applies | The name of one [policy](configuration.md#policies) to use, whatever its severities and tags say; it is the only policy used for the call, and it may be a manual policy. `none` uses no policy. |
 
 `to` holds one entry per channel. Each entry is either `audience` (the name of a group such as `At home`) or `recipients` (a list), never both.
 
-- `push`, `popup` and `mail` need a target: an audience or recipients. Audience and recipient names are described in [Audiences and recipients](audiences.md).
+- `push`, `popup` and `mail` need a target: an audience or recipients. Audience and recipient names are described in [Audiences and recipients](configuration.md#audiences).
 - `speak` needs recipients (speakers, groups or areas). It takes no audience.
-- `persistent` takes no target. The notification bell is shared, so everyone sees the entry (see [Persistent notifications](persistent.md)).
+- `persistent` takes no target. The notification bell is shared, so everyone sees the entry (see [Persistent notifications](configuration.md#persistent-notification)).
 - `banner` needs none. Without a target, every user sees the banner. Recipients limit the banner to the users linked to those persons. An audience does the same with the persons it has when the call is made; a person who joins the audience later does not see a banner that already exists, and an empty audience gives a banner nobody sees.
 
 The names in `to` and `policy` are checked when you call the action. A name that does not exist fails with an error that lists the valid names.
@@ -352,7 +352,7 @@ Targeting decides who receives the banner in the card. It is not access control:
 
 ## `heads_up.push`
 
-Shortcut for `notify` with `channels: [push]` and no policies. It needs `audience` or `recipients`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear_notifications`. Without an `id` it is delivered once and no record is kept, so a later `clear_notifications` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Push notifications](push.md).
+Shortcut for `notify` with `channels: [push]` and no policies. It needs `audience` or `recipients`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear_notifications`. Without an `id` it is delivered once and no record is kept, so a later `clear_notifications` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Push notifications](configuration.md#push).
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
@@ -380,7 +380,7 @@ Shortcut for `notify` with `channels: [push]` and no policies. It needs `audienc
 
 ## `heads_up.popup`
 
-Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audience` or `recipients`; the fields are those of `heads_up.push`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear_notifications`. Without an `id` it is delivered once and no record is kept, so a later `clear_notifications` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Popups](popup.md).
+Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audience` or `recipients`; the fields are those of `heads_up.push`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear_notifications`. Without an `id` it is delivered once and no record is kept, so a later `clear_notifications` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Popups](configuration.md#popup).
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
@@ -407,7 +407,7 @@ Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audien
 
 ## `heads_up.speak`
 
-Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipients` (speakers or groups) and has no `audience` field, because speech goes to speakers, not to people. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear_notifications`. Without an `id` it is delivered once and no record is kept, so a later `clear_notifications` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Speech](speech.md).
+Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipients` (speakers or groups) and has no `audience` field, because speech goes to speakers, not to people. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear_notifications`. Without an `id` it is delivered once and no record is kept, so a later `clear_notifications` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Speech](configuration.md#speech).
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
@@ -816,7 +816,7 @@ Tested with a mouse in a desktop browser on Home Assistant 2026.9.4. Touch, keyb
 
 ### Acknowledge
 
-When an escalation or reminder policy applies to a banner ([Policies](policies.md)) and nobody has acknowledged it, the banner has an **Acknowledge** button next to its own buttons. Pressing it stops the escalations and reminders of that message for everyone. The banner stays on the dashboard and the button goes away. The compact layout shows no buttons, so it has no Acknowledge button; it still shows the line.
+When an escalation or reminder policy applies to a banner ([Policies](configuration.md#policies)) and nobody has acknowledged it, the banner has an **Acknowledge** button next to its own buttons. Pressing it stops the escalations and reminders of that message for everyone. The banner stays on the dashboard and the button goes away. The compact layout shows no buttons, so it has no Acknowledge button; it still shows the line.
 
 A banner that someone acknowledged shows a line under its text: "Acknowledged by Anna", "Acknowledged by Anna and 1 other" or "Acknowledged by Anna and 2 others". The name is the first word of the person's name; the first person is the one who acknowledged first. Someone without a person entity is counted but not named, and a banner acknowledged only by such a person shows "Acknowledged". The option `show_acknowledged: false` hides the line. Watch rule banners work the same, if a policy applies to the tag `rule`. The acknowledgement ends when the banner's condition turns false (rules) or when its severity changes.
 

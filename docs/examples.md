@@ -34,7 +34,7 @@ data:
     push: {audience: At home}
 ```
 
-The shortcut `heads_up.push` does the same with `audience` and no `channels`. See [Push notifications](push.md).
+The shortcut `heads_up.push` does the same with `audience` and no `channels`. See [Push notifications](configuration.md#push).
 
 ### A spoken message
 
@@ -46,7 +46,7 @@ data:
     - media_player.kitchen
 ```
 
-Speech goes to speakers, not to people. See [Speech](speech.md).
+Speech goes to speakers, not to people. See [Speech](configuration.md#speech).
 
 ### Take a message back
 
@@ -220,7 +220,7 @@ data:
 | Water reminder | Reminder | severity `critical`, tag `water`; every 10 minutes, at most 3 | Repeats the push while nobody acknowledges. |
 | Night quiet | Quiet hours | 22:00 to 07:00, critical messages pass | Lower severities become passive pushes at night; this message still alerts. |
 
-The default setting runs only the first policy that matches a message. For both policies to run, choose "Every policy that applies runs" on the Policies page. If you used the introduction's defaults, put both above "Critical delivery" (see [Policies](policies.md#how-policies-interact)). Acknowledging the message on a phone stops both the escalation and the reminder. The banner stays until `heads_up.clear_notifications` or the sensor's own automation takes it back. See [Policies](policies.md).
+The default setting runs only the first policy that matches a message. For both policies to run, choose "Every policy that applies runs" on the Policies page. If you used the introduction's defaults, put both above "Critical delivery" (see [Policies](configuration.md#how-policies-interact)). Acknowledging the message on a phone stops both the escalation and the reminder. The banner stays until `heads_up.clear_notifications` or the sensor's own automation takes it back. See [Policies](configuration.md#policies).
 
 ### An evening summary
 
@@ -241,7 +241,7 @@ Create a Summarize policy for the tag `digest` with the time 20:00. The banner a
 
 ### Mail to one person
 
-Mail needs a notify service, and the person needs Mail switched on and an address in the recipient profile; see [Mail](mail.md).
+Mail needs a notify service, and the person needs Mail switched on and an address in the recipient profile; see [Mail](configuration.md#mail).
 
 ```yaml
 action: heads_up.notify

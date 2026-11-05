@@ -2,10 +2,10 @@
 
 ## What Heads Up does not do
 
-- Push has no retry: a failed push is not tried again, and a push over the rate limit is skipped ([Push notifications](push.md), [Settings](settings.md#limits)).
-- Speech has no volume handling and no all-clear announcement ([Speech](speech.md)).
-- Mail delivery is the job of the notify service you choose; Heads Up knows only whether the call returned an error ([Mail](mail.md)).
-- A popup needs an open Home Assistant page ([Popups](popup.md)). A persistent notification goes to everyone ([Persistent notifications](persistent.md)).
+- Push has no retry: a failed push is not tried again, and a push over the rate limit is skipped ([Push notifications](configuration.md#push), [Settings](settings.md#limits)).
+- Speech has no volume handling and no all-clear announcement ([Speech](configuration.md#speech)).
+- Mail delivery is the job of the notify service you choose; Heads Up knows only whether the call returned an error ([Mail](configuration.md#mail)).
+- A popup needs an open Home Assistant page ([Popups](configuration.md#popup)). A persistent notification goes to everyone ([Persistent notifications](configuration.md#persistent-notification)).
 - It keeps no history of messages. Each change fires an event; see [actions](actions.md#events). The panel's trace, recent messages and log of last actions are kept in memory and start empty after a restart.
 - Pushes were tried with stub devices only, not with a real Companion app. The critical level needs the app's permission on iOS and plays a sound in silent mode there. On Android it uses the alarm channel, which also sounds in silent mode; Do Not Disturb is overridden only if you allow it for that channel in the Android settings.
 - A watch rule watches one entity (its state or one attribute) or one template. The state is compared as text unless the condition is above, below or between.

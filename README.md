@@ -114,8 +114,8 @@ The card receives banners over the Home Assistant WebSocket connection and does 
 - [Settings](docs/settings.md): every setting with its default, including limits.
 - [Examples](docs/examples.md): working examples from simple to complex, REST and WebSocket.
 - [Notification hub](docs/hub.md): the terms, and examples from a household.
-- [Panel](docs/panel.md), [Policies](docs/policies.md), [Audiences and recipients](docs/audiences.md)
-- Channels: [Push](docs/push.md), [Popup](docs/popup.md), [Speech](docs/speech.md), [Persistent Notification](docs/persistent.md), [Mail](docs/mail.md)
+- [Panel](docs/panel.md), [Policies](docs/configuration.md#policies), [Audiences and recipients](docs/configuration.md#audiences)
+- Channels: [Push](docs/configuration.md#push), [Popup](docs/configuration.md#popup), [Speech](docs/configuration.md#speech), [Persistent Notification](docs/configuration.md#persistent-notification), [Mail](docs/configuration.md#mail)
 - [Card](docs/actions.md): options, looks and behaviour.
 - [Watch rules](docs/actions.md#watch-rules): banners from an entity state or value, without an automation.
 - [Troubleshooting](docs/troubleshooting.md)

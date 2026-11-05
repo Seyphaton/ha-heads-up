@@ -91,7 +91,7 @@ The banner is in the card. Everyone who is home gets a push on every Companion a
 | `At home`, `Not home` | Persons by their state. |
 | `Last to leave`, `First home` | The person whose departure emptied the house, and the first one back. |
 
-You can add audiences of your own. See [Audiences and recipients](audiences.md). Speech goes to speakers instead (`recipients: [media_player.kitchen]`); see [Speech](speech.md).
+You can add audiences of your own. See [Audiences and recipients](configuration.md#audiences). Speech goes to speakers instead (`recipients: [media_player.kitchen]`); see [Speech](configuration.md#speech).
 
 ## 4. Choose how long it lives
 
@@ -172,7 +172,7 @@ data:
     push: {audience: At home}
 ```
 
-If nobody acknowledges the message within 5 minutes, the policy pushes it to the administrators. See [Policies](policies.md).
+If nobody acknowledges the message within 5 minutes, the policy pushes it to the administrators. See [Policies](configuration.md#policies).
 
 ## 8. Show a banner without an automation
 
@@ -192,5 +192,5 @@ A watch rule shows a banner while an entity is in a state and removes it when th
 | [Settings](settings.md) | Every setting with its default, including limits. |
 | [Card](actions.md#the-card) | Every card option, looks and screenshots. |
 | [Examples](examples.md) | Working examples from simple to complex, including REST and WebSocket. |
-| [Policies](policies.md), [Audiences and recipients](audiences.md), [Watch rules](actions.md#watch-rules) | The hub objects. |
-| [Push](push.md), [Popup](popup.md), [Speech](speech.md), [Mail](mail.md), [Persistent notifications](persistent.md) | One page per channel. |
+| [Policies](configuration.md#policies), [Audiences and recipients](configuration.md#audiences), [Watch rules](actions.md#watch-rules) | The hub objects. |
+| [Push](configuration.md#push), [Popup](configuration.md#popup), [Speech](configuration.md#speech), [Mail](configuration.md#mail), [Persistent notifications](configuration.md#persistent-notification) | One page per channel. |

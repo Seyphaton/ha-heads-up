@@ -55,7 +55,7 @@ These settings belong to the message, not to one channel. They apply to the bann
 | Android channel name (`push_channel_id`) | `heads_up` | Prefix of the Android notification channel. |
 | Keep after tap (`push_sticky`) | off | Keeps the notification after a tap (Android). |
 
-See [Push notifications](push.md).
+See [Push notifications](configuration.md#push).
 
 ## Popup
 
@@ -63,7 +63,7 @@ See [Push notifications](push.md).
 |---|---|---|
 | Popup style per severity (`popup_styles`) | success, info and warning `card`; critical `modal` | `card` is a card in the bottom right corner, `modal` a centered window over a dimmed page, `off` shows nothing. |
 
-See [Popups](popup.md).
+See [Popups](configuration.md#popup).
 
 ## Speech
 
@@ -74,7 +74,7 @@ See [Popups](popup.md).
 | Text-to-speech engine (`speak_tts_entity`) | automatic | The engine for media players. Automatic: the only text-to-speech entity, if there is exactly one. |
 | Spoken language (`speak_language`) | the Home Assistant language | The language of the speech. |
 
-See [Speech](speech.md).
+See [Speech](configuration.md#speech).
 
 ## Mail
 
@@ -85,7 +85,7 @@ See [Speech](speech.md).
 | Subject (`mail_subject`) | `{severity}: {title}` | A template, up to 200 characters. |
 | Body (`mail_body`) | `{message}` | A template, up to 2000 characters. |
 
-See [Mail](mail.md).
+See [Mail](configuration.md#mail).
 
 ## History
 

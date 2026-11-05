@@ -61,7 +61,7 @@ Open the trace of the message (`heads_up/hub_trace`, admin) and look for entries
 - `cleared` with `dismissed_counts_as_acknowledged`: the policy counts a dismissal as an acknowledgement.
 - `skipped` with `audience_missing` or `group_missing`: an audience or group the policy names was deleted. Edit the policy.
 - `cleared` with `nobody_left`: every recipient had dismissed or snoozed, so there was nobody to remind.
-- No entry: the policy did not match the message (severity, tag, or the `policy` field), is disabled, or was added after the message became visible. A policy added later starts at the message's next update. See [Policies](policies.md).
+- No entry: the policy did not match the message (severity, tag, or the `policy` field), is disabled, or was added after the message became visible. A policy added later starts at the message's next update. See [Policies](configuration.md#policies).
 
 ## A push did not arrive during the night, or arrived late
 
@@ -73,11 +73,11 @@ Open the trace of the message (`heads_up/hub_trace`, admin).
 - Critical messages ignore Quiet hours unless the policy has Critical messages pass turned off.
 - The window uses the Home Assistant time zone (Settings > System > General).
 
-See [Policies](policies.md).
+See [Policies](configuration.md#policies).
 
 ## A message does not show on the dashboard
 
-If a Summarize policy applies to the message (its severities and tags, and `policy` in the call), it is held until the summary. The trace of the message has no delivery entries, and `heads_up/hub_trace` shows the summary with `summary` once it is sent. Critical messages are held only if the policy includes them. Deleting or disabling the policy releases its held messages. See [Policies](policies.md).
+If a Summarize policy applies to the message (its severities and tags, and `policy` in the call), it is held until the summary. The trace of the message has no delivery entries, and `heads_up/hub_trace` shows the summary with `summary` once it is sent. Critical messages are held only if the policy includes them. Deleting or disabling the policy releases its held messages. See [Policies](configuration.md#policies).
 
 ## A message was not spoken
 
@@ -90,7 +90,7 @@ Open the trace of the message (`heads_up/hub_trace`, admin) and look at the spea
 - `service_not_found` or `send_failed`: the speaker's integration does not offer the service or it failed; the log has one warning per speaker per hour.
 - `entity_missing`: the speaker no longer exists. Edit the recipient group.
 
-See [Speech](speech.md).
+See [Speech](configuration.md#speech).
 
 ## A popup did not appear
 
@@ -99,11 +99,11 @@ See [Speech](speech.md).
 - For about a second after Home Assistant starts, pages are served without extra scripts. A page loaded in that time has no popups until you reload it.
 - If you dismissed or snoozed it, it is gone for you until the snooze ends.
 
-See [Popups](popup.md).
+See [Popups](configuration.md#popup).
 
 ## An entry is missing in the notification bell
 
-Open the trace of the message (`heads_up/hub_trace`, admin). `service_not_found` or `send_failed` means Home Assistant's `persistent_notification` service failed. If you dismissed the entry in the bell, Heads Up does not know: the next update of the message creates it again, and so does a restart of Home Assistant, which empties the bell. A rule message reaches the bell only through an escalation or fallback policy. See [Persistent notifications](persistent.md).
+Open the trace of the message (`heads_up/hub_trace`, admin). `service_not_found` or `send_failed` means Home Assistant's `persistent_notification` service failed. If you dismissed the entry in the bell, Heads Up does not know: the next update of the message creates it again, and so does a restart of Home Assistant, which empties the bell. A rule message reaches the bell only through an escalation or fallback policy. See [Persistent notifications](configuration.md#persistent-notification).
 
 ## Mail is not sent
 
@@ -115,7 +115,7 @@ Open the trace of the message (`heads_up/hub_trace`, admin) and read the reason.
 - `service_not_found`: the chosen notify service no longer exists. Choose it again.
 - `send_failed`: the notify service raised an error. Check its own log lines, for example the SMTP server and login.
 
-The event `heads_up_delivery_failed` carries the same reasons. See [Mail](mail.md).
+The event `heads_up_delivery_failed` carries the same reasons. See [Mail](configuration.md#mail).
 
 ## The Heads Up entry is not in the sidebar
 

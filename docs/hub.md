@@ -6,9 +6,9 @@ Heads Up is one place that orchestrates where a message shows up, who is told, a
 
 - **Message:** what an automation sends. It has text, a severity and a lifecycle: it ends when someone closes it, a condition stops matching, a timeout passes or an action clears it. The dashboard banner is one view of a message.
 - **Channel:** where a message appears: banner, push, popup, speech, mail or Persistent Notification (Home Assistant's bell). The banner is the base; the others are on the same level and each is named per call or by a policy.
-- **Audience:** a named group of people that can change over time: Everyone, Admins, At home, Not home, Last to leave, First home, or your own. See [Audiences and recipients](audiences.md).
+- **Audience:** a named group of people that can change over time: Everyone, Admins, At home, Not home, Last to leave, First home, or your own. See [Audiences and recipients](configuration.md#audiences).
 - **Recipient:** one target inside an audience: a person, a phone, a speaker.
-- **Policy:** a rule for how messages behave, kept apart from the automation: escalate, remind, keep quiet at night, wait until someone is home, fall back to someone else, summarize, deliver at once. See [Policies](policies.md).
+- **Policy:** a rule for how messages behave, kept apart from the automation: escalate, remind, keep quiet at night, wait until someone is home, fall back to someone else, summarize, deliver at once. See [Policies](configuration.md#policies).
 - **Acknowledgement:** someone saw the message. It stops escalations and reminders. The banner stays for the others.
 - **Delivery:** one message, one recipient, one channel, with a result: sent, held, skipped or failed. The trace lists them.
 

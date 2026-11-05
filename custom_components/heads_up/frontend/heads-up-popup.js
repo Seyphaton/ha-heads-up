@@ -1,4 +1,4 @@
-// Heads Up popup (docs/popup.md). Imported by the loader when the first popup is due.
+// Heads Up popup (docs/configuration.md#popup). Imported by the loader when the first popup is due.
 // Plain ES module, no build step (D-021, D-115). Message text only via textContent.
 
 const SEVERITY_RANK = { critical: 3, warning: 2, info: 1, success: 0 };
