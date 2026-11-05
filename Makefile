@@ -39,7 +39,7 @@ dev-up:         ## start local throwaway HA on http://127.0.0.1:8124
 dev-onboard:    ## first start only: onboarding, dev-admin + dev-user with persons, Heads Up entry
 	uv run python dev/onboard.py
 
-dev-smoke:      ## end-to-end check against dev HA (see dev/smoke.py; restarts the container)
+dev-smoke:      ## end-to-end check against dev HA (see dev/smoke.py; restarts the container; works next to other banners and rules)
 	uv run python dev/smoke.py create
 	$(COMPOSE) restart homeassistant
 	until curl -sf -o /dev/null http://127.0.0.1:8124/manifest.json; do sleep 2; done; sleep 5

@@ -225,15 +225,20 @@ async def for_template() -> None:
         print("create for:", (await call(s, admin, "create_banner", waits))["status"])
         print("create template:", (await call(s, admin, "create_banner", templ))["status"])
         await toggle(s, admin, True)
-        seen = [b["id"] for b in await subscribe(await connect(s, admin))]
+        # Only the banners of this run count: the instance may hold others (rules, own banners).
+        async def mine() -> list[str]:
+            ws = await connect(s, admin)
+            return sorted(b["id"] for b in await subscribe(ws) if b["id"].startswith("smoke_"))
+
+        seen = await mine()
         assert seen == ["smoke_tpl"], seen
         print("on, right away:", seen)
         await asyncio.sleep(5)
-        seen = sorted(b["id"] for b in await subscribe(await connect(s, admin)))
+        seen = await mine()
         assert seen == ["smoke_for", "smoke_tpl"], seen
         print("after 5 s:", seen)
         await toggle(s, admin, False)
-        seen = [b["id"] for b in await subscribe(await connect(s, admin))]
+        seen = await mine()
         assert seen == [], seen
         print("off:", seen)
         for banner_id in ("smoke_for", "smoke_tpl"):
@@ -252,8 +257,14 @@ async def empty_operators() -> None:
             assert r.status in (200, 201)
             await asyncio.sleep(0.5)
 
+        # Banners that were there before this phase (own rules, other banners) are ignored.
+        async def visible() -> set[str]:
+            return {b["id"] for b in await subscribe(await connect(s, admin))}
+
+        before = await visible()
+
         async def seen() -> list[str]:
-            return sorted(b["id"] for b in await subscribe(await connect(s, admin)))
+            return sorted(await visible() - before)
 
         await put("")
         data = {

@@ -1022,3 +1022,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: the pre-release review (E-004) found product names in D-002, and a text pass found wording in decisions, state notes and the decision index that pointed at material outside this project.
 - Decision (maintainer): rewrite the text only. D-002 is now "Structure of the human docs" and lists the rules without a source; D-124, D-125, D-129, the open-question heading, the state notes and the decision index no longer describe where an idea came from. Git history is not rewritten and no tag is touched.
 - Blast radius: documentation only.
+
+## D-163 Smoke test on a populated instance; the screenshot dashboard is tracked (2026-11-05)
+- Context: review findings E-002 and E-007. `dev/smoke.py` asserted exact lists of banner ids, so any other banner or rule on the dev instance failed `make dev-smoke`. The untracked file `docs/images/Head-Up Cards.yaml` is the dashboard the screenshots in `docs/images` were taken from.
+- Decision (maintainer): the checks compare only the banners of the run: `for_template` keeps the ids that start with `smoke_`, `empty_operators` ignores the ids present before the phase. The Makefile target says it works next to other banners. The dashboard file is committed where it is, as the source of the screenshots, with its name unchanged.
+- Checked: `make dev-smoke` green on an instance that held an extra rule banner (rule `Populated` on a sensor that stays on).
+- Note: the file lists two badge entities (`script.test_banner`, `script.test_banner_duplicate`) that exist only on the maintainer's dev instance, and titles with emoji. Tracked as the maintainer asked; D-036 allows it because it is test material, not an installation detail.
+- Blast radius: development tooling and a docs image source; no runtime change.

@@ -1,0 +1,72 @@
+views:
+  - title: Design
+    path: design
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: custom:heads-up-card
+            title: '🏡House Information '
+            show_time: true
+            show_severity: true
+            tag:
+              - default
+          - type: custom:heads-up-card
+            tag:
+              - default
+            title: 🏡House Information (hidden labels, timestamp)
+          - layout: compact
+            type: custom:heads-up-card
+            tag:
+              - default
+            show_time: true
+            show_severity: true
+            title: House Information (Compact)
+          - type: custom:heads-up-card
+            tag:
+              - default
+            title: House Information (max 2 shown)
+            clear_all: true
+            collapsed_items: 2
+            swipe_to_dismiss: true
+            show_time: true
+      - type: grid
+        cards:
+          - colorize: background
+            type: custom:heads-up-card
+            tag:
+              - default
+            colors:
+              critical: '#8e24aa'
+              warning: var(--primary-color)
+              info: teal
+            title: House Information (custom colors) 🏡
+          - type: custom:heads-up-card
+            tag:
+              - default
+            colorize: icon
+            show_severity: true
+            max_items: 3
+          - type: custom:heads-up-card
+            tag:
+              - default
+            empty_message: All clear — no notifications
+            title: Status
+      - type: grid
+        cards:
+          - type: heading
+            heading: New section
+          - type: custom:heads-up-card
+            tag:
+              - buttonexample
+            title: 'Buttons & Snooze '
+            swipe_to_dismiss: true
+            show_empty: true
+            show_snoozed: true
+    badges:
+      - type: entity
+        entity: script.test_banner
+      - type: entity
+        entity: script.test_banner_duplicate
+        show_name: true
