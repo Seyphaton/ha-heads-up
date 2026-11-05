@@ -54,7 +54,7 @@ async def test_the_payload_has_the_message_the_style_and_the_buttons(
         entry,
         title="Door",
         severity="critical",
-        snoozable=True,
+        snooze="user",
         snooze_options=[{"minutes": 10}],
         actions=[{"key": "seen", "label": "Seen"}],
     )
@@ -128,7 +128,7 @@ async def test_a_snooze_hides_it_and_its_end_shows_it_again(
     hass: HomeAssistant, entry: MockConfigEntry, freezer: FrozenDateTimeFactory
 ) -> None:
     set_person(hass, "person.anna", "home", user_id="anna-id")
-    await pop(hass, entry, snoozable=True, snooze_options=[{"minutes": 10}])
+    await pop(hass, entry, snooze="user", snooze_options=[{"minutes": 10}])
     entry.runtime_data.snooze("m", "anna-id", 600)
     await settle(hass, entry)
     assert ids(entry) == []

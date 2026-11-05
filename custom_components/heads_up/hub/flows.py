@@ -36,6 +36,7 @@ from ..const import (
     GROUP_SUFFIX,
     MAX_MAIL_ADDRESS,
     POLICY_APPLY,
+    POLICY_AUTOMATIC,
     POLICY_CHANNELS,
     POLICY_NONE,
     POLICY_SUBENTRY,
@@ -458,10 +459,10 @@ class PolicySubentryFlow(_HubFlow):
         name = str(user_input["name"]).strip()
         if not name:
             errors["name"] = "name_required"
-        elif name.casefold() == POLICY_NONE or name.casefold() in _names_taken(
+        elif name.casefold() in (POLICY_NONE, POLICY_AUTOMATIC) or name.casefold() in _names_taken(
             self, POLICY_SUBENTRY, own
         ):
-            errors["name"] = "name_exists"  # `none` means no policy in a call
+            errors["name"] = "name_exists"  # `none` and `automatic` are keywords in a call
         kind = user_input["type"]
         if kind == "escalation":
             errors.update(escalation.check(user_input))

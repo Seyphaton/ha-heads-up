@@ -134,7 +134,7 @@ sequence:
       tag: leak
       timeout:
         minutes: 10
-      dismissible: false
+      dismiss: "off"
       channels: [banner, push]
       to:
         banner:
@@ -159,7 +159,7 @@ data:
   channels: [banner, push]
   to:
     push: {audience: At home}
-  snoozable: true
+  snooze: user
   snooze_options:
     - minutes: 15
     - hours: 1
@@ -358,7 +358,7 @@ Acknowledging says that someone has seen the message. It stops every escalation 
 
 - By hand: call `heads_up.clear_notifications` with an `id`, a `tag`, a `severity` or `channels`; `all: true` removes every message.
 - By condition: give the message a `condition`. In mode `once` it ends when the condition turns false.
-- By viewer: set `dismiss_scope: global`, on the message, on a watch rule or as the default in Settings. When anyone closes it, it ends for everyone and the pushes are taken back. With the scope `user`, closing hides it only for that person.
+- By viewer: set `dismiss: everyone`, on the message, on a watch rule or as the default in Settings. When anyone closes it, it ends for everyone and the pushes are taken back. With the scope `user`, closing hides it only for that person.
 - A timeout also ends a message everywhere.
 
 ### How do I keep messages quiet at night?

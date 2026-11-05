@@ -48,7 +48,7 @@ async def test_a_snoozed_person_is_not_reminded_and_is_notified_when_it_ends(
 ) -> None:
     home = await make_household(hass, mobile_app_device)
     await add_policy(hass, entry, "Nag", **REMINDER)
-    await send(hass, entry, snoozable=True, snooze_options=[{"minutes": 15}])
+    await send(hass, entry, snooze="user", snooze_options=[{"minutes": 15}])
     entry.runtime_data.snooze("m", "anna-id", 900)
     await wait(hass, entry, freezer, 11)
     assert len(pushes(home.anna)) == 1  # no reminder during the snooze

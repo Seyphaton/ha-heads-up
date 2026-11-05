@@ -50,7 +50,8 @@ class Banner:
     channels: list[str] = field(default_factory=lambda: [CHANNEL_BANNER])
     # Channel to {"audience": name} or {"recipients": [...]} (D-098).
     targets: dict[str, dict[str, Any]] = field(default_factory=dict)
-    policy: str | None = None
+    # One name or `none` (older calls and rules), or a list of names (a call, D-184).
+    policy: str | list[str] | None = None
     tts_message: str | None = None
     acknowledged_by: list[str] = field(default_factory=list)
     source: str = SOURCE_ACTION

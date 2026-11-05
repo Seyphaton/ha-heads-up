@@ -272,6 +272,19 @@
         "policy": "Cette politique (les destinataires donnés ci-dessous)",
         "call": "L'appel (les mêmes destinataires)"
       }
+    },
+    "who_can": {
+      "options": {
+        "off": "Personne",
+        "user": "Chaque personne",
+        "everyone": "Tout le monde"
+      }
+    },
+    "policy_choice": {
+      "options": {
+        "automatic": "Automatique",
+        "none": "Aucune"
+      }
     }
   },
   "entity": {
@@ -344,7 +357,7 @@
         },
         "dismissible": {
           "name": "Fermable",
-          "description": "Affiche un bouton de fermeture sur la bannière. Par défaut : activé."
+          "description": "Indique si les spectateurs peuvent retirer la bannière eux-mêmes : bouton de fermeture, balayage et « Tout fermer ». Désactivé : personne ne peut la fermer, donc les boutons de fermeture et « Reportable » sont interdits ; elle se termine quand même d'elle-même (condition fausse, délai) ou par un effacement administrateur. Par défaut : activé."
         },
         "dismiss_scope": {
           "name": "Portée de fermeture",
@@ -352,7 +365,7 @@
         },
         "snoozable": {
           "name": "Reportable",
-          "description": "Permet de masquer la bannière un moment ; elle revient ensuite. L'appel échoue avec une erreur si « Fermable » est désactivé. Par défaut : le réglage des options de l'intégration (désactivé sauf modification)."
+          "description": "Permet de masquer la bannière un moment ; elle revient ensuite. L'appel échoue avec une erreur si « Fermable » est désactivé. Par défaut : le réglage des options de l'intégration (désactivé sauf modification). Laisse la case décochée pour utiliser la valeur par défaut."
         },
         "snooze_scope": {
           "name": "Portée du report",
@@ -380,7 +393,7 @@
         },
         "wait_for_condition": {
           "name": "Attendre la condition",
-          "description": "Activé : une bannière dont la condition est fausse attend qu'elle devienne vraie. Désactivé : rien n'est enregistré et le statut de la réponse est condition_false. Par défaut : activé. Ignoré sans condition."
+          "description": "Activé : une bannière dont la condition est fausse attend qu'elle devienne vraie. Désactivé : rien n'est enregistré et le statut de la réponse est condition_false. Par défaut : activé. Ignoré sans condition. Laisse la case décochée pour utiliser la valeur par défaut."
         },
         "people": {
           "name": "Personnes",
@@ -448,13 +461,33 @@
           "name": "Message",
           "description": "Texte du message, 1 à 1000 caractères."
         },
-        "id": {
-          "name": "ID",
-          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
-        },
         "title": {
           "name": "Titre",
           "description": "100 caractères au maximum. Par défaut : aucun titre."
+        },
+        "channels": {
+          "name": "Canaux",
+          "description": "Où le message est livré : banner, push, popup, speak, persistent, mail.\n\nExemple :\n```yaml\n- banner\n- push\n```"
+        },
+        "policy": {
+          "name": "Politique",
+          "description": "Quelles politiques s'appliquent. Automatique : les politiques qui correspondent à la gravité et à l'étiquette (par défaut). Aucune : pas de politique. Choisissez des politiques par nom pour n'utiliser que celles-ci ; choisissez aussi Automatique pour ajouter celles qui correspondent. Saisissez un nom pour en utiliser une qui n'est pas dans la liste."
+        },
+        "recipients": {
+          "name": "Destinataires",
+          "description": "Qui reçoit le message sur bannière, push, fenêtre contextuelle et courriel. Indiquez destinataires ou audience. La voix utilise Haut-parleurs ; pour donner à un canal d'autres personnes, utilisez Cibles. Par défaut : bannière pour tout le monde."
+        },
+        "audience": {
+          "name": "Audience",
+          "description": "Nom d'une audience qui reçoit le message sur bannière, push, fenêtre contextuelle et courriel. Indiquez audience ou destinataires."
+        },
+        "speakers": {
+          "name": "Haut-parleurs",
+          "description": "Haut-parleurs, groupes de haut-parleurs ou zones pour la voix. La voix n'accepte pas d'audience."
+        },
+        "to": {
+          "name": "Cibles",
+          "description": "Qui le reçoit sur un canal quand cela diffère de Destinataires ou Audience, par canal : une audience ou une liste de destinataires, jamais les deux.\n\nExemple :\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
         },
         "severity": {
           "name": "Gravité",
@@ -464,54 +497,6 @@
           "name": "Icône",
           "description": "Remplace l'icône par défaut de la gravité. Par défaut : l'icône de la gravité."
         },
-        "timeout": {
-          "name": "Délai d'expiration",
-          "description": "Le message se termine après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
-        },
-        "dismissible": {
-          "name": "Fermable",
-          "description": "Affiche un bouton de fermeture sur la bannière. Par défaut : activé."
-        },
-        "dismiss_scope": {
-          "name": "Portée de fermeture",
-          "description": "Par utilisateur : fermer la masque seulement pour cet utilisateur. Tout le monde : fermer la supprime pour tous. Par défaut : le réglage des options de l'intégration (par utilisateur sauf modification)."
-        },
-        "snoozable": {
-          "name": "Reportable",
-          "description": "Permet de masquer le message un moment ; il revient ensuite. L'appel échoue avec une erreur si « Fermable » est désactivé. Par défaut : le réglage des options de l'intégration (désactivé sauf modification)."
-        },
-        "snooze_scope": {
-          "name": "Portée du report",
-          "description": "Par utilisateur : le report ne masque que pour cet utilisateur. Tout le monde : masquée pour tous. Par défaut : le réglage des options de l'intégration (par utilisateur sauf modification)."
-        },
-        "snooze_options": {
-          "name": "Durées de report",
-          "description": "Jusqu'à 6 durées de report, de 1 minute à 7 jours.\n\nExemple :\n```yaml\n- minutes: 15\n- hours: 4\n```"
-        },
-        "actions": {
-          "name": "Boutons",
-          "description": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action.\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
-        },
-        "tag": {
-          "name": "Étiquette",
-          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs messages à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
-        },
-        "condition": {
-          "name": "Condition",
-          "description": "Afficher le message seulement tant qu'une entité correspond ou qu'un modèle est vrai. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
-        "mode": {
-          "name": "Mode",
-          "description": "Une fois : supprimée quand la condition devient fausse. Récurrent : masquée tant qu'elle est fausse, réaffichée quand elle redevient vraie. Par défaut : Une fois."
-        },
-        "wait_for_condition": {
-          "name": "Attendre la condition",
-          "description": "Activé : un message dont la condition est fausse attend qu'elle devienne vraie. Désactivé : rien n'est enregistré et le statut de la réponse est condition_false. Par défaut : activé. Ignoré sans condition."
-        },
-        "tap_action": {
-          "name": "Action au toucher",
-          "description": "Action Home Assistant exécutée quand on touche le message.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
-        },
         "image": {
           "name": "Image",
           "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
@@ -520,17 +505,49 @@
           "name": "Texte parlé",
           "description": "Texte utilisé pour la voix à la place du titre et du message. Par défaut : le titre s'il existe, sinon le message."
         },
-        "channels": {
-          "name": "Canaux",
-          "description": "Où le message est livré : banner, push, popup, speak, persistent, mail.\n\nExemple :\n```yaml\n- banner\n- push\n```"
+        "id": {
+          "name": "ID",
+          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
         },
-        "to": {
-          "name": "Destinataires",
-          "description": "Qui le reçoit, par canal : un public ou une liste de destinataires, jamais les deux. Push et popup exigent une cible ; la voix n'accepte que des destinataires.\n\nExemple :\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
+        "tag": {
+          "name": "Étiquette",
+          "description": "Nom de groupe pour les filtres de carte et pour supprimer plusieurs messages à la fois. Lettres minuscules, chiffres, - et _, 64 caractères au maximum, sans espaces. Exemple : laundry. Par défaut : aucune étiquette."
         },
-        "policy": {
-          "name": "Politique",
-          "description": "Nom d'une politique, ou \"none\" pour aucun comportement de politique. Par défaut : toutes les politiques applicables."
+        "timeout": {
+          "name": "Délai d'expiration",
+          "description": "Le message se termine après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
+        },
+        "condition": {
+          "name": "Condition",
+          "description": "Afficher le message seulement tant qu'une entité correspond ou qu'un modèle est vrai. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+        },
+        "wait_for_condition": {
+          "name": "Attendre la condition",
+          "description": "Activé : un message dont la condition est fausse attend qu'elle devienne vraie. Désactivé : rien n'est enregistré et le statut de la réponse est condition_false. Par défaut : activé. Ignoré sans condition. Laisse la case décochée pour utiliser la valeur par défaut."
+        },
+        "mode": {
+          "name": "Mode",
+          "description": "Une fois : supprimée quand la condition devient fausse. Récurrent : masquée tant qu'elle est fausse, réaffichée quand elle redevient vraie. Par défaut : Une fois."
+        },
+        "tap_action": {
+          "name": "Action au toucher",
+          "description": "Action Home Assistant exécutée quand on touche le message.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "actions": {
+          "name": "Boutons",
+          "description": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action.\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "dismiss": {
+          "name": "Qui peut le fermer",
+          "description": "Qui peut retirer le message : Personne, Chaque personne (il disparaît pour cette personne seulement) ou Tout le monde (une fermeture le retire pour tous). Une fermeture le retire de tous les canaux sauf la voix et le courriel. Personne interdit aussi les boutons de fermeture et le report ; il se termine quand même par sa condition, son délai ou un effacement administrateur. Par défaut : fermable, avec la portée des options de l'intégration (par personne sauf modification). Laissez la case décochée pour utiliser la valeur par défaut."
+        },
+        "snooze": {
+          "name": "Qui peut le reporter",
+          "description": "Qui peut masquer le message un moment, après quoi il revient : Personne, Chaque personne ou Tout le monde. L'appel échoue avec une erreur si « Qui peut le fermer » est sur Personne. Par défaut : le réglage des options de l'intégration (personne sauf modification). Laissez la case décochée pour utiliser la valeur par défaut."
+        },
+        "snooze_options": {
+          "name": "Durées de report",
+          "description": "Jusqu'à 6 durées de report, de 1 minute à 7 jours.\n\nExemple :\n```yaml\n- minutes: 15\n- hours: 4\n```"
         }
       }
     },

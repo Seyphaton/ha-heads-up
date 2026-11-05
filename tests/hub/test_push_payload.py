@@ -187,7 +187,7 @@ async def test_buttons_are_own_first_then_snooze_and_dismiss_with_ids(
     await push(
         hass,
         entry,
-        snoozable=True,
+        snooze="user",
         actions=[{"key": "ack", "label": "Got it"}],
     )
     actions = sent(anna)["data"]["actions"]
@@ -201,7 +201,7 @@ async def test_buttons_are_own_first_then_snooze_and_dismiss_with_ids(
 async def test_no_dismiss_or_snooze_button_when_the_message_is_not_dismissible(
     hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
 ) -> None:
-    await push(hass, entry, dismissible=False)
+    await push(hass, entry, dismiss="off")
     assert "actions" not in sent(anna)["data"]
 
 
@@ -218,7 +218,7 @@ async def test_android_buttons_are_clipped_to_three_and_the_trace_says_so(
     await push(
         hass,
         entry,
-        snoozable=True,
+        snooze="user",
         actions=[{"key": "one", "label": "1"}, {"key": "two", "label": "2"}],
     )
     titles = [a["title"] for a in sent(phone)["data"]["actions"]]
@@ -236,7 +236,7 @@ async def test_android_keeps_acknowledge_and_dismiss_before_the_own_buttons(
     await push(
         hass,
         entry,
-        snoozable=True,
+        snooze="user",
         actions=[{"key": "one", "label": "1"}, {"key": "two", "label": "2"}],
     )
     titles = [a["title"] for a in sent(android)["data"]["actions"]]
@@ -249,7 +249,7 @@ async def test_ios_takes_more_buttons(
     await push(
         hass,
         entry,
-        snoozable=True,
+        snooze="user",
         actions=[{"key": "one", "label": "1"}, {"key": "two", "label": "2"}],
     )
     assert len(sent(anna)["data"]["actions"]) == 4

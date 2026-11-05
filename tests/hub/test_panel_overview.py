@@ -106,7 +106,7 @@ async def test_snoozed_and_held_messages_have_their_states(
     await make_household(hass, mobile_app_device)
     await add_policy(hass, entry, "Digest", **SUMMARIZE, tags=["digest"])
     await send(
-        hass, entry, id="s", severity="warning", snoozable=True, snooze_options=[{"minutes": 5}]
+        hass, entry, id="s", severity="warning", snooze="user", snooze_options=[{"minutes": 5}]
     )
     entry.runtime_data.snooze("s", "anna-id", 300)
     await send(hass, entry, id="h", severity="warning", tag="digest")
@@ -200,7 +200,7 @@ async def test_the_log_records_the_kinds_of_the_specification_newest_first(
     await make_household(hass, mobile_app_device)
     await add_policy(hass, entry, "Water", **ESCALATION)
     await add_policy(hass, entry, "Nag", **REMINDER)
-    await send(hass, entry, snoozable=True, snooze_options=[{"minutes": 5}])
+    await send(hass, entry, snooze="user", snooze_options=[{"minutes": 5}])
     await wait(hass, entry, freezer, 6)
     entry.runtime_data.snooze("m", "anna-id", 300)
     entry.runtime_data.acknowledge("m", "ben-id")

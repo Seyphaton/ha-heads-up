@@ -54,6 +54,7 @@ from .const import (
     OPT_DEFAULT_TIMEOUT,
     OPT_INSTALL_TOKEN,
     OPT_SHOW_PANEL,
+    POLICY_AUTOMATIC,
     POLICY_NONE,
     POLICY_SUBENTRY,
     PROFILE_SUBENTRY,
@@ -424,7 +425,7 @@ class RuleSubentryFlow(ConfigSubentryFlow):
         if policy := (user_input.get("policy") or "").strip():
             hub = getattr(getattr(self._get_entry(), "runtime_data", None), "hub", None)
             if (
-                policy.casefold() != POLICY_NONE
+                policy.casefold() not in (POLICY_NONE, POLICY_AUTOMATIC)
                 and hub is not None
                 and policy not in hub.policies.names()
             ):

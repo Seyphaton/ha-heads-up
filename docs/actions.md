@@ -26,11 +26,10 @@ data:
   message: The front door has been open for 10 minutes.
   severity: warning
   channels: [banner, push]
-  to:
-    push: {audience: At home}
+  audience: At home
 ```
 
-The banner is on the dashboard, and everyone who is home gets a push. When the message ends, both are taken back. Only `message` and `channels` are required.
+The banner is on the dashboard for the people who are home, and each of them gets a push. When the message ends, both are taken back. Only `message` and `channels` are required.
 
 ### What the message says
 
@@ -49,15 +48,18 @@ The banner is on the dashboard, and everyone who is home gets a push. When the m
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `channels` | list of channels | required | One or more of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, each at most once. |
-| `to` | object | none | Who gets the message, per channel. See below. |
-| `policy` | text | every policy that applies | The name of one [policy](configuration.md#policies) to use, whatever its severities and tags say; it is the only policy used for the call, and it may be a manual policy. `none` uses no policy. |
+| `policy` | list of policy names, or one name | every policy that applies | Which [policies](configuration.md#policies) to use. `automatic` stands for the policies that match the severity and tag. `none` uses no policy and stands alone. Names are used whatever their severities and tags say, and may be manual policies; with names only, only those apply, and with `automatic` among them the matching ones apply too. |
+| `recipients` | list of persons | none | Who gets the message on every channel that takes people: banner, push, popup and mail. Give either `recipients` or `audience`. |
+| `audience` | text | none | The name of an audience that gets the message on the same channels. |
+| `speakers` | list | none | Speakers, speaker groups or areas for `speak`. Speech takes no audience. |
+| `to` | object | none | Who gets the message on one channel when that differs from `recipients` or `audience`. See below. |
 
-`to` holds one entry per channel. Each entry is either `audience` (the name of a group such as `At home`) or `recipients` (a list), never both.
+`recipients` or `audience` is the short form for the usual case: the same people on every channel. `speakers` is the target of speech. A `to` entry for a channel replaces the short form for that channel. `to` holds one entry per channel. Each entry is either `audience` (the name of a group such as `At home`) or `recipients` (a list), never both.
 
-- `push`, `popup` and `mail` need a target: an audience or recipients. Audience and recipient names are described in [Audiences and recipients](configuration.md#audiences).
-- `speak` needs recipients (speakers, groups or areas). It takes no audience.
+- `push`, `popup` and `mail` need a target: `recipients` or `audience`, or an entry in `to`. Audience and recipient names are described in [Audiences and recipients](configuration.md#audiences).
+- `speak` needs `speakers` or `to.speak` (speakers, groups or areas). It takes no audience.
 - `persistent` takes no target. The notification bell is shared, so everyone sees the entry (see [Persistent notifications](configuration.md#persistent-notification)).
-- `banner` needs none. Without a target, every user sees the banner. Recipients limit the banner to the users linked to those persons. An audience does the same with the persons it has when the call is made; a person who joins the audience later does not see a banner that already exists, and an empty audience gives a banner nobody sees.
+- `banner` needs none. Without a target, every user sees the banner. With `recipients` or `audience` in the call, the banner is limited too. Recipients limit the banner to the users linked to those persons. An audience does the same with the persons it has when the call is made; a person who joins the audience later does not see a banner that already exists, and an empty audience gives a banner nobody sees.
 
 The names in `to` and `policy` are checked when you call the action. Audience, speaker group and policy names ignore case: `at home` is the audience `At home`. A name that does not exist fails with an error that lists the valid names and, when one is close, asks "Did you mean ...?".
 
@@ -84,10 +86,8 @@ The setting Maximum number of stored messages (default 50) limits how many messa
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
-| `dismissible` | boolean | `true` | Whether people can close the message. On the banner it shows a close button; the push and the popup get a Dismiss button. |
-| `dismiss_scope` | `user`, `global` | setting Default dismiss scope, shipped as `user` | `user`: closing hides the message only for that person and takes back only their push. `global`: closing ends the message for everyone. |
-| `snoozable` | boolean | setting Messages can be snoozed by default, shipped as `false` | `true`: the banner, the push and the popup offer Snooze. The message hides for the chosen time and then returns. Rejected together with `dismissible: false`. |
-| `snooze_scope` | `user`, `global` | setting Default snooze scope, shipped as `user` | `user`: a snooze hides the message only for that person. `global`: for everyone. |
+| `dismiss` | `off`, `user`, `everyone` | dismissible, scope from the setting Default dismiss scope (shipped as `user`) | Who can remove the message. `user`: each person for themselves; closing hides it only for that person and takes back only their push. `everyone`: one dismissal ends the message for all. `off`: nobody can dismiss it, so dismiss buttons and `snooze` are rejected; it still ends by itself (condition false, timeout) or by an admin clear. On the banner dismissing is a close button; the push and the popup get a Dismiss button. A dismissal removes the message from all channels except speak and mail. Write `"off"` in quotes in YAML: an unquoted `off` is read as false (Heads Up accepts that too). |
+| `snooze` | `off`, `user`, `everyone` | setting Messages can be snoozed by default, shipped as off; scope from the setting Default snooze scope | Who can hide the message for a while. `user`: the banner, the push and the popup offer Snooze and a snooze hides the message only for that person. `everyone`: a snooze hides it for all. The message returns after the chosen time. Rejected together with `dismiss: off`. |
 | `snooze_options` | list of durations, 1 minute to 7 days, at most 6 | setting Snooze choices on the banner, shipped as 15 minutes, 1 hour, 4 hours | The choices the banner offers. The push and the popup have one Snooze time, the setting Snooze time on push and popup. The timeout and the condition keep running while a message is snoozed. Creating the message again with the same `id`, or a recurring condition turning false and true again, ends all snoozes. |
 | `actions` | list of up to 3 buttons | none | Your own buttons. See [Buttons and snooze](#buttons-and-snooze). |
 
@@ -124,7 +124,7 @@ data:
   message: The washing machine has finished.
   severity: info
   channels: [banner]
-  snoozable: true
+  snooze: user
   snooze_options:
     - minutes: 30
     - hours: 2
@@ -296,10 +296,10 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `condition` | object | none | As in `notify`. See [Conditions](#conditions). |
 | `mode` | `once`, `recurring` | `once` | As in `notify`. |
 | `wait_for_condition` | boolean | `true` | As in `notify`. |
-| `dismissible` | boolean | `true` | As in `notify`. |
-| `dismiss_scope` | `user`, `global` | setting Default dismiss scope | As in `notify`. |
-| `snoozable` | boolean | setting Messages can be snoozed by default | As in `notify`. |
-| `snooze_scope` | `user`, `global` | setting Default snooze scope | As in `notify`. |
+| `dismissible` | boolean | `true` | `false` is `dismiss: off` of `notify`. |
+| `dismiss_scope` | `user`, `global` | setting Default dismiss scope | `user` and `global` are `dismiss: user` and `dismiss: everyone` of `notify`. |
+| `snoozable` | boolean | setting Messages can be snoozed by default | `true` is `snooze: user` of `notify`; rejected with `dismissible: false`. |
+| `snooze_scope` | `user`, `global` | setting Default snooze scope | `user` and `global` are `snooze: user` and `snooze: everyone` of `notify`. |
 | `snooze_options` | list of durations | setting Snooze choices on the banner | As in `notify`. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. See [Buttons and snooze](#buttons-and-snooze). |
 | `people` | list of person entities | everyone | Show the banner only to the users linked to these people. The same as `to.banner.recipients` in `notify`. See below. |

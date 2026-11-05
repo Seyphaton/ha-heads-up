@@ -18,7 +18,7 @@ async def notify(hass: HomeAssistant, entry: MockConfigEntry, **data: Any) -> No
         "message": "Window open",
         "channels": ["banner", "push"],
         "to": {"push": {"recipients": ["person.anna"]}},
-        "snoozable": True,
+        "snooze": "user",
         "snooze_options": [{"minutes": 10}, {"hours": 1}],
         "actions": [{"key": "seen", "label": "Seen"}],
         **data,

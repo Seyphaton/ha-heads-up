@@ -272,6 +272,19 @@
         "policy": "Diese Richtlinie (die unten angegebenen Empfänger)",
         "call": "Der Aufruf (dieselben Empfänger)"
       }
+    },
+    "who_can": {
+      "options": {
+        "off": "Niemand",
+        "user": "Jede Person",
+        "everyone": "Alle"
+      }
+    },
+    "policy_choice": {
+      "options": {
+        "automatic": "Automatisch",
+        "none": "Keine"
+      }
     }
   },
   "entity": {
@@ -344,7 +357,7 @@
         },
         "dismissible": {
           "name": "Schließbar",
-          "description": "Zeigt eine Schließen-Schaltfläche am Banner. Standard: an."
+          "description": "Ob Betrachter das Banner selbst entfernen können: Schließen-Schaltfläche, Wischen und „Alle schließen“. Aus: niemand kann es schließen, daher sind Schließen-Schaltflächen und „Zurückstellbar“ nicht erlaubt; es endet weiterhin von selbst (Bedingung falsch, Zeitlimit) oder durch Löschen durch einen Administrator. Standard: an."
         },
         "dismiss_scope": {
           "name": "Bereich beim Schließen",
@@ -352,7 +365,7 @@
         },
         "snoozable": {
           "name": "Zurückstellbar",
-          "description": "Erlaubt es, das Banner für eine Weile auszublenden; danach kehrt es zurück. Zusammen mit „Schließbar“ aus schlägt der Aufruf mit einem Fehler fehl. Standard: die Einstellung aus den Integrationsoptionen (aus, sofern nicht geändert)."
+          "description": "Erlaubt es, das Banner für eine Weile auszublenden; danach kehrt es zurück. Zusammen mit „Schließbar“ aus schlägt der Aufruf mit einem Fehler fehl. Standard: die Einstellung aus den Integrationsoptionen (aus, sofern nicht geändert). Kästchen nicht anhaken, um den Standard zu verwenden."
         },
         "snooze_scope": {
           "name": "Bereich beim Zurückstellen",
@@ -380,7 +393,7 @@
         },
         "wait_for_condition": {
           "name": "Auf Bedingung warten",
-          "description": "An: Ein Banner, dessen Bedingung jetzt falsch ist, wartet, bis sie wahr wird. Aus: nichts wird gespeichert und der Antwortstatus ist condition_false. Standard: an. Ohne Bedingung wirkungslos."
+          "description": "An: Ein Banner, dessen Bedingung jetzt falsch ist, wartet, bis sie wahr wird. Aus: nichts wird gespeichert und der Antwortstatus ist condition_false. Standard: an. Ohne Bedingung wirkungslos. Kästchen nicht anhaken, um den Standard zu verwenden."
         },
         "people": {
           "name": "Personen",
@@ -448,13 +461,33 @@
           "name": "Nachricht",
           "description": "Nachrichtentext, 1–1000 Zeichen."
         },
-        "id": {
-          "name": "ID",
-          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
-        },
         "title": {
           "name": "Titel",
           "description": "Bis 100 Zeichen. Standard: kein Titel."
+        },
+        "channels": {
+          "name": "Kanäle",
+          "description": "Wohin die Nachricht geht: banner, push, popup, speak, persistent, mail.\n\nBeispiel:\n```yaml\n- banner\n- push\n```"
+        },
+        "policy": {
+          "name": "Richtlinie",
+          "description": "Welche Richtlinien gelten. Automatisch: die Richtlinien, die zu Schweregrad und Tag passen (Standard). Keine: keine Richtlinie. Wähle Richtlinien nach Namen, um nur diese zu verwenden; wähle zusätzlich Automatisch, um die passenden dazuzunehmen. Tippe einen Namen, um eine Richtlinie zu verwenden, die nicht in der Liste steht."
+        },
+        "recipients": {
+          "name": "Empfänger",
+          "description": "Wer die Meldung auf Banner, Push, Popup und E-Mail bekommt. Gib entweder Empfänger oder Zielgruppe an. Sprache nutzt Lautsprecher; um einem Kanal andere Personen zu geben, nutze Ziele. Standard: Banner für alle."
+        },
+        "audience": {
+          "name": "Zielgruppe",
+          "description": "Name einer Zielgruppe, die die Meldung auf Banner, Push, Popup und E-Mail bekommt. Gib entweder Zielgruppe oder Empfänger an."
+        },
+        "speakers": {
+          "name": "Lautsprecher",
+          "description": "Lautsprecher, Lautsprechergruppen oder Bereiche für Sprache. Sprache nimmt keine Zielgruppe."
+        },
+        "to": {
+          "name": "Ziele",
+          "description": "Wer sie auf einem Kanal bekommt, wenn das von Empfänger oder Zielgruppe abweicht, je Kanal: eine Zielgruppe oder eine Liste von Empfängern, nie beides.\n\nBeispiel:\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
         },
         "severity": {
           "name": "Dringlichkeit",
@@ -464,54 +497,6 @@
           "name": "Symbol",
           "description": "Ersetzt das Standardsymbol der Dringlichkeit. Standard: das Symbol der Dringlichkeit."
         },
-        "timeout": {
-          "name": "Zeitlimit",
-          "description": "Die Nachricht endet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
-        },
-        "dismissible": {
-          "name": "Schließbar",
-          "description": "Zeigt eine Schließen-Schaltfläche am Banner. Standard: an."
-        },
-        "dismiss_scope": {
-          "name": "Bereich beim Schließen",
-          "description": "Pro Benutzer: Schließen blendet es nur für diesen Benutzer aus. Alle: Schließen entfernt es für alle. Standard: die Einstellung aus den Integrationsoptionen (pro Benutzer, sofern nicht geändert)."
-        },
-        "snoozable": {
-          "name": "Zurückstellbar",
-          "description": "Erlaubt es, die Nachricht für eine Weile auszublenden; danach kehrt sie zurück. Zusammen mit „Schließbar“ aus schlägt der Aufruf mit einem Fehler fehl. Standard: die Einstellung aus den Integrationsoptionen (aus, sofern nicht geändert)."
-        },
-        "snooze_scope": {
-          "name": "Bereich beim Zurückstellen",
-          "description": "Pro Benutzer: Zurückstellen blendet es nur für diesen Benutzer aus. Alle: es wird für alle ausgeblendet. Standard: die Einstellung aus den Integrationsoptionen (pro Benutzer, sofern nicht geändert)."
-        },
-        "snooze_options": {
-          "name": "Auswahl beim Zurückstellen",
-          "description": "Bis zu 6 Zeitspannen zum Zurückstellen, 1 Minute bis 7 Tage.\n\nBeispiel:\n```yaml\n- minutes: 15\n- hours: 4\n```"
-        },
-        "actions": {
-          "name": "Schaltflächen",
-          "description": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
-        },
-        "tag": {
-          "name": "Tag",
-          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Nachrichten. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
-        },
-        "condition": {
-          "name": "Bedingung",
-          "description": "Die Nachricht nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
-        "mode": {
-          "name": "Modus",
-          "description": "Einmal: wird entfernt, wenn die Bedingung falsch wird. Wiederkehrend: ausgeblendet, solange sie falsch ist, und wieder gezeigt, wenn sie wahr wird. Standard: Einmal."
-        },
-        "wait_for_condition": {
-          "name": "Auf Bedingung warten",
-          "description": "An: Eine Nachricht, deren Bedingung jetzt falsch ist, wartet, bis sie wahr wird. Aus: nichts wird gespeichert und der Antwortstatus ist condition_false. Standard: an. Ohne Bedingung wirkungslos."
-        },
-        "tap_action": {
-          "name": "Tipp-Aktion",
-          "description": "Home-Assistant-Aktion, die beim Antippen der Nachricht ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
-        },
         "image": {
           "name": "Bild",
           "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
@@ -520,17 +505,49 @@
           "name": "Gesprochener Text",
           "description": "Text für die Sprachausgabe statt Titel und Nachricht. Standard: der Titel, falls gesetzt, sonst die Nachricht."
         },
-        "channels": {
-          "name": "Kanäle",
-          "description": "Wohin die Nachricht geht: banner, push, popup, speak, persistent, mail.\n\nBeispiel:\n```yaml\n- banner\n- push\n```"
+        "id": {
+          "name": "ID",
+          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
         },
-        "to": {
-          "name": "Empfänger",
-          "description": "Wer es erhält, je Kanal: eine Zielgruppe oder eine Liste von Empfängern, nie beides. Push und Popup brauchen ein Ziel; Sprache nimmt nur Empfänger.\n\nBeispiel:\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
+        "tag": {
+          "name": "Tag",
+          "description": "Gruppenname für Kartenfilter und zum gleichzeitigen Entfernen mehrerer Nachrichten. Kleinbuchstaben, Ziffern, - und _, bis 64 Zeichen, keine Leerzeichen. Beispiel: laundry. Standard: kein Tag."
         },
-        "policy": {
-          "name": "Richtlinie",
-          "description": "Name einer Richtlinie, oder \"none\" für kein Richtlinienverhalten. Standard: alle passenden Richtlinien."
+        "timeout": {
+          "name": "Zeitlimit",
+          "description": "Die Nachricht endet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
+        },
+        "condition": {
+          "name": "Bedingung",
+          "description": "Die Nachricht nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+        },
+        "wait_for_condition": {
+          "name": "Auf Bedingung warten",
+          "description": "An: Eine Nachricht, deren Bedingung jetzt falsch ist, wartet, bis sie wahr wird. Aus: nichts wird gespeichert und der Antwortstatus ist condition_false. Standard: an. Ohne Bedingung wirkungslos. Kästchen nicht anhaken, um den Standard zu verwenden."
+        },
+        "mode": {
+          "name": "Modus",
+          "description": "Einmal: wird entfernt, wenn die Bedingung falsch wird. Wiederkehrend: ausgeblendet, solange sie falsch ist, und wieder gezeigt, wenn sie wahr wird. Standard: Einmal."
+        },
+        "tap_action": {
+          "name": "Tipp-Aktion",
+          "description": "Home-Assistant-Aktion, die beim Antippen der Nachricht ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "actions": {
+          "name": "Schaltflächen",
+          "description": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "dismiss": {
+          "name": "Wer es schließen darf",
+          "description": "Wer die Meldung entfernen kann: Niemand, Jede Person (sie verschwindet nur für diese Person) oder Alle (ein Schließen entfernt sie für alle). Ein Schließen entfernt sie von allen Kanälen außer Sprache und E-Mail. Niemand verbietet auch Schließen-Schaltflächen und Zurückstellen; sie endet weiterhin durch ihre Bedingung, ihr Zeitlimit oder ein Löschen durch einen Administrator. Standard: schließbar, mit dem Bereich aus den Integrationsoptionen (pro Person, sofern nicht geändert). Kästchen nicht anhaken, um den Standard zu verwenden."
+        },
+        "snooze": {
+          "name": "Wer es zurückstellen darf",
+          "description": "Wer die Meldung eine Weile ausblenden kann, danach kehrt sie zurück: Niemand, Jede Person oder Alle. Zusammen mit „Wer es schließen darf“ auf Niemand schlägt der Aufruf mit einem Fehler fehl. Standard: die Einstellung aus den Integrationsoptionen (niemand, sofern nicht geändert). Kästchen nicht anhaken, um den Standard zu verwenden."
+        },
+        "snooze_options": {
+          "name": "Auswahl beim Zurückstellen",
+          "description": "Bis zu 6 Zeitspannen zum Zurückstellen, 1 Minute bis 7 Tage.\n\nBeispiel:\n```yaml\n- minutes: 15\n- hours: 4\n```"
         }
       }
     },

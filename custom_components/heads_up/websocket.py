@@ -451,12 +451,13 @@ _TEST_CALL: dict[Any, Any] = {
     vol.Optional("tts_message"): str,
     vol.Optional("severity"): str,
     vol.Optional("tag"): str,
-    vol.Optional("policy"): str,
+    vol.Optional("policy"): vol.Any(str, [str]),
     vol.Optional("to"): {str: dict},
-    vol.Optional("dismissible"): bool,
-    vol.Optional("dismiss_scope"): str,
-    vol.Optional("snoozable"): bool,
-    vol.Optional("snooze_scope"): str,
+    vol.Optional("audience"): str,
+    vol.Optional("recipients"): [str],
+    vol.Optional("speakers"): [str],
+    vol.Optional("dismiss"): str,
+    vol.Optional("snooze"): str,
 }
 
 

@@ -347,13 +347,11 @@ async def test_the_preview_accepts_the_dismiss_and_snooze_choices_of_a_call(
 ) -> None:
     await make_household(hass, mobile_app_device)
     client = await hass_ws_client(hass)
-    open_choices = await preview(
-        client, dismissible=True, dismiss_scope="global", snoozable=True, snooze_scope="global"
-    )
+    open_choices = await preview(client, dismiss="everyone", snooze="everyone")
     assert shown(open_choices)[("banner", "")] == "sent"
-    pinned = await preview(client, dismissible=False)
+    pinned = await preview(client, dismiss="off")
     assert shown(pinned)[("banner", "")] == "sent"
-    refused = await ask(client, "hub_plan", **call(dismissible=False, snoozable=True))
+    refused = await ask(client, "hub_plan", **call(dismiss="off", snooze="user"))
     assert refused["error"]["code"] == "invalid_format"
 
 

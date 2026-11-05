@@ -6,15 +6,11 @@ create_banner:
       selector:
         text:
           multiline: true
-    id: &id004
-      example: window_bedroom
-      selector:
-        text: null
-    title: &id005
+    title: &id004
       example: Window open
       selector:
         text: null
-    severity: &id006
+    severity: &id005
       default: warning
       selector:
         select:
@@ -24,75 +20,79 @@ create_banner:
           - warning
           - critical
           translation_key: severity
-    icon: &id007
+    icon: &id006
       selector:
         icon: null
-    timeout: &id008
+    image: &id007
+      example: /media/local/door.jpg
       selector:
-        duration:
-          enable_day: true
-    dismissible: &id009
-      default: true
+        text: null
+    people:
       selector:
-        boolean: null
-    dismiss_scope: &id010
+        entity:
+          domain: person
+          multiple: true
+    id: &id008
+      example: window_bedroom
       selector:
-        select:
-          options:
-          - user
-          - global
-          translation_key: dismiss_scope
-    snoozable: &id011
-      selector:
-        boolean: null
-    snooze_scope: &id012
-      selector:
-        select:
-          options:
-          - user
-          - global
-          translation_key: snooze_scope
-    snooze_options: &id013
-      example: '[{"minutes": 15}, {"hours": 1}, {"hours": 4}]'
-      selector:
-        object: null
-    actions: &id014
-      example: '[{"key": "ack", "label": "Got it", "dismiss": true}]'
-      selector:
-        object: null
-    tag: &id015
+        text: null
+    tag: &id009
       example: laundry
       selector:
         text: null
-    condition: &id016
+    timeout: &id010
+      selector:
+        duration:
+          enable_day: true
+    condition: &id011
       example: '{"entity_id": "binary_sensor.window", "state": "on", "for": {"minutes":
         5}}'
       selector:
         object: null
-    mode: &id017
+    wait_for_condition: &id012
+      default: true
+      selector:
+        boolean: null
+    mode: &id013
       selector:
         select:
           options:
           - once
           - recurring
           translation_key: mode
-    wait_for_condition: &id018
-      default: true
-      selector:
-        boolean: null
-    people:
-      selector:
-        entity:
-          domain: person
-          multiple: true
-    tap_action: &id019
+    tap_action: &id014
       example: '{"action": "navigate", "navigation_path": "/lovelace/0"}'
       selector:
         object: null
-    image: &id023
-      example: /media/local/door.jpg
+    actions: &id015
+      example: '[{"key": "ack", "label": "Got it", "dismiss": true}]'
       selector:
-        text: null
+        object: null
+    dismissible:
+      default: true
+      selector:
+        boolean: null
+    dismiss_scope:
+      selector:
+        select:
+          options:
+          - user
+          - global
+          translation_key: dismiss_scope
+    snoozable:
+      selector:
+        boolean: null
+    snooze_scope:
+      selector:
+        select:
+          options:
+          - user
+          - global
+          translation_key: snooze_scope
+    snooze_options: &id017
+      example: '[{"minutes": 15}, {"hours": 1}, {"hours": 4}]'
+      selector:
+        object: null
 clear_banner:
   fields:
     id: &id001
@@ -137,27 +137,7 @@ clear_notifications:
 notify:
   fields:
     message: *id003
-    id: *id004
-    title: *id005
-    severity: *id006
-    icon: *id007
-    timeout: *id008
-    dismissible: *id009
-    dismiss_scope: *id010
-    snoozable: *id011
-    snooze_scope: *id012
-    snooze_options: *id013
-    actions: *id014
-    tag: *id015
-    condition: *id016
-    mode: *id017
-    wait_for_condition: *id018
-    tap_action: *id019
-    image: *id023
-    tts_message: &id020
-      example: The garage door is open.
-      selector:
-        text: {}
+    title: *id004
     channels:
       required: true
       example: '["banner", "push"]'
@@ -172,60 +152,110 @@ notify:
           - mail
           multiple: true
           translation_key: channel
+    policy:
+      example: '["automatic"]'
+      selector:
+        select:
+          options:
+          - automatic
+          - none
+          multiple: true
+          custom_value: true
+          translation_key: policy_choice
+    recipients:
+      example: '["person.anna"]'
+      selector:
+        entity:
+          domain: person
+          multiple: true
+    audience:
+      example: At home
+      selector:
+        text: null
+    speakers:
+      example: '["media_player.kitchen"]'
+      selector:
+        entity:
+          domain: media_player
+          multiple: true
     to:
       example: '{"push": {"audience": "At home"}}'
       selector:
         object: {}
-    policy:
-      example: none
+    severity: *id005
+    icon: *id006
+    image: *id007
+    tts_message: &id018
+      example: The garage door is open.
       selector:
         text: {}
+    id: *id008
+    tag: *id009
+    timeout: *id010
+    condition: *id011
+    wait_for_condition: *id012
+    mode: *id013
+    tap_action: *id014
+    actions: *id015
+    dismiss:
+      example: user
+      selector: &id016
+        select:
+          options:
+          - 'off'
+          - user
+          - everyone
+          translation_key: who_can
+    snooze:
+      example: user
+      selector: *id016
+    snooze_options: *id017
 push:
   fields:
     message: *id003
-    id: *id004
-    title: *id005
-    severity: *id006
-    icon: *id007
-    timeout: *id008
-    actions: *id014
-    tag: *id015
-    tap_action: *id019
-    image: *id023
-    tts_message: *id020
-    recipients: &id021
+    title: *id004
+    severity: *id005
+    icon: *id006
+    image: *id007
+    tts_message: *id018
+    recipients: &id019
       example: '["person.anna"]'
       selector:
         object: {}
-    audience: &id022
+    audience: &id020
       example: At home
       selector:
         text: {}
+    id: *id008
+    tag: *id009
+    timeout: *id010
+    tap_action: *id014
+    actions: *id015
 popup:
   fields:
     message: *id003
-    id: *id004
-    title: *id005
-    severity: *id006
-    icon: *id007
-    timeout: *id008
-    actions: *id014
-    tag: *id015
-    tap_action: *id019
-    image: *id023
-    tts_message: *id020
-    recipients: *id021
-    audience: *id022
+    title: *id004
+    severity: *id005
+    icon: *id006
+    image: *id007
+    tts_message: *id018
+    recipients: *id019
+    audience: *id020
+    id: *id008
+    tag: *id009
+    timeout: *id010
+    tap_action: *id014
+    actions: *id015
 speak:
   fields:
     message: *id003
-    id: *id004
-    title: *id005
-    severity: *id006
-    icon: *id007
-    timeout: *id008
-    actions: *id014
-    tag: *id015
-    tap_action: *id019
-    tts_message: *id020
-    recipients: *id021
+    title: *id004
+    severity: *id005
+    icon: *id006
+    tts_message: *id018
+    recipients: *id019
+    id: *id008
+    tag: *id009
+    timeout: *id010
+    tap_action: *id014
+    actions: *id015

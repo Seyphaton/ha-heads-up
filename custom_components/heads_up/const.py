@@ -71,6 +71,8 @@ SUMMARY_PREFIX: Final = "summary:"  # ledger message id of a Summarize policy ti
 SUMMARY_LIFETIME_HOURS: Final = 24
 SUMMARY_MAX_LISTED: Final = 10
 POLICY_NONE: Final = "none"
+# In a call's `policy` list: the automatic policies that apply, plus any policy named next to it.
+POLICY_AUTOMATIC: Final = "automatic"
 # How a policy attaches to a message: by itself when severity and tag match, or only when a call
 # names it (D-146).
 POLICY_APPLY: Final = ("auto", "manual")

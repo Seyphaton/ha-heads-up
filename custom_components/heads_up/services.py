@@ -37,12 +37,14 @@ from .const import (
     MAX_TITLE,
     MIN_SNOOZE_SECONDS,
     MODES,
+    POLICY_AUTOMATIC,
     POLICY_NONE,
     SEVERITIES,
     SNOOZE_SCOPES,
     SOURCE_ACTION,
 )
 from .hub.engine import HubEngine, Planned
+from .hub.policies.matching import policy_names
 from .manager import BannerManager
 from .models import Banner
 
@@ -205,7 +207,56 @@ def _check_notify(data: dict[str, Any]) -> dict[str, Any]:
             raise vol.Invalid("speech takes recipients, not an audience", path=["to", channel])
     for channel in ("push", "popup", "speak", "mail"):
         if channel in channels and channel not in to:
-            raise vol.Invalid(f"{channel} needs a target in to.{channel}", path=["to"])
+            hint = "speakers" if channel == "speak" else "recipients or audience"
+            raise vol.Invalid(f"{channel} needs a target: give {hint} or to.{channel}", path=["to"])
+    return data
+
+
+def _map_interaction(data: dict[str, Any]) -> dict[str, Any]:
+    """`dismiss` and `snooze` (off, user, everyone) become the four stored fields (D-184).
+    Left out, a field keeps the default from the integration options."""
+    data = dict(data)
+    if (dismiss := data.pop("dismiss", None)) is not None:
+        data["dismissible"] = dismiss != "off"
+        if dismiss != "off":
+            data["dismiss_scope"] = "global" if dismiss == "everyone" else "user"
+    if (snooze := data.pop("snooze", None)) is not None:
+        data["snoozable"] = snooze != "off"
+        if snooze != "off":
+            data["snooze_scope"] = "global" if snooze == "everyone" else "user"
+    return data
+
+
+def _check_policy(names: list[str]) -> list[str]:
+    """Keywords in any case; `none` stands alone, `automatic` may stand next to names (D-184)."""
+    names = [n.casefold() if n.casefold() in (POLICY_NONE, POLICY_AUTOMATIC) else n for n in names]
+    if len(set(names)) != len(names):
+        raise vol.Invalid("policy must not repeat a name", path=["policy"])
+    if POLICY_NONE in names and len(names) > 1:
+        raise vol.Invalid("none cannot be combined with other policies", path=["policy"])
+    return names
+
+
+def _expand_targets(data: dict[str, Any]) -> dict[str, Any]:
+    """`recipients` or `audience` of the call become the target of every channel that takes people
+    and has no `to` entry of its own; `speakers` is the target of speech (D-184)."""
+    if "audience" in data and "recipients" in data:
+        raise vol.Invalid("give either audience or recipients, not both", path=["recipients"])
+    data = dict(data)
+    to = dict(data.get("to", {}))
+    shared = {k: data[k] for k in ("audience", "recipients") if k in data}
+    for channel in data["channels"]:
+        if channel in to or channel == "persistent":
+            continue
+        if channel == "speak":
+            if "speakers" in data:
+                to[channel] = {"recipients": data["speakers"]}
+        elif shared:
+            to[channel] = dict(shared)
+    for key in ("audience", "recipients", "speakers"):
+        data.pop(key, None)
+    if to:
+        data["to"] = to
     return data
 
 
@@ -247,7 +298,19 @@ _CREATE_FIELDS: dict[Any, Any] = {
 CREATE_SCHEMA = vol.All(vol.Schema(_CREATE_FIELDS), _check_create)
 
 # `notify` takes the lifecycle of `create_banner` (D-087). Banner recipients replace `people`.
-_NOTIFY_FIELDS = {k: v for k, v in _CREATE_FIELDS.items() if str(k) != "people"}
+_NOTIFY_FIELDS = {
+    k: v
+    for k, v in _CREATE_FIELDS.items()
+    if str(k) not in ("people", "dismissible", "dismiss_scope", "snoozable", "snooze_scope")
+}
+
+
+def _who_can(value: Any) -> Any:
+    # YAML 1.1 reads an unquoted `off` as false, which is what a hand-written call gives.
+    return "off" if value is False else value
+
+
+WHO_CAN = vol.All(_who_can, vol.In(("off", "user", "everyone")))
 TARGET_SCHEMA = vol.Schema(
     {
         vol.Optional("audience"): NAME,
@@ -263,10 +326,19 @@ NOTIFY_SCHEMA = vol.All(
                 cv.ensure_list, [vol.In(CHANNELS)], vol.Length(min=1)
             ),
             vol.Optional("to"): {vol.In(CHANNELS): TARGET_SCHEMA},
-            vol.Optional("policy"): vol.All(cv.string, vol.Length(min=1)),
+            vol.Optional("dismiss"): WHO_CAN,
+            vol.Optional("snooze"): WHO_CAN,
+            vol.Optional("audience"): NAME,
+            vol.Optional("recipients"): vol.All(cv.ensure_list, [cv.string]),
+            vol.Optional("speakers"): vol.All(cv.ensure_list, [cv.string]),
+            vol.Optional("policy"): vol.All(
+                cv.ensure_list, [vol.All(cv.string, vol.Length(min=1))], _check_policy
+            ),
         }
     ),
+    _map_interaction,
     _check_create,
+    _expand_targets,
     _check_notify,
 )
 
@@ -456,8 +528,8 @@ def _canonical(name: str, valid: list[str]) -> str | None:
 
 
 def _check_names(
-    hub: HubEngine, to: dict[str, dict[str, Any]], policy: str | None
-) -> tuple[dict[str, dict[str, Any]], str | None]:
+    hub: HubEngine, to: dict[str, dict[str, Any]], policy: str | list[str] | None
+) -> tuple[dict[str, dict[str, Any]], str | list[str] | None]:
     """Check the names of a call and return them in their stored spelling (D-167).
 
     A name that differs only in case is accepted; one that matches nothing fails with the valid
@@ -482,12 +554,25 @@ def _check_names(
                     raise _unknown("unknown_recipient", recipient, known)
             target["recipients"] = recipients
         fixed[channel] = target
-    if policy not in (None, POLICY_NONE):
-        names = hub.policies.names()
-        if (stored := _canonical(str(policy), names)) is None:
-            raise _unknown("unknown_policy", str(policy), names)
-        policy = stored
-    return fixed, policy
+    return fixed, _check_policy_names(hub, policy)
+
+
+def _check_policy_names(hub: HubEngine, policy: str | list[str] | None) -> str | list[str] | None:
+    """Policy names in their stored spelling. One name stays a string, as stored before D-184;
+    `automatic` alone is the same as no policy."""
+    wanted = policy_names(policy)
+    if wanted in ([], [POLICY_AUTOMATIC]) or wanted == [POLICY_NONE]:
+        return POLICY_NONE if wanted == [POLICY_NONE] else None
+    known = hub.policies.names()
+    fixed: list[str] = []
+    for name in wanted:
+        if name == POLICY_AUTOMATIC:
+            fixed.append(name)
+        elif (stored := _canonical(name, known)) is None:
+            raise _unknown("unknown_policy", name, known)
+        else:
+            fixed.append(stored)
+    return fixed[0] if len(fixed) == 1 else fixed
 
 
 def _response(result: dict[str, Any], planned: list[Planned] | None) -> dict[str, Any]:

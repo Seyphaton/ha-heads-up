@@ -4,6 +4,11 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Changed
+- `heads_up.notify`: `recipients`, `audience` and `speakers` give the same people to every channel at once (banner, push, popup, mail; speech takes speakers). `to` stays for one channel that differs. `policy` takes a list of policy names, with `automatic` and `none` as keywords (`automatic` next to names adds the policies that match). `dismissible`, `dismiss_scope`, `snoozable` and `snooze_scope` are replaced by `dismiss` and `snooze`, each `off`, `user` or `everyone` (`create_banner` and watch rules keep the old fields).
+- The field order of the action form follows the purpose of the field, with the policy right after the channels. Dismissible says what a dismissal removes; boolean fields say that an unchecked field uses the default.
+- Panel: Test send writes the short call (shared recipients, `dismiss`, `snooze`, a policy list) and offers the policies as a multi-select.
+
 ## [1.0.0-alpha.6] - 2026-11-05
 
 ### Added

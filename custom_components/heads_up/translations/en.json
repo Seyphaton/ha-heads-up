@@ -272,6 +272,19 @@
         "policy": "This policy (the recipients given below)",
         "call": "The call (the same recipients)"
       }
+    },
+    "who_can": {
+      "options": {
+        "off": "Nobody",
+        "user": "Each person",
+        "everyone": "Everyone"
+      }
+    },
+    "policy_choice": {
+      "options": {
+        "automatic": "Automatic",
+        "none": "None"
+      }
     }
   },
   "entity": {
@@ -344,7 +357,7 @@
         },
         "dismissible": {
           "name": "Dismissible",
-          "description": "Shows a close button on the banner. Default: on."
+          "description": "Whether viewers can remove the banner themselves: close button, swipe and Clear all. Off: nobody can dismiss it, so dismiss buttons and Snoozable are not allowed; it still ends by itself (condition false, timeout) or by an admin clear. Default: on."
         },
         "dismiss_scope": {
           "name": "Dismiss scope",
@@ -352,7 +365,7 @@
         },
         "snoozable": {
           "name": "Snoozable",
-          "description": "Lets viewers hide the banner for a while; it returns afterwards. The call fails with an error together with dismissible off. Default: the setting from the integration options (off unless changed)."
+          "description": "Lets viewers hide the banner for a while; it returns afterwards. The call fails with an error together with dismissible off. Default: the setting from the integration options (off unless changed). Leave the checkbox unchecked to use the default."
         },
         "snooze_scope": {
           "name": "Snooze scope",
@@ -380,7 +393,7 @@
         },
         "wait_for_condition": {
           "name": "Wait for condition",
-          "description": "On: a banner whose condition is false now waits until it turns true. Off: nothing is stored and the response status is condition_false. Default: on. Ignored without a condition."
+          "description": "On: a banner whose condition is false now waits until it turns true. Off: nothing is stored and the response status is condition_false. Default: on. Ignored without a condition. Leave the checkbox unchecked to use the default."
         },
         "people": {
           "name": "People",
@@ -448,13 +461,33 @@
           "name": "Message",
           "description": "Message text, 1–1000 characters."
         },
-        "id": {
-          "name": "ID",
-          "description": "Lowercase letters, digits, - and _; up to 64 characters. Generated and returned when empty."
-        },
         "title": {
           "name": "Title",
           "description": "Up to 100 characters. Default: no title."
+        },
+        "channels": {
+          "name": "Channels",
+          "description": "Where the message is delivered: banner, push, popup, speak, persistent, mail.\n\nExample:\n```yaml\n- banner\n- push\n```"
+        },
+        "policy": {
+          "name": "Policy",
+          "description": "Which policies apply. Automatic: the policies that match the severity and tag (the default). None: no policy. Pick policies by name to use only those; pick Automatic as well to add the ones that match. Type a name to use one that is not in the list."
+        },
+        "recipients": {
+          "name": "Recipients",
+          "description": "Who gets the message on banner, push, popup and mail. Give either recipients or audience. Speech uses Speakers; to give one channel other people, use Targets. Default: banner for everyone."
+        },
+        "audience": {
+          "name": "Audience",
+          "description": "Name of an audience that gets the message on banner, push, popup and mail. Give either audience or recipients."
+        },
+        "speakers": {
+          "name": "Speakers",
+          "description": "Speakers, speaker groups or areas for speech. Speech takes no audience."
+        },
+        "to": {
+          "name": "Targets",
+          "description": "Who receives it on one channel when that differs from Recipients or Audience, per channel: an audience or a list of recipients, never both.\n\nExample:\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
         },
         "severity": {
           "name": "Severity",
@@ -464,54 +497,6 @@
           "name": "Icon",
           "description": "Replaces the default icon of the severity. Default: the icon of the severity."
         },
-        "timeout": {
-          "name": "Timeout",
-          "description": "The message ends after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
-        },
-        "dismissible": {
-          "name": "Dismissible",
-          "description": "Shows a close button on the banner. Default: on."
-        },
-        "dismiss_scope": {
-          "name": "Dismiss scope",
-          "description": "Per user: closing hides it only for that user. Everyone: closing removes it for all. Default: the setting from the integration options (per user unless changed)."
-        },
-        "snoozable": {
-          "name": "Snoozable",
-          "description": "Lets viewers hide the message for a while; it returns afterwards. The call fails with an error together with dismissible off. Default: the setting from the integration options (off unless changed)."
-        },
-        "snooze_scope": {
-          "name": "Snooze scope",
-          "description": "Per user: snoozing hides it only for that user. Everyone: it hides for all. Default: the setting from the integration options (per user unless changed)."
-        },
-        "snooze_options": {
-          "name": "Snooze choices",
-          "description": "Up to 6 snooze durations, 1 minute to 7 days.\n\nExample:\n```yaml\n- minutes: 15\n- hours: 4\n```"
-        },
-        "actions": {
-          "name": "Buttons",
-          "description": "Up to 3 buttons with key, label, optional dismiss and action.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
-        },
-        "tag": {
-          "name": "Tag",
-          "description": "Group name for card filters and for clearing several messages at once. Lowercase letters, digits, - and _, up to 64 characters, no spaces. Example: laundry. Default: no tag."
-        },
-        "condition": {
-          "name": "Condition",
-          "description": "Show the message only while an entity matches or a template is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
-        "mode": {
-          "name": "Mode",
-          "description": "Once: removed when the condition turns false. Recurring: hidden while false, shown again when true. Default: Once."
-        },
-        "wait_for_condition": {
-          "name": "Wait for condition",
-          "description": "On: a message whose condition is false now waits until it turns true. Off: nothing is stored and the response status is condition_false. Default: on. Ignored without a condition."
-        },
-        "tap_action": {
-          "name": "Tap action",
-          "description": "Home Assistant action run when the message is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
-        },
         "image": {
           "name": "Image",
           "description": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
@@ -520,17 +505,49 @@
           "name": "Spoken text",
           "description": "Text used for speech instead of the title and message. Default: the title if set, otherwise the message."
         },
-        "channels": {
-          "name": "Channels",
-          "description": "Where the message is delivered: banner, push, popup, speak, persistent, mail.\n\nExample:\n```yaml\n- banner\n- push\n```"
+        "id": {
+          "name": "ID",
+          "description": "Lowercase letters, digits, - and _; up to 64 characters. Generated and returned when empty."
         },
-        "to": {
-          "name": "Targets",
-          "description": "Who receives it, per channel: an audience or a list of recipients, never both. Push and popup need a target; speak takes recipients only.\n\nExample:\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
+        "tag": {
+          "name": "Tag",
+          "description": "Group name for card filters and for clearing several messages at once. Lowercase letters, digits, - and _, up to 64 characters, no spaces. Example: laundry. Default: no tag."
         },
-        "policy": {
-          "name": "Policy",
-          "description": "Name of one policy to apply, or \"none\" for no policy behavior. Default: every policy that applies."
+        "timeout": {
+          "name": "Timeout",
+          "description": "The message ends after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
+        },
+        "condition": {
+          "name": "Condition",
+          "description": "Show the message only while an entity matches or a template is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+        },
+        "wait_for_condition": {
+          "name": "Wait for condition",
+          "description": "On: a message whose condition is false now waits until it turns true. Off: nothing is stored and the response status is condition_false. Default: on. Ignored without a condition. Leave the checkbox unchecked to use the default."
+        },
+        "mode": {
+          "name": "Mode",
+          "description": "Once: removed when the condition turns false. Recurring: hidden while false, shown again when true. Default: Once."
+        },
+        "tap_action": {
+          "name": "Tap action",
+          "description": "Home Assistant action run when the message is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "actions": {
+          "name": "Buttons",
+          "description": "Up to 3 buttons with key, label, optional dismiss and action.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "dismiss": {
+          "name": "Who can dismiss",
+          "description": "Who can remove the message: Nobody, Each person (it disappears for that person only) or Everyone (one dismissal removes it for all). A dismissal removes it from all channels except speak and mail. Nobody also forbids dismiss buttons and snoozing; it still ends by its condition, its timeout or an admin clear. Default: dismissible, with the scope from the integration options (each person unless changed). Leave the checkbox unchecked to use the default."
+        },
+        "snooze": {
+          "name": "Who can snooze",
+          "description": "Who can hide the message for a while, after which it returns: Nobody, Each person or Everyone. The call fails with an error together with Who can dismiss set to Nobody. Default: the setting from the integration options (nobody unless changed). Leave the checkbox unchecked to use the default."
+        },
+        "snooze_options": {
+          "name": "Snooze choices",
+          "description": "Up to 6 snooze durations, 1 minute to 7 days.\n\nExample:\n```yaml\n- minutes: 15\n- hours: 4\n```"
         }
       }
     },

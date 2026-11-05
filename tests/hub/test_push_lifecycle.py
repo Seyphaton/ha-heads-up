@@ -89,7 +89,7 @@ async def test_every_end_of_the_message_clears_the_push_by_tag(
     if end == "expire":
         extra["timeout"] = 60
     if end == "global_dismiss":
-        extra["dismiss_scope"] = "global"
+        extra["dismiss"] = "everyone"
     if end == "condition":
         hass.states.async_set("binary_sensor.w", "on")
         extra["condition"] = {"entity_id": "binary_sensor.w", "state": "on"}
@@ -137,7 +137,7 @@ async def test_snooze_clears_the_users_push_and_notifies_again_when_it_ends(
     anna: FakeDevice,
     freezer: FrozenDateTimeFactory,
 ) -> None:
-    await notify(hass, entry, channels=["banner", "push"], snoozable=True)
+    await notify(hass, entry, channels=["banner", "push"], snooze="user")
     entry.runtime_data.snooze("m", "anna-id", 900)
     await settle(hass, entry)
     assert [is_clear(c) for c in anna.calls] == [False, True]
@@ -153,7 +153,7 @@ async def test_snooze_clears_the_users_push_and_notifies_again_when_it_ends(
 async def test_ending_a_snooze_early_notifies_again(
     hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
 ) -> None:
-    await notify(hass, entry, channels=["banner", "push"], snoozable=True)
+    await notify(hass, entry, channels=["banner", "push"], snooze="user")
     entry.runtime_data.snooze("m", "anna-id", 900)
     entry.runtime_data.unsnooze("m", "anna-id")
     await settle(hass, entry)
@@ -171,7 +171,7 @@ async def test_a_message_that_ended_during_a_snooze_is_not_sent_again(
         hass,
         entry,
         channels=["banner", "push"],
-        snoozable=True,
+        snooze="user",
         mode="recurring",
         condition={"entity_id": "binary_sensor.w", "state": "on"},
     )
@@ -308,7 +308,7 @@ async def test_the_message_log_records_a_dismissal_snooze_and_its_end(
     anna: FakeDevice,
     freezer: FrozenDateTimeFactory,
 ) -> None:
-    await notify(hass, entry, channels=["banner", "push"], snoozable=True, dismissible=True)
+    await notify(hass, entry, channels=["banner", "push"], snooze="user", dismiss="user")
     manager = entry.runtime_data
     manager.snooze("m", "anna-id", 900)
     await settle(hass, entry)

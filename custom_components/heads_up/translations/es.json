@@ -272,6 +272,19 @@
         "policy": "Esta política (los destinatarios de abajo)",
         "call": "La llamada (los mismos destinatarios)"
       }
+    },
+    "who_can": {
+      "options": {
+        "off": "Nadie",
+        "user": "Cada persona",
+        "everyone": "Todos"
+      }
+    },
+    "policy_choice": {
+      "options": {
+        "automatic": "Automática",
+        "none": "Ninguna"
+      }
     }
   },
   "entity": {
@@ -344,7 +357,7 @@
         },
         "dismissible": {
           "name": "Se puede cerrar",
-          "description": "Muestra un botón de cierre en el aviso. Predeterminado: activado."
+          "description": "Si quienes lo ven pueden quitar el aviso ellos mismos: botón de cierre, deslizar y «Cerrar todo». Desactivado: nadie puede cerrarlo, así que no se permiten botones de cierre ni «Se puede posponer»; termina igualmente por sí solo (condición falsa, tiempo límite) o con un borrado de administrador. Predeterminado: activado."
         },
         "dismiss_scope": {
           "name": "Ámbito de cierre",
@@ -352,7 +365,7 @@
         },
         "snoozable": {
           "name": "Se puede posponer",
-          "description": "Permite ocultar el aviso un tiempo; después vuelve. La llamada falla con un error si «Se puede cerrar» está desactivado. Predeterminado: el ajuste de las opciones de la integración (desactivado salvo cambios)."
+          "description": "Permite ocultar el aviso un tiempo; después vuelve. La llamada falla con un error si «Se puede cerrar» está desactivado. Predeterminado: el ajuste de las opciones de la integración (desactivado salvo cambios). Deja la casilla sin marcar para usar el valor predeterminado."
         },
         "snooze_scope": {
           "name": "Ámbito de posposición",
@@ -380,7 +393,7 @@
         },
         "wait_for_condition": {
           "name": "Esperar a la condición",
-          "description": "Activado: un aviso cuya condición es falsa espera hasta que sea verdadera. Desactivado: no se guarda nada y el estado de la respuesta es condition_false. Predeterminado: activado. Se ignora sin condición."
+          "description": "Activado: un aviso cuya condición es falsa espera hasta que sea verdadera. Desactivado: no se guarda nada y el estado de la respuesta es condition_false. Predeterminado: activado. Se ignora sin condición. Deja la casilla sin marcar para usar el valor predeterminado."
         },
         "people": {
           "name": "Personas",
@@ -448,13 +461,33 @@
           "name": "Mensaje",
           "description": "Texto del mensaje, de 1 a 1000 caracteres."
         },
-        "id": {
-          "name": "ID",
-          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
-        },
         "title": {
           "name": "Título",
           "description": "Hasta 100 caracteres. Predeterminado: sin título."
+        },
+        "channels": {
+          "name": "Canales",
+          "description": "Dónde se entrega el mensaje: banner, push, popup, speak, persistent, mail.\n\nEjemplo:\n```yaml\n- banner\n- push\n```"
+        },
+        "policy": {
+          "name": "Política",
+          "description": "Qué políticas se aplican. Automática: las políticas que coinciden con la gravedad y la etiqueta (predeterminado). Ninguna: sin política. Elige políticas por nombre para usar solo esas; elige también Automática para añadir las que coincidan. Escribe un nombre para usar una que no esté en la lista."
+        },
+        "recipients": {
+          "name": "Destinatarios",
+          "description": "Quién recibe el mensaje en aviso, push, ventana emergente y correo. Indica destinatarios o audiencia. La voz usa Altavoces; para dar a un canal otras personas, usa Destinos. Predeterminado: aviso para todos."
+        },
+        "audience": {
+          "name": "Audiencia",
+          "description": "Nombre de una audiencia que recibe el mensaje en aviso, push, ventana emergente y correo. Indica audiencia o destinatarios."
+        },
+        "speakers": {
+          "name": "Altavoces",
+          "description": "Altavoces, grupos de altavoces o zonas para la voz. La voz no admite audiencia."
+        },
+        "to": {
+          "name": "Destinos",
+          "description": "Quién lo recibe en un canal cuando difiere de Destinatarios o Audiencia, por canal: una audiencia o una lista de destinatarios, nunca ambos.\n\nEjemplo:\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
         },
         "severity": {
           "name": "Gravedad",
@@ -464,54 +497,6 @@
           "name": "Icono",
           "description": "Sustituye el icono predeterminado de la gravedad. Predeterminado: el icono de la gravedad."
         },
-        "timeout": {
-          "name": "Tiempo de caducidad",
-          "description": "El mensaje termina tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
-        },
-        "dismissible": {
-          "name": "Se puede cerrar",
-          "description": "Muestra un botón de cierre en el aviso. Predeterminado: activado."
-        },
-        "dismiss_scope": {
-          "name": "Ámbito de cierre",
-          "description": "Por usuario: cerrarlo lo oculta solo para ese usuario. Todos: cerrarlo lo elimina para todos. Predeterminado: el ajuste de las opciones de la integración (por usuario salvo cambios)."
-        },
-        "snoozable": {
-          "name": "Se puede posponer",
-          "description": "Permite ocultar el mensaje un tiempo; después vuelve. La llamada falla con un error si «Se puede cerrar» está desactivado. Predeterminado: el ajuste de las opciones de la integración (desactivado salvo cambios)."
-        },
-        "snooze_scope": {
-          "name": "Ámbito de posposición",
-          "description": "Por usuario: posponerlo lo oculta solo para ese usuario. Todos: se oculta para todos. Predeterminado: el ajuste de las opciones de la integración (por usuario salvo cambios)."
-        },
-        "snooze_options": {
-          "name": "Opciones de posposición",
-          "description": "Hasta 6 duraciones de posposición, de 1 minuto a 7 días.\n\nEjemplo:\n```yaml\n- minutes: 15\n- hours: 4\n```"
-        },
-        "actions": {
-          "name": "Botones",
-          "description": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action.\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
-        },
-        "tag": {
-          "name": "Etiqueta",
-          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios mensajes a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
-        },
-        "condition": {
-          "name": "Condición",
-          "description": "Mostrar el mensaje solo mientras una entidad coincida o una plantilla sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
-        "mode": {
-          "name": "Modo",
-          "description": "Una vez: se elimina cuando la condición pasa a falsa. Recurrente: oculto mientras es falsa y visible de nuevo cuando vuelve a ser verdadera. Predeterminado: Una vez."
-        },
-        "wait_for_condition": {
-          "name": "Esperar a la condición",
-          "description": "Activado: un mensaje cuya condición es falsa espera hasta que sea verdadera. Desactivado: no se guarda nada y el estado de la respuesta es condition_false. Predeterminado: activado. Se ignora sin condición."
-        },
-        "tap_action": {
-          "name": "Acción al tocar",
-          "description": "Acción de Home Assistant que se ejecuta al tocar el mensaje.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
-        },
         "image": {
           "name": "Imagen",
           "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
@@ -520,17 +505,49 @@
           "name": "Texto hablado",
           "description": "Texto usado para la voz en lugar del título y el mensaje. Por defecto: el título si existe, si no el mensaje."
         },
-        "channels": {
-          "name": "Canales",
-          "description": "Dónde se entrega el mensaje: banner, push, popup, speak, persistent, mail.\n\nEjemplo:\n```yaml\n- banner\n- push\n```"
+        "id": {
+          "name": "ID",
+          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
         },
-        "to": {
-          "name": "Destinatarios",
-          "description": "Quién lo recibe, por canal: una audiencia o una lista de destinatarios, nunca ambos. Push y popup necesitan un destino; la voz solo admite destinatarios.\n\nEjemplo:\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
+        "tag": {
+          "name": "Etiqueta",
+          "description": "Nombre de grupo para los filtros de la tarjeta y para eliminar varios mensajes a la vez. Letras minúsculas, dígitos, - y _, hasta 64 caracteres, sin espacios. Ejemplo: laundry. Predeterminado: sin etiqueta."
         },
-        "policy": {
-          "name": "Política",
-          "description": "Nombre de una política, o \"none\" para ningún comportamiento de política. Por defecto: todas las políticas aplicables."
+        "timeout": {
+          "name": "Tiempo de caducidad",
+          "description": "El mensaje termina tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
+        },
+        "condition": {
+          "name": "Condición",
+          "description": "Mostrar el mensaje solo mientras una entidad coincida o una plantilla sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+        },
+        "wait_for_condition": {
+          "name": "Esperar a la condición",
+          "description": "Activado: un mensaje cuya condición es falsa espera hasta que sea verdadera. Desactivado: no se guarda nada y el estado de la respuesta es condition_false. Predeterminado: activado. Se ignora sin condición. Deja la casilla sin marcar para usar el valor predeterminado."
+        },
+        "mode": {
+          "name": "Modo",
+          "description": "Una vez: se elimina cuando la condición pasa a falsa. Recurrente: oculto mientras es falsa y visible de nuevo cuando vuelve a ser verdadera. Predeterminado: Una vez."
+        },
+        "tap_action": {
+          "name": "Acción al tocar",
+          "description": "Acción de Home Assistant que se ejecuta al tocar el mensaje.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```"
+        },
+        "actions": {
+          "name": "Botones",
+          "description": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action.\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
+        },
+        "dismiss": {
+          "name": "Quién puede cerrarlo",
+          "description": "Quién puede quitar el mensaje: Nadie, Cada persona (desaparece solo para esa persona) o Todos (un cierre lo quita para todos). Un cierre lo quita de todos los canales excepto voz y correo. Nadie también prohíbe los botones de cierre y posponer; termina igualmente por su condición, su tiempo límite o un borrado de administrador. Predeterminado: se puede cerrar, con el ámbito de las opciones de la integración (por persona salvo cambios). Deja la casilla sin marcar para usar el valor predeterminado."
+        },
+        "snooze": {
+          "name": "Quién puede posponerlo",
+          "description": "Quién puede ocultar el mensaje un tiempo, después vuelve: Nadie, Cada persona o Todos. La llamada falla con un error si «Quién puede cerrarlo» es Nadie. Predeterminado: el ajuste de las opciones de la integración (nadie salvo cambios). Deja la casilla sin marcar para usar el valor predeterminado."
+        },
+        "snooze_options": {
+          "name": "Opciones de posposición",
+          "description": "Hasta 6 duraciones de posposición, de 1 minuto a 7 días.\n\nEjemplo:\n```yaml\n- minutes: 15\n- hours: 4\n```"
         }
       }
     },
