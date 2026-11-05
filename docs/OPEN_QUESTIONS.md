@@ -99,7 +99,7 @@
 - Not verified: a screen reader on the panel and the popup, and the German, French and Spanish text of the panel on screen.
 - Idea: the delivery trace and the recent messages list are kept in memory only; whether they survive a restart is open (D-118).
 
-## Capabilities from the script comparison (D-124, 2026-11-03)
+## Capabilities for fanning one message out (D-124, 2026-11-03)
 - Mail channel: how a recipient maps to a mail target (profile field or the call), which notify service it calls, and how a failure shows in the ledger.
 - Late button presses: whether the button stays on the phone after the push is cleared; if not, which messages need a different lifetime.
 - Delivery-failure event: name, payload and which outcomes fire it (no audience, failed, rate limited).

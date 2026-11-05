@@ -7,12 +7,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: scaffold the integration immediately.
 - Consequences: no source code before the Phase 0 gate.
 
-## D-002 Reference READMEs for human docs
+## D-002 Structure of the human docs
 - Decision:
-  - Browser Mod: numbered imperative Installation/Quickstart steps; separate "Upgrading" section; FAQ headings phrased as the user's question, including "How do I uninstall …?".
-  - Alert2: configuration and action fields as tables (key, type, required/default, description); events as a table of `event_type` and data fields, followed by one automation example.
-  - Mushroom: HACS install first, manual install second; troubleshooting starts with "check the version, clear the cache, check the browser console".
-- Not adopted: emoji headings, badge rows, promotional tone; limitations scattered across sections (we use one `docs/limitations.md`).
+  - Install and quickstart are numbered imperative steps; upgrading has its own section; FAQ headings are phrased as the user's question, including "How do I uninstall …?".
+  - Configuration and action fields are tables (key, type, required/default, description); events are a table of `event_type` and data fields, followed by one automation example.
+  - HACS install comes first; troubleshooting starts with "check the version, clear the cache, check the browser console".
+- Not used: emoji headings, badge rows, promotional tone; limitations scattered across sections (we use one `docs/limitations.md`).
 - Consequences: reference tables live in `docs/actions.md` and `docs/card.md`.
 
 ## D-003 Development only against a local throwaway instance
@@ -96,7 +96,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 
 ## D-021 Card delivery and tech
 - Decision: own card (existing notification cards checked, e.g. HKI Notification Card, lack severity/timeout/condition/per-person fields), plain JS single ES module, no build step, served by the integration (static path + `add_extra_js_url`, version query for cache-busting). Editor: custom element (`getConfigElement`). Dismiss via an X button (48 px target), no swipe.
-- Alternatives: reuse an existing card; TypeScript + Lit + bundler; `getConfigForm`; YAML-only; manual `/local` resource; separate HACS plugin repo; swipe.
+- Alternatives: TypeScript + Lit + bundler; `getConfigForm`; YAML-only; manual `/local` resource; separate HACS plugin repo; swipe.
 
 ## D-022 External call paths: actions only
 - Decision: HA actions are the only contract. REST `/api/services/heads_up/...` and WebSocket `call_service` work through HA core.
@@ -764,8 +764,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Restart: Home Assistant keeps the notification bell in memory only (N-90), so the engine puts back the entry of every active message that was shown there. A ledger of the wrong shape no longer stops setup.
 - Home Assistant 2026.10.4 is the development version (tests, mypy, dev instance, `uv.lock`); 2026.9.4 stays the minimum tested version in CI and `hacs.json`. The code imports `probatio as vol` because only that type-checks on 2026.10 and it runs on both (N-91). This supersedes the pin of D-019 and the pytest pin of the test setup.
 
-## D-124 Capabilities taken from the comparison with an existing notification script (2026-11-03)
-- Context: the maintainer compared the hub with a household script that fans one message out to push, speech and mail. Heads Up stays standalone and knows no caller (CLAUDE.md); each item below is generic.
+## D-124 Capabilities for fanning one message out to several channels (2026-11-03)
+- Context: the maintainer asked which generic capabilities a message that fans out to push, speech and mail needs. Heads Up stays standalone and knows no caller (CLAUDE.md); each item below is generic.
 - Decisions (maintainer), accepted as features, none approved for a phase yet:
   - Push `image` field: the Companion field names for iOS and Android are checked against current docs first (rule 4).
   - Speech accepts any Home Assistant area directly, without a speaker group.
@@ -777,7 +777,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Parity (CLAUDE.md rule 9): the image, the bell entry and the button setting touch banners from actions and from watch rules; each ships for both or lists an exception in `docs/DESIGN.md` §22.
 
 ## D-125 Buttons stop acting once the message has ended (2026-11-03)
-- Context: comparison with an existing notification script (D-124). A press was accepted until the message record was removed, even after the message was dismissed, acknowledged or its condition turned false. D-124 called default on "today's behaviour"; that was wrong, on is stricter.
+- Context: D-124. A press was accepted until the message record was removed, even after the message was dismissed, acknowledged or its condition turned false. D-124 called default on "today's behaviour"; that was wrong, on is stricter.
 - Decisions (maintainer): the option `disable_ended_buttons` (Banners section of the options screen and the panel Settings page), global, default on. A message has ended for a press when the pressing user dismissed it or it was dismissed for all, when anyone acknowledged it (the first acknowledgement counts), or when its condition is not true. A snooze does not end it. One check in `BannerManager.press` for card, popup and push buttons and for both banner sources; the built-in Acknowledge, Snooze and Dismiss buttons are not affected.
 - Build details decided without a question: error code `message_ended`; a press on a removed message stays `not_found` (nothing is left to check the sender against), so off does not revive a removed message. Alarm-style buttons also need a message that does not end (`timeout: 0`, not dismissible), because the push is cleared when the message ends.
 - Blast radius: usual restart; existing automations that reacted to late presses stop receiving them unless the option is turned off; a stored option is added with its default.
@@ -804,7 +804,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Blast radius: usual restart; a new event, no change to existing events; automations triggering on it see a failure per channel and step.
 
 ## D-129 Mail channel (2026-11-03)
-- Context: D-124. Heads Up had no way to reach a person through a notify service such as SMTP, so a household script kept its own mail branch.
+- Context: D-124. Heads Up had no way to reach a person through a notify service such as SMTP.
 - Decisions (maintainer): a sixth channel `mail`. It calls one notify service, chosen on the Channels page, once per recipient with `title` (subject), `message` (body) and `target: [address]`. A person's address is a field of their recipient profile; the channel is off for everyone until the person's profile has Mail on. A separate Global address (a setting) can be named as the recipient `Global address`; it is never a stand-in for a person without an address: a person with Mail on and no address fails with `no_mail_address`, which is logged (once an hour per person) and fires the delivery-failed event. Subject and body are templates, defaults `{severity}: {title}` and `{message}`; the hint texts list the placeholders.
 - Build details decided without a question: placeholders `severity` (a word in the Home Assistant language), `title` (the message when there is no title), `message`, `person` (empty for the Global address), `id`, `tag`, anything else refused on save; limits 200 characters for the subject, 2000 for the body and 254 for an address; the settings are options `mail_service`, `mail_global_address`, `mail_subject`, `mail_body` on the Channels page and in the profile form, not in the unified Settings list (like the other channel settings); no shortcut action; an update does not send again and nothing is taken back; quiet hours do not change mail and images and buttons are not sent; `mail` can be added by escalation, fallback, deliver and reminder policies; the channel name in calls is `mail` and the shared recipient is written `Global address`; the notify service must exist when it is saved.
 - Parity: rule messages reach mail through policies, the same delivery path as action messages.
@@ -1017,3 +1017,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Side effect: toggling a profile that a rule names rebuilds that rule, as an edit of the rule does (dismissals of that rule banner are reset).
 - Tests: `tests/hub/test_recipient_disabled.py` (profile switched off after the rule exists, all off, no people).
 - Blast radius: usual restart; rule banners naming a switched-off person disappear for that person.
+
+## D-162 Tracked files describe the project's own choices only (2026-11-05)
+- Context: the pre-release review (E-004) found product names in D-002, and a text pass found wording in decisions, state notes and the decision index that pointed at material outside this project.
+- Decision (maintainer): rewrite the text only. D-002 is now "Structure of the human docs" and lists the rules without a source; D-124, D-125, D-129, the open-question heading, the state notes and the decision index no longer describe where an idea came from. Git history is not rewritten and no tag is touched.
+- Blast radius: documentation only.

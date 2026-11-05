@@ -359,7 +359,7 @@ HA documentation rules covered: `docs-high-level-description` (README intro), `d
 
 `docs-check`: banned-word and placeholder grep over all Markdown (done); YAML examples in user docs validated against action schemas (done); field parity schema == `services.yaml` == `docs/actions.md` (done); card config keys (`CONFIG_KEYS` in the card module) vs. the options table in `docs/card.md`, and card YAML examples use only those keys (done).
 
-Adopted style elements: D-002.
+Style elements: D-002.
 
 ## 17. Watch rules (Phase 8)
 

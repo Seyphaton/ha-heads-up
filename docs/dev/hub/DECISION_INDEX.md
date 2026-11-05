@@ -48,7 +48,7 @@ Written from the decision headings on 2026-11-05; the text in `docs/DECISIONS.md
 - D-108 to D-121 Hub packages H1 to H9e: core `notify`, audiences, push, policies, speech, popup, card acknowledgement, panel shell, Overview, editors, Test send, welcome. Current as listed above and in their own entries.
 - D-122 One list of settings on the options screen and the Settings page.
 - D-123 Rate limits, duplicate suppression, Home Assistant 2026.10 as development version.
-- D-124 to D-129 Capabilities from the script comparison: buttons stop once the message ended (D-125), speech to areas and a bell entry when nobody can speak (D-126), image (D-127), event `heads_up_delivery_failed` (D-128), mail channel (D-129).
+- D-124 to D-129 Capabilities for fanning one message out: buttons stop once the message ended (D-125), speech to areas and a bell entry when nobody can speak (D-126), image (D-127), event `heads_up_delivery_failed` (D-128), mail channel (D-129).
 - D-130, D-133, D-154 Pre-release records for 1.0.0-alpha.1, alpha.2 and alpha.5.
 - D-131, D-132 Panel polish and the order of the Add buttons.
 - D-134 Watch rules page in the panel. Partly supersedes D-100 (rules are no longer frozen in the panel; the integration form stays).
