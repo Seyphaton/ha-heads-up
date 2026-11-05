@@ -12,6 +12,10 @@ Open a private security advisory on the GitHub repository.
 - Banners are stored in plain text in `.storage/heads_up.banners`. Anyone with access to the Home Assistant files or backups can read them.
 - Do not put passwords, codes or other secrets in banners.
 
+## Images from other hosts
+
+The `image` of a message can be an `http://` or `https://` URL. The card, the popup and the phone load it themselves, so the host behind the URL sees the viewer's network address and when the message is shown. Heads Up does not fetch, proxy or check these pictures. Use a path on your own Home Assistant (`/local/...` or `/media/...`) to keep the request on your network.
+
 ## Tap actions
 
 `tap_action` runs the Home Assistant action you configure when someone taps the banner. Any user who can see the banner can trigger it, including on a shared or wall-mounted screen. Heads Up does not restrict which actions you configure. Add a `confirmation` to the tap action to show a dialog before it runs; Home Assistant handles the dialog, and its `exemptions` list can skip it for chosen users.

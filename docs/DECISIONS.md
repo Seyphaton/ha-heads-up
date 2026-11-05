@@ -1088,3 +1088,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer: action plus banner name): `bannerLabel` in the card gives the accessible name "Dismiss: <title>", with the message cut to 60 characters when there is no title. It applies to Dismiss, Snooze, Clear for everyone and Show now in the snoozed list. The tooltip keeps the short word. The long-text clamp of the review is not part of this step.
 - Tests: `tests/card/heads-up-card.test.js`. Not tested with a screen reader.
 - Blast radius: card only; no visual change.
+
+## D-173 External image URLs are documented as a privacy limit (2026-11-05)
+- Context: review finding R-015. The `image` field accepts any http(s) URL, so the card, popup and push fetch from a third-party host and reveal the viewer's address to it. Not a vulnerability of the integration.
+- Decision (maintainer): document it, no behaviour change. One sentence in the `image` row of `docs/actions.md` and a section in `SECURITY.md`; a path on this Home Assistant avoids the request. A same-origin default was not chosen because it would break remote pictures that work today.
+- Documentation only.

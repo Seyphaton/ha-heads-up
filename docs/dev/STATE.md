@@ -98,3 +98,4 @@ Follow `docs/dev/RELEASE.md`, "Before the first release". Needs the maintainer: 
 - 2026-11-05: P10 item E-011 (D-170): Message Log words a Deliver timer row "Delivery ...", other types by name. Panel only.
 - 2026-11-05: P10 item F-003 (D-171): card option `show_snoozed` defaults to on. Blast radius: existing dashboards show "Snoozed (n)" while something is snoozed.
 - 2026-11-05: P10 item R-014 (D-172): banner buttons have accessible names with the banner title. Not tested with a screen reader.
+- 2026-11-05: P10 item R-015 (D-173): docs and SECURITY.md say an external image URL reveals the viewer's address. No code.
