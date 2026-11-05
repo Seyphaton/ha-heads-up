@@ -548,9 +548,9 @@ How both sources stay equal:
 | image under the message (D-127) | yes | yes (Image field of the rule form; `tests/hub/test_image.py`) |
 | `heads_up_delivery_failed` (D-128) | yes | yes for the deliveries a policy makes for a rule message, same engine path (no rule-specific test); the banner channel never fires it |
 | Policy field: name one policy or `none` (D-146) | yes (`policy`) | yes (Policy field of the rule form; `tests/test_rules_flow.py`) |
-| a switched-off recipient gets nothing (D-147) | yes (named persons are dropped from the banner's people; all dropped means nobody) | partly: audiences and the recipients of a policy delivery skip a disabled person, but the `people` of a rule are not filtered, so a disabled person named in a rule still sees its banner. No decision lists this as an exception; open question in `docs/OPEN_QUESTIONS.md` |
+| a switched-off recipient gets nothing (D-147) | yes (named persons are dropped from the banner's people; all dropped means nobody) | yes (the rule's `people` are filtered when the rule is built and again when a profile changes, D-161; `tests/hub/test_recipient_disabled.py`) |
 
-Audit for the hub (H10, 2026-11-02), extended 2026-11-05: every banner feature above is in both columns or carries an exception with a decision number, except the last row (D-147), which is a known gap.
+Audit for the hub (H10, 2026-11-02), extended 2026-11-05: every banner feature above is in both columns or carries an exception with a decision number.
 
 ### 22.3 Details of the rule additions
 - **Buttons and tap action:** subentry fields `actions` (list, up to 3, normalized with `dismiss: false` defaults) and `tap_action`. A rule's button presses fire `heads_up_banner_action` with `id = rule_<subentry_id>` and `tag = rule`. A button with `dismiss` needs a dismissible rule (`actions_dismiss_needs_dismissible`).

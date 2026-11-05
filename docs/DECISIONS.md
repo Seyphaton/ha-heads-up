@@ -1010,3 +1010,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer): the documents state the real position: hub built on `hub/h9e-wizard`, pre-releases alpha.2 to alpha.5 tagged and pushed, `main` at 0.4.0 with nothing the branch lacks, 1.0.0 not released. `RELEASE.md` has a "Releasing 1.0.0" checklist. The D-155 entry moves from the tagged alpha.5 block to `[Unreleased]` (the tag does not contain it). The changelog says in one sentence that alpha.3 and alpha.4 were tagged on the way and have no notes of their own. D-033 is recorded as not used, D-063 is moved to its place, and `DECISION_INDEX.md` lists D-107 to D-159.
 - Parity rows added to section 22.2: D-125, D-127, D-146 and D-128 as yes/yes (checked against the code and tests, D-128 by reading the shared engine path); D-147 as a gap: the `people` of a rule are not filtered for a switched-off recipient. Not decided: filter them or list an exception (`docs/OPEN_QUESTIONS.md`).
 - Documentation only; no restart.
+
+## D-161 Watch rules respect a switched-off recipient (2026-11-05)
+- Context: the parity check of D-160 found that D-147 filtered the `people` of an action banner but not those of a watch rule, so a switched-off person named in a rule still saw its banner.
+- Decision (maintainer: "fix it now"): `BannerManager.sync_rules` passes the rule's `people` through `HubResolver.enabled_people`, the same function the `notify` path uses. All named persons off gives `BANNER_NOBODY`, not everyone. The filtered list is part of the rule's source, so a changed recipient profile rebuilds the rule banner through the entry update listener. A rule without `people` stays visible to everyone.
+- Side effect: toggling a profile that a rule names rebuilds that rule, as an edit of the rule does (dismissals of that rule banner are reset).
+- Tests: `tests/hub/test_recipient_disabled.py` (profile switched off after the rule exists, all off, no people).
+- Blast radius: usual restart; rule banners naming a switched-off person disappear for that person.

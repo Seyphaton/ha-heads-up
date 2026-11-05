@@ -105,6 +105,42 @@ async def test_a_banner_for_named_persons_skips_the_disabled_ones(
     assert banners["only"].people == [BANNER_NOBODY]
 
 
+async def test_a_rule_banner_skips_disabled_persons_and_follows_the_profile(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    from ..test_rules import add_rule, rule_id, set_state
+
+    set_person(hass, "person.anna", "home")
+    set_person(hass, "person.ben", "home")
+    await set_state(hass, "on")
+    sub = add_rule(hass, entry, people=["person.anna", "person.ben"])
+    await hass.async_block_till_done()
+    manager = entry.runtime_data
+    assert manager.rules[rule_id(sub)].people == ["person.anna", "person.ben"]
+
+    disable(hass, entry, "person.anna")  # the profile changes after the rule exists
+    await hass.async_block_till_done()
+    assert manager.rules[rule_id(sub)].people == ["person.ben"]
+
+    disable(hass, entry, "person.ben")
+    await hass.async_block_till_done()
+    assert manager.rules[rule_id(sub)].people == [BANNER_NOBODY]
+    assert manager.visible("anyone") == []
+
+
+async def test_a_rule_without_people_stays_visible_to_everyone(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    from ..test_rules import add_rule, rule_id, set_state
+
+    await set_state(hass, "on")
+    sub = add_rule(hass, entry)
+    disable(hass, entry, "person.anna")
+    await hass.async_block_till_done()
+    assert entry.runtime_data.rules[rule_id(sub)].people == []
+    assert [b["id"] for b in entry.runtime_data.visible("anyone")] == [rule_id(sub)]
+
+
 async def test_a_banner_without_a_target_stays_visible(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:

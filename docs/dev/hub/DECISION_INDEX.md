@@ -56,7 +56,7 @@ Written from the decision headings on 2026-11-05; the text in `docs/DECISIONS.md
 - D-139 The hub is always on. Supersedes the off switch of D-107.
 - D-140 to D-144 Introduction texts, message settings (banner settings are message settings), snooze time of push and popup, message cap with the limits, clusters.
 - D-145, D-146 Policies page decisions and manual or automatic policies. The two tabs of D-146 are superseded by D-153; the Policy field on watch rules holds.
-- D-147 A recipient can be switched off completely. Gap: the `people` of a rule are not filtered (`docs/DESIGN.md` section 22.2).
+- D-147 A recipient can be switched off completely. Rules filter their `people` too (D-161).
 - D-148 to D-152 Policy interaction: ordered list, mode `first` or `all`, overlap note, introduction list for `first`.
 - D-153 Policy form with headed blocks.
 - D-155 Push level critical is an alarm on iOS and Android.

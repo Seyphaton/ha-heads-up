@@ -550,6 +550,10 @@ class BannerManager:
         for banner_id, sub in wanted.items():
             # The rule name stands in for {name} when there is no entity (template rules).
             source = {**sub.data, "rule_name": sub.title}
+            if self.hub is not None and source.get("people"):
+                # A switched-off recipient is not shown the banner; all of them off means nobody
+                # (D-147, D-161). Part of the source, so a changed profile rebuilds the rule.
+                source["people"] = self.hub.resolver.enabled_people(list(source["people"]))
             if self._rule_sources.get(banner_id) == source:
                 continue
             old = self.rules.get(banner_id)
@@ -569,6 +573,10 @@ class BannerManager:
             elif banner.condition_met and old is not None and old.severity != banner.severity:
                 # An edited rule that stays visible: its policies restart, as for an action (D-081).
                 self._emit(Kind.SEVERITY_CHANGED, banner, silent=silent)
+            elif banner.condition_met and old is not None and old.policy != banner.policy:
+                # A changed policy choice must drop timers of the old one (a reminder that
+                # kept showing after the rule was set to "none").
+                self._emit(Kind.UPDATED, banner, silent=silent)
             changed = True
         self._refresh_tracking()
         if changed and not silent:
