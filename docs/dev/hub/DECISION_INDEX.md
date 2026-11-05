@@ -42,8 +42,31 @@ Status values: current, partly superseded (the part that still holds is named), 
 - D-105 Summarized message held on every channel, banner too. Current.
 - D-106 Summary details, no default delivery, precedence. Current.
 
+## Later decisions (D-107 to D-159)
+Written from the decision headings on 2026-11-05; the text in `docs/DECISIONS.md` is authoritative. Status is Current unless a line says otherwise.
+- D-107 Partly superseded: the off switch `hub_enabled` is gone (D-139).
+- D-108 to D-121 Hub packages H1 to H9e: core `notify`, audiences, push, policies, speech, popup, card acknowledgement, panel shell, Overview, editors, Test send, welcome. Current as listed above and in their own entries.
+- D-122 One list of settings on the options screen and the Settings page.
+- D-123 Rate limits, duplicate suppression, Home Assistant 2026.10 as development version.
+- D-124 to D-129 Capabilities from the script comparison: buttons stop once the message ended (D-125), speech to areas and a bell entry when nobody can speak (D-126), image (D-127), event `heads_up_delivery_failed` (D-128), mail channel (D-129).
+- D-130, D-133, D-154 Pre-release records for 1.0.0-alpha.1, alpha.2 and alpha.5.
+- D-131, D-132 Panel polish and the order of the Add buttons.
+- D-134 Watch rules page in the panel. Partly supersedes D-100 (rules are no longer frozen in the panel; the integration form stays).
+- D-135 to D-138 Overview shortcut cards and hideable warnings, built-in audience switches and failed-send warnings, Help group with three pages, wording and activity chart.
+- D-139 The hub is always on. Supersedes the off switch of D-107.
+- D-140 to D-144 Introduction texts, message settings (banner settings are message settings), snooze time of push and popup, message cap with the limits, clusters.
+- D-145, D-146 Policies page decisions and manual or automatic policies. The two tabs of D-146 are superseded by D-153; the Policy field on watch rules holds.
+- D-147 A recipient can be switched off completely. Gap: the `people` of a rule are not filtered (`docs/DESIGN.md` section 22.2).
+- D-148 to D-152 Policy interaction: ordered list, mode `first` or `all`, overlap note, introduction list for `first`.
+- D-153 Policy form with headed blocks.
+- D-155 Push level critical is an alarm on iOS and Android.
+- D-156 Dismiss, snooze and unsnooze check the target.
+- D-157 The Policies page marks a policy that never runs by itself.
+- D-158 One clear action `clear_notifications`; `clear_banner` and `clear_all` are deprecated; `heads_up.clear` is deleted. Supersedes the action list of D-108.
+- D-159 Action texts say message.
+
 ## The current truth in one page
-- Status: approved for build (D-107). On by default with an off switch; the panel sidebar entry is opt-in during initial setup.
+- Status: built on `hub/h9e-wizard`, pre-releases pushed, not merged to `main`. Always on (D-139); the panel sidebar entry is opt-in during initial setup.
 - Unit: a message with one id; channels: banner, push, popup, speak, persistent.
 - Call: `heads_up.notify` with content, lifecycle, `channels` (required list), `to` (a target per channel: `audience` or `recipients`, never both), `policy` (omitted: all that apply; `none`: no policy behavior). Shortcuts `push`, `popup`, `speak`. `create_banner` and watch rules unchanged (rules frozen).
 - Targets: banner (audience or persons, empty means everyone), push (audience, or persons and phones), popup (audience or persons), speak (speakers, groups, satellites, areas; no audience), persistent (none).
@@ -53,4 +76,4 @@ Status values: current, partly superseded (the part that still holds is named), 
 - Panel editors: save through the integration's own subentry flows, refuse a delete while a policy uses the object (D-119).
 - Objects: audience (flat; persons or presence), recipient group, recipient profile, policy (typed rules). No named conditions.
 - Policy types: Escalation, Quiet hours, Fallback, Reminder, Away, Summarize. Common fields: name, type, applies to, enabled. Precedence Summarize, Quiet hours, Away, Fallback.
-- Panel: five groups (Overview; Notifications and Rules; Configuration; Settings; FAQ and Examples).
+- Panel: five groups (Overview; Notifications and Rules; Configuration; Settings; Help with FAQ, Notify examples and Card examples).

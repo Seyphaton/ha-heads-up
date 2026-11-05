@@ -146,6 +146,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: system Python; pytest in Docker only; Apache-2.0.
 - Consequences: HA 2026.9.4 needs Python ≥ 3.14.2 (N-23).
 
+## D-033 Not used
+- The number was skipped and is not reused. No decision of this number exists.
+
 ## D-034 Test environment
 - Decision: `pytest-homeassistant-custom-component==0.13.367` (pins `homeassistant==2026.9.4`) and `home-assistant-frontend==20260826.7` as dev dependencies.
 - Consequences: the `frontend` dependency sets up in tests.
@@ -324,6 +327,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: move the published tag and republish.
 - Reason: a published tag is not rewritten.
 
+## D-063 Rule messages render Home Assistant templates
+- Date: 2026-10-26.
+- Decision: a rule message is rendered as a Home Assistant template (`{{ states('...') }}`), after `{name}` is replaced. Entities the template reads are tracked, so the text updates when they change; time-based functions such as `now()` are not refreshed. An invalid template is refused by the rule form (`message_template_invalid`); a template that fails at render time shows the unrendered text and logs a warning. This changes D-055 ("no other placeholders or templates"); `create_banner` is unchanged (HA renders its data before the call, D-017).
+- Alternatives: reject templates in the form; a state placeholder without Jinja.
+- Reason: a maintainer rule used `{{ states(...) }}` and showed the raw text. Maintainer chose rendering.
 
 ## D-064 Card file is cached by the browser
 - Date: 2026-10-26.
@@ -350,12 +358,6 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision: `condition.template` replaces `entity_id`, `operator`, `state` and `attribute` (mixing them is a validation error); `for` may be added. Tracked with `async_track_template_result`, so time functions such as `now()` also re-evaluate. A render error leaves the banner as it was. Templates are not available in watch rules (maintainer scope). Partly resolves D-005.
 - Alternatives: a template next to `entity_id` as an extra condition; tracking only the entities found at render time (as D-063 does for rule messages, which cannot follow `now()`).
 - Reason: one clear shape per condition; the tracker helper is the supported way to follow a template (N-60).
-
-## D-063 Rule messages render Home Assistant templates
-- Date: 2026-10-26.
-- Decision: a rule message is rendered as a Home Assistant template (`{{ states('...') }}`), after `{name}` is replaced. Entities the template reads are tracked, so the text updates when they change; time-based functions such as `now()` are not refreshed. An invalid template is refused by the rule form (`message_template_invalid`); a template that fails at render time shows the unrendered text and logs a warning. This changes D-055 ("no other placeholders or templates"); `create_banner` is unchanged (HA renders its data before the call, D-017).
-- Alternatives: reject templates in the form; a state placeholder without Jinja.
-- Reason: a maintainer rule used `{{ states(...) }}` and showed the raw text. Maintainer chose rendering.
 
 ## Gate log
 - 2026-10-24: Phase 0 design approved, with D-031.
@@ -1002,3 +1004,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer): "message" for the thing an action sends, "banner" only for the card and for `create_banner`, the banner-only shortcut, and for card effects such as the close button. Done in `strings.json`, the four translations (key sets compared by `tests/test_translations.py`) and `docs/actions.md`, which gets a one-line definition. The setup dialog names `heads_up.notify`. The watch rule form's image text is corrected too.
 - Not changed: the sensor name "Active banners", the event names `heads_up_banner_*`, error texts such as "holds N banners", the `clear_banner` name (R-016 terminology rename stays on the post-1.0 list).
 - Blast radius: texts only; no restart needed beyond reloading the translations.
+
+## D-160 Release and status documents brought up to date (2026-11-05)
+- Context: review findings D-001 to D-005. DESIGN section 0, parts of section 23, `RELEASE.md`, `CLAUDE.md`, `STATE.md`, `ROADMAP.md` and the changelog described a state from before the pre-releases.
+- Decision (maintainer): the documents state the real position: hub built on `hub/h9e-wizard`, pre-releases alpha.2 to alpha.5 tagged and pushed, `main` at 0.4.0 with nothing the branch lacks, 1.0.0 not released. `RELEASE.md` has a "Releasing 1.0.0" checklist. The D-155 entry moves from the tagged alpha.5 block to `[Unreleased]` (the tag does not contain it). The changelog says in one sentence that alpha.3 and alpha.4 were tagged on the way and have no notes of their own. D-033 is recorded as not used, D-063 is moved to its place, and `DECISION_INDEX.md` lists D-107 to D-159.
+- Parity rows added to section 22.2: D-125, D-127, D-146 and D-128 as yes/yes (checked against the code and tests, D-128 by reading the shared engine path); D-147 as a gap: the `people` of a rule are not filtered for a switched-off recipient. Not decided: filter them or list an exception (`docs/OPEN_QUESTIONS.md`).
+- Documentation only; no restart.

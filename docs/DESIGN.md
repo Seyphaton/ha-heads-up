@@ -2,7 +2,7 @@
 
 Living design document: requirements and architecture. Decisions are referenced as D-nnn (`docs/DECISIONS.md`), API facts as N-nn (row in `docs/dev/HA_API_NOTES.md`), risks as R-n (§14). Where code and this document disagree, fix one of them in the same commit.
 
-## 0. Implementation status (2026-10-25)
+## 0. Implementation status (2026-11-05)
 
 | Part | Status |
 |---|---|
@@ -13,10 +13,10 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §20 `empty` and `not_empty` operators, rule form without a prefilled State | implemented and tested (Phase 11); card unchanged |
 | §21 banner buttons and snooze | implemented and tested (Phase 12); card checked on the dev HA with a mouse |
 | §22 parity of banner sources, rule buttons, tap action, dismiss scope and template conditions | implemented and tested (Phase 12 follow-up) |
-| §23 notification hub | designed (Phase 15) and built on feature branches (H0 to H10, D-107, D-123); not merged, not released |
+| §23 notification hub | built (Phase 15, H0 to H10 and the later maintainer changes) on the branch `hub/h9e-wizard`; pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.5 are tagged and pushed (D-133, D-154); not merged to `main`, no 1.0.0 |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
-| Packaging, release, CI run | icon, CI job for HA 2026.10.4 and `docs/dev/RELEASE.md` runbook updated; CI itself has not run, the repository is not published (D-020). README has no screenshots (D-046) |
+| Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
 
 ## 1. Goals, non-goals, scope cut
 
@@ -539,13 +539,18 @@ How both sources stay equal:
 | `id`, `tag`, `timeout`, `mode`, `wait_for_condition` | yes | exception: a rule's lifetime is its condition; its tag is `rule`; its mode is recurring (D-052, D-056) |
 | clear by action or by an admin | yes | exception: the rule is disabled or deleted instead (D-056) |
 | stored over a restart (banner, dismissals, snoozes) | yes | exception: a rule is rebuilt from its subentry; dismissals and snoozes are not kept (D-056, D-069) |
-| hub delivery (channels, a target per channel, a named policy) | yes (`notify`) | exception: rules stay banner-channel messages; policies apply by severity and tag (D-100) |
+| hub delivery (channels, a target per channel, a named policy) | yes (`notify`) | exception: a rule is a banner-channel message; other channels come from policies, by severity and tag `rule` or by the rule's Policy field (D-100, D-146) |
 | acknowledgement (card button, push button, `heads_up/acknowledge`), escalation and reminder by policy | yes | yes: the policies of the tag `rule` apply, and the acknowledgement starts again each time the condition turns false and true |
 | rate limits and ignored identical updates (D-123) | yes, on every delivery | yes, on every delivery that a policy makes for a rule message |
 | Deliver, Quiet hours, Away, Fallback and Summarize policies (D-121) | yes | yes, by severity and tag `rule` (D-100); a Summarize policy holds a rule message on every channel |
 | panel Test send and trace | yes (message id) | trace yes (`rule_<id>`); Test send previews a call, not a stored rule |
+| buttons stop acting once the message has ended (D-125) | yes | yes (one check in `BannerManager.press`; `tests/test_ended_buttons.py`) |
+| image under the message (D-127) | yes | yes (Image field of the rule form; `tests/hub/test_image.py`) |
+| `heads_up_delivery_failed` (D-128) | yes | yes for the deliveries a policy makes for a rule message, same engine path (no rule-specific test); the banner channel never fires it |
+| Policy field: name one policy or `none` (D-146) | yes (`policy`) | yes (Policy field of the rule form; `tests/test_rules_flow.py`) |
+| a switched-off recipient gets nothing (D-147) | yes (named persons are dropped from the banner's people; all dropped means nobody) | partly: audiences and the recipients of a policy delivery skip a disabled person, but the `people` of a rule are not filtered, so a disabled person named in a rule still sees its banner. No decision lists this as an exception; open question in `docs/OPEN_QUESTIONS.md` |
 
-Final audit for the hub (H10, 2026-11-02): every banner feature above is in both columns or carries an exception with a decision number.
+Audit for the hub (H10, 2026-11-02), extended 2026-11-05: every banner feature above is in both columns or carries an exception with a decision number, except the last row (D-147), which is a known gap.
 
 ### 22.3 Details of the rule additions
 - **Buttons and tap action:** subentry fields `actions` (list, up to 3, normalized with `dismiss: false` defaults) and `tap_action`. A rule's button presses fire `heads_up_banner_action` with `id = rule_<subentry_id>` and `tag = rule`. A button with `dismiss` needs a dismissible rule (`actions_dismiss_needs_dismissible`).
@@ -561,9 +566,9 @@ Restart: the usual one after a code update. Notification path: not touched. Dash
 
 
 
-## 23. Notification hub (Phase 15, design proposal)
+## 23. Notification hub (Phase 15)
 
-Status: approved for build on feature branches (D-107, 2026-10-30); H1 (core engine), H2 (audiences, recipients), H3 (push channel), H4a (policy framework, escalation, reminder), H4b (quiet hours, away, fallback), H4c (summarize), H5 (speak channel), H6 (popup channel), H7 (persistent notification channel), H8 (card acknowledgement) and H9a (panel shell and Settings), H9b (Overview and Messages), H9c (editors), H9d (Test send) and H9e (welcome and the Deliver policy) are built on the `hub/h1-core`, `hub/h2-audiences`, `hub/h3-push`, `hub/h4a-policies`, `hub/h4b-quiet-away-fallback`, `hub/h4c-summarize`, `hub/h5-speak`, `hub/h6-popup`, `hub/h7-persistent`, `hub/h8-card-ack`, `hub/h9a-panel-shell`, `hub/h9b-overview-messages`, `hub/h9c-editors`, `hub/h9d-test-send` and `hub/h9e-wizard` branches, the other packages are not; nothing on `main` until the maintainer confirms. Decisions D-075 to D-107; `docs/dev/hub/DECISION_INDEX.md` lists which decisions are current and which are superseded. This section is the consolidated design. The UI is specified in `docs/dev/hub/UX_SPEC.md` (with the mockup `docs/dev/mockups/hub-panel-mockup.html`), the work breakdown in `docs/dev/hub/ROADMAP.md`. `docs/dev/HUB_DESIGN.md` is the historical planning record and contains superseded text.
+Status: built on the branch `hub/h9e-wizard`, a chain of feature branches from H1 to H9e (D-107, 2026-10-30) with later maintainer changes. Pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.5 are tagged and pushed (D-133, D-154). `main` is at 0.4.0 and holds nothing of the hub; the maintainer merges and tags 1.0.0 (D-020, `docs/dev/RELEASE.md`). Decisions D-075 to D-159; `docs/dev/hub/DECISION_INDEX.md` lists which decisions are current and which are superseded. This section is the consolidated design. The UI is specified in `docs/dev/hub/UX_SPEC.md` (with the mockup `docs/dev/mockups/hub-panel-mockup.html`), the work breakdown in `docs/dev/hub/ROADMAP.md`. `docs/dev/HUB_DESIGN.md` is the historical planning record and contains superseded text.
 
 ### 23.1 Problem
 Automations hard-code notify services, speaker entities, quiet-hour templates and clean-up logic. Replacing a phone means editing every automation. A critical alert nobody read, a doorbell with nobody home, a push dismissed on one device and still shown on a wall tablet: each is handled ad hoc, with no shared state.
@@ -574,7 +579,7 @@ Automations hard-code notify services, speaker entities, quiet-hour templates an
 - A message has one id for all channels; state changes on one surface apply to every channel (D-078).
 - Parity (rule 9): action messages and rule messages offer the same features.
 - Delivery never blocks creation; failures show in the trace.
-- The hub is on by default (option `hub_enabled`, D-107) and has an off switch. With it off, `notify` accepts only the banner channel and behaves like `create_banner`; no hub listeners, timers or stores run. With it on, a message that names no hub channel and matches no policy is delivered exactly as before. The panel's sidebar entry is chosen by the user during initial setup and is not registered by default.
+- The hub is always on (D-139; the option `hub_enabled` of D-107 was removed, a stored value is ignored). A message that names no hub channel and matches no policy is delivered exactly as before. The panel's sidebar entry is chosen by the user during initial setup (option `show_panel`, off by default).
 - UI-first households and power users are served equally: the same objects are created in the panel, in the setup wizard, in the standard forms, and used from automations as plain actions.
 
 ### 23.3 Concepts
@@ -651,7 +656,7 @@ Presence audiences read the person state (`None`, `unknown` and `unavailable` co
 A second store holds deliveries and due times; the manager emits a typed transition for every moment a message appears or disappears (today some are silent, such as a snooze ending or a condition turning true). Existing event payloads do not change. On startup the hub clears pushes of messages that no longer exist, never re-sends anything already sent, and fires overdue escalations and reminders once.
 
 ### 23.10 Admin panel (D-093)
-Admin-only sidebar panel, in two levels (D-103): Overview; Notifications and Rules (Test send, Watch rules read-only, Messages); Configuration (Audiences, Recipients, Policies, Channels); Settings (one page that holds everything the wizard sets up, with a button that opens the wizard as a window); FAQ and Examples. Own forms (`ha-form`) that save through the subentry flow APIs, so storage stays in config subentries. First version: an overview page (counts of active notifications with their states, watch rules enabled and showing, a log of the last actions, and configuration errors), editors, live preview of who would be notified now, per-message delivery trace, recent messages, test send. A first-run wizard exists as a panel stepper and as a config flow entry. Panel registration without a build step is unverified.
+Admin-only sidebar panel, in two levels (D-103): Overview; Notifications and Rules (Test send, Watch rules, Message Log); Configuration (Audiences, Recipients, Policies, Channels); Settings (one page with every setting, D-122, and a button that opens the introduction); Help (FAQ, Notify examples, Card examples, D-137). Own forms (`ha-form`) and pages that save through the subentry flow APIs, so storage stays in config subentries (D-119). The Overview holds counts of active notifications with their states, shortcut cards, an activity chart of the last 24 hours, needs-attention warnings that can be hidden, and the last actions (D-118, D-135, D-138). Watch rules are listed, added, edited and deleted on their own page (D-134). Test send previews who would be notified now and can send a real test message (D-120). The Message Log shows recent messages with the per-message delivery trace. The introduction is a four-step tour that creates the default policies (D-121, D-131). Panel registration without a build step is verified (N-88).
 
 ### 23.11 Blast radius
 Restart: the usual one after a code update. Notification path: touched for the first time (calls to notify, tts, media player and persistent notification services of other integrations; nothing of theirs is modified). Dashboard: nothing changes until a policy or channels are used. Storage: new subentry types and a deliveries store; a downgrade must be checked for unknown subentry types. Manifest: optional integrations as `after_dependencies` (N-68).

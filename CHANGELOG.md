@@ -7,6 +7,9 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ### Added
 - Action `heads_up.clear_notifications` takes messages back from every channel, selected by `id`, `tag`, `severity` or `channels`; `all: true` removes every message. A call with no field is refused.
 
+### Changed
+- Push level critical is an alarm on Android too: it uses the alarm channel (sounds in vibrate and silent mode) with `priority: high` and `ttl: 0`; time-sensitive messages on Android are delivered at once as well. The level is called Critical (alarm). When a push has more buttons than the phone shows, Acknowledge and Dismiss are kept before the message's own buttons and Snooze goes first.
+
 ### Deprecated
 - `heads_up.clear_banner` and `heads_up.clear_all` still work and write one warning to the log per Home Assistant start. `clear_all` removes every stored message on every channel, not only banners; the action text and the docs now say so.
 
@@ -19,7 +22,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [1.0.0-alpha.5] - 2026-11-04
 
-Includes the changes tagged as 1.0.0-alpha.3 and 1.0.0-alpha.4.
+1.0.0-alpha.3 and 1.0.0-alpha.4 were tagged on the way and have no notes of their own; their changes are listed here.
 
 ### Added
 - Recipients: a profile has a Receives notifications switch. Off, the person gets nothing on any channel: not in an audience, not when named in a call, not for critical messages. Banners without a target stay visible on their dashboard.
@@ -34,7 +37,6 @@ Includes the changes tagged as 1.0.0-alpha.3 and 1.0.0-alpha.4.
 - Panel: the Watch rules page lists every rule with its state and adds, edits and deletes rules in a form with sections (When, What to show, Who sees it, Behaviour). Buttons and the tap action stay as they are; change them in the rule form on the integration page.
 
 ### Changed
-- Push level critical is an alarm on Android too: it uses the alarm channel (sounds in vibrate and silent mode) with `priority: high` and `ttl: 0`; time-sensitive messages on Android are delivered at once as well. The level is called Critical (alarm). When a push has more buttons than the phone shows, Acknowledge and Dismiss are kept before the message's own buttons and Snooze goes first.
 - By default only the first matching policy runs. An installation with several policies on one message now runs only the first one in the list; choose Every policy that applies runs on the Policies page to keep the earlier behaviour. Policies without a stored order start as Summarize, Quiet hours, Away, Escalation, Reminder, Fallback, Deliver, each type by name.
 - The hub is always on. The option Hub enabled is removed from the integration options and the panel's Settings page; a stored value is ignored. The sidebar switch explains what you cannot use without the panel: Test send, the Message Log, the Overview, the welcome, the Channels settings and the Help pages.
 - The panel page Messages is called Message Log. The Watch rules page and the FAQ explain that rules are stored in Heads Up and that an automation with a condition does the same.

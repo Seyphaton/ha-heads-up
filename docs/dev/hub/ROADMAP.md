@@ -1,6 +1,6 @@
 # Hub roadmap: work packages, order and parallel lanes
 
-Status: the hub is approved for build (D-107, 2026-10-30), on feature branches only; nothing reaches `main` until the maintainer confirms. Each package below is one phase approval (CLAUDE.md rule 1); a session builds exactly one package, then stops. The status column is updated by the maintainer or the session that finishes a package, on the branch it merges to.
+Status: the hub is built (D-107, 2026-10-30) on the branch chain ending in `hub/h9e-wizard`, which is pushed together with the pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.5; nothing reaches `main` until the maintainer confirms (`docs/dev/RELEASE.md`, "Releasing 1.0.0"). Each package below is one phase approval (CLAUDE.md rule 1); a session builds exactly one package, then stops. The status column is updated by the maintainer or the session that finishes a package, on the branch it merges to.
 
 ## Packages
 - H0a Test fixtures and dev stubs. Small. Needs nothing. `WP-H0a-test-scaffolding.md`
@@ -24,7 +24,7 @@ Status: the hub is approved for build (D-107, 2026-10-30), on feature branches o
 - H10 Hardening, documentation, Home Assistant 2026.10, release preparation. Large, last. Needs everything. `WP-H10-hardening-release.md`
 
 ## Status
-Nothing is merged until the full feature is implemented (maintainer, 2026-10-30). Work continues on one chain of feature branches: `hub/h1-core` was created from `hub/h0a-test-scaffolding` with `hub/h0b-verify-ha-facts` merged in, and later packages branch from it.
+The full feature is implemented. Nothing is merged to `main` until the maintainer decides (2026-10-30; 1.0.0 runbook in `docs/dev/RELEASE.md`). Work continued on one chain of feature branches: `hub/h1-core` was created from `hub/h0a-test-scaffolding` with `hub/h0b-verify-ha-facts` merged in, and later packages branch from it.
 H0a: built 2026-10-30, branch `hub/h0a-test-scaffolding`. H0b: done 2026-10-30, branch `hub/h0b-verify-ha-facts`. H1: built 2026-10-30, branch `hub/h1-core`; `make check` (393 pytest, 81 vitest), `make hassfest` and `make dev-smoke` (with the new `hub_core` phases) green. H2: built 2026-10-31, branch `hub/h2-audiences` (from `hub/h1-core`); gates below. H3: built 2026-10-31, branch `hub/h3-push` (from `hub/h2-audiences`). H4a: built 2026-10-31, branch `hub/h4a-policies` (from `hub/h3-push`); `make check` (559 pytest, 81 vitest), `make hassfest`, `make dev-smoke` (`policies` phases) green. H4b: built 2026-10-31, branch `hub/h4b-quiet-away-fallback` (from `hub/h4a-policies`). H4c: built 2026-10-31, branch `hub/h4c-summarize` (from `hub/h4b-quiet-away-fallback`). H5: built 2026-10-31, branch `hub/h5-speak` (from `hub/h4c-summarize`). H6: built 2026-10-31, branch `hub/h6-popup` (from `hub/h5-speak`). H7: built 2026-10-31, branch `hub/h7-persistent` (from `hub/h6-popup`). H8: built 2026-10-31, branch `hub/h8-card-ack` (from `hub/h7-persistent`). H9a: built 2026-10-31, branch `hub/h9a-panel-shell` (from `hub/h8-card-ack`). H9b: built 2026-10-31, branch `hub/h9b-overview-messages` (from `hub/h9a-panel-shell`). H9c: built 2026-10-31, branch `hub/h9c-editors` (from `hub/h9b-overview-messages`). H9d: built 2026-10-31, branch `hub/h9d-test-send` (from `hub/h9c-editors`). H9e: built 2026-11-01 as the welcome with default policies (D-121), branch `hub/h9e-wizard` (from `hub/h9d-test-send`). H9f: built 2026-11-01 on `hub/h9e-wizard` (FAQ and examples page, examples validated by docs-check). H10: built 2026-11-02 on `hub/h9e-wizard` (rate limits, restart hardening, end to end, 2026.10, docs, release preparation without a tag; D-123). The chain H0a to H10 is complete and unmerged. One line per finished package: date, branch, commit, what was verified.
 
 ## Dependency graph
@@ -68,7 +68,7 @@ Hot spots: `strings.json`, `translations/en.json`, `de.json`, `fr.json`, `es.jso
 - Only H1 changes `manager.py`. If another package needs a new transition, it adds the kind in `hub/transitions.py` and asks the maintainer before touching `manager.py`.
 
 ## Branches
-- This design lives on `design/notification-hub` (not merged to `main`, nothing pushed).
+- This design lives on `design/notification-hub` and the chain of feature branches that continues it; `hub/h9e-wizard` is pushed, `main` has none of it.
 - Each package works on `hub/<id>` (for example `hub/h1-core`), created from the branch of the package it depends on (from `design/notification-hub` for H0a, H0b, H1). Packages that start in parallel after H1 branch from H1's tip.
 - Merges go into `design/notification-hub` in graph order, only when the maintainer says so. Nothing goes to `main`, and nothing is pushed or tagged, without explicit approval (rule 7, D-020).
 
