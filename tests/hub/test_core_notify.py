@@ -87,7 +87,7 @@ async def test_clear_banner_leaves_messages_without_the_banner_channel(
     await hass.services.async_call(DOMAIN, "clear_banner", {"id": "a"}, blocking=True)
     assert "a" in banners(entry)
     result = await hass.services.async_call(
-        DOMAIN, "clear", {"id": "a"}, blocking=True, return_response=True
+        DOMAIN, "clear_notifications", {"id": "a"}, blocking=True, return_response=True
     )
     assert result == {"cleared": 1}
     assert "a" not in banners(entry)
@@ -98,7 +98,7 @@ async def test_clear_removes_a_banner_message_too(
 ) -> None:
     await notify(hass, id="a", message="x", channels=["banner"], tag="g")
     result = await hass.services.async_call(
-        DOMAIN, "clear", {"tag": "g"}, blocking=True, return_response=True
+        DOMAIN, "clear_notifications", {"tag": "g"}, blocking=True, return_response=True
     )
     assert result == {"cleared": 1}
 

@@ -4,6 +4,15 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Added
+- Action `heads_up.clear_notifications` takes messages back from every channel, selected by `id`, `tag`, `severity` or `channels`; `all: true` removes every message. A call with no field is refused.
+
+### Deprecated
+- `heads_up.clear_banner` and `heads_up.clear_all` still work and write one warning to the log per Home Assistant start. `clear_all` removes every stored message on every channel, not only banners; the action text and the docs now say so.
+
+### Removed
+- `heads_up.clear`, which existed only in the 1.0.0 pre-releases. Use `heads_up.clear_notifications`.
+
 ### Fixed
 - A signed-in user can no longer dismiss, snooze or unsnooze a banner that is addressed to other people. The commands answer `not_targeted`; `heads_up/dismiss_many` counts such banners as skipped.
 

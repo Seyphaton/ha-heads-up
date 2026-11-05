@@ -988,3 +988,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Not chosen: a "Place at top" field in the create form, an Overview warning, a different default mode or introduction order.
 - No backend change, no API change; the text is in the panel's four languages.
 - Blast radius: panel only; usual restart (the panel URL carries a hash). Not checked in the browser pane.
+
+## D-158 One clear action, `clear_notifications`; the released ones are deprecated (2026-11-05)
+- Context: review finding E-005. `clear_all` removed every stored message, including those without the banner channel, while its text and the docs said banners only. The maintainer asked for one function that clears all channels or selected ones, by id, tag, severity or audience/recipient, instead of choosing between the two readings.
+- Decision (maintainer): a single action `heads_up.clear_notifications` with `id`, `tag`, `severity` (list), `channels` (list) and `all`. Filters combine with AND; a message matches `channels` when its call named one of them. At least one filter or `all: true` alone is required, so an empty template cannot clear everything. A match is removed completely, on every channel, and rule banners are never removed. The reason in `heads_up_banner_cleared` is `action`.
+- Deprecation rule (maintainer): every action in the released 0.4.0 (`create_banner`, `clear_banner`, `clear_all`) is deprecated, not removed, with one log warning per Home Assistant start, and marked in the docs and in the UI texts; an action that exists only on the development branch is deleted. `clear_banner` and `clear_all` are deprecated now and keep their behaviour; `clear_all` keeps clearing every stored message. `heads_up.clear` (H1, D-108) existed only in the 1.0.0 pre-releases and is deleted. `create_banner` is not deprecated by this decision.
+- Scope kept for later (`docs/OPEN_QUESTIONS.md`): taking a message back from chosen channels only, and clearing for chosen audiences or recipients. Both change what a stored message means and need engine work.
+- Tests: `tests/test_clear.py`. Strings: four languages, hassfest green.
+- Blast radius: usual restart; an automation that called `heads_up.clear` (pre-release only) fails with an unknown action until it is renamed.

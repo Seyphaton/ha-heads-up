@@ -53,7 +53,7 @@ Speech goes to speakers, not to people. See [Speech](speech.md).
 Give the message an `id`, then clear it. The banner, the push on every phone, the popup and the bell entry are taken back.
 
 ```yaml
-action: heads_up.clear
+action: heads_up.clear_notifications
 data:
   id: pv_status
 ```
@@ -142,7 +142,7 @@ sequence:
 ```
 
 - Users who are not linked to `person.alex` do not receive the banner. This is targeting, not access control; see [SECURITY.md](../SECURITY.md).
-- An administrator sees a "Clear for everyone" button on the banner, and the action `heads_up.clear` with `id: water_leak` or `tag: leak` removes the message from every channel.
+- An administrator sees a "Clear for everyone" button on the banner, and the action `heads_up.clear_notifications` with `id: water_leak` or `tag: leak` removes the message from every channel.
 
 ### Snooze and your own buttons
 
@@ -220,7 +220,7 @@ data:
 | Water reminder | Reminder | severity `critical`, tag `water`; every 10 minutes, at most 3 | Repeats the push while nobody acknowledges. |
 | Night quiet | Quiet hours | 22:00 to 07:00, critical messages pass | Lower severities become passive pushes at night; this message still alerts. |
 
-The default setting runs only the first policy that matches a message. For both policies to run, choose "Every policy that applies runs" on the Policies page. If you used the introduction's defaults, put both above "Critical delivery" (see [Policies](policies.md#how-policies-interact)). Acknowledging the message on a phone stops both the escalation and the reminder. The banner stays until `heads_up.clear` or the sensor's own automation takes it back. See [Policies](policies.md).
+The default setting runs only the first policy that matches a message. For both policies to run, choose "Every policy that applies runs" on the Policies page. If you used the introduction's defaults, put both above "Critical delivery" (see [Policies](policies.md#how-policies-interact)). Acknowledging the message on a phone stops both the escalation and the reminder. The banner stays until `heads_up.clear_notifications` or the sensor's own automation takes it back. See [Policies](policies.md).
 
 ### An evening summary
 
@@ -276,7 +276,7 @@ Response:
 ```
 
 - Without `?return_response` the call returns `[]` and no data.
-- `notify`, `clear`, `clear_banner` and `clear_all` are called the same way, with `/api/services/heads_up/<action>`. The clear actions return `{"cleared": <number>}` in `service_response`.
+- `notify`, `clear_notifications`, `clear_banner` and `clear_all` are called the same way, with `/api/services/heads_up/<action>`. The clear actions return `{"cleared": <number>}` in `service_response`.
 - An invalid field, for example a `severity` that does not exist, returns status `400` with the body `400: Bad Request`. Nothing is stored.
 
 ### WebSocket

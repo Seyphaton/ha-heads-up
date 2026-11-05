@@ -208,8 +208,9 @@ Config flow: one entry, no input (D-026). Options: `max_banners`, `evict`, `defa
 | Action | Fields | Response (`SupportsResponse.OPTIONAL`, N-3) | Errors |
 |---|---|---|---|
 | `heads_up.create_banner` | §4.1 | `{id, status}` with `status` `created` \| `updated` \| `waiting` \| `condition_false`; `evicted` ID if any | schema errors (`vol.Invalid`), `entity_not_found`, `too_many_banners`, `not_loaded` |
-| `heads_up.clear_banner` | `id` or `tag` (at least one) | `{cleared: n}` | none (unknown id → `cleared: 0`) |
-| `heads_up.clear_all` | none | `{cleared: n}` | none |
+| `heads_up.clear_notifications` | `id`, `tag`, `severity` (list), `channels` (list), `all`; at least one, or `all: true` alone (D-158) | `{cleared: n}` | schema errors (`vol.Invalid`); unknown id → `cleared: 0`; removes any message of any channel, never a rule banner |
+| `heads_up.clear_banner` | `id` or `tag` (at least one) | `{cleared: n}` | deprecated (D-158), one log warning per start; none (unknown id → `cleared: 0`) |
+| `heads_up.clear_all` | none | `{cleared: n}` | deprecated (D-158); removes every stored message of every channel |
 
 Errors are `ServiceValidationError` with translation keys in `strings.json`. Actions are registered in `async_setup`; called without a loaded config entry they fail with `not_loaded`.
 

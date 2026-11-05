@@ -68,7 +68,7 @@ async def test_a_day_in_the_household(
     assert len(pushes(home.anna)) == count + 1
 
     # The leak dries: everything is taken back, on both phones.
-    await hass.services.async_call(DOMAIN, "clear", {"id": "leak"}, blocking=True)
+    await hass.services.async_call(DOMAIN, "clear_notifications", {"id": "leak"}, blocking=True)
     await settle(hass, entry)
     assert home.anna.calls[-1].data["message"] == "clear_notification"
     assert home.ben.calls[-1].data["message"] == "clear_notification"

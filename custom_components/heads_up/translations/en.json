@@ -375,8 +375,8 @@
       }
     },
     "clear_banner": {
-      "name": "Clear banner",
-      "description": "Removes banners by ID, by tag, or both. Returns the number removed.",
+      "name": "Clear banner (deprecated)",
+      "description": "Deprecated: use Clear notifications. Removes banners by ID, by tag, or both. Returns the number removed.",
       "fields": {
         "id": {
           "name": "ID",
@@ -389,20 +389,32 @@
       }
     },
     "clear_all": {
-      "name": "Clear all banners",
-      "description": "Removes every banner. Returns the number removed."
+      "name": "Clear all banners (deprecated)",
+      "description": "Deprecated: use Clear notifications with All. Removes every stored message, on every channel. Returns the number removed."
     },
-    "clear": {
-      "name": "Clear message",
-      "description": "Removes messages by ID, by tag, or both, from every channel, including messages without a banner. Returns the number removed.",
+    "clear_notifications": {
+      "name": "Clear notifications",
+      "description": "Removes messages from every channel, selected by ID, tag, severity or channel. A message must match every field you fill in. To remove every message, set All and nothing else. Returns the number removed.",
       "fields": {
         "id": {
           "name": "ID",
-          "description": "ID of the banner to remove."
+          "description": "ID of the message to remove."
         },
         "tag": {
           "name": "Tag",
-          "description": "Removes every banner with this tag."
+          "description": "Removes every message with this tag."
+        },
+        "severity": {
+          "name": "Severity",
+          "description": "Removes messages with one of these severities."
+        },
+        "channels": {
+          "name": "Channels",
+          "description": "Removes messages that were sent on at least one of these channels."
+        },
+        "all": {
+          "name": "All",
+          "description": "Removes every message. Cannot be combined with other fields."
         }
       }
     },

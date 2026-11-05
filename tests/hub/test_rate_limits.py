@@ -144,7 +144,7 @@ async def test_a_suppressed_update_leaves_the_push_clearable(
     home = await make_household(hass, mobile_app_device)
     await send(hass, entry, severity="warning")
     await send(hass, entry, severity="warning")
-    await hass.services.async_call(DOMAIN, "clear", {"id": "m"}, blocking=True)
+    await hass.services.async_call(DOMAIN, "clear_notifications", {"id": "m"}, blocking=True)
     await settle(hass, entry)
     assert home.anna.calls[-1].data["message"] == "clear_notification"
 

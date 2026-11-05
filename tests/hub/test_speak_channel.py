@@ -182,7 +182,7 @@ async def test_nothing_is_said_when_the_message_ends(
     hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
 ) -> None:
     await say(hass, entry, fake_speakers.satellite)
-    await hass.services.async_call(DOMAIN, "clear", {"id": "m"}, blocking=True)
+    await hass.services.async_call(DOMAIN, "clear_notifications", {"id": "m"}, blocking=True)
     await settle(hass, entry)
     assert len(fake_speakers.announce) == 1 and not fake_speakers.tts_speak
 

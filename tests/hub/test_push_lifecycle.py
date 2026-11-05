@@ -67,7 +67,15 @@ async def test_every_device_of_a_person_gets_the_same_tag(
 
 @pytest.mark.parametrize(
     "end",
-    ["clear", "clear_banner", "clear_all", "expire", "global_dismiss", "condition", "evict"],
+    [
+        "clear_notifications",
+        "clear_banner",
+        "clear_all",
+        "expire",
+        "global_dismiss",
+        "condition",
+        "evict",
+    ],
 )
 async def test_every_end_of_the_message_clears_the_push_by_tag(
     hass: HomeAssistant,
@@ -89,7 +97,7 @@ async def test_every_end_of_the_message_clears_the_push_by_tag(
         entry.runtime_data.options["max_banners"] = 1
     await notify(hass, entry, to=to, **extra)
     sent_tag = anna.calls[0].data["data"]["tag"]
-    if end in ("clear", "clear_banner", "clear_all"):
+    if end in ("clear_notifications", "clear_banner", "clear_all"):
         data = {"id": "m"} if end != "clear_all" else {}
         await hass.services.async_call(DOMAIN, end, data, blocking=True)
     elif end == "expire":

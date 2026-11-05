@@ -183,7 +183,7 @@ async def test_clearing_the_message_takes_nothing_back(
 ) -> None:
     opt_in(hass, entry, "person.anna", "anna@example.com")
     await mail(hass, entry, "person.anna")
-    await hass.services.async_call(DOMAIN, "clear", {"id": "m"}, blocking=True)
+    await hass.services.async_call(DOMAIN, "clear_notifications", {"id": "m"}, blocking=True)
     await settle(hass, entry)
     assert len(mailbox) == 1
 

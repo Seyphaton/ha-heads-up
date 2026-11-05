@@ -375,8 +375,8 @@
       }
     },
     "clear_banner": {
-      "name": "Banner entfernen",
-      "description": "Entfernt Banner nach ID, nach Tag oder nach beidem. Gibt die Anzahl der entfernten Banner zurück.",
+      "name": "Banner entfernen (veraltet)",
+      "description": "Veraltet: verwende Benachrichtigungen entfernen. Entfernt Banner nach ID, nach Tag oder nach beidem. Gibt die Anzahl der entfernten Banner zurück.",
       "fields": {
         "id": {
           "name": "ID",
@@ -389,20 +389,32 @@
       }
     },
     "clear_all": {
-      "name": "Alle Banner entfernen",
-      "description": "Entfernt alle Banner. Gibt die Anzahl der entfernten Banner zurück."
+      "name": "Alle Banner entfernen (veraltet)",
+      "description": "Veraltet: verwende Benachrichtigungen entfernen mit Alle. Entfernt jede gespeicherte Nachricht auf jedem Kanal. Gibt die Anzahl zurück."
     },
-    "clear": {
-      "name": "Nachricht löschen",
-      "description": "Entfernt Nachrichten nach ID, Tag oder beidem aus allen Kanälen, auch Nachrichten ohne Banner. Gibt die Anzahl zurück.",
+    "clear_notifications": {
+      "name": "Benachrichtigungen entfernen",
+      "description": "Entfernt Nachrichten aus allen Kanälen, ausgewählt nach ID, Tag, Schweregrad oder Kanal. Eine Nachricht muss jedes ausgefüllte Feld erfüllen. Um jede Nachricht zu entfernen, setze nur Alle. Gibt die Anzahl zurück.",
       "fields": {
         "id": {
           "name": "ID",
-          "description": "ID des zu entfernenden Banners."
+          "description": "ID der zu entfernenden Nachricht."
         },
         "tag": {
           "name": "Tag",
-          "description": "Entfernt jedes Banner mit diesem Tag."
+          "description": "Entfernt jede Nachricht mit diesem Tag."
+        },
+        "severity": {
+          "name": "Schweregrad",
+          "description": "Entfernt Nachrichten mit einem dieser Schweregrade."
+        },
+        "channels": {
+          "name": "Kanäle",
+          "description": "Entfernt Nachrichten, die auf mindestens einem dieser Kanäle gesendet wurden."
+        },
+        "all": {
+          "name": "Alle",
+          "description": "Entfernt jede Nachricht. Nicht mit anderen Feldern kombinierbar."
         }
       }
     },

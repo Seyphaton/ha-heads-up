@@ -375,8 +375,8 @@
       }
     },
     "clear_banner": {
-      "name": "Eliminar aviso",
-      "description": "Elimina avisos por ID, por etiqueta o por ambos. Devuelve el número eliminado.",
+      "name": "Eliminar aviso (obsoleto)",
+      "description": "Obsoleto: usa Borrar notificaciones. Elimina avisos por ID, por etiqueta o por ambos. Devuelve el número eliminado.",
       "fields": {
         "id": {
           "name": "ID",
@@ -389,20 +389,32 @@
       }
     },
     "clear_all": {
-      "name": "Eliminar todos los avisos",
-      "description": "Elimina todos los avisos. Devuelve el número eliminado."
+      "name": "Eliminar todos los avisos (obsoleto)",
+      "description": "Obsoleto: usa Borrar notificaciones con Todos. Elimina todos los mensajes guardados, en todos los canales. Devuelve el número eliminado."
     },
-    "clear": {
-      "name": "Borrar mensaje",
-      "description": "Elimina mensajes por ID, por etiqueta o ambos, de todos los canales, también los que no tienen banner. Devuelve el número eliminado.",
+    "clear_notifications": {
+      "name": "Borrar notificaciones",
+      "description": "Elimina mensajes de todos los canales, elegidos por ID, etiqueta, gravedad o canal. Un mensaje debe cumplir todos los campos que rellenes. Para eliminar todos los mensajes, activa Todos y nada más. Devuelve el número eliminado.",
       "fields": {
         "id": {
           "name": "ID",
-          "description": "ID del aviso que se eliminará."
+          "description": "ID del mensaje que se eliminará."
         },
         "tag": {
           "name": "Etiqueta",
-          "description": "Elimina todos los avisos con esta etiqueta."
+          "description": "Elimina todos los mensajes con esta etiqueta."
+        },
+        "severity": {
+          "name": "Gravedad",
+          "description": "Elimina los mensajes con una de estas gravedades."
+        },
+        "channels": {
+          "name": "Canales",
+          "description": "Elimina los mensajes enviados por al menos uno de estos canales."
+        },
+        "all": {
+          "name": "Todos",
+          "description": "Elimina todos los mensajes. No se puede combinar con otros campos."
         }
       }
     },

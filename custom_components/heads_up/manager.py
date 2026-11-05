@@ -284,15 +284,26 @@ class BannerManager:
 
     @callback
     def clear(
-        self, banner_id: str | None = None, tag: str | None = None, all_channels: bool = False
+        self,
+        banner_id: str | None = None,
+        tag: str | None = None,
+        all_channels: bool = False,
+        severities: list[str] | None = None,
+        channels: list[str] | None = None,
     ) -> int:
-        """Remove messages by ID and/or tag. `clear_banner` leaves messages without the banner
-        channel alone; the `clear` action removes any message (D-108)."""
+        """Remove messages that match every filter given; no filter matches every message.
+
+        `clear_banner` leaves messages without the banner channel alone (`all_channels` false);
+        `clear_notifications` removes any message (D-108, D-158). `channels` selects messages the
+        call sent on at least one of those channels. Rule banners are never touched.
+        """
         matches = [
             b
             for b in self.banners.values()
             if (banner_id is None or b.id == banner_id)
             and (tag is None or b.tag == tag)
+            and (not severities or b.severity in severities)
+            and (not channels or any(c in b.channels for c in channels))
             and (all_channels or b.on_card)
         ]
         for banner in matches:

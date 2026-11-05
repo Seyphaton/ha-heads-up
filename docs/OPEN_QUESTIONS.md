@@ -105,4 +105,4 @@
 - Delivery-failure event: name, payload and which outcomes fire it (no audience, failed, rate limited).
 - Conflicting policies (two escalations, Away against a fallback to an audience, quiet hours against a deliver policy): needs a dedicated design session before channels and targets taken from the message are built, and to settle whether a named manual policy adds to the automatic ones (D-145, D-146, maintainer 2026-11-04). The design session started on 2026-11-04.
 - More simple interaction behaviours beyond "all that apply" and "only the first" (D-148, maintainer 2026-11-04): to be checked in a later session, together with how the choice appears in the introduction.
-
+- `heads_up.clear_notifications` removes whole messages (D-158). Ideas: take a message back from chosen channels only while it stays alive on the others, and clear for chosen audiences or recipients (the engine already clears one channel for one person on a dismissal). Deprecating `create_banner` in favour of `notify` is a separate decision.

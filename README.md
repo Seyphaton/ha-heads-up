@@ -72,7 +72,7 @@ data:
 Remove the message from every channel with its `id`:
 
 ```yaml
-action: heads_up.clear
+action: heads_up.clear_notifications
 data:
   id: water_leak
 ```

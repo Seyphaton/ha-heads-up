@@ -104,10 +104,36 @@ clear_banner:
       selector:
         text: null
 clear_all: null
-clear:
+clear_notifications:
   fields:
     id: *id001
     tag: *id002
+    severity:
+      example: '["info", "success"]'
+      selector:
+        select:
+          options:
+          - success
+          - info
+          - warning
+          - critical
+          multiple: true
+    channels:
+      example: '["push"]'
+      selector:
+        select:
+          options:
+          - banner
+          - push
+          - popup
+          - speak
+          - persistent
+          - mail
+          multiple: true
+    all:
+      default: false
+      selector:
+        boolean: null
 notify:
   fields:
     message: *id003

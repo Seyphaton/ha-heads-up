@@ -153,7 +153,7 @@ async def test_ending_the_message_cancels_the_timers(
     home = await make_household(hass, mobile_app_device)
     await add_policy(hass, entry, "Water", **ESCALATION)
     await send(hass, entry)
-    await hass.services.async_call(DOMAIN, "clear", {"id": "m"}, blocking=True)
+    await hass.services.async_call(DOMAIN, "clear_notifications", {"id": "m"}, blocking=True)
     await wait(hass, entry, freezer, 6)
     assert not pushes(home.ben)
     assert not entry.runtime_data.hub.ledger.timers()

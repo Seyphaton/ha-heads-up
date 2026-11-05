@@ -206,7 +206,7 @@ async def test_the_log_records_the_kinds_of_the_specification_newest_first(
     entry.runtime_data.acknowledge("m", "ben-id")
     entry.runtime_data.dismiss("m", "ben-id")
     await wait(hass, entry, freezer, 6)
-    await hass.services.async_call("heads_up", "clear", {"id": "m"}, blocking=True)
+    await hass.services.async_call("heads_up", "clear_notifications", {"id": "m"}, blocking=True)
     await settle(hass, entry)
     client = await hass_ws_client(hass)
     result = await overview(hass, client)
@@ -297,7 +297,7 @@ async def test_an_ended_message_stays_listed_with_its_reason(
     hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
 ) -> None:
     await send(hass, entry, channels=["banner"], to={})
-    await hass.services.async_call("heads_up", "clear", {"id": "m"}, blocking=True)
+    await hass.services.async_call("heads_up", "clear_notifications", {"id": "m"}, blocking=True)
     await settle(hass, entry)
     client = await hass_ws_client(hass)
     (item,) = (await ask(client, "panel_messages"))["result"]["messages"]
@@ -325,7 +325,7 @@ async def test_after_a_restart_the_list_is_empty_but_active_messages_come_back(
 ) -> None:
     await send(hass, entry, id="old", channels=["banner"], to={}, timeout=0)
     await send(hass, entry, id="gone", channels=["banner"], to={}, timeout=0)
-    await hass.services.async_call("heads_up", "clear", {"id": "gone"}, blocking=True)
+    await hass.services.async_call("heads_up", "clear_notifications", {"id": "gone"}, blocking=True)
     await restart(hass, entry)
     await settle(hass, entry)
     client = await hass_ws_client(hass)

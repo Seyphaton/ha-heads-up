@@ -165,6 +165,6 @@ async def test_the_bell_entry_of_an_active_message_comes_back_after_a_restart(
     await settle(hass, entry)
     assert len(persistent_capture.create) == created + 1
     assert persistent_capture.create[-1].data["notification_id"] == "hu_bell"
-    await hass.services.async_call(DOMAIN, "clear", {"id": "bell"}, blocking=True)
+    await hass.services.async_call(DOMAIN, "clear_notifications", {"id": "bell"}, blocking=True)
     await restart(hass, entry)
     assert len(persistent_capture.create) == created + 1  # a cleared message stays away

@@ -60,7 +60,7 @@ async def test_the_entry_is_dismissed_when_the_message_is_cleared(
     hass: HomeAssistant, entry: MockConfigEntry, persistent_capture: PersistentCapture
 ) -> None:
     await bell(hass, entry)
-    await hass.services.async_call(DOMAIN, "clear", {"id": "m"}, blocking=True)
+    await hass.services.async_call(DOMAIN, "clear_notifications", {"id": "m"}, blocking=True)
     await settle(hass, entry)
     assert [c.data for c in persistent_capture.dismiss] == [{"notification_id": "hu_m"}]
 

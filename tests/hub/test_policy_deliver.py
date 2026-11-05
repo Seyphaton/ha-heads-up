@@ -148,7 +148,7 @@ async def test_the_push_is_taken_back_when_the_message_ends(
     home = await make_household(hass, mobile_app_device)
     await add_policy(hass, entry, "Critical delivery", **DELIVER)
     await banner_only(hass, entry)
-    await hass.services.async_call("heads_up", "clear", {"id": "m"}, blocking=True)
+    await hass.services.async_call("heads_up", "clear_notifications", {"id": "m"}, blocking=True)
     await settle(hass, entry)
     assert home.anna.calls[-1].data["message"] == "clear_notification"
 

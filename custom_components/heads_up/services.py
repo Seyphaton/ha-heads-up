@@ -1,7 +1,8 @@
-"""Actions: create_banner, clear_banner, clear_all (DESIGN §7)."""
+"""Actions: create_banner, clear_notifications, clear_banner, clear_all (DESIGN §7)."""
 
 from __future__ import annotations
 
+import logging
 import re
 import secrets
 from collections.abc import Callable, Coroutine
@@ -289,18 +290,49 @@ def _shortcut_schema(channel: str) -> VolSchemaType:
     return vol.All(vol.Schema(fields), cv.has_at_least_one_key(*needs), _exclusive_target)
 
 
+_LOGGER = logging.getLogger(__name__)
+
 CLEAR_SCHEMA = vol.All(
     vol.Schema({vol.Optional("id"): SLUG, vol.Optional("tag"): SLUG}),
     cv.has_at_least_one_key("id", "tag"),
 )
 CLEAR_ALL_SCHEMA = vol.Schema({})
+
+
+def _check_clear_notifications(data: dict[str, Any]) -> dict[str, Any]:
+    """A call names what to clear: at least one filter, or `all: true` alone (D-158)."""
+    filters = [key for key in ("id", "tag", "severity", "channels") if key in data]
+    if data.get("all"):
+        if filters:
+            raise vol.Invalid("all cannot be combined with other fields", path=["all"])
+    elif not filters:
+        raise vol.Invalid("give at least one of id, tag, severity, channels, or all: true")
+    return data
+
+
+CLEAR_NOTIFICATIONS_SCHEMA = vol.All(
+    vol.Schema(
+        {
+            vol.Optional("id"): SLUG,
+            vol.Optional("tag"): SLUG,
+            vol.Optional("severity"): vol.All(
+                cv.ensure_list, [vol.In(SEVERITIES)], vol.Length(min=1)
+            ),
+            vol.Optional("channels"): vol.All(
+                cv.ensure_list, [vol.In(CHANNELS)], vol.Length(min=1)
+            ),
+            vol.Optional("all"): bool,
+        }
+    ),
+    _check_clear_notifications,
+)
 SHORTCUT_CHANNELS = ("push", "popup", "speak")
 
 SCHEMAS: dict[str, VolSchemaType] = {
     "create_banner": CREATE_SCHEMA,
     "clear_banner": CLEAR_SCHEMA,
     "clear_all": CLEAR_ALL_SCHEMA,
-    "clear": CLEAR_SCHEMA,
+    "clear_notifications": CLEAR_NOTIFICATIONS_SCHEMA,
     "notify": NOTIFY_SCHEMA,
     **{channel: _shortcut_schema(channel) for channel in SHORTCUT_CHANNELS},
 }
@@ -318,18 +350,39 @@ async def _create(call: ServiceCall) -> ServiceResponse:
     return _manager(call.hass).create(call.data)
 
 
+def _warn_deprecated(hass: HomeAssistant, name: str) -> None:
+    """One log warning per action and Home Assistant start (D-158)."""
+    warned: set[str] = hass.data.setdefault(f"{DOMAIN}_deprecation_warned", set())
+    if name not in warned:
+        warned.add(name)
+        _LOGGER.warning(
+            "The action %s.%s is deprecated and will be removed in a future major version;"
+            " use %s.clear_notifications",
+            DOMAIN,
+            name,
+            DOMAIN,
+        )
+
+
 async def _clear(call: ServiceCall) -> ServiceResponse:
+    _warn_deprecated(call.hass, "clear_banner")
     return {"cleared": _manager(call.hass).clear(call.data.get("id"), call.data.get("tag"))}
 
 
 async def _clear_all(call: ServiceCall) -> ServiceResponse:
+    _warn_deprecated(call.hass, "clear_all")
     return {"cleared": _manager(call.hass).clear_all()}
 
 
-async def _clear_everywhere(call: ServiceCall) -> ServiceResponse:
-    # Removes any message, also one without the banner channel; clear_banner skips those (D-108).
+async def _clear_notifications(call: ServiceCall) -> ServiceResponse:
+    # Any message, also one without the banner channel; clear_banner skips those (D-108, D-158).
+    data = call.data
     cleared = _manager(call.hass).clear(
-        call.data.get("id"), call.data.get("tag"), all_channels=True
+        data.get("id"),
+        data.get("tag"),
+        all_channels=True,
+        severities=data.get("severity"),
+        channels=data.get("channels"),
     )
     return {"cleared": cleared}
 
@@ -442,7 +495,7 @@ def async_setup_services(hass: HomeAssistant) -> None:
         ("create_banner", _create),
         ("clear_banner", _clear),
         ("clear_all", _clear_all),
-        ("clear", _clear_everywhere),
+        ("clear_notifications", _clear_notifications),
         ("notify", _notify),
         *((c, _shortcut(c)) for c in SHORTCUT_CHANNELS),
     ):

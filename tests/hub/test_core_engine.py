@@ -47,7 +47,7 @@ async def test_removing_a_message_clears_its_ledger_rows(
 ) -> None:
     await create(id="a", message="x")
     await settle(hass, entry)
-    await hass.services.async_call(DOMAIN, "clear", {"id": "a"}, blocking=True)
+    await hass.services.async_call(DOMAIN, "clear_notifications", {"id": "a"}, blocking=True)
     await settle(hass, entry)
     hub = entry.runtime_data.hub
     assert hub.ledger.for_message("a") == []
@@ -99,7 +99,7 @@ async def test_deliveries_of_one_message_run_in_order(
     hub.channels.register(Slow())  # type: ignore[arg-type]
     await create(id="a", message="one")
     await create(id="a", message="two")
-    await hass.services.async_call(DOMAIN, "clear", {"id": "a"}, blocking=True)
+    await hass.services.async_call(DOMAIN, "clear_notifications", {"id": "a"}, blocking=True)
     await settle(hass, entry)
     assert order == ["deliver:one", "update:two", "clear"]
 

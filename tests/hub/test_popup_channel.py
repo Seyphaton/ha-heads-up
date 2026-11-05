@@ -119,7 +119,7 @@ async def test_a_snooze_hides_it_and_its_end_shows_it_again(
 async def test_it_goes_when_the_message_ends(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     set_person(hass, "person.anna", "home", user_id="anna-id")
     await pop(hass, entry)
-    await hass.services.async_call(DOMAIN, "clear", {"id": "m"}, blocking=True)
+    await hass.services.async_call(DOMAIN, "clear_notifications", {"id": "m"}, blocking=True)
     await settle(hass, entry)
     assert ids(entry) == []
 

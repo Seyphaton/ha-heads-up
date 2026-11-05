@@ -108,7 +108,7 @@ async def test_a_different_user_on_the_event_ignores_the_press(
 async def test_a_press_for_a_message_that_no_longer_exists_is_stale(
     hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
 ) -> None:
-    await hass.services.async_call(DOMAIN, "clear", {"id": "m"}, blocking=True)
+    await hass.services.async_call(DOMAIN, "clear_notifications", {"id": "m"}, blocking=True)
     await settle(hass, entry)
     await press(hass, entry, "hu:m:person.anna:dismiss", user_id="anna-id")
     assert entry.runtime_data.hub.trace.entries("m")[0]["reason"] == "stale_message"

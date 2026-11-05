@@ -16,7 +16,7 @@
     "clear_all": {
       "service": "mdi:message-off"
     },
-    "clear": {
+    "clear_notifications": {
       "service": "mdi:message-minus-outline"
     },
     "notify": {

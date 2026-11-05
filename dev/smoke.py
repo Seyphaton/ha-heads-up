@@ -400,7 +400,7 @@ async def hub_core_verify() -> None:
         ws_admin = await connect(s, admin)
         msg_id = await ws_admin.send({"type": "heads_up/hub_trace"})
         assert (await ws_admin.recv(msg_id))["success"]
-        print("clear:", await call(s, admin, "clear", {"id": "smoke_hub"}))
+        print("clear:", await call(s, admin, "clear_notifications", {"id": "smoke_hub"}))
         assert "smoke_hub" not in [b["id"] for b in await subscribe(await connect(s, user))]
         print("hub core survived the restart")
 
@@ -556,7 +556,7 @@ async def policies_verify() -> None:
         # The policy survived the restart: a call naming it is still accepted.
         data = {"id": "smoke_policy", "message": "Policy", "timeout": 0, "policy": SMOKE_POLICY}
         await call(s, admin, "notify", {**data, "channels": ["banner"]})
-        print("clear:", await call(s, admin, "clear", {"id": "smoke_policy"}))
+        print("clear:", await call(s, admin, "clear_notifications", {"id": "smoke_policy"}))
         print("policies survived the restart")
 
 
@@ -615,7 +615,7 @@ async def hub_e2e_verify() -> None:
         ws = await connect(s, admin)
         assert "smoke_e2e" in [b["id"] for b in await subscribe(await connect(s, admin))]
         assert "hu_smoke_e2e" in await persistent_ids(ws)
-        await call(s, admin, "clear", {"id": "smoke_e2e"})
+        await call(s, admin, "clear_notifications", {"id": "smoke_e2e"})
         await asyncio.sleep(0.5)
         assert "hu_smoke_e2e" not in await persistent_ids(ws)
         print("hub e2e survived the restart")

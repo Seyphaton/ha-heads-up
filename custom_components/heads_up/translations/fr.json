@@ -375,8 +375,8 @@
       }
     },
     "clear_banner": {
-      "name": "Supprimer une bannière",
-      "description": "Supprime des bannières par ID, par étiquette ou les deux. Renvoie le nombre supprimé.",
+      "name": "Supprimer une bannière (obsolète)",
+      "description": "Obsolète : utilisez Effacer les notifications. Supprime des bannières par ID, par étiquette ou les deux. Renvoie le nombre supprimé.",
       "fields": {
         "id": {
           "name": "ID",
@@ -389,20 +389,32 @@
       }
     },
     "clear_all": {
-      "name": "Supprimer toutes les bannières",
-      "description": "Supprime toutes les bannières. Renvoie le nombre supprimé."
+      "name": "Supprimer toutes les bannières (obsolète)",
+      "description": "Obsolète : utilisez Effacer les notifications avec Tous. Supprime chaque message enregistré, sur tous les canaux. Renvoie le nombre supprimé."
     },
-    "clear": {
-      "name": "Effacer le message",
-      "description": "Supprime des messages par ID, par tag ou les deux, sur tous les canaux, y compris ceux sans bannière. Renvoie le nombre supprimé.",
+    "clear_notifications": {
+      "name": "Effacer les notifications",
+      "description": "Supprime des messages sur tous les canaux, choisis par ID, étiquette, gravité ou canal. Un message doit correspondre à chaque champ renseigné. Pour supprimer tous les messages, activez Tous et rien d'autre. Renvoie le nombre supprimé.",
       "fields": {
         "id": {
           "name": "ID",
-          "description": "ID de la bannière à supprimer."
+          "description": "ID du message à supprimer."
         },
         "tag": {
           "name": "Étiquette",
-          "description": "Supprime toutes les bannières ayant cette étiquette."
+          "description": "Supprime tous les messages ayant cette étiquette."
+        },
+        "severity": {
+          "name": "Gravité",
+          "description": "Supprime les messages ayant l'une de ces gravités."
+        },
+        "channels": {
+          "name": "Canaux",
+          "description": "Supprime les messages envoyés sur au moins l'un de ces canaux."
+        },
+        "all": {
+          "name": "Tous",
+          "description": "Supprime tous les messages. Ne peut pas être combiné avec d'autres champs."
         }
       }
     },

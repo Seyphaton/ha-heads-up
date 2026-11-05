@@ -7,8 +7,8 @@ Heads Up has one main action, `heads_up.notify`. It sends one message to the cha
 | Send a message to one or more channels (banner, push, popup, speech, mail, bell) | [`heads_up.notify`](#heads_upnotify) |
 | Show a banner on the dashboard and nothing else | [`heads_up.create_banner`](#heads_upcreate_banner), the same as `notify` with `channels: [banner]` |
 | Send a push, a popup or speech and nothing else | [`heads_up.push`](#heads_uppush), [`heads_up.popup`](#heads_uppopup), [`heads_up.speak`](#heads_upspeak) |
-| Take a message back from every channel | [`heads_up.clear`](#heads_upclear) |
-| Remove banners only | [`heads_up.clear_banner`](#heads_upclear_banner), [`heads_up.clear_all`](#heads_upclear_all) |
+| Take messages back, from every channel or chosen ones | [`heads_up.clear_notifications`](#heads_upclear_notifications) |
+| Remove banners only (deprecated) | [`heads_up.clear_banner`](#heads_upclear_banner), [`heads_up.clear_all`](#heads_upclear_all) |
 
 A banner is not a separate thing. It is the dashboard view of a message, so every field that works for a banner is a field of `notify`.
 
@@ -350,7 +350,7 @@ Targeting decides who receives the banner in the card. It is not access control:
 
 ## `heads_up.push`
 
-Shortcut for `notify` with `channels: [push]` and no policies. It needs `audience` or `recipients`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Push notifications](push.md).
+Shortcut for `notify` with `channels: [push]` and no policies. It needs `audience` or `recipients`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear_notifications`. Without an `id` it is delivered once and no record is kept, so a later `clear_notifications` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Push notifications](push.md).
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
@@ -378,7 +378,7 @@ Shortcut for `notify` with `channels: [push]` and no policies. It needs `audienc
 
 ## `heads_up.popup`
 
-Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audience` or `recipients`; the fields are those of `heads_up.push`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Popups](popup.md).
+Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audience` or `recipients`; the fields are those of `heads_up.push`. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear_notifications`. Without an `id` it is delivered once and no record is kept, so a later `clear_notifications` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Popups](popup.md).
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
@@ -405,7 +405,7 @@ Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audien
 
 ## `heads_up.speak`
 
-Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipients` (speakers or groups) and has no `audience` field, because speech goes to speakers, not to people. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear`. Without an `id` it is delivered once and no record is kept, so a later `clear` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Speech](speech.md).
+Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipients` (speakers or groups) and has no `audience` field, because speech goes to speakers, not to people. With an `id` the message is tracked like a `notify` message and is removed by `heads_up.clear_notifications`. Without an `id` it is delivered once and no record is kept, so a later `clear_notifications` cannot take it back. The response holds `id`, `status` (`sent_once` without an `id`) and `channels`, as in `notify`. See [Speech](speech.md).
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
@@ -429,26 +429,50 @@ Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipi
       - media_player.kitchen
 ```
 
-## `heads_up.clear`
+## `heads_up.clear_notifications`
 
-Removes messages by `id`, by `tag`, or both, from every channel: the banner, the push on the phones, the popup and the entry in the notification bell. `clear_banner` removes only messages that have the banner channel; `clear` also removes messages without it, such as a `notify` call with `channels: [push]` and an `id`.
+Removes messages from every channel: the banner, the push on the phones, the popup, the speech queue entry and the entry in the notification bell. You choose which messages with up to four filters. A message must match every filter you fill in. A message without the banner channel, such as a `notify` call with `channels: [push]` and an `id`, is removed too. Messages from watch rules are never removed; disable or delete the rule instead.
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
-| `id` | text | one of `id` or `tag` | The `id` of the message to remove. |
-| `tag` | text | one of `id` or `tag` | Removes every message with this tag. |
+| `id` | text | none | The `id` of the message to remove. |
+| `tag` | text | none | Removes messages with this tag. |
+| `severity` | list of `success`, `info`, `warning`, `critical` | none | Removes messages with one of these severities. |
+| `channels` | list of `banner`, `push`, `popup`, `speak`, `persistent`, `mail` | none | Removes messages whose call named at least one of these channels. A channel a policy added is not counted. |
+| `all` | boolean | `false` | `true` removes every message. It cannot be combined with another field. |
+
+Fill in at least one field, or set `all: true`. A call without any is refused and removes nothing, so a template that comes out empty cannot clear everything.
 
 Response data: `cleared`, the number of removed messages. An unknown `id` returns `cleared: 0`; it is not an error.
 
 ```yaml
-- action: heads_up.clear
+- action: heads_up.clear_notifications
   data:
     id: garage_open
 ```
 
+Remove every critical message that was sent as a push or a popup:
+
+```yaml
+- action: heads_up.clear_notifications
+  data:
+    severity: critical
+    channels: [push, popup]
+```
+
+Remove everything:
+
+```yaml
+- action: heads_up.clear_notifications
+  data:
+    all: true
+```
+
 ## `heads_up.clear_banner`
 
-Removes banners by `id`, by `tag`, or both. With both, a banner must match both.
+Deprecated: use `heads_up.clear_notifications`. The action keeps working and writes one warning to the log per Home Assistant start.
+
+Removes banners by `id`, by `tag`, or both. With both, a banner must match both. It leaves messages without the banner channel alone.
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
@@ -465,7 +489,9 @@ Response data: `cleared`, the number of removed banners. An unknown `id` returns
 
 ## `heads_up.clear_all`
 
-Removes every banner, including banners that cannot be closed. No fields. Response data: `cleared`, the number of removed banners.
+Deprecated: use `heads_up.clear_notifications` with `all: true`. The action keeps working and writes one warning to the log per Home Assistant start.
+
+Removes every stored message on every channel, including messages that cannot be closed and messages without a banner. No fields. Response data: `cleared`, the number of removed messages.
 
 ```yaml
 - action: heads_up.clear_all

@@ -36,7 +36,7 @@ data:
 Open the bell in the sidebar. The entry is there. Take it back from every channel with its `id`:
 
 ```yaml
-action: heads_up.clear
+action: heads_up.clear_notifications
 data:
   id: hello
 ```
@@ -64,7 +64,7 @@ data:
   channels: [banner]
 ```
 
-The banner appears without a reload. Close it with the X button, or clear it with `heads_up.clear`. Without a `timeout` it ends after 24 hours (setting Default timeout). A banner is the dashboard view of a message, so `heads_up.create_banner` is only the shortcut for this call. See [Card](card.md) for the card's options and looks.
+The banner appears without a reload. Close it with the X button, or clear it with `heads_up.clear_notifications`. Without a `timeout` it ends after 24 hours (setting Default timeout). A banner is the dashboard view of a message, so `heads_up.create_banner` is only the shortcut for this call. See [Card](card.md) for the card's options and looks.
 
 ## 3. Choose who gets it
 
@@ -152,7 +152,7 @@ See [Buttons and snooze](actions.md#buttons-and-snooze) for the event and its au
 | `heads_up.popup` | `notify` with `channels: [popup]` and an `audience` or `recipients` |
 | `heads_up.speak` | `notify` with `channels: [speak]` and `recipients` |
 
-A shortcut has no policies. `heads_up.clear` takes back a message from every channel. `heads_up.clear_banner` and `heads_up.clear_all` remove banners only.
+A shortcut has no policies. `heads_up.clear_notifications` takes back messages from every channel, selected by id, tag, severity or channel. `heads_up.clear_banner` and `heads_up.clear_all` are deprecated.
 
 ## 7. Add behaviour with policies
 
