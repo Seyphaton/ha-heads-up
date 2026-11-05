@@ -55,3 +55,20 @@ async def test_a_watch_rule_can_name_a_manual_policy(
     rules = entry.runtime_data.rules
     assert [p.name for p in book.for_message(rules[rule_id(named)])] == ["By hand"]
     assert book.for_message(rules[rule_id(plain)]) == []
+
+
+async def test_setting_a_visible_rule_to_no_policy_drops_its_reminder(
+    hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
+) -> None:
+    from ..test_rules import add_rule, rule_id, set_state
+    from .policy_support import REMINDER
+
+    await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Nudge", **REMINDER)
+    sub = add_rule(hass, entry)
+    await set_state(hass, "on")
+    ledger = entry.runtime_data.hub.ledger
+    assert ledger.timers(rule_id(sub))
+    hass.config_entries.async_update_subentry(entry, sub, data={**sub.data, "policy": "none"})
+    await hass.async_block_till_done()
+    assert all(row.state.value != "planned" for row in ledger.timers(rule_id(sub)))
