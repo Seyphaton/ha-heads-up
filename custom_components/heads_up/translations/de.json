@@ -420,7 +420,7 @@
     },
     "notify": {
       "name": "Benachrichtigen",
-      "description": "Liefert eine Nachricht auf den genannten Kanälen. Ein erneuter Aufruf mit derselben ID ersetzt die Nachricht. Gibt ID, Status und je Kanal die Anzahl gesendeter, gehaltener, übersprungener und fehlgeschlagener Zustellungen zurück.",
+      "description": "Liefert eine Nachricht auf den genannten Kanälen. Ein erneuter Aufruf mit derselben ID ersetzt die Nachricht. Gibt ID, Status und je Kanal die Anzahl gesendeter, gehaltener, übersprungener und fehlgeschlagener Zustellungen zurück. Außerdem steht dort der Grund für jede übersprungene oder gehaltene Zustellung.",
       "fields": {
         "message": {
           "name": "Nachricht",

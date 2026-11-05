@@ -98,8 +98,9 @@ The setting Maximum number of stored messages (default 50) limits how many messa
 | `id` | The `id` of the message. |
 | `status` | `created`, `updated`, `waiting` (stored, condition not true yet) or `condition_false` (nothing stored). |
 | `channels` | For each channel the counts `sent`, `held`, `skipped` and `failed`. A message that waits for its condition counts as `held`. |
+| `reasons` | A list with one entry for every delivery that is held or skipped: `channel`, `recipient` (the person, or the speaker or address), `result` and `reason`, for example `no_usable_device`. Empty when everything is sent. |
 
-A message without the `banner` channel is stored so that it can be updated and cleared, but the card does not show it. The counts come from the plan made before sending: `sent` means the notification was handed to the channel's service. A service that then fails is a `failed` delivery in the trace, not in the response.
+A message without the `banner` channel is stored so that it can be updated and cleared, but the card does not show it. The counts and `reasons` come from the plan made before sending: `sent` means the notification was handed to the channel's service. A delivery that is held or skipped later (`rate_limited`, `duplicate`, quiet hours, a repeated speech) or that fails is in the Message Log, not in the response.
 
 ### Buttons and snooze
 

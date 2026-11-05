@@ -420,7 +420,7 @@
     },
     "notify": {
       "name": "Notifier",
-      "description": "Livre un message sur les canaux indiqués. Un nouvel appel avec le même ID remplace le message. Renvoie l'ID, le statut et, par canal, le nombre de livraisons envoyées, retenues, ignorées et échouées.",
+      "description": "Livre un message sur les canaux indiqués. Un nouvel appel avec le même ID remplace le message. Renvoie l'ID, le statut et, par canal, le nombre de livraisons envoyées, retenues, ignorées et échouées. Elle indique aussi la raison de chaque livraison ignorée ou retenue.",
       "fields": {
         "message": {
           "name": "Message",

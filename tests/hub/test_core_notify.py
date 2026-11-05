@@ -11,6 +11,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.heads_up.const import DOMAIN
 
 from ..conftest import banners
+from .helpers import set_person
 
 
 async def notify(hass: HomeAssistant, **data: Any) -> dict[str, Any]:
@@ -252,3 +253,43 @@ async def test_shortcut_needs_a_target(hass: HomeAssistant, entry: MockConfigEnt
 @pytest.fixture
 def options() -> dict[str, Any]:
     return {}
+
+
+async def test_the_response_says_why_a_delivery_is_skipped_or_held(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    set_person(hass, "person.anna", "home")
+    result = await hass.services.async_call(
+        DOMAIN,
+        "notify",
+        {
+            "id": "why",
+            "message": "x",
+            "channels": ["banner", "push"],
+            "to": {"push": {"recipients": ["person.anna"]}},
+        },
+        blocking=True,
+        return_response=True,
+    )
+    assert result["channels"]["push"]["skipped"] == 1
+    assert result["reasons"] == [
+        {
+            "channel": "push",
+            "recipient": "person.anna",
+            "result": "skipped",
+            "reason": "no_usable_device",
+        }
+    ]
+
+
+async def test_the_response_has_no_reasons_when_everything_is_sent(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await hass.services.async_call(
+        DOMAIN,
+        "notify",
+        {"id": "ok", "message": "x", "channels": ["banner"]},
+        blocking=True,
+        return_response=True,
+    )
+    assert result["reasons"] == []

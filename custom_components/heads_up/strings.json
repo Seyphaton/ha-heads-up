@@ -420,7 +420,7 @@
     },
     "notify": {
       "name": "Notify",
-      "description": "Delivers one message on the channels you name. Calling it again with the same ID replaces the message. Returns the ID, the status and per channel counts of sent, held, skipped and failed deliveries.",
+      "description": "Delivers one message on the channels you name. Calling it again with the same ID replaces the message. Returns the ID, the status and per channel counts of sent, held, skipped and failed deliveries. It also lists the reason for each skipped or held delivery.",
       "fields": {
         "message": {
           "name": "Message",

@@ -416,7 +416,8 @@ def _check_names(hub: HubEngine, to: dict[str, dict[str, Any]], policy: str | No
 
 def _response(result: dict[str, Any], planned: list[Planned] | None) -> dict[str, Any]:
     counts = HubEngine.counts(planned) if planned is not None else {}
-    return {**result, "channels": counts}
+    reasons = HubEngine.reasons(planned) if planned is not None else []
+    return {**result, "channels": counts, "reasons": reasons}
 
 
 async def banner_people(

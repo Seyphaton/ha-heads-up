@@ -420,7 +420,7 @@
     },
     "notify": {
       "name": "Notificar",
-      "description": "Entrega un mensaje por los canales indicados. Llamarlo de nuevo con el mismo ID reemplaza el mensaje. Devuelve el ID, el estado y, por canal, el número de entregas enviadas, retenidas, omitidas y fallidas.",
+      "description": "Entrega un mensaje por los canales indicados. Llamarlo de nuevo con el mismo ID reemplaza el mensaje. Devuelve el ID, el estado y, por canal, el número de entregas enviadas, retenidas, omitidas y fallidas. También indica el motivo de cada entrega omitida o retenida.",
       "fields": {
         "message": {
           "name": "Mensaje",

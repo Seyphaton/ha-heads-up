@@ -1037,3 +1037,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - HACS wording (maintainer): Heads Up is in the default HACS list; a pre-release needs "Show beta versions" in the download dialog. Not checked by me against the live HACS dialog.
 - Code follows: `scripts/docs_check.py` reads the card options from `docs/actions.md`; the card, popup and loader comments point at the new pages.
 - Blast radius: documentation and the panel's Help examples; old page URLs on GitHub no longer exist (the changelog links are updated).
+
+## D-165 The notify response lists the reasons (2026-11-05)
+- Context: review findings R-001 and E-009. A push without a Companion device returned `skipped: 1` and no reason; the reason was only in the Message Log. The counts come from the plan made before sending.
+- Decision (maintainer): the response of `notify` and the shortcuts gets a key `reasons`: a flat list of `{channel, recipient, result, reason}` for every planned delivery that is held or skipped, empty when nothing is. The counts in `channels` do not change. A recipient is the person when the plan knows one, otherwise the key (speaker, address). Only reasons known at the plan are listed; delivery-time outcomes (`rate_limited`, `duplicate`, quiet hours, `already_spoken`, `cooldown`) stay in the Message Log.
+- `create_banner` keeps its own response (`id`, `status`, `evicted`); a banner has no recipient to explain except through its channels.
+- Parity: an action response only; watch rules have no response.
+- Tests: `tests/hub/test_core_notify.py`. Strings: the `notify` description in four languages.
+- Blast radius: a new key in a response; callers that ignore unknown keys are unaffected. Usual restart.

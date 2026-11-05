@@ -353,6 +353,22 @@ class HubEngine:
             per[item.result.value] += 1
         return out
 
+    @staticmethod
+    def reasons(planned: list[Planned]) -> list[dict[str, str]]:
+        """Why a planned delivery is held or skipped, for the response of a call (D-165). Only
+        the reasons known when the plan is made; later ones (rate limit, quiet hours, a repeated
+        speech) are in the trace."""
+        return [
+            {
+                "channel": item.channel,
+                "recipient": (item.who.person if item.who and item.who.person else item.recipient),
+                "result": item.result.value,
+                "reason": item.reason,
+            }
+            for item in planned
+            if item.reason and item.result in (Result.HELD, Result.SKIPPED, Result.FAILED)
+        ]
+
     # Transitions ------------------------------------------------------------------------
 
     @callback

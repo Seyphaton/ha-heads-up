@@ -54,7 +54,7 @@ data:
 
 ### When nothing arrived
 
-Open Heads Up > Notifications and rules > Message Log, choose the message and read the Result column. Every recipient and channel has a result (sent, held, skipped or failed) and a reason, for example `no_usable_device` (the person has no Companion app device) or `rate_limited`. The sidebar entry must be on; see Install. Test send, on the same group, shows the same reasons before you send anything. [Examples and FAQ](examples.md#troubleshooting) lists the reasons.
+Open Heads Up > Notifications and rules > Message Log, choose the message and read the Result column. Every recipient and channel has a result (sent, held, skipped or failed) and a reason, for example `no_usable_device` (the person has no Companion app device) or `rate_limited`. The response of the `notify` call lists the reasons known at the call in `reasons`. The sidebar entry must be on; see Install. Test send, on the same group, shows the same reasons before you send anything. [Examples and FAQ](examples.md#troubleshooting) lists the reasons.
 
 ## Add the card
 
