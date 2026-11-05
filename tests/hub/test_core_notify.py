@@ -293,3 +293,41 @@ async def test_the_response_has_no_reasons_when_everything_is_sent(
         return_response=True,
     )
     assert result["reasons"] == []
+
+
+async def test_an_audience_name_in_another_case_is_accepted_and_stored_as_written(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    set_person(hass, "person.anna", "home")
+    await notify(
+        hass,
+        id="case",
+        message="x",
+        channels=["banner"],
+        to={"banner": {"audience": "at HOME"}},
+    )
+    assert banners(entry)["case"].targets["banner"]["audience"] == "At home"
+
+
+async def test_a_close_audience_name_gets_a_suggestion(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    with pytest.raises(ServiceValidationError) as err:
+        await notify(hass, message="x", channels=["push"], to={"push": {"audience": "At hom"}})
+    assert err.value.translation_key == "unknown_audience_hint"
+    placeholders = err.value.translation_placeholders
+    assert placeholders["suggestion"] == "At home"  # type: ignore[index]
+
+
+async def test_a_policy_name_in_another_case_is_accepted(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    from .policy_support import add_policy
+
+    await add_policy(hass, entry, "Night", type="reminder", every_minutes=30, max_count=3)
+    result = await notify(hass, id="p", message="x", channels=["banner"], policy="night")
+    assert result["status"] == "created"
+    assert banners(entry)["p"].policy == "Night"
+    with pytest.raises(ServiceValidationError) as err:
+        await notify(hass, message="x", channels=["banner"], policy="Nigh")
+    assert err.value.translation_key == "unknown_policy_hint"

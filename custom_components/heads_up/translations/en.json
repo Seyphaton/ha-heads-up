@@ -289,6 +289,15 @@
     },
     "unknown_policy": {
       "message": "Policy \"{name}\" does not exist. Valid policies: {valid}."
+    },
+    "unknown_audience_hint": {
+      "message": "Audience \"{name}\" does not exist. Did you mean \"{suggestion}\"? Valid audiences: {valid}."
+    },
+    "unknown_recipient_hint": {
+      "message": "Recipient \"{name}\" is not valid for this channel. Did you mean \"{suggestion}\"? Valid recipients: {valid}."
+    },
+    "unknown_policy_hint": {
+      "message": "Policy \"{name}\" does not exist. Did you mean \"{suggestion}\"? Valid policies: {valid}."
     }
   },
   "services": {

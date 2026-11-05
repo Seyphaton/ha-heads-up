@@ -1051,3 +1051,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer): `HubEngine.delivered(id)` takes the channel and recipient pairs the message was already sent to before the call, and `plan(delivered=...)` marks speech and mail rows for those recipients skipped with that reason. The snapshot is taken before `manager.create`, because the engine changes the ledger rows while the call is still planning. First calls and every other channel are unchanged; the speech pause (`cooldown`) and the rate limits stay delivery-time outcomes.
 - Tests: `tests/hub/test_speak_channel.py`, `tests/hub/test_mail_channel.py`.
 - Blast radius: the counts and `reasons` of an updating call; no restart beyond the usual one.
+
+## D-167 Names ignore case; a close name gets a suggestion (2026-11-05)
+- Context: review findings R-017 and E-009 follow-up. `at home` failed although `At home` exists, and the error only listed the valid names.
+- Decision (maintainer): in `notify` and the shortcuts, audience, recipient (speaker group, entity id) and policy names are matched ignoring case. An exact match wins; a name that differs only in case and matches one stored name is rewritten to it, so the stored message and the trace use one spelling; two names that differ only in case stay an error. A name that matches nothing fails as before, and when a close name exists (`difflib`, cutoff 0.7, compared in lower case) the error uses the `_hint` variant of its message: `Did you mean "X"?`. Strings in four languages.
+- Not changed: names in forms, the panel and watch rules (their own checks), and the `policy` field of a rule.
+- Tests: `tests/hub/test_core_notify.py`.
+- Blast radius: a call that failed now succeeds; stored names are unchanged. A new translation key per name kind.

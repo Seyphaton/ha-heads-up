@@ -289,6 +289,15 @@
     },
     "unknown_policy": {
       "message": "La política \"{name}\" no existe. Políticas válidas: {valid}."
+    },
+    "unknown_audience_hint": {
+      "message": "La audiencia \"{name}\" no existe. ¿Quisiste decir \"{suggestion}\"? Audiencias válidas: {valid}."
+    },
+    "unknown_recipient_hint": {
+      "message": "El destinatario \"{name}\" no es válido para este canal. ¿Quisiste decir \"{suggestion}\"? Destinatarios válidos: {valid}."
+    },
+    "unknown_policy_hint": {
+      "message": "La política \"{name}\" no existe. ¿Quisiste decir \"{suggestion}\"? Políticas válidas: {valid}."
     }
   },
   "services": {

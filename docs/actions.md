@@ -59,7 +59,7 @@ The banner is on the dashboard, and everyone who is home gets a push. When the m
 - `persistent` takes no target. The notification bell is shared, so everyone sees the entry (see [Persistent notifications](configuration.md#persistent-notification)).
 - `banner` needs none. Without a target, every user sees the banner. Recipients limit the banner to the users linked to those persons. An audience does the same with the persons it has when the call is made; a person who joins the audience later does not see a banner that already exists, and an empty audience gives a banner nobody sees.
 
-The names in `to` and `policy` are checked when you call the action. A name that does not exist fails with an error that lists the valid names.
+The names in `to` and `policy` are checked when you call the action. Audience, speaker group and policy names ignore case: `at home` is the audience `At home`. A name that does not exist fails with an error that lists the valid names and, when one is close, asks "Did you mean ...?".
 
 ### How long it lives
 

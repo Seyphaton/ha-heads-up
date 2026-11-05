@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import difflib
 import logging
 import re
 import secrets
@@ -393,25 +394,57 @@ def _hub_off() -> ServiceValidationError:
 
 def _unknown(key: str, name: str, valid: list[str]) -> ServiceValidationError:
     shown = ", ".join(valid[:20]) + (" ..." if len(valid) > 20 else "")
+    placeholders = {"name": name, "valid": shown or "none exist yet"}
+    lowered = {v.lower(): v for v in valid}
+    if close := difflib.get_close_matches(name.lower(), list(lowered), n=1, cutoff=0.7):
+        placeholders["suggestion"] = lowered[close[0]]
+        key = f"{key}_hint"  # the same message with "Did you mean ...?" (D-167)
     return ServiceValidationError(
-        translation_domain=DOMAIN,
-        translation_key=key,
-        translation_placeholders={"name": name, "valid": shown or "none exist yet"},
+        translation_domain=DOMAIN, translation_key=key, translation_placeholders=placeholders
     )
 
 
-def _check_names(hub: HubEngine, to: dict[str, dict[str, Any]], policy: str | None) -> None:
+def _canonical(name: str, valid: list[str]) -> str | None:
+    """The stored spelling of a name: exact, or the only one that differs in case (D-167)."""
+    if name in valid:
+        return name
+    same = [v for v in valid if v.lower() == name.lower()]
+    return same[0] if len(same) == 1 else None
+
+
+def _check_names(
+    hub: HubEngine, to: dict[str, dict[str, Any]], policy: str | None
+) -> tuple[dict[str, dict[str, Any]], str | None]:
+    """Check the names of a call and return them in their stored spelling (D-167).
+
+    A name that differs only in case is accepted; one that matches nothing fails with the valid
+    names and, when a close one exists, a suggestion."""
+    fixed: dict[str, dict[str, Any]] = {}
     for channel, target in to.items():
-        if (
-            audience := target.get("audience")
-        ) is not None and audience not in hub.audiences.names():
-            raise _unknown("unknown_audience", audience, hub.audiences.names())
-        known = hub.recipients.known(channel)
-        for recipient in target.get("recipients", []):
-            if not hub.recipients.accepts(channel, recipient):
-                raise _unknown("unknown_recipient", recipient, known)
-    if policy not in (None, POLICY_NONE) and policy not in hub.policies.names():
-        raise _unknown("unknown_policy", str(policy), hub.policies.names())
+        target = dict(target)
+        if (audience := target.get("audience")) is not None:
+            names = hub.audiences.names()
+            if (stored := _canonical(audience, names)) is None:
+                raise _unknown("unknown_audience", audience, names)
+            target["audience"] = stored
+        if "recipients" in target:
+            known = hub.recipients.known(channel)
+            recipients = []
+            for recipient in target["recipients"]:
+                if hub.recipients.accepts(channel, recipient):
+                    recipients.append(recipient)
+                elif (stored := _canonical(recipient, known)) is not None:
+                    recipients.append(stored)
+                else:
+                    raise _unknown("unknown_recipient", recipient, known)
+            target["recipients"] = recipients
+        fixed[channel] = target
+    if policy not in (None, POLICY_NONE):
+        names = hub.policies.names()
+        if (stored := _canonical(str(policy), names)) is None:
+            raise _unknown("unknown_policy", str(policy), names)
+        policy = stored
+    return fixed, policy
 
 
 def _response(result: dict[str, Any], planned: list[Planned] | None) -> dict[str, Any]:
@@ -439,7 +472,9 @@ async def _notify(call: ServiceCall) -> ServiceResponse:
     to: dict[str, dict[str, Any]] = data.pop("to", {})
     if (hub := manager.hub) is None:
         raise _hub_off()
-    _check_names(hub, to, data.get("policy"))
+    to, policy = _check_names(hub, to, data.get("policy"))
+    if policy is not None:
+        data["policy"] = policy
     if people := await banner_people(hub, to.get(CHANNEL_BANNER, {}), data.get("severity")):
         data["people"] = people  # the card's own targeting (D-008, D-131)
     data["targets"] = to
@@ -461,7 +496,7 @@ def _shortcut(channel: str) -> Callable[[ServiceCall], Coroutine[Any, Any, Servi
             raise _hub_off()
         data = dict(call.data)
         target: dict[str, Any] = {k: data.pop(k) for k in ("audience", "recipients") if k in data}
-        _check_names(hub, {channel: target}, None)
+        target = _check_names(hub, {channel: target}, None)[0][channel]
         if "id" in data:
             data.update(channels=[channel], targets={channel: target}, source=SOURCE_ACTION)
             delivered = hub.delivered(data["id"])

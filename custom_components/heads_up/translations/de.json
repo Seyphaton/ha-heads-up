@@ -289,6 +289,15 @@
     },
     "unknown_policy": {
       "message": "Die Richtlinie \"{name}\" gibt es nicht. Gültige Richtlinien: {valid}."
+    },
+    "unknown_audience_hint": {
+      "message": "Die Zielgruppe \"{name}\" gibt es nicht. Meintest du \"{suggestion}\"? Gültige Zielgruppen: {valid}."
+    },
+    "unknown_recipient_hint": {
+      "message": "Der Empfänger \"{name}\" ist für diesen Kanal nicht gültig. Meintest du \"{suggestion}\"? Gültige Empfänger: {valid}."
+    },
+    "unknown_policy_hint": {
+      "message": "Die Richtlinie \"{name}\" gibt es nicht. Meintest du \"{suggestion}\"? Gültige Richtlinien: {valid}."
     }
   },
   "services": {
