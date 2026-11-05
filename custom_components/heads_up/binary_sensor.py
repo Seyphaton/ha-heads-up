@@ -15,7 +15,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_STATE_CHANGED
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
@@ -80,8 +79,10 @@ async def async_setup_entry(
 
 
 class AudienceSensor(BinarySensorEntity):
-    _attr_has_entity_name = True
-    _attr_translation_key = "audience"
+    # No device: entities of several subentries must not share one, because Home Assistant moves
+    # the device to the last subentry and drops the entities of the others (seen on the dev
+    # instance). The name carries the prefix instead.
+    _attr_has_entity_name = False
     _attr_should_poll = False
 
     def __init__(
@@ -91,12 +92,7 @@ class AudienceSensor(BinarySensorEntity):
         self._key = key
         self._subentry_id = subentry_id
         self._attr_unique_id = unique_id
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry.entry_id)},
-            name="Heads Up",
-            entry_type=DeviceEntryType.SERVICE,
-        )
-        self._attr_translation_placeholders = {"name": self._name() or key}
+        self._attr_name = f"Heads Up audience {self._name() or key}"
         self._refreshing = False
 
     def _name(self) -> str | None:
@@ -119,7 +115,7 @@ class AudienceSensor(BinarySensorEntity):
                 "audience": name,
                 "members": [m.key for m in members.recipients],
             }
-            self._attr_translation_placeholders = {"name": name or self._key}
+            self._attr_name = f"Heads Up audience {name}"
 
     @callback
     def _schedule(self, *_: Any) -> None:

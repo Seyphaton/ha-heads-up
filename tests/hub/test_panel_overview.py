@@ -253,8 +253,12 @@ async def test_skips_failures_reminders_summaries_and_expiry_are_logged(
     await send(hass, entry, id="d", severity="warning", tag="digest", channels=["banner"], to={})
     set_person(hass, "person.cy", "home", user_id="cy-id")
     await send(hass, entry, id="n", severity="warning", to={"push": {"recipients": ["person.cy"]}})
-    client = await hass_ws_client(hass)  # before the clock moves: the token expires
-    await wait(hass, entry, freezer, 61)
+    # Two steps: the reminder (10 min) and the expiry (15 min) must not fire in one tick, or the
+    # order of the timers decides whether the reminder is sent before the message ends. The
+    # client connects after the short step and before the long one: the token expires after 30.
+    await wait(hass, entry, freezer, 11)
+    client = await hass_ws_client(hass)
+    await wait(hass, entry, freezer, 50)
     kinds = log_kinds(await overview(hass, client))
     for kind in ("reminder_sent", "summary_sent", "skipped", "expired"):
         assert kind in kinds, kind

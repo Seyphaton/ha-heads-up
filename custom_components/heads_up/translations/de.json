@@ -292,16 +292,6 @@
       "active_banners": {
         "name": "Aktive Banner"
       }
-    },
-    "binary_sensor": {
-      "audience": {
-        "name": "Zielgruppe {name}"
-      }
-    },
-    "switch": {
-      "policy": {
-        "name": "Richtlinie {name}"
-      }
     }
   },
   "exceptions": {

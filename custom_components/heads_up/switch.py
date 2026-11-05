@@ -11,7 +11,6 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
@@ -46,19 +45,14 @@ async def async_setup_entry(
 
 
 class PolicySwitch(SwitchEntity):
-    _attr_has_entity_name = True
-    _attr_translation_key = "policy"
+    # No device, for the reason given in binary_sensor.py.
+    _attr_has_entity_name = False
     _attr_should_poll = False
 
     def __init__(self, entry: ConfigEntry, unique_id: str, subentry_id: str) -> None:
         self._entry = entry
         self._subentry_id = subentry_id
         self._attr_unique_id = unique_id
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry.entry_id)},
-            name="Heads Up",
-            entry_type=DeviceEntryType.SERVICE,
-        )
         self._read()
 
     def _read(self) -> None:
@@ -67,7 +61,7 @@ class PolicySwitch(SwitchEntity):
         self._attr_available = policy is not None
         if policy is not None:
             self._attr_is_on = policy.enabled
-            self._attr_translation_placeholders = {"name": policy.name}
+            self._attr_name = f"Heads Up policy {policy.name}"
             self._attr_extra_state_attributes = {"policy": policy.name, "type": policy.type}
 
     @callback

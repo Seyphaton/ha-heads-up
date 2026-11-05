@@ -161,7 +161,6 @@ notify:
           - integration: heads_up
             domain: switch
     no_policy:
-      default: false
       selector:
         boolean: null
     recipients:
