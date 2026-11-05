@@ -1045,3 +1045,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Parity: an action response only; watch rules have no response.
 - Tests: `tests/hub/test_core_notify.py`. Strings: the `notify` description in four languages.
 - Blast radius: a new key in a response; callers that ignore unknown keys are unaffected. Usual restart.
+
+## D-166 The response counts a repeated speech or mail as skipped (2026-11-05)
+- Context: review finding E-009. An update of a message does not say it again or send the mail again (`already_spoken`, `already_sent`), but the response counted the delivery as sent because the plan did not know.
+- Decision (maintainer): `HubEngine.delivered(id)` takes the channel and recipient pairs the message was already sent to before the call, and `plan(delivered=...)` marks speech and mail rows for those recipients skipped with that reason. The snapshot is taken before `manager.create`, because the engine changes the ledger rows while the call is still planning. First calls and every other channel are unchanged; the speech pause (`cooldown`) and the rate limits stay delivery-time outcomes.
+- Tests: `tests/hub/test_speak_channel.py`, `tests/hub/test_mail_channel.py`.
+- Blast radius: the counts and `reasons` of an updating call; no restart beyond the usual one.

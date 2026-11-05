@@ -174,8 +174,10 @@ async def test_an_update_does_not_send_the_mail_again(
 ) -> None:
     opt_in(hass, entry, "person.anna", "anna@example.com")
     await mail(hass, entry, "person.anna")
-    await mail(hass, entry, "person.anna", message="Door still open")
+    second = await mail(hass, entry, "person.anna", message="Door still open")
     assert len(mailbox) == 1
+    assert second["channels"]["mail"]["skipped"] == 1
+    assert [r["reason"] for r in second["reasons"]] == ["already_sent"]
 
 
 async def test_clearing_the_message_takes_nothing_back(

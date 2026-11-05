@@ -81,6 +81,11 @@ NOBODY_REASONS = frozenset(
 )
 
 
+# Channels whose `update` does not deliver again to a recipient that already got the message, with
+# the reason the trace shows (speech: said once; mail: cannot be replaced).
+NOT_REPEATED_ON_UPDATE = {"speak": "already_spoken", "mail": "already_sent"}
+
+
 @dataclass(frozen=True, slots=True)
 class Planned:
     """One delivery a message would produce."""
@@ -193,8 +198,29 @@ class HubEngine:
 
     # Planning ---------------------------------------------------------------------------
 
-    async def plan(self, message: Banner, *, waiting: bool = False) -> list[Planned]:
-        """What delivering this message would do now. Sends nothing."""
+    def delivered(self, message_id: str | None) -> frozenset[tuple[str, str]]:
+        """The channel and recipient pairs a message has already been sent to. Taken before a
+        call replaces the message, because the update changes the rows (D-166)."""
+        if not message_id:
+            return frozenset()
+        return frozenset(
+            (row.channel, row.recipient)
+            for (mid, _channel, _key), row in self.ledger.rows.items()
+            if mid == message_id and row.state.value == "sent"
+        )
+
+    async def plan(
+        self,
+        message: Banner,
+        *,
+        waiting: bool = False,
+        delivered: frozenset[tuple[str, str]] = frozenset(),
+    ) -> list[Planned]:
+        """What delivering this message would do now. Sends nothing.
+
+        `delivered` holds what the message had already been sent to before a call replaced it:
+        speech and mail are not repeated for those recipients, as `update` of the channel
+        decides at delivery (D-166)."""
         planned: list[Planned] = []
         for channel in message.channels:
             available = self.channels.get(channel).available
@@ -222,7 +248,8 @@ class HubEngine:
                 ]
             else:
                 planned += [
-                    self._planned(channel, r.key, available, r) for r in resolution.recipients
+                    self._planned_update(channel, r, available, delivered)
+                    for r in resolution.recipients
                 ]
             planned += [
                 Planned(channel, s.who, Result.SKIPPED, s.reason) for s in resolution.skipped
@@ -230,6 +257,19 @@ class HubEngine:
             if not resolution.recipients and not resolution.skipped:
                 planned.append(Planned(channel, "", Result.SKIPPED, "no_recipients"))
         return planned
+
+    def _planned_update(
+        self,
+        channel: str,
+        who: Recipient,
+        available: bool,
+        delivered: frozenset[tuple[str, str]],
+    ) -> Planned:
+        """A recipient that speech or mail already reached is skipped on an update (D-166)."""
+        reason = NOT_REPEATED_ON_UPDATE.get(channel)
+        if available and reason and (channel, who.key) in delivered:
+            return Planned(channel, who.key, Result.SKIPPED, reason, who)
+        return self._planned(channel, who.key, available, who)
 
     @staticmethod
     def _planned(

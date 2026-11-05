@@ -443,11 +443,15 @@ async def _notify(call: ServiceCall) -> ServiceResponse:
     if people := await banner_people(hub, to.get(CHANNEL_BANNER, {}), data.get("severity")):
         data["people"] = people  # the card's own targeting (D-008, D-131)
     data["targets"] = to
+    delivered = hub.delivered(data.get("id"))
     result = manager.create(data)
     banner = manager.banners.get(result["id"])
     if banner is None:
         return _response(result, [])
-    return _response(result, await hub.plan(banner, waiting=result["status"] == "waiting"))
+    return _response(
+        result,
+        await hub.plan(banner, waiting=result["status"] == "waiting", delivered=delivered),
+    )
 
 
 def _shortcut(channel: str) -> Callable[[ServiceCall], Coroutine[Any, Any, ServiceResponse]]:
@@ -460,9 +464,10 @@ def _shortcut(channel: str) -> Callable[[ServiceCall], Coroutine[Any, Any, Servi
         _check_names(hub, {channel: target}, None)
         if "id" in data:
             data.update(channels=[channel], targets={channel: target}, source=SOURCE_ACTION)
+            delivered = hub.delivered(data["id"])
             result = manager.create(data)
             banner = manager.banners[result["id"]]
-            return _response(result, await hub.plan(banner))
+            return _response(result, await hub.plan(banner, delivered=delivered))
         # No id: deliver once and keep no record, so a later clear cannot take it back.
         now = dt_util.utcnow()
         message = Banner(

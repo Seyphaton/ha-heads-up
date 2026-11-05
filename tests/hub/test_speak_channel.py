@@ -172,10 +172,21 @@ async def test_a_cooldown_of_zero_speaks_every_time(
 async def test_an_update_does_not_say_it_again(
     hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
 ) -> None:
-    await say(hass, entry, fake_speakers.satellite)
-    await say(hass, entry, fake_speakers.satellite, message="Water leak, now worse")
+    first = await say(hass, entry, fake_speakers.satellite)
+    second = await say(hass, entry, fake_speakers.satellite, message="Water leak, now worse")
     assert len(fake_speakers.announce) == 1
     assert "already_spoken" in reasons(entry)
+    assert first["channels"]["speak"]["sent"] == 1 and first["reasons"] == []
+    # The response of the update says what the delivery does: it is not said again.
+    assert second["channels"]["speak"] == {"sent": 0, "held": 0, "skipped": 1, "failed": 0}
+    assert second["reasons"] == [
+        {
+            "channel": "speak",
+            "recipient": fake_speakers.satellite,
+            "result": "skipped",
+            "reason": "already_spoken",
+        }
+    ]
 
 
 async def test_nothing_is_said_when_the_message_ends(
