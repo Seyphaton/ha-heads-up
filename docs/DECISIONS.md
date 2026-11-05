@@ -975,3 +975,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Not verified: everything on a real phone; the tests check the payload (`tests/hub/test_push_payload.py`).
 - Blast radius: usual restart; an Android phone that receives a critical push with the level critical now sounds in silent mode. Existing iOS payloads are unchanged.
 
+## D-156 Dismiss, snooze and unsnooze check the target (2026-11-05)
+- Context: the pre-release review (E-001) showed that `dismiss`, `snooze`, `unsnooze` and `dismiss_many` did not check `people`, while `press` and `acknowledge` did. A user not addressed by a banner could remove it (dismiss scope global) or hide it for everyone (snooze scope global) by id. This replaces the "any user can snooze" line of D-029.
+- Decision (maintainer): one check, `BannerManager._require_target`, first in `_dismiss_one`, `snooze` and `unsnooze`. A non-target gets the distinct error `not_targeted` (not `not_found`, unlike `press` and `acknowledge`: the maintainer chose the clearer code over hiding that the id exists). `dismiss_many` skips such banners and counts them in `skipped`. Admins have no override; they clear stored banners with `admin_clear`.
+- Applies to stored and rule banners, user and global scope. A banner without `people` stays open to everyone.
+- Tests: `tests/test_authorization.py`. No new strings.
+- Blast radius: usual restart; an admin who views another person's banner with `show_all` can no longer dismiss or snooze it from the card.

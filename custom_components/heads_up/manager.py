@@ -317,7 +317,7 @@ class BannerManager:
 
     @callback
     def dismiss_many(self, banner_ids: list[str], user_id: str) -> tuple[int, int]:
-        """Dismiss for one user; unknown and non-dismissible banners are skipped (D-048).
+        """Dismiss for one user; unknown, non-dismissible, untargeted banners are skipped (D-156).
 
         Subscribers get one update for the whole batch.
         """
@@ -334,6 +334,7 @@ class BannerManager:
 
     def _dismiss_one(self, banner_id: str, user_id: str) -> None:
         banner = self.rules.get(banner_id) or self._get(banner_id)
+        self._require_target(banner, user_id)
         if not banner.dismissible:
             raise HeadsUpError("not_dismissible", f"Banner {banner_id} is not dismissible")
         if banner.dismiss_scope == "global" and banner_id in self.rules:
@@ -384,6 +385,7 @@ class BannerManager:
     @callback
     def snooze(self, banner_id: str, user_id: str, seconds: int) -> None:
         banner = self.rules.get(banner_id) or self._get(banner_id)
+        self._require_target(banner, user_id)
         if not banner.snoozable:
             raise HeadsUpError("not_snoozable", f"Banner {banner_id} cannot be snoozed")
         if seconds not in banner.snooze_options and seconds != self.quick_snooze_seconds:
@@ -420,6 +422,7 @@ class BannerManager:
     def unsnooze(self, banner_id: str, user_id: str) -> None:
         """Ends the snooze that hides the banner from this user (a global one ends for all)."""
         banner = self.rules.get(banner_id) or self._get(banner_id)
+        self._require_target(banner, user_id)
         if banner.snoozed_for(user_id) is None:
             raise HeadsUpError("not_snoozed", f"Banner {banner_id} is not snoozed")
         for key in (user_id, GLOBAL_SNOOZE_KEY):
@@ -695,6 +698,11 @@ class BannerManager:
 
     def _all(self) -> Iterator[Banner]:
         return chain(self.banners.values(), self.rules.values())
+
+    def _require_target(self, banner: Banner, user_id: str) -> None:
+        """Dismiss, snooze and unsnooze act only for a person the banner is addressed to (D-156)."""
+        if not self._targets(banner, user_id):
+            raise HeadsUpError("not_targeted", f"Banner {banner.id} is not addressed to you")
 
     def _targets(self, banner: Banner, user_id: str) -> bool:
         if not banner.people:

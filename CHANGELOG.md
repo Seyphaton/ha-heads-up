@@ -4,6 +4,9 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Fixed
+- A signed-in user can no longer dismiss, snooze or unsnooze a banner that is addressed to other people. The commands answer `not_targeted`; `heads_up/dismiss_many` counts such banners as skipped.
+
 ## [1.0.0-alpha.5] - 2026-11-04
 
 Includes the changes tagged as 1.0.0-alpha.3 and 1.0.0-alpha.4.
