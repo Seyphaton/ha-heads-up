@@ -75,28 +75,46 @@ export const BASE_CSS = `
 .hu-page .sub { color: var(--secondary-text-color); font-size: 13px; }
 .hu-page .sub.shadowed { color: var(--warning-color, #b26a00); }
 .hu-page .hint { color: var(--secondary-text-color); font-size: 13px; margin: 2px 0 8px; }
-.hu-page ul.list { list-style: none; margin: 0; padding: 0; }
+.hu-page ul.list { list-style: none; margin: 0 0 16px; padding: 0; }
 .hu-page ul.list li { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--divider-color); min-height: 48px; }
+.hu-page ul.list li:first-child { border-top: 0; }
 .hu-page ul.list li.dim { opacity: .55; }
 .hu-page button.help { min-width: 24px; min-height: 24px; width: 24px; height: 24px; padding: 0; margin-left: 6px; border-radius: 50%; border: 1px solid var(--divider-color); background: transparent; color: var(--secondary-text-color); font: inherit; font-size: 13px; line-height: 1; cursor: help; vertical-align: middle; }
 .hu-page button.help[aria-expanded="true"], .hu-page button.help:hover { color: var(--primary-text-color); border-color: var(--primary-text-color); }
 .hu-page button.help:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
 .hu-page .tip { display: none; margin: 6px 0; padding: 8px 10px; border-radius: 8px; background: var(--secondary-background-color); color: var(--primary-text-color); font-size: 13px; font-weight: normal; max-width: 460px; }
 .hu-page .tip.open { display: block; }
-.hu-page .badge { border-radius: 12px; padding: 2px 10px; font-size: 12px; background: var(--secondary-background-color); border: 1px solid var(--divider-color); margin-left: 6px; }
+.hu-page { --hu-line: color-mix(in srgb, var(--primary-text-color) 40%, transparent); --hu-fill: color-mix(in srgb, var(--primary-text-color) 9%, var(--card-background-color)); }
+.hu-page .badge { display: inline-flex; align-items: center; gap: 6px; border-radius: 12px; padding: 2px 10px; font-size: 12px; background: var(--hu-fill); border: 1px solid var(--hu-line); }
 .hu-page .badge.bad { color: var(--error-color); border-color: var(--error-color); }
-.hu-page label.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.hu-page .badge.on { color: var(--success-color); border-color: var(--success-color); }
+.hu-page .badge.on::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.hu-page .badge.sev { border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; font-size: 11px; }
+.hu-page .badge.sev-info { color: var(--info-color); border-color: var(--info-color); }
+.hu-page .badge.sev-warning { color: var(--warning-color); border-color: var(--warning-color); }
+.hu-page .badge.sev-critical { color: var(--error-color); border-color: var(--error-color); }
+.hu-page .badges { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 4px 0 6px; }
+.hu-page code.tpl { display: block; margin-top: 4px; padding: 4px 8px; border-radius: 6px; background: var(--hu-fill); font-size: 12px; overflow-wrap: anywhere; }
+.hu-page label.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
 .hu-page label.inline { display: flex; align-items: center; gap: 10px; min-height: 48px; }
-.hu-page input[type=text], .hu-page input[type=number], .hu-page input[type=time], .hu-page select { min-height: 40px; padding: 0 8px; border-radius: 6px; border: 1px solid var(--divider-color); background: var(--secondary-background-color); color: var(--primary-text-color); font: inherit; max-width: 360px; }
-.hu-page input[type=checkbox], .hu-page input[type=radio] { width: 22px; height: 22px; }
-.hu-page fieldset { border: 1px solid var(--divider-color); border-radius: 8px; margin: 0 0 12px; padding: 8px 12px; }
+.hu-page input[type=text], .hu-page input[type=number], .hu-page input[type=time], .hu-page select, .hu-page textarea { box-sizing: border-box; height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--hu-line); background: var(--hu-fill); color: var(--primary-text-color); font: inherit; width: 100%; max-width: 360px; }
+.hu-page textarea { height: auto; min-height: 88px; padding: 10px 12px; max-width: none; resize: vertical; }
+.hu-page input[type=text]:hover, .hu-page input[type=number]:hover, .hu-page input[type=time]:hover, .hu-page select:hover { border-color: var(--primary-text-color); }
+.hu-page section > select, .hu-page fieldset > select { display: block; margin-bottom: 20px; }
+.hu-page input[type=checkbox], .hu-page input[type=radio] { appearance: none; -webkit-appearance: none; flex: none; width: 22px; height: 22px; margin: 0; border: 2px solid var(--primary-text-color); background: transparent; cursor: pointer; }
+.hu-page input[type=checkbox] { border-radius: 5px; }
+.hu-page input[type=radio] { border-radius: 50%; }
+.hu-page input[type=checkbox]:checked { background: var(--primary-color) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% no-repeat; border-color: var(--primary-color); }
+.hu-page input[type=radio]:checked { border-color: var(--primary-color); background: radial-gradient(var(--primary-color) 0 45%, transparent 50%); }
+.hu-page h2 { margin-bottom: 12px; }
+.hu-page fieldset { border: 1px solid var(--hu-line); border-radius: 8px; margin: 0 0 20px; padding: 12px 16px; }
 .hu-page fieldset.scroll { max-height: 200px; overflow: auto; }
 .hu-page legend { padding: 0 6px; color: var(--secondary-text-color); font-size: 13px; }
-.hu-page button { min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--divider-color); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
+.hu-page button { min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--hu-line); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
 .hu-page button.primary { background: var(--primary-color); color: var(--text-primary-color, #fff); border-color: transparent; }
 .hu-page button.danger { color: var(--error-color); border-color: var(--error-color); }
 .hu-page button:disabled { opacity: .5; cursor: default; }
-.hu-page button:focus-visible, .hu-page input:focus-visible, .hu-page select:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
+.hu-page button:focus-visible, .hu-page input:focus-visible, .hu-page select:focus-visible, .hu-page textarea:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
 .hu-page .problems { color: var(--error-color); }
 .hu-page .ok { color: var(--success-color); }
 .hu-page pre { background: var(--secondary-background-color); border-radius: 8px; padding: 10px; overflow: auto; font-size: 12px; margin: 4px 0 12px; }

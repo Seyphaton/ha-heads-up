@@ -46,7 +46,6 @@ export const STRINGS = {
     f_snooze_minutes: "Snooze choices, in minutes",
     f_enabled: "Enabled",
     kept: "Buttons and the tap action stay as they are. Change them in the full form on the integration page.",
-    full_form: "Open the integration page",
     sentence: "Sentence",
     sentence_entity: "Shows “{message}” ({severity}) while {entity} {operator} {value}.",
     sentence_template: "Shows “{message}” ({severity}) while the template is true.",
@@ -103,7 +102,6 @@ export const STRINGS = {
     f_snooze_minutes: "Auswahl zum Zurückstellen, in Minuten",
     f_enabled: "Aktiv",
     kept: "Schaltflächen und Tippaktion bleiben unverändert. Ändere sie im vollständigen Formular auf der Integrationsseite.",
-    full_form: "Integrationsseite öffnen",
     sentence: "Satz",
     sentence_entity: "Zeigt „{message}“ ({severity}), solange {entity} {operator} {value}.",
     sentence_template: "Zeigt „{message}“ ({severity}), solange die Vorlage wahr ist.",
@@ -160,7 +158,6 @@ export const STRINGS = {
     f_snooze_minutes: "Durées de report, en minutes",
     f_enabled: "Activée",
     kept: "Les boutons et l'action au toucher restent inchangés. Modifiez-les dans le formulaire complet de la page de l'intégration.",
-    full_form: "Ouvrir la page de l'intégration",
     sentence: "Phrase",
     sentence_entity: "Affiche « {message} » ({severity}) tant que {entity} {operator} {value}.",
     sentence_template: "Affiche « {message} » ({severity}) tant que le modèle est vrai.",
@@ -217,7 +214,6 @@ export const STRINGS = {
     f_snooze_minutes: "Opciones de pospuesta, en minutos",
     f_enabled: "Activada",
     kept: "Los botones y la acción al tocar se quedan como están. Cámbialos en el formulario completo de la página de la integración.",
-    full_form: "Abrir la página de la integración",
     sentence: "Frase",
     sentence_entity: "Muestra «{message}» ({severity}) mientras {entity} {operator} {value}.",
     sentence_template: "Muestra «{message}» ({severity}) mientras la plantilla sea verdadera.",
@@ -378,10 +374,12 @@ export function mount(container, ctx) {
     return el("li", { className: enabled ? "" : "dim" }, [
       el("div", {}, [
         el("strong", { textContent: rule.name }),
-        el("span", { className: "badge", textContent: state }),
-        el("span", { className: "badge", textContent: t.severities[d.severity || "warning"] }),
+        el("div", { className: "badges" }, [
+          el("span", { className: `badge${enabled && rule.showing ? " on" : ""}`, textContent: state }),
+          el("span", { className: `badge sev sev-${d.severity || "warning"}`, textContent: t.severities[d.severity || "warning"] }),
+        ]),
         el("div", { className: "sub", textContent: watchesText(d, t) }),
-        el("div", { className: "sub", textContent: d.message }),
+        el("div", { className: "sub" }, [/\{[{%]/.test(d.message || "") ? el("code", { className: "tpl", textContent: d.message }) : document.createTextNode(d.message || "")]),
       ]),
       edit,
     ]);
@@ -435,7 +433,6 @@ export function mount(container, ctx) {
     box.append(ui.field(t.f_policy, ui.selectInput(policies, values.policy, (v) => { values.policy = v; paint(); }), t.policy_hint));
     box.append(ui.checkbox(t.f_enabled, values.enabled, (on) => { values.enabled = on; paint(); }));
     if (own && (own.data.actions || own.data.tap_action)) box.append(el("div", { className: "hint", textContent: t.kept }));
-    box.append(el("a", { href: "/config/integrations/integration/heads_up", textContent: t.full_form, className: "hint" }));
 
     const words = el("div", { className: "hint" });
     const status = el("div", { className: "hint" });
