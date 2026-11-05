@@ -8,7 +8,7 @@ import re
 import secrets
 from collections.abc import Callable, Coroutine
 from datetime import timedelta
-from typing import Any
+from typing import Any, cast
 
 import probatio as vol
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
@@ -339,6 +339,49 @@ SCHEMAS: dict[str, VolSchemaType] = {
 }
 
 
+def _where(path: list[Any]) -> str:
+    """`channels[0]` as the field name and place a person can find."""
+    text = ""
+    for part in path:
+        text += f"[{part}]" if isinstance(part, int) else (f".{part}" if text else str(part))
+    return text or "the call"
+
+
+def _sentence(error: vol.Invalid) -> str:
+    """One validation error as a sentence a person can act on (D-168). Messages this does not
+    know pass through unchanged."""
+    field = _where(list(error.path))
+    msg = error.msg
+    if msg == "required key not provided":
+        return f"The field {field} is required."
+    if msg == "not a valid option":
+        return f"{field} is not a field of this action."
+    if msg.startswith("value must be one of "):
+        options = re.findall(r"'([^']*)'", msg)
+        return f"{field} must be one of: {', '.join(options)}."
+    if match := re.fullmatch(r"length of value must be at (most|least) (\d+)", msg):
+        limit = match.group(2)
+        word = "at most" if match.group(1) == "most" else "at least"
+        return f"{field} must have {word} {limit} characters or entries."
+    return f"{field}: {msg}" if error.path else msg
+
+
+class _Readable:
+    """A call schema that reports its errors as sentences. The raw schema stays in `SCHEMAS`,
+    because docs-check reads its fields."""
+
+    def __init__(self, schema: VolSchemaType) -> None:
+        self.schema = schema
+
+    def __call__(self, data: Any) -> Any:
+        try:
+            return self.schema(data)
+        except vol.Invalid as err:
+            errors = getattr(err, "errors", None) or [err]
+            text = " ".join(_sentence(e) for e in errors)
+            raise vol.Invalid(text, path=list(errors[0].path)) from err
+
+
 def _manager(hass: HomeAssistant) -> BannerManager:
     entries = hass.config_entries.async_loaded_entries(DOMAIN)
     if not entries:
@@ -541,5 +584,9 @@ def async_setup_services(hass: HomeAssistant) -> None:
         *((c, _shortcut(c)) for c in SHORTCUT_CHANNELS),
     ):
         hass.services.async_register(
-            DOMAIN, name, handler, schema=SCHEMAS[name], supports_response=SupportsResponse.OPTIONAL
+            DOMAIN,
+            name,
+            handler,
+            schema=cast(VolSchemaType, _Readable(SCHEMAS[name])),
+            supports_response=SupportsResponse.OPTIONAL,
         )

@@ -93,3 +93,4 @@ Follow `docs/dev/RELEASE.md`, "Before the first release". Needs the maintainer: 
 - 2026-11-05: pre-release fix P9 step 1 (D-165): `notify` response has `reasons` (plan-time reasons for held and skipped rows). Next candidates one at a time: already_spoken count, case-insensitive names, sentence-style errors, form errors under the field.
 - 2026-11-05: pre-release fix P9 step 2 (D-166): an updating `notify` counts speech and mail already delivered as skipped (`already_spoken`, `already_sent`); snapshot of the ledger before the call.
 - 2026-11-05: pre-release fix P9 step 3 (D-167): audience, recipient and policy names in `notify` ignore case and a close name gets "Did you mean"; strings in four languages.
+- 2026-11-05: pre-release fix P9 steps 4 and 5 (D-168): validation errors of the call actions are sentences (`_Readable`); R-019 turned out to be a docs error (channel settings are panel-only), docs corrected. P9 done.

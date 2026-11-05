@@ -1058,3 +1058,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Not changed: names in forms, the panel and watch rules (their own checks), and the `policy` field of a rule.
 - Tests: `tests/hub/test_core_notify.py`.
 - Blast radius: a call that failed now succeeds; stored names are unchanged. A new translation key per name kind.
+
+## D-168 Invalid calls are explained in sentences; channel settings are panel-only (2026-11-05)
+- Context: review findings R-018 and R-019. Schema errors read `required key not provided at 'message'`. For the forms, the review said errors sit far from the field and the mail placeholder check is missing.
+- Decision (maintainer): the schemas of `notify`, the shortcuts, `create_banner` and `clear_notifications` are wrapped when the actions are registered (`_Readable`); missing fields, unknown fields, a value outside a list and too long or too short values become sentences such as "The field message is required." and "channels[0] must be one of: banner, mail, ...". Other messages pass through. The raw schemas stay in `SCHEMAS` for docs-check. English only, like the schema; tests assert the error type and the text.
+- Correction found while building: the options screen (Configure) has no push, popup or mail settings; they exist only on the panel's Channels page, which already checks them (mail placeholders included) and shows the error under the field. The forms of the integration already key every error to its field. So no code was added for R-019; `docs/settings.md` no longer says the channel settings are under Configure. The generic "Not all required fields are filled in" is Home Assistant's own frontend text.
+- Tests: `tests/hub/test_core_notify.py`.
+- Blast radius: the text of validation errors changes; callers that match the old text break (the error type is the same).

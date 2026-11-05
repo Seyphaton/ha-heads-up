@@ -331,3 +331,28 @@ async def test_a_policy_name_in_another_case_is_accepted(
     with pytest.raises(ServiceValidationError) as err:
         await notify(hass, message="x", channels=["banner"], policy="Nigh")
     assert err.value.translation_key == "unknown_policy_hint"
+
+
+@pytest.mark.parametrize(
+    ("data", "text"),
+    [
+        ({"channels": ["banner"]}, "The field message is required."),
+        ({"message": "x"}, "The field channels is required."),
+        (
+            {"message": "x", "channels": ["fax"]},
+            "channels[0] must be one of: banner, mail, persistent, popup, push, speak.",
+        ),
+        (
+            {"message": "x" * 1001, "channels": ["banner"]},
+            "message must have at most 1000 characters or entries.",
+        ),
+        ({"message": "x", "channels": ["banner"], "colour": 1}, "colour is not a field"),
+    ],
+)
+async def test_an_invalid_call_is_explained_in_a_sentence(
+    hass: HomeAssistant, entry: MockConfigEntry, data: dict[str, Any], text: str
+) -> None:
+    with pytest.raises(vol.Invalid) as err:
+        await notify(hass, **data)
+    assert text in str(err.value)
+    assert "required key not provided" not in str(err.value)

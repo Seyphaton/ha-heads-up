@@ -509,7 +509,7 @@ Removes every stored message on every channel, including messages that cannot be
 | Condition entity X does not exist. | `condition.entity_id` names an entity Home Assistant does not know. |
 | Validation error on `template`, `for` or an entity field | The template does not parse, `for` is over 24 hours, or `template` is combined with `entity_id`, `operator`, `state` or `attribute`. |
 | Audience, recipient or policy "X" does not exist. | A name in `to`, `audience`, `recipients` or `policy` is unknown. The message lists the valid names. |
-| Validation error naming the field | A field breaks the rules in the tables above. Nothing is stored. |
+| A sentence naming the field, for example "The field message is required." | A field breaks the rules in the tables above. Nothing is stored. |
 
 ## Events
 
