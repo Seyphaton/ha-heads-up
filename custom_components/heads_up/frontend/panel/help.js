@@ -30,7 +30,7 @@ data:
   channels: [push, speak, persistent]
   to:
     push: {audience: Admins}
-    speak: {recipients: [Ground floor speakers]}`,
+    speak: {recipients: [Ground floor (group)]}`,
   },
   {
     id: "e4",
@@ -40,7 +40,7 @@ data:
   tts_message: Someone is at the door
   channels: [speak]
   to:
-    speak: {recipients: [Kitchen speaker]}
+    speak: {recipients: [media_player.kitchen]}
   policy: none`,
   },
   {
@@ -58,7 +58,7 @@ data:
   severity: info
   channels: [push]
   to:
-    push: {recipients: [Anna]}`,
+    push: {recipients: [person.anna]}`,
   },
 ];
 
@@ -113,7 +113,7 @@ export const QUESTION_IDS = ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9
 export const STRINGS = {
   en: {
     titles: {"faq": "FAQ", "examples": "Notify examples", "card": "Card examples"},
-    intros: {"faq": "Answers to common questions.", "examples": "Calls of the action heads_up.notify, from the simplest to the most detailed. Names such as Anna, Admins and Kitchen speaker are samples: use the names of your own audiences, persons and speakers.", "card": "Settings for the dashboard card custom:heads-up-card. Paste one into the card's YAML editor, or set the same options in its visual editor."},
+    intros: {"faq": "Answers to common questions.", "examples": "Calls of the action heads_up.notify, from the simplest to the most detailed. Admins is a built-in audience. Ground floor (group), person.anna and media_player.kitchen are samples: replace them with your own speaker groups, persons and speakers.", "card": "Settings for the dashboard card custom:heads-up-card. Paste one into the card's YAML editor, or set the same options in its visual editor."},
     copy: "Copy",
     copied: "Copied.",
     issues_lead: "Found a problem or missing something?",
@@ -167,7 +167,7 @@ export const STRINGS = {
   },
   de: {
     titles: {"faq": "FAQ", "examples": "Notify-Beispiele", "card": "Karten-Beispiele"},
-    intros: {"faq": "Antworten auf häufige Fragen.", "examples": "Aufrufe der Aktion heads_up.notify, vom einfachsten bis zum ausführlichsten. Namen wie Anna, Admins und Kitchen speaker sind Beispiele: Nimm die Namen deiner eigenen Zielgruppen, Personen und Lautsprecher.", "card": "Einstellungen für die Dashboard-Karte custom:heads-up-card. Füge eine in den YAML-Editor der Karte ein oder setze dieselben Optionen im visuellen Editor."},
+    intros: {"faq": "Antworten auf häufige Fragen.", "examples": "Aufrufe der Aktion heads_up.notify, vom einfachsten bis zum ausführlichsten. Admins ist eine eingebaute Zielgruppe. Ground floor (group), person.anna und media_player.kitchen sind Beispiele: Ersetze sie durch deine eigenen Lautsprechergruppen, Personen und Lautsprecher.", "card": "Einstellungen für die Dashboard-Karte custom:heads-up-card. Füge eine in den YAML-Editor der Karte ein oder setze dieselben Optionen im visuellen Editor."},
     copy: "Kopieren",
     copied: "Kopiert.",
     issues_lead: "Ein Problem gefunden oder etwas vermisst?",
@@ -221,7 +221,7 @@ export const STRINGS = {
   },
   fr: {
     titles: {"faq": "FAQ", "examples": "Exemples notify", "card": "Exemples de carte"},
-    intros: {"faq": "Réponses aux questions courantes.", "examples": "Appels de l'action heads_up.notify, du plus simple au plus détaillé. Les noms comme Anna, Admins et Kitchen speaker sont des exemples : utilisez les noms de vos propres audiences, personnes et haut-parleurs.", "card": "Réglages de la carte de tableau de bord custom:heads-up-card. Collez-en un dans l'éditeur YAML de la carte, ou réglez les mêmes options dans son éditeur visuel."},
+    intros: {"faq": "Réponses aux questions courantes.", "examples": "Appels de l'action heads_up.notify, du plus simple au plus détaillé. Admins est une audience intégrée. Ground floor (group), person.anna et media_player.kitchen sont des exemples : remplacez-les par vos propres groupes d'enceintes, personnes et haut-parleurs.", "card": "Réglages de la carte de tableau de bord custom:heads-up-card. Collez-en un dans l'éditeur YAML de la carte, ou réglez les mêmes options dans son éditeur visuel."},
     copy: "Copier",
     copied: "Copié.",
     issues_lead: "Un problème ou un manque ?",
@@ -275,7 +275,7 @@ export const STRINGS = {
   },
   es: {
     titles: {"faq": "Preguntas", "examples": "Ejemplos de notify", "card": "Ejemplos de tarjeta"},
-    intros: {"faq": "Respuestas a preguntas frecuentes.", "examples": "Llamadas de la acción heads_up.notify, de la más simple a la más detallada. Nombres como Anna, Admins y Kitchen speaker son ejemplos: usa los nombres de tus propias audiencias, personas y altavoces.", "card": "Ajustes de la tarjeta de panel custom:heads-up-card. Pega uno en el editor YAML de la tarjeta, o pon las mismas opciones en su editor visual."},
+    intros: {"faq": "Respuestas a preguntas frecuentes.", "examples": "Llamadas de la acción heads_up.notify, de la más simple a la más detallada. Admins es una audiencia integrada. Ground floor (group), person.anna y media_player.kitchen son ejemplos: sustitúyelos por tus propios grupos de altavoces, personas y altavoces.", "card": "Ajustes de la tarjeta de panel custom:heads-up-card. Pega uno en el editor YAML de la tarjeta, o pon las mismas opciones en su editor visual."},
     copy: "Copiar",
     copied: "Copiado.",
     issues_lead: "¿Encontraste un problema o echas algo en falta?",

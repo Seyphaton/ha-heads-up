@@ -8,6 +8,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - Action `heads_up.clear_notifications` takes messages back from every channel, selected by `id`, `tag`, `severity` or `channels`; `all: true` removes every message. A call with no field is refused.
 
 ### Changed
+- Documentation is in five documents (Setup guide, Actions with watch rules and card, Configuration, Settings, Examples and FAQ) and a shorter README. The earlier pages are merged into them; the README no longer lists defaults.
 - Push level critical is an alarm on Android too: it uses the alarm channel (sounds in vibrate and silent mode) with `priority: high` and `ttl: 0`; time-sensitive messages on Android are delivered at once as well. The level is called Critical (alarm). When a push has more buttons than the phone shows, Acknowledge and Dismiss are kept before the message's own buttons and Snooze goes first.
 
 ### Deprecated
