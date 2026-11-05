@@ -95,6 +95,7 @@ export const STRINGS = {
     handle: "Drag to change the order",
     position: "Position {n}",
     overlap_first: "These policies come first and also match some of the same messages, so they run instead: {names}",
+    shadowed: "Never runs by itself: {name} is above it and matches all the same messages. Move this policy above it, or narrow that one.",
     overlap_all: "Other policies of this type that match some of the same messages: {names}",
     order_failed: "The order could not be saved. Try again.",
     s_applies_manual: "Calls that name this policy",
@@ -191,6 +192,7 @@ export const STRINGS = {
     handle: "Ziehen, um die Reihenfolge zu ändern",
     position: "Position {n}",
     overlap_first: "Diese Richtlinien stehen weiter oben und passen auch auf einige derselben Meldungen, laufen also stattdessen: {names}",
+    shadowed: "Läuft nie von selbst: {name} steht darüber und passt auf alle dieselben Meldungen. Verschiebe diese Richtlinie darüber oder schränke jene ein.",
     overlap_all: "Andere Richtlinien dieses Typs, die auf einige derselben Meldungen passen: {names}",
     order_failed: "Die Reihenfolge konnte nicht gespeichert werden. Versuche es erneut.",
     s_applies_manual: "Aufrufe, die diese Richtlinie nennen",
@@ -287,6 +289,7 @@ export const STRINGS = {
     handle: "Faire glisser pour changer l'ordre",
     position: "Position {n}",
     overlap_first: "Ces politiques sont plus haut et correspondent aussi à certains des mêmes messages, elles agissent donc à la place : {names}",
+    shadowed: "Ne s'exécute jamais seule : {name} est au-dessus et correspond à tous les mêmes messages. Place cette politique au-dessus ou restreins l'autre.",
     overlap_all: "Autres politiques de ce type qui correspondent à certains des mêmes messages : {names}",
     order_failed: "L'ordre n'a pas pu être enregistré. Réessayez.",
     s_applies_manual: "Appels qui nomment cette politique",
@@ -383,6 +386,7 @@ export const STRINGS = {
     handle: "Arrastra para cambiar el orden",
     position: "Posición {n}",
     overlap_first: "Estas políticas van antes y también coinciden con algunos de los mismos mensajes, así que actúan en su lugar: {names}",
+    shadowed: "No se ejecuta nunca por sí sola: {name} está encima y coincide con todos los mismos mensajes. Mueve esta política por encima o limita la otra.",
     overlap_all: "Otras políticas de este tipo que coinciden con algunos de los mismos mensajes: {names}",
     order_failed: "No se pudo guardar el orden. Inténtalo de nuevo.",
     s_applies_manual: "Llamadas que nombran esta política",
@@ -620,6 +624,26 @@ export function overlapNames({ values, own, policies, mode }) {
     .map((p) => p.name);
 }
 
+// Whether every message that matches `b` also matches `a`: an empty list matches any.
+function covers(a, b) {
+  const within = (x, y) => x.length === 0 || (y.length > 0 && y.every((item) => x.includes(item)));
+  return within(a.severities, b.severities) && within(a.tags, b.tags);
+}
+
+// The name of the first policy above this one that matches every message this one matches. In the
+// mode "first" such a policy never runs by itself (a call that names it still uses it). `policies`
+// is the list in order; manual and disabled policies neither shadow nor are shadowed.
+export function shadowedBy(policy, policies) {
+  const runs = (p) => p.data.apply !== "manual" && p.data.enabled !== false;
+  if (!runs(policy)) return null;
+  const filters = (p) => ({ severities: p.data.severities || [], tags: p.data.tags || [] });
+  for (const other of policies) {
+    if (other.subentry_id === policy.subentry_id) return null;
+    if (runs(other) && covers(filters(other), filters(policy))) return other.name;
+  }
+  return null;
+}
+
 export function appliesText(values, t) {
   if (values.apply === "manual") return t.s_applies_manual;
   const tags = splitTags(values.tags);
@@ -694,12 +718,14 @@ export function mount(container, ctx) {
     const first = data.policy_mode !== "all";
     const edit = el("button", { type: "button", textContent: s.common.edit });
     edit.addEventListener("click", () => { message = ""; editing = { own: policy, values }; render(); });
+    const shadow = first ? shadowedBy(policy, data.policies) : null;
     const body = el("div", { className: "grow" }, [
       el("strong", { textContent: policy.name }),
       el("span", { className: "badge", textContent: t.types[values.type] || values.type }),
       ...(values.apply === "manual" ? [el("span", { className: "badge", textContent: t.badge_manual })] : []),
       ...(values.enabled ? [] : [el("span", { className: "badge", textContent: t.disabled })]),
       el("div", { className: "sub", textContent: appliesText(values, t) }),
+      ...(shadow ? [el("div", { className: "sub shadowed", textContent: fill(t.shadowed, { name: `“${shadow}”` }) })] : []),
     ]);
     const parts = [];
     if (first) {

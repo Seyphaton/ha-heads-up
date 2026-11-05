@@ -158,7 +158,7 @@ A shortcut has no policies. `heads_up.clear` takes back a message from every cha
 
 A policy changes how messages behave without changing the automation. Types: Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize.
 
-The panel's introduction offers four defaults: quiet hours, an evening summary, critical messages and warning reminders. To escalate a water leak, create an Escalation policy in the panel for severity `critical` and tag `water`, with a push to `Admins` after 5 minutes. The automation only sets the severity and the tag:
+The panel's introduction offers four defaults: quiet hours, an evening summary, critical messages and warning reminders. To escalate a water leak, create an Escalation policy in the panel for severity `critical` and tag `water`, with a push to `Admins` after 5 minutes. If you used the introduction's defaults, drag the new policy above "Critical delivery" in the Policies list: with the default setting only the first matching policy runs, and "Critical delivery" matches every critical message. The Policies page marks a policy that a policy above it hides this way. The automation only sets the severity and the tag:
 
 ```yaml
 action: heads_up.notify

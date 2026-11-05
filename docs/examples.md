@@ -220,7 +220,7 @@ data:
 | Water reminder | Reminder | severity `critical`, tag `water`; every 10 minutes, at most 3 | Repeats the push while nobody acknowledges. |
 | Night quiet | Quiet hours | 22:00 to 07:00, critical messages pass | Lower severities become passive pushes at night; this message still alerts. |
 
-Acknowledging the message on a phone stops both the escalation and the reminder. The banner stays until `heads_up.clear` or the sensor's own automation takes it back. See [Policies](policies.md).
+The default setting runs only the first policy that matches a message. For both policies to run, choose "Every policy that applies runs" on the Policies page. If you used the introduction's defaults, put both above "Critical delivery" (see [Policies](policies.md#how-policies-interact)). Acknowledging the message on a phone stops both the escalation and the reminder. The banner stays until `heads_up.clear` or the sensor's own automation takes it back. See [Policies](policies.md).
 
 ### An evening summary
 

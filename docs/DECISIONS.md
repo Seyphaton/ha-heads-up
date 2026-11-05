@@ -981,3 +981,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Applies to stored and rule banners, user and global scope. A banner without `people` stays open to everyone.
 - Tests: `tests/test_authorization.py`. No new strings.
 - Blast radius: usual restart; an admin who views another person's banner with `show_all` can no longer dismiss or snooze it from the card.
+
+## D-157 Policies page marks a policy that never runs by itself (2026-11-05)
+- Context: review finding E-003. In the mode `first` only the first enabled automatic policy that matches runs. The introduction's "Critical delivery" (severity `critical`, any tag) is first, and a policy added later goes to the bottom, so a Water escalation for `critical` and `water` never runs. The editor note of D-149 shows overlaps only while editing.
+- Decision (maintainer): option (a). The Policies list marks a row "Never runs by itself: {name} is above it and matches all the same messages" when an earlier enabled automatic policy covers every message of the row (empty list = any; `shadowedBy` in `panel/policies.js`). Only full coverage is marked; partial overlaps stay in the editor note. Shown in the mode `first` only. The how-to, the examples and `docs/policies.md` say to drag a narrower policy above "Critical delivery"; the examples also say that Water escalation and Water reminder need the mode "Every policy that applies runs", because both match the same messages.
+- Not chosen: a "Place at top" field in the create form, an Overview warning, a different default mode or introduction order.
+- No backend change, no API change; the text is in the panel's four languages.
+- Blast radius: panel only; usual restart (the panel URL carries a hash). Not checked in the browser pane.

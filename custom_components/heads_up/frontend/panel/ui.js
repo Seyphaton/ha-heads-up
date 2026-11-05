@@ -73,6 +73,7 @@ export const BASE_CSS = `
 .hu-page h1 { font-size: 22px; margin: 0 0 16px; }
 .hu-page h2 { font-size: 16px; margin: 0 0 8px; }
 .hu-page .sub { color: var(--secondary-text-color); font-size: 13px; }
+.hu-page .sub.shadowed { color: var(--warning-color, #b26a00); }
 .hu-page .hint { color: var(--secondary-text-color); font-size: 13px; margin: 2px 0 8px; }
 .hu-page ul.list { list-style: none; margin: 0; padding: 0; }
 .hu-page ul.list li { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--divider-color); min-height: 48px; }

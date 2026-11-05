@@ -24,6 +24,7 @@ import {
   dropItem,
   moveItem,
   overlapNames,
+  shadowedBy,
   overlaps,
   fromPolicy,
   sentence,
@@ -455,6 +456,36 @@ describe("the policy list order and the overlap note", () => {
     expect(names).toEqual(["Everything"]);
     const escalation = { ...blankPolicy("escalation"), severities: ["critical"] };
     expect(overlapNames({ values: escalation, own: null, policies: list, mode: "all" })).toEqual([]);
+  });
+
+  it("names the policy above that matches every message of a policy, so it never runs by itself", () => {
+    const row = (name, id, severities, tags, extra = {}) => ({ name, subentry_id: id, data: { type: "deliver", severities, tags, enabled: true, ...extra } });
+    const policies = [
+      row("Critical delivery", "1", ["critical"], []),
+      row("Water escalation", "2", ["critical"], ["water"]),
+      row("Water reminder", "3", ["critical"], ["water"]),
+      row("Warnings", "4", ["warning"], []),
+      row("Any", "5", [], []),
+    ];
+    expect(shadowedBy(policies[0], policies)).toBeNull();
+    expect(shadowedBy(policies[1], policies)).toBe("Critical delivery"); // narrower than the one above
+    expect(shadowedBy(policies[2], policies)).toBe("Critical delivery");
+    expect(shadowedBy(policies[3], policies)).toBeNull(); // another severity
+    expect(shadowedBy(policies[4], policies)).toBeNull(); // wider than the ones above: partial overlap only
+    const reordered = [policies[1], policies[0]];
+    expect(shadowedBy(reordered[0], reordered)).toBeNull();
+    expect(shadowedBy(reordered[1], reordered)).toBeNull(); // critical, any tag is wider than critical + water
+  });
+
+  it("ignores manual and disabled policies on both sides", () => {
+    const base = { type: "deliver", severities: ["critical"], tags: [], enabled: true };
+    const above = (extra) => ({ name: "Above", subentry_id: "1", data: { ...base, ...extra } });
+    const below = (extra) => ({ name: "Below", subentry_id: "2", data: { ...base, ...extra } });
+    expect(shadowedBy(below(), [above(), below()])).toBe("Above");
+    expect(shadowedBy(below(), [above({ enabled: false }), below()])).toBeNull();
+    expect(shadowedBy(below(), [above({ apply: "manual" }), below()])).toBeNull();
+    expect(shadowedBy(below({ apply: "manual" }), [above(), below({ apply: "manual" })])).toBeNull();
+    expect(shadowedBy(below({ enabled: false }), [above(), below({ enabled: false })])).toBeNull();
   });
 
   it("lists nothing for a manual policy", () => {

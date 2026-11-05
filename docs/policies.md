@@ -6,7 +6,7 @@ A policy adds behaviour to messages without changing the automation that sends t
 
 A setting on the Policies page, and the first question of the policies step of the introduction, decides what happens when several automatic policies match one message.
 
-- Only the first policy that applies runs (the default). The Policies page is one ordered list, and a message gets the first enabled automatic policy of the list that matches its severity and tag. Drag a policy or use the arrows to change the order. Policies of the introduction are created in an order in which none of them overlaps.
+- Only the first policy that applies runs (the default). The Policies page is one ordered list, and a message gets the first enabled automatic policy of the list that matches its severity and tag. Drag a policy or use the arrows to change the order. Policies of the introduction are created in an order in which none of them overlaps. A policy you add later goes to the bottom of the list. When a policy above it matches every message it matches, the list marks it "Never runs by itself"; a call that names it still uses it. "Critical delivery" from the introduction matches every critical message, so put a policy for a narrower critical case, such as severity `critical` with tag `water`, above it.
 - Every policy that applies runs. A message can get several policies at once, for example quiet hours and a reminder. The order of the list does not matter. Policies can interfere with each other: check a call with Test send.
 
 A call or a watch rule that names a policy uses only that policy under both settings. `none` uses no policy.
