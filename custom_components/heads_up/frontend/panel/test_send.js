@@ -13,7 +13,8 @@ export const STRINGS = {
     tag: "Tag (optional)",
     channels: "Channels",
     policy: "Policy",
-    policy_all: "All that apply",
+    policy_auto: "Automatic",
+    policy_hint: "Automatic: the policies that apply to the severity and tag. None: no policy. Name policies to use only those; also choose Automatic to add the ones that apply.",
     policy_none: "None",
     who: "Who, per channel",
     banner_hint: "Banner: no target shows it to everyone; choose an audience or persons to limit it. An audience counts the people it has when the message is created.",
@@ -70,12 +71,12 @@ export const STRINGS = {
     behaviour_none: "Nothing here applies: mail and speech cannot be taken back, dismissed or snoozed.",
     behaviour_some: "Mail and speech ignore these choices; the other channels use them.",
     behaviour: "Behaviour",
-    dismissible: "Can be dismissed",
-    dismiss_scope: "When someone dismisses it",
-    scope_default: "Use the default from Settings",
-    scope_user: "Hide it for that person only",
-    scope_global: "End it for everyone",
-    snoozable: "Can be snoozed",
+    dismiss_label: "Who can dismiss it",
+    snooze_label: "Who can snooze it",
+    who_default: "Use the default from Settings",
+    who_off: "Nobody",
+    who_user: "Each person for themselves",
+    who_everyone: "Anyone, for everyone",
     behaviour_hint: "These choices apply to the real send. The result table does not change with them.",
     pinned_hint: "Nobody can close it. It ends by its timeout, its condition or a clear action; the test message still ends after 10 minutes.",
     ack_title: "Acknowledgement",
@@ -94,7 +95,8 @@ export const STRINGS = {
     tag: "Tag (optional)",
     channels: "Kanäle",
     policy: "Richtlinie",
-    policy_all: "Alle, die gelten",
+    policy_auto: "Automatisch",
+    policy_hint: "Automatisch: die Richtlinien, die zu Schweregrad und Tag passen. Keine: keine Richtlinie. Nenne Richtlinien, um nur diese zu verwenden; wähle zusätzlich Automatisch, um die passenden dazuzunehmen.",
     policy_none: "Keine",
     who: "Wer, je Kanal",
     banner_hint: "Banner: ohne Ziel sehen es alle; wähle eine Zielgruppe oder Personen, um es einzuschränken. Eine Zielgruppe zählt die Personen, die sie beim Erstellen der Meldung hat.",
@@ -151,12 +153,12 @@ export const STRINGS = {
     behaviour_none: "Hier gilt nichts: E-Mail und Sprache lassen sich nicht zurücknehmen, ausblenden oder zurückstellen.",
     behaviour_some: "E-Mail und Sprache ignorieren diese Auswahl; die anderen Kanäle nutzen sie.",
     behaviour: "Verhalten",
-    dismissible: "Kann ausgeblendet werden",
-    dismiss_scope: "Wenn jemand es ausblendet",
-    scope_default: "Standard aus den Einstellungen",
-    scope_user: "Nur für diese Person verbergen",
-    scope_global: "Für alle beenden",
-    snoozable: "Kann zurückgestellt werden",
+    dismiss_label: "Wer es ausblenden darf",
+    snooze_label: "Wer es zurückstellen darf",
+    who_default: "Standard aus den Einstellungen",
+    who_off: "Niemand",
+    who_user: "Jeder für sich",
+    who_everyone: "Jeder, für alle",
     behaviour_hint: "Diese Auswahl gilt für das echte Senden. Die Ergebnistabelle ändert sich dadurch nicht.",
     pinned_hint: "Niemand kann sie schließen. Sie endet durch ihr Zeitlimit, ihre Bedingung oder eine Löschaktion; die Testmeldung endet trotzdem nach 10 Minuten.",
     ack_title: "Bestätigung",
@@ -175,7 +177,8 @@ export const STRINGS = {
     tag: "Étiquette (facultatif)",
     channels: "Canaux",
     policy: "Politique",
-    policy_all: "Toutes celles qui s'appliquent",
+    policy_auto: "Automatique",
+    policy_hint: "Automatique : les politiques qui s'appliquent à la gravité et à l'étiquette. Aucune : pas de politique. Nommez des politiques pour n'utiliser que celles-ci ; choisissez aussi Automatique pour ajouter celles qui s'appliquent.",
     policy_none: "Aucune",
     who: "Qui, par canal",
     banner_hint: "Bannière : sans cible, tout le monde la voit ; choisissez une audience ou des personnes pour la limiter. Une audience compte les personnes qu'elle a à la création du message.",
@@ -232,12 +235,12 @@ export const STRINGS = {
     behaviour_none: "Rien ne s'applique ici : un courriel et la voix ne peuvent pas être repris, masqués ni reportés.",
     behaviour_some: "Le courriel et la voix ignorent ces choix ; les autres canaux les utilisent.",
     behaviour: "Comportement",
-    dismissible: "Peut être masqué",
-    dismiss_scope: "Quand quelqu'un le masque",
-    scope_default: "Valeur par défaut des réglages",
-    scope_user: "Le masquer pour cette personne seulement",
-    scope_global: "Le terminer pour tout le monde",
-    snoozable: "Peut être reporté",
+    dismiss_label: "Qui peut le masquer",
+    snooze_label: "Qui peut le reporter",
+    who_default: "Valeur par défaut des réglages",
+    who_off: "Personne",
+    who_user: "Chacun pour soi",
+    who_everyone: "N'importe qui, pour tout le monde",
     behaviour_hint: "Ces choix valent pour l'envoi réel. Le tableau de résultat ne change pas avec eux.",
     pinned_hint: "Personne ne peut le fermer. Il se termine par son délai, sa condition ou une action d'effacement ; le message de test se termine quand même après 10 minutes.",
     ack_title: "Confirmation",
@@ -256,7 +259,8 @@ export const STRINGS = {
     tag: "Etiqueta (opcional)",
     channels: "Canales",
     policy: "Política",
-    policy_all: "Todas las que se apliquen",
+    policy_auto: "Automática",
+    policy_hint: "Automática: las políticas que se aplican a la gravedad y la etiqueta. Ninguna: sin política. Nombra políticas para usar solo esas; elige también Automática para añadir las que se apliquen.",
     policy_none: "Ninguna",
     who: "Quién, por canal",
     banner_hint: "Aviso: sin destino lo ve todo el mundo; elige una audiencia o personas para limitarlo. Una audiencia cuenta las personas que tiene al crear el mensaje.",
@@ -313,12 +317,12 @@ export const STRINGS = {
     behaviour_none: "Aquí no se aplica nada: el correo y la voz no se pueden retirar, descartar ni posponer.",
     behaviour_some: "El correo y la voz ignoran estas opciones; los demás canales las usan.",
     behaviour: "Comportamiento",
-    dismissible: "Se puede descartar",
-    dismiss_scope: "Cuando alguien lo descarta",
-    scope_default: "Valor por defecto de los ajustes",
-    scope_user: "Ocultarlo solo a esa persona",
-    scope_global: "Terminarlo para todos",
-    snoozable: "Se puede posponer",
+    dismiss_label: "Quién puede descartarlo",
+    snooze_label: "Quién puede posponerlo",
+    who_default: "Valor por defecto de los ajustes",
+    who_off: "Nadie",
+    who_user: "Cada persona por sí misma",
+    who_everyone: "Cualquiera, para todos",
     behaviour_hint: "Estas opciones valen para el envío real. La tabla de resultados no cambia con ellas.",
     pinned_hint: "Nadie puede cerrarlo. Termina por su tiempo límite, su condición o una acción de borrado; el mensaje de prueba termina igualmente a los 10 minutos.",
     ack_title: "Confirmación",
@@ -336,7 +340,7 @@ export function fill(template, params) {
 }
 
 export function blankValues() {
-  return { title: "", message: "", tts_message: "", severity: "warning", tag: "", channels: ["banner"], policy: "", dismissible: true, dismiss_scope: "", snoozable: false };
+  return { title: "", message: "", tts_message: "", severity: "warning", tag: "", channels: ["banner"], policy: [], dismiss: "", snooze: "" };
 }
 
 // The `notify` call the values describe: only what is set, targets only for the chosen channels.
@@ -345,23 +349,33 @@ export function buildCall(values) {
   if (String(values.title).trim()) data.title = String(values.title).trim();
   if (values.channels.includes("speak") && String(values.tts_message).trim()) data.tts_message = String(values.tts_message).trim();
   if (String(values.tag).trim()) data.tag = String(values.tag).trim();
-  if (values.policy) data.policy = values.policy;
-  // Only what differs from the defaults, so the YAML stays short; snooze and scope mean nothing
-  // for a message nobody can dismiss.
-  if (values.dismissible === false) data.dismissible = false;
-  else {
-    if (values.dismiss_scope) data.dismiss_scope = values.dismiss_scope;
-    if (values.snoozable) data.snoozable = true;
-  }
-  const to = {};
+  // No choice or only Automatic is the default, so the YAML leaves it out; one name is a string.
+  const policy = values.policy || [];
+  if (policy.length && !(policy.length === 1 && policy[0] === "automatic")) data.policy = policy.length === 1 ? policy[0] : [...policy];
+  // Only what differs from the defaults, so the YAML stays short; snoozing means nothing for a
+  // message nobody can dismiss.
+  if (values.dismiss) data.dismiss = values.dismiss;
+  if (values.snooze && values.dismiss !== "off") data.snooze = values.snooze;
+  const targets = {};
   for (const channel of values.channels) {
     if (channel === "persistent") continue;
     const audience = values[`${channel}_audience`];
     const recipients = values[`${channel}_recipients`] || [];
-    if (audience && channel !== "speak") to[channel] = { audience };
-    else if (recipients.length) to[channel] = { recipients: [...recipients] };
+    if (audience && channel !== "speak") targets[channel] = { audience };
+    else if (recipients.length) targets[channel] = { recipients: [...recipients] };
   }
-  if (Object.keys(to).length) data.to = to;
+  // The same people on every channel that takes people become one `audience` or `recipients`
+  // field; speech has its own `speakers`. A banner without a target is open to everyone, so it
+  // blocks the short form when the others have one.
+  const people = values.channels.filter((c) => c !== "speak" && c !== "persistent");
+  const first = targets[people[0]];
+  const shared = first && people.every((c) => JSON.stringify(targets[c]) === JSON.stringify(first));
+  if (shared) {
+    Object.assign(data, first);
+    if (targets.speak) data.speakers = targets.speak.recipients;
+  } else {
+    if (Object.keys(targets).length) data.to = targets;
+  }
   return data;
 }
 
@@ -516,15 +530,21 @@ export function mount(container, ctx) {
     callBox.append(ui.field(t.severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: s.severity[k] })), values.severity, (v) => { values.severity = v; change(); })));
     callBox.append(ui.field(t.tag, ui.textInput(values.tag, (v) => { values.tag = v; change(); }), t.tag_hint));
     callBox.append(ui.chips(t.channels, CHANNELS.map((c) => ({ value: c, label: channelLabel(c) })), values.channels, (list) => { values.channels = list; render(); schedule(); }));
-    const policies = [{ value: "", label: t.policy_all }, { value: "none", label: t.policy_none }, ...data.policies.map((p) => ({ value: p.name, label: p.name }))];
-    callBox.append(ui.field(t.policy, ui.selectInput(policies, values.policy, (v) => { values.policy = v; change(); })));
+    const policies = [{ value: "automatic", label: t.policy_auto }, { value: "none", label: t.policy_none }, ...data.policies.map((p) => ({ value: p.name, label: p.name }))];
+    callBox.append(ui.chips(t.policy, policies, values.policy, (list) => {
+      // None stands alone: choosing it clears the rest, choosing anything else clears it.
+      const added = list.find((x) => !values.policy.includes(x));
+      values.policy = added === "none" ? ["none"] : list.filter((x) => x !== "none");
+      render();
+      schedule();
+    }));
+    callBox.append(el("div", { className: "hint", textContent: t.policy_hint }));
 
     const behaviour = el("section", {}, [el("h2", { textContent: t.behaviour })]);
-    behaviour.append(ui.checkbox(t.dismissible, values.dismissible, (on) => { values.dismissible = on; render(); schedule(); }));
-    if (values.dismissible) {
-      const scopes = [{ value: "", label: t.scope_default }, { value: "user", label: t.scope_user }, { value: "global", label: t.scope_global }];
-      behaviour.append(ui.field(t.dismiss_scope, ui.selectInput(scopes, values.dismiss_scope, (v) => { values.dismiss_scope = v; change(); })));
-      behaviour.append(ui.checkbox(t.snoozable, values.snoozable, (on) => { values.snoozable = on; change(); }));
+    const whoCan = [{ value: "", label: t.who_default }, { value: "off", label: t.who_off }, { value: "user", label: t.who_user }, { value: "everyone", label: t.who_everyone }];
+    behaviour.append(ui.field(t.dismiss_label, ui.selectInput(whoCan, values.dismiss, (v) => { values.dismiss = v; render(); schedule(); })));
+    if (values.dismiss !== "off") {
+      behaviour.append(ui.field(t.snooze_label, ui.selectInput(whoCan, values.snooze, (v) => { values.snooze = v; change(); })));
     } else {
       behaviour.append(el("div", { className: "hint", textContent: t.pinned_hint }));
     }

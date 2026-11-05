@@ -28,17 +28,38 @@ describe("test send call", () => {
   });
 
   it("adds title, tag, policy and trims the text", () => {
-    const call = buildCall(values({ message: "  Door open ", title: " Garage ", tag: "door", policy: "none" }));
+    const call = buildCall(values({ message: "  Door open ", title: " Garage ", tag: "door", policy: ["none"] }));
     expect(call).toEqual({ message: "Door open", title: "Garage", tag: "door", policy: "none", severity: "warning", channels: ["banner"] });
   });
 
   it("adds the dismiss and snooze choices only when they differ from the defaults", () => {
-    expect(buildCall(values({ dismiss_scope: "global", snoozable: true }))).toMatchObject({ dismiss_scope: "global", snoozable: true });
-    const pinned = buildCall(values({ dismissible: false, dismiss_scope: "global", snoozable: true }));
-    expect(pinned.dismissible).toBe(false);
-    expect(pinned.dismiss_scope).toBeUndefined();
-    expect(pinned.snoozable).toBeUndefined();
-    expect(buildCall(values({ dismissible: true }))).not.toHaveProperty("dismissible");
+    expect(buildCall(values({ dismiss: "everyone", snooze: "user" }))).toMatchObject({ dismiss: "everyone", snooze: "user" });
+    const pinned = buildCall(values({ dismiss: "off", snooze: "everyone" }));
+    expect(pinned.dismiss).toBe("off");
+    expect(pinned.snooze).toBeUndefined();
+    expect(buildCall(values())).not.toHaveProperty("dismiss");
+    expect(buildCall(values())).not.toHaveProperty("snooze");
+  });
+
+  it("leaves the policy out for Automatic, names one as text and several as a list", () => {
+    expect(buildCall(values({ policy: ["automatic"] }))).not.toHaveProperty("policy");
+    expect(buildCall(values({ policy: ["Night"] })).policy).toBe("Night");
+    expect(buildCall(values({ policy: ["automatic", "By hand"] })).policy).toEqual(["automatic", "By hand"]);
+  });
+
+  it("writes the same people on every channel once, and speakers apart", () => {
+    const call = buildCall(
+      values({ channels: ["push", "popup", "speak"], push_recipients: ["person.a"], popup_recipients: ["person.a"], speak_recipients: ["media_player.k"] }),
+    );
+    expect(call.recipients).toEqual(["person.a"]);
+    expect(call.speakers).toEqual(["media_player.k"]);
+    expect(call.to).toBeUndefined();
+  });
+
+  it("keeps the per channel form when a banner is open to everyone but the push is not", () => {
+    const call = buildCall(values({ channels: ["banner", "push"], push_audience: "At home" }));
+    expect(call.to).toEqual({ push: { audience: "At home" } });
+    expect(call.audience).toBeUndefined();
   });
 
   it("says whether anything waits for an acknowledgement, and how to make it so", () => {
@@ -96,7 +117,7 @@ describe("test send validation", () => {
 
 describe("the call as YAML", () => {
   it("is a heads_up.notify action with the data", () => {
-    const yaml = callYaml(values({ title: "Garage", channels: ["banner", "push"], push_audience: "At home", policy: "Water escalation" }), toYaml);
+    const yaml = callYaml(values({ title: "Garage", channels: ["banner", "push"], push_audience: "At home", policy: ["Water escalation"] }), toYaml);
     expect(yaml).toBe(
       [
         "action: heads_up.notify",
