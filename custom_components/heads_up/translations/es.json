@@ -292,6 +292,16 @@
       "active_banners": {
         "name": "Avisos activos"
       }
+    },
+    "binary_sensor": {
+      "audience": {
+        "name": "Audiencia {name}"
+      }
+    },
+    "switch": {
+      "policy": {
+        "name": "Política {name}"
+      }
     }
   },
   "exceptions": {
@@ -471,23 +481,23 @@
         },
         "policy": {
           "name": "Política",
-          "description": "Qué políticas se aplican. Automática: las políticas que coinciden con la gravedad y la etiqueta (predeterminado). Ninguna: sin política. Elige políticas por nombre para usar solo esas; elige también Automática para añadir las que coincidan. Escribe un nombre para usar una que no esté en la lista."
+          "description": "Qué políticas usar. Vacío: todas las políticas que coinciden con la gravedad y la etiqueta. Las políticas elegidas se usan sea cual sea su gravedad y etiqueta, y sustituyen a las que coinciden. En YAML también puedes escribir nombres de políticas y automatic a su lado para añadir las que coinciden."
+        },
+        "no_policy": {
+          "name": "Sin política",
+          "description": "Enviar sin ninguna política: no se aplica ni horario silencioso, ni escalada, ni recordatorio, ni otra política. No se puede combinar con Política. Deja la casilla sin marcar para usar el valor predeterminado."
         },
         "recipients": {
           "name": "Destinatarios",
-          "description": "Quién recibe el mensaje en aviso, push, ventana emergente y correo. Indica destinatarios o audiencia. La voz usa Altavoces; para dar a un canal otras personas, usa Destinos. Predeterminado: aviso para todos."
+          "description": "Elige personas concretas, por ejemplo para avisar a Anna. Va a aviso, push, ventana emergente y correo. Indica destinatarios o audiencia. La voz usa Altavoces. Predeterminado: el aviso lo ve todo el mundo."
         },
         "audience": {
           "name": "Audiencia",
-          "description": "Nombre de una audiencia que recibe el mensaje en aviso, push, ventana emergente y correo. Indica audiencia o destinatarios."
+          "description": "Elige un grupo: Everyone, Admins, At home o uno creado en la página Audiencias. Se calcula al enviar el mensaje, así que At home significa quien esté en casa entonces. Indica audiencia o destinatarios."
         },
         "speakers": {
           "name": "Altavoces",
           "description": "Altavoces, grupos de altavoces o zonas para la voz. La voz no admite audiencia."
-        },
-        "to": {
-          "name": "Destinos",
-          "description": "Quién lo recibe en un canal cuando difiere de Destinatarios o Audiencia, por canal: una audiencia o una lista de destinatarios, nunca ambos.\n\nEjemplo:\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
         },
         "severity": {
           "name": "Gravedad",
@@ -605,7 +615,7 @@
         },
         "audience": {
           "name": "Audiencia",
-          "description": "Nombre de una audiencia. Indique audiencia o destinatarios."
+          "description": "Elige un grupo: Everyone, Admins, At home o uno creado en la página Audiencias. Se calcula al enviar el mensaje, así que At home significa quien esté en casa entonces. Indica audiencia o destinatarios."
         }
       }
     },
@@ -663,7 +673,7 @@
         },
         "audience": {
           "name": "Audiencia",
-          "description": "Nombre de una audiencia. Indique audiencia o destinatarios."
+          "description": "Elige un grupo: Everyone, Admins, At home o uno creado en la página Audiencias. Se calcula al enviar el mensaje, así que At home significa quien esté en casa entonces. Indica audiencia o destinatarios."
         }
       }
     },

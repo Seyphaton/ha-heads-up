@@ -292,6 +292,16 @@
       "active_banners": {
         "name": "Bannières actives"
       }
+    },
+    "binary_sensor": {
+      "audience": {
+        "name": "Audience {name}"
+      }
+    },
+    "switch": {
+      "policy": {
+        "name": "Politique {name}"
+      }
     }
   },
   "exceptions": {
@@ -471,23 +481,23 @@
         },
         "policy": {
           "name": "Politique",
-          "description": "Quelles politiques s'appliquent. Automatique : les politiques qui correspondent à la gravité et à l'étiquette (par défaut). Aucune : pas de politique. Choisissez des politiques par nom pour n'utiliser que celles-ci ; choisissez aussi Automatique pour ajouter celles qui correspondent. Saisissez un nom pour en utiliser une qui n'est pas dans la liste."
+          "description": "Quelles politiques utiliser. Vide : toutes les politiques qui correspondent à la gravité et à l'étiquette. Les politiques choisies sont utilisées quelles que soient leur gravité et leur étiquette, et remplacent celles qui correspondent. En YAML vous pouvez aussi écrire des noms de politiques et automatic à côté pour ajouter celles qui correspondent."
+        },
+        "no_policy": {
+          "name": "Aucune politique",
+          "description": "Envoyer sans aucune politique : ni heures calmes, ni escalade, ni rappel, ni autre politique ne s'applique. Ne se combine pas avec Politique. Laissez la case décochée pour utiliser la valeur par défaut."
         },
         "recipients": {
           "name": "Destinataires",
-          "description": "Qui reçoit le message sur bannière, push, fenêtre contextuelle et courriel. Indiquez destinataires ou audience. La voix utilise Haut-parleurs ; pour donner à un canal d'autres personnes, utilisez Cibles. Par défaut : bannière pour tout le monde."
+          "description": "Choisissez des personnes précises, par exemple pour prévenir Anna. Va à la bannière, au push, à la fenêtre contextuelle et au courriel. Indiquez destinataires ou audience. La voix utilise Haut-parleurs. Par défaut : la bannière est vue par tout le monde."
         },
         "audience": {
           "name": "Audience",
-          "description": "Nom d'une audience qui reçoit le message sur bannière, push, fenêtre contextuelle et courriel. Indiquez audience ou destinataires."
+          "description": "Choisissez un groupe : Everyone, Admins, At home ou un groupe créé sur la page Audiences. Il est calculé à l'envoi, donc At home désigne qui est à la maison à ce moment-là. Indiquez audience ou destinataires."
         },
         "speakers": {
           "name": "Haut-parleurs",
           "description": "Haut-parleurs, groupes de haut-parleurs ou zones pour la voix. La voix n'accepte pas d'audience."
-        },
-        "to": {
-          "name": "Cibles",
-          "description": "Qui le reçoit sur un canal quand cela diffère de Destinataires ou Audience, par canal : une audience ou une liste de destinataires, jamais les deux.\n\nExemple :\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
         },
         "severity": {
           "name": "Gravité",
@@ -605,7 +615,7 @@
         },
         "audience": {
           "name": "Public",
-          "description": "Nom d'un public. Indiquez soit un public, soit des destinataires."
+          "description": "Choisissez un groupe : Everyone, Admins, At home ou un groupe créé sur la page Audiences. Il est calculé à l'envoi, donc At home désigne qui est à la maison à ce moment-là. Indiquez audience ou destinataires."
         }
       }
     },
@@ -663,7 +673,7 @@
         },
         "audience": {
           "name": "Public",
-          "description": "Nom d'un public. Indiquez soit un public, soit des destinataires."
+          "description": "Choisissez un groupe : Everyone, Admins, At home ou un groupe créé sur la page Audiences. Il est calculé à l'envoi, donc At home désigne qui est à la maison à ce moment-là. Indiquez audience ou destinataires."
         }
       }
     },

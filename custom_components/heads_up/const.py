@@ -129,6 +129,9 @@ BUILTIN_AUDIENCES: Final = {
     "Last to leave": "last_to_leave",
     "First home": "first_home",
 }
+# Sent when audiences, options or the settled presence change; the audience sensors listen (D-186).
+SIGNAL_AUDIENCES: Final = f"{DOMAIN}_audiences_changed"
+SIGNAL_POLICIES: Final = f"{DOMAIN}_policies_changed"  # the policy switches listen (D-186)
 AUDIENCE_KINDS: Final = ("persons", "presence")
 PRESENCE_KINDS: Final = (
     "at_home",

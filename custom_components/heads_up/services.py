@@ -227,6 +227,16 @@ def _map_interaction(data: dict[str, Any]) -> dict[str, Any]:
     return data
 
 
+def _map_no_policy(data: dict[str, Any]) -> dict[str, Any]:
+    """`no_policy` is the form's way to say `policy: none` (D-186)."""
+    data = dict(data)
+    if data.pop("no_policy", False):
+        if data.get("policy"):
+            raise vol.Invalid("no_policy cannot be combined with policy", path=["no_policy"])
+        data["policy"] = [POLICY_NONE]
+    return data
+
+
 def _check_policy(names: list[str]) -> list[str]:
     """Keywords in any case; `none` stands alone, `automatic` may stand next to names (D-184)."""
     names = [n.casefold() if n.casefold() in (POLICY_NONE, POLICY_AUTOMATIC) else n for n in names]
@@ -317,6 +327,7 @@ TARGET_SCHEMA = vol.Schema(
         vol.Optional("recipients"): vol.All(cv.ensure_list, [cv.string]),
     }
 )
+HIDDEN_FIELDS = {"notify": {"to"}}  # in the schema, not in services.yaml or docs/actions.md
 NOTIFY_SCHEMA = vol.All(
     vol.Schema(
         {
@@ -325,6 +336,8 @@ NOTIFY_SCHEMA = vol.All(
             vol.Required("channels"): vol.All(
                 cv.ensure_list, [vol.In(CHANNELS)], vol.Length(min=1)
             ),
+            # Accepted but not offered in the form or the docs (D-185): Test send, tests and the
+            # stored messages use it. Open: a per-channel target for callers (OPEN_QUESTIONS).
             vol.Optional("to"): {vol.In(CHANNELS): TARGET_SCHEMA},
             vol.Optional("dismiss"): WHO_CAN,
             vol.Optional("snooze"): WHO_CAN,
@@ -334,9 +347,11 @@ NOTIFY_SCHEMA = vol.All(
             vol.Optional("policy"): vol.All(
                 cv.ensure_list, [vol.All(cv.string, vol.Length(min=1))], _check_policy
             ),
+            vol.Optional("no_policy"): cv.boolean,
         }
     ),
     _map_interaction,
+    _map_no_policy,
     _check_create,
     _expand_targets,
     _check_notify,
@@ -538,6 +553,7 @@ def _check_names(
     for channel, target in to.items():
         target = dict(target)
         if (audience := target.get("audience")) is not None:
+            audience = hub.resolver.audience_for_entity(audience) or audience
             names = hub.audiences.names()
             if (stored := _canonical(audience, names)) is None:
                 raise _unknown("unknown_audience", audience, names)
@@ -560,7 +576,7 @@ def _check_names(
 def _check_policy_names(hub: HubEngine, policy: str | list[str] | None) -> str | list[str] | None:
     """Policy names in their stored spelling. One name stays a string, as stored before D-184;
     `automatic` alone is the same as no policy."""
-    wanted = policy_names(policy)
+    wanted = [hub.policies.policy_for_entity(n) or n for n in policy_names(policy)]
     if wanted in ([], [POLICY_AUTOMATIC]) or wanted == [POLICY_NONE]:
         return POLICY_NONE if wanted == [POLICY_NONE] else None
     known = hub.policies.names()

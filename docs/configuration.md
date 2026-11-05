@@ -6,16 +6,16 @@ Create and edit them in the panel (Configuration group: Audiences, Recipients, P
 
 ## Channels
 
-A call names its channels in `channels`. Every channel takes a target in `to` except the banner (everyone, or the people you list) and the Persistent Notification (no target).
+A call names its channels in `channels`. Push, popup and mail take `recipients` or `audience`, speech takes `speakers`. The banner takes `recipients` or `audience` too, or shows to everyone without them. The Persistent Notification takes no target.
 
-| Channel | Target in `to` | Shortcut action |
+| Channel | Target in `notify` | Shortcut action |
 |---|---|---|
 | `banner` | none, or `recipients`/`audience` to limit who sees it | `create_banner` |
 | `push` | `audience` or `recipients` (persons, phones) | `push` |
 | `popup` | `audience` or `recipients` (persons) | `popup` |
-| `speak` | `recipients` (speakers, Assist satellites, groups, areas) | `speak` |
+| `speak` | `speakers` (speakers, Assist satellites, groups, areas) | `speak` |
 | `mail` | `audience` or `recipients` (persons, `Global address`) | none |
-| `persistent` | none, `to.persistent` is refused | none |
+| `persistent` | none | none |
 
 The panel's Channels page sets the options below. They are stored in the integration options; [Settings](settings.md) lists every option with its default.
 
@@ -41,8 +41,7 @@ data:
   message: The garage door has been open for 10 minutes.
   severity: warning
   channels: [push]
-  to:
-    push: {audience: At home}
+  audience: At home
 ```
 
 Every device of a person gets the notification. A person with no usable device, a device whose notify service does not exist and a profile that does not accept push are skipped, and the Message Log says why (`no_usable_device`, `service_not_found`, `channel_not_accepted`). The response counts of `notify` come from the plan made before sending: `sent` means the notification was handed to the app's service. A service that then fails shows as a failed delivery in the Message Log.
@@ -79,8 +78,7 @@ data:
   message: The garage door has been open for 10 minutes.
   severity: warning
   channels: [popup]
-  to:
-    popup: {audience: At home}
+  audience: At home
 ```
 
 A popup goes to persons, by audience or by `recipients`. A person needs a linked Home Assistant user; a person without one is skipped (`no_user`). The popup appears on every dashboard and device where that user has Home Assistant open. Areas are not supported.
@@ -161,11 +159,7 @@ data:
   message: The basement sensor is wet.
   severity: critical
   channels: [push, mail]
-  to:
-    push: {audience: Admins}
-    mail:
-      recipients:
-        - person.anna
+  audience: Admins
         - Global address
 ```
 
@@ -412,7 +406,6 @@ data:
   severity: critical
   tag: water
   channels: [banner, push]
-  to:
-    push: {audience: At home}
+  audience: At home
   policy: Water escalation
 ```

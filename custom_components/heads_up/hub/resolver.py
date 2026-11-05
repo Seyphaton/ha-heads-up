@@ -7,7 +7,7 @@ trace and the panel translate.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -73,6 +73,8 @@ class HubResolver:
         self._audiences: dict[str, Audience] = {}
         self._groups: dict[str, Group] = {}
         self._profiles: dict[str, StoredProfile] = {}
+        # Set by the integration: the audience an entity of its own stands for (D-186).
+        self.audience_for_entity: Callable[[str], str | None] = lambda _entity_id: None
 
     async def async_start(self) -> None:
         await self.presence.async_start()

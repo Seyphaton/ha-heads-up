@@ -267,7 +267,7 @@ def _documented_fields(page: str, service: str) -> set[str]:
 def check_field_parity() -> list[str]:
     import yaml
 
-    from custom_components.heads_up.services import SCHEMAS
+    from custom_components.heads_up.services import HIDDEN_FIELDS, SCHEMAS
 
     actions_md = ROOT / "docs" / "actions.md"
     services_yaml = ROOT / "custom_components" / "heads_up" / "services.yaml"
@@ -275,7 +275,7 @@ def check_field_parity() -> list[str]:
     declared = yaml.safe_load(services_yaml.read_text(encoding="utf-8"))
     errors = []
     for service, schema in SCHEMAS.items():
-        in_schema = _schema_fields(schema)
+        in_schema = _schema_fields(schema) - HIDDEN_FIELDS.get(service, set())
         in_yaml = set((declared.get(service) or {}).get("fields") or {})
         in_docs = _documented_fields(page, service)
         for name, found in (("services.yaml", in_yaml), ("docs/actions.md", in_docs)):

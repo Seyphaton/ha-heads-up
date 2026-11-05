@@ -48,20 +48,20 @@ The banner is on the dashboard for the people who are home, and each of them get
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `channels` | list of channels | required | One or more of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, each at most once. |
-| `policy` | list of policy names, or one name | every policy that applies | Which [policies](configuration.md#policies) to use. `automatic` stands for the policies that match the severity and tag. `none` uses no policy and stands alone. Names are used whatever their severities and tags say, and may be manual policies; with names only, only those apply, and with `automatic` among them the matching ones apply too. |
+| `policy` | list of policy switches or names | every policy that applies | Which [policies](configuration.md#policies) to use. The form lists one switch per policy (`switch.heads_up_policy_quiet_hours`); in YAML you can also write policy names. Left out: every policy that matches the severity and tag. Named policies are used whatever their severities and tags say, may be manual policies, and replace the matching ones; with `automatic` in the list the matching ones apply too. |
+| `no_policy` | boolean | `false` | `true` sends without any policy. It cannot be combined with `policy`. In YAML `policy: none` does the same. |
 | `recipients` | list of persons | none | Who gets the message on every channel that takes people: banner, push, popup and mail. Give either `recipients` or `audience`. |
-| `audience` | text | none | The name of an audience that gets the message on the same channels. |
+| `audience` | audience sensor or name | none | A group that gets the message on the same channels. The form lists one sensor per audience (`binary_sensor.heads_up_audience_at_home`); in YAML you can also write the name (`At home`). The group is worked out when the message is sent. |
 | `speakers` | list | none | Speakers, speaker groups or areas for `speak`. Speech takes no audience. |
-| `to` | object | none | Who gets the message on one channel when that differs from `recipients` or `audience`. See below. |
 
-`recipients` or `audience` is the short form for the usual case: the same people on every channel. `speakers` is the target of speech. A `to` entry for a channel replaces the short form for that channel. `to` holds one entry per channel. Each entry is either `audience` (the name of a group such as `At home`) or `recipients` (a list), never both.
+`recipients` or `audience` gives the same people on every channel that takes people: banner, push, popup and mail. `speakers` is the target of speech. Give either `recipients` or `audience`, never both.
 
-- `push`, `popup` and `mail` need a target: `recipients` or `audience`, or an entry in `to`. Audience and recipient names are described in [Audiences and recipients](configuration.md#audiences).
-- `speak` needs `speakers` or `to.speak` (speakers, groups or areas). It takes no audience.
+- `push`, `popup` and `mail` need `recipients` or `audience`. Audience and recipient names are described in [Audiences and recipients](configuration.md#audiences).
+- `speak` needs `speakers` (speakers, groups or areas). It takes no audience.
 - `persistent` takes no target. The notification bell is shared, so everyone sees the entry (see [Persistent notifications](configuration.md#persistent-notification)).
-- `banner` needs none. Without a target, every user sees the banner. With `recipients` or `audience` in the call, the banner is limited too. Recipients limit the banner to the users linked to those persons. An audience does the same with the persons it has when the call is made; a person who joins the audience later does not see a banner that already exists, and an empty audience gives a banner nobody sees.
+- `banner` needs none. Without `recipients` or `audience`, every user sees the banner; with them, only those people see it. Recipients limit the banner to the users linked to those persons. An audience does the same with the persons it has when the call is made; a person who joins the audience later does not see a banner that already exists, and an empty audience gives a banner nobody sees.
 
-The names in `to` and `policy` are checked when you call the action. Audience, speaker group and policy names ignore case: `at home` is the audience `At home`. A name that does not exist fails with an error that lists the valid names and, when one is close, asks "Did you mean ...?".
+The names in `audience`, `recipients`, `speakers` and `policy` are checked when you call the action. Audience, speaker group and policy names ignore case: `at home` is the audience `At home`. A name that does not exist fails with an error that lists the valid names and, when one is close, asks "Did you mean ...?".
 
 ### How long it lives
 
@@ -255,8 +255,7 @@ What happens:
     id: garage_open
     message: The garage door has been open for 10 minutes.
     channels: [banner, push]
-    to:
-      push: {audience: At home}
+    audience: At home
     mode: recurring
     timeout: 0
     condition:
@@ -280,7 +279,7 @@ What happens:
 
 ## `heads_up.create_banner`
 
-The shortcut for a message that only shows a banner. It equals `heads_up.notify` with `channels: [banner]`. Every field means the same as in `notify`; follow the links in the table. It has no `channels`, `to`, `tts_message` or `policy` fields, and it adds `people`. Every policy that applies to the message is used.
+The shortcut for a message that only shows a banner. It equals `heads_up.notify` with `channels: [banner]`. Every field means the same as in `notify`; follow the links in the table. It has no `channels`, `recipients`, `audience`, `speakers`, `tts_message` or `policy` fields, and it adds `people`. Every policy that applies to the message is used.
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
@@ -302,7 +301,7 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `snooze_scope` | `user`, `global` | setting Default snooze scope | `user` and `global` are `snooze: user` and `snooze: everyone` of `notify`. |
 | `snooze_options` | list of durations | setting Snooze choices on the banner | As in `notify`. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. See [Buttons and snooze](#buttons-and-snooze). |
-| `people` | list of person entities | everyone | Show the banner only to the users linked to these people. The same as `to.banner.recipients` in `notify`. See below. |
+| `people` | list of person entities | everyone | Show the banner only to the users linked to these people. The same as `recipients` in `notify` with the channel `banner`. See below. |
 
 Response data:
 
@@ -508,7 +507,7 @@ Removes every stored message on every channel, including messages that cannot be
 | Heads Up already holds N banners and none can be evicted. | The limit is reached and every message is `critical`, or eviction is turned off. |
 | Condition entity X does not exist. | `condition.entity_id` names an entity Home Assistant does not know. |
 | Validation error on `template`, `for` or an entity field | The template does not parse, `for` is over 24 hours, or `template` is combined with `entity_id`, `operator`, `state` or `attribute`. |
-| Audience, recipient or policy "X" does not exist. | A name in `to`, `audience`, `recipients` or `policy` is unknown. The message lists the valid names. |
+| Audience, recipient or policy "X" does not exist. | A name in `audience`, `recipients`, `speakers` or `policy` is unknown. The message lists the valid names. |
 | A sentence naming the field, for example "The field message is required." | A field breaks the rules in the tables above. Nothing is stored. |
 
 ## Events

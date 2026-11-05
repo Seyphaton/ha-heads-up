@@ -5,7 +5,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ## [Unreleased]
 
 ### Changed
-- `heads_up.notify`: `recipients`, `audience` and `speakers` give the same people to every channel at once (banner, push, popup, mail; speech takes speakers). `to` stays for one channel that differs. `policy` takes a list of policy names, with `automatic` and `none` as keywords (`automatic` next to names adds the policies that match). `dismissible`, `dismiss_scope`, `snoozable` and `snooze_scope` are replaced by `dismiss` and `snooze`, each `off`, `user` or `everyone` (`create_banner` and watch rules keep the old fields).
+- `heads_up.notify`: `recipients`, `audience` and `speakers` give the same people to every channel at once (banner, push, popup, mail; speech takes speakers). `to` is no longer offered in the action form or the docs (the action still accepts it). `policy` takes a list of policy names, with `automatic` and `none` as keywords (`automatic` next to names adds the policies that match). `dismissible`, `dismiss_scope`, `snoozable` and `snooze_scope` are replaced by `dismiss` and `snooze`, each `off`, `user` or `everyone` (`create_banner` and watch rules keep the old fields).
+- Every audience is a sensor (`binary_sensor.heads_up_audience_at_home`, on while someone is in it) and every policy is a switch (`switch.heads_up_policy_...`, the policy's enabled setting). The action form lists them as dropdowns for `audience` and `policy`; a call may name the entity or, in YAML, the name. `no_policy: true` sends without any policy.
 - The field order of the action form follows the purpose of the field, with the policy right after the channels. Dismissible says what a dismissal removes; boolean fields say that an unchecked field uses the default.
 - Panel: Test send writes the short call (shared recipients, `dismiss`, `snooze`, a policy list) and offers the policies as a multi-select.
 

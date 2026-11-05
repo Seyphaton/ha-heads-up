@@ -14,10 +14,11 @@ from typing import Any
 
 from homeassistant.const import STATE_HOME, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, State, callback
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.storage import Store
 
-from ..const import PRESENCE_KEY, SAVE_DELAY
+from ..const import PRESENCE_KEY, SAVE_DELAY, SIGNAL_AUDIENCES
 
 UNKNOWN_STATES = {STATE_UNKNOWN, STATE_UNAVAILABLE}
 
@@ -116,6 +117,7 @@ class PresenceTracker:
             if not self.home:
                 self._last_to_leave = entity_id
         self._store.async_delay_save(self._data, SAVE_DELAY)
+        async_dispatcher_send(self._hass, SIGNAL_AUDIENCES)
 
     def _data(self) -> dict[str, Any]:
         return {"last_to_leave": self._last_to_leave, "first_home": self._first_home}

@@ -31,8 +31,7 @@ Install: in HACS, search for "Heads Up" and click "Download" (for a pre-release,
      message: The front door has been open for 10 minutes.
      severity: warning
      channels: [banner, push]
-     to:
-       push: {audience: Everyone}
+     audience: Everyone
    ```
 
 4. Nothing arrived? Open Heads Up > Notifications and rules > Message Log, choose the message and read the Result column. It names the reason for every skipped delivery.

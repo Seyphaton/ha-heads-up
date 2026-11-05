@@ -292,6 +292,16 @@
       "active_banners": {
         "name": "Aktive Banner"
       }
+    },
+    "binary_sensor": {
+      "audience": {
+        "name": "Zielgruppe {name}"
+      }
+    },
+    "switch": {
+      "policy": {
+        "name": "Richtlinie {name}"
+      }
     }
   },
   "exceptions": {
@@ -471,23 +481,23 @@
         },
         "policy": {
           "name": "Richtlinie",
-          "description": "Welche Richtlinien gelten. Automatisch: die Richtlinien, die zu Schweregrad und Tag passen (Standard). Keine: keine Richtlinie. Wähle Richtlinien nach Namen, um nur diese zu verwenden; wähle zusätzlich Automatisch, um die passenden dazuzunehmen. Tippe einen Namen, um eine Richtlinie zu verwenden, die nicht in der Liste steht."
+          "description": "Welche Richtlinien verwendet werden. Leer: jede Richtlinie, die zu Schweregrad und Tag passt. Gewählte Richtlinien gelten unabhängig von ihren Schweregraden und Tags und ersetzen die passenden. In YAML kannst du auch Richtliniennamen schreiben und daneben automatic, um die passenden dazuzunehmen."
+        },
+        "no_policy": {
+          "name": "Keine Richtlinie",
+          "description": "Ohne jede Richtlinie senden: keine Ruhezeiten, Eskalation, Erinnerung oder andere Richtlinie gilt. Nicht kombinierbar mit Richtlinie. Kästchen nicht anhaken, um den Standard zu verwenden."
         },
         "recipients": {
           "name": "Empfänger",
-          "description": "Wer die Meldung auf Banner, Push, Popup und E-Mail bekommt. Gib entweder Empfänger oder Zielgruppe an. Sprache nutzt Lautsprecher; um einem Kanal andere Personen zu geben, nutze Ziele. Standard: Banner für alle."
+          "description": "Wähle bestimmte Personen, zum Beispiel um Anna zu benachrichtigen. Geht an Banner, Push, Popup und E-Mail. Gib entweder Empfänger oder Zielgruppe an. Sprache nutzt Lautsprecher. Standard: Das Banner sehen alle."
         },
         "audience": {
           "name": "Zielgruppe",
-          "description": "Name einer Zielgruppe, die die Meldung auf Banner, Push, Popup und E-Mail bekommt. Gib entweder Zielgruppe oder Empfänger an."
+          "description": "Wähle eine Gruppe: Everyone, Admins, At home oder eine, die du auf der Seite Zielgruppen angelegt hast. Sie wird beim Senden bestimmt, At home heißt also, wer dann zu Hause ist. Gib entweder Zielgruppe oder Empfänger an."
         },
         "speakers": {
           "name": "Lautsprecher",
           "description": "Lautsprecher, Lautsprechergruppen oder Bereiche für Sprache. Sprache nimmt keine Zielgruppe."
-        },
-        "to": {
-          "name": "Ziele",
-          "description": "Wer sie auf einem Kanal bekommt, wenn das von Empfänger oder Zielgruppe abweicht, je Kanal: eine Zielgruppe oder eine Liste von Empfängern, nie beides.\n\nBeispiel:\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
         },
         "severity": {
           "name": "Dringlichkeit",
@@ -605,7 +615,7 @@
         },
         "audience": {
           "name": "Zielgruppe",
-          "description": "Name einer Zielgruppe. Entweder Zielgruppe oder Empfänger angeben."
+          "description": "Wähle eine Gruppe: Everyone, Admins, At home oder eine, die du auf der Seite Zielgruppen angelegt hast. Sie wird beim Senden bestimmt, At home heißt also, wer dann zu Hause ist. Gib entweder Zielgruppe oder Empfänger an."
         }
       }
     },
@@ -663,7 +673,7 @@
         },
         "audience": {
           "name": "Zielgruppe",
-          "description": "Name einer Zielgruppe. Entweder Zielgruppe oder Empfänger angeben."
+          "description": "Wähle eine Gruppe: Everyone, Admins, At home oder eine, die du auf der Seite Zielgruppen angelegt hast. Sie wird beim Senden bestimmt, At home heißt also, wer dann zu Hause ist. Gib entweder Zielgruppe oder Empfänger an."
         }
       }
     },

@@ -153,15 +153,17 @@ notify:
           multiple: true
           translation_key: channel
     policy:
-      example: '["automatic"]'
+      example: '["switch.heads_up_policy_quiet_hours"]'
       selector:
-        select:
-          options:
-          - automatic
-          - none
+        entity:
           multiple: true
-          custom_value: true
-          translation_key: policy_choice
+          filter:
+          - integration: heads_up
+            domain: switch
+    no_policy:
+      default: false
+      selector:
+        boolean: null
     recipients:
       example: '["person.anna"]'
       selector:
@@ -169,19 +171,18 @@ notify:
           domain: person
           multiple: true
     audience:
-      example: At home
-      selector:
-        text: null
+      example: binary_sensor.heads_up_audience_at_home
+      selector: &id019
+        entity:
+          filter:
+          - integration: heads_up
+            domain: binary_sensor
     speakers:
       example: '["media_player.kitchen"]'
       selector:
         entity:
           domain: media_player
           multiple: true
-    to:
-      example: '{"push": {"audience": "At home"}}'
-      selector:
-        object: {}
     severity: *id005
     icon: *id006
     image: *id007
@@ -218,14 +219,13 @@ push:
     icon: *id006
     image: *id007
     tts_message: *id018
-    recipients: &id019
+    recipients: &id020
       example: '["person.anna"]'
       selector:
         object: {}
-    audience: &id020
-      example: At home
-      selector:
-        text: {}
+    audience:
+      example: binary_sensor.heads_up_audience_at_home
+      selector: *id019
     id: *id008
     tag: *id009
     timeout: *id010
@@ -239,8 +239,10 @@ popup:
     icon: *id006
     image: *id007
     tts_message: *id018
-    recipients: *id019
-    audience: *id020
+    recipients: *id020
+    audience:
+      example: binary_sensor.heads_up_audience_at_home
+      selector: *id019
     id: *id008
     tag: *id009
     timeout: *id010
@@ -253,7 +255,7 @@ speak:
     severity: *id005
     icon: *id006
     tts_message: *id018
-    recipients: *id019
+    recipients: *id020
     id: *id008
     tag: *id009
     timeout: *id010

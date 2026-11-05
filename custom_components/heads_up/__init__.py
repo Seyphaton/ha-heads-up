@@ -8,14 +8,17 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.typing import ConfigType
 
+from .binary_sensor import audience_name_for_entity, notify_audiences_changed
 from .const import (
     DOMAIN,
     OPT_INSTALL_TOKEN,
     OPT_POLICY_ORDER,
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
+    SIGNAL_POLICIES,
 )
 from .frontend import async_add_card, async_register_card_path, async_remove_card
 from .hub.channels.mail import MailChannel
@@ -29,10 +32,11 @@ from .hub.panel import async_sync_panel
 from .hub.panel import wanted as panel_wanted
 from .manager import BannerManager, banner_store
 from .services import async_setup_services
+from .switch import policy_name_for_entity
 from .websocket import async_setup_websocket
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
-PLATFORMS = [Platform.SENSOR]
+PLATFORMS = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.SWITCH]
 
 type HeadsUpConfigEntry = ConfigEntry[BannerManager]
 
@@ -86,7 +90,13 @@ def _start_hub(hass: HomeAssistant, entry: HeadsUpConfigEntry, manager: BannerMa
     hub.create_message = manager.create
     hub.visibility_changed = manager.refresh
     hub.resolver.sync(entry.subentries)
+    hub.resolver.audience_for_entity = lambda entity_id: audience_name_for_entity(
+        hass, entry, entity_id
+    )
     hub.policies.sync(entry.subentries)
+    hub.policies.policy_for_entity = lambda entity_id: policy_name_for_entity(
+        hass, entry, entity_id
+    )
     hub.channels.register(PushChannel(hass, hub, manager))
     hub.channels.register(SpeakChannel(hass, hub, manager))
     hub.channels.register(PopupChannel(hass, hub, manager))
@@ -108,6 +118,8 @@ async def _async_entry_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry) -
         manager.hub.resolver.sync(entry.subentries)
         manager.hub.policies.sync(entry.subentries)
         manager.hub.on_policies_changed()
+        notify_audiences_changed(hass)
+        async_dispatcher_send(hass, SIGNAL_POLICIES)
     manager.sync_rules(entry.subentries)
     await async_sync_panel(hass, panel_wanted(manager.options))
 

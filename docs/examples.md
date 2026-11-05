@@ -32,8 +32,7 @@ data:
   message: The washing machine has finished.
   severity: info
   channels: [push]
-  to:
-    push: {audience: At home}
+  audience: At home
 ```
 
 The shortcut `heads_up.push` does the same with `audience` and no `channels`. See [Push notifications](configuration.md#push).
@@ -81,8 +80,7 @@ actions:
       title: Window open
       message: The bedroom window has been open for 5 minutes.
       channels: [banner, push]
-      to:
-        push: {audience: At home}
+      audience: At home
       timeout: 0
       condition:
         entity_id: binary_sensor.bedroom_window
@@ -136,11 +134,7 @@ sequence:
         minutes: 10
       dismiss: "off"
       channels: [banner, push]
-      to:
-        banner:
-          recipients: [person.alex]
-        push:
-          recipients: [person.alex]
+      recipients: [person.alex]
 ```
 
 - Users who are not linked to `person.alex` do not receive the banner. This is targeting, not access control; see [SECURITY.md](../SECURITY.md).
@@ -157,8 +151,7 @@ data:
   message: Garage door open after 10pm.
   severity: warning
   channels: [banner, push]
-  to:
-    push: {audience: At home}
+  audience: At home
   snooze: user
   snooze_options:
     - minutes: 15
@@ -210,9 +203,7 @@ data:
   severity: critical
   tag: water
   channels: [banner, push, popup]
-  to:
-    push: {audience: At home}
-    popup: {audience: At home}
+  audience: At home
   timeout: 0
 ```
 
@@ -235,8 +226,7 @@ data:
   severity: info
   tag: digest
   channels: [banner, push]
-  to:
-    push: {audience: Admins}
+  audience: Admins
 ```
 
 Create a Summarize policy for the tag `digest` with the time 20:00. The banner and the push are held on every channel and appear in the summary. Critical messages are not held unless the policy includes them.
@@ -253,9 +243,7 @@ data:
   message: The nightly backup failed.
   severity: warning
   channels: [banner, mail]
-  to:
-    mail:
-      recipients: [person.anna]
+  recipients: [person.anna]
 ```
 
 ## From outside Home Assistant

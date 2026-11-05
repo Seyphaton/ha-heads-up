@@ -17,8 +17,7 @@ data:
   severity: critical
   tag: water
   channels: [banner, push]
-  to:
-    push: {audience: Everyone}`,
+  audience: Everyone`,
   },
   {
     id: "e3",
@@ -28,9 +27,8 @@ data:
   tts_message: Water in the utility room
   severity: critical
   channels: [push, speak, persistent]
-  to:
-    push: {audience: Admins}
-    speak: {recipients: [Ground floor (group)]}`,
+  audience: Admins
+  speakers: [Ground floor (group)]`,
   },
   {
     id: "e4",
@@ -39,8 +37,7 @@ data:
   message: Doorbell
   tts_message: Someone is at the door
   channels: [speak]
-  to:
-    speak: {recipients: [media_player.kitchen]}
+  speakers: [media_player.kitchen]
   policy: none`,
   },
   {
@@ -57,8 +54,7 @@ data:
   message: Washer is done
   severity: info
   channels: [push]
-  to:
-    push: {recipients: [person.anna]}`,
+  recipients: [person.anna]`,
   },
 ];
 

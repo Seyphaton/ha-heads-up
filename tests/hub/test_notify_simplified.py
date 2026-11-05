@@ -111,3 +111,10 @@ def test_snoozing_a_message_nobody_can_dismiss_is_refused() -> None:
 def test_an_omitted_dismiss_keeps_the_option_defaults() -> None:
     data = check(channels=["banner"])
     assert not {"dismissible", "dismiss_scope", "snoozable", "snooze_scope"} & set(data)
+
+
+def test_no_policy_is_policy_none() -> None:
+    assert check(channels=["banner"], no_policy=True)["policy"] == ["none"]
+    assert "no_policy" not in check(channels=["banner"], no_policy=False)
+    with pytest.raises(vol.Invalid):
+        check(channels=["banner"], no_policy=True, policy="Night")

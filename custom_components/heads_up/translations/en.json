@@ -292,6 +292,16 @@
       "active_banners": {
         "name": "Active banners"
       }
+    },
+    "binary_sensor": {
+      "audience": {
+        "name": "Audience {name}"
+      }
+    },
+    "switch": {
+      "policy": {
+        "name": "Policy {name}"
+      }
     }
   },
   "exceptions": {
@@ -471,23 +481,23 @@
         },
         "policy": {
           "name": "Policy",
-          "description": "Which policies apply. Automatic: the policies that match the severity and tag (the default). None: no policy. Pick policies by name to use only those; pick Automatic as well to add the ones that match. Type a name to use one that is not in the list."
+          "description": "Which policies to use. Empty: every policy that matches the severity and tag. Picked policies are used whatever their severities and tags say, and replace the matching ones. In YAML you can also write policy names, and automatic next to them to add the matching ones."
+        },
+        "no_policy": {
+          "name": "No policy",
+          "description": "Send without any policy: no quiet hours, escalation, reminder or other policy applies. Cannot be combined with Policy. Leave the checkbox unchecked to use the default."
         },
         "recipients": {
           "name": "Recipients",
-          "description": "Who gets the message on banner, push, popup and mail. Give either recipients or audience. Speech uses Speakers; to give one channel other people, use Targets. Default: banner for everyone."
+          "description": "Pick specific people, for example to tell Anna. Goes to banner, push, popup and mail. Give either recipients or audience. Speech uses Speakers. Default: the banner is shown to everyone."
         },
         "audience": {
           "name": "Audience",
-          "description": "Name of an audience that gets the message on banner, push, popup and mail. Give either audience or recipients."
+          "description": "Pick a group: Everyone, Admins, At home, or one you made on the Audiences page. It is worked out when the message is sent, so At home means whoever is home then. Give either audience or recipients."
         },
         "speakers": {
           "name": "Speakers",
           "description": "Speakers, speaker groups or areas for speech. Speech takes no audience."
-        },
-        "to": {
-          "name": "Targets",
-          "description": "Who receives it on one channel when that differs from Recipients or Audience, per channel: an audience or a list of recipients, never both.\n\nExample:\n```yaml\npush:\n  audience: At home\nspeak:\n  recipients:\n    - media_player.kitchen\n```"
         },
         "severity": {
           "name": "Severity",
@@ -605,7 +615,7 @@
         },
         "audience": {
           "name": "Audience",
-          "description": "Name of an audience. Give either audience or recipients."
+          "description": "Pick a group: Everyone, Admins, At home, or one you made on the Audiences page. It is worked out when the message is sent, so At home means whoever is home then. Give either audience or recipients."
         }
       }
     },
@@ -663,7 +673,7 @@
         },
         "audience": {
           "name": "Audience",
-          "description": "Name of an audience. Give either audience or recipients."
+          "description": "Pick a group: Everyone, Admins, At home, or one you made on the Audiences page. It is worked out when the message is sent, so At home means whoever is home then. Give either audience or recipients."
         }
       }
     },
