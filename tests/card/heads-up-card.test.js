@@ -19,6 +19,7 @@ import {
   snoozeLabel,
   snoozedBanners,
   backInLabel,
+  bannerLabel,
   STRINGS,
   TRANSLATIONS,
   whenFrontendReady,
@@ -522,6 +523,18 @@ describe("snoozed banners", () => {
     expect(config.show_snoozed).toBe(true);
     expect(normalizeConfig({ show_snoozed: false }).show_snoozed).toBe(false);
     expect(normalizeConfig({ show_snoozed: true }).show_snoozed).toBe(true);
+  });
+});
+
+describe("button labels", () => {
+  it("name the banner after the action, using the title or a cut message", () => {
+    expect(bannerLabel("Dismiss", { title: "Garage", message: "x" })).toBe("Dismiss: Garage");
+    expect(bannerLabel("Snooze", { message: "The garage door is open" })).toBe("Snooze: The garage door is open");
+    const long = bannerLabel("Dismiss", { message: "a ".repeat(100) });
+    expect(long.startsWith("Dismiss: a a")).toBe(true);
+    expect(long.endsWith("…")).toBe(true);
+    expect(long.length).toBeLessThanOrEqual("Dismiss: ".length + 60);
+    expect(bannerLabel("Dismiss", { message: "" })).toBe("Dismiss");
   });
 });
 

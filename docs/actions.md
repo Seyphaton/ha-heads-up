@@ -783,7 +783,7 @@ A banner with `snoozable: true` and up to 3 `actions` shows a snooze button and 
 - For administrators, a "Clear for everyone" button on banners that are not dismissible. Banners from [watch rules](#watch-rules) have none; disable or delete the rule.
 - When some banners in a card have a button and others do not, the others keep an empty space of the same width, so the text and times line up.
 
-Critical banners sit in an `aria-live="assertive"` region, the others in a `polite` one.
+Critical banners sit in an `aria-live="assertive"` region, the others in a `polite` one. A screen reader hears each button with the banner it belongs to, for example "Dismiss: Garage door open" (the title, or the message cut to 60 characters).
 
 In the compact layout, a long title or message is cut with "…" and the full text appears as a tooltip. A banner with a `tap_action` keeps its tap action; there is no tap to expand.
 

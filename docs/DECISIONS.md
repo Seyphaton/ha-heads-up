@@ -1082,3 +1082,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer): the card option `show_snoozed` defaults to `true`. The footer "Snoozed (n)" with Show now per banner appears only while the viewer has snoozed banners; a card with nothing else to show appears as that footer while something is snoozed. `false` restores the old look. The WebSocket `subscribe` field keeps its own default `false`; the card sends its value. Applies to action and rule banners alike (D-073).
 - Tests: `tests/card/heads-up-card.test.js`. Not checked in the browser pane.
 - Blast radius: changes what existing dashboards show (only for viewers with snoozed banners); usual restart.
+
+## D-172 Banner buttons name their banner for screen readers (2026-11-05)
+- Context: review finding R-014. Every Dismiss, Snooze and Clear button had the same accessible name.
+- Decision (maintainer: action plus banner name): `bannerLabel` in the card gives the accessible name "Dismiss: <title>", with the message cut to 60 characters when there is no title. It applies to Dismiss, Snooze, Clear for everyone and Show now in the snoozed list. The tooltip keeps the short word. The long-text clamp of the review is not part of this step.
+- Tests: `tests/card/heads-up-card.test.js`. Not tested with a screen reader.
+- Blast radius: card only; no visual change.

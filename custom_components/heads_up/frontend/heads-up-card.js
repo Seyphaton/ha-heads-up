@@ -460,6 +460,14 @@ export function snoozedBanners(banners, config) {
 }
 
 // "back in 12 min": time left of a snooze, rounded up. Anything unreadable reads "back in 1 min".
+// What a screen reader hears for a banner button: the action and which banner it is for, so
+// "Dismiss" is not read three times in a row. The title, else the message cut to 60 characters.
+export function bannerLabel(label, banner) {
+  const text = String(banner.title || banner.message || "").replace(/\s+/g, " ").trim();
+  if (!text) return label;
+  return `${label}: ${text.length > 60 ? `${text.slice(0, 59).trimEnd()}…` : text}`;
+}
+
 export function backInLabel(iso, now = Date.now()) {
   const d = STRINGS.duration;
   const minutes = Math.max(1, Math.ceil((Date.parse(iso) - now) / 60000) || 1);
@@ -1073,7 +1081,7 @@ class HeadsUpCard extends Base {
     const button = (icon_name, label, handler) => {
       const b = el("button", "action");
       b.type = "button";
-      b.setAttribute("aria-label", label);
+      b.setAttribute("aria-label", bannerLabel(label, banner));
       b.title = label;
       const i = document.createElement("ha-icon");
       i.setAttribute("icon", icon_name);
@@ -1144,6 +1152,7 @@ class HeadsUpCard extends Base {
       text.append(back);
       const show = el("button", "text-button", STRINGS.show_now);
       show.type = "button";
+      show.setAttribute("aria-label", bannerLabel(STRINGS.show_now, banner));
       show.addEventListener("click", () => this._unsnooze(banner));
       row.append(icon, text, show);
       wrap.append(row);
