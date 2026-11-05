@@ -5,10 +5,41 @@ Settings are the defaults and limits of the integration. A field you leave out o
 ## Where to change them
 
 - Settings > Devices & services > Heads Up > Configure.
-- The Settings page of the [panel](panel.md#settings). It shows the same entries in the same order and wording, and a change in one shows in the other.
+- The Settings page of the panel (see below). It shows the same entries in the same order and wording, and a change in one shows in the other.
 - The channel settings (push levels, popup styles, lock screen text, spoken language and mail) are on the panel's Channels page and under Configure.
 
 A change applies at once. Message defaults apply to messages created afterwards; they do not change messages that already exist.
+
+## The Settings page
+
+Every block has a heading of its own. Save is enabled only when something changed and every number is inside its range; the page names a number that is not.
+
+| Part | What it does |
+|---|---|
+| Introduction | A button, Restart introduction, that opens the introduction again. Only in the panel. |
+| Sidebar panel | The sidebar switch (`show_panel`). |
+| Messages | Dismiss settings (default dismiss scope, default timeout in days, hours, minutes and seconds, the ended-buttons switch) and snooze settings (snoozable by default, default snooze scope, the snooze choices of the banner and the snooze time of push and popup). Each card says which channels it applies to. |
+| Presence | The presence delay for Last to leave and First home. |
+| Speech | Longest spoken text, repeat pause and the text-to-speech engine. |
+| Limits | Maximum number of stored messages, evicting when full, pushes per device per minute, deliveries per minute for all devices, seconds in which identical updates are ignored. |
+| History | Trace entries kept and recent messages kept. |
+| Identity | The install token, read only. Only in the panel; the options screen shows it at the top. |
+| People and devices | Each person with the number of usable Companion devices and whether a Home Assistant user is linked. A person without a device gets only banner and popup; a person without a user gets no popup. Only in the panel. |
+
+## Defaults at a glance
+
+| Topic | Behaviour |
+|---|---|
+| Push rate limit | 5 pushes per device per minute and 60 in total. A push over the limit is skipped and the Message Log says `rate_limited`. |
+| Duplicate updates | An update with the same content is not sent again to the same recipient for 30 seconds (`duplicate`). |
+| Critical messages | Never held back by the rate limits or the duplicate check. |
+| Push retry | None. A failed push is not tried again. |
+| Push buttons | Android shows at most 3, iOS 10. Extra buttons are left out, Snooze first, and the trace says `buttons_clipped`. Acknowledge and Dismiss are kept before the message's own buttons. |
+| Spoken text | Cut to 200 characters. The same text is not said again on the same speaker within 60 seconds. |
+| Message timeout | 24 hours unless you set `timeout`. `timeout: 0` keeps the message until it is cleared. |
+| Message count | 50 stored messages. When the limit is reached, the message with the lowest severity is removed, the oldest first. Critical messages are never removed this way, and creating a message fails when none can be. |
+| Snooze | Choices of 15 minutes, 1 hour and 4 hours when a message is snoozable. Messages are not snoozable by default. |
+| Memory | The trace keeps 500 entries and the panel lists the last 100 messages. Both start empty after a restart. |
 
 ## Panel
 
@@ -36,7 +67,7 @@ These settings belong to the message, not to one channel. They apply to the bann
 |---|---|---|
 | Maximum number of stored messages (`max_banners`) | 50 (1–200) | How many messages from action calls can exist at once, on any channel. Watch rules do not count. It protects storage and timers, not the phones or the card (the card has `max_items`). It is not a rate limit. |
 | Evict the oldest lowest-severity message when full (`evict`) | on | When off, creating a message beyond the limit fails. `critical` messages are never evicted, so a full house of critical messages fails new calls. An evicted message ends on every channel. |
-| Pushes per device per minute (`rate_per_device_per_minute`) | 5 (1–600) | A push over the cap is skipped and the trace says `rate_limited`. Critical messages are never held back. |
+| Pushes per device per minute (`rate_per_device_per_minute`) | 5 (1–600) | A push over the cap is skipped and the Message Log says `rate_limited`. Critical messages are never held back. |
 | Deliveries per minute, all devices (`rate_total_per_minute`) | 60 (1–6000) | The same, counted over all devices. |
 | Seconds in which identical updates are ignored (`dedupe_seconds`) | 30 (0–3600) | An update with the same content is not sent again to the same recipient within this time (`duplicate`). 0 switches it off. Critical messages are never held back. |
 
@@ -82,8 +113,8 @@ See [Speech](configuration.md#speech).
 |---|---|---|
 | Notify service (`mail_service`) | none | The Home Assistant notify service that sends the mail. Without one, mail fails with `no_mail_service`. |
 | Global address (`mail_global_address`) | none | A shared address that a call names as `Global address`. |
-| Subject (`mail_subject`) | `{severity}: {title}` | A template, up to 200 characters. |
-| Body (`mail_body`) | `{message}` | A template, up to 2000 characters. |
+| Subject (`mail_subject`) | `{severity}: {title}` | Placeholder text, up to 200 characters. |
+| Body (`mail_body`) | `{message}` | Placeholder text, up to 2000 characters. |
 
 See [Mail](configuration.md#mail).
 
