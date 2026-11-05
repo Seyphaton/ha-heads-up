@@ -99,3 +99,4 @@ Follow `docs/dev/RELEASE.md`, "Before the first release". Needs the maintainer: 
 - 2026-11-05: P10 item F-003 (D-171): card option `show_snoozed` defaults to on. Blast radius: existing dashboards show "Snoozed (n)" while something is snoozed.
 - 2026-11-05: P10 item R-014 (D-172): banner buttons have accessible names with the banner title. Not tested with a screen reader.
 - 2026-11-05: P10 item R-015 (D-173): docs and SECURITY.md say an external image URL reveals the viewer's address. No code.
+- 2026-11-05: P10 item E-010 (D-174): group row wraps and Message Log trace rows stack below 480 px; checked in the browser pane at 375 px. P10 items done: E-008, E-011, F-003, R-014, R-015, E-010. The dev instance holds a rule "Populated" and `sensor.populated`.

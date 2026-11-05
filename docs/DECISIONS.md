@@ -1093,3 +1093,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: review finding R-015. The `image` field accepts any http(s) URL, so the card, popup and push fetch from a third-party host and reveal the viewer's address to it. Not a vulnerability of the integration.
 - Decision (maintainer): document it, no behaviour change. One sentence in the `image` row of `docs/actions.md` and a section in `SECURITY.md`; a path on this Home Assistant avoids the request. A same-origin default was not chosen because it would break remote pictures that work today.
 - Documentation only.
+
+## D-174 Narrow screens: wrapped group row, stacked trace rows (2026-11-05)
+- Context: review finding E-010. At 375 px the panel's group row scrolled sideways with a group half visible, and a trace row with a long recipient or reason made the Message Log table wider than its card, cutting the Result column.
+- Decision (maintainer): below 480 px the group row wraps so every group stays visible and tappable, and each trace row of the Message Log becomes a small block: channel and recipient first, the result and reason under them, the time last. Wider screens keep the table. CSS only, in `heads-up-panel.js` and `panel/messages.js`.
+- Checked in the browser pane at 375 px against the dev instance (a trace with a long push row added to the page): no horizontal overflow, Result visible, all five groups visible. Not checked: other panel tables (Test send results, Overview lists), real phones, light theme.
+- Blast radius: panel only; usual restart.

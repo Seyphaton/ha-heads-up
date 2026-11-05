@@ -171,6 +171,18 @@ const CSS = `
 .hu-messages .sub { color: var(--secondary-text-color); font-size: 13px; }
 .hu-messages .sev { font-weight: 600; margin-right: 6px; }
 .hu-messages table { width: 100%; border-collapse: collapse; }
+@media (max-width: 480px) {
+  /* A trace row becomes a small block, so the Result is never cut off: channel and recipient on
+     the first line, the result under them, the time last. */
+  .hu-messages table.trace thead { display: none; }
+  .hu-messages table.trace tbody { display: block; }
+  .hu-messages table.trace tr { display: flex; flex-wrap: wrap; gap: 0 8px; padding: 8px 0; border-bottom: 1px solid var(--divider-color); }
+  .hu-messages table.trace td { padding: 0; border: none; overflow-wrap: anywhere; }
+  .hu-messages table.trace td:nth-child(2) { order: 1; font-weight: 600; }
+  .hu-messages table.trace td:nth-child(3) { order: 2; flex: 1; min-width: 0; }
+  .hu-messages table.trace td:nth-child(4) { order: 3; flex-basis: 100%; }
+  .hu-messages table.trace td:nth-child(1) { order: 4; flex-basis: 100%; font-size: 12px; color: var(--secondary-text-color); }
+}
 .hu-messages th, .hu-messages td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--divider-color); font-size: 14px; vertical-align: top; }
 .hu-messages .refresh { min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--divider-color); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
 `;
@@ -223,7 +235,7 @@ export function mount(container, ctx) {
           el("td", { textContent: [s.result[e.result] || e.result, fmt.reasonText(e.reason, s)].filter(Boolean).join(": ") }),
         ]),
       );
-      box.append(el("table", {}, [el("thead", {}, [head]), el("tbody", {}, rows)]));
+      box.append(el("table", { className: "trace" }, [el("thead", {}, [head]), el("tbody", {}, rows)]));
     }
     if (trace.timers.length > 0) {
       box.append(el("h2", { textContent: t.timers, style: "margin-top:16px" }));

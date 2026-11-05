@@ -234,6 +234,11 @@ nav button[aria-current="page"] { color: var(--primary-color); border-bottom-col
 nav .second { gap: 8px; max-width: 900px; margin: 0 auto; padding: 12px 16px 0; background: transparent; border-bottom: none; }
 nav .second button { min-height: 36px; padding: 0 16px; border: 1px solid var(--divider-color); border-radius: 18px; background: transparent; color: var(--primary-text-color); font-weight: 400; }
 nav .second button[aria-current="page"] { background: var(--primary-color); border-color: var(--primary-color); color: var(--text-primary-color, #fff); font-weight: 500; }
+@media (max-width: 480px) {
+  /* Every group stays visible and tappable instead of scrolling out of sight. */
+  nav .row { flex-wrap: wrap; overflow-x: visible; }
+  nav .row button { flex: 1 1 auto; }
+}
 nav button:focus-visible, .menu:focus-visible { outline: 3px solid var(--primary-color); outline-offset: -3px; }
 main { max-width: 900px; margin: 0 auto; padding: 16px; }
 .note { color: var(--secondary-text-color); padding: 24px 0; }
