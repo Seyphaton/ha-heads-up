@@ -50,7 +50,7 @@ These settings belong to the message, not to one channel. They apply to the bann
 
 | Setting | Default | Meaning |
 |---|---|---|
-| Push level per severity (`push_levels`) | success and info `passive`, warning `normal`, critical `time-sensitive` | The level of the notification. `critical` is the iOS critical level; it needs the app's permission, plays a sound regardless of silent mode and is sent as `time-sensitive` to Android. |
+| Push level per severity (`push_levels`) | success and info `passive`, warning `normal`, critical `time-sensitive` | The level of the notification. `critical` is an alarm on both platforms: the critical alert on iOS (needs the app's permission, plays in silent mode) and the alarm channel on Android (sounds in vibrate and silent mode; Do Not Disturb is overridden only if you allow it for that channel in the Android settings). |
 | Lock screen text (`push_lockscreen`) | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
 | Android channel name (`push_channel_id`) | `heads_up` | Prefix of the Android notification channel. |
 | Keep after tap (`push_sticky`) | off | Keeps the notification after a tap (Android). |

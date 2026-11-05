@@ -39,6 +39,10 @@ OWN_PREFIX = "b-"  # keeps a message's own button keys apart from dismiss, snooz
 MAX_BUTTONS = {"android": 3, "ios": 10}  # N-62
 WARN_EVERY = 3600  # seconds between log warnings per device
 IMPORTANCE = {"passive": "low", "normal": "default", "time-sensitive": "high", "critical": "max"}
+# The Android counterpart of the iOS critical alert: a channel that plays from the alarm stream, so
+# it sounds in vibrate and silent mode (Companion critical notifications, N-96). Do Not Disturb is
+# overridden only if the user allows it for the channel in the Android settings.
+ANDROID_ALARM_CHANNEL = "alarm_stream"
 
 # Text the hub itself puts on a notification, in the languages of the integration.
 TEXT = {
@@ -105,18 +109,15 @@ class PushChannel:
 
     # Payload ----------------------------------------------------------------------------
 
-    def level_for(self, message: Banner, target: Target, ios: bool) -> str:
+    def level_for(self, message: Banner, target: Target) -> str:
         if target.quiet:
             return "passive"
-        level = str(self._opt(OPT_PUSH_LEVELS).get(message.severity, "normal"))
-        if level == "critical" and not ios:
-            return "time-sensitive"  # critical is an iOS notion (N-62)
-        return level
+        return str(self._opt(OPT_PUSH_LEVELS).get(message.severity, "normal"))
 
     def payload(self, message: Banner, target: Target, platform: str) -> tuple[dict[str, Any], str]:
         """The `notify` call data for one device, and a note when something was left out."""
         ios = platform == "ios"
-        level = self.level_for(message, target, ios)
+        level = self.level_for(message, target)
         token = self._token()
         data: dict[str, Any] = {
             "tag": tag_for(token, message.id),
@@ -125,8 +126,14 @@ class PushChannel:
             "importance": IMPORTANCE[level],
             "push": {"interruption-level": level},
         }
-        if level == "critical":
+        if level == "critical" and ios:
             data["push"]["sound"] = {"name": "default", "critical": 1, "volume": 1.0}
+        if not ios and level in ("time-sensitive", "critical"):
+            # Without these an idle Android phone may delay the notification (N-96).
+            data["priority"] = "high"
+            data["ttl"] = 0
+        if not ios and level == "critical":
+            data["channel"] = ANDROID_ALARM_CHANNEL
         if self._opt(OPT_PUSH_STICKY):
             data["sticky"] = "true"
         if uri := _click_target(message.tap_action):
@@ -177,9 +184,21 @@ class PushChannel:
             )
         buttons = own + extra
         limit = MAX_BUTTONS.get(platform, MAX_BUTTONS["android"])
-        if len(buttons) > limit:
-            return buttons[:limit], f"buttons_clipped:{len(buttons) - limit}"
-        return buttons, ""
+        if len(buttons) <= limit:
+            return buttons, ""
+
+        # Too many for the platform: keep what a household needs most. Acknowledge and Dismiss
+        # first, then the message's own buttons in order, Snooze last; the kept ones stay in
+        # display order.
+        def keep_rank(button: dict[str, str]) -> int:
+            kind = button["action"].rsplit(":", 1)[-1]
+            ranks = {"ack": 0, "dismiss": 1, "snooze": 10_000}
+            if kind in ranks:
+                return ranks[kind]
+            return 2 + own.index(button)
+
+        kept = sorted(buttons, key=keep_rank)[:limit]
+        return [b for b in buttons if b in kept], f"buttons_clipped:{len(buttons) - limit}"
 
     # Delivery ---------------------------------------------------------------------------
 
@@ -200,7 +219,7 @@ class PushChannel:
         # iOS critical notifications cannot be replaced: clear first, then send (N-62).
         registration = self._registration(target)
         ios = registration is not None and str(registration.get("os_name", "")).lower() == "ios"
-        if ios and self.level_for(message, target, True) == "critical":
+        if ios and self.level_for(message, target) == "critical":
             token = self._token()
             await self.clear(message.id, target, tag_for(token, message.id))
         return await self.deliver(message, target)

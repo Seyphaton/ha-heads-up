@@ -83,28 +83,54 @@ async def test_severity_sets_level_importance_and_android_channel(
     assert data["channel"] == f"heads_up_{level.replace('-', '_')}"
 
 
-async def test_ios_critical_is_an_opt_in_and_android_gets_time_sensitive(
-    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice, mobile_app_device: AddDevice
-) -> None:
-    entry.runtime_data.options["push_levels"] = {
-        "success": "passive",
-        "info": "passive",
-        "warning": "normal",
-        "critical": "critical",
-    }
-    await push(hass, entry, severity="critical")
-    # The fake registration is an iOS device (helpers.py).
-    data = sent(anna)["data"]
-    assert data["push"]["interruption-level"] == "critical"
-    assert data["push"]["sound"] == {"name": "default", "critical": 1, "volume": 1.0}
-    android = await mobile_app_device(
+@pytest.fixture
+async def android(hass: HomeAssistant, mobile_app_device: AddDevice) -> FakeDevice:
+    phone = await mobile_app_device(
         "Anna's tablet", user_id="anna-id", person_entity_id="person.anna"
     )
     hass.config_entries.async_update_entry(
-        android.entry, data={**android.entry.data, "os_name": "Android"}
+        phone.entry, data={**phone.entry.data, "os_name": "Android"}
     )
-    await push(hass, entry, id="n", severity="critical")
-    assert sent(android)["data"]["push"] == {"interruption-level": "time-sensitive"}
+    return phone
+
+
+CRITICAL_ON = {"success": "passive", "info": "passive", "warning": "normal", "critical": "critical"}
+
+
+async def test_critical_is_an_alert_on_ios_and_an_alarm_on_android(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice, android: FakeDevice
+) -> None:
+    entry.runtime_data.options["push_levels"] = CRITICAL_ON
+    await push(hass, entry, severity="critical")
+    # The fake registration of `anna` is an iOS device (helpers.py).
+    ios = sent(anna)["data"]
+    assert ios["push"]["interruption-level"] == "critical"
+    assert ios["push"]["sound"] == {"name": "default", "critical": 1, "volume": 1.0}
+    assert "priority" not in ios and "ttl" not in ios
+    droid = sent(android)["data"]
+    assert droid["channel"] == "alarm_stream"  # plays from the alarm stream, also when silent
+    assert droid["importance"] == "max"
+    assert droid["priority"] == "high" and droid["ttl"] == 0
+    assert "sound" not in droid["push"]  # the iOS critical sound is not sent to Android
+
+
+async def test_android_time_sensitive_is_delivered_at_once_on_its_own_channel(
+    hass: HomeAssistant, entry: MockConfigEntry, android: FakeDevice
+) -> None:
+    await push(hass, entry, severity="critical")  # the default level of critical
+    data = sent(android)["data"]
+    assert data["channel"] == "heads_up_time_sensitive" and data["importance"] == "high"
+    assert data["priority"] == "high" and data["ttl"] == 0
+
+
+@pytest.mark.parametrize("severity", ["info", "warning"])
+async def test_lower_levels_on_android_have_no_priority_and_no_ttl(
+    hass: HomeAssistant, entry: MockConfigEntry, android: FakeDevice, severity: str
+) -> None:
+    await push(hass, entry, severity=severity)
+    data = sent(android)["data"]
+    assert "priority" not in data and "ttl" not in data
+    assert data["channel"].startswith("heads_up_")
 
 
 @pytest.mark.parametrize(
@@ -195,9 +221,26 @@ async def test_android_buttons_are_clipped_to_three_and_the_trace_says_so(
         snoozable=True,
         actions=[{"key": "one", "label": "1"}, {"key": "two", "label": "2"}],
     )
-    assert len(sent(phone)["data"]["actions"]) == 3
+    titles = [a["title"] for a in sent(phone)["data"]["actions"]]
+    assert titles == ["1", "2", "Dismiss"]  # Snooze goes first, the own buttons and Dismiss stay
     newest = entry.runtime_data.hub.trace.entries("m")[0]
     assert newest["reason"] == "buttons_clipped:1"
+
+
+async def test_android_keeps_acknowledge_and_dismiss_before_the_own_buttons(
+    hass: HomeAssistant, entry: MockConfigEntry, android: FakeDevice
+) -> None:
+    from .policy_support import ESCALATION, add_policy
+
+    await add_policy(hass, entry, "Water", **ESCALATION)
+    await push(
+        hass,
+        entry,
+        snoozable=True,
+        actions=[{"key": "one", "label": "1"}, {"key": "two", "label": "2"}],
+    )
+    titles = [a["title"] for a in sent(android)["data"]["actions"]]
+    assert titles == ["1", "Acknowledge", "Dismiss"]  # in display order; 2 and Snooze are left out
 
 
 async def test_ios_takes_more_buttons(

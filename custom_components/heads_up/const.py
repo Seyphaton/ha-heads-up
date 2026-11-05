@@ -162,7 +162,7 @@ DEFAULT_PUSH_LEVELS: Final = {
     "success": "passive",
     "info": "passive",
     "warning": "normal",
-    "critical": "time-sensitive",  # "critical" is the iOS opt-in
+    "critical": "time-sensitive",  # "critical" (alarm on iOS and Android) is an opt-in (D-155)
 }
 # The admin panel (D-107, D-117). Off until the user switches it on in the setup step or Settings.
 OPT_SHOW_PANEL: Final = "show_panel"

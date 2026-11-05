@@ -50,7 +50,7 @@ Defaults under "only the first policy that applies runs", in this order. Togethe
 
 | Item | What it creates |
 |---|---|
-| Critical messages | Critical delivery: critical messages are pushed at once to the audience you choose (Admins by default). It also sets the push level of critical messages to the iOS critical level. A critical message gets this and nothing else, so no reminder. |
+| Critical messages | Critical delivery: critical messages are pushed at once to the audience you choose (Admins by default). It also sets the push level of critical messages to critical: the critical alert on iOS and the alarm channel on Android. A critical message gets this and nothing else, so no reminder. |
 | Warning reminders | Warning reminders: a warning nobody acknowledges is repeated every 30 minutes, at most 3 times. |
 | Evening summary | Evening summary: info and success messages tagged `digest` are held and sent as one summary at 20:00. |
 | Quiet hours | Night quiet: info and success messages without that tag are sent quietly from 22:00 to 07:00. |
@@ -61,12 +61,12 @@ Defaults under "every policy that applies runs":
 |---|---|
 | Quiet hours | Night quiet: Quiet hours 22:00 to 07:00, send quietly, critical passes. |
 | Evening summary | Evening summary: messages tagged `digest` are held and sent as one summary at 20:00; critical messages are never held. |
-| Critical messages | Critical delivery (a Deliver policy: critical messages are also pushed at once to the audience you choose, Admins by default), Critical reminder (a push again every 10 minutes, at most 3 times) and, if you choose speakers, Critical escalation (after 10 minutes the message is said on those speakers; dismissing counts as acknowledging). It also sets the push level of critical messages to the iOS critical level. |
+| Critical messages | Critical delivery (a Deliver policy: critical messages are also pushed at once to the audience you choose, Admins by default), Critical reminder (a push again every 10 minutes, at most 3 times) and, if you choose speakers, Critical escalation (after 10 minutes the message is said on those speakers; dismissing counts as acknowledging). It also sets the push level of critical messages to critical: the critical alert on iOS and the alarm channel on Android. |
 | Warning reminders | Warning reminders: a warning nobody acknowledges is repeated every 30 minutes, at most 3 times. |
 
 Things to know before you switch on Critical messages under "every policy that applies runs":
 - It covers every critical message, also those of your existing automations. They get an Acknowledge button on the card and in the push, and a push or speech after 10 minutes without an acknowledgement.
-- The iOS critical level needs the Companion app's permission for critical alerts and plays a sound even in silent mode. Android receives it as time sensitive. You can change the push levels on the Channels page.
+- The critical level is an alarm on both platforms. On iOS it needs the Companion app's permission for critical alerts and plays a sound even in silent mode. On Android it uses the alarm channel, which sounds in vibrate and silent mode. You can change the push levels on the Channels page.
 - Speech passes quiet hours, so a critical message that nobody acknowledges is said on the speakers at night too.
 - Evening summary only holds messages that carry the tag `digest`; your automations have to set it.
 

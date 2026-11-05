@@ -174,7 +174,7 @@ def apply(
 ) -> dict[str, Any]:
     """Create the policies of the chosen items, in the order of the mode, and store the mode. One
     that exists by name, or does the same as one that exists, is skipped. Critical also sets the
-    push level of critical to iOS critical."""
+    push level of critical to critical (the iOS alert, the Android alarm)."""
     added: list[str] = []
     skipped: list[dict[str, str]] = []
     for item in [i for i in ITEMS_BY_MODE[mode] if i in items]:

@@ -25,7 +25,7 @@ Banners, watch rules and the card work without any hub object.
 | Duplicate updates | An update with the same content is not sent again to the same recipient for 30 seconds (`duplicate`). |
 | Critical messages | Never held back by the rate limits or the duplicate check. |
 | Push retry | None. A failed push is not tried again. |
-| Push buttons | Android shows at most 3, iOS 10. Extra buttons are left out and the trace says `buttons_clipped`. |
+| Push buttons | Android shows at most 3, iOS 10. Extra buttons are left out, Snooze first, and the trace says `buttons_clipped`. Acknowledge and Dismiss are kept before the message's own buttons. |
 | Spoken text | Cut to 200 characters. The same text is not said again on the same speaker within 60 seconds. |
 | Banner timeout | 24 hours unless you set `timeout`. `timeout: 0` keeps the banner until it is cleared. |
 | Banner count | 50 stored banners. When the limit is reached, the banner with the lowest severity is removed, the oldest first. Critical banners are never removed this way, and creating a banner fails when none can be. |
