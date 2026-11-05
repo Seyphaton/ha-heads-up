@@ -259,6 +259,19 @@
         "auto": "Automáticamente, por gravedad y etiqueta",
         "manual": "Manualmente, solo cuando una llamada la nombra"
       }
+    },
+    "policy_channels_from": {
+      "options": {
+        "policy": "Esta política (los canales listados arriba)",
+        "call": "La llamada (los mismos canales)",
+        "failed": "La llamada, solo los canales que no llegaron a nadie (Alternativa)"
+      }
+    },
+    "policy_targets_from": {
+      "options": {
+        "policy": "Esta política (los destinatarios de abajo)",
+        "call": "La llamada (los mismos destinatarios)"
+      }
     }
   },
   "entity": {
@@ -993,6 +1006,8 @@
             "tags": "Etiquetas",
             "after_minutes": "Escalar tras (minutos)",
             "channels": "Canales",
+            "channels_from": "Los canales vienen de",
+            "targets_from": "Los destinatarios vienen de",
             "dismiss_acks": "Descartar cuenta como confirmar",
             "every_minutes": "Repetir cada (minutos)",
             "max_count": "Como máximo este número de recordatorios",
@@ -1003,6 +1018,8 @@
             "mail_audience": "Correo: audiencia",
             "mail_recipients": "Correo: destinatarios",
             "speak_recipients": "Voz: destinatarios",
+            "people_audience": "Push, ventana y correo: audiencia",
+            "people_recipients": "Push, ventana y correo: personas",
             "from_time": "Silencio desde",
             "to_time": "Silencio hasta",
             "days": "Días",
@@ -1021,11 +1038,15 @@
             "tags": "Políticas automáticas: solo mensajes con una de estas etiquetas. Vacío: cualquiera. Una política manual no lo usa.",
             "after_minutes": "Escalado: minutos sin confirmación antes de usar los canales siguientes.",
             "channels": "Escalado: canales que añadir. Recordatorio: limitar a estos canales, vacío para todos.",
+            "channels_from": "Escalado, Entrega y Alternativa. Esta política: los canales listados arriba. La llamada: los canales que nombró la llamada. Solo Alternativa: los canales de la llamada que no llegaron a nadie.",
+            "targets_from": "Escalado, Entrega y Alternativa. Esta política: la audiencia o los destinatarios de abajo. La llamada: las personas y altavoces que nombró la llamada; la política añade entonces canales para los mismos destinatarios. No ambos de la llamada.",
             "dismiss_acks": "Escalado: descartar detiene el escalado, como una confirmación.",
             "every_minutes": "Recordatorio: minutos entre repeticiones.",
             "max_count": "Recordatorio: cuántas veces repetir.",
             "push_audience": "Escalado: por canal, una audiencia o destinatarios, nunca ambos.",
             "speak_recipients": "Escalado: la voz admite destinatarios, no una audiencia.",
+            "people_audience": "Se usa cuando los canales vienen de la llamada: la audiencia de sus canales push, ventana y correo. Indica una audiencia o personas, nunca ambas.",
+            "people_recipients": "Se usa cuando los canales vienen de la llamada: las personas de sus canales push, ventana y correo. Para la voz usa el campo de altavoces de arriba.",
             "from_time": "Horas de silencio: inicio de la franja, en la zona horaria de Home Assistant.",
             "to_time": "Horas de silencio: fin de la franja. Una franja puede cruzar la medianoche.",
             "days": "Horas de silencio: los días en que empieza una franja. Vacío: todos los días.",
@@ -1051,6 +1072,8 @@
             "enabled": "Activa",
             "after_minutes": "Escalar tras (minutos)",
             "channels": "Canales",
+            "channels_from": "Los canales vienen de",
+            "targets_from": "Los destinatarios vienen de",
             "dismiss_acks": "Descartar cuenta como confirmar",
             "every_minutes": "Repetir cada (minutos)",
             "max_count": "Como máximo este número de recordatorios",
@@ -1061,6 +1084,8 @@
             "mail_audience": "Correo: audiencia",
             "mail_recipients": "Correo: destinatarios",
             "speak_recipients": "Voz: destinatarios",
+            "people_audience": "Push, ventana y correo: audiencia",
+            "people_recipients": "Push, ventana y correo: personas",
             "from_time": "Silencio desde",
             "to_time": "Silencio hasta",
             "days": "Días",
@@ -1078,11 +1103,15 @@
             "tags": "Solo mensajes con una de estas etiquetas. Vacío: todas.",
             "after_minutes": "Escalado: minutos sin confirmación antes de usar los canales siguientes.",
             "channels": "Escalado: canales que añadir. Recordatorio: limitar a estos canales, vacío para todos.",
+            "channels_from": "Escalado, Entrega y Alternativa. Esta política: los canales listados arriba. La llamada: los canales que nombró la llamada. Solo Alternativa: los canales de la llamada que no llegaron a nadie.",
+            "targets_from": "Escalado, Entrega y Alternativa. Esta política: la audiencia o los destinatarios de abajo. La llamada: las personas y altavoces que nombró la llamada; la política añade entonces canales para los mismos destinatarios. No ambos de la llamada.",
             "dismiss_acks": "Escalado: descartar detiene el escalado, como una confirmación.",
             "every_minutes": "Recordatorio: minutos entre repeticiones.",
             "max_count": "Recordatorio: cuántas veces repetir.",
             "push_audience": "Escalado: por canal, una audiencia o destinatarios, nunca ambos.",
             "speak_recipients": "Escalado: la voz admite destinatarios, no una audiencia.",
+            "people_audience": "Se usa cuando los canales vienen de la llamada: la audiencia de sus canales push, ventana y correo. Indica una audiencia o personas, nunca ambas.",
+            "people_recipients": "Se usa cuando los canales vienen de la llamada: las personas de sus canales push, ventana y correo. Para la voz usa el campo de altavoces de arriba.",
             "from_time": "Horas de silencio: inicio de la franja, en la zona horaria de Home Assistant.",
             "to_time": "Horas de silencio: fin de la franja. Una franja puede cruzar la medianoche.",
             "days": "Horas de silencio: los días en que empieza una franja. Vacío: todos los días.",
@@ -1112,7 +1141,11 @@
         "window_empty": "La franja debe empezar y acabar a horas distintas.",
         "time_invalid": "Introduce una hora válida.",
         "wait_invalid": "Introduce 0 o más minutos.",
-        "when_required": "Elige cuándo usar esta alternativa."
+        "when_required": "Elige cuándo usar esta alternativa.",
+        "channels_from_unknown": "Solo una política de alternativa puede usar los canales que no llegaron a nadie.",
+        "targets_from_unknown": "Elige de dónde vienen los destinatarios.",
+        "nothing_new": "Toma de la llamada o los canales o los destinatarios, no ambos: la política no añadiría nada.",
+        "target_required": "Indica las personas o los altavoces que deben recibirlo."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguración se realizó correctamente."

@@ -49,7 +49,7 @@ from ..const import (
     ZONE_KINDS,
 )
 from .audiences import BUILTINS
-from .policies import away, deliver, escalation, fallback, quiet, reminder, summarize
+from .policies import away, deliver, escalation, fallback, quiet, reminder, sources, summarize
 from .policies.matching import duplicate_of
 from .policies.models import (
     DEFAULT_AFTER_MINUTES,
@@ -384,6 +384,16 @@ class PolicySubentryFlow(_HubFlow):
                     options=list(POLICY_CHANNELS), multiple=True, translation_key="channel"
                 )
             ),
+            vol.Optional("channels_from", default="policy"): SelectSelector(
+                SelectSelectorConfig(
+                    options=list(sources.CHANNELS_FROM), translation_key="policy_channels_from"
+                )
+            ),
+            vol.Optional("targets_from", default="policy"): SelectSelector(
+                SelectSelectorConfig(
+                    options=list(sources.TARGETS_FROM), translation_key="policy_targets_from"
+                )
+            ),
             vol.Optional("dismiss_acks", default=False): BooleanSelector(),
             vol.Optional("every_minutes", default=DEFAULT_EVERY_MINUTES): _MINUTES,
             vol.Optional("max_count", default=DEFAULT_MAX_REMINDERS): NumberSelector(
@@ -410,7 +420,7 @@ class PolicySubentryFlow(_HubFlow):
                 SelectSelectorConfig(options=list(FALLBACK_WHEN), translation_key="fallback_when")
             ),
         }
-        for channel in TARGET_CHANNELS_WITH_FIELDS:
+        for channel in (*TARGET_CHANNELS_WITH_FIELDS, sources.PEOPLE_KEY):
             if channel != "speak":  # speech takes recipients, not an audience (D-098)
                 fields[vol.Optional(f"{channel}_audience")] = SelectSelector(
                     # custom_value: a policy that names a deleted audience must still open (D-111).
@@ -419,13 +429,14 @@ class PolicySubentryFlow(_HubFlow):
                         custom_value=True,
                     )
                 )
-            known = hub.recipients.known(channel) if hub else []
+            # "people": the persons of the target used for push, popup and mail (D-181).
+            known = hub.recipients.known("popup" if channel == "people" else channel) if hub else []
             fields[vol.Optional(f"{channel}_recipients")] = SelectSelector(self._options(known))
         return vol.Schema(fields)
 
     def _targets(self, user_input: dict[str, Any]) -> dict[str, dict[str, Any]]:
         targets: dict[str, dict[str, Any]] = {}
-        for channel in user_input.get("channels") or []:
+        for channel in sources.target_keys(user_input):
             target: dict[str, Any] = {}
             if audience := user_input.get(f"{channel}_audience"):
                 target["audience"] = audience
@@ -480,15 +491,21 @@ class PolicySubentryFlow(_HubFlow):
         return errors
 
     def _check_targets(self, user_input: dict[str, Any]) -> dict[str, str]:
-        """Same rules as the `to` of `notify` (DESIGN §23.5)."""
+        """Same rules as the `to` of `notify` (DESIGN §23.5). When the channels come from the
+        call the people and speakers targets are optional one by one, but one must be set."""
         errors: dict[str, str] = {}
         hub = self._hub()
-        for channel in user_input.get("channels") or []:
-            if channel == "persistent":
+        optional = (user_input.get("channels_from") or "policy") != "policy"
+        keys = [k for k in sources.target_keys(user_input) if k != "persistent"]
+        any_set = False
+        for key in keys:
+            channel = "popup" if key == sources.PEOPLE_KEY else key
+            audience = user_input.get(f"{key}_audience")
+            recipients = user_input.get(f"{key}_recipients")
+            field = f"{key}_recipients" if key == "speak" else f"{key}_audience"
+            if optional and not audience and not recipients:
                 continue
-            audience = user_input.get(f"{channel}_audience")
-            recipients = user_input.get(f"{channel}_recipients")
-            field = f"{channel}_recipients" if channel == "speak" else f"{channel}_audience"
+            any_set = True
             if bool(audience) == bool(recipients):
                 errors[field] = "target_exclusive"
             elif hub is not None and audience and audience not in hub.audiences.names():
@@ -496,7 +513,9 @@ class PolicySubentryFlow(_HubFlow):
             elif hub is not None and any(
                 r not in hub.recipients.known(channel) for r in recipients or []
             ):
-                errors[f"{channel}_recipients"] = "recipient_unknown"
+                errors[f"{key}_recipients"] = "recipient_unknown"
+        if optional and keys and not any_set:
+            errors[f"{sources.PEOPLE_KEY}_audience"] = "target_required"
         return errors
 
     def _data(self, user_input: dict[str, Any]) -> dict[str, Any]:
@@ -509,8 +528,15 @@ class PolicySubentryFlow(_HubFlow):
             "tags": [] if manual else list(user_input.get("tags") or []),
             "enabled": bool(user_input.get("enabled", True)),
         }
-        channels = list(user_input.get("channels") or [])
         kind = user_input["type"]
+        channels_from = user_input.get("channels_from") or "policy"
+        channels = list(user_input.get("channels") or []) if channels_from == "policy" else []
+        if kind in ("escalation", "deliver", "fallback"):
+            # Stored only when they differ from the default, so older policies read the same.
+            if channels_from != "policy":
+                data["channels_from"] = channels_from
+            if (user_input.get("targets_from") or "policy") != "policy":
+                data["targets_from"] = user_input["targets_from"]
         if kind == "escalation":
             data.update(
                 after_minutes=int(user_input["after_minutes"]),

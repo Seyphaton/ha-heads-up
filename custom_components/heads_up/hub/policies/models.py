@@ -35,6 +35,10 @@ class Policy:
     # Escalation and Fallback
     after_minutes: int = 0
     channels: tuple[str, ...] = ()  # a reminder may limit itself to these; empty means all
+    # Escalation, Deliver and Fallback: take the channels and the recipients from the policy
+    # (default) or from the call (D-181). "failed": only the channels that reached nobody.
+    channels_from: str = "policy"
+    targets_from: str = "policy"
     targets: dict[str, dict[str, Any]] = field(default_factory=dict)
     dismiss_acks: bool = False
     when: str = ""  # Fallback: no_audience, failed or both
@@ -69,7 +73,7 @@ class Policy:
         if self.type == "summarize":
             return ("summary", self.summary_every, self.summary_at)
         if self.type == "deliver":
-            return ("deliver", tuple(sorted(self.channels)))
+            return ("deliver", tuple(sorted(self.channels)), self.channels_from, self.targets_from)
         return (self.type,)
 
     @property
@@ -90,6 +94,8 @@ def policy_from_data(name: str, subentry_id: str, data: Mapping[str, Any]) -> Po
         apply="manual" if data.get("apply") == "manual" else "auto",
         after_minutes=int(data.get("after_minutes", 0)),
         channels=tuple(data.get("channels") or ()),
+        channels_from=str(data.get("channels_from") or "policy"),
+        targets_from=str(data.get("targets_from") or "policy"),
         targets={k: dict(v) for k, v in (data.get("targets") or {}).items()},
         dismiss_acks=bool(data.get("dismiss_acks", False)),
         when=str(data.get("when", "")),

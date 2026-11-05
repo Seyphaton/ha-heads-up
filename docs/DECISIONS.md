@@ -1139,3 +1139,16 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Strings: the style words of the Channels page in four languages. Tests: `tests/hub/test_popup_channel.py`, `tests/hub/test_panel_editors.py`, `tests/card/popup.test.js`.
 - Checked in the browser pane: the Channels page lists the six styles and saves them, and a warning popup appeared at the top left; settings restored afterwards. Not checked: the other corners on screen, phone width, the animation.
 - Blast radius: panel and popup module; usual restart.
+
+## D-181 Escalation, Deliver and Fallback can take channels or recipients from the call (2026-11-05)
+- Context: maintainer question: a fallback for "At home is empty, tell Everyone" works, but the policy always lists its own channels; it cannot keep the call's channels, and it cannot reuse the call's recipients on other channels. The maintainer asked for four combinations and, after a review per policy type, for them everywhere they make sense.
+- Review: Fallback gets all four. Escalation and Deliver get three: the "only the channels that reached nobody" option needs a failure to react to, which neither has. Reminder, Quiet hours, Away and Summarize do not add deliveries and are unchanged.
+- Decision (maintainer): two settings per policy of those three types: where the channels come from (`channels_from`: `policy`, the default; `call`; `failed`, Fallback only) and where the recipients come from (`targets_from`: `policy`, the default; `call`). Taking both from the call is refused (`nothing_new`).
+  - Same channels, new recipients: the policy gives a people target (an audience or persons, used for push, popup and mail) and a speakers target (used for speech), stored in `targets` under `people` and `speak`; one of them is required.
+  - Only the failed channels: the same, for the channels of the call that reached nobody for the reason the Fallback waits for.
+  - New channels, same recipients: the call's people (the first audience or persons it gave on push, popup or mail) are reused on the new people channels; speech reuses the speakers the call named, else the channel is skipped; the Persistent Notification needs no target.
+  - New channels and recipients: as before.
+- Existing policies read the same: the two settings are stored only when they are not the default.
+- Built in `hub/policies/sources.py` (`message_for`, `check`, `target_keys`); `escalation.message_for` delegates to it, so the preview, escalation, Deliver and Fallback all use it. The integration's policy form has the two selectors and the people fields; strings in four languages.
+- Tests: `tests/hub/test_policy_sources.py`, `tests/hub/test_policy_flow.py`. The panel editor follows in the next commit.
+- Blast radius: usual restart; new optional keys in policy subentries (an older version ignores them and would read a policy with `channels_from: call` as one without channels).

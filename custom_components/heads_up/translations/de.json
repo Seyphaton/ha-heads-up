@@ -259,6 +259,19 @@
         "auto": "Automatisch, nach Schweregrad und Tag",
         "manual": "Manuell, nur wenn ein Aufruf sie nennt"
       }
+    },
+    "policy_channels_from": {
+      "options": {
+        "policy": "Diese Richtlinie (die oben aufgeführten Kanäle)",
+        "call": "Der Aufruf (dieselben Kanäle)",
+        "failed": "Der Aufruf, nur die Kanäle, die niemanden erreicht haben (Ersatz)"
+      }
+    },
+    "policy_targets_from": {
+      "options": {
+        "policy": "Diese Richtlinie (die unten angegebenen Empfänger)",
+        "call": "Der Aufruf (dieselben Empfänger)"
+      }
     }
   },
   "entity": {
@@ -993,6 +1006,8 @@
             "tags": "Tags",
             "after_minutes": "Eskalieren nach (Minuten)",
             "channels": "Kanäle",
+            "channels_from": "Kanäle stammen aus",
+            "targets_from": "Empfänger stammen aus",
             "dismiss_acks": "Ausblenden zählt als Bestätigung",
             "every_minutes": "Wiederholen alle (Minuten)",
             "max_count": "Höchstens so viele Erinnerungen",
@@ -1003,6 +1018,8 @@
             "mail_audience": "E-Mail: Zielgruppe",
             "mail_recipients": "E-Mail: Empfänger",
             "speak_recipients": "Sprechen: Empfänger",
+            "people_audience": "Push, Popup und E-Mail: Zielgruppe",
+            "people_recipients": "Push, Popup und E-Mail: Personen",
             "from_time": "Ruhe ab",
             "to_time": "Ruhe bis",
             "days": "Tage",
@@ -1021,11 +1038,15 @@
             "tags": "Automatische Richtlinien: nur Meldungen mit einem dieser Tags. Leer: alle. Eine manuelle Richtlinie nutzt das nicht.",
             "after_minutes": "Eskalation: Minuten ohne Bestätigung, bevor die folgenden Kanäle genutzt werden.",
             "channels": "Eskalation: hinzuzufügende Kanäle. Erinnerung: auf diese Kanäle beschränken, leer für alle.",
+            "channels_from": "Eskalation, Zustellen und Ersatz. Diese Richtlinie: die oben aufgeführten Kanäle. Der Aufruf: die Kanäle, die der Aufruf nannte. Nur Ersatz: die Kanäle des Aufrufs, die niemanden erreicht haben.",
+            "targets_from": "Eskalation, Zustellen und Ersatz. Diese Richtlinie: die Zielgruppe oder Empfänger unten. Der Aufruf: die Personen und Lautsprecher, die der Aufruf nannte; die Richtlinie fügt dann Kanäle für dieselben Empfänger hinzu. Nicht beides aus dem Aufruf.",
             "dismiss_acks": "Eskalation: Ausblenden beendet die Eskalation, wie eine Bestätigung.",
             "every_minutes": "Erinnerung: Minuten zwischen den Wiederholungen.",
             "max_count": "Erinnerung: wie oft wiederholt wird.",
             "push_audience": "Eskalation: je Kanal entweder eine Zielgruppe oder Empfänger, nie beides.",
             "speak_recipients": "Eskalation: Sprechen nimmt Empfänger, keine Zielgruppe.",
+            "people_audience": "Gilt, wenn die Kanäle aus dem Aufruf stammen: die Zielgruppe für dessen Push-, Popup- und E-Mail-Kanäle. Gib entweder eine Zielgruppe oder Personen an, nie beides.",
+            "people_recipients": "Gilt, wenn die Kanäle aus dem Aufruf stammen: die Personen für dessen Push-, Popup- und E-Mail-Kanäle. Für Sprache nimm das Feld für Lautsprecher oben.",
             "from_time": "Ruhezeit: Beginn des Zeitfensters, in der Zeitzone von Home Assistant.",
             "to_time": "Ruhezeit: Ende des Zeitfensters. Ein Fenster darf über Mitternacht gehen.",
             "days": "Ruhezeit: die Tage, an denen ein Fenster beginnt. Leer: jeden Tag.",
@@ -1051,6 +1072,8 @@
             "enabled": "Aktiv",
             "after_minutes": "Eskalieren nach (Minuten)",
             "channels": "Kanäle",
+            "channels_from": "Kanäle stammen aus",
+            "targets_from": "Empfänger stammen aus",
             "dismiss_acks": "Ausblenden zählt als Bestätigung",
             "every_minutes": "Wiederholen alle (Minuten)",
             "max_count": "Höchstens so viele Erinnerungen",
@@ -1061,6 +1084,8 @@
             "mail_audience": "E-Mail: Zielgruppe",
             "mail_recipients": "E-Mail: Empfänger",
             "speak_recipients": "Sprechen: Empfänger",
+            "people_audience": "Push, Popup und E-Mail: Zielgruppe",
+            "people_recipients": "Push, Popup und E-Mail: Personen",
             "from_time": "Ruhe ab",
             "to_time": "Ruhe bis",
             "days": "Tage",
@@ -1078,11 +1103,15 @@
             "tags": "Nur Meldungen mit einem dieser Tags. Leer: alle.",
             "after_minutes": "Eskalation: Minuten ohne Bestätigung, bevor die folgenden Kanäle genutzt werden.",
             "channels": "Eskalation: hinzuzufügende Kanäle. Erinnerung: auf diese Kanäle beschränken, leer für alle.",
+            "channels_from": "Eskalation, Zustellen und Ersatz. Diese Richtlinie: die oben aufgeführten Kanäle. Der Aufruf: die Kanäle, die der Aufruf nannte. Nur Ersatz: die Kanäle des Aufrufs, die niemanden erreicht haben.",
+            "targets_from": "Eskalation, Zustellen und Ersatz. Diese Richtlinie: die Zielgruppe oder Empfänger unten. Der Aufruf: die Personen und Lautsprecher, die der Aufruf nannte; die Richtlinie fügt dann Kanäle für dieselben Empfänger hinzu. Nicht beides aus dem Aufruf.",
             "dismiss_acks": "Eskalation: Ausblenden beendet die Eskalation, wie eine Bestätigung.",
             "every_minutes": "Erinnerung: Minuten zwischen den Wiederholungen.",
             "max_count": "Erinnerung: wie oft wiederholt wird.",
             "push_audience": "Eskalation: je Kanal entweder eine Zielgruppe oder Empfänger, nie beides.",
             "speak_recipients": "Eskalation: Sprechen nimmt Empfänger, keine Zielgruppe.",
+            "people_audience": "Gilt, wenn die Kanäle aus dem Aufruf stammen: die Zielgruppe für dessen Push-, Popup- und E-Mail-Kanäle. Gib entweder eine Zielgruppe oder Personen an, nie beides.",
+            "people_recipients": "Gilt, wenn die Kanäle aus dem Aufruf stammen: die Personen für dessen Push-, Popup- und E-Mail-Kanäle. Für Sprache nimm das Feld für Lautsprecher oben.",
             "from_time": "Ruhezeit: Beginn des Zeitfensters, in der Zeitzone von Home Assistant.",
             "to_time": "Ruhezeit: Ende des Zeitfensters. Ein Fenster darf über Mitternacht gehen.",
             "days": "Ruhezeit: die Tage, an denen ein Fenster beginnt. Leer: jeden Tag.",
@@ -1112,7 +1141,11 @@
         "window_empty": "Das Zeitfenster muss zu verschiedenen Zeiten beginnen und enden.",
         "time_invalid": "Gib eine gültige Uhrzeit ein.",
         "wait_invalid": "Gib 0 oder mehr Minuten ein.",
-        "when_required": "Wähle, wann dieser Ersatz verwendet wird."
+        "when_required": "Wähle, wann dieser Ersatz verwendet wird.",
+        "channels_from_unknown": "Nur eine Ersatz-Richtlinie kann die Kanäle nutzen, die niemanden erreicht haben.",
+        "targets_from_unknown": "Wähle, woher die Empfänger stammen.",
+        "nothing_new": "Nimm entweder die Kanäle oder die Empfänger aus dem Aufruf, nicht beides: Die Richtlinie würde nichts hinzufügen.",
+        "target_required": "Gib die Personen oder Lautsprecher an, die es erhalten sollen."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."

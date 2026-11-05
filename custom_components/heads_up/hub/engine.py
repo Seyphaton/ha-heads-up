@@ -310,7 +310,8 @@ class HubEngine:
                 extra = escalation.message_for(message, policy)
                 for item in await self.plan(extra):
                     rows.append({**self._preview_row(extra, item, None), "via": policy.name})
-            classes = self._unreached(results)
+            by_channel = self._unreached(results)
+            classes = set().union(*by_channel.values()) if by_channel else set()
             for policy in self.policies.for_message(message):
                 if policy.type != "fallback" or not fallback.matches(policy.when, classes):
                     continue
@@ -325,7 +326,9 @@ class HubEngine:
                         }
                     )
                     continue
-                other = escalation.message_for(message, policy)
+                other = escalation.message_for(
+                    message, policy, self._channels_matching(policy.when, by_channel)
+                )
                 for item in await self.plan(other):
                     rows.append({**self._preview_row(other, item, None), "via": policy.name})
         applied = self.policies.for_message(message)
@@ -390,6 +393,13 @@ class HubEngine:
         for key in fields.get(policy.type, ()):
             value = getattr(policy, key)
             out[key] = list(value) if isinstance(value, tuple) else value
+        # Where the channels and recipients come from, only when not the policy itself (D-181).
+        for key in ("channels_from", "targets_from"):
+            if (
+                policy.type in ("escalation", "fallback", "deliver")
+                and getattr(policy, key) != "policy"
+            ):
+                out[key] = getattr(policy, key)
         return out
 
     @staticmethod
@@ -1016,9 +1026,14 @@ class HubEngine:
     # Fallback ---------------------------------------------------------------------------
 
     @staticmethod
-    def _unreached(results: list[tuple[Planned, Outcome]]) -> set[str]:
-        """Why a requested channel reached nobody: `no_audience` or `failed`."""
-        classes: set[str] = set()
+    def _channels_matching(when: str, by_channel: dict[str, set[str]]) -> set[str]:
+        """The channels that reached nobody for the reason a Fallback policy waits for."""
+        return {c for c, classes in by_channel.items() if fallback.matches(when, classes)}
+
+    @staticmethod
+    def _unreached(results: list[tuple[Planned, Outcome]]) -> dict[str, set[str]]:
+        """Why a requested channel reached nobody: `no_audience` or `failed`, per channel."""
+        classes: dict[str, set[str]] = {}
         channels = {item.channel for item, _ in results if item.channel != CHANNEL_BANNER}
         for channel in channels:
             mine = [(i, o) for i, o in results if i.channel == channel]
@@ -1029,7 +1044,7 @@ class HubEngine:
                 if reason in fallback.IGNORED_REASONS:
                     continue
                 failed = outcome.result is Result.FAILED or reason in fallback.DEVICE_REASONS
-                classes.add("failed" if failed else "no_audience")
+                classes.setdefault(channel, set()).add("failed" if failed else "no_audience")
         return classes
 
     async def _apply_deliver(self, banner: Banner) -> None:
@@ -1071,7 +1086,8 @@ class HubEngine:
     async def _fallback(self, banner: Banner, results: list[tuple[Planned, Outcome]]) -> None:
         """After the first delivery: other channels and targets when it reached nobody (D-079).
         It fires once per message and a fallback never triggers another."""
-        classes = self._unreached(results)
+        by_channel = self._unreached(results)
+        classes = set().union(*by_channel.values()) if by_channel else set()
         for policy in self.policies.for_message(banner):
             if policy.type != "fallback" or not fallback.matches(policy.when, classes):
                 continue
@@ -1084,7 +1100,9 @@ class HubEngine:
                 self._finish(marker, State.SKIPPED, problem)
                 continue
             self._trace(banner.id, TIMER_CHANNEL, policy.key, "fallback", "+".join(sorted(classes)))
-            message = escalation.message_for(banner, policy)
+            message = escalation.message_for(
+                banner, policy, self._channels_matching(policy.when, by_channel)
+            )
             await self._send(message, await self.plan(message), resume=True, origin="fallback")
             self._log("fallback_sent", banner.id, policy.name)
 

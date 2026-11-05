@@ -282,3 +282,70 @@ async def test_a_manual_policy_may_repeat_an_automatic_one(
     assert (await run(hass, entry, "policy", ESCALATION))["type"] is FlowResultType.CREATE_ENTRY
     twin = {**ESCALATION, "name": "Water escalation, by hand", "apply": "manual"}
     assert (await run(hass, entry, "policy", twin))["type"] is FlowResultType.CREATE_ENTRY
+
+
+FALLBACK_FROM_CALL: dict[str, Any] = {
+    "name": "Everyone instead",
+    "type": "fallback",
+    "when": "no_audience",
+    "channels_from": "call",
+    "people_audience": "Everyone",
+}
+
+
+async def test_a_fallback_can_take_its_channels_from_the_call(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await run(hass, entry, "policy", FALLBACK_FROM_CALL)
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (sub,) = subentries(entry, "policy")
+    assert sub.data["channels_from"] == "call" and "channels" in sub.data
+    assert sub.data["channels"] == []
+    assert sub.data["targets"] == {"people": {"audience": "Everyone"}}
+    assert "targets_from" not in sub.data  # a default is not stored
+
+
+async def test_the_recipients_can_come_from_the_call_and_need_no_target(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    form = {
+        "name": "Popup too",
+        "type": "deliver",
+        "channels": ["popup"],
+        "targets_from": "call",
+    }
+    result = await run(hass, entry, "policy", form)
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (sub,) = subentries(entry, "policy")
+    assert sub.data["targets_from"] == "call" and sub.data["targets"] == {}
+
+
+async def test_taking_both_from_the_call_is_refused(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await run(hass, entry, "policy", {**FALLBACK_FROM_CALL, "targets_from": "call"})
+    assert result["errors"]["targets_from"] == "nothing_new"
+
+
+async def test_the_failed_channels_are_for_a_fallback_only(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    form = {
+        **FALLBACK_FROM_CALL,
+        "type": "escalation",
+        "channels_from": "failed",
+        "after_minutes": 5,
+    }
+    result = await run(hass, entry, "policy", form)
+    assert result["errors"]["channels_from"] == "channels_from_unknown"
+
+
+async def test_channels_from_the_call_need_a_people_or_a_speakers_target(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await run(hass, entry, "policy", {**FALLBACK_FROM_CALL, "people_audience": ""})
+    assert result["errors"]["people_audience"] == "target_required"
+    both = {**FALLBACK_FROM_CALL, "people_recipients": ["person.ben"]}
+    set_person(hass, "person.ben", "home")
+    result = await run(hass, entry, "policy", both)
+    assert result["errors"]["people_audience"] == "target_exclusive"

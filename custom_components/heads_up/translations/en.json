@@ -259,6 +259,19 @@
         "auto": "Automatically, by severity and tag",
         "manual": "Manually, only when a call names it"
       }
+    },
+    "policy_channels_from": {
+      "options": {
+        "policy": "This policy (the channels listed above)",
+        "call": "The call (the same channels)",
+        "failed": "The call, only the channels that reached nobody (Fallback)"
+      }
+    },
+    "policy_targets_from": {
+      "options": {
+        "policy": "This policy (the recipients given below)",
+        "call": "The call (the same recipients)"
+      }
     }
   },
   "entity": {
@@ -993,6 +1006,8 @@
             "tags": "Tags",
             "after_minutes": "Escalate after (minutes)",
             "channels": "Channels",
+            "channels_from": "Channels come from",
+            "targets_from": "Recipients come from",
             "dismiss_acks": "Dismissing counts as acknowledging",
             "every_minutes": "Repeat every (minutes)",
             "max_count": "At most this many reminders",
@@ -1003,6 +1018,8 @@
             "mail_audience": "Mail: audience",
             "mail_recipients": "Mail: recipients",
             "speak_recipients": "Speak: recipients",
+            "people_audience": "Push, popup and mail: audience",
+            "people_recipients": "Push, popup and mail: persons",
             "from_time": "Quiet from",
             "to_time": "Quiet until",
             "days": "Days",
@@ -1021,11 +1038,15 @@
             "tags": "Automatic policies: only messages with one of these tags. Empty: any. Not used by a manual policy.",
             "after_minutes": "Escalation: minutes without acknowledgement before the channels below are used.",
             "channels": "Escalation: channels to add. Reminder: limit to these channels, empty for all.",
+            "channels_from": "Escalation, Deliver and Fallback. This policy: the channels you list above. The call: the channels the call named. Fallback only: the channels of the call that reached nobody.",
+            "targets_from": "Escalation, Deliver and Fallback. This policy: the audience or recipients you give below. The call: the people and speakers the call named, so the policy adds channels for the same recipients. Not both from the call.",
             "dismiss_acks": "Escalation: a dismissal stops the escalation, as an acknowledgement does.",
             "every_minutes": "Reminder: minutes between repeats.",
             "max_count": "Reminder: how many times to repeat.",
             "push_audience": "Escalation: give either an audience or recipients per channel, never both.",
             "speak_recipients": "Escalation: speech takes recipients, not an audience.",
+            "people_audience": "Used when the channels come from the call: the audience for its push, popup and mail channels. Give either an audience or persons, never both.",
+            "people_recipients": "Used when the channels come from the call: the persons for its push, popup and mail channels. For speech use the speakers field above.",
             "from_time": "Quiet hours: start of the window, in the Home Assistant time zone.",
             "to_time": "Quiet hours: end of the window. A window may cross midnight.",
             "days": "Quiet hours: the days a window starts on. Empty: every day.",
@@ -1051,6 +1072,8 @@
             "enabled": "Enabled",
             "after_minutes": "Escalate after (minutes)",
             "channels": "Channels",
+            "channels_from": "Channels come from",
+            "targets_from": "Recipients come from",
             "dismiss_acks": "Dismissing counts as acknowledging",
             "every_minutes": "Repeat every (minutes)",
             "max_count": "At most this many reminders",
@@ -1061,6 +1084,8 @@
             "mail_audience": "Mail: audience",
             "mail_recipients": "Mail: recipients",
             "speak_recipients": "Speak: recipients",
+            "people_audience": "Push, popup and mail: audience",
+            "people_recipients": "Push, popup and mail: persons",
             "from_time": "Quiet from",
             "to_time": "Quiet until",
             "days": "Days",
@@ -1078,11 +1103,15 @@
             "tags": "Only messages with one of these tags. Empty: any.",
             "after_minutes": "Escalation: minutes without acknowledgement before the channels below are used.",
             "channels": "Escalation: channels to add. Reminder: limit to these channels, empty for all.",
+            "channels_from": "Escalation, Deliver and Fallback. This policy: the channels you list above. The call: the channels the call named. Fallback only: the channels of the call that reached nobody.",
+            "targets_from": "Escalation, Deliver and Fallback. This policy: the audience or recipients you give below. The call: the people and speakers the call named, so the policy adds channels for the same recipients. Not both from the call.",
             "dismiss_acks": "Escalation: a dismissal stops the escalation, as an acknowledgement does.",
             "every_minutes": "Reminder: minutes between repeats.",
             "max_count": "Reminder: how many times to repeat.",
             "push_audience": "Escalation: give either an audience or recipients per channel, never both.",
             "speak_recipients": "Escalation: speech takes recipients, not an audience.",
+            "people_audience": "Used when the channels come from the call: the audience for its push, popup and mail channels. Give either an audience or persons, never both.",
+            "people_recipients": "Used when the channels come from the call: the persons for its push, popup and mail channels. For speech use the speakers field above.",
             "from_time": "Quiet hours: start of the window, in the Home Assistant time zone.",
             "to_time": "Quiet hours: end of the window. A window may cross midnight.",
             "days": "Quiet hours: the days a window starts on. Empty: every day.",
@@ -1112,7 +1141,11 @@
         "window_empty": "The window must start and end at different times.",
         "time_invalid": "Enter a valid time.",
         "wait_invalid": "Enter 0 or more minutes.",
-        "when_required": "Choose when to use this fallback."
+        "when_required": "Choose when to use this fallback.",
+        "channels_from_unknown": "Only a Fallback policy can use the channels that reached nobody.",
+        "targets_from_unknown": "Choose where the recipients come from.",
+        "nothing_new": "Take either the channels or the recipients from the call, not both: the policy would add nothing.",
+        "target_required": "Give the people or the speakers who should receive it."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

@@ -259,6 +259,19 @@
         "auto": "Automatiquement, par gravité et étiquette",
         "manual": "Manuellement, seulement quand un appel la nomme"
       }
+    },
+    "policy_channels_from": {
+      "options": {
+        "policy": "Cette politique (les canaux listés ci-dessus)",
+        "call": "L'appel (les mêmes canaux)",
+        "failed": "L'appel, seulement les canaux qui n'ont atteint personne (Repli)"
+      }
+    },
+    "policy_targets_from": {
+      "options": {
+        "policy": "Cette politique (les destinataires donnés ci-dessous)",
+        "call": "L'appel (les mêmes destinataires)"
+      }
     }
   },
   "entity": {
@@ -993,6 +1006,8 @@
             "tags": "Étiquettes",
             "after_minutes": "Escalader après (minutes)",
             "channels": "Canaux",
+            "channels_from": "Les canaux viennent de",
+            "targets_from": "Les destinataires viennent de",
             "dismiss_acks": "Masquer vaut acquittement",
             "every_minutes": "Répéter toutes les (minutes)",
             "max_count": "Au plus ce nombre de rappels",
@@ -1003,6 +1018,8 @@
             "mail_audience": "Courriel : audience",
             "mail_recipients": "Courriel : destinataires",
             "speak_recipients": "Voix : destinataires",
+            "people_audience": "Push, fenêtre et courriel : audience",
+            "people_recipients": "Push, fenêtre et courriel : personnes",
             "from_time": "Calme de",
             "to_time": "Calme jusqu'à",
             "days": "Jours",
@@ -1021,11 +1038,15 @@
             "tags": "Politiques automatiques : seulement les messages avec l'une de ces étiquettes. Vide : toutes. Une politique manuelle ne l'utilise pas.",
             "after_minutes": "Escalade : minutes sans acquittement avant d'utiliser les canaux ci-dessous.",
             "channels": "Escalade : canaux à ajouter. Rappel : limiter à ces canaux, vide pour tous.",
+            "channels_from": "Escalade, Livraison et Repli. Cette politique : les canaux listés ci-dessus. L'appel : les canaux que l'appel a nommés. Repli seulement : les canaux de l'appel qui n'ont atteint personne.",
+            "targets_from": "Escalade, Livraison et Repli. Cette politique : l'audience ou les destinataires donnés ci-dessous. L'appel : les personnes et haut-parleurs que l'appel a nommés ; la politique ajoute alors des canaux pour les mêmes destinataires. Pas les deux depuis l'appel.",
             "dismiss_acks": "Escalade : masquer arrête l'escalade, comme un acquittement.",
             "every_minutes": "Rappel : minutes entre les répétitions.",
             "max_count": "Rappel : nombre de répétitions.",
             "push_audience": "Escalade : par canal, soit une audience soit des destinataires, jamais les deux.",
             "speak_recipients": "Escalade : la voix prend des destinataires, pas une audience.",
+            "people_audience": "Utilisé quand les canaux viennent de l'appel : l'audience de ses canaux push, fenêtre et courriel. Donnez soit une audience, soit des personnes, jamais les deux.",
+            "people_recipients": "Utilisé quand les canaux viennent de l'appel : les personnes de ses canaux push, fenêtre et courriel. Pour la voix, utilisez le champ des haut-parleurs ci-dessus.",
             "from_time": "Heures calmes : début de la plage, dans le fuseau horaire de Home Assistant.",
             "to_time": "Heures calmes : fin de la plage. Une plage peut passer minuit.",
             "days": "Heures calmes : les jours où une plage commence. Vide : tous les jours.",
@@ -1051,6 +1072,8 @@
             "enabled": "Activée",
             "after_minutes": "Escalader après (minutes)",
             "channels": "Canaux",
+            "channels_from": "Les canaux viennent de",
+            "targets_from": "Les destinataires viennent de",
             "dismiss_acks": "Masquer vaut acquittement",
             "every_minutes": "Répéter toutes les (minutes)",
             "max_count": "Au plus ce nombre de rappels",
@@ -1061,6 +1084,8 @@
             "mail_audience": "Courriel : audience",
             "mail_recipients": "Courriel : destinataires",
             "speak_recipients": "Voix : destinataires",
+            "people_audience": "Push, fenêtre et courriel : audience",
+            "people_recipients": "Push, fenêtre et courriel : personnes",
             "from_time": "Calme de",
             "to_time": "Calme jusqu'à",
             "days": "Jours",
@@ -1078,11 +1103,15 @@
             "tags": "Seulement les messages avec l'une de ces étiquettes. Vide : toutes.",
             "after_minutes": "Escalade : minutes sans acquittement avant d'utiliser les canaux ci-dessous.",
             "channels": "Escalade : canaux à ajouter. Rappel : limiter à ces canaux, vide pour tous.",
+            "channels_from": "Escalade, Livraison et Repli. Cette politique : les canaux listés ci-dessus. L'appel : les canaux que l'appel a nommés. Repli seulement : les canaux de l'appel qui n'ont atteint personne.",
+            "targets_from": "Escalade, Livraison et Repli. Cette politique : l'audience ou les destinataires donnés ci-dessous. L'appel : les personnes et haut-parleurs que l'appel a nommés ; la politique ajoute alors des canaux pour les mêmes destinataires. Pas les deux depuis l'appel.",
             "dismiss_acks": "Escalade : masquer arrête l'escalade, comme un acquittement.",
             "every_minutes": "Rappel : minutes entre les répétitions.",
             "max_count": "Rappel : nombre de répétitions.",
             "push_audience": "Escalade : par canal, soit une audience soit des destinataires, jamais les deux.",
             "speak_recipients": "Escalade : la voix prend des destinataires, pas une audience.",
+            "people_audience": "Utilisé quand les canaux viennent de l'appel : l'audience de ses canaux push, fenêtre et courriel. Donnez soit une audience, soit des personnes, jamais les deux.",
+            "people_recipients": "Utilisé quand les canaux viennent de l'appel : les personnes de ses canaux push, fenêtre et courriel. Pour la voix, utilisez le champ des haut-parleurs ci-dessus.",
             "from_time": "Heures calmes : début de la plage, dans le fuseau horaire de Home Assistant.",
             "to_time": "Heures calmes : fin de la plage. Une plage peut passer minuit.",
             "days": "Heures calmes : les jours où une plage commence. Vide : tous les jours.",
@@ -1112,7 +1141,11 @@
         "window_empty": "La plage doit commencer et finir à des heures différentes.",
         "time_invalid": "Saisissez une heure valide.",
         "wait_invalid": "Saisissez 0 minute ou plus.",
-        "when_required": "Choisissez quand utiliser ce repli."
+        "when_required": "Choisissez quand utiliser ce repli.",
+        "channels_from_unknown": "Seule une politique de repli peut utiliser les canaux qui n'ont atteint personne.",
+        "targets_from_unknown": "Choisissez d'où viennent les destinataires.",
+        "nothing_new": "Prenez soit les canaux, soit les destinataires de l'appel, pas les deux : la politique n'ajouterait rien.",
+        "target_required": "Indiquez les personnes ou les haut-parleurs qui doivent le recevoir."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."
