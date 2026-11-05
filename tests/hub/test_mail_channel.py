@@ -321,3 +321,56 @@ async def test_the_dry_run_shows_the_mail_rows_and_sends_nothing(
     assert rows[("person.anna", "sent")] is None
     assert rows[("person.ben", "skipped")] == "channel_not_accepted"
     assert mailbox == []
+
+
+async def test_the_preview_names_the_address_and_flags_a_missing_one(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mailbox: list[ServiceCall],
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    set_person(hass, "person.cy", "home", user_id="cy-id")
+    opt_in(hass, entry, "person.anna", "anna@example.com")
+    opt_in(hass, entry, "person.cy")  # Mail on, no address
+    entry.runtime_data.options["mail_global_address"] = "house@example.com"
+    await hass.async_block_till_done()
+    client = await hass_ws_client(hass)
+    reply = await ask(
+        client,
+        "hub_plan",
+        message="x",
+        channels=["mail"],
+        to={"mail": {"recipients": ["person.anna", "person.cy", "Global address"]}},
+    )
+    rows = {r["recipient"]: r for r in reply["result"]["rows"]}
+    assert rows["person.anna"]["address"] == "anna@example.com"
+    assert rows["person.anna"]["result"] == "sent"
+    assert rows["mail:global"]["address"] == "house@example.com"
+    # The plan already skips a person without an address; the preview adds no address for the row.
+    assert (rows["person.cy"]["result"], rows["person.cy"]["reason"]) == (
+        "skipped",
+        "no_mail_address",
+    )
+    assert rows["person.cy"].get("address") is None
+    assert mailbox == []
+
+
+async def test_the_preview_flags_a_missing_mail_service(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mailbox: list[ServiceCall],
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    opt_in(hass, entry, "person.anna", "anna@example.com")
+    entry.runtime_data.options["mail_service"] = ""
+    await hass.async_block_till_done()
+    client = await hass_ws_client(hass)
+    reply = await ask(
+        client,
+        "hub_plan",
+        message="x",
+        channels=["mail"],
+        to={"mail": {"recipients": ["person.anna"]}},
+    )
+    (row,) = [r for r in reply["result"]["rows"] if r["channel"] == "mail"]
+    assert (row["result"], row["reason"]) == ("failed", "no_mail_service")

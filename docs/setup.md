@@ -108,7 +108,7 @@ Lists the recent messages, newest first: severity, title, how long ago, whether 
 
 ### Test send
 
-Previews a call and can send it once. Enter the content, the call (severity, tag, channels, policy) and the target of each channel. The result table updates as you type, with one row per recipient and channel: sent, held, skipped or failed, with the reason. Later steps lists the escalations, reminders and summaries that would follow. The call is shown as YAML with a Copy button.
+Previews a call and can send it once. Enter the content, the call (severity, tag, channels, policy) and the target of each channel. The result table updates as you type, with one row per recipient and channel: sent, held, skipped or failed, with the reason. A mail row names the address the mail would go to, and a person without an address, or a call with no mail service chosen, shows that reason. The Behaviour choices (dismissible, scope, snoozable) apply to the banner, push and popup; the page says so when a call has only mail and speech, which cannot be taken back. Later steps lists the escalations, reminders and summaries that would follow. The call is shown as YAML with a Copy button.
 
 Send test sends one real message with the title prefix `Test: `, the tag `test` and an id that starts with `hu_test_`. It ends by itself after 10 minutes. Policies apply to it like to any message. Clear the test message removes it at once. Test send uses the real clock and the real presence.
 

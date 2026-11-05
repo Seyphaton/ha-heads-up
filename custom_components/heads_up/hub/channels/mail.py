@@ -107,6 +107,14 @@ class MailChannel:
             return str(self._opt(OPT_MAIL_ADDRESS))
         return self._hub.resolver.profile(target.key).mail_address
 
+    def check(self, target: Target) -> tuple[str, str | None]:
+        """The address a mail to this target would go to and why it would fail, for the preview
+        (D-178); `deliver` stops at the same two reasons."""
+        address = self.address_of(target)
+        if not str(self._opt(OPT_MAIL_SERVICE)):
+            return address, "no_mail_service"
+        return address, (None if address else "no_mail_address")
+
     async def deliver(self, message: Banner, target: Target) -> Outcome:
         service = str(self._opt(OPT_MAIL_SERVICE))
         if not service:

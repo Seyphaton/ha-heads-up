@@ -6,6 +6,7 @@ import {
   callYaml,
   laterText,
   outcomeDone,
+  behaviourUnused,
   outcomeRows,
   plannedLine,
   rowRecipient,
@@ -166,6 +167,7 @@ describe("test send rows and target mode", () => {
   it("shows the person and the device on a push row", () => {
     expect(rowRecipient({ recipient: "device:d1", person: "person.anna", channel: "push" }, {}, choices, T)).toBe("Anna · Pixel");
     expect(rowRecipient({ recipient: "person.anna", person: "person.anna", channel: "popup" }, {}, choices, T)).toBe("Anna");
+    expect(rowRecipient({ recipient: "mail:global", channel: "mail" }, {}, choices, T)).toBe("Global address");
   });
 
   it("shows who a banner is limited to, everyone, or nobody", () => {
@@ -211,3 +213,20 @@ describe("test send outcome", () => {
   });
 });
 
+describe("test send behaviour hint", () => {
+  it("says the choices do not apply to a call of mail and speech only", () => {
+    expect(behaviourUnused(["mail"])).toBe("behaviour_none");
+    expect(behaviourUnused(["mail", "speak"])).toBe("behaviour_none");
+  });
+
+  it("says mail and speech ignore them when other channels still use them", () => {
+    expect(behaviourUnused(["banner", "mail"])).toBe("behaviour_some");
+    expect(behaviourUnused(["push", "speak", "popup"])).toBe("behaviour_some");
+  });
+
+  it("says nothing when no channel ignores them", () => {
+    expect(behaviourUnused(["banner", "push"])).toBeNull();
+    expect(behaviourUnused(["persistent"])).toBeNull();
+    expect(behaviourUnused([])).toBeNull();
+  });
+});

@@ -1118,3 +1118,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Not done: nothing on the server can make the app remove a notification; which of the three devices kept it is unknown (open question to the maintainer).
 - Tests: `tests/hub/test_push_lifecycle.py`.
 - Blast radius: new trace rows; panel words in four languages; usual restart.
+
+## D-178 Test send: behaviour hint, mail address, tag text (2026-11-05)
+- Context: maintainer notes after trying the panel. Dismissible, scope and snoozable do nothing for mail or speech, which cannot be taken back (an acknowledgement matters only through a policy). The mail preview named only the person, not the address, and showed the Global address as `mail:global`. The tag field said only "No tag".
+- Decision (maintainer, recommended options): `behaviourUnused` adds a hint under Behaviour for a call with mail or speech: "Nothing here applies" when the call has nothing else, "Mail and speech ignore these choices" when other channels use them; the controls stay. A mail row in the preview carries the address (`address` in the row of `hub_plan`, from `MailChannel.check`) and the table shows it after the name; the Global address is labelled "Global address". A call with no mail service chosen shows the row as failed with `no_mail_service`; a person without an address was already skipped with `no_mail_address`. The tag field explains the three uses of a tag, the empty case and that the test message always gets the tag test while the preview uses the tag entered.
+- Strings: panel texts in four languages, plus the reasons `no_mail_address` and `no_mail_service`.
+- Tests: `tests/hub/test_mail_channel.py`, `tests/card/test-send.test.js`. Checked in the browser pane (tag text, both hints); the address rows are covered by pytest only, because the dev instance has no mail service.
+- Blast radius: panel and one extra key in the rows of `hub_plan`; usual restart.

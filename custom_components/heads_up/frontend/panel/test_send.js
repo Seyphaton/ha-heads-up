@@ -66,7 +66,9 @@ export const STRINGS = {
     send_failed: "Sending failed: {text}",
     valid: "The call is valid.",
     problems: { message_required: "Enter a message.", channels_required: "Choose at least one channel.", target_required: "{channel} needs a target.", target_exclusive: "{channel}: give either an audience or recipients." },
-    tag_none: "No tag",
+    tag_hint: "A label for the message, for example water or laundry. Policies can apply to chosen tags, a card can show only banners with one tag, and clearing can remove every message with a tag. Leave it empty for none. This tag decides which policies the preview applies; the test message itself always gets the tag test.",
+    behaviour_none: "Nothing here applies: mail and speech cannot be taken back, dismissed or snoozed.",
+    behaviour_some: "Mail and speech ignore these choices; the other channels use them.",
     behaviour: "Behaviour",
     dismissible: "Can be dismissed",
     dismiss_scope: "When someone dismisses it",
@@ -145,7 +147,9 @@ export const STRINGS = {
     send_failed: "Senden fehlgeschlagen: {text}",
     valid: "Der Aufruf ist gültig.",
     problems: { message_required: "Gib eine Meldung ein.", channels_required: "Wähle mindestens einen Kanal.", target_required: "{channel} braucht ein Ziel.", target_exclusive: "{channel}: gib entweder eine Zielgruppe oder Empfänger an." },
-    tag_none: "Kein Tag",
+    tag_hint: "Ein Etikett für die Meldung, zum Beispiel water oder laundry. Richtlinien können für bestimmte Tags gelten, eine Karte kann nur Banner mit einem Tag zeigen, und beim Entfernen lassen sich alle Meldungen mit einem Tag entfernen. Leer lassen für keins. Dieser Tag bestimmt, welche Richtlinien die Vorschau anwendet; die Testmeldung selbst bekommt immer den Tag test.",
+    behaviour_none: "Hier gilt nichts: E-Mail und Sprache lassen sich nicht zurücknehmen, ausblenden oder zurückstellen.",
+    behaviour_some: "E-Mail und Sprache ignorieren diese Auswahl; die anderen Kanäle nutzen sie.",
     behaviour: "Verhalten",
     dismissible: "Kann ausgeblendet werden",
     dismiss_scope: "Wenn jemand es ausblendet",
@@ -224,7 +228,9 @@ export const STRINGS = {
     send_failed: "Échec de l'envoi : {text}",
     valid: "L'appel est valide.",
     problems: { message_required: "Saisissez un message.", channels_required: "Choisissez au moins un canal.", target_required: "{channel} a besoin d'une cible.", target_exclusive: "{channel} : indiquez soit une audience soit des destinataires." },
-    tag_none: "Aucune étiquette",
+    tag_hint: "Un libellé pour le message, par exemple water ou laundry. Des politiques peuvent s'appliquer à certaines étiquettes, une carte peut n'afficher que les bannières d'une étiquette, et la suppression peut retirer tous les messages d'une étiquette. Laissez vide pour aucune. Cette étiquette décide des politiques que l'aperçu applique ; le message de test reçoit toujours l'étiquette test.",
+    behaviour_none: "Rien ne s'applique ici : un courriel et la voix ne peuvent pas être repris, masqués ni reportés.",
+    behaviour_some: "Le courriel et la voix ignorent ces choix ; les autres canaux les utilisent.",
     behaviour: "Comportement",
     dismissible: "Peut être masqué",
     dismiss_scope: "Quand quelqu'un le masque",
@@ -303,7 +309,9 @@ export const STRINGS = {
     send_failed: "Falló el envío: {text}",
     valid: "La llamada es válida.",
     problems: { message_required: "Introduce un mensaje.", channels_required: "Elige al menos un canal.", target_required: "{channel} necesita un destino.", target_exclusive: "{channel}: indica una audiencia o destinatarios." },
-    tag_none: "Sin etiqueta",
+    tag_hint: "Un rótulo para el mensaje, por ejemplo water o laundry. Las políticas pueden aplicarse a ciertas etiquetas, una tarjeta puede mostrar solo avisos con una etiqueta, y al borrar se pueden quitar todos los mensajes con una etiqueta. Déjalo vacío para ninguna. Esta etiqueta decide qué políticas aplica la vista previa; el mensaje de prueba siempre recibe la etiqueta test.",
+    behaviour_none: "Aquí no se aplica nada: el correo y la voz no se pueden retirar, descartar ni posponer.",
+    behaviour_some: "El correo y la voz ignoran estas opciones; los demás canales las usan.",
     behaviour: "Comportamiento",
     dismissible: "Se puede descartar",
     dismiss_scope: "Cuando alguien lo descarta",
@@ -444,6 +452,14 @@ export function laterText(step, t, s) {
   }
 }
 
+// Mail and speech cannot be taken back, dismissed or snoozed: "behaviour_none" when the call has
+// nothing else, "behaviour_some" when other channels still use the choices, otherwise null.
+export function behaviourUnused(channels) {
+  const quiet = (channels || []).filter((c) => c === "mail" || c === "speak");
+  if (quiet.length === 0) return null;
+  return quiet.length === (channels || []).length ? "behaviour_none" : "behaviour_some";
+}
+
 function el(tag, props = {}, children = []) {
   const created = document.createElement(tag);
   Object.assign(created, props);
@@ -454,6 +470,7 @@ function el(tag, props = {}, children = []) {
 // Who a result row is for: the person (with the device on push), the people a banner is limited to,
 // or everyone.
 export function rowRecipient(row, result, choices, t) {
+  if (row.recipient === "mail:global") return "Global address"; // the name a call uses for it
   const personName = (id) => choices.persons.find((p) => p.id === id)?.name ?? id;
   if (row.recipient.startsWith("device:")) {
     const device = choices.registrations.find((r) => `device:${r.id}` === row.recipient)?.name;
@@ -497,7 +514,7 @@ export function mount(container, ctx) {
 
     const callBox = el("section", {}, [el("h2", { textContent: t.call })]);
     callBox.append(ui.field(t.severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: s.severity[k] })), values.severity, (v) => { values.severity = v; change(); })));
-    callBox.append(ui.field(t.tag, ui.textInput(values.tag, (v) => { values.tag = v; change(); }), t.tag_none));
+    callBox.append(ui.field(t.tag, ui.textInput(values.tag, (v) => { values.tag = v; change(); }), t.tag_hint));
     callBox.append(ui.chips(t.channels, CHANNELS.map((c) => ({ value: c, label: channelLabel(c) })), values.channels, (list) => { values.channels = list; render(); schedule(); }));
     const policies = [{ value: "", label: t.policy_all }, { value: "none", label: t.policy_none }, ...data.policies.map((p) => ({ value: p.name, label: p.name }))];
     callBox.append(ui.field(t.policy, ui.selectInput(policies, values.policy, (v) => { values.policy = v; change(); })));
@@ -512,6 +529,8 @@ export function mount(container, ctx) {
       behaviour.append(el("div", { className: "hint", textContent: t.pinned_hint }));
     }
     behaviour.append(el("div", { className: "hint", textContent: t.behaviour_hint }));
+    const unused = behaviourUnused(values.channels);
+    if (unused) behaviour.append(el("div", { className: "hint", textContent: t[unused] }));
 
     const who = el("section", {}, [el("h2", { textContent: t.who })]);
     const labels = { audience: t.target_audience, recipients: t.target_recipients, persistent: t.target_persistent };
@@ -552,7 +571,8 @@ export function mount(container, ctx) {
       if (row.result === "held" && row.until) words[0] = fill(t.held_until, { when: fmt.inTime(row.until, now, s) });
       if (row.reason && row.reason !== "summarize") words.push(fmt.reasonText(row.reason, s));
       if (row.note === "quiet") words.push(t.note_quiet);
-      return el("tr", {}, [el("td", { textContent: via + recipient }), el("td", { textContent: row.channel ? channelLabel(row.channel) : "" }), el("td", { textContent: words.filter(Boolean).join(" · ") })]);
+      const to = row.address ? `${recipient} (${row.address})` : recipient;
+      return el("tr", {}, [el("td", { textContent: via + to }), el("td", { textContent: row.channel ? channelLabel(row.channel) : "" }), el("td", { textContent: words.filter(Boolean).join(" · ") })]);
     });
     box.append(el("table", {}, [el("thead", {}, [head]), el("tbody", {}, rows)]));
     box.append(el("h2", { textContent: t.summary, style: "margin-top:12px" }), el("div", { textContent: summaryLine(result.rows, s) }));

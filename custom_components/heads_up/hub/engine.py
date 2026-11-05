@@ -353,6 +353,13 @@ class HubEngine:
             "until": None,
             "via": None,
         }
+        mail = self.channels.get("mail")
+        if item.channel == "mail" and item.result is Result.SENT and hasattr(mail, "check"):
+            # Where the mail would go, and whether it would fail for want of an address (D-178).
+            address, problem = mail.check(self._target(item, message, ack=False))
+            row["address"] = address or None
+            if problem:
+                return {**row, "result": "failed", "reason": problem}
         if summary is not None:
             return {**row, "result": "held", "reason": "summarize", "note": summary.name}
         if item.result is Result.SENT:
