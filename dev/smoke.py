@@ -225,6 +225,7 @@ async def for_template() -> None:
         print("create for:", (await call(s, admin, "create_banner", waits))["status"])
         print("create template:", (await call(s, admin, "create_banner", templ))["status"])
         await toggle(s, admin, True)
+
         # Only the banners of this run count: the instance may hold others (rules, own banners).
         async def mine() -> list[str]:
             ws = await connect(s, admin)
