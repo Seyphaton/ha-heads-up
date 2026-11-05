@@ -107,3 +107,4 @@ Follow `docs/dev/RELEASE.md`, "Before the first release". Needs the maintainer: 
 - 2026-11-05: maintainer note 6 (D-179): the Recipients page is a table of people and channels, stacked below 560 px, disabled people greyed. Note 4 (popup corners) open.
 - 2026-11-05: maintainer note 4 (D-180): the popup style per severity offers all four corners, the centered window or off. All six notes of the maintainer list are done; pushes and a possible alpha.7 tag are open.
 - 2026-11-05: policy sources (D-181), step 1: Escalation, Deliver and Fallback can take channels or recipients from the call; model, engine, integration form, strings, tests. Panel editor, sentence and docs follow.
+- 2026-11-05: policy sources (D-181, D-182) done: panel editor, sentence, wording, docs. Not seen on a real device.

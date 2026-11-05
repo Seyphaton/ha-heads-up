@@ -221,6 +221,9 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
         if hub
         else {}
     )
+    if hub:
+        # The persons of the "people" target of a policy whose channels come from the call (D-181).
+        known["people"] = hub.recipients.known("popup")
     return {
         "entry_id": entry.entry_id,
         "audiences": audiences,

@@ -283,15 +283,36 @@ Acknowledging says that someone has seen a message. It stops every escalation an
 - The acknowledgement stays when the message is updated with the same severity. A new severity starts again. A watch rule message starts again each time its condition turns false and true.
 - Home Assistant stores who acknowledged in `acknowledged_by`. No event is fired.
 
+### Channels and recipients from the call
+
+Escalation, Deliver and Fallback add a delivery to a call. Each has two settings, Channels come from and Recipients come from. By default both come from the policy: you list the channels and give the audience or recipients for each. You can take either from the call instead.
+
+| Channels come from | Recipients come from | What the policy sends |
+|---|---|---|
+| This policy | This policy | The channels you list, to the recipients you give for each. This is the default. |
+| The call | This policy | The channels of the call, to other people: the same channels, new recipients. |
+| The call, only the channels that reached nobody (Fallback only) | This policy | The channels of the call that reached nobody, to other people. |
+| This policy | The call | The channels you list, to the people and speakers the call named: new channels, the same recipients. |
+
+Taking both from the call is refused, because the policy would add nothing. Escalation and Deliver offer three of the four rows: they have no failure to react to, so they do not offer "only the channels that reached nobody".
+
+- When the channels come from the call, the policy has a People target (an audience or persons, used for push, popup and mail) and a Speakers target (used for speech). Give at least one; a kind of channel without a target is skipped.
+- When the recipients come from the call, the people are the audience or persons the call gave on push, popup or mail, reused on every new channel that takes people. Speech uses the speakers the call named, or is skipped when it named none. The Persistent Notification needs no target. The banner is never part of these deliveries.
+- Someone who already has the message on a channel is not notified there a second time.
+
+Example: send to At home, and fall back to Everyone when nobody is home. Add a Fallback policy that applies to the tag `home-only`, with Use when "Nobody to notify", Channels come from "The call", and the People target set to the audience Everyone. A call with `channels: [push]`, `to: {push: {audience: At home}}` and `tag: home-only` then pushes to Everyone when At home is empty.
+
 ### Escalation
 
-If nobody acknowledges within the time, the policy delivers the message on the channels you choose, to the targets you choose for each channel.
+If nobody acknowledges within the time, the policy delivers the message on the channels you choose, to the targets you choose for each channel, or on the channels of the call to other people, or on other channels to the people of the call.
 
 | Field | Default | Meaning |
 |---|---|---|
 | Escalate after (minutes) | 5 | Time from the moment the message is visible. |
-| Channels | none | `push`, `popup`, `speak`, `persistent`, `mail`. |
-| Targets | none | Per channel an audience or recipients, never both. Speak takes recipients only; a persistent notification takes none. |
+| Channels come from | This policy | This policy, or the call. See above. |
+| Channels | none | `push`, `popup`, `speak`, `persistent`, `mail`; used when the channels come from the policy. |
+| Recipients come from | This policy | This policy, or the call. |
+| Targets | none | Per channel an audience or recipients, never both. Speak takes recipients only; a persistent notification takes none. With channels from the call: a People target and a Speakers target. |
 | Dismissing counts as acknowledging | off | A dismissal by anyone stops this escalation. |
 
 - Someone who already has the message on that channel is not notified a second time.
@@ -343,12 +364,12 @@ A person who is not home when a message is sent gets it when they arrive, if the
 
 ### Fallback
 
-If the first delivery of a message reached nobody on a channel, the policy delivers on its own channels to its own targets.
+If the first delivery of a message reached nobody on a channel, the policy delivers somewhere else: on its own channels to its own targets, on the channels of the call to other people, or on other channels to the same people. It is not limited to other channels: a Fallback on push can send the same message to another audience.
 
 | Field | Default | Meaning |
 |---|---|---|
 | Use when | Nobody to notify | Nobody to notify: the audience resolved to nobody (for example nobody is home). Delivery failed: the person has no usable device or sending failed. Both: either. |
-| Channels, targets | none | As for an escalation. |
+| Channels come from, Channels, Recipients come from, Targets | This policy | As for an escalation, with a fourth choice for the channels: the channels of the call that reached nobody for the reason you chose. "Same recipients" helps only with Delivery failed: when the audience was empty, the same recipients are empty too. |
 
 - A fallback is judged once, after the first delivery of the message. It is not judged again on updates, and escalations, reminders and fallbacks never start a fallback.
 - A channel with a delivery that was sent or held counts as reached. The banner does not count.
@@ -356,7 +377,7 @@ If the first delivery of a message reached nobody on a channel, the policy deliv
 
 ### Deliver
 
-A call names the channels of its first delivery. A Deliver policy adds channels and targets to it, at once, for the messages it applies to. It is how a critical message reaches phones the moment it appears even when the automation or the watch rule only creates a banner.
+A call names the channels of its first delivery. A Deliver policy adds channels and targets to it, at once, for the messages it applies to: its own channels and targets, the channels of the call for other people, or other channels for the people of the call. It is how a critical message reaches phones the moment it appears even when the automation or the watch rule only creates a banner.
 
 - It fires once per message, at its first delivery. An update replaces what it sent, like the call's own deliveries.
 - Someone who already has the message on that channel from the call is not notified a second time.

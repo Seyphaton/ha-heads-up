@@ -56,6 +56,18 @@ export const STRINGS = {
     max_wait: "Wait for arrival (minutes, 0: as long as the message lives)",
     when: "Use when",
     whens: WHENS.en,
+    channels_from: "Channels come from",
+    targets_from: "Recipients come from",
+    cf: { policy: "This policy (the channels below)", call: "The call (the same channels)", failed: "The call, only the channels that reached nobody" },
+    tf: { policy: "This policy (the recipients below)", call: "The call (the same recipients)" },
+    people_target: "People: push, popup and mail",
+    speakers_target: "Speakers: speech",
+    tf_call_hint: "The people and speakers the call named receive it on the channels above.",
+    same_empty: "The call reached nobody because the audience was empty, so the same recipients are empty too. Use Delivery failed, or give other recipients.",
+    s_channels_call: "the channels of the call",
+    s_channels_failed: "the channels of the call that reached nobody",
+    s_recipients_call: " The recipients are the ones the call named.",
+    s_recipients_policy: " It goes to {who}.",
     summary_mode: "Send the summary",
     summary_every_mode: "Every N minutes",
     summary_at_mode: "At a time of day",
@@ -74,7 +86,7 @@ export const STRINGS = {
     enabled_hint: "A disabled policy is never used, not even when a call names it.",
     sec_when: "Which messages",
     sec_does: "What it does",
-    type_desc: {"escalation": "If nobody acknowledges within the time, the message is also delivered on the channels and to the targets you choose.", "reminder": "While nobody acknowledges, the message is repeated at an interval, up to a maximum.", "quiet_hours": "Between two times of day, deliveries outside the dashboard are sent quietly, held until the end or dropped.", "away": "A person who is not home gets the message when they arrive, if it is still there.", "fallback": "If the first delivery reached nobody, the message is delivered on other channels or to other targets.", "summarize": "Matching messages are held on every channel, the banner included, and one summary is sent instead.", "deliver": "Matching messages are also delivered at once to the audience and channels you choose."},
+    type_desc: {"escalation": "If nobody acknowledges within the time, the message is also delivered on the channels and to the targets you choose.", "reminder": "While nobody acknowledges, the message is repeated at an interval, up to a maximum.", "quiet_hours": "Between two times of day, deliveries outside the dashboard are sent quietly, held until the end or dropped.", "away": "A person who is not home gets the message when they arrive, if it is still there.", "fallback": "If the first delivery reached nobody, the message is delivered somewhere else: on other channels, or to other people on the same channels.", "summarize": "Matching messages are held on every channel, the banner included, and one summary is sent instead.", "deliver": "Matching messages are also delivered at once to the audience and channels you choose."},
     apply_label: "Attaches to messages",
     apply_auto: "Automatically",
     apply_auto_hint: "Every message whose severity and tag match gets this policy. An empty list matches any.",
@@ -153,6 +165,18 @@ export const STRINGS = {
     max_wait: "Auf Ankunft warten (Minuten, 0: solange die Meldung besteht)",
     when: "Verwenden, wenn",
     whens: WHENS.de,
+    channels_from: "Kanäle stammen aus",
+    targets_from: "Empfänger stammen aus",
+    cf: { policy: "Diese Richtlinie (die Kanäle unten)", call: "Der Aufruf (dieselben Kanäle)", failed: "Der Aufruf, nur die Kanäle, die niemanden erreicht haben" },
+    tf: { policy: "Diese Richtlinie (die Empfänger unten)", call: "Der Aufruf (dieselben Empfänger)" },
+    people_target: "Personen: Push, Popup und E-Mail",
+    speakers_target: "Lautsprecher: Sprache",
+    tf_call_hint: "Die Personen und Lautsprecher, die der Aufruf nannte, erhalten es auf den Kanälen oben.",
+    same_empty: "Der Aufruf hat niemanden erreicht, weil die Zielgruppe leer war; dieselben Empfänger sind also auch leer. Nimm Zustellung fehlgeschlagen oder gib andere Empfänger an.",
+    s_channels_call: "den Kanälen des Aufrufs",
+    s_channels_failed: "den Kanälen des Aufrufs, die niemanden erreicht haben",
+    s_recipients_call: " Die Empfänger sind die, die der Aufruf nannte.",
+    s_recipients_policy: " Es geht an {who}.",
     summary_mode: "Zusammenfassung senden",
     summary_every_mode: "Alle N Minuten",
     summary_at_mode: "Zu einer Uhrzeit",
@@ -171,7 +195,7 @@ export const STRINGS = {
     enabled_hint: "Eine deaktivierte Richtlinie wird nie genutzt, auch nicht, wenn ein Aufruf sie nennt.",
     sec_when: "Welche Meldungen",
     sec_does: "Was sie tut",
-    type_desc: {"escalation": "Bestätigt niemand innerhalb der Zeit, wird die Meldung zusätzlich auf den gewählten Kanälen und an die gewählten Ziele zugestellt.", "reminder": "Solange niemand bestätigt, wird die Meldung in einem Abstand wiederholt, höchstens so oft wie eingestellt.", "quiet_hours": "Zwischen zwei Uhrzeiten werden Zustellungen außerhalb des Dashboards leise gesendet, bis zum Ende zurückgehalten oder verworfen.", "away": "Eine Person, die nicht zu Hause ist, bekommt die Meldung bei der Ankunft, wenn sie noch da ist.", "fallback": "Hat die erste Zustellung niemanden erreicht, wird die Meldung auf anderen Kanälen oder an andere Ziele zugestellt.", "summarize": "Passende Meldungen werden auf jedem Kanal zurückgehalten, auch im Banner, und stattdessen wird eine Zusammenfassung gesendet.", "deliver": "Passende Meldungen werden zusätzlich sofort an die gewählte Zielgruppe auf den gewählten Kanälen zugestellt."},
+    type_desc: {"escalation": "Bestätigt niemand innerhalb der Zeit, wird die Meldung zusätzlich auf den gewählten Kanälen und an die gewählten Ziele zugestellt.", "reminder": "Solange niemand bestätigt, wird die Meldung in einem Abstand wiederholt, höchstens so oft wie eingestellt.", "quiet_hours": "Zwischen zwei Uhrzeiten werden Zustellungen außerhalb des Dashboards leise gesendet, bis zum Ende zurückgehalten oder verworfen.", "away": "Eine Person, die nicht zu Hause ist, bekommt die Meldung bei der Ankunft, wenn sie noch da ist.", "fallback": "Hat die erste Zustellung niemanden erreicht, wird die Meldung anderswo zugestellt: auf anderen Kanälen oder an andere Personen auf denselben Kanälen.", "summarize": "Passende Meldungen werden auf jedem Kanal zurückgehalten, auch im Banner, und stattdessen wird eine Zusammenfassung gesendet.", "deliver": "Passende Meldungen werden zusätzlich sofort an die gewählte Zielgruppe auf den gewählten Kanälen zugestellt."},
     apply_label: "Gilt für Meldungen",
     apply_auto: "Automatisch",
     apply_auto_hint: "Jede Meldung, deren Schweregrad und Tag passen, bekommt diese Richtlinie. Eine leere Liste passt auf alles.",
@@ -250,6 +274,18 @@ export const STRINGS = {
     max_wait: "Attendre l'arrivée (minutes, 0 : tant que le message existe)",
     when: "Utiliser quand",
     whens: WHENS.fr,
+    channels_from: "Les canaux viennent de",
+    targets_from: "Les destinataires viennent de",
+    cf: { policy: "Cette politique (les canaux ci-dessous)", call: "L'appel (les mêmes canaux)", failed: "L'appel, seulement les canaux qui n'ont atteint personne" },
+    tf: { policy: "Cette politique (les destinataires ci-dessous)", call: "L'appel (les mêmes destinataires)" },
+    people_target: "Personnes : push, fenêtre et courriel",
+    speakers_target: "Haut-parleurs : voix",
+    tf_call_hint: "Les personnes et haut-parleurs que l'appel a nommés le reçoivent sur les canaux ci-dessus.",
+    same_empty: "L'appel n'a atteint personne parce que l'audience était vide ; les mêmes destinataires sont donc vides aussi. Utilisez Échec de l'envoi, ou donnez d'autres destinataires.",
+    s_channels_call: "les canaux de l'appel",
+    s_channels_failed: "les canaux de l'appel qui n'ont atteint personne",
+    s_recipients_call: " Les destinataires sont ceux que l'appel a nommés.",
+    s_recipients_policy: " Il est envoyé à {who}.",
     summary_mode: "Envoyer le résumé",
     summary_every_mode: "Toutes les N minutes",
     summary_at_mode: "À une heure du jour",
@@ -268,7 +304,7 @@ export const STRINGS = {
     enabled_hint: "Une politique désactivée n'est jamais utilisée, même si un appel la nomme.",
     sec_when: "Quels messages",
     sec_does: "Ce qu'elle fait",
-    type_desc: {"escalation": "Si personne ne confirme dans le délai, le message est aussi remis sur les canaux et aux cibles que vous choisissez.", "reminder": "Tant que personne ne confirme, le message est répété à intervalle régulier, jusqu'à un maximum.", "quiet_hours": "Entre deux heures de la journée, les remises hors tableau de bord sont envoyées discrètement, retenues jusqu'à la fin ou abandonnées.", "away": "Une personne absente reçoit le message à son arrivée, s'il est encore là.", "fallback": "Si la première remise n'a joint personne, le message est remis sur d'autres canaux ou à d'autres cibles.", "summarize": "Les messages correspondants sont retenus sur chaque canal, bannière comprise, et un seul résumé est envoyé à la place.", "deliver": "Les messages correspondants sont aussi remis tout de suite à l'audience et sur les canaux que vous choisissez."},
+    type_desc: {"escalation": "Si personne ne confirme dans le délai, le message est aussi remis sur les canaux et aux cibles que vous choisissez.", "reminder": "Tant que personne ne confirme, le message est répété à intervalle régulier, jusqu'à un maximum.", "quiet_hours": "Entre deux heures de la journée, les remises hors tableau de bord sont envoyées discrètement, retenues jusqu'à la fin ou abandonnées.", "away": "Une personne absente reçoit le message à son arrivée, s'il est encore là.", "fallback": "Si la première remise n'a joint personne, le message est remis ailleurs : sur d'autres canaux, ou à d'autres personnes sur les mêmes canaux.", "summarize": "Les messages correspondants sont retenus sur chaque canal, bannière comprise, et un seul résumé est envoyé à la place.", "deliver": "Les messages correspondants sont aussi remis tout de suite à l'audience et sur les canaux que vous choisissez."},
     apply_label: "S'applique aux messages",
     apply_auto: "Automatiquement",
     apply_auto_hint: "Chaque message dont la gravité et l'étiquette correspondent reçoit cette politique. Une liste vide correspond à tout.",
@@ -347,6 +383,18 @@ export const STRINGS = {
     max_wait: "Esperar la llegada (minutos, 0: mientras exista el mensaje)",
     when: "Usar cuando",
     whens: WHENS.es,
+    channels_from: "Los canales vienen de",
+    targets_from: "Los destinatarios vienen de",
+    cf: { policy: "Esta política (los canales de abajo)", call: "La llamada (los mismos canales)", failed: "La llamada, solo los canales que no llegaron a nadie" },
+    tf: { policy: "Esta política (los destinatarios de abajo)", call: "La llamada (los mismos destinatarios)" },
+    people_target: "Personas: push, ventana y correo",
+    speakers_target: "Altavoces: voz",
+    tf_call_hint: "Las personas y altavoces que nombró la llamada lo reciben por los canales de arriba.",
+    same_empty: "La llamada no llegó a nadie porque la audiencia estaba vacía, así que los mismos destinatarios también están vacíos. Usa Falló el envío o indica otros destinatarios.",
+    s_channels_call: "los canales de la llamada",
+    s_channels_failed: "los canales de la llamada que no llegaron a nadie",
+    s_recipients_call: " Los destinatarios son los que nombró la llamada.",
+    s_recipients_policy: " Se envía a {who}.",
     summary_mode: "Enviar el resumen",
     summary_every_mode: "Cada N minutos",
     summary_at_mode: "A una hora del día",
@@ -365,7 +413,7 @@ export const STRINGS = {
     enabled_hint: "Una política desactivada nunca se usa, ni siquiera si una llamada la nombra.",
     sec_when: "Qué mensajes",
     sec_does: "Qué hace",
-    type_desc: {"escalation": "Si nadie confirma en el tiempo, el mensaje se entrega también por los canales y a los destinos que elijas.", "reminder": "Mientras nadie confirma, el mensaje se repite a intervalos, hasta un máximo.", "quiet_hours": "Entre dos horas del día, las entregas fuera del panel se envían en silencio, se retienen hasta el final o se descartan.", "away": "Una persona que no está en casa recibe el mensaje al llegar, si sigue ahí.", "fallback": "Si la primera entrega no llegó a nadie, el mensaje se entrega por otros canales o a otros destinos.", "summarize": "Los mensajes que coinciden se retienen en todos los canales, el aviso incluido, y se envía un solo resumen.", "deliver": "Los mensajes que coinciden también se entregan al instante a la audiencia y por los canales que elijas."},
+    type_desc: {"escalation": "Si nadie confirma en el tiempo, el mensaje se entrega también por los canales y a los destinos que elijas.", "reminder": "Mientras nadie confirma, el mensaje se repite a intervalos, hasta un máximo.", "quiet_hours": "Entre dos horas del día, las entregas fuera del panel se envían en silencio, se retienen hasta el final o se descartan.", "away": "Una persona que no está en casa recibe el mensaje al llegar, si sigue ahí.", "fallback": "Si la primera entrega no llegó a nadie, el mensaje se entrega en otro sitio: por otros canales o a otras personas por los mismos canales.", "summarize": "Los mensajes que coinciden se retienen en todos los canales, el aviso incluido, y se envía un solo resumen.", "deliver": "Los mensajes que coinciden también se entregan al instante a la audiencia y por los canales que elijas."},
     apply_label: "Se aplica a los mensajes",
     apply_auto: "Automáticamente",
     apply_auto_hint: "Cada mensaje cuya gravedad y etiqueta coinciden recibe esta política. Una lista vacía coincide con todo.",
@@ -453,6 +501,8 @@ export function blankValues(type = "escalation") {
     apply: "auto",
     after_minutes: 5,
     channels: [],
+    channels_from: "policy",
+    targets_from: "policy",
     dismiss_acks: false,
     every_minutes: 30,
     max_count: 3,
@@ -472,6 +522,8 @@ export function blankValues(type = "escalation") {
     popup_audience: "",
     popup_recipients: [],
     speak_recipients: [],
+    people_audience: "",
+    people_recipients: [],
   };
 }
 
@@ -491,6 +543,8 @@ export function fromPolicy(policy) {
   for (const key of ["from_time", "to_time", "action", "when", "summary_at"]) {
     if (data[key]) values[key] = data[key];
   }
+  if (data.channels_from) values.channels_from = data.channels_from;
+  if (data.targets_from) values.targets_from = data.targets_from;
   if (data.type === "summarize") values.summary_mode = data.summary_at ? "at" : "every";
   for (const [channel, target] of Object.entries(data.targets || {})) {
     if (target.audience) values[`${channel}_audience`] = target.audience;
@@ -514,15 +568,29 @@ export function toFlowData(values) {
     tags: values.apply === "manual" ? [] : splitTags(values.tags),
     enabled: Boolean(values.enabled),
   };
+  // Which target fields go to the flow: none when the recipients come from the call, the people and
+  // speakers targets when the channels do, else one per chosen channel (D-181).
+  const targetKeys = () => {
+    if (values.targets_from === "call") return [];
+    if (values.channels_from !== "policy") return ["people", "speak"];
+    return values.channels.filter((c) => TARGET_CHANNELS.includes(c));
+  };
   const targets = () => {
-    for (const channel of values.channels.filter((c) => TARGET_CHANNELS.includes(c))) {
+    for (const channel of targetKeys()) {
       if (values[`${channel}_audience`]) data[`${channel}_audience`] = values[`${channel}_audience`];
       if ((values[`${channel}_recipients`] || []).length) data[`${channel}_recipients`] = [...values[`${channel}_recipients`]];
     }
   };
+  const sources = () => {
+    // Sent only when they differ from the default, as the server stores them (D-181).
+    if (values.channels_from !== "policy") data.channels_from = values.channels_from;
+    if (values.targets_from !== "policy") data.targets_from = values.targets_from;
+    data.channels = values.channels_from === "policy" ? [...values.channels] : [];
+  };
   switch (values.type) {
     case "escalation":
-      Object.assign(data, { after_minutes: values.after_minutes, channels: [...values.channels], dismiss_acks: Boolean(values.dismiss_acks) });
+      Object.assign(data, { after_minutes: values.after_minutes, dismiss_acks: Boolean(values.dismiss_acks) });
+      sources();
       targets();
       break;
     case "reminder":
@@ -535,11 +603,12 @@ export function toFlowData(values) {
       data.max_wait = values.max_wait || 0;
       break;
     case "fallback":
-      Object.assign(data, { when: values.when, channels: [...values.channels] });
+      data.when = values.when;
+      sources();
       targets();
       break;
     case "deliver":
-      data.channels = [...values.channels];
+      sources();
       targets();
       break;
     default:
@@ -573,11 +642,21 @@ export function validate(values, existingNames, ownName) {
     if (values.summary_mode !== "at" && !positive(values.summary_every)) problems.summary_every = "every_required";
   }
   if (needsTargets) {
-    if (values.channels.length === 0) problems.channels = "channels_required";
-    for (const channel of values.channels.filter((c) => TARGET_CHANNELS.includes(c))) {
-      const audience = values[`${channel}_audience`];
-      const recipients = values[`${channel}_recipients`] || [];
-      if (Boolean(audience) === (recipients.length > 0)) problems[`${channel}_target`] = "target_exclusive";
+    const channelsFromPolicy = values.channels_from === "policy";
+    if (!channelsFromPolicy && values.targets_from !== "policy") problems.targets_from = "nothing_new";
+    if (channelsFromPolicy && values.channels.length === 0) problems.channels = "channels_required";
+    if (values.targets_from !== "call") {
+      // Channels from the call: the people and speakers targets are optional one by one, but one is set.
+      const keys = channelsFromPolicy ? values.channels.filter((c) => TARGET_CHANNELS.includes(c)) : ["people", "speak"];
+      let anySet = false;
+      for (const channel of keys) {
+        const audience = values[`${channel}_audience`];
+        const recipients = values[`${channel}_recipients`] || [];
+        if (!channelsFromPolicy && !audience && recipients.length === 0) continue;
+        anySet = true;
+        if (Boolean(audience) === (recipients.length > 0)) problems[`${channel}_target`] = "target_exclusive";
+      }
+      if (!channelsFromPolicy && !anySet) problems.people_target = "target_required";
     }
   }
   return problems;
@@ -657,8 +736,22 @@ export function appliesText(values, t) {
 }
 
 export function sentence(values, t) {
+  const text = sentenceBase(values, t);
+  // Recipients taken from the call are said once, after the sentence (D-181).
+  if (!["escalation", "fallback", "deliver"].includes(values.type)) return text;
+  if (values.targets_from === "call") return `${text}${t.s_recipients_call}`;
+  // Channels from the call and the people given by the policy: say who gets it.
+  if (values.channels_from !== "policy") {
+    const who = [values.people_audience, ...(values.people_recipients || []), ...(values.speak_recipients || [])].filter(Boolean).join(", ");
+    if (who) return `${text}${fill(t.s_recipients_policy, { who })}`;
+  }
+  return text;
+}
+
+function sentenceBase(values, t) {
   const applies = appliesText(values, t);
-  const channels = values.channels.map((c) => t.channel_names[c]).join(", ") || "—";
+  const named = values.channels.map((c) => t.channel_names[c]).join(", ") || "—";
+  const channels = values.channels_from === "call" ? t.s_channels_call : values.channels_from === "failed" ? t.s_channels_failed : named;
   switch (values.type) {
     case "escalation":
       return fill(t.s_escalation, { applies, n: values.after_minutes, channels });
@@ -827,11 +920,28 @@ export function mount(container, ctx) {
         does.append(ui.targetBlock(channel, values, data.choices, { ...labels, channel: fill(t.target_channel, { channel: t.channel_names[channel] }) }, (mode) => (mode ? again() : paint())));
       }
     };
+    // Escalation, Deliver and Fallback: the channels and the recipients come from this policy or from
+    // the call, in the four combinations of D-181. Taking both from the call adds nothing.
+    const peopleBlocks = () => {
+      const labels = { audience: t.target_audience, recipients: t.target_recipients, persistent: t.target_persistent };
+      does.append(ui.targetBlock("people", values, data.choices, { ...labels, channel: t.people_target }, (mode) => (mode ? again() : paint())));
+      does.append(ui.targetBlock("speak", values, data.choices, { ...labels, channel: t.speakers_target }, () => paint()));
+    };
+    const sourceControls = (kind) => {
+      const from = ["policy", "call", ...(kind === "fallback" ? ["failed"] : [])];
+      does.append(ui.field(t.channels_from, ui.selectInput(from.map((k) => ({ value: k, label: t.cf[k] })), values.channels_from, (v) => { values.channels_from = v; again(); })));
+      does.append(ui.field(t.targets_from, ui.selectInput(["policy", "call"].map((k) => ({ value: k, label: t.tf[k] })), values.targets_from, (v) => { values.targets_from = v; again(); })));
+      if (values.channels_from === "policy") channelChips(t.channels);
+      if (values.targets_from === "call") {
+        does.append(el("div", { className: "hint", textContent: t.tf_call_hint }));
+        if (kind === "fallback" && values.when === "no_audience") does.append(el("div", { className: "hint problems", textContent: t.same_empty }));
+      } else if (values.channels_from === "policy") targetBlocks();
+      else peopleBlocks();
+    };
     switch (values.type) {
       case "escalation":
         number("after_minutes", t.after);
-        channelChips(t.channels);
-        targetBlocks();
+        sourceControls("escalation");
         does.append(ui.checkbox(t.dismiss_acks, values.dismiss_acks, (on) => { values.dismiss_acks = on; paint(); }));
         does.append(el("div", { className: "hint", textContent: t.ack_note }));
         break;
@@ -852,13 +962,11 @@ export function mount(container, ctx) {
         number("max_wait", t.max_wait, 0);
         break;
       case "deliver":
-        channelChips(t.channels);
-        targetBlocks();
+        sourceControls("deliver");
         break;
       case "fallback":
-        does.append(ui.field(t.when, ui.selectInput(["no_audience", "failed", "both"].map((k) => ({ value: k, label: t.whens[k] })), values.when, (v) => { values.when = v; paint(); })));
-        channelChips(t.channels);
-        targetBlocks();
+        does.append(ui.field(t.when, ui.selectInput(["no_audience", "failed", "both"].map((k) => ({ value: k, label: t.whens[k] })), values.when, (v) => { values.when = v; again(); })));
+        sourceControls("fallback");
         break;
       default:
         does.append(ui.field(t.summary_mode, ui.selectInput([{ value: "every", label: t.summary_every_mode }, { value: "at", label: t.summary_at_mode }], values.summary_mode, (v) => { values.summary_mode = v; again(); })));

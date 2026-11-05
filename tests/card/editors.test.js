@@ -535,3 +535,72 @@ describe("recipients list channel states", () => {
     }
   });
 });
+
+describe("policy channels and recipients from the call", () => {
+  const base = (extra) => ({ ...blankPolicy("fallback"), name: "Everyone instead", when: "no_audience", ...extra });
+
+  it("sends the two settings only when they are not the default", () => {
+    const data = policyData(base({ channels: ["push"], push_recipients: ["person.ben"] }));
+    expect(data.channels_from).toBeUndefined();
+    expect(data.targets_from).toBeUndefined();
+  });
+
+  it("same channels, new people: no channels, the people and speakers targets", () => {
+    const data = policyData(base({ channels_from: "call", channels: ["push"], people_audience: "Everyone", speak_recipients: ["media_player.hall"] }));
+    expect(data.channels_from).toBe("call");
+    expect(data.channels).toEqual([]);
+    expect(data.people_audience).toBe("Everyone");
+    expect(data.speak_recipients).toEqual(["media_player.hall"]);
+    expect(data.push_audience).toBeUndefined();
+  });
+
+  it("only the failed channels is a fallback setting", () => {
+    expect(policyData(base({ channels_from: "failed", people_audience: "Everyone" })).channels_from).toBe("failed");
+  });
+
+  it("new channels, same recipients: the channels and no targets", () => {
+    const data = policyData(base({ targets_from: "call", channels: ["popup"], popup_audience: "Admins" }));
+    expect(data.targets_from).toBe("call");
+    expect(data.channels).toEqual(["popup"]);
+    expect(data.popup_audience).toBeUndefined();
+  });
+
+  it("is checked like the server checks it", () => {
+    expect(validatePolicy(base({ channels_from: "call", people_audience: "Everyone" }), [], "")).toEqual({});
+    expect(validatePolicy(base({ channels_from: "call" }), [], "").people_target).toBe("target_required");
+    expect(validatePolicy(base({ channels_from: "call", targets_from: "call" }), [], "").targets_from).toBe("nothing_new");
+    expect(validatePolicy(base({ targets_from: "call", channels: [] }), [], "").channels).toBe("channels_required");
+    expect(validatePolicy(base({ targets_from: "call", channels: ["push"] }), [], "")).toEqual({});
+    expect(validatePolicy(base({ channels_from: "call", people_audience: "Everyone", people_recipients: ["person.ben"] }), [], "").people_target).toBe("target_exclusive");
+  });
+
+  it("reads the settings and the targets of a stored policy back", () => {
+    const values = fromPolicy({ name: "P", data: { type: "fallback", when: "failed", channels_from: "failed", targets: { people: { audience: "Everyone" }, speak: { recipients: ["media_player.hall"] } } } });
+    expect(values.channels_from).toBe("failed");
+    expect(values.targets_from).toBe("policy");
+    expect(values.people_audience).toBe("Everyone");
+    expect(values.speak_recipients).toEqual(["media_player.hall"]);
+  });
+
+  it("says where the channels and the recipients come from", () => {
+    const t = POLICY_STRINGS.en;
+    expect(sentence(base({ channels_from: "call", people_audience: "Everyone" }), t)).toContain("the channels of the call");
+    expect(sentence(base({ channels_from: "failed", people_audience: "Everyone" }), t)).toContain("that reached nobody");
+    const same = sentence(base({ targets_from: "call", channels: ["popup"] }), t);
+    expect(same).toContain("Popup");
+    expect(same.endsWith(t.s_recipients_call)).toBe(true);
+    const named = sentence(base({ channels_from: "call", people_audience: "Everyone", speak_recipients: ["media_player.hall"] }), t);
+    expect(named.endsWith("It goes to Everyone, media_player.hall.")).toBe(true);
+  });
+
+  it("has the new words in all four languages", () => {
+    for (const lang of ["en", "de", "fr", "es"]) {
+      const t = POLICY_STRINGS[lang];
+      for (const key of ["channels_from", "targets_from", "people_target", "speakers_target", "tf_call_hint", "same_empty", "s_recipients_policy", "s_channels_call", "s_channels_failed", "s_recipients_call"]) {
+        expect(t[key], `${lang}.${key}`).toBeTruthy();
+      }
+      for (const key of ["policy", "call", "failed"]) expect(t.cf[key], `${lang}.cf.${key}`).toBeTruthy();
+      for (const key of ["policy", "call"]) expect(t.tf[key], `${lang}.tf.${key}`).toBeTruthy();
+    }
+  });
+});
