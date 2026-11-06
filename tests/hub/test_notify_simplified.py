@@ -76,13 +76,13 @@ def test_named_policies_apply_next_to_the_automatic_ones() -> None:
     assert "policy" not in check(channels=["banner"])
 
 
-def test_disabling_the_automatic_policies_keeps_the_named_ones() -> None:
-    assert check(channels=["banner"], policy="Night", disable_automatic_policies=True)[
+def test_matching_policies_automatically_off_keeps_the_named_ones() -> None:
+    assert check(channels=["banner"], policy="Night", match_policies_automatically=False)[
         "policy"
     ] == ["Night"]
-    assert check(channels=["banner"], disable_automatic_policies=True)["policy"] == ["none"]
-    assert "disable_automatic_policies" not in check(
-        channels=["banner"], disable_automatic_policies=False
+    assert check(channels=["banner"], match_policies_automatically=False)["policy"] == ["none"]
+    assert "match_policies_automatically" not in check(
+        channels=["banner"], match_policies_automatically=True
     )
 
 
@@ -91,7 +91,7 @@ def test_none_stands_alone_and_keywords_ignore_case() -> None:
     with pytest.raises(vol.Invalid):
         check(channels=["banner"], policy=["none", "Night"])
     with pytest.raises(vol.Invalid):
-        check(channels=["banner"], policy=["automatic"], disable_automatic_policies=True)
+        check(channels=["banner"], policy=["automatic"], match_policies_automatically=False)
 
 
 async def test_a_manual_policy_applies_next_to_the_automatic_ones_unless_they_are_disabled(
@@ -109,7 +109,25 @@ async def test_a_manual_policy_applies_next_to_the_automatic_ones_unless_they_ar
     assert used() == ["Auto"]
     await send(hass, entry, policy="By hand")
     assert used() == ["Auto", "By hand"]
-    await send(hass, entry, policy="By hand", disable_automatic_policies=True)
+    await send(hass, entry, policy="By hand", match_policies_automatically=False)
     assert used() == ["By hand"]
-    await send(hass, entry, disable_automatic_policies=True)
+    await send(hass, entry, match_policies_automatically=False)
     assert used() == []
+
+
+def test_the_hub_actions_default_to_info() -> None:
+    assert check(channels=["banner"])["severity"] == "info"
+    for channel in ("push", "popup"):
+        assert SCHEMAS[channel]({"message": "x", "audience": "At home"})["severity"] == "info"
+    assert (
+        SCHEMAS["speak"]({"message": "x", "recipients": ["media_player.k"]})["severity"] == "info"
+    )
+
+
+async def test_create_banner_keeps_warning_as_its_default(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    await hass.services.async_call(
+        "heads_up", "create_banner", {"id": "a", "message": "x"}, blocking=True
+    )
+    assert banners(entry)["a"].severity == "warning"

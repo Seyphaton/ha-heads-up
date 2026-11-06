@@ -37,8 +37,8 @@ The banner is on the dashboard for the people who are home, and each of them get
 |---|---|---|---|
 | `message` | text | required | The text, 1–1000 characters. |
 | `title` | text | none | A heading above the message, up to 100 characters. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | How important the message is. It sets the color, the default icon and the sort order of the banner, the level of a push, the style of a popup, and whether quiet hours let the message pass. |
-| `icon` | icon, for example `mdi:water-alert` | the icon of the severity | Replaces the default icon. |
+| `severity` | `success`, `info`, `warning`, `critical` | `info` | How important the message is. It sets the color, the default icon and the sort order of the banner; the push level (`success` and `info` are passive, `warning` normal, `critical` time-sensitive, shown at once on an idle phone); the popup style; and whether quiet hours let the message pass (`critical` does unless you change it). |
+| `icon` | icon, for example `mdi:water-alert` | the icon of the severity | Replaces the default icon on the banner and in the popup. A push, speech, mail and the notification bell do not show it. |
 | `image` | text | none | A picture shown under the message on the card, in the popup and on the push: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/local/door.jpg`, `/media/local/door.jpg`). Up to 2048 characters. Heads Up does not fetch or check it; a wrong path shows no picture. A picture from another host is loaded by the card, the popup and the phone, so that host learns the viewer's address and when the picture is shown. A path on this Home Assistant avoids that. Paths under `/api/` and `/media/` are signed for the card and the popup. The phone loads the picture itself, so it must reach the URL; camera proxy paths (`/api/camera_proxy/...`) work on Android only. The compact card layout shows no picture. With a lock screen setting other than `full`, the push has no picture (`image_hidden` in the trace). |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel, when it should differ from the written message. |
 | `tap_action` | object with `action` | none | A Home Assistant action that runs when someone taps the banner (the card) or the push. Passed on unchanged. Anyone who sees the banner can trigger it; see [SECURITY.md](../SECURITY.md). |
@@ -48,7 +48,7 @@ The banner is on the dashboard for the people who are home, and each of them get
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `channels` | list of channels | required | One or more of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, each at most once. |
-| `disable_automatic_policies` | boolean | `false` | `true` disables all automatically assigned policies (those that match by severity or tag). Manual policies in `policy` still apply. Without a manual policy the call uses no policy. |
+| `match_policies_automatically` | boolean | `true` | `true`: policies that match the severity or tags of the message apply automatically. `false`: only the manual policies in `policy` apply, and none if there is no manual policy. Manual policies always apply. |
 | `policy` | list of policy switches or names | none | Manual policies: they apply next to the automatic policies that match the severity and tag, whatever their own severities and tags say. The form lists one switch per policy (`switch.heads_up_policy_quiet_hours`); in YAML you can also write policy names. A disabled policy is never used. In YAML `policy: none` does the same as `disable_automatic_policies: true` without a manual policy. |
 | `recipients` | list of persons | none | Who gets the message on every channel that takes people: banner, push, popup and mail. Give either `recipients` or `audience`. |
 | `audience` | audience sensor or name | none | A group that gets the message on the same channels. The form lists one sensor per audience (`binary_sensor.heads_up_audience_at_home`); in YAML you can also write the name (`At home`). The group is worked out when the message is sent. |
@@ -67,7 +67,7 @@ The names in `audience`, `recipients`, `speakers` and `policy` are checked when 
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
-| `id` | text | generated, for example `hu_3f9a1c02b7` | The name of the message. Lowercase letters, digits, `-` and `_`, up to 64 characters. Use your own `id` to replace or clear the message later. |
+| `id` | text | generated, for example `hu_3f9a1c02b7` | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, every call creates a new message; its generated `id` is in the response. Lowercase letters, digits, `-` and `_`, up to 64 characters. |
 | `timeout` | seconds or duration | setting Default timeout, shipped as 24 hours | The message ends on every channel after this time, also across restarts. `0` means no timeout. Maximum 365 days. |
 | `tag` | text | none | A group name, with the same character rules as `id`. Card filters, policies and the clear actions use it to find messages. |
 | `condition` | object | none | Show the message only while an entity matches or a template is true, optionally for a set time. See [Conditions](#conditions). |
@@ -85,8 +85,8 @@ The setting Maximum number of stored messages (default 50) limits how many messa
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
-| `dismiss` | `off`, `user`, `everyone` | dismissible, scope from the setting Default dismiss scope (shipped as `user`) | Who can remove the message. `user`: each person for themselves; closing hides it only for that person and takes back only their push. `everyone`: one dismissal ends the message for all. `off`: nobody can dismiss it, so dismiss buttons and `snooze` are rejected; it still ends by itself (condition false, timeout) or by an admin clear. On the banner dismissing is a close button; the push and the popup get a Dismiss button. A dismissal removes the message from all channels except speak and mail. Write `"off"` in quotes in YAML: an unquoted `off` is read as false (Heads Up accepts that too). |
-| `snooze` | `off`, `user`, `everyone` | setting Messages can be snoozed by default, shipped as off; scope from the setting Default snooze scope | Who can hide the message for a while. `user`: the banner, the push and the popup offer Snooze and a snooze hides the message only for that person. `everyone`: a snooze hides it for all. The message returns after the chosen time. Rejected together with `dismiss: off`. |
+| `dismiss` | `off`, `user`, `everyone` | dismissible, scope from the setting Default dismiss scope (shipped as `user`) | To whom a dismissal applies. `user`: only the person who dismisses it; closing hides the message for that person and takes back only their push. `everyone`: one dismissal ends the message for all. `off`: nobody can dismiss it, so dismiss buttons and `snooze` are rejected; it still ends by itself (condition false, timeout) or by an admin clear. A dismissal removes the message from all channels except speak and mail. Write `"off"` in quotes in YAML: an unquoted `off` is read as false (Heads Up accepts that too). |
+| `snooze` | `off`, `user`, `everyone` | setting Messages can be snoozed by default, shipped as off; scope from the setting Default snooze scope | To whom a snooze applies. `user`: the banner, the push and the popup offer Snooze and a snooze hides the message only for the person who snoozes it. `everyone`: a snooze hides it for all. `off`: nobody can snooze it. The message returns after the chosen time. Rejected together with `dismiss: off`. |
 | `snooze_options` | list of durations, 1 minute to 7 days, at most 6 | setting Snooze choices on the banner, shipped as 15 minutes, 1 hour, 4 hours | The choices the banner offers. The push and the popup have one Snooze time, the setting Snooze time on push and popup. The timeout and the condition keep running while a message is snoozed. Creating the message again with the same `id`, or a recurring condition turning false and true again, ends all snoozes. |
 | `actions` | list of up to 3 buttons | none | Your own buttons. See [Buttons and snooze](#buttons-and-snooze). |
 
@@ -284,7 +284,7 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `message` | text | required | As in [`notify`](#what-the-message-says). |
 | `id` | text | generated | As in [`notify`](#how-long-it-lives). |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `notify`. |
+| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `notify`, but the default is `warning`. |
 | `icon` | icon | the icon of the severity | As in `notify`. |
 | `image` | text | none | As in `notify`. |
 | `tap_action` | object with `action` | none | As in `notify`. |
@@ -354,10 +354,10 @@ Shortcut for `notify` with `channels: [push]` and no policies. It needs `audienc
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `message` | text | required | As in `notify`. |
-| `id` | text | none | Tracks the message when set. |
+| `id` | text | none | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, the message is sent once and cannot be cleared. |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `notify`. |
-| `icon` | icon | the icon of the severity | As in `notify`. |
+| `severity` | `success`, `info`, `warning`, `critical` | `info` | As in `notify`. |
+| `icon` | icon | none | A push does not show an icon, so the field has no effect. |
 | `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. |
 | `tag` | text | none | As in `notify`. |
@@ -382,10 +382,10 @@ Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audien
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `message` | text | required | As in `notify`. |
-| `id` | text | none | Tracks the message when set. |
+| `id` | text | none | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, the message is sent once and cannot be cleared. |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `notify`. |
-| `icon` | icon | the icon of the severity | As in `notify`. |
+| `severity` | `success`, `info`, `warning`, `critical` | `info` | As in `notify`. |
+| `icon` | icon | the icon of the severity | Replaces the default icon in the popup. |
 | `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. |
 | `tag` | text | none | As in `notify`. |
@@ -409,10 +409,10 @@ Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipi
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `message` | text | required | As in `notify`. |
-| `id` | text | none | Tracks the message when set. |
+| `id` | text | none | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, the message is sent once and cannot be cleared. |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `notify`. |
-| `icon` | icon | the icon of the severity | As in `notify`. |
+| `severity` | `success`, `info`, `warning`, `critical` | `info` | As in `notify`. |
+| `icon` | icon | none | Speech has no icon, so the field has no effect. |
 | `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. |
 | `tag` | text | none | As in `notify`. |

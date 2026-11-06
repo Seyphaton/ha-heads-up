@@ -231,19 +231,19 @@ def _map_interaction(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def _map_policies(data: dict[str, Any]) -> dict[str, Any]:
-    """The policies of a call (D-187). Named policies are manual ones: they apply next to the
-    automatic policies that match, unless `disable_automatic_policies` is set. Stored as the list
-    `matching.select` reads: `automatic` plus the names, the names alone, or `none`."""
+    """The policies of a call (D-187, D-189). Named policies are manual ones: they apply next to
+    the automatic policies that match, unless `match_policies_automatically` is off. Stored as
+    the list `matching.select` reads: `automatic` plus the names, the names alone, or `none`."""
     data = dict(data)
-    disable = bool(data.pop("disable_automatic_policies", False))
+    disable = not data.pop("match_policies_automatically", True)
     names: list[str] = list(data.get("policy", []))
     if names == [POLICY_NONE]:
         return data
     if disable:
         if POLICY_AUTOMATIC in names:
             raise vol.Invalid(
-                "automatic cannot be combined with disable_automatic_policies",
-                path=["disable_automatic_policies"],
+                "automatic cannot be combined with match_policies_automatically: false",
+                path=["match_policies_automatically"],
             )
         data["policy"] = names or [POLICY_NONE]
     elif names and POLICY_AUTOMATIC not in names:
@@ -324,8 +324,12 @@ CREATE_SCHEMA = vol.All(vol.Schema(_CREATE_FIELDS), _check_create)
 _NOTIFY_FIELDS = {
     k: v
     for k, v in _CREATE_FIELDS.items()
-    if str(k) not in ("people", "dismissible", "dismiss_scope", "snoozable", "snooze_scope")
+    if str(k)
+    not in ("people", "dismissible", "dismiss_scope", "snoozable", "snooze_scope", "severity")
 }
+# The hub actions default to info (D-189); `create_banner` and the rules keep warning.
+ACTION_SEVERITY = "info"
+_NOTIFY_FIELDS[vol.Optional("severity", default=ACTION_SEVERITY)] = vol.In(SEVERITIES)
 
 
 def _who_can(value: Any) -> Any:
@@ -360,7 +364,7 @@ NOTIFY_SCHEMA = vol.All(
             vol.Optional("policy"): vol.All(
                 cv.ensure_list, [vol.All(cv.string, vol.Length(min=1))], _check_policy
             ),
-            vol.Optional("disable_automatic_policies"): cv.boolean,
+            vol.Optional("match_policies_automatically"): cv.boolean,
         }
     ),
     _map_interaction,
@@ -376,7 +380,7 @@ def _shortcut_schema(channel: str) -> VolSchemaType:
     fields: dict[Any, Any] = {
         vol.Optional("id"): SLUG,
         **_CONTENT_FIELDS,
-        vol.Optional("severity"): vol.In(SEVERITIES),
+        vol.Optional("severity", default=ACTION_SEVERITY): vol.In(SEVERITIES),
         vol.Optional("tts_message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
         vol.Optional("tag"): SLUG,
         vol.Optional("timeout"): vol.All(cv.time_period, _timeout),

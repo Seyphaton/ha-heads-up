@@ -276,7 +276,7 @@
     "who_can": {
       "options": {
         "off": "Personne",
-        "user": "Chaque personne",
+        "user": "Seulement cette personne",
         "everyone": "Tout le monde"
       }
     },
@@ -337,7 +337,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
+          "description": "Fixez un ID pour remplacer la bannière précédente portant le même ID et pour l'effacer plus tard. Sans ID, chaque appel crée une nouvelle bannière ; son ID généré est dans la réponse. Minuscules, chiffres, - et _ ; jusqu'à 64 caractères."
         },
         "title": {
           "name": "Titre",
@@ -349,7 +349,7 @@
         },
         "icon": {
           "name": "Icône",
-          "description": "Remplace l'icône par défaut de la gravité. Par défaut : l'icône de la gravité."
+          "description": "Remplace l'icône par défaut de la gravité sur la bannière."
         },
         "timeout": {
           "name": "Délai d'expiration",
@@ -465,9 +465,9 @@
           "name": "Canaux",
           "description": "Où le message est livré."
         },
-        "disable_automatic_policies": {
-          "name": "Désactiver les politiques automatiques",
-          "description": "Désactive toutes les politiques attribuées automatiquement (par exemple par gravité ou étiquette). Les politiques attribuées à la main s'appliquent toujours. Laissez la case décochée pour utiliser la valeur par défaut."
+        "match_policies_automatically": {
+          "name": "Associer les politiques automatiquement",
+          "description": "Activé : les politiques qui correspondent à la gravité ou aux étiquettes du message s'appliquent automatiquement. Désactivé : seules les politiques manuelles s'appliquent, et aucune si vous n'en choisissez pas. Les politiques manuelles s'appliquent toujours."
         },
         "policy": {
           "name": "Politique manuelle",
@@ -491,11 +491,11 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "Définit la couleur, l'icône par défaut et l'ordre de tri. Par défaut : Avertissement."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",
-          "description": "Remplace l'icône par défaut de la gravité. Par défaut : l'icône de la gravité."
+          "description": "Remplace l'icône par défaut de la gravité sur la bannière et dans la fenêtre contextuelle. Un push, la voix, le courriel et la cloche de notifications ne l'affichent pas."
         },
         "image": {
           "name": "Image",
@@ -503,7 +503,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
+          "description": "Fixez un ID pour remplacer le message précédent portant le même ID et pour l'effacer plus tard. Sans ID, chaque appel crée un nouveau message ; son ID généré est dans la réponse. Minuscules, chiffres, - et _ ; jusqu'à 64 caractères."
         },
         "tag": {
           "name": "Étiquette",
@@ -513,13 +513,13 @@
           "name": "Délai d'expiration",
           "description": "Le message se termine après ce délai, même après un redémarrage. 0 = aucun délai. Par défaut : le délai des options de l'intégration (24 heures sauf modification)."
         },
-        "condition": {
-          "name": "Condition",
-          "description": "Afficher le message seulement tant qu'une entité correspond ou qu'un modèle est vrai. Un message avec condition attend qu'elle soit vraie. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
         "mode": {
           "name": "Mode",
           "description": "Afficher une fois : le message est affiché une fois. Avec une condition, il attend qu'elle soit vraie et se termine définitivement quand elle devient fausse ; sans condition, il reste jusqu'à son délai, une fermeture ou un effacement.\n\nRécurrent : nécessite une condition. Le message est affiché quand la condition est vraie, masqué quand elle est fausse et réaffiché quand elle redevient vraie. Par défaut : Afficher une fois."
+        },
+        "condition": {
+          "name": "Condition",
+          "description": "Afficher le message seulement tant qu'une entité correspond ou qu'un modèle est vrai. Un message avec condition attend qu'elle soit vraie. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "tap_action": {
           "name": "Action au toucher",
@@ -530,12 +530,12 @@
           "description": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action.\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
         },
         "dismiss": {
-          "name": "Qui peut le fermer",
-          "description": "Qui peut retirer le message : Personne, Chaque personne (il disparaît pour cette personne seulement) ou Tout le monde (une fermeture le retire pour tous). Une fermeture le retire de tous les canaux sauf la voix et le courriel. Personne interdit aussi les boutons de fermeture et le report ; il se termine quand même par sa condition, son délai ou un effacement administrateur. Par défaut : fermable, avec la portée des options de l'intégration (par personne sauf modification). Laissez la case décochée pour utiliser la valeur par défaut."
+          "name": "La fermeture s'applique à",
+          "description": "À qui s'applique une fermeture. Seulement cette personne : le message disparaît seulement pour la personne qui le ferme. Tout le monde : une fermeture le retire pour tous. Personne : le message ne peut pas être fermé, donc les boutons de fermeture et le report sont interdits ; il se termine quand même par sa condition, son délai ou un effacement administrateur. Une fermeture le retire de tous les canaux sauf la voix et le courriel. Par défaut : la fermeture est possible et s'applique à la personne, sauf indication contraire des options de l'intégration. Laissez la case décochée pour utiliser la valeur par défaut."
         },
         "snooze": {
-          "name": "Qui peut le reporter",
-          "description": "Qui peut masquer le message un moment, après quoi il revient : Personne, Chaque personne ou Tout le monde. L'appel échoue avec une erreur si « Qui peut le fermer » est sur Personne. Par défaut : le réglage des options de l'intégration (personne sauf modification). Laissez la case décochée pour utiliser la valeur par défaut."
+          "name": "Le report s'applique à",
+          "description": "À qui s'applique un report. Seulement cette personne : le message est masqué seulement pour la personne qui le reporte et revient après le délai choisi. Tout le monde : un report le masque pour tous. Personne : le message ne peut pas être reporté. L'appel échoue avec une erreur si « La fermeture s'applique à » est sur Personne. Par défaut : le réglage des options de l'intégration (personne sauf modification). Laissez la case décochée pour utiliser la valeur par défaut."
         },
         "snooze_options": {
           "name": "Durées de report",
@@ -553,7 +553,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
+          "description": "Fixez un ID pour remplacer le message précédent portant le même ID et pour l'effacer plus tard. Sans ID, le message est envoyé une fois et ne peut pas être effacé. Minuscules, chiffres, - et _ ; jusqu'à 64 caractères."
         },
         "title": {
           "name": "Titre",
@@ -561,11 +561,11 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "Définit la couleur, l'icône par défaut et l'ordre de tri. Par défaut : Avertissement."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",
-          "description": "Remplace l'icône par défaut de la gravité. Par défaut : l'icône de la gravité."
+          "description": "Cette action n'affiche aucune icône ; le champ n'a pas d'effet ici."
         },
         "timeout": {
           "name": "Délai d'expiration",
@@ -611,7 +611,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
+          "description": "Fixez un ID pour remplacer le message précédent portant le même ID et pour l'effacer plus tard. Sans ID, le message est envoyé une fois et ne peut pas être effacé. Minuscules, chiffres, - et _ ; jusqu'à 64 caractères."
         },
         "title": {
           "name": "Titre",
@@ -619,11 +619,11 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "Définit la couleur, l'icône par défaut et l'ordre de tri. Par défaut : Avertissement."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",
-          "description": "Remplace l'icône par défaut de la gravité. Par défaut : l'icône de la gravité."
+          "description": "Remplace l'icône par défaut de la gravité dans la fenêtre contextuelle."
         },
         "timeout": {
           "name": "Délai d'expiration",
@@ -669,7 +669,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Lettres minuscules, chiffres, - et _ ; 64 caractères au maximum. Généré et renvoyé si vide."
+          "description": "Fixez un ID pour remplacer le message précédent portant le même ID et pour l'effacer plus tard. Sans ID, le message est envoyé une fois et ne peut pas être effacé. Minuscules, chiffres, - et _ ; jusqu'à 64 caractères."
         },
         "title": {
           "name": "Titre",
@@ -677,11 +677,11 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "Définit la couleur, l'icône par défaut et l'ordre de tri. Par défaut : Avertissement."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",
-          "description": "Remplace l'icône par défaut de la gravité. Par défaut : l'icône de la gravité."
+          "description": "Cette action n'affiche aucune icône ; le champ n'a pas d'effet ici."
         },
         "timeout": {
           "name": "Délai d'expiration",

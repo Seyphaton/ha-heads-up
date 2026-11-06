@@ -276,7 +276,7 @@
     "who_can": {
       "options": {
         "off": "Nadie",
-        "user": "Cada persona",
+        "user": "Solo esa persona",
         "everyone": "Todos"
       }
     },
@@ -337,7 +337,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
+          "description": "Fija un ID para sustituir el aviso anterior con el mismo ID y poder borrarlo después. Sin ID, cada llamada crea un aviso nuevo; su ID generado está en la respuesta. Minúsculas, dígitos, - y _; hasta 64 caracteres."
         },
         "title": {
           "name": "Título",
@@ -349,7 +349,7 @@
         },
         "icon": {
           "name": "Icono",
-          "description": "Sustituye el icono predeterminado de la gravedad. Predeterminado: el icono de la gravedad."
+          "description": "Sustituye el icono predeterminado de la gravedad en el aviso."
         },
         "timeout": {
           "name": "Tiempo de caducidad",
@@ -465,9 +465,9 @@
           "name": "Canales",
           "description": "Dónde se entrega el mensaje."
         },
-        "disable_automatic_policies": {
-          "name": "Desactivar políticas automáticas",
-          "description": "Desactiva todas las políticas asignadas automáticamente (por ejemplo por gravedad o etiqueta). Las políticas asignadas a mano siguen aplicándose. Deja la casilla sin marcar para usar el valor predeterminado."
+        "match_policies_automatically": {
+          "name": "Asignar políticas automáticamente",
+          "description": "Activado: las políticas que coinciden con la gravedad o las etiquetas del mensaje se aplican automáticamente. Desactivado: solo se aplican las políticas manuales, y ninguna si no eliges ninguna. Las políticas manuales siempre se aplican."
         },
         "policy": {
           "name": "Política manual",
@@ -491,11 +491,11 @@
         },
         "severity": {
           "name": "Gravedad",
-          "description": "Define el color, el icono predeterminado y el orden. Predeterminado: Advertencia."
+          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (éxito e información son silenciosos, advertencia es normal, crítico es urgente y se muestra al instante en un móvil inactivo), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
         },
         "icon": {
           "name": "Icono",
-          "description": "Sustituye el icono predeterminado de la gravedad. Predeterminado: el icono de la gravedad."
+          "description": "Sustituye el icono predeterminado de la gravedad en el aviso y en la ventana emergente. Un push, la voz, el correo y la campana de notificaciones no lo muestran."
         },
         "image": {
           "name": "Imagen",
@@ -503,7 +503,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
+          "description": "Fija un ID para sustituir el mensaje anterior con el mismo ID y poder borrarlo después. Sin ID, cada llamada crea un mensaje nuevo; su ID generado está en la respuesta. Minúsculas, dígitos, - y _; hasta 64 caracteres."
         },
         "tag": {
           "name": "Etiqueta",
@@ -513,13 +513,13 @@
           "name": "Tiempo de caducidad",
           "description": "El mensaje termina tras este tiempo, también tras reinicios. 0 = sin caducidad. Predeterminado: el tiempo de las opciones de la integración (24 horas salvo cambios)."
         },
-        "condition": {
-          "name": "Condición",
-          "description": "Mostrar el mensaje solo mientras una entidad coincida o una plantilla sea verdadera. Un mensaje con condición espera a que sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
         "mode": {
           "name": "Modo",
           "description": "Mostrar una vez: el mensaje se muestra una vez. Con una condición espera a que sea verdadera y termina definitivamente cuando pasa a falsa; sin condición permanece hasta su tiempo límite, un cierre o un borrado.\n\nRecurrente: necesita una condición. El mensaje se muestra cuando la condición es verdadera, se oculta cuando es falsa y vuelve a mostrarse cuando pasa a ser verdadera. Predeterminado: Mostrar una vez."
+        },
+        "condition": {
+          "name": "Condición",
+          "description": "Mostrar el mensaje solo mientras una entidad coincida o una plantilla sea verdadera. Un mensaje con condición espera a que sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "tap_action": {
           "name": "Acción al tocar",
@@ -530,12 +530,12 @@
           "description": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action.\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
         },
         "dismiss": {
-          "name": "Quién puede cerrarlo",
-          "description": "Quién puede quitar el mensaje: Nadie, Cada persona (desaparece solo para esa persona) o Todos (un cierre lo quita para todos). Un cierre lo quita de todos los canales excepto voz y correo. Nadie también prohíbe los botones de cierre y posponer; termina igualmente por su condición, su tiempo límite o un borrado de administrador. Predeterminado: se puede cerrar, con el ámbito de las opciones de la integración (por persona salvo cambios). Deja la casilla sin marcar para usar el valor predeterminado."
+          "name": "El cierre se aplica a",
+          "description": "A quién se aplica un cierre. Solo esa persona: el mensaje desaparece solo para la persona que lo cierra. Todos: un cierre lo quita para todos. Nadie: el mensaje no se puede cerrar, así que no se permiten botones de cierre ni posponer; termina igualmente por su condición, su tiempo límite o un borrado de administrador. Un cierre lo quita de todos los canales excepto voz y correo. Predeterminado: se puede cerrar y se aplica a la persona, salvo que las opciones de la integración digan otra cosa. Deja la casilla sin marcar para usar el valor predeterminado."
         },
         "snooze": {
-          "name": "Quién puede posponerlo",
-          "description": "Quién puede ocultar el mensaje un tiempo, después vuelve: Nadie, Cada persona o Todos. La llamada falla con un error si «Quién puede cerrarlo» es Nadie. Predeterminado: el ajuste de las opciones de la integración (nadie salvo cambios). Deja la casilla sin marcar para usar el valor predeterminado."
+          "name": "Posponer se aplica a",
+          "description": "A quién se aplica un aplazamiento. Solo esa persona: el mensaje se oculta solo para la persona que lo pospone y vuelve tras el tiempo elegido. Todos: un aplazamiento lo oculta para todos. Nadie: el mensaje no se puede posponer. La llamada falla con un error si «El cierre se aplica a» es Nadie. Predeterminado: el ajuste de las opciones de la integración (nadie salvo cambios). Deja la casilla sin marcar para usar el valor predeterminado."
         },
         "snooze_options": {
           "name": "Opciones de posposición",
@@ -553,7 +553,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
+          "description": "Fija un ID para sustituir el mensaje anterior con el mismo ID y poder borrarlo después. Sin ID, el mensaje se envía una vez y no se puede borrar. Minúsculas, dígitos, - y _; hasta 64 caracteres."
         },
         "title": {
           "name": "Título",
@@ -561,11 +561,11 @@
         },
         "severity": {
           "name": "Gravedad",
-          "description": "Define el color, el icono predeterminado y el orden. Predeterminado: Advertencia."
+          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (éxito e información son silenciosos, advertencia es normal, crítico es urgente y se muestra al instante en un móvil inactivo), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
         },
         "icon": {
           "name": "Icono",
-          "description": "Sustituye el icono predeterminado de la gravedad. Predeterminado: el icono de la gravedad."
+          "description": "Esta acción no muestra ningún icono; el campo no tiene efecto aquí."
         },
         "timeout": {
           "name": "Tiempo de caducidad",
@@ -611,7 +611,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
+          "description": "Fija un ID para sustituir el mensaje anterior con el mismo ID y poder borrarlo después. Sin ID, el mensaje se envía una vez y no se puede borrar. Minúsculas, dígitos, - y _; hasta 64 caracteres."
         },
         "title": {
           "name": "Título",
@@ -619,11 +619,11 @@
         },
         "severity": {
           "name": "Gravedad",
-          "description": "Define el color, el icono predeterminado y el orden. Predeterminado: Advertencia."
+          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (éxito e información son silenciosos, advertencia es normal, crítico es urgente y se muestra al instante en un móvil inactivo), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
         },
         "icon": {
           "name": "Icono",
-          "description": "Sustituye el icono predeterminado de la gravedad. Predeterminado: el icono de la gravedad."
+          "description": "Sustituye el icono predeterminado de la gravedad en la ventana emergente."
         },
         "timeout": {
           "name": "Tiempo de caducidad",
@@ -669,7 +669,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Letras minúsculas, dígitos, - y _; hasta 64 caracteres. Se genera y se devuelve si está vacío."
+          "description": "Fija un ID para sustituir el mensaje anterior con el mismo ID y poder borrarlo después. Sin ID, el mensaje se envía una vez y no se puede borrar. Minúsculas, dígitos, - y _; hasta 64 caracteres."
         },
         "title": {
           "name": "Título",
@@ -677,11 +677,11 @@
         },
         "severity": {
           "name": "Gravedad",
-          "description": "Define el color, el icono predeterminado y el orden. Predeterminado: Advertencia."
+          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (éxito e información son silenciosos, advertencia es normal, crítico es urgente y se muestra al instante en un móvil inactivo), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
         },
         "icon": {
           "name": "Icono",
-          "description": "Sustituye el icono predeterminado de la gravedad. Predeterminado: el icono de la gravedad."
+          "description": "Esta acción no muestra ningún icono; el campo no tiene efecto aquí."
         },
         "timeout": {
           "name": "Tiempo de caducidad",

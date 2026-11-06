@@ -24,12 +24,12 @@ const values = (extra = {}) => ({ ...blankValues(), message: "Door open", ...ext
 
 describe("test send call", () => {
   it("builds only what is set", () => {
-    expect(buildCall(values())).toEqual({ message: "Door open", severity: "warning", channels: ["banner"] });
+    expect(buildCall(values())).toEqual({ message: "Door open", severity: "info", channels: ["banner"] });
   });
 
   it("adds title, tag, policy and trims the text", () => {
     const call = buildCall(values({ message: "  Door open ", title: " Garage ", tag: "door", policy: ["Night"] }));
-    expect(call).toEqual({ message: "Door open", title: "Garage", tag: "door", policy: "Night", severity: "warning", channels: ["banner"] });
+    expect(call).toEqual({ message: "Door open", title: "Garage", tag: "door", policy: "Night", severity: "info", channels: ["banner"] });
   });
 
   it("adds the dismiss and snooze choices only when they differ from the defaults", () => {
@@ -43,14 +43,14 @@ describe("test send call", () => {
 
   it("leaves the policies out by default, names one manual policy as text and several as a list", () => {
     expect(buildCall(values())).not.toHaveProperty("policy");
-    expect(buildCall(values())).not.toHaveProperty("disable_automatic_policies");
+    expect(buildCall(values())).not.toHaveProperty("match_policies_automatically");
     expect(buildCall(values({ policy: ["Night"] })).policy).toBe("Night");
     expect(buildCall(values({ policy: ["Night", "By hand"] })).policy).toEqual(["Night", "By hand"]);
   });
 
-  it("writes disable_automatic_policies only when it is set", () => {
-    expect(buildCall(values({ disable_automatic: true })).disable_automatic_policies).toBe(true);
-    expect(buildCall(values({ disable_automatic: false }))).not.toHaveProperty("disable_automatic_policies");
+  it("writes match_policies_automatically only when it is switched off", () => {
+    expect(buildCall(values({ match_automatic: false })).match_policies_automatically).toBe(false);
+    expect(buildCall(values({ match_automatic: true }))).not.toHaveProperty("match_policies_automatically");
   });
 
   it("writes the same people on every channel once, and speakers apart", () => {
@@ -129,7 +129,7 @@ describe("the call as YAML", () => {
         "action: heads_up.notify",
         "data:",
         "  message: Door open",
-        "  severity: warning",
+        "  severity: info",
         "  channels:",
         "    - banner",
         "    - push",

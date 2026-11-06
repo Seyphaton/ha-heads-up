@@ -13,8 +13,8 @@ export const STRINGS = {
     tag: "Tag (optional)",
     channels: "Channels",
     policy: "Manual policy",
-    disable_automatic: "Disable automatic policies",
-    disable_automatic_hint: "Disables all automatically assigned policies (for example by severity or tag). Manually assigned policies still apply.",
+    match_automatic: "Match policies automatically",
+    match_automatic_hint: "On: policies that match the severity or tags of the message apply automatically. Off: only the manual policies apply, and none if you pick no manual policy. Manual policies always apply.",
     who: "Who, per channel",
     banner_hint: "Banner: no target shows it to everyone; choose an audience or persons to limit it. An audience counts the people it has when the message is created.",
     target_channel: "Channel {channel}",
@@ -70,12 +70,12 @@ export const STRINGS = {
     behaviour_none: "Nothing here applies: mail and speech cannot be taken back, dismissed or snoozed.",
     behaviour_some: "Mail and speech ignore these choices; the other channels use them.",
     behaviour: "Behaviour",
-    dismiss_label: "Who can dismiss it",
-    snooze_label: "Who can snooze it",
+    dismiss_label: "Dismiss for",
+    snooze_label: "Snooze for",
     who_default: "Use the default from Settings",
     who_off: "Nobody",
-    who_user: "Each person for themselves",
-    who_everyone: "Anyone, for everyone",
+    who_user: "Only that person",
+    who_everyone: "Everyone",
     behaviour_hint: "These choices apply to the real send. The result table does not change with them.",
     pinned_hint: "Nobody can close it. It ends by its timeout, its condition or a clear action; the test message still ends after 10 minutes.",
     ack_title: "Acknowledgement",
@@ -94,8 +94,8 @@ export const STRINGS = {
     tag: "Tag (optional)",
     channels: "Kanäle",
     policy: "Manuelle Richtlinie",
-    disable_automatic: "Automatische Richtlinien deaktivieren",
-    disable_automatic_hint: "Deaktiviert alle automatisch zugewiesenen Richtlinien (zum Beispiel nach Schweregrad oder Tag). Manuell zugewiesene Richtlinien gelten weiterhin.",
+    match_automatic: "Richtlinien automatisch zuordnen",
+    match_automatic_hint: "An: Richtlinien, die zu Schweregrad oder Tags der Meldung passen, gelten automatisch. Aus: Es gelten nur die manuellen Richtlinien, ohne manuelle Richtlinie keine. Manuelle Richtlinien gelten immer.",
     who: "Wer, je Kanal",
     banner_hint: "Banner: ohne Ziel sehen es alle; wähle eine Zielgruppe oder Personen, um es einzuschränken. Eine Zielgruppe zählt die Personen, die sie beim Erstellen der Meldung hat.",
     target_channel: "Kanal {channel}",
@@ -151,12 +151,12 @@ export const STRINGS = {
     behaviour_none: "Hier gilt nichts: E-Mail und Sprache lassen sich nicht zurücknehmen, ausblenden oder zurückstellen.",
     behaviour_some: "E-Mail und Sprache ignorieren diese Auswahl; die anderen Kanäle nutzen sie.",
     behaviour: "Verhalten",
-    dismiss_label: "Wer es ausblenden darf",
-    snooze_label: "Wer es zurückstellen darf",
+    dismiss_label: "Schließen gilt für",
+    snooze_label: "Zurückstellen gilt für",
     who_default: "Standard aus den Einstellungen",
     who_off: "Niemand",
-    who_user: "Jeder für sich",
-    who_everyone: "Jeder, für alle",
+    who_user: "Nur diese Person",
+    who_everyone: "Alle",
     behaviour_hint: "Diese Auswahl gilt für das echte Senden. Die Ergebnistabelle ändert sich dadurch nicht.",
     pinned_hint: "Niemand kann sie schließen. Sie endet durch ihr Zeitlimit, ihre Bedingung oder eine Löschaktion; die Testmeldung endet trotzdem nach 10 Minuten.",
     ack_title: "Bestätigung",
@@ -175,8 +175,8 @@ export const STRINGS = {
     tag: "Étiquette (facultatif)",
     channels: "Canaux",
     policy: "Politique manuelle",
-    disable_automatic: "Désactiver les politiques automatiques",
-    disable_automatic_hint: "Désactive toutes les politiques attribuées automatiquement (par exemple par gravité ou étiquette). Les politiques attribuées à la main s'appliquent toujours.",
+    match_automatic: "Associer les politiques automatiquement",
+    match_automatic_hint: "Activé : les politiques qui correspondent à la gravité ou aux étiquettes du message s'appliquent automatiquement. Désactivé : seules les politiques manuelles s'appliquent, et aucune si vous n'en choisissez pas. Les politiques manuelles s'appliquent toujours.",
     who: "Qui, par canal",
     banner_hint: "Bannière : sans cible, tout le monde la voit ; choisissez une audience ou des personnes pour la limiter. Une audience compte les personnes qu'elle a à la création du message.",
     target_channel: "Canal {channel}",
@@ -232,12 +232,12 @@ export const STRINGS = {
     behaviour_none: "Rien ne s'applique ici : un courriel et la voix ne peuvent pas être repris, masqués ni reportés.",
     behaviour_some: "Le courriel et la voix ignorent ces choix ; les autres canaux les utilisent.",
     behaviour: "Comportement",
-    dismiss_label: "Qui peut le masquer",
-    snooze_label: "Qui peut le reporter",
+    dismiss_label: "La fermeture s'applique à",
+    snooze_label: "Le report s'applique à",
     who_default: "Valeur par défaut des réglages",
     who_off: "Personne",
-    who_user: "Chacun pour soi",
-    who_everyone: "N'importe qui, pour tout le monde",
+    who_user: "Seulement cette personne",
+    who_everyone: "Tout le monde",
     behaviour_hint: "Ces choix valent pour l'envoi réel. Le tableau de résultat ne change pas avec eux.",
     pinned_hint: "Personne ne peut le fermer. Il se termine par son délai, sa condition ou une action d'effacement ; le message de test se termine quand même après 10 minutes.",
     ack_title: "Confirmation",
@@ -256,8 +256,8 @@ export const STRINGS = {
     tag: "Etiqueta (opcional)",
     channels: "Canales",
     policy: "Política manual",
-    disable_automatic: "Desactivar políticas automáticas",
-    disable_automatic_hint: "Desactiva todas las políticas asignadas automáticamente (por ejemplo por gravedad o etiqueta). Las políticas asignadas a mano siguen aplicándose.",
+    match_automatic: "Asignar políticas automáticamente",
+    match_automatic_hint: "Activado: las políticas que coinciden con la gravedad o las etiquetas del mensaje se aplican automáticamente. Desactivado: solo se aplican las políticas manuales, y ninguna si no eliges ninguna. Las políticas manuales siempre se aplican.",
     who: "Quién, por canal",
     banner_hint: "Aviso: sin destino lo ve todo el mundo; elige una audiencia o personas para limitarlo. Una audiencia cuenta las personas que tiene al crear el mensaje.",
     target_channel: "Canal {channel}",
@@ -313,12 +313,12 @@ export const STRINGS = {
     behaviour_none: "Aquí no se aplica nada: el correo y la voz no se pueden retirar, descartar ni posponer.",
     behaviour_some: "El correo y la voz ignoran estas opciones; los demás canales las usan.",
     behaviour: "Comportamiento",
-    dismiss_label: "Quién puede descartarlo",
-    snooze_label: "Quién puede posponerlo",
+    dismiss_label: "El cierre se aplica a",
+    snooze_label: "Posponer se aplica a",
     who_default: "Valor por defecto de los ajustes",
     who_off: "Nadie",
-    who_user: "Cada persona por sí misma",
-    who_everyone: "Cualquiera, para todos",
+    who_user: "Solo esa persona",
+    who_everyone: "Todos",
     behaviour_hint: "Estas opciones valen para el envío real. La tabla de resultados no cambia con ellas.",
     pinned_hint: "Nadie puede cerrarlo. Termina por su tiempo límite, su condición o una acción de borrado; el mensaje de prueba termina igualmente a los 10 minutos.",
     ack_title: "Confirmación",
@@ -336,7 +336,7 @@ export function fill(template, params) {
 }
 
 export function blankValues() {
-  return { title: "", message: "", tts_message: "", severity: "warning", tag: "", channels: ["banner"], policy: [], disable_automatic: false, dismiss: "", snooze: "" };
+  return { title: "", message: "", tts_message: "", severity: "info", tag: "", channels: ["banner"], policy: [], match_automatic: true, dismiss: "", snooze: "" };
 }
 
 // The `notify` call the values describe: only what is set, targets only for the chosen channels.
@@ -346,7 +346,7 @@ export function buildCall(values) {
   if (values.channels.includes("speak") && String(values.tts_message).trim()) data.tts_message = String(values.tts_message).trim();
   if (String(values.tag).trim()) data.tag = String(values.tag).trim();
   // The default (automatic policies apply) is left out of the YAML; one manual policy is a string.
-  if (values.disable_automatic) data.disable_automatic_policies = true;
+  if (values.match_automatic === false) data.match_policies_automatically = false;
   const policy = values.policy || [];
   if (policy.length) data.policy = policy.length === 1 ? policy[0] : [...policy];
   // Only what differs from the defaults, so the YAML stays short; snoozing means nothing for a
@@ -527,8 +527,8 @@ export function mount(container, ctx) {
     callBox.append(ui.field(t.severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: s.severity[k] })), values.severity, (v) => { values.severity = v; change(); })));
     callBox.append(ui.field(t.tag, ui.textInput(values.tag, (v) => { values.tag = v; change(); }), t.tag_hint));
     callBox.append(ui.chips(t.channels, CHANNELS.map((c) => ({ value: c, label: channelLabel(c) })), values.channels, (list) => { values.channels = list; render(); schedule(); }));
-    callBox.append(ui.checkbox(t.disable_automatic, values.disable_automatic, (on) => { values.disable_automatic = on; change(); }));
-    callBox.append(el("div", { className: "hint", textContent: t.disable_automatic_hint }));
+    callBox.append(ui.checkbox(t.match_automatic, values.match_automatic, (on) => { values.match_automatic = on; change(); }));
+    callBox.append(el("div", { className: "hint", textContent: t.match_automatic_hint }));
     callBox.append(ui.chips(t.policy, data.policies.map((p) => ({ value: p.name, label: p.name })), values.policy, (list) => { values.policy = list; change(); }));
 
     const behaviour = el("section", {}, [el("h2", { textContent: t.behaviour })]);

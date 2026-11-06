@@ -21,7 +21,7 @@ data:
 ```
 
 - The `id` makes a second call replace the banner instead of adding another one.
-- `severity` is one of `success`, `info`, `warning` (the default) and `critical`. It sets the color, the icon and the sort order. `critical` sorts first and is never removed to make room for new messages.
+- `severity` is one of `success`, `info` (the default), `warning` and `critical`. It sets the color, the icon and the sort order. `critical` sorts first and is never removed to make room for new messages.
 - `timeout` takes seconds or a duration. `timeout: {minutes: 30}` ends the message after 30 minutes, `timeout: 0` keeps it until someone closes or clears it.
 
 ### A push to everyone at home
@@ -332,7 +332,7 @@ An audience is a set of people, and speech goes to a speaker in a place. Heads U
 
 ### What does severity do?
 
-A message has one of four severities: success, info, warning (the default) and critical. On the banner it sets the color, the icon and the order, critical first. On a push it sets the level: success and info are passive, warning is normal, critical is time-sensitive until you set the level critical. The popup style is set per severity, and policies can match on it.
+A message has one of four severities: success, info (the default), warning and critical. On the banner it sets the color, the icon and the order, critical first. On a push it sets the level: success and info are passive, warning is normal, critical is time-sensitive until you set the level critical. The popup style is set per severity, and policies can match on it.
 
 ### What are tags for?
 

@@ -266,7 +266,7 @@ A policy attaches to messages automatically or manually, chosen in the editor un
 - Automatically: the policy has two lists. A message gets it when its severity is in the first list and its tag in the second. An empty list matches everything. A message without a tag matches only a policy whose tag list is empty. Messages from watch rules have the tag `rule`.
 - Manually: the policy has no lists and never attaches by itself. Only a call or a watch rule that names it in the `policy` field gets it.
 
-The `policy` field of `heads_up.notify` names manual policies: they apply next to every automatic policy that matches, whatever their own lists say. Set `disable_automatic_policies: true` to switch the automatic policies off for the call; `policy: none` uses no policy at all. A disabled policy is never used. Names must be unique, and `none` is reserved. The form refuses a second automatic policy of the same type with the same severities, tags and time, because it would do the same thing twice.
+The `policy` field of `heads_up.notify` names manual policies: they apply next to every automatic policy that matches, whatever their own lists say. Set `match_policies_automatically: false` to switch the automatic policies off for the call; `policy: none` uses no policy at all. A disabled policy is never used. Names must be unique, and `none` is reserved. The form refuses a second automatic policy of the same type with the same severities, tags and time, because it would do the same thing twice.
 
 ### Acknowledging
 
@@ -376,7 +376,7 @@ A call names the channels of its first delivery. A Deliver policy adds channels 
 - It fires once per message, at its first delivery. An update replaces what it sent, like the call's own deliveries.
 - Someone who already has the message on that channel from the call is not notified a second time.
 - It passes quiet hours, away and fallback like any delivery. It does not fire for a message held for a summary, and not for a message that became visible while Home Assistant was starting.
-- A watch rule message gets it when the policy applies to the tag `rule`. With `disable_automatic_policies: true` in the call it is switched off for that call.
+- A watch rule message gets it when the policy applies to the tag `rule`. With `match_policies_automatically: false` in the call it is switched off for that call.
 
 ### Summarize
 

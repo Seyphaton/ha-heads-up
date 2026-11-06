@@ -276,7 +276,7 @@
     "who_can": {
       "options": {
         "off": "Niemand",
-        "user": "Jede Person",
+        "user": "Nur diese Person",
         "everyone": "Alle"
       }
     },
@@ -337,7 +337,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
+          "description": "Setze eine feste ID, um das frühere Banner mit derselben ID zu ersetzen und es später zu entfernen. Ohne ID legt jeder Aufruf ein neues Banner an; die erzeugte ID steht in der Antwort. Kleinbuchstaben, Ziffern, - und _; bis zu 64 Zeichen."
         },
         "title": {
           "name": "Titel",
@@ -349,7 +349,7 @@
         },
         "icon": {
           "name": "Symbol",
-          "description": "Ersetzt das Standardsymbol der Dringlichkeit. Standard: das Symbol der Dringlichkeit."
+          "description": "Ersetzt das Standard-Symbol des Schweregrads auf dem Banner."
         },
         "timeout": {
           "name": "Zeitlimit",
@@ -465,9 +465,9 @@
           "name": "Kanäle",
           "description": "Wohin die Meldung geliefert wird."
         },
-        "disable_automatic_policies": {
-          "name": "Automatische Richtlinien deaktivieren",
-          "description": "Deaktiviert alle automatisch zugewiesenen Richtlinien (zum Beispiel nach Schweregrad oder Tag). Manuell zugewiesene Richtlinien gelten weiterhin. Kästchen nicht anhaken, um den Standard zu verwenden."
+        "match_policies_automatically": {
+          "name": "Richtlinien automatisch zuordnen",
+          "description": "An: Richtlinien, die zu Schweregrad oder Tags der Meldung passen, gelten automatisch. Aus: Es gelten nur die manuellen Richtlinien, ohne manuelle Richtlinie keine. Manuelle Richtlinien gelten immer."
         },
         "policy": {
           "name": "Manuelle Richtlinie",
@@ -491,11 +491,11 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Legt Farbe, Standardsymbol und Sortierung fest. Standard: Warnung."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",
-          "description": "Ersetzt das Standardsymbol der Dringlichkeit. Standard: das Symbol der Dringlichkeit."
+          "description": "Ersetzt das Standard-Symbol des Schweregrads auf dem Banner und im Popup. Ein Push, Sprache, E-Mail und die Benachrichtigungsglocke zeigen es nicht."
         },
         "image": {
           "name": "Bild",
@@ -503,7 +503,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
+          "description": "Setze eine feste ID, um die frühere Meldung mit derselben ID zu ersetzen und sie später zu entfernen. Ohne ID legt jeder Aufruf eine neue Meldung an; die erzeugte ID steht in der Antwort. Kleinbuchstaben, Ziffern, - und _; bis zu 64 Zeichen."
         },
         "tag": {
           "name": "Tag",
@@ -513,13 +513,13 @@
           "name": "Zeitlimit",
           "description": "Die Nachricht endet nach dieser Zeit, auch über Neustarts hinweg. 0 = kein Zeitlimit. Standard: das Zeitlimit aus den Integrationsoptionen (24 Stunden, sofern nicht geändert)."
         },
-        "condition": {
-          "name": "Bedingung",
-          "description": "Die Nachricht nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Eine Meldung mit Bedingung wartet, bis sie wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
         "mode": {
           "name": "Modus",
           "description": "Einmal zeigen: Die Meldung wird einmal gezeigt. Mit einer Bedingung wartet sie, bis die Bedingung wahr ist, und endet endgültig, wenn sie falsch wird; ohne Bedingung bleibt sie bis zu ihrem Zeitlimit, einem Schließen oder einem Löschen.\n\nWiederkehrend: braucht eine Bedingung. Die Meldung wird gezeigt, wenn die Bedingung wahr ist, ausgeblendet, wenn sie falsch ist, und wieder gezeigt, wenn sie erneut wahr wird. Standard: Einmal zeigen."
+        },
+        "condition": {
+          "name": "Bedingung",
+          "description": "Die Nachricht nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Eine Meldung mit Bedingung wartet, bis sie wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "tap_action": {
           "name": "Tipp-Aktion",
@@ -530,12 +530,12 @@
           "description": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
         },
         "dismiss": {
-          "name": "Wer es schließen darf",
-          "description": "Wer die Meldung entfernen kann: Niemand, Jede Person (sie verschwindet nur für diese Person) oder Alle (ein Schließen entfernt sie für alle). Ein Schließen entfernt sie von allen Kanälen außer Sprache und E-Mail. Niemand verbietet auch Schließen-Schaltflächen und Zurückstellen; sie endet weiterhin durch ihre Bedingung, ihr Zeitlimit oder ein Löschen durch einen Administrator. Standard: schließbar, mit dem Bereich aus den Integrationsoptionen (pro Person, sofern nicht geändert). Kästchen nicht anhaken, um den Standard zu verwenden."
+          "name": "Schließen gilt für",
+          "description": "Für wen ein Schließen gilt. Nur diese Person: Die Meldung verschwindet nur für die Person, die sie schließt. Alle: Ein Schließen entfernt sie für alle. Niemand: Die Meldung lässt sich nicht schließen, daher sind Schließen-Schaltflächen und Zurückstellen nicht erlaubt; sie endet weiterhin durch ihre Bedingung, ihr Zeitlimit oder ein Löschen durch einen Administrator. Ein Schließen entfernt sie von allen Kanälen außer Sprache und E-Mail. Standard: Schließen ist möglich und gilt für die Person, sofern die Integrationsoptionen nichts anderes sagen. Kästchen nicht anhaken, um den Standard zu verwenden."
         },
         "snooze": {
-          "name": "Wer es zurückstellen darf",
-          "description": "Wer die Meldung eine Weile ausblenden kann, danach kehrt sie zurück: Niemand, Jede Person oder Alle. Zusammen mit „Wer es schließen darf“ auf Niemand schlägt der Aufruf mit einem Fehler fehl. Standard: die Einstellung aus den Integrationsoptionen (niemand, sofern nicht geändert). Kästchen nicht anhaken, um den Standard zu verwenden."
+          "name": "Zurückstellen gilt für",
+          "description": "Für wen ein Zurückstellen gilt. Nur diese Person: Die Meldung wird nur für die Person ausgeblendet, die sie zurückstellt, und kehrt nach der gewählten Zeit zurück. Alle: Ein Zurückstellen blendet sie für alle aus. Niemand: Die Meldung lässt sich nicht zurückstellen. Zusammen mit „Schließen gilt für“ auf Niemand schlägt der Aufruf mit einem Fehler fehl. Standard: die Einstellung aus den Integrationsoptionen (niemand, sofern nicht geändert). Kästchen nicht anhaken, um den Standard zu verwenden."
         },
         "snooze_options": {
           "name": "Auswahl beim Zurückstellen",
@@ -553,7 +553,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
+          "description": "Setze eine feste ID, um die frühere Meldung mit derselben ID zu ersetzen und sie später zu entfernen. Ohne ID wird die Meldung einmal gesendet und lässt sich nicht entfernen. Kleinbuchstaben, Ziffern, - und _; bis zu 64 Zeichen."
         },
         "title": {
           "name": "Titel",
@@ -561,11 +561,11 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Legt Farbe, Standardsymbol und Sortierung fest. Standard: Warnung."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",
-          "description": "Ersetzt das Standardsymbol der Dringlichkeit. Standard: das Symbol der Dringlichkeit."
+          "description": "Diese Aktion zeigt kein Symbol; das Feld hat hier keine Wirkung."
         },
         "timeout": {
           "name": "Zeitlimit",
@@ -611,7 +611,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
+          "description": "Setze eine feste ID, um die frühere Meldung mit derselben ID zu ersetzen und sie später zu entfernen. Ohne ID wird die Meldung einmal gesendet und lässt sich nicht entfernen. Kleinbuchstaben, Ziffern, - und _; bis zu 64 Zeichen."
         },
         "title": {
           "name": "Titel",
@@ -619,11 +619,11 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Legt Farbe, Standardsymbol und Sortierung fest. Standard: Warnung."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",
-          "description": "Ersetzt das Standardsymbol der Dringlichkeit. Standard: das Symbol der Dringlichkeit."
+          "description": "Ersetzt das Standard-Symbol des Schweregrads im Popup."
         },
         "timeout": {
           "name": "Zeitlimit",
@@ -669,7 +669,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Kleinbuchstaben, Ziffern, - und _; bis 64 Zeichen. Wird erzeugt und zurückgegeben, wenn leer."
+          "description": "Setze eine feste ID, um die frühere Meldung mit derselben ID zu ersetzen und sie später zu entfernen. Ohne ID wird die Meldung einmal gesendet und lässt sich nicht entfernen. Kleinbuchstaben, Ziffern, - und _; bis zu 64 Zeichen."
         },
         "title": {
           "name": "Titel",
@@ -677,11 +677,11 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Legt Farbe, Standardsymbol und Sortierung fest. Standard: Warnung."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",
-          "description": "Ersetzt das Standardsymbol der Dringlichkeit. Standard: das Symbol der Dringlichkeit."
+          "description": "Diese Aktion zeigt kein Symbol; das Feld hat hier keine Wirkung."
         },
         "timeout": {
           "name": "Zeitlimit",

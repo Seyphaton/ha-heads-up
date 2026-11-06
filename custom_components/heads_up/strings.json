@@ -276,7 +276,7 @@
     "who_can": {
       "options": {
         "off": "Nobody",
-        "user": "Each person",
+        "user": "Only that person",
         "everyone": "Everyone"
       }
     },
@@ -337,7 +337,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Lowercase letters, digits, - and _; up to 64 characters. Generated and returned when empty."
+          "description": "Set a fixed ID to replace the earlier banner with the same ID and to clear it later. Without an ID, every call creates a new banner; its generated ID is in the response. Lowercase letters, digits, - and _; up to 64 characters."
         },
         "title": {
           "name": "Title",
@@ -349,7 +349,7 @@
         },
         "icon": {
           "name": "Icon",
-          "description": "Replaces the default icon of the severity. Default: the icon of the severity."
+          "description": "Replaces the default icon of the severity on the banner."
         },
         "timeout": {
           "name": "Timeout",
@@ -465,9 +465,9 @@
           "name": "Channels",
           "description": "Where the message is delivered."
         },
-        "disable_automatic_policies": {
-          "name": "Disable automatic policies",
-          "description": "Disables all automatically assigned policies (for example by severity or tag). Manually assigned policies still apply. Leave the checkbox unchecked to use the default."
+        "match_policies_automatically": {
+          "name": "Match policies automatically",
+          "description": "On: policies that match the severity or tags of the message apply automatically. Off: only the manual policies apply, and none if you pick no manual policy. Manual policies always apply."
         },
         "policy": {
           "name": "Manual policy",
@@ -491,11 +491,11 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "Sets color, default icon and sort order. Default: Warning."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",
-          "description": "Replaces the default icon of the severity. Default: the icon of the severity."
+          "description": "Replaces the default icon of the severity on the banner and in the popup. A push, speech, mail and the notification bell do not show it."
         },
         "image": {
           "name": "Image",
@@ -503,7 +503,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Lowercase letters, digits, - and _; up to 64 characters. Generated and returned when empty."
+          "description": "Set a fixed ID to replace the earlier message with the same ID and to clear it later. Without an ID, every call creates a new message; its generated ID is in the response. Lowercase letters, digits, - and _; up to 64 characters."
         },
         "tag": {
           "name": "Tag",
@@ -513,13 +513,13 @@
           "name": "Timeout",
           "description": "The message ends after this time, also across restarts. 0 = no timeout. Default: the timeout from the integration options (24 hours unless changed)."
         },
-        "condition": {
-          "name": "Condition",
-          "description": "Show the message only while an entity matches or a template is true. A message with a condition waits until it is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
         "mode": {
           "name": "Mode",
           "description": "Show once: the message is shown once. With a Condition it waits until the condition is true and ends for good when it turns false; without a Condition it stays until its timeout, a dismissal or a clear.\n\nRecurring: needs a Condition. The message is shown whenever the condition is true, hidden when it is false and shown again when it turns true. Default: Show once."
+        },
+        "condition": {
+          "name": "Condition",
+          "description": "Show the message only while an entity matches or a template is true. A message with a condition waits until it is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "tap_action": {
           "name": "Tap action",
@@ -530,12 +530,12 @@
           "description": "Up to 3 buttons with key, label, optional dismiss and action.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
         },
         "dismiss": {
-          "name": "Who can dismiss",
-          "description": "Who can remove the message: Nobody, Each person (it disappears for that person only) or Everyone (one dismissal removes it for all). A dismissal removes it from all channels except speak and mail. Nobody also forbids dismiss buttons and snoozing; it still ends by its condition, its timeout or an admin clear. Default: dismissible, with the scope from the integration options (each person unless changed). Leave the checkbox unchecked to use the default."
+          "name": "Dismiss for",
+          "description": "To whom a dismissal applies. Only that person: the message disappears only for the person who dismisses it. Everyone: one dismissal removes it for everyone. Nobody: the message cannot be dismissed, so dismiss buttons and snoozing are not allowed; it still ends by its condition, its timeout or an admin clear. A dismissal removes the message from all channels except speak and mail. Default: dismissing is possible and applies to the person, unless the integration options say otherwise. Leave the checkbox unchecked to use the default."
         },
         "snooze": {
-          "name": "Who can snooze",
-          "description": "Who can hide the message for a while, after which it returns: Nobody, Each person or Everyone. The call fails with an error together with Who can dismiss set to Nobody. Default: the setting from the integration options (nobody unless changed). Leave the checkbox unchecked to use the default."
+          "name": "Snooze for",
+          "description": "To whom a snooze applies. Only that person: the message is hidden only for the person who snoozes it and returns after the chosen time. Everyone: one snooze hides it for everyone. Nobody: the message cannot be snoozed. The call fails with an error together with Dismiss for set to Nobody. Default: the setting from the integration options (nobody unless changed). Leave the checkbox unchecked to use the default."
         },
         "snooze_options": {
           "name": "Snooze choices",
@@ -553,7 +553,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Lowercase letters, digits, - and _; up to 64 characters. Generated and returned when empty."
+          "description": "Set a fixed ID to replace the earlier message with the same ID and to clear it later. Without an ID, the message is sent once and cannot be cleared. Lowercase letters, digits, - and _; up to 64 characters."
         },
         "title": {
           "name": "Title",
@@ -561,11 +561,11 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "Sets color, default icon and sort order. Default: Warning."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",
-          "description": "Replaces the default icon of the severity. Default: the icon of the severity."
+          "description": "This action does not show an icon; the field has no effect here."
         },
         "timeout": {
           "name": "Timeout",
@@ -611,7 +611,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Lowercase letters, digits, - and _; up to 64 characters. Generated and returned when empty."
+          "description": "Set a fixed ID to replace the earlier message with the same ID and to clear it later. Without an ID, the message is sent once and cannot be cleared. Lowercase letters, digits, - and _; up to 64 characters."
         },
         "title": {
           "name": "Title",
@@ -619,11 +619,11 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "Sets color, default icon and sort order. Default: Warning."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",
-          "description": "Replaces the default icon of the severity. Default: the icon of the severity."
+          "description": "Replaces the default icon of the severity in the popup."
         },
         "timeout": {
           "name": "Timeout",
@@ -669,7 +669,7 @@
         },
         "id": {
           "name": "ID",
-          "description": "Lowercase letters, digits, - and _; up to 64 characters. Generated and returned when empty."
+          "description": "Set a fixed ID to replace the earlier message with the same ID and to clear it later. Without an ID, the message is sent once and cannot be cleared. Lowercase letters, digits, - and _; up to 64 characters."
         },
         "title": {
           "name": "Title",
@@ -677,11 +677,11 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "Sets color, default icon and sort order. Default: Warning."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",
-          "description": "Replaces the default icon of the severity. Default: the icon of the severity."
+          "description": "This action does not show an icon; the field has no effect here."
         },
         "timeout": {
           "name": "Timeout",
