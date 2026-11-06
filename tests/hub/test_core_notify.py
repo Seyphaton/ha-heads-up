@@ -327,7 +327,7 @@ async def test_a_policy_name_in_another_case_is_accepted(
     await add_policy(hass, entry, "Night", type="reminder", every_minutes=30, max_count=3)
     result = await notify(hass, id="p", message="x", channels=["banner"], policy="night")
     assert result["status"] == "created"
-    assert banners(entry)["p"].policy == "Night"
+    assert banners(entry)["p"].policy == ["automatic", "Night"]
     with pytest.raises(ServiceValidationError) as err:
         await notify(hass, message="x", channels=["banner"], policy="Nigh")
     assert err.value.translation_key == "unknown_policy_hint"

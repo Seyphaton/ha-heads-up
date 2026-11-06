@@ -149,7 +149,7 @@
     },
     "mode": {
       "options": {
-        "once": "Une fois",
+        "once": "Afficher une fois",
         "recurring": "Récurrent"
       }
     },
@@ -385,15 +385,11 @@
         },
         "condition": {
           "name": "Condition",
-          "description": "Afficher la bannière seulement tant qu'une entité correspond ou qu'un modèle est vrai. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+          "description": "Afficher la bannière seulement tant qu'une entité correspond ou qu'un modèle est vrai. Une bannière avec condition attend qu'elle soit vraie. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Mode",
-          "description": "Une fois : supprimée quand la condition devient fausse. Récurrent : masquée tant qu'elle est fausse, réaffichée quand elle redevient vraie. Par défaut : Une fois."
-        },
-        "wait_for_condition": {
-          "name": "Attendre la condition",
-          "description": "Activé : une bannière dont la condition est fausse attend qu'elle devienne vraie. Désactivé : rien n'est enregistré et le statut de la réponse est condition_false. Par défaut : activé. Ignoré sans condition. Laisse la case décochée pour utiliser la valeur par défaut."
+          "description": "Afficher une fois : la bannière est affichée une fois. Avec une condition, elle attend qu'elle soit vraie et se termine définitivement quand elle devient fausse ; sans condition, elle reste jusqu'à son délai, une fermeture ou un effacement.\n\nRécurrent : nécessite une condition. La bannière est affichée quand la condition est vraie, masquée quand elle est fausse et réaffichée quand elle redevient vraie. Par défaut : Afficher une fois."
         },
         "people": {
           "name": "Personnes",
@@ -467,27 +463,31 @@
         },
         "channels": {
           "name": "Canaux",
-          "description": "Où le message est livré : banner, push, popup, speak, persistent, mail.\n\nExemple :\n```yaml\n- banner\n- push\n```"
+          "description": "Où le message est livré."
+        },
+        "disable_automatic_policies": {
+          "name": "Désactiver les politiques automatiques",
+          "description": "Désactive toutes les politiques attribuées automatiquement (par exemple par gravité ou étiquette). Les politiques attribuées à la main s'appliquent toujours. Laissez la case décochée pour utiliser la valeur par défaut."
         },
         "policy": {
-          "name": "Politique",
-          "description": "Quelles politiques utiliser. Vide : toutes les politiques qui correspondent à la gravité et à l'étiquette. Les politiques choisies sont utilisées quelles que soient leur gravité et leur étiquette, et remplacent celles qui correspondent. En YAML vous pouvez aussi écrire des noms de politiques et automatic à côté pour ajouter celles qui correspondent."
-        },
-        "no_policy": {
-          "name": "Aucune politique",
-          "description": "Envoyer sans aucune politique : ni heures calmes, ni escalade, ni rappel, ni autre politique ne s'applique. Ne se combine pas avec Politique. Laissez la case décochée pour utiliser la valeur par défaut."
-        },
-        "recipients": {
-          "name": "Destinataires",
-          "description": "Choisissez des personnes précises, par exemple pour prévenir Anna. Va à la bannière, au push, à la fenêtre contextuelle et au courriel. Indiquez destinataires ou audience. La voix utilise Haut-parleurs. Par défaut : la bannière est vue par tout le monde."
+          "name": "Politique manuelle",
+          "description": "Politiques que vous attribuez à la main. Elles s'appliquent en plus des politiques automatiques, quelles que soient leur propre gravité et leur étiquette."
         },
         "audience": {
           "name": "Audience",
           "description": "Choisissez un groupe : Everyone, Admins, At home ou un groupe créé sur la page Audiences. Il est calculé à l'envoi, donc At home désigne qui est à la maison à ce moment-là. Indiquez audience ou destinataires."
         },
+        "recipients": {
+          "name": "Destinataires",
+          "description": "Choisissez des personnes précises, par exemple pour prévenir Anna. Va à la bannière, au push, à la fenêtre contextuelle et au courriel. Indiquez destinataires ou audience. La voix utilise Haut-parleurs. Par défaut : la bannière est vue par tout le monde."
+        },
         "speakers": {
           "name": "Haut-parleurs",
           "description": "Haut-parleurs, groupes de haut-parleurs ou zones pour la voix. La voix n'accepte pas d'audience."
+        },
+        "tts_message": {
+          "name": "Texte parlé",
+          "description": "Texte utilisé pour la voix à la place du titre et du message. Par défaut : le titre s'il existe, sinon le message."
         },
         "severity": {
           "name": "Gravité",
@@ -500,10 +500,6 @@
         "image": {
           "name": "Image",
           "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
-        },
-        "tts_message": {
-          "name": "Texte parlé",
-          "description": "Texte utilisé pour la voix à la place du titre et du message. Par défaut : le titre s'il existe, sinon le message."
         },
         "id": {
           "name": "ID",
@@ -519,15 +515,11 @@
         },
         "condition": {
           "name": "Condition",
-          "description": "Afficher le message seulement tant qu'une entité correspond ou qu'un modèle est vrai. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
-        "wait_for_condition": {
-          "name": "Attendre la condition",
-          "description": "Activé : un message dont la condition est fausse attend qu'elle devienne vraie. Désactivé : rien n'est enregistré et le statut de la réponse est condition_false. Par défaut : activé. Ignoré sans condition. Laisse la case décochée pour utiliser la valeur par défaut."
+          "description": "Afficher le message seulement tant qu'une entité correspond ou qu'un modèle est vrai. Un message avec condition attend qu'elle soit vraie. Clés : entity_id, operator, state, attribute, template, for.\n\nExemple :\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Mode",
-          "description": "Une fois : supprimée quand la condition devient fausse. Récurrent : masquée tant qu'elle est fausse, réaffichée quand elle redevient vraie. Par défaut : Une fois."
+          "description": "Afficher une fois : le message est affiché une fois. Avec une condition, il attend qu'elle soit vraie et se termine définitivement quand elle devient fausse ; sans condition, il reste jusqu'à son délai, une fermeture ou un effacement.\n\nRécurrent : nécessite une condition. Le message est affiché quand la condition est vraie, masqué quand elle est fausse et réaffiché quand elle redevient vraie. Par défaut : Afficher une fois."
         },
         "tap_action": {
           "name": "Action au toucher",

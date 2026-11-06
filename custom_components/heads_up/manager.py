@@ -207,12 +207,6 @@ class BannerManager:
             waits = met is True and bool(condition.get("for"))
             if waits:
                 met = False
-            if met is not True and not data.get("wait_for_condition", True):
-                if existing:
-                    # The caller replaced this ID with a banner that must not show (D-038).
-                    self._remove(banner_id, EVENT_CLEARED, reason="condition")
-                    self._changed()
-                return {"id": banner_id, "status": "condition_false"}
 
         self._cancel_wait(banner_id)
         self._untrack_template(banner_id)

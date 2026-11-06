@@ -368,3 +368,18 @@ async def test_the_preview_names_the_policies_that_make_acknowledging_matter(
     await add_policy(hass, entry, "Quiet night", **QUIET)
     assert (await preview(client))["acknowledge"] == ["Water escalation"]
     assert (await preview(client, policy="none"))["acknowledge"] == []
+
+
+async def test_test_send_has_no_wait_for_condition_and_takes_no_mode_or_condition(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    # A condition or a mode in the call is not a field of Test send; nothing it sends can reach
+    # the condition logic that `notify` refuses (D-188).
+    await make_household(hass, mobile_app_device)
+    client = await hass_ws_client(hass)
+    for field in ({"wait_for_condition": False}, {"mode": "recurring"}):
+        reply = await ask(client, "hub_plan", **call(**field))
+        assert not reply["success"]

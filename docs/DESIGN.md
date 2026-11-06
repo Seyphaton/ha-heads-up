@@ -80,8 +80,7 @@ Non-functional
 | `icon` | mdi string | per severity: `mdi:information`, `mdi:check-circle`, `mdi:alert`, `mdi:alert-octagon` | `cv.icon` (N-2) |
 | `timeout` | seconds or duration; `0` = no timeout | option `default_timeout` (shipped: 24 h, D-031) | `cv.time_period`, 0 or 1 s – 365 days |
 | `condition` | object `{entity_id, state, attribute}` | none | `entity_id` must exist at creation (`entity_not_found`); `state` string or list of strings, default `"on"`; `attribute` optional string |
-| `mode` | `once` \| `recurring` | `once` | ignored without `condition` |
-| `wait_for_condition` | bool | `true` | ignored without `condition` |
+| `mode` | `once` \| `recurring` | `once` | `recurring` needs a `condition` (refused otherwise, D-188); `once` without a condition stays until timeout, dismissal or clear |
 | `dismissible` | bool | `true` | |
 | `dismiss_scope` | `user` \| `global` | option `default_dismiss_scope` (shipped: `user`) | |
 | `people` | list of `person.*` entity IDs | empty = everyone | each must be a `person` entity ID; not required to exist (a later-created person matches) |
@@ -118,13 +117,13 @@ All input fields after defaults, plus:
                      │
         ┌────────────┴──────────────┐
   condition false                no condition / condition true
-  wait_for_condition=false              │
+        │                               │
         │                               ▼
-  status condition_false        ┌──── ACTIVE ◄───────────┐
-  (nothing stored)              │      │                 │ recurring: false→true
-                                │      │ condition       │ (dismissals reset)
-  condition false,              │      ▼ true→false      │
-  wait_for_condition=true ──► WAITING ─┴─ once: REMOVED (reason condition)
+        │                       ┌──── ACTIVE ◄───────────┐
+        │                       │      │                 │ recurring: false→true
+        │                       │      │ condition       │ (dismissals reset)
+        │                       │      ▼ true→false      │
+        └─────────────────► WAITING ─┴─ once: REMOVED (reason condition)
                                 │        recurring: back to WAITING
                                 │
   any state ── timeout ──► REMOVED (expired)
@@ -207,7 +206,7 @@ Config flow: one entry, no input (D-026). Options: `max_banners`, `evict`, `defa
 
 | Action | Fields | Response (`SupportsResponse.OPTIONAL`, N-3) | Errors |
 |---|---|---|---|
-| `heads_up.create_banner` | §4.1 | `{id, status}` with `status` `created` \| `updated` \| `waiting` \| `condition_false`; `evicted` ID if any | schema errors (`vol.Invalid`), `entity_not_found`, `too_many_banners`, `not_loaded` |
+| `heads_up.create_banner` | §4.1 | `{id, status}` with `status` `created` \| `updated` \| `waiting`; `evicted` ID if any | schema errors (`vol.Invalid`), `entity_not_found`, `too_many_banners`, `not_loaded` |
 | `heads_up.clear_notifications` | `id`, `tag`, `severity` (list), `channels` (list), `all`; at least one, or `all: true` alone (D-158) | `{cleared: n}` | schema errors (`vol.Invalid`); unknown id → `cleared: 0`; removes any message of any channel, never a rule banner |
 | `heads_up.clear_banner` | `id` or `tag` (at least one) | `{cleared: n}` | deprecated (D-158), one log warning per start; none (unknown id → `cleared: 0`) |
 | `heads_up.clear_all` | none | `{cleared: n}` | deprecated (D-158); removes every stored message of every channel |
@@ -306,7 +305,7 @@ Status: Python tests implemented (121, files listed in `docs/dev/TESTING.md`); c
 - Python: `pytest-homeassistant-custom-component` 0.13.375 = HA 2026.10.4, the development version (N-46, D-123); CI runs the same tests on the minimum tested version 2026.9.4 (0.13.367, N-25). mypy runs on 2026.10.4 (N-91).
 - Lifecycle tests first (Phase 2): upsert, each removal reason, eviction order, limits, response data, events, permission checks for `show_all`/`admin_clear`.
 - Restart tests: create → unload/reload entry with persisted store → assert banners, dismissals, `expires_at`; freeze time past expiry across restart → `expired` event.
-- Condition tests (Phase 3): flips, `once` vs `recurring`, `wait_for_condition`, unavailable, entity removed, person `user_id` changes.
+- Condition tests (Phase 3): flips, `once` vs `recurring`, unavailable, entity removed, person `user_id` changes.
 - WebSocket tests with the HA test client: per-user filtering, subscription cleanup on close (N-5).
 - Card: vitest on pure functions extracted into the same module (sorting, filtering, visibility of controls) — exported for tests; DOM checked manually.
 - Manual matrix (Phase 4, dev HA 2026.9.4, built-in browser): sections, masonry and panel views; light and dark theme; 1280×800 and 768×1024; admin and `dev-user`; dismiss; tap with `confirmation`; reconnect after a container restart; empty card. Phase 7 (same setup, one dashboard view with six differently configured cards, admin): default, compact with time and label, title with clear all and collapse, background-only with custom colors, icon-only, empty message; show more; swipe (mouse drag) and cancel on a short drag, no tap action fired; clear all; time text moving from "just now" to "1 min ago"; editor fields, nested colors and minimal saved config. Not covered: `show_all` rendering with a banner targeted at another person, keyboard activation of a tappable banner, screen readers, swipe on a touch screen.
@@ -444,7 +443,7 @@ A condition reacts the moment an entity matches. "Door open for 5 minutes" needs
 - **Where the timer is cancelled:** the banner is replaced, cleared, expires or is evicted (`_remove`); the manager unloads; a rule is rebuilt or removed.
 - **Restart:** timers are not stored. A banner stored as shown stays shown. A waiting banner, and a rule that is true at setup, start the wait again (D-066). A rule that becomes true after its wait fires `heads_up_banner_created` and sets `updated_at` then. Setup finds the state without events (D-058), the later flip is an event.
 - **Rules and unavailable:** a rule treats an unreadable result as false (D-053), so it also cancels the wait.
-- **`create_banner` response:** a banner whose condition is true but still waiting has status `waiting`. With `wait_for_condition: false` it is not stored (`condition_false`).
+- **`create_banner` response:** a banner whose condition is false, or true but still waiting for `for`, has status `waiting`. `wait_for_condition` and the status `condition_false` were removed (D-188).
 - **Template condition:** `condition.template` (string, not empty, must parse) replaces `entity_id`, `operator`, `state` and `attribute`; mixing them is a validation error. The result is the template's boolean (`result_as_boolean`). `for` can be added. A render error gives no result: unchanged, like an unavailable entity (D-061). The entity-exists check of `create` applies to `entity_id` conditions only.
 - **Tracking:** `async_track_template_result` per banner with a template condition (`_template_trackers`), set up in `create` and `async_load`, removed with the banner. It re-evaluates when entities read by the template change and for time functions, which the state listener could not do (D-067). Rule messages keep their own entity tracking (D-063).
 - **Card and payloads:** unchanged; `condition` is never sent to the card.
@@ -536,7 +535,7 @@ How both sources stay equal:
 | tap action | yes | yes (Tap action field, YAML) |
 | condition on an entity (operators, `for`) | yes | yes |
 | template condition | yes | yes (Template field; replaces the entity) |
-| `id`, `tag`, `timeout`, `mode`, `wait_for_condition` | yes | exception: a rule's lifetime is its condition; its tag is `rule`; its mode is recurring (D-052, D-056) |
+| `id`, `tag`, `timeout`, `mode` | yes | exception: a rule's lifetime is its condition; its tag is `rule`; its mode is recurring (D-052, D-056) |
 | clear by action or by an admin | yes | exception: the rule is disabled or deleted instead (D-056) |
 | stored over a restart (banner, dismissals, snoozes) | yes | exception: a rule is rebuilt from its subentry; dismissals and snoozes are not kept (D-056, D-069) |
 | hub delivery (channels, a target per channel, a named policy) | yes (`notify`) | exception: a rule is a banner-channel message; other channels come from policies, by severity and tag `rule` or by the rule's Policy field (D-100, D-146) |
@@ -595,9 +594,9 @@ Automations hard-code notify services, speaker entities, quiet-hour templates an
 | Delivery | One message, one recipient, one channel, with a state: planned, held, sent, skipped, failed, cleared. |
 
 ### 23.4 Actions and fields (D-083, D-087)
-- `heads_up.notify`: content `message` (required), `title`, `icon`, `severity`, `actions`, `tap_action`, `tts_message`; lifecycle `id`, `tag`, `timeout`, `condition`, `mode`, `wait_for_condition`, `dismissible`, `dismiss_scope`, `snoozable`, `snooze_scope`, `snooze_options`; delivery `channels` (required list), `to` (a target per channel: `audience` or `recipients`, never both, kinds depend on the channel, D-098), `policy` (omitted: all that apply; `none`: no policy behavior).
+- `heads_up.notify`: content `message` (required), `title`, `icon`, `severity`, `actions`, `tap_action`, `tts_message`; lifecycle `id`, `tag`, `timeout`, `condition`, `mode`, `dismissible`, `dismiss_scope`, `snoozable`, `snooze_scope`, `snooze_options`; delivery `channels` (required list), `to` (a target per channel: `audience` or `recipients`, never both, kinds depend on the channel, D-098), `policy` (omitted: all that apply; `none`: no policy behavior).
 - Shortcuts `push`, `popup`, `speak`: fixed channel, optional audience or recipients, no escalation; fire and forget without an `id`, a tracked message with one. `create_banner` is unchanged and keeps `people`.
-- One generic clear removes a message from every channel. Response: `id`, `status` (`created`, `updated`, `waiting`, `condition_false`) and per channel counts of `sent`, `held`, `skipped`, `failed`.
+- One generic clear removes a message from every channel. Response: `id`, `status` (`created`, `updated`, `waiting`) and per channel counts of `sent`, `held`, `skipped`, `failed`.
 - Watch rules are frozen (D-100): they keep working as released, deliver to the banner channel and get no channels or targets. Policies still apply to their messages by severity and tag.
 
 ### 23.5 Recipients per channel (D-090, D-091)

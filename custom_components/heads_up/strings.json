@@ -149,7 +149,7 @@
     },
     "mode": {
       "options": {
-        "once": "Once",
+        "once": "Show once",
         "recurring": "Recurring"
       }
     },
@@ -385,15 +385,11 @@
         },
         "condition": {
           "name": "Condition",
-          "description": "Show the banner only while an entity matches or a template is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+          "description": "Show the banner only while an entity matches or a template is true. A banner with a condition waits until it is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Mode",
-          "description": "Once: removed when the condition turns false. Recurring: hidden while false, shown again when true. Default: Once."
-        },
-        "wait_for_condition": {
-          "name": "Wait for condition",
-          "description": "On: a banner whose condition is false now waits until it turns true. Off: nothing is stored and the response status is condition_false. Default: on. Ignored without a condition. Leave the checkbox unchecked to use the default."
+          "description": "Show once: the banner is shown once. With a Condition it waits until the condition is true and ends for good when it turns false; without a Condition it stays until its timeout, a dismissal or a clear.\n\nRecurring: needs a Condition. The banner is shown whenever the condition is true, hidden when it is false and shown again when it turns true. Default: Show once."
         },
         "people": {
           "name": "People",
@@ -467,27 +463,31 @@
         },
         "channels": {
           "name": "Channels",
-          "description": "Where the message is delivered: banner, push, popup, speak, persistent, mail.\n\nExample:\n```yaml\n- banner\n- push\n```"
+          "description": "Where the message is delivered."
+        },
+        "disable_automatic_policies": {
+          "name": "Disable automatic policies",
+          "description": "Disables all automatically assigned policies (for example by severity or tag). Manually assigned policies still apply. Leave the checkbox unchecked to use the default."
         },
         "policy": {
-          "name": "Policy",
-          "description": "Which policies to use. Empty: every policy that matches the severity and tag. Picked policies are used whatever their severities and tags say, and replace the matching ones. In YAML you can also write policy names, and automatic next to them to add the matching ones."
-        },
-        "no_policy": {
-          "name": "No policy",
-          "description": "Send without any policy: no quiet hours, escalation, reminder or other policy applies. Cannot be combined with Policy. Leave the checkbox unchecked to use the default."
-        },
-        "recipients": {
-          "name": "Recipients",
-          "description": "Pick specific people, for example to tell Anna. Goes to banner, push, popup and mail. Give either recipients or audience. Speech uses Speakers. Default: the banner is shown to everyone."
+          "name": "Manual policy",
+          "description": "Policies you assign by hand. They apply next to the automatic policies, whatever their own severities and tags say."
         },
         "audience": {
           "name": "Audience",
           "description": "Pick a group: Everyone, Admins, At home, or one you made on the Audiences page. It is worked out when the message is sent, so At home means whoever is home then. Give either audience or recipients."
         },
+        "recipients": {
+          "name": "Recipients",
+          "description": "Pick specific people, for example to tell Anna. Goes to banner, push, popup and mail. Give either recipients or audience. Speech uses Speakers. Default: the banner is shown to everyone."
+        },
         "speakers": {
           "name": "Speakers",
           "description": "Speakers, speaker groups or areas for speech. Speech takes no audience."
+        },
+        "tts_message": {
+          "name": "Spoken text",
+          "description": "Text used for speech instead of the title and message. Default: the title if set, otherwise the message."
         },
         "severity": {
           "name": "Severity",
@@ -500,10 +500,6 @@
         "image": {
           "name": "Image",
           "description": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
-        },
-        "tts_message": {
-          "name": "Spoken text",
-          "description": "Text used for speech instead of the title and message. Default: the title if set, otherwise the message."
         },
         "id": {
           "name": "ID",
@@ -519,15 +515,11 @@
         },
         "condition": {
           "name": "Condition",
-          "description": "Show the message only while an entity matches or a template is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
-        "wait_for_condition": {
-          "name": "Wait for condition",
-          "description": "On: a message whose condition is false now waits until it turns true. Off: nothing is stored and the response status is condition_false. Default: on. Ignored without a condition. Leave the checkbox unchecked to use the default."
+          "description": "Show the message only while an entity matches or a template is true. A message with a condition waits until it is true. Keys: entity_id, operator, state, attribute, template, for.\n\nExample:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Mode",
-          "description": "Once: removed when the condition turns false. Recurring: hidden while false, shown again when true. Default: Once."
+          "description": "Show once: the message is shown once. With a Condition it waits until the condition is true and ends for good when it turns false; without a Condition it stays until its timeout, a dismissal or a clear.\n\nRecurring: needs a Condition. The message is shown whenever the condition is true, hidden when it is false and shown again when it turns true. Default: Show once."
         },
         "tap_action": {
           "name": "Tap action",

@@ -4,9 +4,14 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Removed
+- Breaking, for the 1.0.0 release: the field `wait_for_condition` is removed from `heads_up.create_banner` and `heads_up.notify`, and the response status `condition_false` is gone. A message or banner whose condition is false when you call the action now always waits. To send only when the condition is true now, check it in the automation before the action.
+- Breaking, for the 1.0.0 release: `mode: recurring` without a `condition` is refused in `heads_up.create_banner` and `heads_up.notify`. Until now `mode` was ignored without a condition.
+
 ### Changed
 - `heads_up.notify`: `recipients`, `audience` and `speakers` give the same people to every channel at once (banner, push, popup, mail; speech takes speakers). `to` is no longer offered in the action form or the docs (the action still accepts it). `policy` takes a list of policy names, with `automatic` and `none` as keywords (`automatic` next to names adds the policies that match). `dismissible`, `dismiss_scope`, `snoozable` and `snooze_scope` are replaced by `dismiss` and `snooze`, each `off`, `user` or `everyone` (`create_banner` and watch rules keep the old fields).
-- Every audience is a sensor (`binary_sensor.heads_up_audience_at_home`, on while someone is in it) and every policy is a switch (`switch.heads_up_policy_...`, the policy's enabled setting). The action form lists them as dropdowns for `audience` and `policy`; a call may name the entity or, in YAML, the name. `no_policy: true` sends without any policy.
+- Every audience is a sensor (`binary_sensor.heads_up_audience_at_home`, on while someone is in it) and every policy is a switch (`switch.heads_up_policy_...`, the policy's enabled setting). The action form lists them as dropdowns for `audience` and `policy`; a call may name the entity or, in YAML, the name. `disable_automatic_policies: true` switches the automatic policies off for a call; the policies named in `policy` are manual policies and apply next to the automatic ones.
+- The mode field is "Show once" or "Recurring"; a watch rule is always recurring.
 - The field order of the action form follows the purpose of the field, with the policy right after the channels. Dismissible says what a dismissal removes; boolean fields say that an unchecked field uses the default.
 - Panel: Test send writes the short call (shared recipients, `dismiss`, `snooze`, a policy list) and offers the policies as a multi-select.
 

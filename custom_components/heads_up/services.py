@@ -98,6 +98,9 @@ ACTIONS_SCHEMA = vol.All(cv.ensure_list, [ACTION_SCHEMA], _check_actions)
 
 
 def _check_create(data: dict[str, Any]) -> dict[str, Any]:
+    # A message that comes back when its condition is true again has no meaning without one.
+    if data.get("mode") == "recurring" and "condition" not in data:
+        raise vol.Invalid("mode recurring needs a condition", path=["condition"])
     if data.get("dismissible") is False and any(a["dismiss"] for a in data.get("actions", [])):
         raise vol.Invalid(
             "a button cannot dismiss a banner that is not dismissible", path=["actions"]
@@ -227,13 +230,24 @@ def _map_interaction(data: dict[str, Any]) -> dict[str, Any]:
     return data
 
 
-def _map_no_policy(data: dict[str, Any]) -> dict[str, Any]:
-    """`no_policy` is the form's way to say `policy: none` (D-186)."""
+def _map_policies(data: dict[str, Any]) -> dict[str, Any]:
+    """The policies of a call (D-187). Named policies are manual ones: they apply next to the
+    automatic policies that match, unless `disable_automatic_policies` is set. Stored as the list
+    `matching.select` reads: `automatic` plus the names, the names alone, or `none`."""
     data = dict(data)
-    if data.pop("no_policy", False):
-        if data.get("policy"):
-            raise vol.Invalid("no_policy cannot be combined with policy", path=["no_policy"])
-        data["policy"] = [POLICY_NONE]
+    disable = bool(data.pop("disable_automatic_policies", False))
+    names: list[str] = list(data.get("policy", []))
+    if names == [POLICY_NONE]:
+        return data
+    if disable:
+        if POLICY_AUTOMATIC in names:
+            raise vol.Invalid(
+                "automatic cannot be combined with disable_automatic_policies",
+                path=["disable_automatic_policies"],
+            )
+        data["policy"] = names or [POLICY_NONE]
+    elif names and POLICY_AUTOMATIC not in names:
+        data["policy"] = [POLICY_AUTOMATIC, *names]
     return data
 
 
@@ -299,7 +313,6 @@ _CREATE_FIELDS: dict[Any, Any] = {
     # Passed to the card unchanged (D-015).
     vol.Optional("condition"): CONDITION_SCHEMA,
     vol.Optional("mode"): vol.In(MODES),
-    vol.Optional("wait_for_condition"): cv.boolean,
     vol.Optional("people"): vol.All(cv.ensure_list, [cv.entity_domain("person")]),
     vol.Optional("actions"): ACTIONS_SCHEMA,
     vol.Optional("tap_action"): TAP_ACTION_SCHEMA,
@@ -347,11 +360,11 @@ NOTIFY_SCHEMA = vol.All(
             vol.Optional("policy"): vol.All(
                 cv.ensure_list, [vol.All(cv.string, vol.Length(min=1))], _check_policy
             ),
-            vol.Optional("no_policy"): cv.boolean,
+            vol.Optional("disable_automatic_policies"): cv.boolean,
         }
     ),
     _map_interaction,
-    _map_no_policy,
+    _map_policies,
     _check_create,
     _expand_targets,
     _check_notify,

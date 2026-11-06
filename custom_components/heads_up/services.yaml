@@ -49,22 +49,18 @@ create_banner:
         5}}'
       selector:
         object: null
-    wait_for_condition: &id012
-      default: true
-      selector:
-        boolean: null
-    mode: &id013
+    mode: &id012
       selector:
         select:
           options:
           - once
           - recurring
           translation_key: mode
-    tap_action: &id014
+    tap_action: &id013
       example: '{"action": "navigate", "navigation_path": "/lovelace/0"}'
       selector:
         object: null
-    actions: &id015
+    actions: &id014
       example: '[{"key": "ack", "label": "Got it", "dismiss": true}]'
       selector:
         object: null
@@ -89,7 +85,7 @@ create_banner:
           - user
           - global
           translation_key: snooze_scope
-    snooze_options: &id017
+    snooze_options: &id016
       example: '[{"minutes": 15}, {"hours": 1}, {"hours": 4}]'
       selector:
         object: null
@@ -152,54 +148,52 @@ notify:
           - mail
           multiple: true
           translation_key: channel
+    disable_automatic_policies:
+      selector:
+        boolean: null
     policy:
-      example: '["switch.heads_up_policy_quiet_hours"]'
       selector:
         entity:
           multiple: true
           filter:
           - integration: heads_up
             domain: switch
-    no_policy:
-      selector:
-        boolean: null
+    audience:
+      default: binary_sensor.heads_up_audience_everyone
+      selector: &id018
+        entity:
+          filter:
+          - integration: heads_up
+            domain: binary_sensor
     recipients:
       example: '["person.anna"]'
       selector:
         entity:
           domain: person
           multiple: true
-    audience:
-      example: binary_sensor.heads_up_audience_at_home
-      selector: &id019
-        entity:
-          filter:
-          - integration: heads_up
-            domain: binary_sensor
     speakers:
       example: '["media_player.kitchen"]'
       selector:
         entity:
           domain: media_player
           multiple: true
-    severity: *id005
-    icon: *id006
-    image: *id007
-    tts_message: &id018
+    tts_message: &id017
       example: The garage door is open.
       selector:
         text: {}
+    severity: *id005
+    icon: *id006
+    image: *id007
     id: *id008
     tag: *id009
     timeout: *id010
     condition: *id011
-    wait_for_condition: *id012
-    mode: *id013
-    tap_action: *id014
-    actions: *id015
+    mode: *id012
+    tap_action: *id013
+    actions: *id014
     dismiss:
       example: user
-      selector: &id016
+      selector: &id015
         select:
           options:
           - 'off'
@@ -208,8 +202,8 @@ notify:
           translation_key: who_can
     snooze:
       example: user
-      selector: *id016
-    snooze_options: *id017
+      selector: *id015
+    snooze_options: *id016
 push:
   fields:
     message: *id003
@@ -217,19 +211,19 @@ push:
     severity: *id005
     icon: *id006
     image: *id007
-    tts_message: *id018
-    recipients: &id020
+    tts_message: *id017
+    recipients: &id019
       example: '["person.anna"]'
       selector:
         object: {}
     audience:
       example: binary_sensor.heads_up_audience_at_home
-      selector: *id019
+      selector: *id018
     id: *id008
     tag: *id009
     timeout: *id010
-    tap_action: *id014
-    actions: *id015
+    tap_action: *id013
+    actions: *id014
 popup:
   fields:
     message: *id003
@@ -237,26 +231,26 @@ popup:
     severity: *id005
     icon: *id006
     image: *id007
-    tts_message: *id018
-    recipients: *id020
+    tts_message: *id017
+    recipients: *id019
     audience:
       example: binary_sensor.heads_up_audience_at_home
-      selector: *id019
+      selector: *id018
     id: *id008
     tag: *id009
     timeout: *id010
-    tap_action: *id014
-    actions: *id015
+    tap_action: *id013
+    actions: *id014
 speak:
   fields:
     message: *id003
     title: *id004
     severity: *id005
     icon: *id006
-    tts_message: *id018
-    recipients: *id020
+    tts_message: *id017
+    recipients: *id019
     id: *id008
     tag: *id009
     timeout: *id010
-    tap_action: *id014
-    actions: *id015
+    tap_action: *id013
+    actions: *id014

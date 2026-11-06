@@ -28,8 +28,8 @@ describe("test send call", () => {
   });
 
   it("adds title, tag, policy and trims the text", () => {
-    const call = buildCall(values({ message: "  Door open ", title: " Garage ", tag: "door", policy: ["none"] }));
-    expect(call).toEqual({ message: "Door open", title: "Garage", tag: "door", policy: "none", severity: "warning", channels: ["banner"] });
+    const call = buildCall(values({ message: "  Door open ", title: " Garage ", tag: "door", policy: ["Night"] }));
+    expect(call).toEqual({ message: "Door open", title: "Garage", tag: "door", policy: "Night", severity: "warning", channels: ["banner"] });
   });
 
   it("adds the dismiss and snooze choices only when they differ from the defaults", () => {
@@ -41,10 +41,16 @@ describe("test send call", () => {
     expect(buildCall(values())).not.toHaveProperty("snooze");
   });
 
-  it("leaves the policy out for Automatic, names one as text and several as a list", () => {
-    expect(buildCall(values({ policy: ["automatic"] }))).not.toHaveProperty("policy");
+  it("leaves the policies out by default, names one manual policy as text and several as a list", () => {
+    expect(buildCall(values())).not.toHaveProperty("policy");
+    expect(buildCall(values())).not.toHaveProperty("disable_automatic_policies");
     expect(buildCall(values({ policy: ["Night"] })).policy).toBe("Night");
-    expect(buildCall(values({ policy: ["automatic", "By hand"] })).policy).toEqual(["automatic", "By hand"]);
+    expect(buildCall(values({ policy: ["Night", "By hand"] })).policy).toEqual(["Night", "By hand"]);
+  });
+
+  it("writes disable_automatic_policies only when it is set", () => {
+    expect(buildCall(values({ disable_automatic: true })).disable_automatic_policies).toBe(true);
+    expect(buildCall(values({ disable_automatic: false }))).not.toHaveProperty("disable_automatic_policies");
   });
 
   it("writes the same people on every channel once, and speakers apart", () => {

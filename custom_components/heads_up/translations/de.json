@@ -149,7 +149,7 @@
     },
     "mode": {
       "options": {
-        "once": "Einmal",
+        "once": "Einmal zeigen",
         "recurring": "Wiederkehrend"
       }
     },
@@ -385,15 +385,11 @@
         },
         "condition": {
           "name": "Bedingung",
-          "description": "Das Banner nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+          "description": "Das Banner nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Ein Banner mit Bedingung wartet, bis sie wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Modus",
-          "description": "Einmal: wird entfernt, wenn die Bedingung falsch wird. Wiederkehrend: ausgeblendet, solange sie falsch ist, und wieder gezeigt, wenn sie wahr wird. Standard: Einmal."
-        },
-        "wait_for_condition": {
-          "name": "Auf Bedingung warten",
-          "description": "An: Ein Banner, dessen Bedingung jetzt falsch ist, wartet, bis sie wahr wird. Aus: nichts wird gespeichert und der Antwortstatus ist condition_false. Standard: an. Ohne Bedingung wirkungslos. Kästchen nicht anhaken, um den Standard zu verwenden."
+          "description": "Einmal zeigen: Das Banner wird einmal gezeigt. Mit einer Bedingung wartet es, bis die Bedingung wahr ist, und endet endgültig, wenn sie falsch wird; ohne Bedingung bleibt es bis zu seinem Zeitlimit, einem Schließen oder einem Löschen.\n\nWiederkehrend: braucht eine Bedingung. Das Banner wird gezeigt, wenn die Bedingung wahr ist, ausgeblendet, wenn sie falsch ist, und wieder gezeigt, wenn sie erneut wahr wird. Standard: Einmal zeigen."
         },
         "people": {
           "name": "Personen",
@@ -467,27 +463,31 @@
         },
         "channels": {
           "name": "Kanäle",
-          "description": "Wohin die Nachricht geht: banner, push, popup, speak, persistent, mail.\n\nBeispiel:\n```yaml\n- banner\n- push\n```"
+          "description": "Wohin die Meldung geliefert wird."
+        },
+        "disable_automatic_policies": {
+          "name": "Automatische Richtlinien deaktivieren",
+          "description": "Deaktiviert alle automatisch zugewiesenen Richtlinien (zum Beispiel nach Schweregrad oder Tag). Manuell zugewiesene Richtlinien gelten weiterhin. Kästchen nicht anhaken, um den Standard zu verwenden."
         },
         "policy": {
-          "name": "Richtlinie",
-          "description": "Welche Richtlinien verwendet werden. Leer: jede Richtlinie, die zu Schweregrad und Tag passt. Gewählte Richtlinien gelten unabhängig von ihren Schweregraden und Tags und ersetzen die passenden. In YAML kannst du auch Richtliniennamen schreiben und daneben automatic, um die passenden dazuzunehmen."
-        },
-        "no_policy": {
-          "name": "Keine Richtlinie",
-          "description": "Ohne jede Richtlinie senden: keine Ruhezeiten, Eskalation, Erinnerung oder andere Richtlinie gilt. Nicht kombinierbar mit Richtlinie. Kästchen nicht anhaken, um den Standard zu verwenden."
-        },
-        "recipients": {
-          "name": "Empfänger",
-          "description": "Wähle bestimmte Personen, zum Beispiel um Anna zu benachrichtigen. Geht an Banner, Push, Popup und E-Mail. Gib entweder Empfänger oder Zielgruppe an. Sprache nutzt Lautsprecher. Standard: Das Banner sehen alle."
+          "name": "Manuelle Richtlinie",
+          "description": "Richtlinien, die du von Hand zuweist. Sie gelten zusätzlich zu den automatischen Richtlinien, unabhängig von deren eigenen Schweregraden und Tags."
         },
         "audience": {
           "name": "Zielgruppe",
           "description": "Wähle eine Gruppe: Everyone, Admins, At home oder eine, die du auf der Seite Zielgruppen angelegt hast. Sie wird beim Senden bestimmt, At home heißt also, wer dann zu Hause ist. Gib entweder Zielgruppe oder Empfänger an."
         },
+        "recipients": {
+          "name": "Empfänger",
+          "description": "Wähle bestimmte Personen, zum Beispiel um Anna zu benachrichtigen. Geht an Banner, Push, Popup und E-Mail. Gib entweder Empfänger oder Zielgruppe an. Sprache nutzt Lautsprecher. Standard: Das Banner sehen alle."
+        },
         "speakers": {
           "name": "Lautsprecher",
           "description": "Lautsprecher, Lautsprechergruppen oder Bereiche für Sprache. Sprache nimmt keine Zielgruppe."
+        },
+        "tts_message": {
+          "name": "Gesprochener Text",
+          "description": "Text für die Sprachausgabe statt Titel und Nachricht. Standard: der Titel, falls gesetzt, sonst die Nachricht."
         },
         "severity": {
           "name": "Dringlichkeit",
@@ -500,10 +500,6 @@
         "image": {
           "name": "Bild",
           "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
-        },
-        "tts_message": {
-          "name": "Gesprochener Text",
-          "description": "Text für die Sprachausgabe statt Titel und Nachricht. Standard: der Titel, falls gesetzt, sonst die Nachricht."
         },
         "id": {
           "name": "ID",
@@ -519,15 +515,11 @@
         },
         "condition": {
           "name": "Bedingung",
-          "description": "Die Nachricht nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
-        "wait_for_condition": {
-          "name": "Auf Bedingung warten",
-          "description": "An: Eine Nachricht, deren Bedingung jetzt falsch ist, wartet, bis sie wahr wird. Aus: nichts wird gespeichert und der Antwortstatus ist condition_false. Standard: an. Ohne Bedingung wirkungslos. Kästchen nicht anhaken, um den Standard zu verwenden."
+          "description": "Die Nachricht nur zeigen, solange eine Entität passt oder eine Vorlage wahr ist. Eine Meldung mit Bedingung wartet, bis sie wahr ist. Schlüssel: entity_id, operator, state, attribute, template, for.\n\nBeispiel:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Modus",
-          "description": "Einmal: wird entfernt, wenn die Bedingung falsch wird. Wiederkehrend: ausgeblendet, solange sie falsch ist, und wieder gezeigt, wenn sie wahr wird. Standard: Einmal."
+          "description": "Einmal zeigen: Die Meldung wird einmal gezeigt. Mit einer Bedingung wartet sie, bis die Bedingung wahr ist, und endet endgültig, wenn sie falsch wird; ohne Bedingung bleibt sie bis zu ihrem Zeitlimit, einem Schließen oder einem Löschen.\n\nWiederkehrend: braucht eine Bedingung. Die Meldung wird gezeigt, wenn die Bedingung wahr ist, ausgeblendet, wenn sie falsch ist, und wieder gezeigt, wenn sie erneut wahr wird. Standard: Einmal zeigen."
         },
         "tap_action": {
           "name": "Tipp-Aktion",

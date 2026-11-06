@@ -12,10 +12,9 @@ export const STRINGS = {
     severity: "Severity",
     tag: "Tag (optional)",
     channels: "Channels",
-    policy: "Policy",
-    policy_auto: "Automatic",
-    policy_hint: "Automatic: the policies that apply to the severity and tag. None: no policy. Name policies to use only those; also choose Automatic to add the ones that apply.",
-    policy_none: "None",
+    policy: "Manual policy",
+    disable_automatic: "Disable automatic policies",
+    disable_automatic_hint: "Disables all automatically assigned policies (for example by severity or tag). Manually assigned policies still apply.",
     who: "Who, per channel",
     banner_hint: "Banner: no target shows it to everyone; choose an audience or persons to limit it. An audience counts the people it has when the message is created.",
     target_channel: "Channel {channel}",
@@ -94,10 +93,9 @@ export const STRINGS = {
     severity: "Schweregrad",
     tag: "Tag (optional)",
     channels: "Kanäle",
-    policy: "Richtlinie",
-    policy_auto: "Automatisch",
-    policy_hint: "Automatisch: die Richtlinien, die zu Schweregrad und Tag passen. Keine: keine Richtlinie. Nenne Richtlinien, um nur diese zu verwenden; wähle zusätzlich Automatisch, um die passenden dazuzunehmen.",
-    policy_none: "Keine",
+    policy: "Manuelle Richtlinie",
+    disable_automatic: "Automatische Richtlinien deaktivieren",
+    disable_automatic_hint: "Deaktiviert alle automatisch zugewiesenen Richtlinien (zum Beispiel nach Schweregrad oder Tag). Manuell zugewiesene Richtlinien gelten weiterhin.",
     who: "Wer, je Kanal",
     banner_hint: "Banner: ohne Ziel sehen es alle; wähle eine Zielgruppe oder Personen, um es einzuschränken. Eine Zielgruppe zählt die Personen, die sie beim Erstellen der Meldung hat.",
     target_channel: "Kanal {channel}",
@@ -176,10 +174,9 @@ export const STRINGS = {
     severity: "Gravité",
     tag: "Étiquette (facultatif)",
     channels: "Canaux",
-    policy: "Politique",
-    policy_auto: "Automatique",
-    policy_hint: "Automatique : les politiques qui s'appliquent à la gravité et à l'étiquette. Aucune : pas de politique. Nommez des politiques pour n'utiliser que celles-ci ; choisissez aussi Automatique pour ajouter celles qui s'appliquent.",
-    policy_none: "Aucune",
+    policy: "Politique manuelle",
+    disable_automatic: "Désactiver les politiques automatiques",
+    disable_automatic_hint: "Désactive toutes les politiques attribuées automatiquement (par exemple par gravité ou étiquette). Les politiques attribuées à la main s'appliquent toujours.",
     who: "Qui, par canal",
     banner_hint: "Bannière : sans cible, tout le monde la voit ; choisissez une audience ou des personnes pour la limiter. Une audience compte les personnes qu'elle a à la création du message.",
     target_channel: "Canal {channel}",
@@ -258,10 +255,9 @@ export const STRINGS = {
     severity: "Gravedad",
     tag: "Etiqueta (opcional)",
     channels: "Canales",
-    policy: "Política",
-    policy_auto: "Automática",
-    policy_hint: "Automática: las políticas que se aplican a la gravedad y la etiqueta. Ninguna: sin política. Nombra políticas para usar solo esas; elige también Automática para añadir las que se apliquen.",
-    policy_none: "Ninguna",
+    policy: "Política manual",
+    disable_automatic: "Desactivar políticas automáticas",
+    disable_automatic_hint: "Desactiva todas las políticas asignadas automáticamente (por ejemplo por gravedad o etiqueta). Las políticas asignadas a mano siguen aplicándose.",
     who: "Quién, por canal",
     banner_hint: "Aviso: sin destino lo ve todo el mundo; elige una audiencia o personas para limitarlo. Una audiencia cuenta las personas que tiene al crear el mensaje.",
     target_channel: "Canal {channel}",
@@ -340,7 +336,7 @@ export function fill(template, params) {
 }
 
 export function blankValues() {
-  return { title: "", message: "", tts_message: "", severity: "warning", tag: "", channels: ["banner"], policy: [], dismiss: "", snooze: "" };
+  return { title: "", message: "", tts_message: "", severity: "warning", tag: "", channels: ["banner"], policy: [], disable_automatic: false, dismiss: "", snooze: "" };
 }
 
 // The `notify` call the values describe: only what is set, targets only for the chosen channels.
@@ -349,9 +345,10 @@ export function buildCall(values) {
   if (String(values.title).trim()) data.title = String(values.title).trim();
   if (values.channels.includes("speak") && String(values.tts_message).trim()) data.tts_message = String(values.tts_message).trim();
   if (String(values.tag).trim()) data.tag = String(values.tag).trim();
-  // No choice or only Automatic is the default, so the YAML leaves it out; one name is a string.
+  // The default (automatic policies apply) is left out of the YAML; one manual policy is a string.
+  if (values.disable_automatic) data.disable_automatic_policies = true;
   const policy = values.policy || [];
-  if (policy.length && !(policy.length === 1 && policy[0] === "automatic")) data.policy = policy.length === 1 ? policy[0] : [...policy];
+  if (policy.length) data.policy = policy.length === 1 ? policy[0] : [...policy];
   // Only what differs from the defaults, so the YAML stays short; snoozing means nothing for a
   // message nobody can dismiss.
   if (values.dismiss) data.dismiss = values.dismiss;
@@ -530,15 +527,9 @@ export function mount(container, ctx) {
     callBox.append(ui.field(t.severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: s.severity[k] })), values.severity, (v) => { values.severity = v; change(); })));
     callBox.append(ui.field(t.tag, ui.textInput(values.tag, (v) => { values.tag = v; change(); }), t.tag_hint));
     callBox.append(ui.chips(t.channels, CHANNELS.map((c) => ({ value: c, label: channelLabel(c) })), values.channels, (list) => { values.channels = list; render(); schedule(); }));
-    const policies = [{ value: "automatic", label: t.policy_auto }, { value: "none", label: t.policy_none }, ...data.policies.map((p) => ({ value: p.name, label: p.name }))];
-    callBox.append(ui.chips(t.policy, policies, values.policy, (list) => {
-      // None stands alone: choosing it clears the rest, choosing anything else clears it.
-      const added = list.find((x) => !values.policy.includes(x));
-      values.policy = added === "none" ? ["none"] : list.filter((x) => x !== "none");
-      render();
-      schedule();
-    }));
-    callBox.append(el("div", { className: "hint", textContent: t.policy_hint }));
+    callBox.append(ui.checkbox(t.disable_automatic, values.disable_automatic, (on) => { values.disable_automatic = on; change(); }));
+    callBox.append(el("div", { className: "hint", textContent: t.disable_automatic_hint }));
+    callBox.append(ui.chips(t.policy, data.policies.map((p) => ({ value: p.name, label: p.name })), values.policy, (list) => { values.policy = list; change(); }));
 
     const behaviour = el("section", {}, [el("h2", { textContent: t.behaviour })]);
     const whoCan = [{ value: "", label: t.who_default }, { value: "off", label: t.who_off }, { value: "user", label: t.who_user }, { value: "everyone", label: t.who_everyone }];

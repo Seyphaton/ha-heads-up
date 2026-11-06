@@ -53,4 +53,4 @@ async def test_a_call_can_name_the_switch_of_a_manual_policy(
     found = switch_of(hass, subentry.subentry_id)
     assert found is not None
     await send(hass, entry, policy=[found])
-    assert banners(entry)["m"].policy == "By hand"
+    assert banners(entry)["m"].policy == ["automatic", "By hand"]

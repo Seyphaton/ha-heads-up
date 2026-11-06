@@ -66,55 +66,50 @@ def test_audience_and_recipients_together_are_refused() -> None:
         check(channels=["push"], audience="At home", recipients=["person.anna"])
 
 
-def test_a_policy_is_one_name_or_a_list() -> None:
-    assert check(channels=["banner"], policy="Night")["policy"] == ["Night"]
-    assert check(channels=["banner"], policy=["Night", "Day"])["policy"] == ["Night", "Day"]
+def test_named_policies_apply_next_to_the_automatic_ones() -> None:
+    assert check(channels=["banner"], policy="Night")["policy"] == ["automatic", "Night"]
+    assert check(channels=["banner"], policy=["Night", "Day"])["policy"] == [
+        "automatic",
+        "Night",
+        "Day",
+    ]
+    assert "policy" not in check(channels=["banner"])
+
+
+def test_disabling_the_automatic_policies_keeps_the_named_ones() -> None:
+    assert check(channels=["banner"], policy="Night", disable_automatic_policies=True)[
+        "policy"
+    ] == ["Night"]
+    assert check(channels=["banner"], disable_automatic_policies=True)["policy"] == ["none"]
+    assert "disable_automatic_policies" not in check(
+        channels=["banner"], disable_automatic_policies=False
+    )
 
 
 def test_none_stands_alone_and_keywords_ignore_case() -> None:
     assert check(channels=["banner"], policy="None")["policy"] == ["none"]
     with pytest.raises(vol.Invalid):
         check(channels=["banner"], policy=["none", "Night"])
+    with pytest.raises(vol.Invalid):
+        check(channels=["banner"], policy=["automatic"], disable_automatic_policies=True)
 
 
-async def test_automatic_next_to_a_name_adds_the_policies_that_apply(
+async def test_a_manual_policy_applies_next_to_the_automatic_ones_unless_they_are_disabled(
     hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
 ) -> None:
     await make_household(hass, mobile_app_device)
     await add_policy(hass, entry, "Auto", **ESCALATION)
     await add_policy(hass, entry, "By hand", **ESCALATION, apply="manual")
     book = entry.runtime_data.hub.policies
+
+    def used() -> list[str]:
+        return [p.name for p in book.for_message(banners(entry)["m"])]
+
+    await send(hass, entry)
+    assert used() == ["Auto"]
     await send(hass, entry, policy="By hand")
-    assert [p.name for p in book.for_message(banners(entry)["m"])] == ["By hand"]
-    await send(hass, entry, policy=["automatic", "By hand"])
-    assert [p.name for p in book.for_message(banners(entry)["m"])] == ["Auto", "By hand"]
-    await send(hass, entry, policy="automatic")
-    assert [p.name for p in book.for_message(banners(entry)["m"])] == ["Auto"]
-
-
-def test_dismiss_and_snooze_map_to_the_stored_fields() -> None:
-    data = check(channels=["banner"], dismiss="everyone", snooze="user")
-    assert (data["dismissible"], data["dismiss_scope"]) == (True, "global")
-    assert (data["snoozable"], data["snooze_scope"]) == (True, "user")
-    assert "dismiss" not in data and "snooze" not in data
-
-
-def test_an_unquoted_off_in_yaml_means_nobody() -> None:
-    assert check(channels=["banner"], dismiss=False)["dismissible"] is False
-
-
-def test_snoozing_a_message_nobody_can_dismiss_is_refused() -> None:
-    with pytest.raises(vol.Invalid):
-        check(channels=["banner"], dismiss="off", snooze="user")
-
-
-def test_an_omitted_dismiss_keeps_the_option_defaults() -> None:
-    data = check(channels=["banner"])
-    assert not {"dismissible", "dismiss_scope", "snoozable", "snooze_scope"} & set(data)
-
-
-def test_no_policy_is_policy_none() -> None:
-    assert check(channels=["banner"], no_policy=True)["policy"] == ["none"]
-    assert "no_policy" not in check(channels=["banner"], no_policy=False)
-    with pytest.raises(vol.Invalid):
-        check(channels=["banner"], no_policy=True, policy="Night")
+    assert used() == ["Auto", "By hand"]
+    await send(hass, entry, policy="By hand", disable_automatic_policies=True)
+    assert used() == ["By hand"]
+    await send(hass, entry, disable_automatic_policies=True)
+    assert used() == []

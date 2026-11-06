@@ -147,6 +147,8 @@ Create adds only what is missing. A policy with the same name, or one that does 
 
 Banners, closed states and timeouts are kept across the restart. So are the timers of escalations and reminders, held messages and the delivery records. Options and watch rules stay. The notification bell is emptied by every restart; Heads Up puts back the entries of active messages. A step that was due during the restart runs once if the message is still active and not acknowledged. A closed rule banner returns after the restart.
 
+From 0.4.0 or earlier to 1.0.0: the field `wait_for_condition` and the response status `condition_false` of `create_banner` are removed, and `mode: recurring` without a `condition` is refused. Delete `wait_for_condition` from your automations. A banner whose condition is false now waits; to send only when the condition is true now, add a condition to the automation before the action.
+
 Heads Up uses [semantic versioning](https://semver.org/). Action names, field names, defaults, response keys, event types, event data keys, the card type and the card options are the public interface. A minor version adds to it. A removal or a change of meaning needs a major version, and the minor version before it logs a warning when you use the old form. The storage file has version 1.
 
 ## Uninstalling

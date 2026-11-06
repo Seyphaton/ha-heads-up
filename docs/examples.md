@@ -403,7 +403,7 @@ The integration is not added or is disabled. Add it in Settings > Devices & serv
 
 Check, in this order:
 
-1. The response of `create_banner`. `status: waiting` means the condition is not true yet. `condition_false` means nothing was stored because you set `wait_for_condition: false`.
+1. The response of `create_banner`. `status: waiting` means the condition is not true yet.
 2. `sensor.heads_up_active_banners`. Its state counts banners that are stored and not waiting.
 3. People. With `people`, only users linked to those person entities see the banner. A user sees only banners without `people` when no person is linked to them. The link is the person's `user_id` attribute in Developer tools > States.
 4. Dismissal. With `dismiss_scope: user` you do not see a banner you closed. Calling `create_banner` again with the same `id` shows it again.

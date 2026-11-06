@@ -48,8 +48,8 @@ The banner is on the dashboard for the people who are home, and each of them get
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `channels` | list of channels | required | One or more of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, each at most once. |
-| `policy` | list of policy switches or names | every policy that applies | Which [policies](configuration.md#policies) to use. The form lists one switch per policy (`switch.heads_up_policy_quiet_hours`); in YAML you can also write policy names. Left out: every policy that matches the severity and tag. Named policies are used whatever their severities and tags say, may be manual policies, and replace the matching ones; with `automatic` in the list the matching ones apply too. |
-| `no_policy` | boolean | `false` | `true` sends without any policy. It cannot be combined with `policy`. In YAML `policy: none` does the same. |
+| `disable_automatic_policies` | boolean | `false` | `true` disables all automatically assigned policies (those that match by severity or tag). Manual policies in `policy` still apply. Without a manual policy the call uses no policy. |
+| `policy` | list of policy switches or names | none | Manual policies: they apply next to the automatic policies that match the severity and tag, whatever their own severities and tags say. The form lists one switch per policy (`switch.heads_up_policy_quiet_hours`); in YAML you can also write policy names. A disabled policy is never used. In YAML `policy: none` does the same as `disable_automatic_policies: true` without a manual policy. |
 | `recipients` | list of persons | none | Who gets the message on every channel that takes people: banner, push, popup and mail. Give either `recipients` or `audience`. |
 | `audience` | audience sensor or name | none | A group that gets the message on the same channels. The form lists one sensor per audience (`binary_sensor.heads_up_audience_at_home`); in YAML you can also write the name (`At home`). The group is worked out when the message is sent. |
 | `speakers` | list | none | Speakers, speaker groups or areas for `speak`. Speech takes no audience. |
@@ -71,8 +71,7 @@ The names in `audience`, `recipients`, `speakers` and `policy` are checked when 
 | `timeout` | seconds or duration | setting Default timeout, shipped as 24 hours | The message ends on every channel after this time, also across restarts. `0` means no timeout. Maximum 365 days. |
 | `tag` | text | none | A group name, with the same character rules as `id`. Card filters, policies and the clear actions use it to find messages. |
 | `condition` | object | none | Show the message only while an entity matches or a template is true, optionally for a set time. See [Conditions](#conditions). |
-| `mode` | `once`, `recurring` | `once` | What happens when the condition turns false: `once` ends the message, `recurring` hides it until the condition is true again. Ignored without `condition`. |
-| `wait_for_condition` | boolean | `true` | What happens when the condition is false at the time of the call: `true` waits, `false` stores nothing. Ignored without `condition`. |
+| `mode` | `once`, `recurring` | `once` | `once`: the message is shown once. With a `condition` it waits until the condition is true and ends for good when it turns false; without one it stays until its `timeout`, a dismissal or a clear. `recurring`: needs a `condition`. The message is shown whenever the condition is true, hidden when it is false and shown again when it turns true. A call with `mode: recurring` and no `condition` is refused. |
 
 Replacing a message with the same `id`:
 
@@ -96,7 +95,7 @@ The setting Maximum number of stored messages (default 50) limits how many messa
 | Key | Value |
 |---|---|
 | `id` | The `id` of the message. |
-| `status` | `created`, `updated`, `waiting` (stored, condition not true yet) or `condition_false` (nothing stored). |
+| `status` | `created`, `updated` or `waiting` (stored, condition not true yet). |
 | `channels` | For each channel the counts `sent`, `held`, `skipped` and `failed`. A message that waits for its condition counts as `held`. |
 | `reasons` | A list with one entry for every delivery that is held or skipped: `channel`, `recipient` (the person, or the speaker or address), `result` and `reason`, for example `no_usable_device`. Empty when everything is sent. |
 
@@ -180,7 +179,7 @@ What happens:
 - `unavailable` and `unknown` do not change anything, for every operator. `not_equals: "on"` does not match an unavailable entity. A message stays as it was until the entity has a real state again. This also applies while Home Assistant starts and entities are not loaded yet.
 - `empty` and `not_empty` work on the state or the attribute. An empty list or object counts as empty.
 - `above`, `below` and `between` do not change anything while the value is not a number. The other operators do not change anything while the attribute is missing.
-- If the entity does not match when you call the action, the message waits and shows when the entity matches. With `wait_for_condition: false`, nothing is stored and the response status is `condition_false`. A message that already had this `id` is removed.
+- If the entity does not match when you call the action, the message waits and shows when the entity matches. To send a message only when the entity matches now, check it in the automation before the action.
 - The `timeout` keeps running while a message waits.
 
 #### `for`: hold for a while
@@ -189,7 +188,6 @@ What happens:
 - Once shown, the message follows the condition as usual: `mode: once` ends it, `mode: recurring` hides it and waits `for` again the next time.
 - After a Home Assistant restart or an integration reload, a message that was already shown stays. A message that was still waiting starts its wait again from the restart.
 - If the entity is `unavailable` or `unknown` when the wait ends, nothing is shown; the wait starts again when it has a matching state.
-- `for` is not combined with `wait_for_condition: false`: with a true condition the message would have to wait, so nothing is stored.
 - Keep `for` shorter than `timeout`, which keeps running during the wait.
 
 #### `template`: any condition you can write
@@ -294,7 +292,6 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `tag` | text | none | As in `notify`. |
 | `condition` | object | none | As in `notify`. See [Conditions](#conditions). |
 | `mode` | `once`, `recurring` | `once` | As in `notify`. |
-| `wait_for_condition` | boolean | `true` | As in `notify`. |
 | `dismissible` | boolean | `true` | `false` is `dismiss: off` of `notify`. |
 | `dismiss_scope` | `user`, `global` | setting Default dismiss scope | `user` and `global` are `dismiss: user` and `dismiss: everyone` of `notify`. |
 | `snoozable` | boolean | setting Messages can be snoozed by default | `true` is `snooze: user` of `notify`; rejected with `dismissible: false`. |
@@ -308,7 +305,7 @@ Response data:
 | Key | Value |
 |---|---|
 | `id` | The `id` of the banner. |
-| `status` | `created`, `updated`, `waiting` or `condition_false`, as in `notify`. |
+| `status` | `created`, `updated` or `waiting`, as in `notify`. |
 | `evicted` | Only present when a banner was removed to make room. The `id` of that banner. |
 
 ```yaml
@@ -555,7 +552,7 @@ triggers:
 
 ## Watch rules
 
-A watch rule shows a banner while an entity is in a state or a template is true. When the condition no longer holds, Heads Up removes the banner. You set it up once in the panel's Watch rules page or in the integration. Rules are stored in Heads Up, not in a dashboard, so several cards with different filters share the same rules and messages without copying them, and every Heads Up card shows the banner.
+A watch rule shows a banner while an entity is in a state or a template is true. It always works like `mode: recurring`: when the condition no longer holds, the banner is hidden, and it is shown again the next time the condition holds. You set it up once in the panel's Watch rules page or in the integration. Rules are stored in Heads Up, not in a dashboard, so several cards with different filters share the same rules and messages without copying them, and every Heads Up card shows the banner.
 
 An automation does the same: a trigger that calls `heads_up.create_banner`, or `heads_up.notify` with `channels: [banner]`, with `condition` filled in. See [Conditions](#conditions).
 

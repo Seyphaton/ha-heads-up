@@ -1,4 +1,4 @@
-"""Conditions: once/recurring, wait_for_condition, unavailable, restart (D-005, D-006, D-038)."""
+"""Conditions: once/recurring, unavailable, restart (D-005, D-006, D-188)."""
 
 import pytest
 import voluptuous as vol
@@ -66,26 +66,30 @@ async def test_once_waits_for_first_true_when_false_at_creation(
     assert "w" not in banners(entry)
 
 
-async def test_wait_for_condition_false_rejects_when_false(
+async def test_a_false_condition_at_creation_waits(
     hass: HomeAssistant, entry: MockConfigEntry, create: CreateBanner
 ) -> None:
     await set_state(hass, "off")
-    result = await create(id="w", message="x", condition=cond(), wait_for_condition=False)
-    assert result == {"id": "w", "status": "condition_false"}
-    assert banners(entry) == {}
+    result = await create(id="w", message="x", condition=cond())
+    assert result == {"id": "w", "status": "waiting"}
+    assert "w" in banners(entry)
 
 
-async def test_wait_for_condition_false_upsert_removes_existing(
-    hass: HomeAssistant, entry: MockConfigEntry, create: CreateBanner
+async def test_wait_for_condition_is_no_longer_a_field(create: CreateBanner) -> None:
+    with pytest.raises(vol.Invalid):
+        await create(id="w", message="x", condition=cond(), wait_for_condition=False)
+
+
+async def test_recurring_without_a_condition_is_refused(create: CreateBanner) -> None:
+    with pytest.raises(vol.Invalid):
+        await create(id="w", message="x", mode="recurring")
+
+
+async def test_once_without_a_condition_is_allowed(
+    entry: MockConfigEntry, create: CreateBanner
 ) -> None:
-    await create(id="w", message="old")
-    await set_state(hass, "off")
-    events = async_capture_events(hass, f"{DOMAIN}_banner_cleared")
-
-    result = await create(id="w", message="new", condition=cond(), wait_for_condition=False)
-    assert result["status"] == "condition_false"
-    assert banners(entry) == {}
-    assert events[0].data["reason"] == "condition"
+    result = await create(id="w", message="x", mode="once")
+    assert result["status"] == "created"
 
 
 async def test_recurring_hides_and_reshows_with_dismissals_reset(

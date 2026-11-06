@@ -25,7 +25,7 @@
 | `tests/test_restart.py` | timeout expiry, persistence across reload, expiry while down, storage removal |
 | `tests/test_websocket.py` | subscribe/updates, per-user and global dismiss, errors, admin clear, `show_all`, subscription cleanup |
 | `tests/test_sensor_options.py` | count sensor, options flow, cleared default timeout |
-| `tests/test_conditions.py` | once/recurring, `wait_for_condition`, unavailable, removed entity, state list/attribute, restart re-evaluation, tracker release |
+| `tests/test_conditions.py` | once/recurring, recurring needs a condition, unavailable, removed entity, state list/attribute, restart re-evaluation, tracker release |
 | `tests/test_people.py` | targeting per user, users without person, person created later, payload privacy |
 | `tests/test_rules.py` | watch rules: visibility, state list/attribute, unavailable/removed, disabled, edit/delete, `{name}`, people, reload without store writes, limits and sensor, clear actions, dismissal rules, `rule_banner`, events, no events at setup, WebSocket |
 | `tests/test_empty_operators.py` | `empty` and `not_empty`: matcher, schema, banners and rules (attribute, unavailable, `for`), rule form without a prefilled State |

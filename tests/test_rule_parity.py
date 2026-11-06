@@ -153,3 +153,26 @@ async def test_deleting_a_template_rule_stops_its_tracking(
     await hass.async_block_till_done()
     assert entry.runtime_data._template_trackers == {}
     assert WINDOW not in entry.runtime_data.tracked_entities
+
+
+async def test_a_rule_banner_is_recurring_and_always_has_a_condition(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    # The model of the action form: recurring needs a condition, and a rule has both (D-188).
+    sub = add_rule(hass, entry)
+    await hass.async_block_till_done()
+    banner = entry.runtime_data.rules[rule_id(sub)]
+    assert banner.mode == "recurring"
+    assert banner.condition is not None
+
+
+async def test_a_rule_that_stops_matching_hides_and_shows_again(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    sub = add_rule(hass, entry)
+    await set_state(hass, "on")
+    assert rule_id(sub) in shown(entry)
+    await set_state(hass, "off")
+    assert rule_id(sub) not in shown(entry)
+    await set_state(hass, "on")
+    assert rule_id(sub) in shown(entry)

@@ -149,7 +149,7 @@
     },
     "mode": {
       "options": {
-        "once": "Una vez",
+        "once": "Mostrar una vez",
         "recurring": "Recurrente"
       }
     },
@@ -385,15 +385,11 @@
         },
         "condition": {
           "name": "Condición",
-          "description": "Mostrar el aviso solo mientras una entidad coincida o una plantilla sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
+          "description": "Mostrar el aviso solo mientras una entidad coincida o una plantilla sea verdadera. Un aviso con condición espera a que sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Modo",
-          "description": "Una vez: se elimina cuando la condición pasa a falsa. Recurrente: oculto mientras es falsa y visible de nuevo cuando vuelve a ser verdadera. Predeterminado: Una vez."
-        },
-        "wait_for_condition": {
-          "name": "Esperar a la condición",
-          "description": "Activado: un aviso cuya condición es falsa espera hasta que sea verdadera. Desactivado: no se guarda nada y el estado de la respuesta es condition_false. Predeterminado: activado. Se ignora sin condición. Deja la casilla sin marcar para usar el valor predeterminado."
+          "description": "Mostrar una vez: el aviso se muestra una vez. Con una condición espera a que sea verdadera y termina definitivamente cuando pasa a falsa; sin condición permanece hasta su tiempo límite, un cierre o un borrado.\n\nRecurrente: necesita una condición. El aviso se muestra cuando la condición es verdadera, se oculta cuando es falsa y vuelve a mostrarse cuando pasa a ser verdadera. Predeterminado: Mostrar una vez."
         },
         "people": {
           "name": "Personas",
@@ -467,27 +463,31 @@
         },
         "channels": {
           "name": "Canales",
-          "description": "Dónde se entrega el mensaje: banner, push, popup, speak, persistent, mail.\n\nEjemplo:\n```yaml\n- banner\n- push\n```"
+          "description": "Dónde se entrega el mensaje."
+        },
+        "disable_automatic_policies": {
+          "name": "Desactivar políticas automáticas",
+          "description": "Desactiva todas las políticas asignadas automáticamente (por ejemplo por gravedad o etiqueta). Las políticas asignadas a mano siguen aplicándose. Deja la casilla sin marcar para usar el valor predeterminado."
         },
         "policy": {
-          "name": "Política",
-          "description": "Qué políticas usar. Vacío: todas las políticas que coinciden con la gravedad y la etiqueta. Las políticas elegidas se usan sea cual sea su gravedad y etiqueta, y sustituyen a las que coinciden. En YAML también puedes escribir nombres de políticas y automatic a su lado para añadir las que coinciden."
-        },
-        "no_policy": {
-          "name": "Sin política",
-          "description": "Enviar sin ninguna política: no se aplica ni horario silencioso, ni escalada, ni recordatorio, ni otra política. No se puede combinar con Política. Deja la casilla sin marcar para usar el valor predeterminado."
-        },
-        "recipients": {
-          "name": "Destinatarios",
-          "description": "Elige personas concretas, por ejemplo para avisar a Anna. Va a aviso, push, ventana emergente y correo. Indica destinatarios o audiencia. La voz usa Altavoces. Predeterminado: el aviso lo ve todo el mundo."
+          "name": "Política manual",
+          "description": "Políticas que asignas a mano. Se aplican junto con las políticas automáticas, sea cual sea su propia gravedad y etiqueta."
         },
         "audience": {
           "name": "Audiencia",
           "description": "Elige un grupo: Everyone, Admins, At home o uno creado en la página Audiencias. Se calcula al enviar el mensaje, así que At home significa quien esté en casa entonces. Indica audiencia o destinatarios."
         },
+        "recipients": {
+          "name": "Destinatarios",
+          "description": "Elige personas concretas, por ejemplo para avisar a Anna. Va a aviso, push, ventana emergente y correo. Indica destinatarios o audiencia. La voz usa Altavoces. Predeterminado: el aviso lo ve todo el mundo."
+        },
         "speakers": {
           "name": "Altavoces",
           "description": "Altavoces, grupos de altavoces o zonas para la voz. La voz no admite audiencia."
+        },
+        "tts_message": {
+          "name": "Texto hablado",
+          "description": "Texto usado para la voz en lugar del título y el mensaje. Por defecto: el título si existe, si no el mensaje."
         },
         "severity": {
           "name": "Gravedad",
@@ -500,10 +500,6 @@
         "image": {
           "name": "Imagen",
           "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
-        },
-        "tts_message": {
-          "name": "Texto hablado",
-          "description": "Texto usado para la voz en lugar del título y el mensaje. Por defecto: el título si existe, si no el mensaje."
         },
         "id": {
           "name": "ID",
@@ -519,15 +515,11 @@
         },
         "condition": {
           "name": "Condición",
-          "description": "Mostrar el mensaje solo mientras una entidad coincida o una plantilla sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
-        },
-        "wait_for_condition": {
-          "name": "Esperar a la condición",
-          "description": "Activado: un mensaje cuya condición es falsa espera hasta que sea verdadera. Desactivado: no se guarda nada y el estado de la respuesta es condition_false. Predeterminado: activado. Se ignora sin condición. Deja la casilla sin marcar para usar el valor predeterminado."
+          "description": "Mostrar el mensaje solo mientras una entidad coincida o una plantilla sea verdadera. Un mensaje con condición espera a que sea verdadera. Claves: entity_id, operator, state, attribute, template, for.\n\nEjemplo:\n```yaml\nentity_id: binary_sensor.window\nstate: \"on\"\nfor:\n  minutes: 5\n```"
         },
         "mode": {
           "name": "Modo",
-          "description": "Una vez: se elimina cuando la condición pasa a falsa. Recurrente: oculto mientras es falsa y visible de nuevo cuando vuelve a ser verdadera. Predeterminado: Una vez."
+          "description": "Mostrar una vez: el mensaje se muestra una vez. Con una condición espera a que sea verdadera y termina definitivamente cuando pasa a falsa; sin condición permanece hasta su tiempo límite, un cierre o un borrado.\n\nRecurrente: necesita una condición. El mensaje se muestra cuando la condición es verdadera, se oculta cuando es falsa y vuelve a mostrarse cuando pasa a ser verdadera. Predeterminado: Mostrar una vez."
         },
         "tap_action": {
           "name": "Acción al tocar",
