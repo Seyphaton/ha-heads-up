@@ -1,6 +1,6 @@
 # Release
 
-Releases `v0.1.0` to `v0.4.0` follow the steps below (D-020: tags and pushes only with the maintainer's explicit approval). The pre-releases `v1.0.0-alpha.1` to `v1.0.0-alpha.6` were tagged on the hub branch; "Releasing 1.0.0" is the open runbook.
+Releases `v0.1.0` to `v0.4.0` follow the steps below (D-020: tags and pushes only with the maintainer's explicit approval). The pre-releases `v1.0.0-alpha.1` to `v1.0.0-alpha.7` were tagged on the hub branch; "Releasing 1.0.0" is the open runbook.
 
 ## Before the first release (maintainer, on github.com)
 1. CI: open the Actions tab of `Seyphaton/ha-heads-up`. Workflows `CI` (jobs `python`, `python-ha-2026-9`, `card`) and `Validate` (jobs `hacs`, `hassfest`) must be green on `main`. They had never run before the first push.
@@ -25,7 +25,7 @@ Releases `v0.1.0` to `v0.4.0` follow the steps below (D-020: tags and pushes onl
 4. Add the repository to HACS as a custom repository (README, "With HACS") and download it to check the install path.
 
 ## Releasing 1.0.0 (the hub)
-State: `main` is at 0.4.0 and has no commit that `hub/h9e-wizard` lacks, so the merge is a fast-forward. The branch holds the hub, the panel and every change since 0.4.0. Its manifest says `1.0.0-alpha.6`; the tags `v1.0.0-alpha.2` to `v1.0.0-alpha.6` are pushed on the branch (D-133, D-154). Nothing is merged to `main`, and there is no 1.0.0 (D-020: the maintainer decides).
+State: `main` is at 0.4.0 and has no commit that `hub/h9e-wizard` lacks, so the merge is a fast-forward. The branch holds the hub, the panel and every change since 0.4.0. Its manifest says `1.0.0-alpha.7`; the tags `v1.0.0-alpha.2` to `v1.0.0-alpha.7` are pushed on the branch (D-133, D-154). Nothing is merged to `main`, and there is no 1.0.0 (D-020: the maintainer decides).
 1. Real-device checks first (`docs/OPEN_QUESTIONS.md`, hub section): a Companion push with buttons, the iOS critical level and the Android alarm, snooze and acknowledge from a phone, speech on a speaker and a satellite, mail through a real server, the popup on a wall tablet. While they are open, release another pre-release instead (step "Later releases", version `1.0.0-alpha.N`).
 2. Decide the version (1.0.0). Rename `[Unreleased]` in `CHANGELOG.md` to it, with the date, and fold the alpha blocks into the notes of 1.0.0 or keep them below it. Set `version` in `custom_components/heads_up/manifest.json` and commit that on the branch.
 3. `make check`, `make hassfest` and `make dev-smoke` green on a clean instance (`make dev-reset`, `make dev-up`, `make dev-onboard`); push the branch and read the CI result (jobs `python` on 2026.10.4, `python-ha-2026-9` on 2026.9.4, `card`; workflow `Validate`).
