@@ -73,7 +73,7 @@ export async function imageSource(hass, path, now = Date.now()) {
 
 // Buttons in the order the card uses: the message's own, Acknowledge, Snooze, Dismiss.
 export function buttonsFor(message) {
-  const own = (message.actions || []).map((a) => ({ kind: "action", key: a.key, label: a.label }));
+  const own = (message.actions || []).map((a) => ({ kind: "action", key: a.key, label: a.label, destructive: a.destructive === true }));
   const out = [...own];
   if (message.ack) out.push({ kind: "ack" });
   if (message.snoozable && message.snooze_seconds) {
@@ -101,6 +101,7 @@ const CSS = `
 button { min-height: 48px; min-width: 48px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--divider-color, #ccc);
   background: transparent; color: var(--primary-text-color, #212121); font: inherit; cursor: pointer; }
 button:focus-visible { outline: 3px solid var(--primary-color, #03a9f4); outline-offset: 2px; }
+button.destructive { color: var(--error-color, #db4437); }
 button.main { background: var(--primary-color, #03a9f4); color: var(--text-primary-color, #fff); border-color: transparent; }
 .x { position: absolute; top: 4px; right: 4px; border: none; font-size: 20px; }
 .modal { position: relative; }
@@ -127,7 +128,7 @@ function call(message, payload) {
 }
 
 function pressed(message, button) {
-  if (button.kind === "action") return call(message, { type: "heads_up/action", key: button.key });
+  if (button.kind === "action") return call(message, { type: "heads_up/action", key: button.key, channel: "popup" });
   if (button.kind === "snooze") return call(message, { type: "heads_up/snooze", seconds: button.seconds });
   if (button.kind === "dismiss") return call(message, { type: "heads_up/dismiss" });
   return call(message, { type: "heads_up/acknowledge" });
@@ -169,6 +170,7 @@ function build(message, language) {
     const labelText = button.kind === "action" ? button.label : t(button.kind === "ack" ? "ack" : button.kind);
     const node = el("button", { type: "button", textContent: labelText });
     if (button.kind === "dismiss" || button.kind === "ack") node.className = "main";
+    if (button.destructive) node.classList.add("destructive");
     node.addEventListener("click", () => {
       pressed(message, button).catch(() => {});
       if (button.kind === "ack") close(message); // seen: hide here, the banner stays

@@ -18,6 +18,7 @@ from typing import Any
 from homeassistant.const import EVENT_STATE_CHANGED
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
 from homeassistant.helpers.event import async_track_point_in_utc_time
+from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from ..const import (
@@ -31,11 +32,13 @@ from ..const import (
     HOLD_AWAY,
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
+    SAVE_DELAY,
     SOURCE_SUMMARY,
     SUMMARY_LIFETIME_HOURS,
     SUMMARY_PREFIX,
     TARGET_CHANNELS,
     TIMER_CHANNEL,
+    TRACE_KEY,
 )
 from ..models import Banner
 from .activity import Activity, ActivityLog, RecentMessages
@@ -105,6 +108,7 @@ class HubEngine:
         self.channels = ChannelRegistry()
         self.ledger = DeliveryLedger(hass)
         self.trace = TraceBuffer(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
+        self._trace_store: Store[dict[str, Any]] = Store(hass, 1, TRACE_KEY)
         self.resolver = HubResolver(hass, options)
         self.limiter = Limiter(options)
         self.log = ActivityLog(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
@@ -135,6 +139,8 @@ class HubEngine:
     async def async_start(self, known_ids: set[str]) -> None:
         """Load the ledger and forget what no longer exists, without re-sending anything."""
         await self.ledger.async_load()
+        stored = await self._trace_store.async_load() or {}
+        self.trace.load(stored.get("entries"))
         await self.resolver.async_start()
         for held in list(self.ledger.held.values()):
             if held.message_id not in known_ids:  # it ended while Home Assistant was stopped
@@ -189,6 +195,7 @@ class HubEngine:
         self._tails.clear()
         await self.resolver.async_stop()
         await self.ledger.async_save()
+        await self._trace_store.async_save(self._trace_data())
 
     async def async_wait_idle(self) -> None:
         """Wait until the queued deliveries are done (tests, and a clean unload)."""
@@ -374,6 +381,9 @@ class HubEngine:
             if isinstance(step, Hold):
                 until = step.until.isoformat() if step.until else None
                 return {**row, "result": "held", "reason": step.reason, "until": until}
+            push = self.channels.get("push")
+            if item.channel == "push" and hasattr(push, "level_for"):
+                row["push_level"] = push.level_for(step.banner, step.target)
             if step.target.quiet:
                 row["note"] = "quiet"
         return row
@@ -1327,3 +1337,7 @@ class HubEngine:
                 dt_util.utcnow().isoformat(), message_id, channel, recipient or None, result, reason
             )
         )
+        self._trace_store.async_delay_save(self._trace_data, SAVE_DELAY)
+
+    def _trace_data(self) -> dict[str, Any]:
+        return {"entries": self.trace.dump()}

@@ -37,7 +37,7 @@ The banner is on the dashboard for the people who are home, and each of them get
 |---|---|---|---|
 | `message` | text | required | The text, 1–1000 characters. |
 | `title` | text | none | A heading above the message, up to 100 characters. |
-| `severity` | `success`, `info`, `warning`, `critical` | `info` | How important the message is. It sets the color, the default icon and the sort order of the banner; the push level (`success` and `info` are passive, `warning` normal, `critical` time-sensitive, shown at once on an idle phone); the popup style; and whether quiet hours let the message pass (`critical` does unless you change it). |
+| `severity` | `success`, `info`, `warning`, `critical` | required | How important the message is. It sets the color, the default icon and the sort order of the banner; the push level (`success` and `info` are passive, `warning` normal, `critical` time-sensitive, shown at once on an idle phone); the popup style; and whether quiet hours let the message pass (`critical` does unless you change it). |
 | `icon` | icon, for example `mdi:water-alert` | the icon of the severity | Replaces the default icon on the banner and in the popup. A push, speech, mail and the notification bell do not show it. |
 | `image` | text | none | A picture shown under the message on the card, in the popup and on the push: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/local/door.jpg`, `/media/local/door.jpg`). Up to 2048 characters. Heads Up does not fetch or check it; a wrong path shows no picture. A picture from another host is loaded by the card, the popup and the phone, so that host learns the viewer's address and when the picture is shown. A path on this Home Assistant avoids that. Paths under `/api/` and `/media/` are signed for the card and the popup. The phone loads the picture itself, so it must reach the URL; camera proxy paths (`/api/camera_proxy/...`) work on Android only. The compact card layout shows no picture. With a lock screen setting other than `full`, the push has no picture (`image_hidden` in the trace). |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel, when it should differ from the written message. |
@@ -48,6 +48,7 @@ The banner is on the dashboard for the people who are home, and each of them get
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `channels` | list of channels | required | One or more of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, each at most once. |
+| `dry_run` | boolean | `false` | `true`: nothing is sent, stored or recorded. The response is the plan: what each channel and recipient would get now, with the policies applied. See Response. |
 | `match_policies_automatically` | boolean | `true` | `true`: policies that match the severity or tags of the message apply automatically. `false`: only the manual policies in `policy` apply, and none if there is no manual policy. Manual policies always apply. |
 | `policy` | list of policy switches or names | none | Manual policies: they apply next to the automatic policies that match the severity and tag, whatever their own severities and tags say. The form lists one switch per policy (`switch.heads_up_policy_quiet_hours`); in YAML you can also write policy names. A disabled policy is never used. In YAML `policy: none` does the same as `disable_automatic_policies: true` without a manual policy. |
 | `recipients` | list of persons | none | Who gets the message on every channel that takes people: banner, push, popup and mail. Give either `recipients` or `audience`. |
@@ -94,7 +95,7 @@ The setting Maximum number of stored messages (default 50) limits how many messa
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
-| `mail_subject` | text, at most 200 characters | the subject template on the Channels page | The subject of the mail for this message only. It takes the placeholders `{severity}`, `{title}`, `{message}`, `{person}`, `{id}` and `{tag}`. Each recipient gets their own mail, so `{person}` is that recipient. Needs `mail` in `channels`. |
+| `mail_subject` | text, at most 200 characters | the subject template on the Channels page | The subject of the mail for this message only. It takes the placeholders `{severity}`, `{title}`, `{message}`, `{person}`, `{person_id}`, `{id}` and `{tag}`. Each recipient gets their own mail, so `{person}` and `{person_id}` are that recipient. `{person}` is the friendly name of the person entity, for example `Philip Smith`; `{person_id}` is the part of the entity ID after `person.`, for example `philip`. Needs `mail` in `channels`. |
 | `mail_body` | text, at most 2000 characters | the body template on the Channels page | The body of the mail for this message only, with the same placeholders. Needs `mail` in `channels`. |
 
 For example, `mail_subject: "{person}"` with `mail_body: "{title}: {message}"` sends each person a mail whose subject is their name and whose body holds the title and the message. An unknown placeholder or an empty text is refused.
@@ -108,6 +109,19 @@ For example, `mail_subject: "{person}"` with `mail_body: "{title}: {message}"` s
 | `channels` | For each channel the counts `sent`, `held`, `skipped` and `failed`. A message that waits for its condition counts as `held`. |
 | `reasons` | A list with one entry for every delivery that is held or skipped: `channel`, `recipient` (the person, or the speaker or address), `result` and `reason`, for example `no_usable_device`. Empty when everything is sent. |
 
+With `dry_run: true` the response has `status: dry_run` and the plan instead of the keys above: `rows` (one per channel and recipient, with `result` `sent`, `held`, `skipped` or `failed`, a `reason`, the `address` of a mail, the `push_level` of a push, `until` for a held delivery, and `via` for a delivery a policy adds), `policies` (the policies that apply), `later` (what escalations, reminders and summaries would follow), `held_for_summary` and `acknowledge`. The plan uses the real clock and the real presence, and the same checks as a send, so a call that is refused when sent is refused as a dry run.
+
+```yaml
+- action: heads_up.notify
+  data:
+    message: The garage door is open.
+    severity: critical
+    channels: [push]
+    audience: At home
+    dry_run: true
+  response_variable: plan
+```
+
 A message without the `banner` channel is stored so that it can be updated and cleared, but the card does not show it. The counts and `reasons` come from the plan made before sending: `sent` means the notification was handed to the channel's service. A delivery that is held or skipped later (`rate_limited`, `duplicate`, quiet hours, the speech pause) or that fails is in the Message Log, not in the response. A call that replaces a message counts speech and mail as skipped (`already_spoken`, `already_sent`) for recipients that already got them.
 
 ### Buttons and snooze
@@ -119,9 +133,11 @@ A message can carry up to 3 buttons of its own. Each button has these keys:
 | `key` | required | Lowercase letters, digits, `_` and `-`. Names the button in the event. |
 | `label` | required | The text on the button, 1 to 40 characters. |
 | `dismiss` | `false` | `true`: pressing it also closes the message for the person who pressed it. Rejected with `dismissible: false`. |
+| `destructive` | `false` | `true`: the button text is red on the banner and in the popup, and on an iPhone in the push. Android shows a push button the same either way. |
+| `require_auth` | `false` | `true`: a push button works only when the phone is unlocked (iOS, and Android 12 and later). The banner and the popup are in an open, signed-in browser already and ignore it. |
 | `action` | none | A Home Assistant action the card runs, like `tap_action`. The popup does not run it; it only fires the event. |
 
-Pressing a button fires the event `heads_up_banner_action` with `id`, `tag`, `key` and `user_id`. After the message was dismissed, acknowledged or its condition turned false, a press is refused with `message_ended` and fires no event; the setting "Disable message buttons once the message has ended" turns this off. A press on a message that was removed is always refused (`not_found`).
+Pressing a button fires the event `heads_up_banner_action` with `id`, `tag`, `key`, `user_id`, `person` (the person entity linked to that user, or `null`) and `channel` (`banner`, `popup` or `push`, where it was pressed). After the message was dismissed, acknowledged or its condition turned false, a press is refused with `message_ended` and fires no event; the setting "Disable message buttons once the message has ended" turns this off. A press on a message that was removed is always refused (`not_found`).
 
 A message that can be snoozed for 30 minutes or 2 hours, with one button that closes it for the person who pressed it and fires an event:
 
@@ -166,6 +182,7 @@ Snooze needs `dismissible: true`. The card runs a button's `action` itself, so a
 | `for` | none | How long the condition must hold without a break before the message shows, for example `{minutes: 5}` or `"00:05:00"`. From 1 second to 24 hours. See below. |
 | `operator` | `equals` | How to compare. See the table below. |
 | `state` | `"on"` for `equals` and `not_equals`; required for the others except `empty` and `not_empty`, which ignore it | The value or values to compare with. |
+| `treat_unavailable_as` | none | `met` or `not_met`: what an `unavailable` or `unknown` entity counts as. Left out, it changes nothing. Not with `template`. |
 | `attribute` | none | Compare this attribute instead of the state. The attribute value is compared as text. |
 
 | `operator` | `state` | Matches when |
@@ -185,7 +202,7 @@ What happens:
 - While the entity matches, the message shows.
 - `mode: once`: the first time the entity stops matching, the message ends for good. The event `heads_up_banner_cleared` has `reason: condition`.
 - `mode: recurring`: the message hides while the entity does not match and shows again when it matches. Users who closed it see it again.
-- `unavailable` and `unknown` do not change anything, for every operator. `not_equals: "on"` does not match an unavailable entity. A message stays as it was until the entity has a real state again. This also applies while Home Assistant starts and entities are not loaded yet.
+- `unavailable` and `unknown` do not change anything, for every operator, unless you set `treat_unavailable_as`. `not_equals: "on"` does not match an unavailable entity. A message stays as it was until the entity has a real state again. This also applies while Home Assistant starts and entities are not loaded yet.
 - `empty` and `not_empty` work on the state or the attribute. An empty list or object counts as empty.
 - `above`, `below` and `between` do not change anything while the value is not a number. The other operators do not change anything while the attribute is missing.
 - If the entity does not match when you call the action, the message waits and shows when the entity matches. To send a message only when the entity matches now, check it in the automation before the action.
@@ -210,6 +227,7 @@ What happens:
   data:
     id: window_bedroom
     message: The bedroom window is open.
+    severity: warning
     channels: [banner]
     condition:
       entity_id: binary_sensor.bedroom_window
@@ -221,6 +239,7 @@ What happens:
   data:
     id: vacuum_stuck
     message: The vacuum needs help.
+    severity: warning
     channels: [banner]
     mode: recurring
     timeout: 0
@@ -234,6 +253,7 @@ What happens:
   data:
     id: living_room_hot
     message: The living room is warm.
+    severity: warning
     channels: [banner]
     mode: recurring
     timeout: 0
@@ -248,6 +268,7 @@ What happens:
   data:
     id: note_set
     message: A note was left.
+    severity: warning
     channels: [banner]
     mode: recurring
     timeout: 0
@@ -261,6 +282,7 @@ What happens:
   data:
     id: garage_open
     message: The garage door has been open for 10 minutes.
+    severity: warning
     channels: [banner, push]
     audience: At home
     mode: recurring
@@ -277,6 +299,7 @@ What happens:
   data:
     id: evening_window
     message: A window is open in the evening.
+    severity: warning
     channels: [banner]
     mode: recurring
     timeout: 0
@@ -307,7 +330,9 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `snooze_scope` | `user`, `global` | setting Default snooze scope | `user` and `global` are `snooze: user` and `snooze: everyone` of `notify`. |
 | `snooze_options` | list of durations | setting Snooze choices on the banner | As in `notify`. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. See [Buttons and snooze](#buttons-and-snooze). |
-| `people` | list of person entities | everyone | Show the banner only to the users linked to these people. The same as `recipients` in `notify` with the channel `banner`. See below. |
+| `audience` | audience name or its sensor | everyone | Show the banner only to the members of the audience as of the call, like `audience` in `notify`. Give only one of `audience`, `recipients` and `people`. |
+| `recipients` | list of person entities | everyone | Show the banner only to the users linked to these persons. |
+| `people` | list of person entities | everyone | The same as `recipients`; kept for existing automations. See below. |
 
 Response data:
 
@@ -505,6 +530,25 @@ Removes every stored message on every channel, including messages that cannot be
 - action: heads_up.clear_all
 ```
 
+## `heads_up.get_trace`
+
+Returns the delivery trace: one entry for every result of every channel and recipient, newest first. Use it to find out why a message did or did not arrive. The trace holds the History setting Trace entries (500 by default) and survives a restart. The action only returns a response, so call it with `response_variable`.
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `message_id` | text | none | Only the entries of the message with this `id`. |
+| `limit` | number from 1 to 1000 | `100` | The most entries to return. |
+
+Response data: `entries`, a list of `time`, `message_id`, `channel`, `recipient`, `result` and `reason`. An unknown `message_id` returns an empty list.
+
+```yaml
+- action: heads_up.get_trace
+  data:
+    message_id: window_bedroom
+    limit: 20
+  response_variable: trace
+```
+
 ## Errors
 
 | Message | Cause |
@@ -527,7 +571,7 @@ Each change fires an event. Use them as automation triggers.
 | `heads_up_banner_dismissed` | `id`, `tag`, `scope` (`user` or `global`), `user_id` |
 | `heads_up_banner_snoozed` | `id`, `tag`, `scope` (`user` or `global`), `user_id`, `until` |
 | `heads_up_banner_unsnoozed` | `id`, `tag`, `user_id` |
-| `heads_up_banner_action` | `id`, `tag`, `key`, `user_id` |
+| `heads_up_banner_action` | `id`, `tag`, `key`, `user_id`, `person`, `channel` (`banner`, `popup` or `push`) |
 | `heads_up_banner_expired` | `id`, `tag` |
 | `heads_up_banner_cleared` | `id`, `tag`, `reason` (`action`, `clear_all`, `condition`, `evicted`, `admin`, `rule`) |
 | `heads_up_delivery_failed` | `id`, `tag`, `channel`, `origin`, `reached`, `failed` |

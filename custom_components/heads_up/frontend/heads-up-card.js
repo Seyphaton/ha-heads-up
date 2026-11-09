@@ -670,6 +670,7 @@ const STYLE = `
     color: var(--primary-color); font: inherit; font-weight: 500; cursor: pointer;
   }
   button.text-button:focus-visible { outline: 2px solid var(--primary-color); }
+  button.text-button.destructive { color: var(--error-color); }
   .more { display: flex; justify-content: center; padding: 0 8px 8px; }
   .snoozed { padding: 0 8px 8px; color: var(--secondary-text-color); }
   .snoozed-row { display: flex; align-items: center; gap: 12px; padding: 4px 8px; }
@@ -888,7 +889,7 @@ class HeadsUpCard extends Base {
     // The event and a dismissal happen in the backend; the button's own action runs here like
     // tap_action, so it handles confirmation and the viewer's permissions (D-070).
     this._hass
-      .callWS({ type: "heads_up/action", banner_id: banner.id, key: button.key })
+      .callWS({ type: "heads_up/action", banner_id: banner.id, key: button.key, channel: "banner" })
       .then(() => {
         if (!button.action) return;
         this.dispatchEvent(
@@ -1053,7 +1054,7 @@ class HeadsUpCard extends Base {
         buttons.append(ack);
       }
       for (const action of controls.actions) {
-        const b = el("button", "text-button", action.label);
+        const b = el("button", action.destructive === true ? "text-button destructive" : "text-button", action.label);
         b.type = "button";
         b.addEventListener("click", (ev) => {
           ev.stopPropagation();

@@ -9,6 +9,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.dispatcher import async_dispatcher_send
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 
 from .binary_sensor import audience_name_for_entity, notify_audiences_changed
@@ -19,6 +20,7 @@ from .const import (
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
     SIGNAL_POLICIES,
+    TRACE_KEY,
 )
 from .frontend import async_add_card, async_register_card_path, async_remove_card
 from .hub.channels.mail import MailChannel
@@ -138,3 +140,4 @@ async def async_unload_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> 
 async def async_remove_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> None:
     await banner_store(hass).async_remove()
     await remove_ledger(hass)
+    await Store(hass, 1, TRACE_KEY).async_remove()

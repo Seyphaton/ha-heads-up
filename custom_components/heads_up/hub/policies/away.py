@@ -42,7 +42,9 @@ class AwayStage:
         if state is None or is_unknown(state) or state.state == "home":
             return step
         for policy in self._policies.for_message(step.banner):
-            if policy.type == "away":
+            if policy.type == "away" and not (
+                policy.critical_passes and step.banner.severity == "critical"
+            ):
                 until = (
                     dt_util.utcnow() + timedelta(minutes=policy.max_wait)
                     if policy.max_wait

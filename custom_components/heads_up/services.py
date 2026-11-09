@@ -14,6 +14,7 @@ import probatio as vol
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.typing import VolSchemaType
 from homeassistant.util import dt as dt_util
 from jinja2 import Environment, TemplateSyntaxError
@@ -48,6 +49,10 @@ from .hub.engine import HubEngine, Planned
 from .hub.policies.matching import policy_names
 from .manager import BannerManager
 from .models import Banner
+
+UNAVAILABLE_AS = ("met", "not_met")
+REMOVED_WAIT = "wait_for_condition"
+ISSUE_WAIT_REMOVED = "wait_for_condition_removed"
 
 SLUG = vol.All(
     cv.string,
@@ -93,6 +98,9 @@ ACTION_SCHEMA = vol.Schema(
         vol.Required("label"): vol.All(cv.string, vol.Length(min=1, max=MAX_ACTION_LABEL)),
         vol.Optional("action"): TAP_ACTION_SCHEMA,
         vol.Optional("dismiss", default=False): cv.boolean,
+        # Push only: iOS shows the title red; both platforms ask for an unlocked device (D-195).
+        vol.Optional("destructive"): cv.boolean,
+        vol.Optional("require_auth"): cv.boolean,
     }
 )
 ACTIONS_SCHEMA = vol.All(cv.ensure_list, [ACTION_SCHEMA], _check_actions)
@@ -132,7 +140,7 @@ def _check_condition(condition: dict[str, Any]) -> dict[str, Any]:
     if condition.get("for") == 0:
         condition = {k: v for k, v in condition.items() if k != "for"}
     if "template" in condition:
-        for key in ("entity_id", "operator", "state", "attribute"):
+        for key in ("entity_id", "operator", "state", "attribute", "treat_unavailable_as"):
             if key in condition:
                 raise vol.Invalid(f"{key} cannot be used together with template", path=[key])
         return condition
@@ -170,6 +178,8 @@ CONDITION_SCHEMA = vol.All(
             # List first: cv.string would turn a list into its repr.
             vol.Optional("state"): vol.Any(vol.All(list, [cv.string]), cv.string),
             vol.Optional("attribute"): cv.string,
+            # What an unavailable or unknown entity counts as; left out, it changes nothing (D-195).
+            vol.Optional("treat_unavailable_as"): vol.In(UNAVAILABLE_AS),
             vol.Optional("for"): vol.All(cv.time_period, _for_seconds),
         }
     ),
@@ -195,7 +205,8 @@ _MAIL_TEMPLATE_ERRORS = {
     "mail_template_empty": "a mail template must not be empty",
     "mail_template_too_long": "a mail template is too long",
     "mail_template_placeholder": (
-        "a mail template allows only {severity}, {title}, {message}, {person}, {id} and {tag}"
+        "a mail template allows only {severity}, {title}, {message}, {person}, {person_id},"
+        " {id} and {tag}"
     ),
 }
 
@@ -336,12 +347,33 @@ _CREATE_FIELDS: dict[Any, Any] = {
     # Passed to the card unchanged (D-015).
     vol.Optional("condition"): CONDITION_SCHEMA,
     vol.Optional("mode"): vol.In(MODES),
+    # Removed in 1.0.0 (D-188): accepted and ignored so an old automation does not fail.
+    vol.Optional(REMOVED_WAIT): cv.boolean,
     vol.Optional("people"): vol.All(cv.ensure_list, [cv.entity_domain("person")]),
     vol.Optional("actions"): ACTIONS_SCHEMA,
     vol.Optional("tap_action"): TAP_ACTION_SCHEMA,
     vol.Optional("image"): IMAGE,
 }
-CREATE_SCHEMA = vol.All(vol.Schema(_CREATE_FIELDS), _check_create)
+
+
+def _banner_target(data: dict[str, Any]) -> dict[str, Any]:
+    """`audience`, `recipients` and `people` name who sees the banner: one of them (D-195)."""
+    if len([k for k in ("audience", "recipients", "people") if k in data]) > 1:
+        raise vol.Invalid("give only one of audience, recipients and people", path=["recipients"])
+    return data
+
+
+CREATE_SCHEMA = vol.All(
+    vol.Schema(
+        {
+            **_CREATE_FIELDS,
+            vol.Optional("audience"): NAME,
+            vol.Optional("recipients"): vol.All(cv.ensure_list, [cv.entity_domain("person")]),
+        }
+    ),
+    _check_create,
+    _banner_target,
+)
 
 # `notify` takes the lifecycle of `create_banner` (D-087). Banner recipients replace `people`.
 _NOTIFY_FIELDS = {
@@ -350,9 +382,10 @@ _NOTIFY_FIELDS = {
     if str(k)
     not in ("people", "dismissible", "dismiss_scope", "snoozable", "snooze_scope", "severity")
 }
-# The hub actions default to info (D-189); `create_banner` and the rules keep warning.
+# `notify` has no default severity: a caller states it (D-192). The shortcuts default to info
+# (D-189); `create_banner` and the rules keep warning.
 ACTION_SEVERITY = "info"
-_NOTIFY_FIELDS[vol.Optional("severity", default=ACTION_SEVERITY)] = vol.In(SEVERITIES)
+_NOTIFY_FIELDS[vol.Required("severity")] = vol.In(SEVERITIES)
 
 
 def _who_can(value: Any) -> Any:
@@ -367,7 +400,8 @@ TARGET_SCHEMA = vol.Schema(
         vol.Optional("recipients"): vol.All(cv.ensure_list, [cv.string]),
     }
 )
-HIDDEN_FIELDS = {"notify": {"to"}}  # in the schema, not in services.yaml or docs/actions.md
+# In the schema, not in services.yaml or docs/actions.md.
+HIDDEN_FIELDS = {"notify": {"to", REMOVED_WAIT}, "create_banner": {REMOVED_WAIT}}
 NOTIFY_SCHEMA = vol.All(
     vol.Schema(
         {
@@ -388,6 +422,7 @@ NOTIFY_SCHEMA = vol.All(
                 cv.ensure_list, [vol.All(cv.string, vol.Length(min=1))], _check_policy
             ),
             vol.Optional("match_policies_automatically"): cv.boolean,
+            vol.Optional("dry_run"): cv.boolean,
             vol.Optional("mail_subject"): _mail_template(check_subject),
             vol.Optional("mail_body"): _mail_template(check_body),
         }
@@ -457,6 +492,12 @@ CLEAR_NOTIFICATIONS_SCHEMA = vol.All(
     _check_clear_notifications,
 )
 SHORTCUT_CHANNELS = ("push", "popup", "speak")
+GET_TRACE_SCHEMA = vol.Schema(
+    {
+        vol.Optional("message_id"): vol.All(cv.string, vol.Length(min=1, max=100)),
+        vol.Optional("limit", default=100): vol.All(vol.Coerce(int), vol.Range(min=1, max=1000)),
+    }
+)
 
 SCHEMAS: dict[str, VolSchemaType] = {
     "create_banner": CREATE_SCHEMA,
@@ -464,6 +505,7 @@ SCHEMAS: dict[str, VolSchemaType] = {
     "clear_all": CLEAR_ALL_SCHEMA,
     "clear_notifications": CLEAR_NOTIFICATIONS_SCHEMA,
     "notify": NOTIFY_SCHEMA,
+    "get_trace": GET_TRACE_SCHEMA,
     **{channel: _shortcut_schema(channel) for channel in SHORTCUT_CHANNELS},
 }
 
@@ -519,8 +561,34 @@ def _manager(hass: HomeAssistant) -> BannerManager:
     return manager
 
 
+def _drop_removed(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
+    """Remove `wait_for_condition` from a call and raise the repair issue once (D-192). The field
+    is ignored: a banner whose condition is false now waits."""
+    if REMOVED_WAIT in data:
+        data = {k: v for k, v in data.items() if k != REMOVED_WAIT}
+        ir.async_create_issue(
+            hass,
+            DOMAIN,
+            ISSUE_WAIT_REMOVED,
+            is_fixable=False,
+            is_persistent=True,
+            severity=ir.IssueSeverity.WARNING,
+            translation_key=ISSUE_WAIT_REMOVED,
+        )
+    return data
+
+
 async def _create(call: ServiceCall) -> ServiceResponse:
-    return _manager(call.hass).create(call.data)
+    manager = _manager(call.hass)
+    data = _drop_removed(call.hass, dict(call.data))
+    target: dict[str, Any] = {k: data.pop(k) for k in ("audience", "recipients") if k in data}
+    if target:
+        if (hub := manager.hub) is None:
+            raise _hub_off()
+        target = _check_names(hub, {CHANNEL_BANNER: target}, None)[0][CHANNEL_BANNER]
+        if people := await banner_people(hub, target, data.get("severity")):
+            data["people"] = people  # the audience as of now, like `notify` (D-131)
+    return manager.create(data)
 
 
 def _warn_deprecated(hass: HomeAssistant, name: str) -> None:
@@ -558,6 +626,14 @@ async def _clear_notifications(call: ServiceCall) -> ServiceResponse:
         channels=data.get("channels"),
     )
     return {"cleared": cleared}
+
+
+async def _get_trace(call: ServiceCall) -> ServiceResponse:
+    """The delivery trace, newest first: why a message did or did not arrive (D-194)."""
+    if (hub := _manager(call.hass).hub) is None:
+        raise _hub_off()
+    entries = hub.trace.entries(call.data.get("message_id"), call.data["limit"])
+    return cast(ServiceResponse, {"entries": entries})
 
 
 def _hub_off() -> ServiceValidationError:
@@ -654,13 +730,20 @@ async def banner_people(
 
 async def _notify(call: ServiceCall) -> ServiceResponse:
     manager = _manager(call.hass)
-    data = dict(call.data)
+    data = _drop_removed(call.hass, dict(call.data))
     to: dict[str, dict[str, Any]] = data.pop("to", {})
     if (hub := manager.hub) is None:
         raise _hub_off()
+    dry_run = data.pop("dry_run", False)
     to, policy = _check_names(hub, to, data.get("policy"))
     if policy is not None:
         data["policy"] = policy
+    if dry_run:
+        # Imported here: panel_test imports this module for the schema (D-194).
+        from .hub import panel_test
+
+        draft = await panel_test.banner_from(hub, {**data, "to": to})
+        return {"status": "dry_run", **await hub.preview(draft)}
     if people := await banner_people(hub, to.get(CHANNEL_BANNER, {}), data.get("severity")):
         data["people"] = people  # the card's own targeting (D-008, D-131)
     data["targets"] = to
@@ -724,6 +807,7 @@ def async_setup_services(hass: HomeAssistant) -> None:
         ("clear_all", _clear_all),
         ("clear_notifications", _clear_notifications),
         ("notify", _notify),
+        ("get_trace", _get_trace),
         *((c, _shortcut(c)) for c in SHORTCUT_CHANNELS),
     ):
         hass.services.async_register(
@@ -731,5 +815,7 @@ def async_setup_services(hass: HomeAssistant) -> None:
             name,
             handler,
             schema=cast(VolSchemaType, _Readable(SCHEMAS[name])),
-            supports_response=SupportsResponse.OPTIONAL,
+            supports_response=(
+                SupportsResponse.ONLY if name == "get_trace" else SupportsResponse.OPTIONAL
+            ),
         )

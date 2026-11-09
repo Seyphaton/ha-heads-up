@@ -34,5 +34,19 @@ class TraceBuffer:
         found = [asdict(e) for e in reversed(self._entries) if message_id in (None, e.message_id)]
         return found[:limit] if limit else found
 
+    def dump(self) -> list[dict[str, Any]]:
+        """Oldest first, as stored."""
+        return [asdict(e) for e in self._entries]
+
+    def load(self, raw: Any) -> None:
+        """Entries read from storage, before anything new was added. A damaged one is dropped."""
+        loaded = []
+        for item in raw if isinstance(raw, list) else []:
+            try:
+                loaded.append(TraceEntry(**item))
+            except TypeError:
+                continue
+        self._entries = deque([*loaded, *self._entries], maxlen=self._entries.maxlen)
+
     def __len__(self) -> int:
         return len(self._entries)

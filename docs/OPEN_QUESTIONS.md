@@ -112,3 +112,9 @@
 
 ## Per-channel targets in notify (maintainer, 2026-11-05)
 - `to` (one target per channel) is hidden from the action form and the docs (D-185); the schema still accepts it for Test send, tests and stored messages. Pick it up later. Scenarios that need it: a banner open to everyone on a hallway tablet while only some people get the push; a popup for the household and a push for the owner; mail for someone without the app while the others get push and banner; speech to speaker groups or areas (`speakers` is a speaker picker). Many of these can also be solved by policies (Away, Fallback, Escalation). Options: show `to` again behind advanced mode (the `advanced` flag of `services.yaml` is not verified), or let the shared fields apply to push, popup and mail only, with the banner open unless named.
+
+## Review of a production migration (maintainer, 2026-11-09)
+- `last_to_leave` is empty for `presence_debounce_seconds` after the last person leaves, because the tracker still counts them as home. A "person left" automation that calls the audience at once reaches nobody. Idea: count a person whose state is already `not_home` and whose departure is pending. Not planned yet.
+- `condition` takes one entity or one template. Several entities with all or any are open; a template does it today.
+- Idea: a notice at the first start after an update from 0.4.0 or earlier that lists the removed `wait_for_condition` and the required `severity` of `notify`. Today the Repairs issue `wait_for_condition_removed` appears on first use of the old field (D-192). The log of last actions and the recent messages are still memory only (D-194).
+

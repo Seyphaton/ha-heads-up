@@ -98,6 +98,9 @@ class MailChannel:
             "title": message.title or message.message,
             "message": message.message,
             "person": name,
+            # The object id of the person entity (`philip` for `person.philip`): stable and
+            # lower case, whatever the friendly name says.
+            "person_id": person.split(".", 1)[1] if person and "." in person else "",
             "id": message.id,
             "tag": message.tag or "",
         }

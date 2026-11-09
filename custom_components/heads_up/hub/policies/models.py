@@ -23,6 +23,18 @@ DEFAULT_QUIET_FROM = "22:00:00"
 DEFAULT_QUIET_TO = "07:00:00"
 
 
+# The fields each type uses, for `Policy.describe`.
+DESCRIBED = {
+    "escalation": ("after_minutes", "channels"),
+    "reminder": ("every_minutes", "max_count", "channels"),
+    "quiet_hours": ("from_time", "to_time", "days", "action", "critical_passes"),
+    "away": ("max_wait", "critical_passes"),
+    "fallback": ("when", "channels"),
+    "deliver": ("channels",),
+    "summarize": ("summary_every", "summary_at", "include_critical"),
+}
+
+
 @dataclass(slots=True)
 class Policy:
     name: str
@@ -79,6 +91,20 @@ class Policy:
     @property
     def key(self) -> str:
         return f"{self.type}:{self.name}"
+
+    def describe(self) -> dict[str, Any]:
+        """What the policy does, as plain values for entity attributes (D-194)."""
+        out: dict[str, Any] = {
+            "policy": self.name,
+            "type": self.type,
+            "apply": self.apply,
+            "severities": sorted(self.severities),
+            "tags": sorted(self.tags),
+        }
+        for name in DESCRIBED.get(self.type, ()):
+            value = getattr(self, name)
+            out[name] = list(value) if isinstance(value, tuple) else value
+        return out
 
 
 def policy_from_data(name: str, subentry_id: str, data: Mapping[str, Any]) -> Policy | None:

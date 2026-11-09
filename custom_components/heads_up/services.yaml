@@ -27,6 +27,18 @@ create_banner:
       example: /media/local/door.jpg
       selector:
         text: null
+    audience:
+      selector:
+        entity:
+          filter:
+          - integration: heads_up
+            domain: binary_sensor
+    recipients:
+      example: '["person.anna"]'
+      selector:
+        entity:
+          domain: person
+          multiple: true
     people:
       selector:
         entity:
@@ -152,6 +164,10 @@ notify:
       default: true
       selector:
         boolean: null
+    dry_run:
+      default: false
+      selector:
+        boolean: null
     policy:
       selector:
         entity:
@@ -183,7 +199,7 @@ notify:
       selector:
         text: {}
     severity:
-      default: info
+      required: true
       selector:
         select:
           options:
@@ -240,10 +256,12 @@ push:
     icon: *id005
     image: *id006
     tts_message: *id016
-    recipients: &id018
+    recipients:
       example: '["person.anna"]'
       selector:
-        object: {}
+        entity:
+          domain: person
+          multiple: true
     audience:
       example: binary_sensor.heads_up_audience_at_home
       selector: *id017
@@ -269,7 +287,12 @@ popup:
     icon: *id005
     image: *id006
     tts_message: *id016
-    recipients: *id018
+    recipients:
+      example: '["person.anna"]'
+      selector:
+        entity:
+          domain: person
+          multiple: true
     audience:
       example: binary_sensor.heads_up_audience_at_home
       selector: *id017
@@ -294,9 +317,29 @@ speak:
           translation_key: severity
     icon: *id005
     tts_message: *id016
-    recipients: *id018
+    recipients:
+      example: '["media_player.kitchen"]'
+      selector:
+        entity:
+          domain:
+          - media_player
+          - assist_satellite
+          multiple: true
     id: *id007
     tag: *id008
     timeout: *id009
     tap_action: *id012
     actions: *id013
+get_trace:
+  fields:
+    message_id:
+      example: window_bedroom
+      selector:
+        text: null
+    limit:
+      default: 100
+      selector:
+        number:
+          min: 1
+          max: 1000
+          mode: box

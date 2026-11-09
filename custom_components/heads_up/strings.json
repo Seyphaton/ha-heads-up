@@ -326,6 +326,12 @@
       "message": "Policy \"{name}\" does not exist. Did you mean \"{suggestion}\"? Valid policies: {valid}."
     }
   },
+  "issues": {
+    "wait_for_condition_removed": {
+      "title": "A removed field is still used",
+      "description": "An automation or script calls Heads Up with `wait_for_condition`. The field was removed in 1.0.0 and is now ignored: a message whose condition is false waits until the condition is true. Delete the field from the call. To send only when a condition is true now, add that condition to the automation before the action."
+    }
+  },
   "services": {
     "create_banner": {
       "name": "Create banner",
@@ -391,9 +397,17 @@
           "name": "Mode",
           "description": "Show once: the banner is shown once. With a Condition it waits until the condition is true and ends for good when it turns false; without a Condition it stays until its timeout, a dismissal or a clear.\n\nRecurring: needs a Condition. The banner is shown whenever the condition is true, hidden when it is false and shown again when it turns true. Default: Show once."
         },
+        "audience": {
+          "name": "Audience",
+          "description": "Show only to the members of this audience, as of now. Give either audience, recipients or people."
+        },
+        "recipients": {
+          "name": "Recipients",
+          "description": "Show only to these persons. Give either audience, recipients or people."
+        },
         "people": {
           "name": "People",
-          "description": "Show only to these people. Default: everyone."
+          "description": "The same as recipients; kept for existing automations."
         },
         "tap_action": {
           "name": "Tap action",
@@ -469,6 +483,10 @@
           "name": "Match policies automatically",
           "description": "On: policies that match the severity or tags of the message apply automatically. Off: only the manual policies apply, and none if you pick no manual policy. Manual policies always apply."
         },
+        "dry_run": {
+          "name": "Dry run",
+          "description": "On: nothing is sent or stored. The response lists, for each channel and recipient, whether the message would be sent, held or skipped, why, and the push level. Use it to test a call."
+        },
         "policy": {
           "name": "Manual policy",
           "description": "Policies you assign by hand. They apply next to the automatic policies, whatever their own severities and tags say."
@@ -543,7 +561,7 @@
         },
         "mail_subject": {
           "name": "Mail subject",
-          "description": "Subject of this message's mail, instead of the template on the Channels page. Placeholders: {severity}, {title}, {message}, {person}, {id}, {tag}. {person} is the name of the recipient, and each recipient gets their own mail. Only used with the mail channel. Leave the checkbox unchecked to use the template from the Channels page."
+          "description": "Subject of this message's mail, instead of the template on the Channels page. Placeholders: {severity}, {title}, {message}, {person}, {person_id}, {id}, {tag}. {person} is the name of the recipient, and each recipient gets their own mail. Only used with the mail channel. Leave the checkbox unchecked to use the template from the Channels page."
         },
         "mail_body": {
           "name": "Mail text",
@@ -601,7 +619,7 @@
         },
         "recipients": {
           "name": "Recipients",
-          "description": "Persons, phones, speakers or groups, depending on the channel. Give either audience or recipients."
+          "description": "Persons whose phones get it. Give either audience or recipients."
         },
         "audience": {
           "name": "Audience",
@@ -659,7 +677,7 @@
         },
         "recipients": {
           "name": "Recipients",
-          "description": "Persons, phones, speakers or groups, depending on the channel. Give either audience or recipients."
+          "description": "Persons who get it as a popup. Give either audience or recipients."
         },
         "audience": {
           "name": "Audience",
@@ -713,7 +731,21 @@
         },
         "recipients": {
           "name": "Recipients",
-          "description": "Persons, phones, speakers or groups, depending on the channel. Give either audience or recipients."
+          "description": "Speakers and Assist satellites. A speaker group or an area is written in YAML."
+        }
+      }
+    },
+    "get_trace": {
+      "name": "Get trace",
+      "description": "Returns the delivery trace, newest first: for each channel and recipient what happened to a message and why. The trace survives a restart.",
+      "fields": {
+        "message_id": {
+          "name": "Message ID",
+          "description": "Only the entries of this message."
+        },
+        "limit": {
+          "name": "Limit",
+          "description": "How many entries to return, at most 1000."
         }
       }
     }
@@ -1068,7 +1100,7 @@
             "to_time": "Quiet hours: end of the window. A window may cross midnight.",
             "days": "Quiet hours: the days a window starts on. Empty: every day.",
             "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
-            "critical_passes": "Quiet hours: critical messages ignore this policy.",
+            "critical_passes": "Quiet hours and Away: critical messages ignore this policy.",
             "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
             "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed.",
             "summary_every": "Summarize: send one summary this many minutes after the first message was held.",
@@ -1133,7 +1165,7 @@
             "to_time": "Quiet hours: end of the window. A window may cross midnight.",
             "days": "Quiet hours: the days a window starts on. Empty: every day.",
             "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
-            "critical_passes": "Quiet hours: critical messages ignore this policy.",
+            "critical_passes": "Quiet hours and Away: critical messages ignore this policy.",
             "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
             "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed.",
             "summary_every": "Summarize: send one summary this many minutes after the first message was held.",

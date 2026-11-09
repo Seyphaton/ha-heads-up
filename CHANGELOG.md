@@ -7,6 +7,22 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ### Added
 - `heads_up.notify` takes `mail_subject` and `mail_body`: the subject and body of the mail for that one message, instead of the templates on the Channels page. Both use the same placeholders, and `{person}` is the recipient, so each person gets their own subject. Test send has both fields.
 
+- Mail placeholder `{person_id}`: the part of the person's entity ID after `person.`, for example `philip`. Use it as the subject when a mail rule needs a fixed name that does not depend on the friendly name.
+- `heads_up.notify` with `dry_run: true` returns the plan and sends nothing: for each channel and recipient whether it would be sent, held or skipped, why, the mail address and the push level.
+- Test send: Test a pasted call. Paste an action step or its data with templates, give sample values such as a `trigger`, and see the rendered call and the plan; Send test sends it as a test message.
+- `heads_up.get_trace` returns the delivery trace to an automation. The trace is stored and survives a restart.
+- Download diagnostics for the integration (options, policies, rules, audiences, recipients, trace, recent messages) without mail addresses and message texts.
+- The policy switches show what the policy does in their attributes: type, severities, tags, times, channels and their place in the list.
+- Buttons: `destructive` (red text on the banner, the popup and an iPhone push) and `require_auth` (a push button works only on an unlocked phone). They work in the action and in a watch rule.
+- The event `heads_up_banner_action` has `person` (the person entity of the user) and `channel` (`banner`, `popup` or `push`).
+- Conditions: `treat_unavailable_as` (`met` or `not_met`) says what an unavailable or unknown entity counts as, so a "not online" banner shows when the device is gone.
+- `heads_up.create_banner` takes `audience` and `recipients`, like `notify`; `people` keeps working. The recipients fields of `push`, `popup` and `speak` show a picker for persons or speakers in the action form.
+- Away policy: Critical messages pass (on by default). A critical message goes to people who are away at once; switch it off to hold critical messages for the arrival too.
+
+### Changed
+- `heads_up.notify` needs a `severity`; it has no default any more. `push`, `popup` and `speak` still default to `info`.
+- `wait_for_condition` is accepted again and ignored. A call that sends it no longer fails; Heads Up raises a repair notice that names the migration. A message whose condition is false waits.
+
 ### Fixed
 - Panel: a long policy name no longer pushes the buttons out of the policy list on a narrow screen.
 

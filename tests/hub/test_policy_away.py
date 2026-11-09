@@ -163,3 +163,30 @@ async def test_a_held_delivery_survives_a_restart(
     await settle(hass, entry)
     assert len(pushes(home.ben)) == 1
     assert len(pushes(home.anna)) == 1  # nothing is sent twice after the restart
+
+
+async def test_critical_passes_away_by_default(
+    hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    await family(hass, entry)
+    await add_policy(hass, entry, "Away", **AWAY)
+    away(hass, "person.ben", "ben-id")
+    await send(hass, entry, severity="critical", to={"push": {"audience": "Family"}})
+    assert len(pushes(home.ben)) == 1
+    await send(hass, entry, id="w", severity="warning", to={"push": {"audience": "Family"}})
+    assert len(pushes(home.ben)) == 1  # a warning waits for the arrival
+
+
+async def test_critical_waits_for_arrival_when_the_policy_says_so(
+    hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    await family(hass, entry)
+    await add_policy(hass, entry, "Away", **{**AWAY, "critical_passes": False})
+    away(hass, "person.ben", "ben-id")
+    await send(hass, entry, severity="critical", to={"push": {"audience": "Family"}})
+    assert not pushes(home.ben)
+    away(hass, "person.ben", "ben-id", "home")
+    await settle(hass, entry)
+    assert len(pushes(home.ben)) == 1

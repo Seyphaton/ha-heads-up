@@ -41,6 +41,7 @@ action: heads_up.notify
 data:
   id: hello
   message: Hello from Heads Up
+  severity: warning
   channels: [persistent]
 ```
 
@@ -54,7 +55,7 @@ data:
 
 ### When nothing arrived
 
-Open Heads Up > Notifications and rules > Message Log, choose the message and read the Result column. Every recipient and channel has a result (sent, held, skipped or failed) and a reason, for example `no_usable_device` (the person has no Companion app device) or `rate_limited`. The response of the `notify` call lists the reasons known at the call in `reasons`. The sidebar entry must be on; see Install. Test send, on the same group, shows the same reasons before you send anything. [Examples and FAQ](examples.md#troubleshooting) lists the reasons.
+Download diagnostics from Settings > Devices & services > Heads Up to attach to a bug report: the options, the policies, rules, audiences and recipients, the last 200 trace entries and the list of recent messages, without mail addresses and without message texts. Open Heads Up > Notifications and rules > Message Log, choose the message and read the Result column. Every recipient and channel has a result (sent, held, skipped or failed) and a reason, for example `no_usable_device` (the person has no Companion app device) or `rate_limited`. The response of the `notify` call lists the reasons known at the call in `reasons`. The sidebar entry must be on; see Install. Test send, on the same group, shows the same reasons before you send anything, and `dry_run: true` on the `notify` action does the same from an automation. [Examples and FAQ](examples.md#troubleshooting) lists the reasons.
 
 ## Add the card
 
@@ -103,11 +104,13 @@ The Status page refreshes every 10 seconds.
 
 ### Message Log
 
-Lists the recent messages, newest first: severity, title, how long ago, whether it is active or how it ended, and a count of its results ("2 sent, 1 skipped"). Choose a message to see its trace: time, channel, recipient and result with the reason, who acknowledged, and the escalations and reminders with their state and due time. The log, the recent messages and the failure record are kept in memory and start empty after a restart. The History settings set their sizes.
+Lists the recent messages, newest first: severity, title, how long ago, whether it is active or how it ended, and a count of its results ("2 sent, 1 skipped"). Choose a message to see its trace: time, channel, recipient and result with the reason, who acknowledged, and the escalations and reminders with their state and due time. The delivery trace is stored and survives a restart. The log of last actions, the recent messages and the failure record are kept in memory and start empty after a restart. The History settings set their sizes. The action `heads_up.get_trace` returns the trace to an automation or a script; see [Actions](actions.md#headsupget_trace).
 
 ### Test send
 
 Previews a call and can send it once. Enter the content, the call (severity, tag, channels, policy) and the target of each channel. The result table updates as you type, with one row per recipient and channel: sent, held, skipped or failed, with the reason. A mail row names the address the mail would go to, and a person without an address, or a call with no mail service chosen, shows that reason. The Behaviour choices (dismissible, scope, snoozable) apply to the banner, push and popup; the page says so when a call has only mail and speech, which cannot be taken back. Later steps lists the escalations, reminders and summaries that would follow. The call is shown as YAML with a Copy button.
+
+Under the form, Test a pasted call takes an action step or only its `data`. Templates such as `{{ trigger.entity_id }}` are rendered with the sample values you give as YAML, for example `trigger: {entity_id: binary_sensor.door}`, as Home Assistant renders them before it calls the action. Show plan renders the call and shows the same table as the form, with the push level of each push row, and sends nothing. Send test sends the rendered call as a test message, like the button above. Only `heads_up.notify` can be tested, and a `dry_run` in the pasted call is ignored.
 
 Send test sends one real message with the title prefix `Test: `, the tag `test` and an id that starts with `hu_test_`. It ends by itself after 10 minutes. Policies apply to it like to any message. Clear the test message removes it at once. Test send uses the real clock and the real presence.
 
@@ -147,7 +150,7 @@ Create adds only what is missing. A policy with the same name, or one that does 
 
 Banners, closed states and timeouts are kept across the restart. So are the timers of escalations and reminders, held messages and the delivery records. Options and watch rules stay. The notification bell is emptied by every restart; Heads Up puts back the entries of active messages. A step that was due during the restart runs once if the message is still active and not acknowledged. A closed rule banner returns after the restart.
 
-From 0.4.0 or earlier to 1.0.0: the field `wait_for_condition` and the response status `condition_false` of `create_banner` are removed, and `mode: recurring` without a `condition` is refused. Delete `wait_for_condition` from your automations. A banner whose condition is false now waits; to send only when the condition is true now, add a condition to the automation before the action.
+From 0.4.0 or earlier to 1.0.0: the field `wait_for_condition` and the response status `condition_false` of `create_banner` are removed, and `mode: recurring` without a `condition` is refused. A call that still sends `wait_for_condition` works: Heads Up ignores the field and shows a repair notice under Settings > System > Repairs. Delete the field from your automations. A banner whose condition is false now waits; to send only when the condition is true now, add a condition to the automation before the action. The action `heads_up.notify` needs a `severity`.
 
 Heads Up uses [semantic versioning](https://semver.org/). Action names, field names, defaults, response keys, event types, event data keys, the card type and the card options are the public interface. A minor version adds to it. A removal or a change of meaning needs a major version, and the minor version before it logs a warning when you use the old form. The storage file has version 1.
 

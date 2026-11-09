@@ -4,6 +4,7 @@ import pytest
 import voluptuous as vol
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers import issue_registry as ir
 from pytest_homeassistant_custom_component.common import MockConfigEntry, async_capture_events
 
 from custom_components.heads_up.const import DOMAIN
@@ -75,9 +76,37 @@ async def test_a_false_condition_at_creation_waits(
     assert "w" in banners(entry)
 
 
-async def test_wait_for_condition_is_no_longer_a_field(create: CreateBanner) -> None:
-    with pytest.raises(vol.Invalid):
-        await create(id="w", message="x", condition=cond(), wait_for_condition=False)
+async def test_wait_for_condition_is_ignored_and_raises_a_repair_issue(
+    hass: HomeAssistant, entry: MockConfigEntry, create: CreateBanner
+) -> None:
+    await set_state(hass, "off")
+    registry = ir.async_get(hass)
+    assert registry.async_get_issue(DOMAIN, "wait_for_condition_removed") is None
+    result = await create(id="w", message="x", condition=cond(), wait_for_condition=False)
+    assert result["status"] == "waiting"  # stored, not refused and not dropped
+    issue = registry.async_get_issue(DOMAIN, "wait_for_condition_removed")
+    assert issue is not None and not issue.is_fixable and issue.is_persistent
+
+
+async def test_notify_ignores_wait_for_condition_too(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    await set_state(hass, "off")
+    result = await hass.services.async_call(
+        DOMAIN,
+        "notify",
+        {
+            "id": "w",
+            "message": "x",
+            "channels": ["banner"],
+            "condition": cond(),
+            "wait_for_condition": True,
+        },
+        blocking=True,
+        return_response=True,
+    )
+    assert result["status"] == "waiting"
+    assert ir.async_get(hass).async_get_issue(DOMAIN, "wait_for_condition_removed") is not None
 
 
 async def test_recurring_without_a_condition_is_refused(create: CreateBanner) -> None:
@@ -128,6 +157,45 @@ async def test_unavailable_at_creation_counts_as_not_true(
     assert (await create(id="w", message="x", condition=cond()))["status"] == "waiting"
     await set_state(hass, "on")
     assert is_active(entry, "w")
+
+
+@pytest.mark.parametrize("bad", ["unavailable", "unknown"])
+async def test_an_unavailable_entity_counts_as_met_when_the_call_says_so(
+    hass: HomeAssistant, entry: MockConfigEntry, create: CreateBanner, bad: str
+) -> None:
+    # "Not online" must show the banner when the device is gone, not only when it says offline.
+    await set_state(hass, "online")
+    condition = cond(operator="not_equals", state="online", treat_unavailable_as="met")
+    assert (await create(id="w", message="x", mode="recurring", condition=condition))[
+        "status"
+    ] == "waiting"
+    await set_state(hass, bad)
+    assert is_active(entry, "w")
+    await set_state(hass, "online")
+    assert not is_active(entry, "w")
+
+
+async def test_an_unavailable_entity_can_count_as_not_met(
+    hass: HomeAssistant, entry: MockConfigEntry, create: CreateBanner
+) -> None:
+    await set_state(hass, "on")
+    await create(
+        id="w", message="x", mode="recurring", condition=cond(treat_unavailable_as="not_met")
+    )
+    assert is_active(entry, "w")
+    await set_state(hass, "unavailable")
+    assert not is_active(entry, "w")
+
+
+async def test_treat_unavailable_as_needs_an_entity_not_a_template(
+    create: CreateBanner,
+) -> None:
+    with pytest.raises(vol.Invalid):
+        await create(
+            id="w", message="x", condition={"template": "{{ true }}", "treat_unavailable_as": "met"}
+        )
+    with pytest.raises(vol.Invalid):
+        await create(id="w", message="x", condition=cond(treat_unavailable_as="maybe"))
 
 
 async def test_entity_removed_keeps_banner(

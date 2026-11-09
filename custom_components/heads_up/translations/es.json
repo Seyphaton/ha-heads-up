@@ -326,6 +326,12 @@
       "message": "La política \"{name}\" no existe. ¿Quisiste decir \"{suggestion}\"? Políticas válidas: {valid}."
     }
   },
+  "issues": {
+    "wait_for_condition_removed": {
+      "title": "Se sigue usando un campo eliminado",
+      "description": "Una automatización o un script llama a Heads Up con `wait_for_condition`. El campo se eliminó en la 1.0.0 y ahora se ignora: un mensaje cuya condición es falsa espera hasta que la condición sea verdadera. Quita el campo de la llamada. Para enviar solo si una condición es verdadera ahora, añade esa condición a la automatización antes de la acción."
+    }
+  },
   "services": {
     "create_banner": {
       "name": "Crear aviso",
@@ -391,9 +397,17 @@
           "name": "Modo",
           "description": "Mostrar una vez: el aviso se muestra una vez. Con una condición espera a que sea verdadera y termina definitivamente cuando pasa a falsa; sin condición permanece hasta su tiempo límite, un cierre o un borrado.\n\nRecurrente: necesita una condición. El aviso se muestra cuando la condición es verdadera, se oculta cuando es falsa y vuelve a mostrarse cuando pasa a ser verdadera. Predeterminado: Mostrar una vez."
         },
+        "audience": {
+          "name": "Audiencia",
+          "description": "Solo para los miembros de esta audiencia, tal como es ahora. Indica audiencia, destinatarios o personas, solo una."
+        },
+        "recipients": {
+          "name": "Destinatarios",
+          "description": "Solo para estas personas. Indica audiencia, destinatarios o personas, solo una."
+        },
         "people": {
           "name": "Personas",
-          "description": "Mostrar solo a estas personas. Predeterminado: a todos."
+          "description": "Lo mismo que destinatarios; se mantiene para las automatizaciones existentes."
         },
         "tap_action": {
           "name": "Acción al tocar",
@@ -469,6 +483,10 @@
           "name": "Asignar políticas automáticamente",
           "description": "Activado: las políticas que coinciden con la gravedad o las etiquetas del mensaje se aplican automáticamente. Desactivado: solo se aplican las políticas manuales, y ninguna si no eliges ninguna. Las políticas manuales siempre se aplican."
         },
+        "dry_run": {
+          "name": "Prueba en seco",
+          "description": "Activado: no se envía ni se guarda nada. La respuesta indica, por canal y destinatario, si el mensaje se enviaría, se retendría o se omitiría, por qué, y el nivel del push. Sirve para probar una llamada."
+        },
         "policy": {
           "name": "Política manual",
           "description": "Políticas que asignas a mano. Se aplican junto con las políticas automáticas, sea cual sea su propia gravedad y etiqueta."
@@ -543,7 +561,7 @@
         },
         "mail_subject": {
           "name": "Asunto del correo",
-          "description": "Asunto del correo de este mensaje, en lugar de la plantilla de la página Canales. Variables: {severity}, {title}, {message}, {person}, {id}, {tag}. {person} es el nombre del destinatario, y cada destinatario recibe su propio correo. Solo con el canal mail. Deja la casilla sin marcar para usar la plantilla de la página Canales."
+          "description": "Asunto del correo de este mensaje, en lugar de la plantilla de la página Canales. Variables: {severity}, {title}, {message}, {person}, {person_id}, {id}, {tag}. {person} es el nombre del destinatario, y cada destinatario recibe su propio correo. Solo con el canal mail. Deja la casilla sin marcar para usar la plantilla de la página Canales."
         },
         "mail_body": {
           "name": "Texto del correo",
@@ -601,7 +619,7 @@
         },
         "recipients": {
           "name": "Destinatarios",
-          "description": "Personas, teléfonos, altavoces o grupos según el canal. Indique audiencia o destinatarios."
+          "description": "Las personas cuyos teléfonos la reciben. Indica audiencia o destinatarios."
         },
         "audience": {
           "name": "Audiencia",
@@ -659,7 +677,7 @@
         },
         "recipients": {
           "name": "Destinatarios",
-          "description": "Personas, teléfonos, altavoces o grupos según el canal. Indique audiencia o destinatarios."
+          "description": "Las personas que la reciben como ventana emergente. Indica audiencia o destinatarios."
         },
         "audience": {
           "name": "Audiencia",
@@ -713,7 +731,21 @@
         },
         "recipients": {
           "name": "Destinatarios",
-          "description": "Personas, teléfonos, altavoces o grupos según el canal. Indique audiencia o destinatarios."
+          "description": "Altavoces y satélites de Assist. Un grupo de altavoces o un área se escribe en YAML."
+        }
+      }
+    },
+    "get_trace": {
+      "name": "Obtener el registro",
+      "description": "Devuelve el registro de entregas, lo más reciente primero: qué ocurrió con un mensaje por canal y destinatario, y por qué. El registro sobrevive a un reinicio.",
+      "fields": {
+        "message_id": {
+          "name": "ID del mensaje",
+          "description": "Solo las entradas de este mensaje."
+        },
+        "limit": {
+          "name": "Límite",
+          "description": "Cuántas entradas como máximo, hasta 1000."
         }
       }
     }

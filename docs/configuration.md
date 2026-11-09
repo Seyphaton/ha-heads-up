@@ -186,7 +186,8 @@ Subject and body are placeholder texts, not Home Assistant templates. The defaul
 | `{severity}` | The severity as a word in your Home Assistant language, for example Critical. |
 | `{title}` | The title, or the message when there is no title. |
 | `{message}` | The message. |
-| `{person}` | The person's name; empty for the Global address. |
+| `{person}` | The person's name (the friendly name of the person entity); empty for the Global address. |
+| `{person_id}` | The part of the person's entity ID after `person.`, for example `philip` for `person.philip`. It is lower case and has no spaces, whatever the friendly name says; empty for the Global address. |
 | `{id}` | The message id. |
 | `{tag}` | The tag; empty when there is none. |
 
@@ -236,7 +237,7 @@ Speaker groups are named sets of speakers, Assist satellites and areas for speec
 
 ## Policies
 
-A policy adds behaviour to messages without changing the automation that sends them. The types are Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize. Add one in the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy.
+A policy adds behaviour to messages without changing the automation that sends them. The types are Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize. Add one in the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy. Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, the fields of its type (for example `from_time`, `to_time`, `action` and `critical_passes` for Quiet hours) and `order`, its place in the list.
 
 ### How policies interact
 
@@ -352,10 +353,11 @@ A person who is not home when a message is sent gets it when they arrive, if the
 | Field | Default | Meaning |
 |---|---|---|
 | Wait for arrival (minutes) | 0 | How long to wait. 0 means as long as the message lives. After that time the delivery is skipped (`max_wait_exceeded`). |
+| Critical messages pass | on | On: critical messages are sent at once to people who are away. Off: they wait for the arrival like other messages. |
 
 - Away holds only deliveries to an audience, and only for people whose state is known and not `home`. Recipients you list yourself, and people whose presence is unknown, are sent at once.
 - Arrival is the person's state changing to `home`. The delivery is sent once, and not if the message was cleared, expired or acknowledged meanwhile, or that person dismissed or snoozed it.
-- Away has no exception for critical messages. Limit its severities if you want critical messages to go out at once.
+- With Critical messages pass off, Away holds critical messages too.
 - Held deliveries are stored and survive a restart.
 
 ### Fallback

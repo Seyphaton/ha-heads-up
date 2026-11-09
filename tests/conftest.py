@@ -4,7 +4,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 import pytest
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceRegistry
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.heads_up.const import DOMAIN
@@ -15,6 +15,24 @@ type CreateBanner = Callable[..., Awaitable[dict[str, Any]]]
 @pytest.fixture(autouse=True)
 def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
     """Load custom_components/ in every test."""
+
+
+@pytest.fixture(autouse=True)
+def notify_default_severity(
+    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """`heads_up.notify` requires `severity` (D-192). Most tests are about something else, so a
+    call without one gets `info`. A test of the requirement uses `no_default_severity`."""
+    if request.node.get_closest_marker("no_default_severity"):
+        return
+    original = ServiceRegistry.async_call
+
+    async def call(self: ServiceRegistry, domain: str, service: str, data: Any = None, **kw: Any):  # type: ignore[no-untyped-def]
+        if domain == DOMAIN and service == "notify" and isinstance(data, dict):
+            data = {"severity": "info", **data}
+        return await original(self, domain, service, data, **kw)
+
+    monkeypatch.setattr(ServiceRegistry, "async_call", call)
 
 
 @pytest.fixture

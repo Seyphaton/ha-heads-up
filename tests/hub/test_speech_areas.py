@@ -145,6 +145,7 @@ async def test_the_dry_run_does_not_touch_the_bell(
         {
             "type": "heads_up/hub_plan",
             "message": "Water leak",
+            "severity": "info",
             "channels": ["speak"],
             "to": {"speak": {"recipients": [area.id]}},
         }

@@ -88,6 +88,24 @@ async def test_an_own_button_fires_the_banner_action_event(
     events = async_capture_events(hass, "heads_up_banner_action")
     await press(hass, entry, "hu:m:person.anna:b-seen", user_id="anna-id")
     assert events[0].data["key"] == "seen" and events[0].data["user_id"] == "anna-id"
+    assert events[0].data["person"] == "person.anna" and events[0].data["channel"] == "push"
+
+
+async def test_the_phone_gets_destructive_and_authentication_flags_only_when_set(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    await notify(
+        hass,
+        entry,
+        actions=[
+            {"key": "arm", "label": "Arm", "destructive": True, "require_auth": True},
+            {"key": "plain", "label": "Plain"},
+        ],
+    )
+    sent = [c for c in anna.calls if c.data.get("message") != "clear_notification"][-1]
+    arm, plain = (b for b in sent.data["data"]["actions"] if ":b-" in b["action"])
+    assert arm["destructive"] is True and arm["authenticationRequired"] is True
+    assert "destructive" not in plain and "authenticationRequired" not in plain
 
 
 async def test_the_person_decides_when_the_event_has_no_user(

@@ -17,7 +17,7 @@ NOTIFY = SCHEMAS["notify"]
 
 
 def check(**data: Any) -> dict[str, Any]:
-    return dict(NOTIFY({"message": "x", **data}))
+    return dict(NOTIFY({"message": "x", "severity": "info", **data}))
 
 
 def test_recipients_become_the_target_of_every_channel_that_takes_people() -> None:
@@ -115,8 +115,9 @@ async def test_a_manual_policy_applies_next_to_the_automatic_ones_unless_they_ar
     assert used() == []
 
 
-def test_the_hub_actions_default_to_info() -> None:
-    assert check(channels=["banner"])["severity"] == "info"
+def test_notify_needs_a_severity_and_the_shortcuts_default_to_info() -> None:
+    with pytest.raises(vol.Invalid):
+        NOTIFY({"message": "x", "channels": ["banner"]})
     for channel in ("push", "popup"):
         assert SCHEMAS[channel]({"message": "x", "audience": "At home"})["severity"] == "info"
     assert (
@@ -131,3 +132,13 @@ async def test_create_banner_keeps_warning_as_its_default(
         "heads_up", "create_banner", {"id": "a", "message": "x"}, blocking=True
     )
     assert banners(entry)["a"].severity == "warning"
+
+
+@pytest.mark.no_default_severity
+async def test_a_notify_call_without_severity_is_refused(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    with pytest.raises(vol.Invalid):
+        await hass.services.async_call(
+            "heads_up", "notify", {"message": "x", "channels": ["banner"]}, blocking=True
+        )

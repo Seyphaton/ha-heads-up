@@ -56,7 +56,14 @@ async def test_pressing_a_button_fires_an_event_with_the_user(
     assert (await press(client, "a", "later"))["success"]
     await hass.async_block_till_done()
     assert [e.data for e in events] == [
-        {"id": "a", "tag": "g", "key": "later", "user_id": hass_admin_user.id}
+        {
+            "id": "a",
+            "tag": "g",
+            "key": "later",
+            "user_id": hass_admin_user.id,
+            "person": None,  # the admin user has no person
+            "channel": "banner",
+        }
     ]
     assert "a" in banners(entry)  # a button without dismiss keeps the banner
 

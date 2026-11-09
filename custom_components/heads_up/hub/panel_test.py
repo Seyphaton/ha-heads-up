@@ -10,8 +10,10 @@ import secrets
 from typing import Any
 
 import probatio as vol
+import yaml  # type: ignore[import-untyped]  # PyYAML ships with Home Assistant, no stubs here
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.exceptions import ServiceValidationError, TemplateError
+from homeassistant.helpers.template import Template
 from homeassistant.util import dt as dt_util
 
 from ..const import CHANNEL_BANNER, DEFAULT_SEVERITY, DOMAIN
@@ -42,15 +44,24 @@ def check(hub: HubEngine, payload: dict[str, Any]) -> dict[str, Any]:
     except vol.Invalid as err:
         raise TestSendError("invalid_format", str(err)) from err
     try:
-        _check_names(hub, data.get("to", {}), data.get("policy"))
+        to, policy = _check_names(hub, data.get("to", {}), data.get("policy"))
     except ServiceValidationError as err:
         raise TestSendError(str(err.translation_key), str(err)) from err
+    # The stored spelling, as the action uses it: a pasted call may name an audience by its sensor.
+    if to:
+        data["to"] = to
+    if policy is not None:
+        data["policy"] = policy
     return data
 
 
 async def build(hub: HubEngine, payload: dict[str, Any]) -> Banner:
     """A message for the dry run: never stored, never delivered."""
-    data = check(hub, payload)
+    return await banner_from(hub, check(hub, payload))
+
+
+async def banner_from(hub: HubEngine, data: dict[str, Any]) -> Banner:
+    """The dry-run message of a call that the schema and the name checks already accepted."""
     now = dt_util.utcnow()
     severity = data.get("severity", DEFAULT_SEVERITY)
     return Banner(
@@ -94,3 +105,50 @@ async def send(hass: HomeAssistant, hub: HubEngine, payload: dict[str, Any]) -> 
         DOMAIN, "notify", marked(payload), blocking=True, return_response=True
     )
     return dict(response or {})
+
+
+def _render(hass: HomeAssistant, value: Any, variables: dict[str, Any]) -> Any:
+    """Render every string that holds a template, anywhere in the value."""
+    if isinstance(value, str):
+        if "{{" not in value and "{%" not in value:
+            return value
+        try:
+            return Template(value, hass).async_render(variables)
+        except TemplateError as err:
+            raise TestSendError("template_error", str(err)) from err
+    if isinstance(value, list):
+        return [_render(hass, v, variables) for v in value]
+    if isinstance(value, dict):
+        return {k: _render(hass, v, variables) for k, v in value.items()}
+    return value
+
+
+def _load(text: str, code: str) -> Any:
+    try:
+        # safe_load: no tags, so a pasted call cannot include a file or run anything.
+        return yaml.safe_load(text)
+    except yaml.YAMLError as err:
+        raise TestSendError(code, str(err)) from err
+
+
+def render_call(hass: HomeAssistant, text: str, variables: str = "") -> dict[str, Any]:
+    """The `notify` input of a pasted call. It may be the data alone or a whole action step
+    (`action: heads_up.notify` with `data`). Templates are rendered with the given variables,
+    for example a sample `trigger`, as Home Assistant would render them before the call."""
+    call = _load(text, "yaml_invalid")
+    if isinstance(call, list) and len(call) == 1:
+        call = call[0]
+    if not isinstance(call, dict):
+        raise TestSendError("call_not_found", "The text is not a call")
+    if "action" in call or "service" in call:
+        if call.get("action", call.get("service")) != f"{DOMAIN}.notify":
+            raise TestSendError("not_notify", "Only heads_up.notify can be tested")
+        call = call.get("data") or {}
+    scope = _load(variables, "variables_invalid") if variables.strip() else {}
+    if not isinstance(scope, dict):
+        raise TestSendError("variables_invalid", "The sample values are not a mapping")
+    payload = _render(hass, call, scope)
+    if not isinstance(payload, dict):
+        raise TestSendError("call_not_found", "The text is not a call")
+    payload.pop("dry_run", None)  # the test decides whether it sends
+    return payload

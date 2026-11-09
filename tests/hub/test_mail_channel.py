@@ -99,6 +99,41 @@ async def test_the_templates_take_the_placeholders(
     assert mailbox[0].data["message"] == "Critical m doors: Door open {unknown}"
 
 
+async def test_person_id_is_the_entity_id_without_the_domain_whatever_the_name_says(
+    hass: HomeAssistant, entry: MockConfigEntry, mailbox: list[ServiceCall]
+) -> None:
+    entry.runtime_data.options["mail_subject"] = "{person_id}"
+    state = hass.states.get("person.anna")
+    assert state is not None
+    hass.states.async_set(
+        "person.anna", state.state, {**state.attributes, "friendly_name": "Anna Lee"}
+    )
+    opt_in(hass, entry, "person.anna", "box@example.com")
+    await mail(hass, entry, "person.anna")
+    assert mailbox[0].data["title"] == "anna"
+
+
+async def test_person_id_is_empty_for_the_global_address(
+    hass: HomeAssistant, entry: MockConfigEntry, mailbox: list[ServiceCall]
+) -> None:
+    entry.runtime_data.options["mail_global_address"] = "house@example.com"
+    entry.runtime_data.options["mail_subject"] = "[{person_id}] {title}"
+    await hass.services.async_call(
+        "heads_up",
+        "notify",
+        {
+            "id": "g",
+            "message": "x",
+            "title": "T",
+            "channels": ["mail"],
+            "recipients": ["Global address"],
+        },
+        blocking=True,
+    )
+    await hass.async_block_till_done()
+    assert mailbox[0].data["title"] == "[] T"
+
+
 async def test_mail_is_off_for_everyone_until_switched_on(
     hass: HomeAssistant, entry: MockConfigEntry, mailbox: list[ServiceCall]
 ) -> None:
@@ -314,6 +349,7 @@ async def test_the_dry_run_shows_the_mail_rows_and_sends_nothing(
         client,
         "hub_plan",
         message="x",
+        severity="info",
         channels=["mail"],
         to={"mail": {"recipients": ["person.anna", "person.ben"]}},
     )
@@ -340,6 +376,7 @@ async def test_the_preview_names_the_address_and_flags_a_missing_one(
         client,
         "hub_plan",
         message="x",
+        severity="info",
         channels=["mail"],
         to={"mail": {"recipients": ["person.anna", "person.cy", "Global address"]}},
     )
@@ -370,6 +407,7 @@ async def test_the_preview_flags_a_missing_mail_service(
         client,
         "hub_plan",
         message="x",
+        severity="info",
         channels=["mail"],
         to={"mail": {"recipients": ["person.anna"]}},
     )

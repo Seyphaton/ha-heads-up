@@ -24,6 +24,7 @@ package = false
 testpaths = ["tests"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+markers = ["no_default_severity: do not add severity to heads_up.notify calls (D-192)"]
 
 [tool.ruff]
 target-version = "py314"

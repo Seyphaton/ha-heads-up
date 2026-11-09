@@ -118,7 +118,7 @@ export const STRINGS = {
     s_escalation: "{applies}: if nobody acknowledges within {n} min, it is also sent on {channels}.",
     s_reminder: "{applies}: while nobody acknowledges, the notification is repeated every {n} min, at most {m} times{channels}.",
     s_quiet_hours: "{applies}: between {from} and {to}{days}, deliveries outside the dashboard are {action}{critical}.",
-    s_away: "{applies}: a person who is not home gets it when they arrive{wait}.",
+    s_away: "{applies}: a person who is not home gets it when they arrive{wait}{critical}.",
     s_deliver: "{applies}: it is also sent at once on {channels}.",
     s_fallback: "{applies}: if {when}, it is sent on {channels} instead.",
     s_summarize_every: "{applies}: held, and one summary is sent {n} min after the first held message{critical}.",
@@ -227,7 +227,7 @@ export const STRINGS = {
     s_escalation: "{applies}: bestätigt niemand innerhalb von {n} Min., wird zusätzlich auf {channels} gesendet.",
     s_reminder: "{applies}: solange niemand bestätigt, wird die Benachrichtigung alle {n} Min. wiederholt, höchstens {m} Mal{channels}.",
     s_quiet_hours: "{applies}: zwischen {from} und {to}{days} werden Zustellungen außerhalb des Dashboards {action}{critical}.",
-    s_away: "{applies}: wer nicht zu Hause ist, bekommt sie bei der Ankunft{wait}.",
+    s_away: "{applies}: wer nicht zu Hause ist, bekommt sie bei der Ankunft{wait}{critical}.",
     s_deliver: "{applies}: wird zusätzlich sofort auf {channels} gesendet.",
     s_fallback: "{applies}: wenn {when}, wird stattdessen auf {channels} gesendet.",
     s_summarize_every: "{applies}: zurückgehalten, und eine Zusammenfassung wird {n} Min. nach der ersten zurückgehaltenen Meldung gesendet{critical}.",
@@ -336,7 +336,7 @@ export const STRINGS = {
     s_escalation: "{applies} : si personne ne confirme en {n} min, il est aussi envoyé sur {channels}.",
     s_reminder: "{applies} : tant que personne ne confirme, la notification est répétée toutes les {n} min, au plus {m} fois{channels}.",
     s_quiet_hours: "{applies} : entre {from} et {to}{days}, les livraisons hors tableau de bord sont {action}{critical}.",
-    s_away: "{applies} : une personne qui n'est pas à la maison le reçoit à son arrivée{wait}.",
+    s_away: "{applies} : une personne qui n'est pas à la maison le reçoit à son arrivée{wait}{critical}.",
     s_deliver: "{applies} : il est aussi envoyé tout de suite sur {channels}.",
     s_fallback: "{applies} : si {when}, il est envoyé sur {channels} à la place.",
     s_summarize_every: "{applies} : retenu, et un résumé est envoyé {n} min après le premier message retenu{critical}.",
@@ -445,7 +445,7 @@ export const STRINGS = {
     s_escalation: "{applies}: si nadie confirma en {n} min, se envía también por {channels}.",
     s_reminder: "{applies}: mientras nadie confirme, la notificación se repite cada {n} min, como máximo {m} veces{channels}.",
     s_quiet_hours: "{applies}: entre {from} y {to}{days}, las entregas fuera del panel se {action}{critical}.",
-    s_away: "{applies}: quien no está en casa lo recibe al llegar{wait}.",
+    s_away: "{applies}: quien no está en casa lo recibe al llegar{wait}{critical}.",
     s_deliver: "{applies}: se envía además de inmediato por {channels}.",
     s_fallback: "{applies}: si {when}, se envía por {channels} en su lugar.",
     s_summarize_every: "{applies}: retenido, y se envía un resumen {n} min después del primer mensaje retenido{critical}.",
@@ -601,7 +601,7 @@ export function toFlowData(values) {
       Object.assign(data, { from_time: values.from_time, to_time: values.to_time, days: [...values.days], action: values.action, critical_passes: Boolean(values.critical_passes) });
       break;
     case "away":
-      data.max_wait = values.max_wait || 0;
+      Object.assign(data, { max_wait: values.max_wait || 0, critical_passes: Boolean(values.critical_passes) });
       break;
     case "fallback":
       data.when = values.when;
@@ -770,7 +770,7 @@ function sentenceBase(values, t) {
       });
     }
     case "away":
-      return fill(t.s_away, { applies, wait: values.max_wait > 0 ? fill(t.s_wait, { n: values.max_wait }) : "" });
+      return fill(t.s_away, { applies, wait: values.max_wait > 0 ? fill(t.s_wait, { n: values.max_wait }) : "", critical: values.critical_passes ? t.s_critical_pass : "" });
     case "fallback":
       return fill(t.s_fallback, { applies, when: t[`w_${values.when}`], channels });
     case "deliver":
@@ -961,6 +961,7 @@ export function mount(container, ctx) {
         break;
       case "away":
         number("max_wait", t.max_wait, 0);
+        does.append(ui.checkbox(t.critical_passes, values.critical_passes, (on) => { values.critical_passes = on; paint(); }));
         break;
       case "deliver":
         sourceControls("deliver");

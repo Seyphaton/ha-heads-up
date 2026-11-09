@@ -443,7 +443,7 @@ A condition reacts the moment an entity matches. "Door open for 5 minutes" needs
 - **Where the timer is cancelled:** the banner is replaced, cleared, expires or is evicted (`_remove`); the manager unloads; a rule is rebuilt or removed.
 - **Restart:** timers are not stored. A banner stored as shown stays shown. A waiting banner, and a rule that is true at setup, start the wait again (D-066). A rule that becomes true after its wait fires `heads_up_banner_created` and sets `updated_at` then. Setup finds the state without events (D-058), the later flip is an event.
 - **Rules and unavailable:** a rule treats an unreadable result as false (D-053), so it also cancels the wait.
-- **`create_banner` response:** a banner whose condition is false, or true but still waiting for `for`, has status `waiting`. `wait_for_condition` and the status `condition_false` were removed (D-188).
+- **`create_banner` response:** a banner whose condition is false, or true but still waiting for `for`, has status `waiting`. `wait_for_condition` and the status `condition_false` were removed (D-188); the schema still accepts the field, ignores it and raises the repair issue `wait_for_condition_removed` (D-192).
 - **Template condition:** `condition.template` (string, not empty, must parse) replaces `entity_id`, `operator`, `state` and `attribute`; mixing them is a validation error. The result is the template's boolean (`result_as_boolean`). `for` can be added. A render error gives no result: unchanged, like an unavailable entity (D-061). The entity-exists check of `create` applies to `entity_id` conditions only.
 - **Tracking:** `async_track_template_result` per banner with a template condition (`_template_trackers`), set up in `create` and `async_load`, removed with the banner. It re-evaluates when entities read by the template change and for time functions, which the state listener could not do (D-067). Rule messages keep their own entity tracking (D-063).
 - **Card and payloads:** unchanged; `condition` is never sent to the card.
@@ -542,6 +542,10 @@ How both sources stay equal:
 | acknowledgement (card button, push button, `heads_up/acknowledge`), escalation and reminder by policy | yes | yes: the policies of the tag `rule` apply, and the acknowledgement starts again each time the condition turns false and true |
 | rate limits and ignored identical updates (D-123) | yes, on every delivery | yes, on every delivery that a policy makes for a rule message |
 | Deliver, Quiet hours, Away, Fallback and Summarize policies (D-121) | yes | yes, by severity and tag `rule` (D-100); a Summarize policy holds a rule message on every channel |
+| button fields `destructive`, `require_auth` (D-195) | yes | yes (one `ACTIONS_SCHEMA` for the action and the rule form); the red text is in the card and the popup, the push flags are the Companion keys of the action |
+| event `heads_up_banner_action` carries `person` and `channel` (D-195) | yes | yes (one `BannerManager.press`) |
+| `treat_unavailable_as` in a condition (D-195) | yes | exception: a rule treats an unavailable or removed entity as not true (D-053); a template rule can show a banner for an unavailable entity (`{{ states('x') in ['unavailable', 'unknown'] }}`) |
+| `audience` and `recipients` of the banner (D-195) | yes (`create_banner`, `notify`) | exception: a rule keeps `people`; an audience resolved when the rule is built would go stale, because a rule lives as long as its condition (D-195) |
 | panel Test send and trace | yes (message id) | trace yes (`rule_<id>`); Test send previews a call, not a stored rule |
 | buttons stop acting once the message has ended (D-125) | yes | yes (one check in `BannerManager.press`; `tests/test_ended_buttons.py`) |
 | image under the message (D-127) | yes | yes (Image field of the rule form; `tests/hub/test_image.py`) |
@@ -668,7 +672,7 @@ A separate integration consuming events (events lack recipients and silent trans
 
 ### 23.14 Policy fields and channel settings (D-097)
 - Escalation: `after` (minutes), `notify` (`channels` and `to`, a target per channel), `dismiss_counts`.
-- Quiet hours: `from`, `to`, `days`, `action` (`wait`, `quiet`, `drop`), `critical_passes`.
+- Quiet hours: `from`, `to`, `days`, `action` (`wait`, `quiet`, `drop`), `critical_passes`. Away: `max_wait`, `critical_passes` (D-192).
 - Fallback: `when` (`no_audience`, `failed`, `both`), `notify` as above.
 - Reminder: `every` (minutes), `max`.
 - Away: `max_wait` (default: the message lifetime).

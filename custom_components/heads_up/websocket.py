@@ -505,6 +505,60 @@ async def ws_hub_test_send(
     connection.send_result(msg["id"], result)
 
 
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/hub_plan_yaml",
+        vol.Required("yaml"): str,
+        vol.Optional("variables", default=""): str,
+    }
+)
+@require_admin
+@async_response
+async def ws_hub_plan_yaml(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The dry run of a pasted call, templates rendered with sample values (D-194)."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    if manager.hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    try:
+        payload = panel_test.render_call(hass, msg["yaml"], msg["variables"])
+        message = await panel_test.build(manager.hub, payload)
+    except panel_test.TestSendError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    connection.send_result(msg["id"], {**await manager.hub.preview(message), "call": payload})
+
+
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/hub_test_send_yaml",
+        vol.Required("yaml"): str,
+        vol.Optional("variables", default=""): str,
+    }
+)
+@require_admin
+@async_response
+async def ws_hub_test_send_yaml(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The one real send of a pasted call, with the test marker (D-194)."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    if manager.hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    try:
+        payload = panel_test.render_call(hass, msg["yaml"], msg["variables"])
+        result = await panel_test.send(hass, manager.hub, payload)
+    except panel_test.TestSendError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    connection.send_result(msg["id"], result)
+
+
 @websocket_command({vol.Required("type"): "heads_up/hub_usage", vol.Required("name"): str})
 @require_admin
 @callback
@@ -524,6 +578,7 @@ def ws_hub_usage(hass: HomeAssistant, connection: ActiveConnection, msg: dict[st
         vol.Required("type"): "heads_up/action",
         vol.Required("banner_id"): str,
         vol.Required("key"): str,
+        vol.Optional("channel", default="banner"): vol.In(("banner", "popup")),
     }
 )
 @callback
@@ -531,7 +586,7 @@ def ws_action(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, 
     if (manager := _manager(hass, connection, msg["id"])) is None:
         return
     try:
-        manager.press(msg["banner_id"], connection.user.id, msg["key"])
+        manager.press(msg["banner_id"], connection.user.id, msg["key"], msg["channel"])
     except HeadsUpError as err:
         connection.send_error(msg["id"], err.code, str(err))
         return
@@ -661,6 +716,8 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_hub_usage,
         ws_hub_plan,
         ws_hub_test_send,
+        ws_hub_plan_yaml,
+        ws_hub_test_send_yaml,
         ws_panel_config,
         ws_channels_set,
         ws_panel_overview,

@@ -62,7 +62,14 @@ class PolicySwitch(SwitchEntity):
         if policy is not None:
             self._attr_is_on = policy.enabled
             self._attr_name = f"Heads Up policy {policy.name}"
-            self._attr_extra_state_attributes = {"policy": policy.name, "type": policy.type}
+            attributes = policy.describe()
+            # Position in the list of policies; "first" mode uses the first one that matches.
+            hub = getattr(getattr(self._entry, "runtime_data", None), "hub", None)
+            if hub is not None:
+                ids = [p.subentry_id for p in hub.policies.ordered()]
+                if self._subentry_id in ids:
+                    attributes["order"] = ids.index(self._subentry_id) + 1
+            self._attr_extra_state_attributes = attributes
 
     @callback
     def _changed(self) -> None:

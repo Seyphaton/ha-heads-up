@@ -141,6 +141,7 @@ async def test_the_dry_run_fires_nothing(
         {
             "type": "heads_up/hub_plan",
             "message": "x",
+            "severity": "info",
             "channels": ["push"],
             "to": {"push": {"recipients": ["person.anna"]}},
         }

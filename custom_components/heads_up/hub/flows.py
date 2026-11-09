@@ -561,6 +561,7 @@ class PolicySubentryFlow(_HubFlow):
             )
         elif kind == "away":
             data["max_wait"] = int(user_input.get("max_wait") or 0)
+            data["critical_passes"] = bool(user_input.get("critical_passes", True))
         elif kind == "summarize":
             data["include_critical"] = bool(user_input.get("include_critical", False))
             if user_input.get("summary_at"):

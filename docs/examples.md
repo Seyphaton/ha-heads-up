@@ -21,7 +21,7 @@ data:
 ```
 
 - The `id` makes a second call replace the banner instead of adding another one.
-- `severity` is one of `success`, `info` (the default), `warning` and `critical`. It sets the color, the icon and the sort order. `critical` sorts first and is never removed to make room for new messages.
+- `severity` is required in `heads_up.notify`. It is one of `success`, `info`, `warning` and `critical`. It sets the color, the icon and the sort order. `critical` sorts first and is never removed to make room for new messages.
 - `timeout` takes seconds or a duration. `timeout: {minutes: 30}` ends the message after 30 minutes, `timeout: 0` keeps it until someone closes or clears it.
 
 ### A push to everyone at home
@@ -79,6 +79,7 @@ actions:
       id: window_bedroom
       title: Window open
       message: The bedroom window has been open for 5 minutes.
+      severity: warning
       channels: [banner, push]
       audience: At home
       timeout: 0
@@ -173,6 +174,7 @@ data:
   id: garage_open
   title: Garage door open
   message: Tap to close it.
+  severity: warning
   channels: [banner]
   tap_action:
     action: perform-action
@@ -332,7 +334,7 @@ An audience is a set of people, and speech goes to a speaker in a place. Heads U
 
 ### What does severity do?
 
-A message has one of four severities: success, info (the default), warning and critical. On the banner it sets the color, the icon and the order, critical first. On a push it sets the level: success and info are passive, warning is normal, critical is time-sensitive until you set the level critical. The popup style is set per severity, and policies can match on it.
+A message has one of four severities: success, info, warning and critical. On the banner it sets the color, the icon and the order, critical first. On a push it sets the level: success and info are passive, warning is normal, critical is time-sensitive until you set the level critical. The popup style is set per severity, and policies can match on it.
 
 ### What are tags for?
 

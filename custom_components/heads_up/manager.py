@@ -359,8 +359,9 @@ class BannerManager:
             self._emit(Kind.HIDDEN, banner, Reason.DISMISSED, user_id)
 
     @callback
-    def press(self, banner_id: str, user_id: str, key: str) -> None:
-        """A viewer pressed a banner button: fire the event, then dismiss if the button says so."""
+    def press(self, banner_id: str, user_id: str, key: str, channel: str = "banner") -> None:
+        """A viewer pressed a banner button: fire the event, then dismiss if the button says so.
+        `channel` says where it was pressed: banner, popup or push (D-195)."""
         banner = self.rules.get(banner_id) or self._get(banner_id)
         button = next((a for a in banner.actions if a["key"] == key), None)
         if button is None:
@@ -369,7 +370,15 @@ class BannerManager:
             raise HeadsUpError("not_found", f"Banner {banner_id} not found")
         if self.options.get(OPT_DISABLE_ENDED_BUTTONS, True) and self._ended(banner, user_id):
             raise HeadsUpError("message_ended", f"Banner {banner_id} has ended")
-        self._fire(EVENT_ACTION, banner, key=key, user_id=user_id)
+        persons = self.hub.resolver.persons_of_user(user_id) if self.hub is not None else []
+        self._fire(
+            EVENT_ACTION,
+            banner,
+            key=key,
+            user_id=user_id,
+            person=persons[0] if persons else None,
+            channel=channel,
+        )
         if button["dismiss"]:
             self._dismiss_one(banner_id, user_id)
             self._changed()
@@ -734,8 +743,11 @@ class BannerManager:
         if "template" in condition:
             return self._render_condition(condition["template"])
         state = self.hass.states.get(condition["entity_id"])
-        if state is None or state.state in _NO_STATE:
+        if state is None:
             return None
+        if state.state in _NO_STATE:
+            # No value to judge, unless the call says what an unavailable entity counts as (D-195).
+            return {"met": True, "not_met": False}.get(str(condition.get("treat_unavailable_as")))
         if (attribute := condition.get("attribute")) is not None:
             raw = state.attributes.get(attribute)
             # None and empty containers have no value; everything else is compared as text.

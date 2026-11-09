@@ -326,6 +326,12 @@
       "message": "Die Richtlinie \"{name}\" gibt es nicht. Meintest du \"{suggestion}\"? Gültige Richtlinien: {valid}."
     }
   },
+  "issues": {
+    "wait_for_condition_removed": {
+      "title": "Ein entferntes Feld wird noch verwendet",
+      "description": "Eine Automation oder ein Skript ruft Heads Up mit `wait_for_condition` auf. Das Feld wurde in 1.0.0 entfernt und wird jetzt ignoriert: Eine Meldung, deren Bedingung falsch ist, wartet, bis die Bedingung wahr ist. Entferne das Feld aus dem Aufruf. Soll nur gesendet werden, wenn eine Bedingung jetzt wahr ist, setze diese Bedingung vor die Aktion in die Automation."
+    }
+  },
   "services": {
     "create_banner": {
       "name": "Banner erstellen",
@@ -391,9 +397,17 @@
           "name": "Modus",
           "description": "Einmal zeigen: Das Banner wird einmal gezeigt. Mit einer Bedingung wartet es, bis die Bedingung wahr ist, und endet endgültig, wenn sie falsch wird; ohne Bedingung bleibt es bis zu seinem Zeitlimit, einem Schließen oder einem Löschen.\n\nWiederkehrend: braucht eine Bedingung. Das Banner wird gezeigt, wenn die Bedingung wahr ist, ausgeblendet, wenn sie falsch ist, und wieder gezeigt, wenn sie erneut wahr wird. Standard: Einmal zeigen."
         },
+        "audience": {
+          "name": "Zielgruppe",
+          "description": "Nur für die Mitglieder dieser Zielgruppe, wie sie jetzt ist. Gib entweder Zielgruppe, Empfänger oder Personen an."
+        },
+        "recipients": {
+          "name": "Empfänger",
+          "description": "Nur für diese Personen. Gib entweder Zielgruppe, Empfänger oder Personen an."
+        },
         "people": {
           "name": "Personen",
-          "description": "Nur diesen Personen zeigen. Standard: allen."
+          "description": "Dasselbe wie Empfänger; bleibt für bestehende Automationen."
         },
         "tap_action": {
           "name": "Tipp-Aktion",
@@ -469,6 +483,10 @@
           "name": "Richtlinien automatisch zuordnen",
           "description": "An: Richtlinien, die zu Schweregrad oder Tags der Meldung passen, gelten automatisch. Aus: Es gelten nur die manuellen Richtlinien, ohne manuelle Richtlinie keine. Manuelle Richtlinien gelten immer."
         },
+        "dry_run": {
+          "name": "Probelauf",
+          "description": "An: Es wird nichts gesendet oder gespeichert. Die Antwort nennt je Kanal und Empfänger, ob die Meldung gesendet, gehalten oder übersprungen würde, warum, und die Push-Stufe. Zum Testen eines Aufrufs."
+        },
         "policy": {
           "name": "Manuelle Richtlinie",
           "description": "Richtlinien, die du von Hand zuweist. Sie gelten zusätzlich zu den automatischen Richtlinien, unabhängig von deren eigenen Schweregraden und Tags."
@@ -543,7 +561,7 @@
         },
         "mail_subject": {
           "name": "Mail-Betreff",
-          "description": "Betreff der Mail dieser Nachricht, statt der Vorlage auf der Seite Kanäle. Platzhalter: {severity}, {title}, {message}, {person}, {id}, {tag}. {person} ist der Name des Empfängers, und jeder Empfänger bekommt eine eigene Mail. Nur mit dem Kanal Mail. Lass das Häkchen aus, um die Vorlage der Seite Kanäle zu nutzen."
+          "description": "Betreff der Mail dieser Nachricht, statt der Vorlage auf der Seite Kanäle. Platzhalter: {severity}, {title}, {message}, {person}, {person_id}, {id}, {tag}. {person} ist der Name des Empfängers, und jeder Empfänger bekommt eine eigene Mail. Nur mit dem Kanal Mail. Lass das Häkchen aus, um die Vorlage der Seite Kanäle zu nutzen."
         },
         "mail_body": {
           "name": "Mail-Text",
@@ -601,7 +619,7 @@
         },
         "recipients": {
           "name": "Empfänger",
-          "description": "Personen, Telefone, Lautsprecher oder Gruppen, je nach Kanal. Entweder Zielgruppe oder Empfänger angeben."
+          "description": "Personen, deren Handys sie bekommen. Gib entweder Zielgruppe oder Empfänger an."
         },
         "audience": {
           "name": "Zielgruppe",
@@ -659,7 +677,7 @@
         },
         "recipients": {
           "name": "Empfänger",
-          "description": "Personen, Telefone, Lautsprecher oder Gruppen, je nach Kanal. Entweder Zielgruppe oder Empfänger angeben."
+          "description": "Personen, die sie als Popup bekommen. Gib entweder Zielgruppe oder Empfänger an."
         },
         "audience": {
           "name": "Zielgruppe",
@@ -713,7 +731,21 @@
         },
         "recipients": {
           "name": "Empfänger",
-          "description": "Personen, Telefone, Lautsprecher oder Gruppen, je nach Kanal. Entweder Zielgruppe oder Empfänger angeben."
+          "description": "Lautsprecher und Assist-Satelliten. Eine Lautsprechergruppe oder ein Bereich wird in YAML geschrieben."
+        }
+      }
+    },
+    "get_trace": {
+      "name": "Verlauf abrufen",
+      "description": "Gibt den Zustellverlauf zurück, neueste zuerst: was mit einer Meldung je Kanal und Empfänger geschah und warum. Der Verlauf übersteht einen Neustart.",
+      "fields": {
+        "message_id": {
+          "name": "Meldungs-ID",
+          "description": "Nur die Einträge dieser Meldung."
+        },
+        "limit": {
+          "name": "Limit",
+          "description": "Wie viele Einträge höchstens, bis 1000."
         }
       }
     }

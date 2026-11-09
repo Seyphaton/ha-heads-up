@@ -36,6 +36,7 @@ data:
 data:
   message: Doorbell
   tts_message: Someone is at the door
+  severity: info
   channels: [speak]
   speakers: [media_player.kitchen]
   policy: none`,

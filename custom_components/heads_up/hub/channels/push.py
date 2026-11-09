@@ -165,13 +165,21 @@ class PushChannel:
 
     def _buttons(
         self, message: Banner, target: Target, platform: str
-    ) -> tuple[list[dict[str, str]], str]:
+    ) -> tuple[list[dict[str, Any]], str]:
         who = target.person or target.key
-        own = [
-            {"action": button_id(message.id, who, OWN_PREFIX + b["key"]), "title": b["label"]}
-            for b in message.actions
-        ]
-        extra: list[dict[str, str]] = []
+        own: list[dict[str, Any]] = []
+        for b in message.actions:
+            button: dict[str, Any] = {
+                "action": button_id(message.id, who, OWN_PREFIX + b["key"]),
+                "title": b["label"],
+            }
+            # N-97: both are booleans of the Companion action object.
+            if b.get("destructive"):
+                button["destructive"] = True
+            if b.get("require_auth"):
+                button["authenticationRequired"] = True
+            own.append(button)
+        extra: list[dict[str, Any]] = []
         if target.ack_button:
             extra.append({"action": button_id(message.id, who, "ack"), "title": self._text("ack")})
         if message.snoozable:
@@ -190,7 +198,7 @@ class PushChannel:
         # Too many for the platform: keep what a household needs most. Acknowledge and Dismiss
         # first, then the message's own buttons in order, Snooze last; the kept ones stay in
         # display order.
-        def keep_rank(button: dict[str, str]) -> int:
+        def keep_rank(button: dict[str, Any]) -> int:
             kind = button["action"].rsplit(":", 1)[-1]
             ranks = {"ack": 0, "dismiss": 1, "snooze": 10_000}
             if kind in ranks:
@@ -299,7 +307,7 @@ class PushChannel:
             elif action == "ack":
                 manager.acknowledge(message_id, user_id)
             elif action.startswith(OWN_PREFIX):
-                manager.press(message_id, user_id, action.removeprefix(OWN_PREFIX))
+                manager.press(message_id, user_id, action.removeprefix(OWN_PREFIX), "push")
             else:
                 return "unknown_action"
         except HeadsUpError as err:

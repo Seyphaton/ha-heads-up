@@ -56,6 +56,14 @@ export const STRINGS = {
     copied: "Copied.",
     copy_failed: "Copying is not possible here. Select the text.",
     send: "Send test",
+    yaml_in: "Test a pasted call",
+    yaml_in_hint: "Paste an action step or only its data. Templates such as {{ trigger.entity_id }} are rendered with the sample values below, as Home Assistant does before it calls the action, and the plan shows what would happen now. Nothing is sent by the plan.",
+    yaml_vars: "Sample values (YAML, optional)",
+    yaml_vars_hint: "The variables the templates can use, for example trigger with entity_id and to_state.",
+    plan_pasted: "Show plan",
+    send_pasted: "Send test",
+    rendered: "The call after the templates are rendered",
+    push_level: "push level {level}",
     send_hint: "Sends one real message with the marker: the title starts with Test, the tag is test, and it ends after 10 minutes. Policies apply.",
     sent: "Sent {id}: {summary}",
     what_happened: "What happened",
@@ -139,6 +147,14 @@ export const STRINGS = {
     copied: "Kopiert.",
     copy_failed: "Kopieren ist hier nicht möglich. Markiere den Text.",
     send: "Test senden",
+    yaml_in: "Einen eingefügten Aufruf testen",
+    yaml_in_hint: "Füge einen Aktionsschritt oder nur dessen Daten ein. Templates wie {{ trigger.entity_id }} werden mit den Beispielwerten unten gerendert, so wie Home Assistant es vor dem Aufruf der Aktion tut, und der Plan zeigt, was jetzt passieren würde. Der Plan sendet nichts.",
+    yaml_vars: "Beispielwerte (YAML, optional)",
+    yaml_vars_hint: "Die Variablen, die die Templates nutzen können, zum Beispiel trigger mit entity_id und to_state.",
+    plan_pasted: "Plan anzeigen",
+    send_pasted: "Test senden",
+    rendered: "Der Aufruf nach dem Rendern der Templates",
+    push_level: "Push-Stufe {level}",
     send_hint: "Sendet eine echte Meldung mit der Markierung: Der Titel beginnt mit Test, der Tag ist test, und sie endet nach 10 Minuten. Richtlinien gelten.",
     sent: "Gesendet {id}: {summary}",
     what_happened: "Was passiert ist",
@@ -222,6 +238,14 @@ export const STRINGS = {
     copied: "Copié.",
     copy_failed: "La copie n'est pas possible ici. Sélectionnez le texte.",
     send: "Envoyer le test",
+    yaml_in: "Tester un appel collé",
+    yaml_in_hint: "Collez une étape d'action ou seulement ses données. Les modèles comme {{ trigger.entity_id }} sont rendus avec les valeurs d'exemple ci-dessous, comme le fait Home Assistant avant d'appeler l'action, et le plan montre ce qui se passerait maintenant. Le plan n'envoie rien.",
+    yaml_vars: "Valeurs d'exemple (YAML, facultatif)",
+    yaml_vars_hint: "Les variables que les modèles peuvent utiliser, par exemple trigger avec entity_id et to_state.",
+    plan_pasted: "Afficher le plan",
+    send_pasted: "Envoyer le test",
+    rendered: "L'appel après le rendu des modèles",
+    push_level: "niveau push {level}",
     send_hint: "Envoie un vrai message avec le marqueur : le titre commence par Test, l'étiquette est test, et il se termine après 10 minutes. Les politiques s'appliquent.",
     sent: "Envoyé {id} : {summary}",
     what_happened: "Ce qui s'est passé",
@@ -305,6 +329,14 @@ export const STRINGS = {
     copied: "Copiado.",
     copy_failed: "No se puede copiar aquí. Selecciona el texto.",
     send: "Enviar prueba",
+    yaml_in: "Probar una llamada pegada",
+    yaml_in_hint: "Pega un paso de acción o solo sus datos. Las plantillas como {{ trigger.entity_id }} se renderizan con los valores de ejemplo de abajo, como hace Home Assistant antes de llamar a la acción, y el plan muestra qué pasaría ahora. El plan no envía nada.",
+    yaml_vars: "Valores de ejemplo (YAML, opcional)",
+    yaml_vars_hint: "Las variables que pueden usar las plantillas, por ejemplo trigger con entity_id y to_state.",
+    plan_pasted: "Mostrar el plan",
+    send_pasted: "Enviar la prueba",
+    rendered: "La llamada tras renderizar las plantillas",
+    push_level: "nivel push {level}",
     send_hint: "Envía un mensaje real con la marca: el título empieza por Test, la etiqueta es test y termina a los 10 minutos. Se aplican las políticas.",
     sent: "Enviado {id}: {summary}",
     what_happened: "Qué pasó",
@@ -569,7 +601,7 @@ export function mount(container, ctx) {
       }
       if (channel === "banner") who.append(el("div", { className: "hint", textContent: t.banner_hint }));
     }
-    root.append(content, callBox, behaviour, who, resultNode(), yamlNode());
+    root.append(content, callBox, behaviour, who, resultNode(), yamlNode(), pastedNode());
   }
 
   function resultNode() {
@@ -587,28 +619,36 @@ export function mount(container, ctx) {
       box.append(el("div", { className: "hint problems", textContent: fill(t.preview_failed, { text: result.error }) }));
       return box;
     }
-    if (result.held_for_summary) box.append(el("div", { className: "hint", textContent: fill(t.held_summary, { policy: result.held_for_summary }) }));
+    box.append(...planBody(result));
+    return box;
+  }
+
+  // The table, summary and timing of a plan; shared by the form and the pasted call.
+  function planBody(res) {
+    const nodes = [];
+    if (res.held_for_summary) nodes.push(el("div", { className: "hint", textContent: fill(t.held_summary, { policy: res.held_for_summary }) }));
     const head = el("tr", {}, [t.recipient, t.channel, t.result].map((text) => el("th", { textContent: text })));
     const now = Date.now();
-    const rows = result.rows.map((row) => {
-      const recipient = rowRecipient(row, result, data.choices, t);
+    const rows = res.rows.map((row) => {
+      const recipient = rowRecipient(row, res, data.choices, t);
       const via = row.via ? `${fill(t.via, { policy: row.via })} · ` : "";
       const words = [s.result[row.result] || row.result];
       if (row.result === "held" && row.until) words[0] = fill(t.held_until, { when: fmt.inTime(row.until, now, s) });
+      if (row.push_level) words.push(fill(t.push_level, { level: row.push_level }));
       if (row.reason && row.reason !== "summarize") words.push(fmt.reasonText(row.reason, s));
       if (row.note === "quiet") words.push(t.note_quiet);
       const to = row.address ? `${recipient} (${row.address})` : recipient;
       return el("tr", {}, [el("td", { textContent: via + to }), el("td", { textContent: row.channel ? channelLabel(row.channel) : "" }), el("td", { textContent: words.filter(Boolean).join(" · ") })]);
     });
-    box.append(el("table", {}, [el("thead", {}, [head]), el("tbody", {}, rows)]));
-    box.append(el("h2", { textContent: t.summary, style: "margin-top:12px" }), el("div", { textContent: summaryLine(result.rows, s) }));
-    box.append(el("h2", { textContent: t.policies_applied, style: "margin-top:12px" }));
-    box.append(el("div", { textContent: result.policies.length ? result.policies.map((p) => p.name).join(", ") : t.none_applied }));
-    box.append(el("h2", { textContent: t.ack_title, style: "margin-top:12px" }));
-    box.append(el("div", { textContent: ackText(result.acknowledge, t) }));
-    box.append(el("h2", { textContent: t.later, style: "margin-top:12px" }));
-    box.append(result.later.length ? el("ul", {}, result.later.map((step) => el("li", { textContent: laterText(step, t, s) }))) : el("div", { textContent: t.none_later }));
-    return box;
+    nodes.push(el("table", {}, [el("thead", {}, [head]), el("tbody", {}, rows)]));
+    nodes.push(el("h2", { textContent: t.summary, style: "margin-top:12px" }), el("div", { textContent: summaryLine(res.rows, s) }));
+    nodes.push(el("h2", { textContent: t.policies_applied, style: "margin-top:12px" }));
+    nodes.push(el("div", { textContent: res.policies.length ? res.policies.map((p) => p.name).join(", ") : t.none_applied }));
+    nodes.push(el("h2", { textContent: t.ack_title, style: "margin-top:12px" }));
+    nodes.push(el("div", { textContent: ackText(res.acknowledge, t) }));
+    nodes.push(el("h2", { textContent: t.later, style: "margin-top:12px" }));
+    nodes.push(res.later.length ? el("ul", {}, res.later.map((step) => el("li", { textContent: laterText(step, t, s) }))) : el("div", { textContent: t.none_later }));
+    return nodes;
   }
 
   function outcomeNode() {
@@ -657,6 +697,51 @@ export function mount(container, ctx) {
       box.append(clear);
     }
     return box;
+  }
+
+  // A pasted call: templates are rendered on the server with the sample values (D-194).
+  const pasted = { yaml: "", vars: "", result: null, error: "", notice: "" };
+
+  function pastedNode() {
+    const box = el("section", { className: "hu-pasted" }, [el("h2", { textContent: t.yaml_in })]);
+    box.append(el("div", { className: "hint", textContent: t.yaml_in_hint }));
+    const area = (key, rows) => {
+      const node = el("textarea", { rows, value: pasted[key], spellcheck: false, style: "width:100%;box-sizing:border-box;font-family:monospace" });
+      node.addEventListener("input", () => { pasted[key] = node.value; });
+      return node;
+    };
+    box.append(ui.field(t.yaml_in, area("yaml", 10)));
+    box.append(ui.field(t.yaml_vars, area("vars", 4), t.yaml_vars_hint));
+    const plan = el("button", { type: "button", textContent: t.plan_pasted });
+    plan.addEventListener("click", () => runPasted("heads_up/hub_plan_yaml"));
+    const send = el("button", { type: "button", className: "primary", textContent: t.send_pasted });
+    send.addEventListener("click", () => runPasted("heads_up/hub_test_send_yaml"));
+    box.append(el("div", { className: "row" }, [plan, send]));
+    if (pasted.error) box.append(el("div", { className: "hint problems", textContent: fill(t.preview_failed, { text: pasted.error }) }));
+    if (pasted.notice) box.append(el("div", { className: "hint", textContent: pasted.notice }));
+    if (pasted.result) {
+      box.append(el("h2", { textContent: t.rendered, style: "margin-top:12px" }), el("pre", { textContent: ui.toYaml({ action: "heads_up.notify", data: pasted.result.call }) }));
+      box.append(...planBody(pasted.result));
+    }
+    return box;
+  }
+
+  async function runPasted(command) {
+    pasted.error = "";
+    pasted.notice = "";
+    try {
+      const reply = await hass.callWS({ type: command, yaml: pasted.yaml, variables: pasted.vars });
+      if (command === "heads_up/hub_plan_yaml") {
+        pasted.result = reply;
+      } else {
+        pasted.notice = fill(t.sent, { id: reply.id, summary: plannedLine(reply.channels, s) });
+        testId = reply.id;
+      }
+    } catch (err) {
+      pasted.result = null;
+      pasted.error = err?.message || String(err?.code || "error");
+    }
+    root.querySelector("section.hu-pasted")?.replaceWith(pastedNode());
   }
 
   function schedule() {

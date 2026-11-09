@@ -204,6 +204,7 @@ describe("policy editor", () => {
 
   it("sends the fields of each other type", () => {
     expect(policyData({ ...blankPolicy("reminder"), name: "Nag", channels: [] })).toMatchObject({ every_minutes: 30, max_count: 3, channels: [] });
+    expect(policyData({ ...blankPolicy("away"), name: "Back" })).toMatchObject({ max_wait: 0, critical_passes: true });
     expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).toMatchObject({ from_time: "22:00:00", to_time: "07:00:00", days: [], action: "quiet", critical_passes: true });
     expect(policyData({ ...blankPolicy("away"), name: "Back", max_wait: 0 })).toMatchObject({ max_wait: 0 });
     expect(policyData({ ...blankPolicy("fallback"), name: "Backup", channels: ["speak"], speak_recipients: ["media_player.k"] })).toMatchObject({ when: "no_audience", channels: ["speak"], speak_recipients: ["media_player.k"] });
@@ -259,7 +260,8 @@ describe("policy editor", () => {
     expect(sentence(water, t)).toBe("Messages with severity Critical and tag water: if nobody acknowledges within 5 min, it is also sent on Push, Persistent Notification.");
     expect(sentence({ ...blankPolicy("quiet_hours"), days: ["sat", "sun"] }, t)).toBe("Every message: between 22:00 and 07:00 on Saturday, Sunday, deliveries outside the dashboard are sent quietly, critical messages pass.");
     expect(sentence({ ...blankPolicy("reminder"), channels: ["push"] }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times, only on Push.");
-    expect(sentence({ ...blankPolicy("away"), max_wait: 30 }, t)).toBe("Every message: a person who is not home gets it when they arrive, for at most 30 min.");
+    expect(sentence({ ...blankPolicy("away"), max_wait: 30 }, t)).toBe("Every message: a person who is not home gets it when they arrive, for at most 30 min, critical messages pass.");
+    expect(sentence({ ...blankPolicy("away"), critical_passes: false }, t)).toBe("Every message: a person who is not home gets it when they arrive.");
     expect(sentence({ ...blankPolicy("fallback"), when: "both", channels: ["persistent"] }, t)).toBe("Every message: if the audience is empty or delivery fails, it is sent on Persistent Notification instead.");
     expect(sentence({ ...blankPolicy("deliver"), severities: ["critical"], channels: ["push"] }, t)).toBe("Messages with severity Critical: it is also sent at once on Push.");
     expect(sentence({ ...blankPolicy("summarize"), include_critical: true }, t)).toBe("Every message: held, and one summary is sent 60 min after the first held message, critical messages included.");

@@ -112,6 +112,7 @@ POLICY_CHANNELS: Final = (
 TIMER_CHANNEL: Final = "timer"  # ledger rows of this channel hold escalation and reminder due times
 GROUP_SUFFIX: Final = " (group)"  # how a recipient group is named in calls
 PRESENCE_KEY: Final = "heads_up.presence"
+TRACE_KEY: Final = "heads_up.trace"  # the delivery trace survives a restart (D-194)
 # Built in, not stored (D-080). Names are the ones calls use.
 # A banner whose audience is empty when it is created is aimed at this person, who does not exist:
 # an empty `people` list would show it to everyone (D-131).
@@ -151,7 +152,7 @@ PROFILE_CHANNELS: Final = (
 DEFAULT_PROFILE_CHANNELS: Final = ("banner", "push", "popup")  # mail is opt-in per person (D-129)
 MAIL_GLOBAL: Final = "Global address"  # the recipient name of the shared mail address (D-129)
 MAIL_GLOBAL_KEY: Final = "mail:global"  # its ledger key
-MAIL_PLACEHOLDERS: Final = ("severity", "title", "message", "person", "id", "tag")
+MAIL_PLACEHOLDERS: Final = ("severity", "title", "message", "person", "person_id", "id", "tag")
 MAX_MAIL_SUBJECT: Final = 200
 MAX_MAIL_BODY: Final = 2000
 MAX_MAIL_ADDRESS: Final = 254
