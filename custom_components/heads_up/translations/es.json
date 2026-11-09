@@ -540,6 +540,14 @@
         "snooze_options": {
           "name": "Opciones de posposición",
           "description": "Hasta 6 duraciones de posposición, de 1 minuto a 7 días.\n\nEjemplo:\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "mail_subject": {
+          "name": "Asunto del correo",
+          "description": "Asunto del correo de este mensaje, en lugar de la plantilla de la página Canales. Variables: {severity}, {title}, {message}, {person}, {id}, {tag}. {person} es el nombre del destinatario, y cada destinatario recibe su propio correo. Solo con el canal mail. Deja la casilla sin marcar para usar la plantilla de la página Canales."
+        },
+        "mail_body": {
+          "name": "Texto del correo",
+          "description": "Texto del correo de este mensaje, en lugar de la plantilla de la página Canales. Las mismas variables que el asunto del correo. Solo con el canal mail. Deja la casilla sin marcar para usar la plantilla de la página Canales."
         }
       }
     },

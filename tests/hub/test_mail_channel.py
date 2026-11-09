@@ -3,6 +3,7 @@
 import logging
 from typing import Any
 
+import probatio as vol
 import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.config_entries import ConfigSubentry
@@ -374,3 +375,68 @@ async def test_the_preview_flags_a_missing_mail_service(
     )
     (row,) = [r for r in reply["result"]["rows"] if r["channel"] == "mail"]
     assert (row["result"], row["reason"]) == ("failed", "no_mail_service")
+
+
+async def test_a_message_can_bring_its_own_subject_and_body_for_every_recipient(
+    hass: HomeAssistant, entry: MockConfigEntry, mailbox: list[ServiceCall]
+) -> None:
+    opt_in(hass, entry, "person.anna", "anna@example.com")
+    opt_in(hass, entry, "person.ben", "ben@example.com")
+    for person, name in (("person.anna", "Anna"), ("person.ben", "Ben")):
+        state = hass.states.get(person)
+        assert state is not None
+        hass.states.async_set(person, state.state, {**state.attributes, "friendly_name": name})
+    await mail(
+        hass,
+        entry,
+        "person.anna",
+        "person.ben",
+        title="Alarm",
+        mail_subject="{person} - {severity} - {title}",
+        mail_body="{title}: {message}",
+    )
+    assert sorted((c.data["title"], c.data["message"]) for c in mailbox) == [
+        ("Anna - Critical - Alarm", "Alarm: Door open"),
+        ("Ben - Critical - Alarm", "Alarm: Door open"),
+    ]
+
+
+async def test_a_message_template_leaves_the_page_templates_for_other_messages(
+    hass: HomeAssistant, entry: MockConfigEntry, mailbox: list[ServiceCall]
+) -> None:
+    opt_in(hass, entry, "person.anna", "anna@example.com")
+    await mail(hass, entry, "person.anna", id="own", mail_subject="Own subject")
+    await mail(hass, entry, "person.anna", id="plain")
+    assert [c.data["title"] for c in mailbox] == ["Own subject", "Critical: Door open"]
+
+
+@pytest.mark.parametrize(
+    ("extra", "channels"),
+    [
+        ({"mail_subject": "{nope}"}, ["mail"]),
+        ({"mail_body": ""}, ["mail"]),
+        ({"mail_subject": "x" * 201}, ["mail"]),
+        ({"mail_subject": "{person}"}, ["popup"]),
+    ],
+)
+async def test_a_bad_message_template_or_a_call_without_mail_is_refused(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mailbox: list[ServiceCall],
+    extra: dict[str, str],
+    channels: list[str],
+) -> None:
+    with pytest.raises(vol.Invalid):
+        await hass.services.async_call(
+            DOMAIN,
+            "notify",
+            {
+                "message": "m",
+                "channels": channels,
+                "to": {channels[0]: {"recipients": ["person.anna"]}},
+                **extra,
+            },
+            blocking=True,
+            return_response=True,
+        )
+    assert mailbox == []

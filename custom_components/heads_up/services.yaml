@@ -214,6 +214,15 @@ notify:
       example: user
       selector: *id014
     snooze_options: *id015
+    mail_subject:
+      example: '{person}'
+      selector:
+        text: {}
+    mail_body:
+      example: '{title}: {message}'
+      selector:
+        text:
+          multiline: true
 push:
   fields:
     message: *id003

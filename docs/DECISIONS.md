@@ -1204,3 +1204,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 ## D-190 Pre-release 1.0.0-alpha.7 (2026-11-06)
 - Decision (maintainer): prepare a seventh pre-release on the branch `hub/h9e-wizard`. It carries the `notify` simplification (shared recipients, audience and policy dropdowns from sensors and switches, `dismiss` and `snooze`, manual policies, default severity info, D-183 to D-189) and the breaking condition change for 1.0.0 (D-188). Manifest `1.0.0-alpha.7`, changelog section dated 2026-11-06. The tag, the push of the tag and the GitHub pre-release wait for the maintainer's explicit request (D-020).
 - Blast radius: manifest version only; the card URL carries the version, so browsers fetch the card again after the restart (D-050).
+
+## D-191 Mail subject and body per message (2026-11-09)
+- Decision (maintainer, variant A of five): `heads_up.notify` takes `mail_subject` and `mail_body`. Each replaces the template from the Channels page for that one message; an empty field keeps the page template. The placeholders and limits are those of the page templates (`check_subject`, `check_body`); an unknown placeholder, an empty text or more than 200 or 2000 characters is refused, and so is either field without `mail` in `channels`. `{person}` is the recipient, because the channel already sends one mail per recipient.
+- Order: both fields come last in the form and in `services.yaml`, after `snooze_options`; no existing field moved.
+- Parity (rule 9): only `notify` has channels, so `create_banner` and watch rules, which only show a banner, have no mail text and need no exception. Test send offers both fields while `mail` is chosen.
+- Rejected: named mail templates on the Channels page (B, larger rework, stays an option), a template per policy (C), per person (D), fixed formats in a dropdown (E).
+- Blast radius: new optional action fields only; stored messages without them load unchanged; no restart beyond the usual update.

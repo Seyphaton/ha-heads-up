@@ -57,6 +57,9 @@ class Banner:
     source: str = SOURCE_ACTION
     # Picture under the message: an http(s) URL or a path starting with `/` (D-127).
     image: str | None = None
+    # One message's own mail subject and body templates; empty: the Channels page templates.
+    mail_subject: str | None = None
+    mail_body: str | None = None
 
     @property
     def on_card(self) -> bool:
@@ -118,6 +121,8 @@ class Banner:
             "tts_message",
             "acknowledged_by",
             "source",
+            "mail_subject",
+            "mail_body",
         ):
             del data[key]
         snoozed_until = self.snoozed_for(user_id)

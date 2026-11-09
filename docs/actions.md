@@ -90,6 +90,15 @@ The setting Maximum number of stored messages (default 50) limits how many messa
 | `snooze_options` | list of durations, 1 minute to 7 days, at most 6 | setting Snooze choices on the banner, shipped as 15 minutes, 1 hour, 4 hours | The choices the banner offers. The push and the popup have one Snooze time, the setting Snooze time on push and popup. The timeout and the condition keep running while a message is snoozed. Creating the message again with the same `id`, or a recurring condition turning false and true again, ends all snoozes. |
 | `actions` | list of up to 3 buttons | none | Your own buttons. See [Buttons and snooze](#buttons-and-snooze). |
 
+### Mail text of this message
+
+| Field | Type | Default | Meaning |
+|---|---|---|---|
+| `mail_subject` | text, at most 200 characters | the subject template on the Channels page | The subject of the mail for this message only. It takes the placeholders `{severity}`, `{title}`, `{message}`, `{person}`, `{id}` and `{tag}`. Each recipient gets their own mail, so `{person}` is that recipient. Needs `mail` in `channels`. |
+| `mail_body` | text, at most 2000 characters | the body template on the Channels page | The body of the mail for this message only, with the same placeholders. Needs `mail` in `channels`. |
+
+For example, `mail_subject: "{person}"` with `mail_body: "{title}: {message}"` sends each person a mail whose subject is their name and whose body holds the title and the message. An unknown placeholder or an empty text is refused.
+
 ### Response
 
 | Key | Value |

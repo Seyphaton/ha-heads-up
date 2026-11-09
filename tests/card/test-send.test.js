@@ -81,6 +81,14 @@ describe("test send call", () => {
     expect(call.to).toEqual({ speak: { recipients: ["media_player.k"] } });
   });
 
+  it("sends the mail subject and text only when mail is a channel", () => {
+    expect(buildCall(values({ mail_subject: "{person}" })).mail_subject).toBeUndefined();
+    const call = buildCall(values({ channels: ["mail"], mail_subject: " {person} ", mail_body: "{title}: {message}" }));
+    expect(call.mail_subject).toBe("{person}");
+    expect(call.mail_body).toBe("{title}: {message}");
+    expect(buildCall(values({ channels: ["mail"] })).mail_subject).toBeUndefined();
+  });
+
   it("sends the target of each chosen channel and nothing for the others", () => {
     const call = buildCall(
       values({

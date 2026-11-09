@@ -540,6 +540,14 @@
         "snooze_options": {
           "name": "Snooze choices",
           "description": "Up to 6 snooze durations, 1 minute to 7 days.\n\nExample:\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "mail_subject": {
+          "name": "Mail subject",
+          "description": "Subject of this message's mail, instead of the template on the Channels page. Placeholders: {severity}, {title}, {message}, {person}, {id}, {tag}. {person} is the name of the recipient, and each recipient gets their own mail. Only used with the mail channel. Leave the checkbox unchecked to use the template from the Channels page."
+        },
+        "mail_body": {
+          "name": "Mail text",
+          "description": "Text of this message's mail, instead of the template on the Channels page. Same placeholders as Mail subject. Only used with the mail channel. Leave the checkbox unchecked to use the template from the Channels page."
         }
       }
     },

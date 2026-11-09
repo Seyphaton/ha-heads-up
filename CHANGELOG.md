@@ -4,6 +4,12 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Added
+- `heads_up.notify` takes `mail_subject` and `mail_body`: the subject and body of the mail for that one message, instead of the templates on the Channels page. Both use the same placeholders, and `{person}` is the recipient, so each person gets their own subject. Test send has both fields.
+
+### Fixed
+- Panel: a long policy name no longer pushes the buttons out of the policy list on a narrow screen.
+
 ## [1.0.0-alpha.7] - 2026-11-06
 
 ### Added

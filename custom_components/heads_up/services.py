@@ -43,6 +43,7 @@ from .const import (
     SNOOZE_SCOPES,
     SOURCE_ACTION,
 )
+from .hub.channels.mail import check_body, check_subject
 from .hub.engine import HubEngine, Planned
 from .hub.policies.matching import policy_names
 from .manager import BannerManager
@@ -190,6 +191,25 @@ IMAGE = vol.All(cv.string, vol.Length(min=1, max=MAX_IMAGE), _image)
 NAME = vol.All(cv.string, vol.Length(min=1, max=100))  # audience, recipient and policy names
 
 
+_MAIL_TEMPLATE_ERRORS = {
+    "mail_template_empty": "a mail template must not be empty",
+    "mail_template_too_long": "a mail template is too long",
+    "mail_template_placeholder": (
+        "a mail template allows only {severity}, {title}, {message}, {person}, {id} and {tag}"
+    ),
+}
+
+
+def _mail_template(check: Callable[[str], str | None]) -> Callable[[Any], str]:
+    def validate(value: Any) -> str:
+        text = cv.string(value)
+        if (code := check(text)) is not None:
+            raise vol.Invalid(_MAIL_TEMPLATE_ERRORS[code])
+        return text
+
+    return validate
+
+
 def _check_notify(data: dict[str, Any]) -> dict[str, Any]:
     """Shape of channels and targets (DESIGN §23.5). Names are checked in the handler."""
     channels = data["channels"]
@@ -208,6 +228,9 @@ def _check_notify(data: dict[str, Any]) -> dict[str, Any]:
             )
         if channel == "speak" and "audience" in target:
             raise vol.Invalid("speech takes recipients, not an audience", path=["to", channel])
+    for field_name in ("mail_subject", "mail_body"):
+        if field_name in data and "mail" not in channels:
+            raise vol.Invalid(f"{field_name} needs mail in channels", path=[field_name])
     for channel in ("push", "popup", "speak", "mail"):
         if channel in channels and channel not in to:
             hint = "speakers" if channel == "speak" else "recipients or audience"
@@ -365,6 +388,8 @@ NOTIFY_SCHEMA = vol.All(
                 cv.ensure_list, [vol.All(cv.string, vol.Length(min=1))], _check_policy
             ),
             vol.Optional("match_policies_automatically"): cv.boolean,
+            vol.Optional("mail_subject"): _mail_template(check_subject),
+            vol.Optional("mail_body"): _mail_template(check_body),
         }
     ),
     _map_interaction,

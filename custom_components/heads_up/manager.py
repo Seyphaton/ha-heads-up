@@ -251,6 +251,8 @@ class BannerManager:
             targets={k: dict(v) for k, v in data.get("targets", {}).items()},
             policy=data.get("policy"),
             tts_message=data.get("tts_message"),
+            mail_subject=data.get("mail_subject"),
+            mail_body=data.get("mail_body"),
             source=data.get("source", SOURCE_ACTION),
             # Kept across an update with the same severity; a new severity starts again (D-081).
             acknowledged_by=(

@@ -70,6 +70,8 @@ async def build(hub: HubEngine, payload: dict[str, Any]) -> Banner:
         targets={k: dict(v) for k, v in data.get("to", {}).items()},
         policy=data.get("policy"),
         tts_message=data.get("tts_message"),
+        mail_subject=data.get("mail_subject"),
+        mail_body=data.get("mail_body"),
     )
 
 

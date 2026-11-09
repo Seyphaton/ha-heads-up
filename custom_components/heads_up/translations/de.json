@@ -540,6 +540,14 @@
         "snooze_options": {
           "name": "Auswahl beim Zurückstellen",
           "description": "Bis zu 6 Zeitspannen zum Zurückstellen, 1 Minute bis 7 Tage.\n\nBeispiel:\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "mail_subject": {
+          "name": "Mail-Betreff",
+          "description": "Betreff der Mail dieser Nachricht, statt der Vorlage auf der Seite Kanäle. Platzhalter: {severity}, {title}, {message}, {person}, {id}, {tag}. {person} ist der Name des Empfängers, und jeder Empfänger bekommt eine eigene Mail. Nur mit dem Kanal Mail. Lass das Häkchen aus, um die Vorlage der Seite Kanäle zu nutzen."
+        },
+        "mail_body": {
+          "name": "Mail-Text",
+          "description": "Text der Mail dieser Nachricht, statt der Vorlage auf der Seite Kanäle. Dieselben Platzhalter wie beim Mail-Betreff. Nur mit dem Kanal Mail. Lass das Häkchen aus, um die Vorlage der Seite Kanäle zu nutzen."
         }
       }
     },

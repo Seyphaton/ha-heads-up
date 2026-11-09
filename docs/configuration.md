@@ -192,6 +192,8 @@ Subject and body are placeholder texts, not Home Assistant templates. The defaul
 
 Any other `{name}` is refused when you save. A subject has at most 200 characters, a body at most 2000. The notify service receives the subject as `title` and the body as `message`. For a shared mailbox that tells recipients apart by subject, give every person the mailbox as their address and set the subject to `{person}`.
 
+A single message can use its own subject and body with the `mail_subject` and `mail_body` fields of [`heads_up.notify`](actions.md#mail-text-of-this-message). They replace these two texts for that message only.
+
 A mail cannot be taken back: clearing, dismissing or ending the message sends nothing and removes nothing. An update does not send the mail again (`already_sent`). Speech cooldown and buttons do not apply; images and buttons are not sent. A failed call or a missing address fires `heads_up_delivery_failed` (see [Actions](actions.md#events)). A Quiet hours policy with the action Drop or Wait applies to mail.
 
 Delivery is the notify service's job: Heads Up knows only whether the call returned an error. After a mail went through the SMTP integration's notify service, the SMTP integration raises a repair that the service is deprecated and due to be removed in Home Assistant 2027.3. Mail was not tested with a real mail server.

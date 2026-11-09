@@ -8,6 +8,8 @@ export const STRINGS = {
     f_title: "Title (optional)",
     f_message: "Message",
     f_tts: "Spoken text (optional, speech only)",
+    f_mail_subject: "Mail subject (optional, mail only)",
+    f_mail_body: "Mail text (optional, mail only)",
     call: "The call",
     severity: "Severity",
     tag: "Tag (optional)",
@@ -89,6 +91,8 @@ export const STRINGS = {
     f_title: "Titel (optional)",
     f_message: "Meldung",
     f_tts: "Gesprochener Text (optional, nur Sprache)",
+    f_mail_subject: "Mail-Betreff (optional, nur Mail)",
+    f_mail_body: "Mail-Text (optional, nur Mail)",
     call: "Der Aufruf",
     severity: "Schweregrad",
     tag: "Tag (optional)",
@@ -170,6 +174,8 @@ export const STRINGS = {
     f_title: "Titre (facultatif)",
     f_message: "Message",
     f_tts: "Texte parlé (facultatif, voix seulement)",
+    f_mail_subject: "Objet du mail (facultatif, mail seulement)",
+    f_mail_body: "Texte du mail (facultatif, mail seulement)",
     call: "L'appel",
     severity: "Gravité",
     tag: "Étiquette (facultatif)",
@@ -251,6 +257,8 @@ export const STRINGS = {
     f_title: "Título (opcional)",
     f_message: "Mensaje",
     f_tts: "Texto hablado (opcional, solo voz)",
+    f_mail_subject: "Asunto del correo (opcional, solo correo)",
+    f_mail_body: "Texto del correo (opcional, solo correo)",
     call: "La llamada",
     severity: "Gravedad",
     tag: "Etiqueta (opcional)",
@@ -336,7 +344,7 @@ export function fill(template, params) {
 }
 
 export function blankValues() {
-  return { title: "", message: "", tts_message: "", severity: "info", tag: "", channels: ["banner"], policy: [], match_automatic: true, dismiss: "", snooze: "" };
+  return { title: "", message: "", tts_message: "", mail_subject: "", mail_body: "", severity: "info", tag: "", channels: ["banner"], policy: [], match_automatic: true, dismiss: "", snooze: "" };
 }
 
 // The `notify` call the values describe: only what is set, targets only for the chosen channels.
@@ -344,6 +352,8 @@ export function buildCall(values) {
   const data = { message: String(values.message).trim(), severity: values.severity, channels: [...values.channels] };
   if (String(values.title).trim()) data.title = String(values.title).trim();
   if (values.channels.includes("speak") && String(values.tts_message).trim()) data.tts_message = String(values.tts_message).trim();
+  if (values.channels.includes("mail") && String(values.mail_subject || "").trim()) data.mail_subject = String(values.mail_subject).trim();
+  if (values.channels.includes("mail") && String(values.mail_body || "").trim()) data.mail_body = String(values.mail_body).trim();
   if (String(values.tag).trim()) data.tag = String(values.tag).trim();
   // The default (automatic policies apply) is left out of the YAML; one manual policy is a string.
   if (values.match_automatic === false) data.match_policies_automatically = false;
@@ -522,6 +532,11 @@ export function mount(container, ctx) {
     content.append(ui.field(t.f_title, ui.textInput(values.title, (v) => { values.title = v; change(); })));
     content.append(ui.field(t.f_message, ui.textInput(values.message, (v) => { values.message = v; change(); }, { style: "max-width:100%" })));
     if (values.channels.includes("speak")) content.append(ui.field(t.f_tts, ui.textInput(values.tts_message, (v) => { values.tts_message = v; change(); }, { style: "max-width:100%" })));
+
+    if (values.channels.includes("mail")) {
+      content.append(ui.field(t.f_mail_subject, ui.textInput(values.mail_subject, (v) => { values.mail_subject = v; change(); }, { style: "max-width:100%" })));
+      content.append(ui.field(t.f_mail_body, ui.textInput(values.mail_body, (v) => { values.mail_body = v; change(); }, { style: "max-width:100%" })));
+    }
 
     const callBox = el("section", {}, [el("h2", { textContent: t.call })]);
     callBox.append(ui.field(t.severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: s.severity[k] })), values.severity, (v) => { values.severity = v; change(); })));

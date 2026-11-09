@@ -449,6 +449,8 @@ _TEST_CALL: dict[Any, Any] = {
     vol.Required("channels"): [str],
     vol.Optional("title"): str,
     vol.Optional("tts_message"): str,
+    vol.Optional("mail_subject"): str,
+    vol.Optional("mail_body"): str,
     vol.Optional("severity"): str,
     vol.Optional("tag"): str,
     vol.Optional("policy"): vol.Any(str, [str]),

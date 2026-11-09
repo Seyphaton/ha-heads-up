@@ -127,8 +127,8 @@ class MailChannel:
             message, target.person or (None if target.key == MAIL_GLOBAL_KEY else target.key)
         )
         data = {
-            "title": render(str(self._opt(OPT_MAIL_SUBJECT)), values),
-            "message": render(str(self._opt(OPT_MAIL_BODY)), values),
+            "title": render(message.mail_subject or str(self._opt(OPT_MAIL_SUBJECT)), values),
+            "message": render(message.mail_body or str(self._opt(OPT_MAIL_BODY)), values),
             "target": [address],
         }
         try:

@@ -540,6 +540,14 @@
         "snooze_options": {
           "name": "Durées de report",
           "description": "Jusqu'à 6 durées de report, de 1 minute à 7 jours.\n\nExemple :\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "mail_subject": {
+          "name": "Objet du mail",
+          "description": "Objet du mail de ce message, à la place du modèle de la page Canaux. Variables : {severity}, {title}, {message}, {person}, {id}, {tag}. {person} est le nom du destinataire, et chaque destinataire reçoit son propre mail. Seulement avec le canal mail. Laissez la case décochée pour utiliser le modèle de la page Canaux."
+        },
+        "mail_body": {
+          "name": "Texte du mail",
+          "description": "Texte du mail de ce message, à la place du modèle de la page Canaux. Mêmes variables que l'objet du mail. Seulement avec le canal mail. Laissez la case décochée pour utiliser le modèle de la page Canaux."
         }
       }
     },
