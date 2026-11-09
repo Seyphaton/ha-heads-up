@@ -4,9 +4,10 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [1.0.0-alpha.8] - 2026-11-09
+
 ### Added
 - `heads_up.notify` takes `mail_subject` and `mail_body`: the subject and body of the mail for that one message, instead of the templates on the Channels page. Both use the same placeholders, and `{person}` is the recipient, so each person gets their own subject. Test send has both fields.
-
 - Mail placeholder `{person_id}`: the part of the person's entity ID after `person.`, for example `philip`. Use it as the subject when a mail rule needs a fixed name that does not depend on the friendly name.
 - `heads_up.notify` with `dry_run: true` returns the plan and sends nothing: for each channel and recipient whether it would be sent, held or skipped, why, the mail address and the push level.
 - Test send: Test a pasted call. Paste an action step or its data with templates, give sample values such as a `trigger`, and see the rendered call and the plan; Send test sends it as a test message.

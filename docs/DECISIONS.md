@@ -1239,3 +1239,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Not done: asking for confirmation before a destructive press (the Companion app has no such key; `require_auth` is the available guard); several entities in one condition (open, see OPEN_QUESTIONS).
 - Blast radius: new optional fields and two new event keys; the event data of a press has two more keys, so a trigger with an exact `event_data` match on all keys is unaffected (a trigger matches a subset); card and popup CSS; texts in four languages.
 
+## D-196 Pre-release 1.0.0-alpha.8 (2026-11-09)
+- Decision (maintainer): prepare an eighth pre-release on the branch `hub/h9e-wizard`. It carries the review of a production migration (D-192 to D-195) and the mail text per message (D-191): `notify` needs a severity, the Away policy has `critical_passes`, `wait_for_condition` is ignored with a repair issue, `dry_run`, Test send from a pasted call, diagnostics, policy switch attributes, `heads_up.get_trace` with a stored trace, button fields, the event keys `person` and `channel`, `treat_unavailable_as`, `audience` and `recipients` of `create_banner`, and the mail placeholder `{person_id}`. Manifest `1.0.0-alpha.8`, changelog section dated 2026-11-09. The tag, the push of the tag and the GitHub pre-release wait for the maintainer's explicit request (D-020).
+- Breaking against alpha.7: a `notify` call without `severity` is refused; a trigger on `heads_up_banner_action` with `event_data` still fires, because it matches a subset of the keys, which now include `person` and `channel`.
+- Blast radius: manifest version only; the card URL carries the version, so browsers fetch the card again after the restart (D-050).
+
