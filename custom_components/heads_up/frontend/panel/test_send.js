@@ -710,7 +710,7 @@ export function mount(container, ctx) {
       node.addEventListener("input", () => { pasted[key] = node.value; });
       return node;
     };
-    box.append(ui.field(t.yaml_in, area("yaml", 10)));
+    box.append(ui.field(t.yaml, area("yaml", 10)));
     box.append(ui.field(t.yaml_vars, area("vars", 4), t.yaml_vars_hint));
     const plan = el("button", { type: "button", textContent: t.plan_pasted });
     plan.addEventListener("click", () => runPasted("heads_up/hub_plan_yaml"));
