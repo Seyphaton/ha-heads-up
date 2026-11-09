@@ -85,6 +85,8 @@ async def connect(s: aiohttp.ClientSession, access_token: str) -> WS:
 
 
 async def call(s: aiohttp.ClientSession, tok: str, service: str, data: dict[str, Any]) -> Any:
+    if service == "notify":
+        data = {"severity": "info", **data}  # `notify` has no default severity (D-192)
     r = await s.post(
         f"{BASE}/api/services/heads_up/{service}?return_response",
         json=data,
