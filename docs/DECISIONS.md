@@ -1244,3 +1244,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Breaking against alpha.7: a `notify` call without `severity` is refused; a trigger on `heads_up_banner_action` with `event_data` still fires, because it matches a subset of the keys, which now include `person` and `channel`.
 - Blast radius: manifest version only; the card URL carries the version, so browsers fetch the card again after the restart (D-050).
 
+## D-197 The policy editor shows the entity ID of the switch (2026-11-09)
+- Context: a policy can be named in a call by its text name or by its switch. A rename changes the name, not the entity ID, so a call by name breaks and a call by ID does not; a rule and a stored message keep the old name (no rename handling exists).
+- Decision (maintainer): the policy editor shows the entity ID of the switch: the registered ID for an existing policy, and for a new policy the ID Home Assistant will assign (the free one, `_2` when taken), through the admin command `heads_up/policy_entity_id`; `panel_config` lists it for each policy. The help text says that a rename keeps the ID.
+- Not done: renaming the name inside rules and stored messages when a policy is renamed (a larger change, open); the same line for audiences.
+- Blast radius: panel only, one read-only admin command, texts in four languages.
+

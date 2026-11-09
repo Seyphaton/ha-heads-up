@@ -33,6 +33,7 @@ from .const import (
 from .frontend import async_popup_url
 from .hub import panel_config, panel_data, panel_test, settings, welcome
 from .manager import BannerManager, HeadsUpError
+from .switch import policy_entity_id
 
 
 def _manager(
@@ -559,6 +560,25 @@ async def ws_hub_test_send_yaml(
     connection.send_result(msg["id"], result)
 
 
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/policy_entity_id",
+        vol.Required("name"): str,
+        vol.Optional("subentry_id"): str,
+    }
+)
+@require_admin
+@callback
+def ws_policy_entity_id(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The entity ID of a policy's switch, or the one a new policy will get (D-197)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    entity_id = policy_entity_id(hass, entry, msg.get("subentry_id"), msg["name"].strip())
+    connection.send_result(msg["id"], {"entity_id": entity_id})
+
+
 @websocket_command({vol.Required("type"): "heads_up/hub_usage", vol.Required("name"): str})
 @require_admin
 @callback
@@ -714,6 +734,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_dismiss_many,
         ws_acknowledge,
         ws_hub_usage,
+        ws_policy_entity_id,
         ws_hub_plan,
         ws_hub_test_send,
         ws_hub_plan_yaml,

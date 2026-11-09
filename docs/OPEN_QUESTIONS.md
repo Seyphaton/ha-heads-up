@@ -117,4 +117,5 @@
 - `last_to_leave` is empty for `presence_debounce_seconds` after the last person leaves, because the tracker still counts them as home. A "person left" automation that calls the audience at once reaches nobody. Idea: count a person whose state is already `not_home` and whose departure is pending. Not planned yet.
 - `condition` takes one entity or one template. Several entities with all or any are open; a template does it today.
 - Idea: a notice at the first start after an update from 0.4.0 or earlier that lists the removed `wait_for_condition` and the required `severity` of `notify`. Today the Repairs issue `wait_for_condition_removed` appears on first use of the old field (D-192). The log of last actions and the recent messages are still memory only (D-194).
+- Renaming a policy leaves its old name in watch rules and stored messages, and ends the timers of running escalations and reminders (D-197). Idea: rename the name in rules when the policy is renamed, or store the switch ID instead of the name. Not planned.
 

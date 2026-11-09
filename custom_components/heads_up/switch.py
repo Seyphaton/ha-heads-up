@@ -93,6 +93,27 @@ class PolicySwitch(SwitchEntity):
         self._set(False)
 
 
+def policy_entity_id(
+    hass: HomeAssistant, entry: ConfigEntry, subentry_id: str | None, name: str
+) -> str:
+    """The entity ID of a policy's switch: the registered one, which a rename does not change,
+    or the one Home Assistant will give a new policy (D-197)."""
+    registry = er.async_get(hass)
+    if subentry_id and (
+        found := registry.async_get_entity_id(
+            "switch", DOMAIN, f"{entry.entry_id}{UNIQUE_MARK}{subentry_id}"
+        )
+    ):
+        return found
+    # `async_get_available_entity_id` is read from the 2026.10.4 source; the older name is the
+    # fallback for the minimum version (not run there).
+    generate = (
+        getattr(registry, "async_get_available_entity_id", None)
+        or registry.async_generate_entity_id
+    )
+    return str(generate("switch", f"Heads Up policy {name}"))
+
+
 def policy_name_for_entity(hass: HomeAssistant, entry: ConfigEntry, entity_id: str) -> str | None:
     """The policy a switch of this integration stands for, by its unique ID, or None."""
     registered = er.async_get(hass).async_get(entity_id)

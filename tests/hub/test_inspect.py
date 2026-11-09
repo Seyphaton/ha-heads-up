@@ -8,6 +8,7 @@ from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
 from custom_components.heads_up.const import DOMAIN
 from custom_components.heads_up.diagnostics import async_get_config_entry_diagnostics
@@ -118,3 +119,47 @@ async def test_diagnostics_hide_addresses_and_message_texts(
     (profile,) = [s for s in data["subentries"] if s["type"] == "recipient_profile"]
     assert profile["data"]["mail_address"] == REDACTED
     assert data["counts"]["messages"] == 1 and data["trace"] and data["recent_messages"]
+
+
+async def ask(client: Any, command: str, **data: Any) -> dict[str, Any]:
+    await client.send_json_auto_id({"type": f"heads_up/{command}", **data})
+    return dict(await client.receive_json())
+
+
+async def test_the_panel_lists_the_entity_id_of_each_policy_and_a_rename_keeps_it(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    subentry = await add_policy(hass, entry, "Night", **QUIET)
+    client = await hass_ws_client(hass)
+
+    async def listed() -> dict[str, str]:
+        reply = await ask(client, "panel_config")
+        return {p["name"]: p["entity_id"] for p in reply["result"]["policies"]}
+
+    assert await listed() == {"Night": "switch.heads_up_policy_night"}
+    hass.config_entries.async_update_subentry(entry, subentry, title="Evening")
+    await hass.async_block_till_done()
+    # The registered ID stays; a call that names the switch keeps working after the rename.
+    assert await listed() == {"Evening": "switch.heads_up_policy_night"}
+
+
+async def test_a_new_policy_is_shown_the_id_it_will_get(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    await add_policy(hass, entry, "Night", **QUIET)
+    client = await hass_ws_client(hass)
+    free = await ask(client, "policy_entity_id", name="Weekend watch")
+    assert free["result"]["entity_id"] == "switch.heads_up_policy_weekend_watch"
+    taken = await ask(client, "policy_entity_id", name="Night")
+    assert taken["result"]["entity_id"] == "switch.heads_up_policy_night_2"
+
+
+async def test_the_entity_id_command_is_for_admins_only(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_access_token: str,
+) -> None:
+    client = await hass_ws_client(hass, hass_read_only_access_token)
+    reply = await ask(client, "policy_entity_id", name="x")
+    assert reply["error"]["code"] == "unauthorized"

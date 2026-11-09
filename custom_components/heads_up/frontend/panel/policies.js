@@ -53,6 +53,9 @@ export const STRINGS = {
     action: "During quiet hours",
     actions: ACTIONS.en,
     critical_passes: "Critical messages pass",
+    entity_id: "Entity ID of the switch",
+    entity_id_new: "Home Assistant gives the policy this switch when you save. Name it in the policy field of a call by this ID: it keeps working when you rename the policy.",
+    entity_id_own: "A rename does not change this ID. A call that names the policy by its text name stops working after a rename; a call that uses this ID does not.",
     max_wait: "Wait for arrival (minutes, 0: as long as the message lives)",
     when: "Use when",
     whens: WHENS.en,
@@ -162,6 +165,9 @@ export const STRINGS = {
     action: "Während der Ruhezeit",
     actions: ACTIONS.de,
     critical_passes: "Kritische Meldungen kommen durch",
+    entity_id: "Entitäts-ID des Schalters",
+    entity_id_new: "Home Assistant legt beim Speichern diesen Schalter für die Richtlinie an. Nenne die Richtlinie im Feld policy eines Aufrufs mit dieser ID: Sie gilt weiter, wenn du die Richtlinie umbenennst.",
+    entity_id_own: "Eine Umbenennung ändert diese ID nicht. Ein Aufruf, der die Richtlinie mit ihrem Namen nennt, funktioniert nach einer Umbenennung nicht mehr; ein Aufruf mit dieser ID schon.",
     max_wait: "Auf Ankunft warten (Minuten, 0: solange die Meldung besteht)",
     when: "Verwenden, wenn",
     whens: WHENS.de,
@@ -271,6 +277,9 @@ export const STRINGS = {
     action: "Pendant les heures calmes",
     actions: ACTIONS.fr,
     critical_passes: "Les messages critiques passent",
+    entity_id: "ID d'entité du commutateur",
+    entity_id_new: "Home Assistant crée ce commutateur pour la politique à l'enregistrement. Nommez la politique dans le champ policy d'un appel par cet ID : il reste valable si vous renommez la politique.",
+    entity_id_own: "Renommer ne change pas cet ID. Un appel qui désigne la politique par son nom cesse de fonctionner après un renommage ; un appel qui utilise cet ID continue de fonctionner.",
     max_wait: "Attendre l'arrivée (minutes, 0 : tant que le message existe)",
     when: "Utiliser quand",
     whens: WHENS.fr,
@@ -380,6 +389,9 @@ export const STRINGS = {
     action: "Durante las horas de silencio",
     actions: ACTIONS.es,
     critical_passes: "Los mensajes críticos pasan",
+    entity_id: "ID de entidad del interruptor",
+    entity_id_new: "Home Assistant crea este interruptor para la política al guardar. Nombra la política en el campo policy de una llamada con este ID: sigue valiendo si renombras la política.",
+    entity_id_own: "Renombrar no cambia este ID. Una llamada que nombra la política por su texto deja de funcionar tras renombrarla; una que usa este ID sigue funcionando.",
     max_wait: "Esperar la llegada (minutos, 0: mientras exista el mensaje)",
     when: "Usar cuando",
     whens: WHENS.es,
@@ -899,7 +911,28 @@ export function mount(container, ctx) {
     // Header: always visible. Enabled first, then what the policy is called and what type it is.
     box.append(ui.checkbox(s.common.enabled, values.enabled, (on) => { values.enabled = on; paint(); }));
     box.append(el("div", { className: "hint", textContent: t.enabled_hint }));
-    box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; paint(); })));
+    // The switch of the policy: the registered ID, or the one a new policy will get (D-197).
+    const entityLine = el("code", { textContent: own?.entity_id || "…" });
+    let entityTimer = null;
+    const showEntity = (name) => {
+      if (own) return; // a rename does not change the ID of an existing policy
+      clearTimeout(entityTimer);
+      if (!String(name).trim()) {
+        entityLine.textContent = "…";
+        return;
+      }
+      entityTimer = setTimeout(async () => {
+        try {
+          const reply = await hass.callWS({ type: "heads_up/policy_entity_id", name: String(name).trim() });
+          entityLine.textContent = reply.entity_id;
+        } catch (err) {
+          entityLine.textContent = "…";
+        }
+      }, 250);
+    };
+    box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; showEntity(v); paint(); })));
+    box.append(ui.field(t.entity_id, entityLine, own ? t.entity_id_own : t.entity_id_new));
+    showEntity(values.name);
     box.append(ui.field(t.type, ui.selectInput(TYPES.map((k) => ({ value: k, label: t.types[k] })), values.type, (v) => { values.type = v; again(); })));
     box.append(el("div", { className: "hint type-desc", textContent: t.type_desc[values.type] }));
 

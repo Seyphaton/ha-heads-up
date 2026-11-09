@@ -37,6 +37,7 @@ from ..const import (
     SEVERITIES,
 )
 from ..manager import BannerManager
+from ..switch import policy_entity_id
 from .audiences import BUILTINS
 from .channels import mail
 from .recipients import area_speakers, registrations, speaker_entities
@@ -200,7 +201,12 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
         )
     in_order = {p.subentry_id: n for n, p in enumerate(hub.policies.ordered())} if hub else {}
     policies = [
-        {"name": s.title, "subentry_id": s.subentry_id, "data": dict(s.data)}
+        {
+            "name": s.title,
+            "subentry_id": s.subentry_id,
+            "data": dict(s.data),
+            "entity_id": policy_entity_id(hass, entry, s.subentry_id, s.title),
+        }
         for s in sorted(
             of(POLICY_SUBENTRY), key=lambda s: in_order.get(s.subentry_id, len(in_order))
         )

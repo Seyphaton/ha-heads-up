@@ -237,7 +237,9 @@ Speaker groups are named sets of speakers, Assist satellites and areas for speec
 
 ## Policies
 
-A policy adds behaviour to messages without changing the automation that sends them. The types are Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize. Add one in the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy. Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, the fields of its type (for example `from_time`, `to_time`, `action` and `critical_passes` for Quiet hours) and `order`, its place in the list.
+A policy adds behaviour to messages without changing the automation that sends them. The types are Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize. Add one in the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy. Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, the fields of its type (for example `from_time`, `to_time`, `action` and `critical_passes` for Quiet hours) and `order`, its place in the list. The policy editor shows the entity ID of the switch. A new policy shows the ID it gets when you save.
+
+Renaming a policy does not change its entity ID. Name the policy in the `policy` field of a call by this ID, and a rename does not break the call. A call that names the policy by its text name fails after a rename, because the name is no longer known. A watch rule and a message that were created with the old name lose the policy too: change the name in the rule form. Running escalations and reminders of the policy end.
 
 ### How policies interact
 

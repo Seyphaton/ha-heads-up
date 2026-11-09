@@ -4,6 +4,9 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Added
+- Policy editor: shows the entity ID of the policy's switch, and the ID a new policy will get. Naming a policy in a call by this ID keeps working after a rename; the docs say what a rename changes.
+
 ## [1.0.0-alpha.8] - 2026-11-09
 
 ### Added
