@@ -34,7 +34,8 @@ class PolicyBook:
         # The live options of the entry: the mode and the order are read when they are used.
         self._options: Mapping[str, Any] = options if options is not None else {}
         # Set by the integration: the policy a switch of its own stands for (D-186).
-        self.policy_for_entity: Callable[[str], str | None] = lambda _entity_id: None
+        # Every policy name with the entity ID of its switch; a call names a policy by it (D-198).
+        self.policy_entities: Callable[[], dict[str, str]] = lambda: {}
 
     @property
     def mode(self) -> str:

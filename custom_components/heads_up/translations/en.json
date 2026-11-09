@@ -324,6 +324,12 @@
     },
     "unknown_policy_hint": {
       "message": "Policy \"{name}\" does not exist. Did you mean \"{suggestion}\"? Valid policies: {valid}."
+    },
+    "audience_needs_entity": {
+      "message": "Audience \"{name}\" is given by its entity ID. Use {entity_id}."
+    },
+    "policy_needs_entity": {
+      "message": "Policy \"{name}\" is given by its entity ID. Use {entity_id}."
     }
   },
   "issues": {

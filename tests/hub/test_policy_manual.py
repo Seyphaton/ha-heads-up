@@ -37,7 +37,9 @@ async def test_the_preview_lists_a_manual_policy_only_when_it_is_named(
 
     base = {"message": "x", "channels": ["banner"], "severity": "critical"}
     assert (await hub.preview(await build(hub, base)))["policies"] == []
-    named = await hub.preview(await build(hub, {**base, "policy": "By hand"}))
+    named = await hub.preview(
+        await build(hub, {**base, "policy": "switch.heads_up_policy_by_hand"})
+    )
     assert [p["name"] for p in named["policies"]] == ["By hand"]
 
 

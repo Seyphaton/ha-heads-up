@@ -41,7 +41,7 @@ data:
   message: The garage door has been open for 10 minutes.
   severity: warning
   channels: [push]
-  audience: At home
+  audience: binary_sensor.heads_up_audience_at_home
 ```
 
 Every device of a person gets the notification. A person with no usable device, a device whose notify service does not exist and a profile that does not accept push are skipped, and the Message Log says why (`no_usable_device`, `service_not_found`, `channel_not_accepted`). The response counts of `notify` come from the plan made before sending: `sent` means the notification was handed to the app's service. A service that then fails shows as a failed delivery in the Message Log.
@@ -78,7 +78,7 @@ data:
   message: The garage door has been open for 10 minutes.
   severity: warning
   channels: [popup]
-  audience: At home
+  audience: binary_sensor.heads_up_audience_at_home
 ```
 
 A popup goes to persons, by audience or by `recipients`. A person needs a linked Home Assistant user; a person without one is skipped (`no_user`). The popup appears on every dashboard and device where that user has Home Assistant open. Areas are not supported.
@@ -159,7 +159,7 @@ data:
   message: The basement sensor is wet.
   severity: critical
   channels: [push, mail]
-  audience: Admins
+  audience: binary_sensor.heads_up_audience_admins
         - Global address
 ```
 
@@ -203,7 +203,7 @@ Delivery is the notify service's job: Heads Up knows only whether the call retur
 
 These objects say who a call is for. An audience applies to push, popup, mail and, for who sees it, the banner. Speech takes recipients instead; the Persistent Notification takes no target.
 
-An audience is a named group of people. A call uses its name: `to: {push: {audience: At home}}`. Membership is worked out when the message is delivered. For the banner channel it is worked out once, when the banner is created.
+An audience is a named group of people. Every audience is a sensor, and a call names the audience by the entity ID of its sensor: `to: {push: {audience: binary_sensor.heads_up_audience_at_home}}`. The audience editor shows the ID, and a rename does not change it. Membership is worked out when the message is delivered. For the banner channel it is worked out once, when the banner is created.
 
 | Name | Who |
 |---|---|
@@ -271,7 +271,7 @@ A policy attaches to messages automatically or manually, chosen in the editor un
 - Automatically: the policy has two lists. A message gets it when its severity is in the first list and its tag in the second. An empty list matches everything. A message without a tag matches only a policy whose tag list is empty. Messages from watch rules have the tag `rule`.
 - Manually: the policy has no lists and never attaches by itself. Only a call or a watch rule that names it in the `policy` field gets it.
 
-The `policy` field of `heads_up.notify` names manual policies: they apply next to every automatic policy that matches, whatever their own lists say. Set `match_policies_automatically: false` to switch the automatic policies off for the call; `policy: none` uses no policy at all. A disabled policy is never used. Names must be unique, and `none` is reserved. The form refuses a second automatic policy of the same type with the same severities, tags and time, because it would do the same thing twice.
+The `policy` field of `heads_up.notify` names manual policies by the entity ID of their switch: they apply next to every automatic policy that matches, whatever their own lists say. Set `match_policies_automatically: false` to switch the automatic policies off for the call; `policy: none` uses no policy at all. A disabled policy is never used. Names must be unique, and `none` is reserved. The form refuses a second automatic policy of the same type with the same severities, tags and time, because it would do the same thing twice.
 
 ### Acknowledging
 
@@ -299,7 +299,7 @@ Taking both from the call is refused, because the policy would add nothing. Esca
 - When the recipients come from the call, the people are the audience or persons the call gave on push, popup or mail, reused on every new channel that takes people. Speech uses the speakers the call named, or is skipped when it named none. The Persistent Notification needs no target. The banner is never part of these deliveries.
 - Someone who already has the message on a channel is not notified there a second time.
 
-Example: send to At home, and fall back to Everyone when nobody is home. Add a Fallback policy that applies to the tag `home-only`, with Use when "Nobody to notify", Channels come from "The call", and the People target set to the audience Everyone. A call with `channels: [push]`, `to: {push: {audience: At home}}` and `tag: home-only` then pushes to Everyone when At home is empty.
+Example: send to At home, and fall back to Everyone when nobody is home. Add a Fallback policy that applies to the tag `home-only`, with Use when "Nobody to notify", Channels come from "The call", and the People target set to the audience Everyone. A call with `channels: [push]`, `to: {push: {audience: binary_sensor.heads_up_audience_at_home}}` and `tag: home-only` then pushes to Everyone when At home is empty.
 
 ### Escalation
 
@@ -412,6 +412,6 @@ data:
   severity: critical
   tag: water
   channels: [banner, push]
-  audience: At home
-  policy: Water escalation
+  audience: binary_sensor.heads_up_audience_at_home
+  policy: switch.heads_up_policy_water_escalation
 ```

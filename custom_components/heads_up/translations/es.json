@@ -324,6 +324,12 @@
     },
     "unknown_policy_hint": {
       "message": "La política \"{name}\" no existe. ¿Quisiste decir \"{suggestion}\"? Políticas válidas: {valid}."
+    },
+    "audience_needs_entity": {
+      "message": "La audiencia «{name}» se indica con su ID de entidad. Usa {entity_id}."
+    },
+    "policy_needs_entity": {
+      "message": "La política «{name}» se indica con su ID de entidad. Usa {entity_id}."
     }
   },
   "issues": {

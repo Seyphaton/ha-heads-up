@@ -15,6 +15,9 @@ export const STRINGS = {
     custom: "Your audiences",
     none_custom: "You have no audiences yet.",
     members_now: "Right now: {names}",
+    entity_id: "Entity ID of the sensor",
+    entity_id_new: "Home Assistant gives the audience this sensor when you save. Name the audience in a call by this ID: it keeps working when you rename the audience.",
+    entity_id_own: "A rename does not change this ID. A call that names the audience by its text name is refused; a call that uses this ID is not.",
     nobody_now: "Right now: nobody",
     used_by: "Used by {names}",
     unused: "Not used by any policy",
@@ -53,6 +56,9 @@ export const STRINGS = {
     custom: "Deine Zielgruppen",
     none_custom: "Du hast noch keine Zielgruppen.",
     members_now: "Jetzt: {names}",
+    entity_id: "Entitäts-ID des Sensors",
+    entity_id_new: "Home Assistant legt beim Speichern diesen Sensor für die Zielgruppe an. Nenne die Zielgruppe in einem Aufruf mit dieser ID: Sie gilt weiter, wenn du die Zielgruppe umbenennst.",
+    entity_id_own: "Eine Umbenennung ändert diese ID nicht. Ein Aufruf, der die Zielgruppe mit ihrem Namen nennt, wird abgelehnt; ein Aufruf mit dieser ID nicht.",
     nobody_now: "Jetzt: niemand",
     used_by: "Verwendet von {names}",
     unused: "Von keiner Richtlinie verwendet",
@@ -91,6 +97,9 @@ export const STRINGS = {
     custom: "Vos audiences",
     none_custom: "Vous n'avez pas encore d'audience.",
     members_now: "En ce moment : {names}",
+    entity_id: "ID d'entité du capteur",
+    entity_id_new: "Home Assistant crée ce capteur pour l'audience à l'enregistrement. Nommez l'audience dans un appel par cet ID : il reste valable si vous renommez l'audience.",
+    entity_id_own: "Renommer ne change pas cet ID. Un appel qui désigne l'audience par son nom est refusé ; un appel qui utilise cet ID ne l'est pas.",
     nobody_now: "En ce moment : personne",
     used_by: "Utilisée par {names}",
     unused: "Utilisée par aucune politique",
@@ -129,6 +138,9 @@ export const STRINGS = {
     custom: "Tus audiencias",
     none_custom: "Aún no tienes audiencias.",
     members_now: "Ahora: {names}",
+    entity_id: "ID de entidad del sensor",
+    entity_id_new: "Home Assistant crea este sensor para la audiencia al guardar. Nombra la audiencia en una llamada con este ID: sigue valiendo si renombras la audiencia.",
+    entity_id_own: "Renombrar no cambia este ID. Una llamada que nombra la audiencia por su texto se rechaza; una que usa este ID no.",
     nobody_now: "Ahora: nadie",
     used_by: "Usada por {names}",
     unused: "No la usa ninguna política",
@@ -254,7 +266,7 @@ export function mount(container, ctx) {
       const lines = a.enabled === false ? t.off_hint : `${memberLine(a)} · ${usedLine(a)}`;
       builtin.append(
         el("li", { className: a.enabled === false ? "dim" : "" }, [
-          el("div", {}, [el("strong", { textContent: a.name }), ...(tip ? [tip.button] : []), ...(a.enabled === false ? [el("span", { className: "badge", textContent: t.off })] : []), ...(tip ? [tip.note] : []), el("div", { className: "sub", textContent: lines })]),
+          el("div", {}, [el("strong", { textContent: a.name }), ...(tip ? [tip.button] : []), ...(a.enabled === false ? [el("span", { className: "badge", textContent: t.off })] : []), ...(tip ? [tip.note] : []), el("div", { className: "sub", textContent: lines }), ...(a.entity_id ? [el("code", { textContent: a.entity_id })] : [])]),
           el("label", { className: "inline" }, [box2]),
         ]),
       );
@@ -279,7 +291,28 @@ export function mount(container, ctx) {
     const { own, values } = editing;
     const rerender = () => render();
     const box = el("section", {}, [el("h2", { textContent: own ? t.editing : t.new })]);
-    box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; paint(); })));
+    // The sensor of the audience: the registered ID, or the one a new audience will get (D-198).
+    const entityLine = el("code", { textContent: own?.entity_id || "…" });
+    let entityTimer = null;
+    const showEntity = (name) => {
+      if (own) return; // a rename does not change the ID of an existing audience
+      clearTimeout(entityTimer);
+      if (!String(name).trim()) {
+        entityLine.textContent = "…";
+        return;
+      }
+      entityTimer = setTimeout(async () => {
+        try {
+          const reply = await hass.callWS({ type: "heads_up/audience_entity_id", name: String(name).trim() });
+          entityLine.textContent = reply.entity_id;
+        } catch (err) {
+          entityLine.textContent = "…";
+        }
+      }, 250);
+    };
+    box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; showEntity(v); paint(); })));
+    box.append(ui.field(t.entity_id, entityLine, own ? t.entity_id_own : t.entity_id_new));
+    showEntity(values.name);
     box.append(
       ui.field(t.kind, ui.selectInput(
         [{ value: "persons", label: t.kind_persons }, { value: "presence", label: t.kind_presence }],

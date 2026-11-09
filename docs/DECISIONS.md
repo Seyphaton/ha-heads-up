@@ -1250,3 +1250,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Not done: renaming the name inside rules and stored messages when a policy is renamed (a larger change, open); the same line for audiences.
 - Blast radius: panel only, one read-only admin command, texts in four languages.
 
+## D-198 A call names an audience and a policy only by entity ID (2026-11-09)
+- Context: since D-186 an audience is a sensor and a policy a switch, and a call accepted either the entity ID or the text name. Two ways to say the same thing, and the name breaks when the policy or audience is renamed (D-197).
+- Decision (maintainer): `notify`, `push`, `popup`, `create_banner` and the panel's Test send accept an audience only as the entity ID of its sensor and a policy only as the entity ID of its switch. A text name, in any case, fails with `audience_needs_entity` or `policy_needs_entity` and the ID to use. An unknown ID fails with `unknown_audience` or `unknown_policy` and the valid IDs; a close one gets "Did you mean": the comparison leaves out the shared prefix, or every ID would be close. `none` and `automatic` stay keywords. The panel sends and shows IDs: the Test send form and its YAML map each name to its ID, and the audience editor shows the ID like the policy editor (`heads_up/audience_entity_id`).
+- Not changed: what is stored (policy targets and rules keep names), the policy field of the watch rule form (a name, validated at save), speaker groups, areas, `Global address` and the admin preview of an audience: none of them is an entity.
+- Parity (rule 9): a watch rule names a policy in its form, not in a call; the form keeps the name. Exception, with D-197 as the open follow-up.
+- Blast radius: breaking for every caller that wrote a name (the dev smoke script and the docs examples were changed); texts in four languages; test helper `with_entity_ids` turns names into IDs for the tests that are about something else.
+

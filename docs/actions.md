@@ -26,7 +26,7 @@ data:
   message: The front door has been open for 10 minutes.
   severity: warning
   channels: [banner, push]
-  audience: At home
+  audience: binary_sensor.heads_up_audience_at_home
 ```
 
 The banner is on the dashboard for the people who are home, and each of them gets a push. When the message ends, both are taken back. Only `message` and `channels` are required.
@@ -50,9 +50,9 @@ The banner is on the dashboard for the people who are home, and each of them get
 | `channels` | list of channels | required | One or more of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, each at most once. |
 | `dry_run` | boolean | `false` | `true`: nothing is sent, stored or recorded. The response is the plan: what each channel and recipient would get now, with the policies applied. See Response. |
 | `match_policies_automatically` | boolean | `true` | `true`: policies that match the severity or tags of the message apply automatically. `false`: only the manual policies in `policy` apply, and none if there is no manual policy. Manual policies always apply. |
-| `policy` | list of policy switches or names | none | Manual policies: they apply next to the automatic policies that match the severity and tag, whatever their own severities and tags say. The form lists one switch per policy (`switch.heads_up_policy_quiet_hours`); in YAML you can also write policy names. A disabled policy is never used. In YAML `policy: none` does the same as `disable_automatic_policies: true` without a manual policy. |
+| `policy` | list of policy switches | none | Manual policies: they apply next to the automatic policies that match the severity and tag, whatever their own severities and tags say. Name a policy by the entity ID of its switch, for example `switch.heads_up_policy_quiet_hours`. The ID stays when you rename the policy. The policy editor shows it. A policy name as text is refused. A disabled policy is never used. In YAML `policy: none` does the same as `disable_automatic_policies: true` without a manual policy. |
 | `recipients` | list of persons | none | Who gets the message on every channel that takes people: banner, push, popup and mail. Give either `recipients` or `audience`. |
-| `audience` | audience sensor or name | none | A group that gets the message on the same channels. The form lists one sensor per audience (`binary_sensor.heads_up_audience_at_home`); in YAML you can also write the name (`At home`). The group is worked out when the message is sent. |
+| `audience` | audience sensor | none | A group that gets the message on the same channels. Name it by the entity ID of its sensor, for example `binary_sensor.heads_up_audience_at_home`; the audience editor shows it. An audience name as text is refused. The group is worked out when the message is sent. |
 | `speakers` | list | none | Speakers, speaker groups or areas for `speak`. Speech takes no audience. |
 
 `recipients` or `audience` gives the same people on every channel that takes people: banner, push, popup and mail. `speakers` is the target of speech. Give either `recipients` or `audience`, never both.
@@ -62,7 +62,7 @@ The banner is on the dashboard for the people who are home, and each of them get
 - `persistent` takes no target. The notification bell is shared, so everyone sees the entry (see [Persistent notifications](configuration.md#persistent-notification)).
 - `banner` needs none. Without `recipients` or `audience`, every user sees the banner; with them, only those people see it. Recipients limit the banner to the users linked to those persons. An audience does the same with the persons it has when the call is made; a person who joins the audience later does not see a banner that already exists, and an empty audience gives a banner nobody sees.
 
-The names in `audience`, `recipients`, `speakers` and `policy` are checked when you call the action. Audience, speaker group and policy names ignore case: `at home` is the audience `At home`. A name that does not exist fails with an error that lists the valid names and, when one is close, asks "Did you mean ...?".
+The `audience`, `recipients`, `speakers` and `policy` of a call are checked when you call the action. An audience and a policy are named by the entity ID of their sensor or switch. A text name such as `At home` or `Night quiet` fails with an error that gives the entity ID to use. An ID that does not exist fails with an error that lists the valid IDs and, when one is close, asks "Did you mean ...?". A speaker group and an area name ignore case.
 
 ### How long it lives
 
@@ -117,7 +117,7 @@ With `dry_run: true` the response has `status: dry_run` and the plan instead of 
     message: The garage door is open.
     severity: critical
     channels: [push]
-    audience: At home
+    audience: binary_sensor.heads_up_audience_at_home
     dry_run: true
   response_variable: plan
 ```
@@ -284,7 +284,7 @@ What happens:
     message: The garage door has been open for 10 minutes.
     severity: warning
     channels: [banner, push]
-    audience: At home
+    audience: binary_sensor.heads_up_audience_at_home
     mode: recurring
     timeout: 0
     condition:
@@ -330,7 +330,7 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `snooze_scope` | `user`, `global` | setting Default snooze scope | `user` and `global` are `snooze: user` and `snooze: everyone` of `notify`. |
 | `snooze_options` | list of durations | setting Snooze choices on the banner | As in `notify`. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. See [Buttons and snooze](#buttons-and-snooze). |
-| `audience` | audience name or its sensor | everyone | Show the banner only to the members of the audience as of the call, like `audience` in `notify`. Give only one of `audience`, `recipients` and `people`. |
+| `audience` | audience sensor | everyone | Show the banner only to the members of the audience as of the call, like `audience` in `notify`. Give only one of `audience`, `recipients` and `people`. |
 | `recipients` | list of person entities | everyone | Show the banner only to the users linked to these persons. |
 | `people` | list of person entities | everyone | The same as `recipients`; kept for existing automations. See below. |
 
@@ -399,7 +399,7 @@ Shortcut for `notify` with `channels: [push]` and no policies. It needs `audienc
 | `image` | text | none | As in `notify`. |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel. |
 | `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
-| `audience` | text | one of `audience` or `recipients` | The name of an audience. Not available for `speak`. |
+| `audience` | audience sensor | one of `audience` or `recipients` | The entity ID of an audience sensor, for example `binary_sensor.heads_up_audience_at_home`. Not available for `speak`. |
 
 ```yaml
 - action: heads_up.push
@@ -427,13 +427,13 @@ Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audien
 | `image` | text | none | As in `notify`. |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel. |
 | `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
-| `audience` | text | one of `audience` or `recipients` | The name of an audience. Not available for `speak`. |
+| `audience` | audience sensor | one of `audience` or `recipients` | The entity ID of an audience sensor, for example `binary_sensor.heads_up_audience_at_home`. Not available for `speak`. |
 
 ```yaml
 - action: heads_up.popup
   data:
     message: Someone is at the door.
-    audience: At home
+    audience: binary_sensor.heads_up_audience_at_home
 ```
 
 ## `heads_up.speak`

@@ -9,6 +9,7 @@ from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
 from custom_components.heads_up.const import DOMAIN
 
+from ..conftest import with_entity_ids
 from .conftest import AddDevice
 from .helpers import set_person, settle
 from .policy_support import (
@@ -33,13 +34,16 @@ async def ask(client: Any, command: str, **data: Any) -> dict[str, Any]:
 
 
 def call(**extra: Any) -> dict[str, Any]:
-    return {
-        "message": "Door open",
-        "channels": ["banner", "push"],
-        "to": ANNA,
-        "severity": "warning",
-        **extra,
-    }
+    # Written with names, sent with the entity IDs the action needs (D-198).
+    return with_entity_ids(
+        {
+            "message": "Door open",
+            "channels": ["banner", "push"],
+            "to": ANNA,
+            "severity": "warning",
+            **extra,
+        }
+    )
 
 
 async def preview(client: Any, **extra: Any) -> dict[str, Any]:

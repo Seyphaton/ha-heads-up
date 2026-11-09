@@ -12,6 +12,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import area_registry as ar
 
+from ..binary_sensor import audience_entity_ids
 from ..const import (
     AUDIENCE_SUBENTRY,
     DEFAULT_OPTIONS,
@@ -154,6 +155,9 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                     "used_by": usage(sub.title),
                 }
             )
+    ids = audience_entity_ids(hass, entry)
+    for listed in audiences:
+        listed["entity_id"] = ids.get(listed["name"])
     groups = [
         {
             "name": sub.title,

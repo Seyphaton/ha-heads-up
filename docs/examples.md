@@ -32,7 +32,7 @@ data:
   message: The washing machine has finished.
   severity: info
   channels: [push]
-  audience: At home
+  audience: binary_sensor.heads_up_audience_at_home
 ```
 
 The shortcut `heads_up.push` does the same with `audience` and no `channels`. See [Push notifications](configuration.md#push).
@@ -81,7 +81,7 @@ actions:
       message: The bedroom window has been open for 5 minutes.
       severity: warning
       channels: [banner, push]
-      audience: At home
+      audience: binary_sensor.heads_up_audience_at_home
       timeout: 0
       condition:
         entity_id: binary_sensor.bedroom_window
@@ -152,7 +152,7 @@ data:
   message: Garage door open after 10pm.
   severity: warning
   channels: [banner, push]
-  audience: At home
+  audience: binary_sensor.heads_up_audience_at_home
   snooze: user
   snooze_options:
     - minutes: 15
@@ -205,7 +205,7 @@ data:
   severity: critical
   tag: water
   channels: [banner, push, popup]
-  audience: At home
+  audience: binary_sensor.heads_up_audience_at_home
   timeout: 0
 ```
 
@@ -228,7 +228,7 @@ data:
   severity: info
   tag: digest
   channels: [banner, push]
-  audience: Admins
+  audience: binary_sensor.heads_up_audience_admins
 ```
 
 Create a Summarize policy for the tag `digest` with the time 20:00. The banner and the push are held on every channel and appear in the summary. Critical messages are not held unless the policy includes them.

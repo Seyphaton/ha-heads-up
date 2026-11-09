@@ -324,6 +324,12 @@
     },
     "unknown_policy_hint": {
       "message": "Die Richtlinie \"{name}\" gibt es nicht. Meintest du \"{suggestion}\"? Gültige Richtlinien: {valid}."
+    },
+    "audience_needs_entity": {
+      "message": "Die Zielgruppe „{name}“ wird mit ihrer Entitäts-ID angegeben. Nimm {entity_id}."
+    },
+    "policy_needs_entity": {
+      "message": "Die Richtlinie „{name}“ wird mit ihrer Entitäts-ID angegeben. Nimm {entity_id}."
     }
   },
   "issues": {

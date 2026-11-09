@@ -640,11 +640,14 @@ def _hub_off() -> ServiceValidationError:
     return ServiceValidationError(translation_domain=DOMAIN, translation_key="hub_off")
 
 
-def _unknown(key: str, name: str, valid: list[str]) -> ServiceValidationError:
+def _unknown(key: str, name: str, valid: list[str], prefix: str = "") -> ServiceValidationError:
+    """`prefix` is what every valid entity ID starts with; it is left out when comparing, or the
+    shared start would make every ID a close match."""
     shown = ", ".join(valid[:20]) + (" ..." if len(valid) > 20 else "")
     placeholders = {"name": name, "valid": shown or "none exist yet"}
-    lowered = {v.lower(): v for v in valid}
-    if close := difflib.get_close_matches(name.lower(), list(lowered), n=1, cutoff=0.7):
+    lowered = {v.lower().removeprefix(prefix): v for v in valid}
+    wanted = name.lower().removeprefix(prefix)
+    if close := difflib.get_close_matches(wanted, list(lowered), n=1, cutoff=0.7):
         placeholders["suggestion"] = lowered[close[0]]
         key = f"{key}_hint"  # the same message with "Did you mean ...?" (D-167)
     return ServiceValidationError(
@@ -660,22 +663,44 @@ def _canonical(name: str, valid: list[str]) -> str | None:
     return same[0] if len(same) == 1 else None
 
 
+def _needs_entity(key: str, name: str, entity_id: str) -> ServiceValidationError:
+    return ServiceValidationError(
+        translation_domain=DOMAIN,
+        translation_key=key,
+        translation_placeholders={"name": name, "entity_id": entity_id},
+    )
+
+
+def _by_entity(value: str, entities: dict[str, str], unknown: str, needs: str, prefix: str) -> str:
+    """The name behind the entity ID a call gave. A text name is refused with the entity ID to
+    use instead: one way to name an audience or a policy, which a rename does not break (D-198)."""
+    names = {entity_id: name for name, entity_id in entities.items()}
+    if value in names:
+        return names[value]
+    if (stored := _canonical(value, list(entities))) is not None:
+        raise _needs_entity(needs, value, entities[stored])
+    raise _unknown(unknown, value, sorted(names), prefix)
+
+
 def _check_names(
     hub: HubEngine, to: dict[str, dict[str, Any]], policy: str | list[str] | None
 ) -> tuple[dict[str, dict[str, Any]], str | list[str] | None]:
-    """Check the names of a call and return them in their stored spelling (D-167).
+    """Check the audiences, recipients and policies of a call and return them as stored (D-167).
 
-    A name that differs only in case is accepted; one that matches nothing fails with the valid
-    names and, when a close one exists, a suggestion."""
+    An audience and a policy are given by the entity ID of their sensor or switch; a text name
+    is refused (D-198). A recipient that differs only in case is accepted; one that matches
+    nothing fails with the valid names and, when a close one exists, a suggestion."""
     fixed: dict[str, dict[str, Any]] = {}
     for channel, target in to.items():
         target = dict(target)
         if (audience := target.get("audience")) is not None:
-            audience = hub.resolver.audience_for_entity(audience) or audience
-            names = hub.audiences.names()
-            if (stored := _canonical(audience, names)) is None:
-                raise _unknown("unknown_audience", audience, names)
-            target["audience"] = stored
+            target["audience"] = _by_entity(
+                audience,
+                hub.resolver.audience_entities(),
+                "unknown_audience",
+                "audience_needs_entity",
+                "binary_sensor.heads_up_audience_",
+            )
         if "recipients" in target:
             known = hub.recipients.known(channel)
             recipients = []
@@ -694,18 +719,24 @@ def _check_names(
 def _check_policy_names(hub: HubEngine, policy: str | list[str] | None) -> str | list[str] | None:
     """Policy names in their stored spelling. One name stays a string, as stored before D-184;
     `automatic` alone is the same as no policy."""
-    wanted = [hub.policies.policy_for_entity(n) or n for n in policy_names(policy)]
+    wanted = policy_names(policy)
     if wanted in ([], [POLICY_AUTOMATIC]) or wanted == [POLICY_NONE]:
         return POLICY_NONE if wanted == [POLICY_NONE] else None
-    known = hub.policies.names()
+    entities = hub.policies.policy_entities()
     fixed: list[str] = []
     for name in wanted:
         if name == POLICY_AUTOMATIC:
             fixed.append(name)
-        elif (stored := _canonical(name, known)) is None:
-            raise _unknown("unknown_policy", name, known)
         else:
-            fixed.append(stored)
+            fixed.append(
+                _by_entity(
+                    name,
+                    entities,
+                    "unknown_policy",
+                    "policy_needs_entity",
+                    "switch.heads_up_policy_",
+                )
+            )
     return fixed[0] if len(fixed) == 1 else fixed
 
 

@@ -114,6 +114,18 @@ def policy_entity_id(
     return str(generate("switch", f"Heads Up policy {name}"))
 
 
+def policy_entity_ids(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, str]:
+    """Policy name to the entity ID of its switch, for every policy that has one."""
+    registry = er.async_get(hass)
+    found: dict[str, str] = {}
+    for registered in er.async_entries_for_config_entry(registry, entry.entry_id):
+        if registered.domain == "switch" and (
+            name := policy_name_for_entity(hass, entry, registered.entity_id)
+        ):
+            found[name] = registered.entity_id
+    return found
+
+
 def policy_name_for_entity(hass: HomeAssistant, entry: ConfigEntry, entity_id: str) -> str | None:
     """The policy a switch of this integration stands for, by its unique ID, or None."""
     registered = er.async_get(hass).async_get(entity_id)

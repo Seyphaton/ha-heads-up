@@ -393,7 +393,12 @@ async def hub_core() -> None:
         print("trace:", trace)
         sent = await call(s, admin, "push", {"message": "once", "recipients": ["person.dev_admin"]})
         print("push shortcut:", sent)
-        audience = await call(s, admin, "popup", {"message": "once", "audience": "Everyone"})
+        audience = await call(
+            s,
+            admin,
+            "popup",
+            {"message": "once", "audience": "binary_sensor.heads_up_audience_everyone"},
+        )
         print("popup to Everyone:", audience)
         msg_id = await ws_admin.send(
             {"type": "heads_up/hub_preview_audience", "audience": "Everyone"}
@@ -420,6 +425,7 @@ async def hub_core_verify() -> None:
 
 
 SMOKE_POLICY = "Smoke reminder"
+SMOKE_POLICY_ID = "switch.heads_up_policy_smoke_reminder"  # a call names a policy by its switch
 
 
 async def policies() -> None:
@@ -473,7 +479,7 @@ async def policies() -> None:
         )
         print("summarize form:", (await r.json())["type"])
         await asyncio.sleep(1)
-        data = {"id": "smoke_policy", "message": "Policy", "timeout": 0, "policy": SMOKE_POLICY}
+        data = {"id": "smoke_policy", "message": "Policy", "timeout": 0, "policy": SMOKE_POLICY_ID}
         print(
             "notify with policy:", await call(s, admin, "notify", {**data, "channels": ["banner"]})
         )
@@ -568,7 +574,7 @@ async def policies_verify() -> None:
     async with aiohttp.ClientSession() as s:
         admin = await token(s, "ADMIN")
         # The policy survived the restart: a call naming it is still accepted.
-        data = {"id": "smoke_policy", "message": "Policy", "timeout": 0, "policy": SMOKE_POLICY}
+        data = {"id": "smoke_policy", "message": "Policy", "timeout": 0, "policy": SMOKE_POLICY_ID}
         await call(s, admin, "notify", {**data, "channels": ["banner"]})
         print("clear:", await call(s, admin, "clear_notifications", {"id": "smoke_policy"}))
         print("policies survived the restart")

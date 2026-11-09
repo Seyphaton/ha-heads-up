@@ -12,7 +12,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 
-from .binary_sensor import audience_name_for_entity, notify_audiences_changed
+from .binary_sensor import audience_entity_ids, notify_audiences_changed
 from .const import (
     DOMAIN,
     OPT_INSTALL_TOKEN,
@@ -34,7 +34,7 @@ from .hub.panel import async_sync_panel
 from .hub.panel import wanted as panel_wanted
 from .manager import BannerManager, banner_store
 from .services import async_setup_services
-from .switch import policy_name_for_entity
+from .switch import policy_entity_ids
 from .websocket import async_setup_websocket
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -92,13 +92,9 @@ def _start_hub(hass: HomeAssistant, entry: HeadsUpConfigEntry, manager: BannerMa
     hub.create_message = manager.create
     hub.visibility_changed = manager.refresh
     hub.resolver.sync(entry.subentries)
-    hub.resolver.audience_for_entity = lambda entity_id: audience_name_for_entity(
-        hass, entry, entity_id
-    )
     hub.policies.sync(entry.subentries)
-    hub.policies.policy_for_entity = lambda entity_id: policy_name_for_entity(
-        hass, entry, entity_id
-    )
+    hub.resolver.audience_entities = lambda: audience_entity_ids(hass, entry)
+    hub.policies.policy_entities = lambda: policy_entity_ids(hass, entry)
     hub.channels.register(PushChannel(hass, hub, manager))
     hub.channels.register(SpeakChannel(hass, hub, manager))
     hub.channels.register(PopupChannel(hass, hub, manager))

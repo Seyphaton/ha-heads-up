@@ -82,7 +82,7 @@ data:
   message: The front door has been open for 10 minutes.
   severity: warning
   channels: [banner, push]
-  audience: Everyone
+  audience: binary_sensor.heads_up_audience_everyone
 ```
 
 The banner appears in the card without a reload, and everyone with a Companion app gets a push. When the message ends, both are taken back. All card options are in [Actions, watch rules and card](actions.md#the-card).

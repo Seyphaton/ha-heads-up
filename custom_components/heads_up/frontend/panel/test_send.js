@@ -380,7 +380,7 @@ export function blankValues() {
 }
 
 // The `notify` call the values describe: only what is set, targets only for the chosen channels.
-export function buildCall(values) {
+export function buildCall(values, ids = {}) {
   const data = { message: String(values.message).trim(), severity: values.severity, channels: [...values.channels] };
   if (String(values.title).trim()) data.title = String(values.title).trim();
   if (values.channels.includes("speak") && String(values.tts_message).trim()) data.tts_message = String(values.tts_message).trim();
@@ -389,7 +389,8 @@ export function buildCall(values) {
   if (String(values.tag).trim()) data.tag = String(values.tag).trim();
   // The default (automatic policies apply) is left out of the YAML; one manual policy is a string.
   if (values.match_automatic === false) data.match_policies_automatically = false;
-  const policy = values.policy || [];
+  // A call names a policy and an audience by the entity ID of its switch or sensor (D-198).
+  const policy = (values.policy || []).map((name) => ids.policies?.[name] ?? name);
   if (policy.length) data.policy = policy.length === 1 ? policy[0] : [...policy];
   // Only what differs from the defaults, so the YAML stays short; snoozing means nothing for a
   // message nobody can dismiss.
@@ -400,7 +401,7 @@ export function buildCall(values) {
     if (channel === "persistent") continue;
     const audience = values[`${channel}_audience`];
     const recipients = values[`${channel}_recipients`] || [];
-    if (audience && channel !== "speak") targets[channel] = { audience };
+    if (audience && channel !== "speak") targets[channel] = { audience: ids.audiences?.[audience] ?? audience };
     else if (recipients.length) targets[channel] = { recipients: [...recipients] };
   }
   // The same people on every channel that takes people become one `audience` or `recipients`
@@ -440,8 +441,8 @@ export function ackText(policies, t) {
   return policies?.length ? fill(t.ack_yes, { policies: policies.join(", ") }) : t.ack_no;
 }
 
-export function callYaml(values, toYaml) {
-  return toYaml({ action: "heads_up.notify", data: buildCall(values) });
+export function callYaml(values, toYaml, ids = {}) {
+  return toYaml({ action: "heads_up.notify", data: buildCall(values, ids) });
 }
 
 // "push: 2 sent, 1 skipped" for each channel, in the order the channels appear.
@@ -554,6 +555,11 @@ export function mount(container, ctx) {
   container.append(root);
 
   const channelLabel = (c) => s.channel[c] || c;
+  // Name to entity ID of every audience and policy: the call and its YAML use the IDs.
+  const entityIds = () => ({
+    audiences: Object.fromEntries((data?.audiences || []).filter((a) => a.entity_id).map((a) => [a.name, a.entity_id])),
+    policies: Object.fromEntries((data?.policies || []).filter((p) => p.entity_id).map((p) => [p.name, p.entity_id])),
+  });
 
   function render() {
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
@@ -672,14 +678,14 @@ export function mount(container, ctx) {
   function yamlNode() {
     const box = el("section", { className: "hu-yaml" }, [el("h2", { textContent: t.yaml })]);
     const valid = validate(values).length === 0;
-    box.append(el("pre", { textContent: callYaml(values, ui.toYaml) }));
+    box.append(el("pre", { textContent: callYaml(values, ui.toYaml, entityIds()) }));
     const copy = el("button", { type: "button", textContent: t.copy });
     const status = el("span", { className: "hint", style: "margin-left:8px" });
     status.setAttribute("role", "status");
     status.setAttribute("aria-live", "polite");
     copy.addEventListener("click", async () => {
       try {
-        await navigator.clipboard.writeText(callYaml(values, ui.toYaml));
+        await navigator.clipboard.writeText(callYaml(values, ui.toYaml, entityIds()));
         status.textContent = t.copied;
       } catch (err) {
         status.textContent = t.copy_failed;
@@ -768,7 +774,7 @@ export function mount(container, ctx) {
       return;
     }
     try {
-      result = await hass.callWS({ type: "heads_up/hub_plan", ...buildCall(values) });
+      result = await hass.callWS({ type: "heads_up/hub_plan", ...buildCall(values, entityIds()) });
     } catch (err) {
       result = { error: err?.message || String(err?.code || "error") };
     }
@@ -777,7 +783,7 @@ export function mount(container, ctx) {
 
   async function sendTest() {
     try {
-      const response = await hass.callWS({ type: "heads_up/hub_test_send", ...buildCall(values) });
+      const response = await hass.callWS({ type: "heads_up/hub_test_send", ...buildCall(values, entityIds()) });
       testId = response.id;
       notice = fill(t.sent, { id: response.id, summary: plannedLine(response.channels, s) });
       outcome = [];

@@ -4,7 +4,11 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Changed
+- Breaking, for the 1.0.0 release: a call names an audience and a policy only by the entity ID of its sensor or switch (`audience: binary_sensor.heads_up_audience_at_home`, `policy: switch.heads_up_policy_night`). A text name such as `At home` or `Night` is refused with an error that gives the ID to use. This applies to `notify`, `push`, `popup`, `create_banner` and Test send. The keywords `none` and `automatic` stay. Speaker groups, areas and `Global address` are still written as text.
+
 ### Added
+- The audience editor shows the entity ID of the audience's sensor, like the policy editor does for the switch. A new audience shows the ID it will get.
 - Policy editor: shows the entity ID of the policy's switch, and the ID a new policy will get. Naming a policy in a call by this ID keeps working after a rename; the docs say what a rename changes.
 
 ## [1.0.0-alpha.8] - 2026-11-09

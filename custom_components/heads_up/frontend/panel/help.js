@@ -17,7 +17,7 @@ data:
   severity: critical
   tag: water
   channels: [banner, push]
-  audience: Everyone`,
+  audience: binary_sensor.heads_up_audience_everyone`,
   },
   {
     id: "e3",
@@ -27,7 +27,7 @@ data:
   tts_message: Water in the utility room
   severity: critical
   channels: [push, speak, persistent]
-  audience: Admins
+  audience: binary_sensor.heads_up_audience_admins
   speakers: [Ground floor (group)]`,
   },
   {
@@ -46,7 +46,7 @@ data:
     yaml: `action: heads_up.push
 data:
   message: Window left open
-  audience: Last to leave`,
+  audience: binary_sensor.heads_up_audience_last_to_leave`,
   },
   {
     id: "e6",

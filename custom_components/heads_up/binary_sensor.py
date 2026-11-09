@@ -139,6 +139,37 @@ class AudienceSensor(BinarySensorEntity):
         )
 
 
+def audience_entity_id(
+    hass: HomeAssistant, entry: ConfigEntry, subentry_id: str | None, name: str
+) -> str:
+    """The entity ID of a custom audience's sensor: the registered one, which a rename does not
+    change, or the one Home Assistant will give a new audience (D-198)."""
+    registry = er.async_get(hass)
+    if subentry_id and (
+        found := registry.async_get_entity_id(
+            "binary_sensor", DOMAIN, f"{entry.entry_id}{UNIQUE_MARK}{subentry_id}"
+        )
+    ):
+        return found
+    generate = (
+        getattr(registry, "async_get_available_entity_id", None)
+        or registry.async_generate_entity_id
+    )
+    return str(generate("binary_sensor", f"Heads Up audience {name}"))
+
+
+def audience_entity_ids(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, str]:
+    """Audience name to the entity ID of its sensor, for every audience that has one."""
+    registry = er.async_get(hass)
+    found: dict[str, str] = {}
+    for registered in er.async_entries_for_config_entry(registry, entry.entry_id):
+        if registered.domain == "binary_sensor" and (
+            name := audience_name_for_entity(hass, entry, registered.entity_id)
+        ):
+            found[name] = registered.entity_id
+    return found
+
+
 def audience_name_for_entity(hass: HomeAssistant, entry: ConfigEntry, entity_id: str) -> str | None:
     """The audience an entity of this integration stands for, by its unique ID, or None."""
     registered = er.async_get(hass).async_get(entity_id)
@@ -161,6 +192,8 @@ def audience_name_for_entity(hass: HomeAssistant, entry: ConfigEntry, entity_id:
 __all__ = [
     "AudienceSensor",
     "async_setup_entry",
+    "audience_entity_id",
+    "audience_entity_ids",
     "audience_name_for_entity",
     "notify_audiences_changed",
 ]

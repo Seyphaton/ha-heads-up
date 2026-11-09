@@ -18,6 +18,7 @@ from homeassistant.components.websocket_api.decorators import (
 )
 from homeassistant.core import HomeAssistant, callback
 
+from .binary_sensor import audience_entity_id
 from .const import (
     BUILTIN_AUDIENCES,
     DOMAIN,
@@ -579,6 +580,25 @@ def ws_policy_entity_id(
     connection.send_result(msg["id"], {"entity_id": entity_id})
 
 
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/audience_entity_id",
+        vol.Required("name"): str,
+        vol.Optional("subentry_id"): str,
+    }
+)
+@require_admin
+@callback
+def ws_audience_entity_id(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The entity ID of a custom audience's sensor, or the one a new audience will get (D-198)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    entity_id = audience_entity_id(hass, entry, msg.get("subentry_id"), msg["name"].strip())
+    connection.send_result(msg["id"], {"entity_id": entity_id})
+
+
 @websocket_command({vol.Required("type"): "heads_up/hub_usage", vol.Required("name"): str})
 @require_admin
 @callback
@@ -735,6 +755,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_acknowledge,
         ws_hub_usage,
         ws_policy_entity_id,
+        ws_audience_entity_id,
         ws_hub_plan,
         ws_hub_test_send,
         ws_hub_plan_yaml,

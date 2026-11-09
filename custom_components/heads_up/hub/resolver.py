@@ -74,7 +74,8 @@ class HubResolver:
         self._groups: dict[str, Group] = {}
         self._profiles: dict[str, StoredProfile] = {}
         # Set by the integration: the audience an entity of its own stands for (D-186).
-        self.audience_for_entity: Callable[[str], str | None] = lambda _entity_id: None
+        # Every audience name with the entity ID of its sensor; a call names it by the ID (D-198).
+        self.audience_entities: Callable[[], dict[str, str]] = lambda: {}
 
     async def async_start(self) -> None:
         await self.presence.async_start()

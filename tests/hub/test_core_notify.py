@@ -137,13 +137,16 @@ async def test_persistent_and_banner_need_no_target(
     assert result["channels"]["persistent"]["sent"] == 1
 
 
-async def test_unknown_audience_lists_the_valid_names(
+async def test_unknown_audience_lists_the_valid_entity_ids(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
+    ghost = "binary_sensor.heads_up_audience_zzz"
     with pytest.raises(ServiceValidationError) as err:
-        await notify(hass, message="x", channels=["push"], to={"push": {"audience": "Nobody"}})
+        await notify(hass, message="x", channels=["push"], to={"push": {"audience": ghost}})
     assert err.value.translation_key == "unknown_audience"
-    assert err.value.translation_placeholders["name"] == "Nobody"  # type: ignore[index]
+    placeholders = err.value.translation_placeholders
+    assert placeholders["name"] == ghost  # type: ignore[index]
+    assert "binary_sensor.heads_up_audience_at_home" in placeholders["valid"]  # type: ignore[index]
 
 
 async def test_unknown_recipient_lists_the_valid_names(
@@ -309,27 +312,30 @@ async def test_an_audience_name_in_another_case_is_accepted_and_stored_as_writte
     assert banners(entry)["case"].targets["banner"]["audience"] == "At home"
 
 
-async def test_a_close_audience_name_gets_a_suggestion(
+async def test_a_close_audience_id_gets_a_suggestion(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
+    close = "binary_sensor.heads_up_audience_at_hom"
     with pytest.raises(ServiceValidationError) as err:
-        await notify(hass, message="x", channels=["push"], to={"push": {"audience": "At hom"}})
+        await notify(hass, message="x", channels=["push"], to={"push": {"audience": close}})
     assert err.value.translation_key == "unknown_audience_hint"
     placeholders = err.value.translation_placeholders
-    assert placeholders["suggestion"] == "At home"  # type: ignore[index]
+    assert placeholders["suggestion"] == "binary_sensor.heads_up_audience_at_home"  # type: ignore[index]
 
 
-async def test_a_policy_name_in_another_case_is_accepted(
+async def test_a_policy_is_named_by_its_switch_and_a_close_id_gets_a_suggestion(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
     from .policy_support import add_policy
 
     await add_policy(hass, entry, "Night", type="reminder", every_minutes=30, max_count=3)
-    result = await notify(hass, id="p", message="x", channels=["banner"], policy="night")
+    result = await notify(
+        hass, id="p", message="x", channels=["banner"], policy="switch.heads_up_policy_night"
+    )
     assert result["status"] == "created"
     assert banners(entry)["p"].policy == ["automatic", "Night"]
     with pytest.raises(ServiceValidationError) as err:
-        await notify(hass, message="x", channels=["banner"], policy="Nigh")
+        await notify(hass, message="x", channels=["banner"], policy="switch.heads_up_policy_nigh")
     assert err.value.translation_key == "unknown_policy_hint"
 
 

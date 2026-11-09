@@ -633,7 +633,7 @@ policy:
   notify:
     channels: [push, speak, persistent]
     to:
-      push: {audience: Admins}
+      push: {audience: binary_sensor.heads_up_audience_admins}
       speak: {recipients: [Ground floor speakers]}
   dismiss_counts: true
 ```

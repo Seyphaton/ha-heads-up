@@ -23,6 +23,14 @@ const T = STRINGS.en;
 const values = (extra = {}) => ({ ...blankValues(), message: "Door open", ...extra });
 
 describe("test send call", () => {
+  it("names an audience and a policy by the entity ID of its sensor or switch", () => {
+    const ids = { audiences: { "At home": "binary_sensor.heads_up_audience_at_home" }, policies: { Night: "switch.heads_up_policy_night" } };
+    const call = buildCall(values({ channels: ["push"], push_audience: "At home", policy: ["Night", "none"] }), ids);
+    expect(call.audience).toBe("binary_sensor.heads_up_audience_at_home");
+    expect(call.policy).toEqual(["switch.heads_up_policy_night", "none"]);
+    expect(buildCall(values({ policy: ["Night"] }), ids).policy).toBe("switch.heads_up_policy_night");
+  });
+
   it("builds only what is set", () => {
     expect(buildCall(values())).toEqual({ message: "Door open", severity: "info", channels: ["banner"] });
   });

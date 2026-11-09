@@ -163,3 +163,20 @@ async def test_the_entity_id_command_is_for_admins_only(
     client = await hass_ws_client(hass, hass_read_only_access_token)
     reply = await ask(client, "policy_entity_id", name="x")
     assert reply["error"]["code"] == "unauthorized"
+
+
+async def test_the_panel_lists_the_entity_id_of_each_audience_and_a_new_one_gets_a_free_id(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    from .policy_support import add_audience
+
+    await add_audience(hass, entry, "Family", kind="persons", persons=["person.anna"])
+    client = await hass_ws_client(hass)
+    reply = await ask(client, "panel_config")
+    ids = {a["name"]: a["entity_id"] for a in reply["result"]["audiences"]}
+    assert ids["At home"] == "binary_sensor.heads_up_audience_at_home"
+    assert ids["Family"] == "binary_sensor.heads_up_audience_family"
+    free = await ask(client, "audience_entity_id", name="Neighbours")
+    assert free["result"]["entity_id"] == "binary_sensor.heads_up_audience_neighbours"
+    taken = await ask(client, "audience_entity_id", name="Family")
+    assert taken["result"]["entity_id"] == "binary_sensor.heads_up_audience_family_2"
