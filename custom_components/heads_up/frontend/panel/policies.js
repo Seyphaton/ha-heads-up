@@ -478,7 +478,8 @@ const CSS = `
 .hu-page .position { min-width: 1.6em; text-align: right; font-weight: 600; color: var(--secondary-text-color); }
 .hu-page button.move { min-width: 44px; padding: 0; }
 .hu-page li.policy { display: flex; align-items: center; gap: 4px; }
-.hu-page li.policy .grow { flex: 1; }
+.hu-page li.policy .grow { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.hu-page li.policy button { flex: none; }
 `;
 
 const TYPES = ["escalation", "reminder", "quiet_hours", "away", "fallback", "deliver", "summarize"];
