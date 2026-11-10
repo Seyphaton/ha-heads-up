@@ -1257,3 +1257,18 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Parity (rule 9): a watch rule names a policy in its form, not in a call; the form keeps the name. Exception, with D-197 as the open follow-up.
 - Blast radius: breaking for every caller that wrote a name (the dev smoke script and the docs examples were changed); texts in four languages; test helper `with_entity_ids` turns names into IDs for the tests that are about something else.
 
+
+## D-199 Identity model: internal keys are IDs, names are display (2026-11-10, approved by the maintainer)
+- Context: since D-186 an audience is a sensor and a policy a switch, and since D-198 calls name them by entity ID, but inside almost everything keys on the name: `Policy.key` is `type:name` (timer rows, summary ids, held rows), `Banner.policy`, rule `policy`, policy targets (`audience`, `Name (group)`), stored banner targets. A rename leaves the old name in all of them and ends running timers (`policy_gone`). Full inventory in `docs/dev/hub/IDENTITY.md`.
+- Decision (approved): the key of a policy, custom audience and recipient group is its subentry ID, of a built-in audience its kind, of an area its area ID; names are display only and are written into history at the time. A reference to a deleted object dangles and is reported (`reference_missing`); it is never re-linked to a new object with the same name. Reads accept the ID and the legacy name (dual read), writes use the ID only.
+- Blast radius: restart, notification path (policy selection, timers, target resolution), stored data (see D-200).
+
+## D-200 Migration to IDs: major bump, backup, idempotent (2026-11-10, approved by the maintainer)
+- Decision (approved; the maintainer said it is all part of 1.0.0): config entry `VERSION` 2 with `async_migrate_entry`, stores `heads_up.banners`, `heads_up.deliveries`, `heads_up.trace` to version 2, so older code cannot load migrated data (Home Assistant refuses a higher entry version and a store raises `UnsupportedStorageVersionError`, N-98). A one-time backup `heads_up.migration_v2` is written before the first change. The entry migration is atomic (one save); the store migrations run in the store load and are idempotent; the dual read covers a crash between them. Timer rows keep `due` and `count`; none is dropped or duplicated.
+- Rollback: restore the backup with Home Assistant stopped and install the earlier release (script in the last step).
+
+## D-201 Calls name a group by entity; Home Assistant entity ID renames are followed (2026-11-10, approved by the maintainer)
+- Decision (approved): one sensor per recipient group; `Name (group)` and an area name in a call are refused like a name in D-198, with the ID to use. The integration listens to `entity_registry_updated` (`old_entity_id`) and rewrites only its own references, with a trace row each; what it cannot rewrite gets the attention item `entity_renamed`. `mail_service` stays a free name with a `mail_service_missing` check.
+
+## D-202 Rule form and editors send keys (2026-11-10, approved by the maintainer)
+- Decision (approved): the watch rule Policy field is a dropdown built when the form opens (Automatic, None, each policy: name as label, subentry ID as value); policy-form audience selects and group chips store keys; panel commands (`audience_enable`, `hub_usage`, `hub_preview_audience`) take keys. Parity (rule 9): banners from `notify` and from rules both store keys; the D-198 exception for the rule form closes.

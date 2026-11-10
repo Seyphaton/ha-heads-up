@@ -119,3 +119,11 @@
 - Idea: a notice at the first start after an update from 0.4.0 or earlier that lists the removed `wait_for_condition` and the required `severity` of `notify`. Today the Repairs issue `wait_for_condition_removed` appears on first use of the old field (D-192). The log of last actions and the recent messages are still memory only (D-194).
 - Renaming a policy leaves its old name in watch rules and stored messages, and ends the timers of running escalations and reminders (D-197). Idea: rename the name in rules when the policy is renamed, or store the switch ID instead of the name. Not planned.
 
+
+## Rename-proof identities: left out of the phase (2026-11-10)
+- Disabling a policy ends its running escalation and reminder (`policy_gone`). Intended, but it is the same reason code as a deleted policy; the design splits the codes (`policy_disabled`, `policy_deleted`) and keeps the behaviour.
+- `{name}` in a rule message with no entity is the rule name, so renaming the rule changes the text. Left as is; a user who wants fixed text writes it.
+- Trace, activity log and recent messages keep the names of their time. No rewrite.
+- A notify service renamed in another integration (`mail_service`) can only be reported, not repaired.
+- A hand-written call that names an area by name works until the area is renamed in Home Assistant; the stored form is the area ID.
+- Whether the property-style rename test should also run against the dev instance (real entity registry) and not only unit fixtures.
