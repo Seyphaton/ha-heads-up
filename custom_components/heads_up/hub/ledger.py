@@ -22,6 +22,7 @@ from ..const import (
 from ..models import Banner
 from ..storage import ledger_store
 from .identity import IdentityMaps, count_changes
+from .rename import rewrite
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -131,6 +132,13 @@ class HeldMessage:
             people=list(self.people),
         )
 
+    def rename_entity(self, old: str, new: str) -> int:
+        """An entity ID in the people and targets changed; returns how many places did."""
+        before = (list(self.people), self.targets)
+        self.people = [new if p == old else p for p in self.people]
+        self.targets = rewrite(self.targets, old, new)
+        return int(before != (self.people, self.targets))
+
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
         data["held_at"] = self.held_at.isoformat()
@@ -188,6 +196,20 @@ class DeliveryLedger:
                 _LOGGER.error("Skipping unreadable held message %r in storage: %s", raw_held, err)
                 continue
             self.held[kept.message_id] = kept
+
+    def rename_entity(self, old: str, new: str) -> int:
+        """Rows of a person or speaker whose entity ID changed keep their place under the new ID."""
+        moved = [r for r in self.rows.values() if old in (r.recipient, r.person)]
+        for row in moved:
+            del self.rows[row.key]
+            if row.recipient == old:
+                row.recipient = new
+            if row.person == old:
+                row.person = new
+            self.rows[row.key] = row
+        if moved:
+            self._save()
+        return len(moved)
 
     def put_held(self, held: HeldMessage) -> None:
         self.held[held.message_id] = held

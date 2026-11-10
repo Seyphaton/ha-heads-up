@@ -778,6 +778,21 @@ class HubEngine:
                     return "group_missing"
         return None
 
+    def record(self, kind: str, detail: str) -> None:
+        """A line in the log and the trace that belongs to no message."""
+        self._log(kind, "", detail)
+        self._trace("", "", "", kind, detail)
+
+    def rename_entity(self, old: str, new: str) -> int:
+        """An entity ID changed: the ledger and held messages follow (D-201)."""
+        changed = self.ledger.rename_entity(old, new)
+        for kept in self.ledger.held.values():
+            moved = kept.rename_entity(old, new)
+            changed += moved
+            if moved:
+                self.ledger.put_held(kept)
+        return changed
+
     def sync_identity(self, subentries: Mapping[str, ConfigSubentry]) -> None:
         self.identity = maps_for(self.hass, subentries.values())
 

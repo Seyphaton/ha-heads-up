@@ -186,6 +186,25 @@ def _rule_data(entry: Any) -> list[dict[str, Any]]:
     ]
 
 
+def check_references(policy_refs: list[tuple[str, str, str, str]], known: Any) -> list[Attention]:
+    """A rule or a stored message that names a policy that no longer exists (error). Each item
+    is (page, subject, ref of the owner, policy reference); `known(ref)` says whether it exists.
+    Nothing is re-linked by name: a new policy with the old name is a different policy (D-199)."""
+    found = []
+    for page, subject, owner, ref in policy_refs:
+        if ref in ("none", "automatic") or known(ref):
+            continue
+        shown = ref[len("name:") :] if ref.startswith("name:") else ref
+        found.append(Attention("reference_missing", "error", subject, shown, page, ref=owner))
+    return found
+
+
+def check_mail_service(service: str, exists: bool) -> list[Attention]:
+    """The notify service that sends mail is not registered (error): it was renamed or removed
+    in the integration that provides it. Nothing here can repair another integration's name."""
+    return [] if not service or exists else [Attention("mail_service_missing", "error", service)]
+
+
 def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[dict[str, Any]]:
     hub = manager.hub
     states = {s.entity_id: s.state for s in hass.states.async_all()}
@@ -217,6 +236,17 @@ def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[d
         ]
         found += check_groups(groups)
         found += check_policies(_policy_inputs(entry, hub))
+        refs = [
+            ("rules", s.title, f"rule_{s.subentry_id}", str(s.data["policy"]))
+            for s in entry.subentries.values()
+            if s.subentry_type == RULE_SUBENTRY and s.data.get("policy")
+        ]
+        for banner in manager.banners.values():
+            policy = banner.policy if isinstance(banner.policy, list) else [banner.policy]
+            refs += [("messages", banner.title or banner.id, banner.id, p) for p in policy if p]
+        found += check_references(refs, lambda ref: hub.policies.get(ref) is not None)
+        service = str(manager.options.get(OPT_MAIL_SERVICE) or "")
+        found += check_mail_service(service, hass.services.has_service("notify", service))
         found += check_critical_escalation(hub.policies.all())
         found += check_failures(hub.log.latest(), dt_util.utcnow())
     return [item.as_dict() for item in found]

@@ -64,6 +64,7 @@ from .const import (
     SOURCE_RULE,
 )
 from .hub.engine import HubEngine
+from .hub.rename import rewrite
 from .hub.transitions import BannerTransition, Kind, Reason, TransitionListener
 from .models import Banner
 from .storage import banner_store
@@ -162,6 +163,21 @@ class BannerManager:
         self._refresh_tracking()
         if dropped:
             self._save()
+
+    def rename_entity(self, old: str, new: str) -> int:
+        """An entity ID changed in Home Assistant: stored messages follow it (D-201)."""
+        changed = 0
+        for banner in self.banners.values():
+            before = (banner.people, banner.targets, banner.condition)
+            banner.people = [new if p == old else p for p in banner.people]
+            banner.targets = rewrite(banner.targets, old, new)
+            banner.condition = rewrite(banner.condition, old, new)
+            if before != (banner.people, banner.targets, banner.condition):
+                changed += 1
+        if changed:
+            self._refresh_tracking()
+            self._save()
+        return changed
 
     async def async_unload(self) -> None:
         for cancel in self._timers.values():

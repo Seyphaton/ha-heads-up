@@ -31,6 +31,7 @@ from .hub.ledger import remove_ledger
 from .hub.migration import async_migrate_entry as migrate_entry
 from .hub.panel import async_sync_panel
 from .hub.panel import wanted as panel_wanted
+from .hub.rename import follow_renames
 from .manager import BannerManager
 from .sensor import group_entity_ids
 from .services import async_setup_services
@@ -76,6 +77,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> b
             entry, options={**entry.options, OPT_POLICY_ORDER: manager.options[OPT_POLICY_ORDER]}
         )
     entry.runtime_data = manager
+    follow_renames(hass, entry)
     entry.async_on_unload(entry.add_update_listener(_async_entry_updated))
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     await async_add_card(hass)
