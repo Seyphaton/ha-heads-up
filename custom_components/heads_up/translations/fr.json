@@ -330,6 +330,12 @@
     },
     "policy_needs_entity": {
       "message": "La politique « {name} » se désigne par son ID d'entité. Utilisez {entity_id}."
+    },
+    "group_needs_entity": {
+      "message": "Le groupe « {name} » se désigne par l'ID d'entité de son capteur. Utilisez {entity_id}."
+    },
+    "area_needs_id": {
+      "message": "La pièce « {name} » se désigne par son ID de zone. Utilisez {entity_id}."
     }
   },
   "issues": {

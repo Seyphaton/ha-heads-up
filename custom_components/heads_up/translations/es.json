@@ -330,6 +330,12 @@
     },
     "policy_needs_entity": {
       "message": "La política «{name}» se indica con su ID de entidad. Usa {entity_id}."
+    },
+    "group_needs_entity": {
+      "message": "El grupo «{name}» se indica con el ID de entidad de su sensor. Usa {entity_id}."
+    },
+    "area_needs_id": {
+      "message": "El área «{name}» se indica con su ID de área. Usa {entity_id}."
     }
   },
   "issues": {

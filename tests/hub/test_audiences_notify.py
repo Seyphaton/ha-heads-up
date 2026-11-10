@@ -80,7 +80,7 @@ async def test_a_custom_audience_and_a_group_can_be_used_in_a_call(
         channels=["popup", "speak"],
         to={
             "popup": {"audience": "Parents"},
-            "speak": {"recipients": ["Ground floor (group)"]},
+            "speak": {"recipients": ["sensor.heads_up_group_ground_floor"]},
         },
     )
     assert result["channels"]["popup"]["sent"] == 1  # one person

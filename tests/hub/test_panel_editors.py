@@ -79,7 +79,9 @@ async def test_groups_list_their_speakers_the_call_name_and_the_policies_using_t
     await add_policy(hass, entry, "Spoken", **uses)
     client = await hass_ws_client(hass)
     (group,) = (await config(hass, client))["groups"]
-    assert group["call_name"] == "Hall (group)" and group["speakers"] == [fake_speakers.satellite]
+    assert group["call_name"] == "sensor.heads_up_group_hall" and group["speakers"] == [
+        fake_speakers.satellite
+    ]
     assert group["used_by"] == ["Spoken"] and group["subentry_id"]
 
 

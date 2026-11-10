@@ -39,6 +39,7 @@ from ..const import (
     SEVERITIES,
 )
 from ..manager import BannerManager
+from ..sensor import group_entity_id
 from ..switch import policy_entity_id
 from .audiences import BUILTINS
 from .channels import mail
@@ -165,7 +166,8 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
             "name": sub.title,
             "subentry_id": sub.subentry_id,
             "data": dict(sub.data),
-            "call_name": f"{sub.title}{GROUP_SUFFIX}",
+            # A call names a group by its sensor, which a rename keeps (D-201).
+            "call_name": group_entity_id(hass, entry, sub.subentry_id, sub.title),
             "speakers": sorted(
                 {m for m in sub.data.get("members", []) if hass.states.get(m) is not None}
                 | {s for a in sub.data.get("areas", []) for s in area_speakers(hass, a)}

@@ -79,6 +79,8 @@ class HubResolver:
         # Set by the integration: the audience an entity of its own stands for (D-186).
         # Every audience name with the entity ID of its sensor; a call names it by the ID (D-198).
         self.audience_entities: Callable[[], dict[str, str]] = lambda: {}
+        # Subentry ID of every group to the entity ID of its sensor (D-201).
+        self.group_entities: Callable[[], dict[str, str]] = lambda: {}
 
     async def async_start(self) -> None:
         await self.presence.async_start()
@@ -138,14 +140,29 @@ class HubResolver:
     def stored_recipient(self, channel: str, value: str) -> str:
         """How a recipient of a call is stored: a group and an area by their keys, so a rename
         in either place changes nothing that is stored (D-199). Everything else as given."""
-        if channel != "speak" or "." in value:
+        if channel != "speak":
             return value
         if (group := self.group(value)) is not None:
             return f"{GROUP_PREFIX}{group.key}"
+        if "." in value:
+            return value
         if value.startswith((GROUP_PREFIX, AREA_PREFIX)):
             return value
         area = find_area(self._hass, value)
         return f"{AREA_PREFIX}{area}" if area is not None else value
+
+    def named_by_text(self, channel: str, value: str) -> tuple[str, str] | None:
+        """A speech recipient a call wrote as a name: `("group_needs_entity", <the sensor>)` or
+        `("area_needs_id", <the area ID>)`. A name changes when the group or area is renamed, an
+        entity ID or an area ID does not (D-201). None for anything else, tokens included."""
+        if channel != "speak" or "." in value or value.startswith((GROUP_PREFIX, AREA_PREFIX)):
+            return None
+        if self.is_group_ref(value) and (group := self.group(value)) is not None:
+            return "group_needs_entity", self.group_entities().get(group.key, group.name)
+        area = find_area(self._hass, value)
+        if area is not None and area != value:
+            return "area_needs_id", area
+        return None
 
     def stored_audience(self, ref: str) -> str:
         found = self.audience(ref)
@@ -192,8 +209,25 @@ class HubResolver:
     def is_group_ref(self, ref: str) -> bool:
         return ref.startswith(GROUP_PREFIX) or ref.casefold().endswith(GROUP_SUFFIX.casefold())
 
+    def group_for_entity(self, entity_id: str) -> Group | None:
+        """The group whose sensor this is, or None."""
+        for key, found in self.group_entities().items():
+            if found == entity_id:
+                return self._groups.get(key)
+        return None
+
+    def group_speakers(self, group: Group) -> list[str]:
+        """The speakers a group reaches now: its members that exist and those of its areas."""
+        speakers = set(speaker_entities(self._hass))
+        members = [*group.members]
+        for area in group.areas:
+            members += area_speakers(self._hass, area)
+        return [m for m in unique(members) if m in speakers]
+
     def group(self, ref: str) -> Group | None:
-        """The group a `group:<id>` token or a `Name (group)` text means."""
+        """The group a `group:<id>` token, a group sensor or a `Name (group)` text means."""
+        if (by_entity := self.group_for_entity(ref)) is not None:
+            return by_entity
         if ref.startswith(GROUP_PREFIX):
             return self._groups.get(ref[len(GROUP_PREFIX) :])
         if ref.casefold().endswith(GROUP_SUFFIX.casefold()):
@@ -394,12 +428,9 @@ class HubResolver:
             if item in speakers:
                 out.recipients.append(Recipient(item, "speaker"))
                 continue
-            group = self.group(item) if self.is_group_ref(item) else None
+            group = self.group(item) if self.is_group_ref(item) or "." in item else None
             if group is not None:
-                members = [*group.members]
-                for area in group.areas:
-                    members += area_speakers(self._hass, area)
-                found = [m for m in unique(members) if m in speakers]
+                found = self.group_speakers(group)
                 if not found:
                     out.skipped.append(Skipped(item, "group_empty"))
                 out.recipients += [

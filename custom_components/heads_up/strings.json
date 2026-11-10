@@ -330,6 +330,12 @@
     },
     "policy_needs_entity": {
       "message": "Policy \"{name}\" is given by its entity ID. Use {entity_id}."
+    },
+    "group_needs_entity": {
+      "message": "Group \"{name}\" is given by the entity ID of its sensor. Use {entity_id}."
+    },
+    "area_needs_id": {
+      "message": "Area \"{name}\" is given by its area ID. Use {entity_id}."
     }
   },
   "issues": {

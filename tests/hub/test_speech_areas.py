@@ -62,13 +62,22 @@ async def test_an_area_without_a_group_is_accepted_by_id(
     assert result["channels"]["speak"]["sent"] == 1
 
 
-@pytest.mark.parametrize("written", ["Kitchen", "kitchen", "KITCHEN"])
-async def test_an_area_is_accepted_by_name_in_any_case(
+@pytest.mark.parametrize("written", ["Kitchen", "KITCHEN"])
+async def test_an_area_named_by_text_is_refused_with_its_id(
     hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers, written: str
 ) -> None:
     kitchen(hass, fake_speakers)
-    result = await say(hass, entry, written)
-    assert result["channels"]["speak"]["sent"] == 1
+    with pytest.raises(ServiceValidationError) as err:
+        await say(hass, entry, written)
+    assert err.value.translation_key == "area_needs_id"
+    assert err.value.translation_placeholders["entity_id"] == "kitchen"  # type: ignore[index]
+
+
+async def test_an_area_is_accepted_by_its_token(
+    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+) -> None:
+    area_id = kitchen(hass, fake_speakers)
+    assert (await say(hass, entry, f"area:{area_id}"))["channels"]["speak"]["sent"] == 1
 
 
 async def test_an_unknown_area_fails_the_call_with_the_valid_names(
@@ -99,7 +108,7 @@ async def test_a_repeat_uses_the_same_entry_id_so_it_replaces(
     bell = capture_persistent(hass)
     area = ar.async_get(hass).async_create("Garage")
     await say(hass, entry, area.id)
-    await say(hass, entry, "Garage")
+    await say(hass, entry, area.id)
     assert [c.data["notification_id"] for c in bell.create] == ["heads_up_warning_area_garage"] * 2
 
 
@@ -109,7 +118,7 @@ async def test_a_group_that_resolves_to_nothing_leaves_a_bell_entry(
     bell = capture_persistent(hass)
     add_group(hass, entry, "Nobody", members=["media_player.gone"], areas=[])
     await hass.async_block_till_done()
-    await say(hass, entry, "Nobody (group)")
+    await say(hass, entry, "sensor.heads_up_group_nobody")
     (created,) = bell.create
     (group,) = [s for s in entry.subentries.values() if s.subentry_type == "recipient_group"]
     # Named by the group's ID, so renaming the group would not change the entry.

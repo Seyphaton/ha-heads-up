@@ -707,6 +707,8 @@ def _check_names(
             known = hub.recipients.known(channel)
             recipients = []
             for recipient in target["recipients"]:
+                if (text := hub.resolver.named_by_text(channel, recipient)) is not None:
+                    raise _needs_entity(text[0], recipient, text[1])
                 if hub.recipients.accepts(channel, recipient):
                     recipients.append(hub.resolver.stored_recipient(channel, recipient))
                 elif (stored := _canonical(recipient, known)) is not None:

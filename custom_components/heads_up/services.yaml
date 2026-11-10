@@ -189,10 +189,14 @@ notify:
           domain: person
           multiple: true
     speakers:
-      example: '["media_player.kitchen"]'
+      example: '["media_player.kitchen", "sensor.heads_up_group_ground_floor"]'
       selector:
         entity:
-          domain: media_player
+          filter:
+            - domain: media_player
+            - domain: assist_satellite
+            - integration: heads_up
+              domain: sensor
           multiple: true
     tts_message: &id016
       example: The garage door is open.

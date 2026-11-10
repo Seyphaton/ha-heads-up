@@ -32,6 +32,7 @@ from .hub.migration import async_migrate_entry as migrate_entry
 from .hub.panel import async_sync_panel
 from .hub.panel import wanted as panel_wanted
 from .manager import BannerManager
+from .sensor import group_entity_ids
 from .services import async_setup_services
 from .storage import banner_store, trace_store
 from .switch import policy_entity_ids
@@ -99,6 +100,7 @@ def _start_hub(hass: HomeAssistant, entry: HeadsUpConfigEntry, manager: BannerMa
     hub.policies.sync(entry.subentries)
     hub.sync_identity(entry.subentries)
     hub.resolver.audience_entities = lambda: audience_entity_ids(hass, entry)
+    hub.resolver.group_entities = lambda: group_entity_ids(hass, entry)
     hub.policies.policy_entities = lambda: policy_entity_ids(hass, entry)
     hub.channels.register(PushChannel(hass, hub, manager))
     hub.channels.register(SpeakChannel(hass, hub, manager))

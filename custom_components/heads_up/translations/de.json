@@ -330,6 +330,12 @@
     },
     "policy_needs_entity": {
       "message": "Die Richtlinie „{name}“ wird mit ihrer Entitäts-ID angegeben. Nimm {entity_id}."
+    },
+    "group_needs_entity": {
+      "message": "Die Gruppe „{name}“ wird mit der Entitäts-ID ihres Sensors angegeben. Nimm {entity_id}."
+    },
+    "area_needs_id": {
+      "message": "Der Bereich „{name}“ wird mit seiner Bereichs-ID angegeben. Nimm {entity_id}."
     }
   },
   "issues": {

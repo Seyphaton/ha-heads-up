@@ -96,3 +96,47 @@ async def test_an_empty_group_and_unknown_names_are_skipped_with_a_reason(
         ("Nobody (group)", "group_empty"),
         ("media_player.unknown", "unknown_recipient"),
     }
+
+
+async def test_a_group_has_a_sensor_that_keeps_its_entity_id_when_the_group_is_renamed(
+    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+) -> None:
+    speakers = fake_speakers
+    add_group(hass, entry, "Ground floor", members=[speakers.announce_player], areas=[])
+    await hass.async_block_till_done()
+    state = hass.states.get("sensor.heads_up_group_ground_floor")
+    assert state is not None and state.state == "1"
+    assert state.attributes["speakers"] == [speakers.announce_player]
+    (group,) = [s for s in entry.subentries.values() if s.subentry_type == "recipient_group"]
+    hass.config_entries.async_update_subentry(entry, group, title="Downstairs")
+    await hass.async_block_till_done()
+    renamed = hass.states.get("sensor.heads_up_group_ground_floor")
+    assert renamed is not None and renamed.attributes["group"] == "Downstairs"
+    result = await resolver(entry).resolve(
+        {"recipients": ["sensor.heads_up_group_ground_floor"]}, "speak", "warning"
+    )
+    assert [r.key for r in result.recipients] == [speakers.announce_player]
+
+
+async def test_a_group_written_as_text_is_refused_with_its_sensor(
+    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+) -> None:
+    import pytest
+    from homeassistant.exceptions import ServiceValidationError
+
+    add_group(hass, entry, "Ground floor", members=[fake_speakers.announce_player], areas=[])
+    await hass.async_block_till_done()
+    with pytest.raises(ServiceValidationError) as err:
+        await hass.services.async_call(
+            "heads_up",
+            "notify",
+            {
+                "message": "x",
+                "severity": "info",
+                "channels": ["speak"],
+                "speakers": ["Ground floor (group)"],
+            },
+            blocking=True,
+        )
+    assert err.value.translation_key == "group_needs_entity"
+    assert err.value.translation_placeholders["entity_id"] == "sensor.heads_up_group_ground_floor"  # type: ignore[index]

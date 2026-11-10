@@ -139,7 +139,7 @@ async def test_a_group_and_an_area_speak_on_all_their_members(
         ),
     )
     await hass.async_block_till_done()
-    result = await say(hass, entry, "Downstairs (group)")
+    result = await say(hass, entry, "sensor.heads_up_group_downstairs")
     assert result["channels"]["speak"]["sent"] == 2
     assert len(fake_speakers.announce) == 1 and len(fake_speakers.play_media) == 1
 
