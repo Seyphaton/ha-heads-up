@@ -52,11 +52,12 @@ class Attention:
     detail: str | None = None  # a reason code or a name
     page: str = ""  # the panel page that fixes it
     count: int | None = None  # how often, for a problem that repeats
+    ref: str = ""  # the object's key when its name can change; a dismissal remembers it (D-199)
 
     @property
     def key(self) -> str:
         """What a dismissal remembers: the same problem on the same object."""
-        return f"{self.kind}|{self.subject}|{self.detail or ''}"
+        return f"{self.kind}|{self.ref or self.subject}|{self.detail or ''}"
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -113,7 +114,9 @@ def check_people(profiles: list[dict[str, Any]]) -> list[Attention]:
     """A person with no usable device: push is skipped (warning). Not for a person whose profile
     does not accept push."""
     return [
-        Attention("person_no_device", "warning", p["name"], None, "recipients")
+        Attention(
+            "person_no_device", "warning", p["name"], None, "recipients", ref=p.get("person", "")
+        )
         for p in profiles
         if _accepts_push(p) and not any(d["service_found"] for d in p["devices"])
     ]
@@ -194,6 +197,7 @@ def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[d
             profiles.append(
                 {
                     "name": state.attributes.get("friendly_name") or state.entity_id,
+                    "person": state.entity_id,
                     "enabled": profile.enabled,
                     "channels": list(profile.channels),
                     "devices": [

@@ -9,7 +9,6 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.dispatcher import async_dispatcher_send
-from homeassistant.helpers.storage import Store
 from homeassistant.helpers.typing import ConfigType
 
 from .binary_sensor import audience_entity_ids, notify_audiences_changed
@@ -20,7 +19,6 @@ from .const import (
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
     SIGNAL_POLICIES,
-    TRACE_KEY,
 )
 from .frontend import async_add_card, async_register_card_path, async_remove_card
 from .hub.channels.mail import MailChannel
@@ -30,10 +28,12 @@ from .hub.channels.push import PushChannel
 from .hub.channels.speak import SpeakChannel
 from .hub.engine import HubEngine
 from .hub.ledger import remove_ledger
+from .hub.migration import async_migrate_entry as migrate_entry
 from .hub.panel import async_sync_panel
 from .hub.panel import wanted as panel_wanted
-from .manager import BannerManager, banner_store
+from .manager import BannerManager
 from .services import async_setup_services
+from .storage import banner_store, trace_store
 from .switch import policy_entity_ids
 from .websocket import async_setup_websocket
 
@@ -41,6 +41,10 @@ CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 PLATFORMS = [Platform.SENSOR, Platform.BINARY_SENSOR, Platform.SWITCH]
 
 type HeadsUpConfigEntry = ConfigEntry[BannerManager]
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    return await migrate_entry(hass, entry)
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
@@ -138,4 +142,4 @@ async def async_unload_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> 
 async def async_remove_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> None:
     await banner_store(hass).async_remove()
     await remove_ledger(hass)
-    await Store(hass, 1, TRACE_KEY).async_remove()
+    await trace_store(hass).async_remove()

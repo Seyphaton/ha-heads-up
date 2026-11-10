@@ -19,7 +19,6 @@ from homeassistant.config_entries import ConfigSubentry
 from homeassistant.const import EVENT_STATE_CHANGED
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
 from homeassistant.helpers.event import async_track_point_in_utc_time
-from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from ..const import (
@@ -38,9 +37,9 @@ from ..const import (
     SUMMARY_PREFIX,
     TARGET_CHANNELS,
     TIMER_CHANNEL,
-    TRACE_KEY,
 )
 from ..models import Banner
+from ..storage import trace_store
 from .activity import Activity, ActivityLog, RecentMessages
 from .channels import ChannelRegistry, Outcome, Result, Target
 from .channels.persistent import warn_speech
@@ -109,7 +108,7 @@ class HubEngine:
         self.channels = ChannelRegistry()
         self.ledger = DeliveryLedger(hass)
         self.trace = TraceBuffer(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
-        self._trace_store: Store[dict[str, Any]] = Store(hass, 1, TRACE_KEY)
+        self._trace_store = trace_store(hass)
         self.resolver = HubResolver(hass, options)
         self.limiter = Limiter(options)
         self.log = ActivityLog(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
@@ -143,6 +142,9 @@ class HubEngine:
         """Load the ledger and forget what no longer exists, without re-sending anything."""
         self.ledger.identity = self.identity
         await self.ledger.async_load()
+        if self.ledger.migrated:
+            _LOGGER.info("Stored deliveries: %d names became keys", self.ledger.migrated)
+            await self.ledger.async_save()
         stored = await self._trace_store.async_load() or {}
         self.trace.load(stored.get("entries"))
         await self.resolver.async_start()

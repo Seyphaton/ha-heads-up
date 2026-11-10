@@ -76,7 +76,7 @@ from .services import ACTIONS_SCHEMA, IMAGE, TAP_ACTION_SCHEMA
 class HeadsUpConfigFlow(ConfigFlow, domain=DOMAIN):
     """Create the single Heads Up entry."""
 
-    VERSION = 1
+    VERSION = 2  # 2: stored references are keys, not names (D-200)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         # Duplicate entries are prevented by "single_config_entry" in manifest.json.

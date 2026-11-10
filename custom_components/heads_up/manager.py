@@ -28,7 +28,6 @@ from homeassistant.helpers.event import (
     async_track_state_change_event,
     async_track_template_result,
 )
-from homeassistant.helpers.storage import Store
 from homeassistant.helpers.template import Template, result_as_boolean
 from homeassistant.util import dt as dt_util
 
@@ -63,12 +62,11 @@ from .const import (
     SEVERITIES,
     SOURCE_ACTION,
     SOURCE_RULE,
-    STORAGE_KEY,
-    STORAGE_VERSION,
 )
 from .hub.engine import HubEngine
 from .hub.transitions import BannerTransition, Kind, Reason, TransitionListener
 from .models import Banner
+from .storage import banner_store
 
 _LOGGER = logging.getLogger(__name__)
 _NO_STATE = {STATE_UNAVAILABLE, STATE_UNKNOWN}
@@ -91,11 +89,6 @@ class HeadsUpError(Exception):
     def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
-
-
-def banner_store(hass: HomeAssistant) -> Store[dict[str, Any]]:
-    # Store API: HA_API_NOTES N-6
-    return Store(hass, STORAGE_VERSION, STORAGE_KEY)
 
 
 class BannerManager:
@@ -136,8 +129,14 @@ class BannerManager:
         data = await self._store.async_load() or {}
         now = dt_util.utcnow()
         dropped = False
+        maps = self.hub.identity if self.hub is not None else None
         for raw in data.get("banners", []):
             try:
+                if maps is not None and isinstance(raw, dict):
+                    # Names written by earlier versions become keys (D-200); saved below.
+                    renamed = maps.banner(raw)
+                    dropped |= renamed != raw
+                    raw = renamed
                 banner = Banner.from_dict(raw)
             except (TypeError, KeyError, ValueError, AttributeError) as err:
                 # One damaged entry must not take the other banners or the integration down.

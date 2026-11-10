@@ -13,17 +13,14 @@ from enum import StrEnum
 from typing import Any
 
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 
 from ..const import (
-    DELIVERIES_KEY,
-    DELIVERIES_MINOR_VERSION,
-    DELIVERIES_VERSION,
     SAVE_DELAY,
     TIMER_CHANNEL,
 )
 from ..models import Banner
+from ..storage import ledger_store
 from .identity import IdentityMaps, count_changes
 
 _LOGGER = logging.getLogger(__name__)
@@ -147,22 +144,9 @@ class HeldMessage:
         return cls(**{**raw, "held_at": held_at})
 
 
-class LedgerStore(Store[dict[str, Any]]):
-    async def _async_migrate_func(
-        self, old_major_version: int, old_minor_version: int, old_data: dict[str, Any]
-    ) -> dict[str, Any]:
-        # Version 1.1 is the first. A later layout change converts old_data here.
-        # Store API: HA_API_NOTES N-81.
-        if old_major_version > DELIVERIES_VERSION:
-            raise NotImplementedError
-        return old_data
-
-
 class DeliveryLedger:
     def __init__(self, hass: HomeAssistant) -> None:
-        self._store = LedgerStore(
-            hass, DELIVERIES_VERSION, DELIVERIES_KEY, minor_version=DELIVERIES_MINOR_VERSION
-        )
+        self._store = ledger_store(hass)
         self.rows: dict[tuple[str, str, str], Delivery] = {}
         self.held: dict[str, HeldMessage] = {}
         # Set before the load: stored policy references of earlier versions become keys (D-200).
@@ -262,6 +246,4 @@ class DeliveryLedger:
 
 
 async def remove_ledger(hass: HomeAssistant) -> None:
-    await LedgerStore(
-        hass, DELIVERIES_VERSION, DELIVERIES_KEY, minor_version=DELIVERIES_MINOR_VERSION
-    ).async_remove()
+    await ledger_store(hass).async_remove()

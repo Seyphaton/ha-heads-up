@@ -19,7 +19,7 @@ async def test_store_is_saved_with_its_own_key_and_versions(
     await settle(hass, entry)
     assert await hass.config_entries.async_unload(entry.entry_id)
     saved = hass_storage[KEY]
-    assert saved["version"] == 1 and saved["minor_version"] == 1
+    assert saved["version"] == 2 and saved["minor_version"] == 1
     row = saved["data"]["deliveries"][0]
     assert (row["message_id"], row["channel"], row["state"]) == ("a", "banner", "sent")
 

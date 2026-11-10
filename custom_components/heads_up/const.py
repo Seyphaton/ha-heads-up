@@ -6,7 +6,7 @@ from typing import Final
 DOMAIN: Final = "heads_up"
 
 STORAGE_KEY: Final = "heads_up.banners"
-STORAGE_VERSION: Final = 1
+STORAGE_VERSION: Final = 2  # 2: policy and target references are keys (D-200)
 SAVE_DELAY: Final = 1  # seconds; batches parallel callers (D-023)
 
 # Ordered lowest to highest: eviction picks from the front, the card sorts from the back.
@@ -82,7 +82,7 @@ OPT_POLICY_MODE: Final = "policy_mode"
 OPT_POLICY_ORDER: Final = "policy_order"  # subentry ids, first to last
 POLICY_MODES: Final = ("first", "all")
 DELIVERIES_KEY: Final = "heads_up.deliveries"
-DELIVERIES_VERSION: Final = 1
+DELIVERIES_VERSION: Final = 2  # 2: timer and held rows hold policy keys (D-200)
 DELIVERIES_MINOR_VERSION: Final = 1
 AUDIENCE_SUBENTRY: Final = "audience"
 GROUP_SUBENTRY: Final = "recipient_group"
@@ -112,6 +112,7 @@ POLICY_CHANNELS: Final = (
 TIMER_CHANNEL: Final = "timer"  # ledger rows of this channel hold escalation and reminder due times
 GROUP_SUFFIX: Final = " (group)"  # how a recipient group is named in calls
 PRESENCE_KEY: Final = "heads_up.presence"
+TRACE_VERSION: Final = 2  # raised with the other stores so older code refuses it (D-200)
 TRACE_KEY: Final = "heads_up.trace"  # the delivery trace survives a restart (D-194)
 # Built in, not stored (D-080). Names are the ones calls use.
 # A banner whose audience is empty when it is created is aimed at this person, who does not exist:
