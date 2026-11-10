@@ -32,8 +32,10 @@ from homeassistant.helpers.selector import (
     NumberSelectorConfig,
     NumberSelectorMode,
     ObjectSelector,
+    SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
+    SelectSelectorMode,
     TextSelector,
     TextSelectorConfig,
 )
@@ -70,6 +72,7 @@ from .hub.flows import (
     RecipientGroupSubentryFlow,
     RecipientProfileSubentryFlow,
 )
+from .hub.identity import NAME_PREFIX
 from .services import ACTIONS_SCHEMA, IMAGE, TAP_ACTION_SCHEMA
 
 
@@ -222,6 +225,14 @@ def _option_field(key: str, kind: str, current: dict[str, Any]) -> tuple[Any, An
     return field, EntitySelector(EntitySelectorConfig(domain="tts"))
 
 
+# The two fixed choices of the rule's Policy dropdown, by language: automatic, none.
+POLICY_LABELS = {
+    "en": ("Automatic", "None"),
+    "de": ("Automatisch", "Keine"),
+    "fr": ("Automatique", "Aucune"),
+    "es": ("Automática", "Ninguna"),
+}
+
 _RULE_SCHEMA = vol.Schema(
     {
         vol.Required("name"): TextSelector(),
@@ -263,7 +274,7 @@ _RULE_SCHEMA = vol.Schema(
         vol.Optional("actions"): ObjectSelector(),
         vol.Optional("tap_action"): ObjectSelector(),
         vol.Optional("image"): TextSelector(),
-        # A policy name, or none; empty means every automatic policy that applies (D-145).
+        # `automatic`, `none` or a policy key: a dropdown made when the form opens (D-202).
         vol.Optional("policy"): TextSelector(),
         vol.Required("enabled", default=True): BooleanSelector(),
     }
@@ -348,7 +359,7 @@ class RuleSubentryFlow(ConfigSubentryFlow):
         if user_input is not None:
             errors = self._validate(user_input)
             if not errors:
-                data = _rule_data(user_input)
+                data = self._with_policy_key(_rule_data(user_input))
                 if subentry is None:
                     return self.async_create_entry(title=user_input["name"], data=data)
                 return self.async_update_and_abort(
@@ -366,11 +377,52 @@ class RuleSubentryFlow(ConfigSubentryFlow):
             suggested = {**suggested, "for": _seconds_to_duration(suggested["for"])}
         return self.async_show_form(
             step_id=step_id,
-            data_schema=self.add_suggested_values_to_schema(_RULE_SCHEMA, suggested),
+            data_schema=self.add_suggested_values_to_schema(
+                self._schema_with_policies((suggested or {}).get("policy")), suggested
+            ),
             errors=errors,
             # The frontend reads a literal {name} in a translation as a missing placeholder.
             description_placeholders={"name_token": "{name}"},
         )
+
+    def _hub(self) -> Any:
+        return getattr(getattr(self._get_entry(), "runtime_data", None), "hub", None)
+
+    def _schema_with_policies(self, current: str | None) -> vol.Schema:
+        """The rule form with its Policy field as a dropdown: Automatic, None, then every policy.
+        The label is the name, the value the key, so renaming a policy does not unset the rule
+        (D-202). A policy that is gone stays listed as missing, so the form still opens."""
+        automatic, none = POLICY_LABELS.get(self.hass.config.language, POLICY_LABELS["en"])
+        options = [
+            SelectOptionDict(value=POLICY_AUTOMATIC, label=automatic),
+            SelectOptionDict(value=POLICY_NONE, label=none),
+        ]
+        hub = self._hub()
+        known = {p.key for p in hub.policies.all()} if hub is not None else set()
+        if hub is not None:
+            options += [SelectOptionDict(value=p.key, label=p.name) for p in hub.policies.all()]
+        if current and current not in known and current not in (POLICY_AUTOMATIC, POLICY_NONE):
+            shown = current[len(NAME_PREFIX) :] if current.startswith(NAME_PREFIX) else current
+            options.append(SelectOptionDict(value=current, label=f"{shown} (missing)"))
+        fields = {k: v for k, v in _RULE_SCHEMA.schema.items() if str(k) != "policy"}
+        fields[vol.Optional("policy", default=POLICY_AUTOMATIC)] = SelectSelector(
+            SelectSelectorConfig(
+                options=options, mode=SelectSelectorMode.DROPDOWN, custom_value=True
+            )
+        )
+        return vol.Schema(fields)
+
+    def _with_policy_key(self, data: dict[str, Any]) -> dict[str, Any]:
+        """The stored policy of a rule: nothing for automatic, `none`, or the policy's key."""
+        value = str(data.get("policy") or "").strip()
+        if not value or value.casefold() == POLICY_AUTOMATIC:
+            data.pop("policy", None)
+        elif value.casefold() == POLICY_NONE:
+            data["policy"] = POLICY_NONE
+        else:
+            found = self._hub().policies.get(value) if self._hub() is not None else None
+            data["policy"] = found.key if found is not None else value
+        return data
 
     def _validate(self, user_input: dict[str, Any]) -> dict[str, str]:
         errors: dict[str, str] = {}
@@ -423,11 +475,12 @@ class RuleSubentryFlow(ConfigSubentryFlow):
         if len(user_input.get("title") or "") > MAX_TITLE:
             errors["title"] = "title_too_long"
         if policy := (user_input.get("policy") or "").strip():
-            hub = getattr(getattr(self._get_entry(), "runtime_data", None), "hub", None)
+            hub = self._hub()
             if (
                 policy.casefold() not in (POLICY_NONE, POLICY_AUTOMATIC)
+                and not policy.startswith(NAME_PREFIX)
                 and hub is not None
-                and policy not in hub.policies.names()
+                and hub.policies.get(policy) is None
             ):
                 errors["policy"] = "policy_unknown"
         return errors

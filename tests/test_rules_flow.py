@@ -293,3 +293,51 @@ async def test_a_rule_refuses_a_policy_that_does_not_exist(
     )
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {"policy": "policy_unknown"}
+
+
+async def test_the_policy_field_lists_automatic_none_and_every_policy_by_key(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    from .hub.policy_support import ESCALATION, add_policy
+
+    night = await add_policy(hass, entry, "Night", **ESCALATION)
+    result = await hass.config_entries.subentries.async_init(
+        (entry.entry_id, "rule"), context={"source": config_entries.SOURCE_USER}
+    )
+    (field,) = [v for k, v in result["data_schema"].schema.items() if str(k) == "policy"]
+    options = [(o["value"], o["label"]) for o in field.config["options"]]
+    assert options == [("automatic", "Automatic"), ("none", "None"), (night.subentry_id, "Night")]
+
+
+async def test_a_rule_stores_the_key_of_its_policy_and_a_rename_keeps_it(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    from .hub.policy_support import ESCALATION, add_policy
+
+    night = await add_policy(hass, entry, "Night", **ESCALATION)
+    hass.states.async_set(WINDOW, "off")
+    flow_id = await start(hass, entry)
+    # A name is accepted too (the flow API of earlier versions) and stored as the key.
+    result = await hass.config_entries.subentries.async_configure(
+        flow_id, {"name": "Window", "entity_id": WINDOW, "message": "x", "policy": "night"}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (rule,) = [s for s in entry.subentries.values() if s.subentry_type == "rule"]
+    assert rule.data["policy"] == night.subentry_id
+    hass.config_entries.async_update_subentry(entry, night, title="Evening")
+    await hass.async_block_till_done()
+    banner = entry.runtime_data.rules[f"rule_{rule.subentry_id}"]
+    assert [p.name for p in entry.runtime_data.hub.policies.for_message(banner)] == ["Evening"]
+
+
+async def test_choosing_automatic_stores_no_policy(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(WINDOW, "off")
+    flow_id = await start(hass, entry)
+    result = await hass.config_entries.subentries.async_configure(
+        flow_id, {"name": "Window", "entity_id": WINDOW, "message": "x", "policy": "automatic"}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (subentry,) = entry.subentries.values()
+    assert "policy" not in subentry.data

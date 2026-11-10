@@ -809,7 +809,7 @@
             "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
-            "policy": "A policy name, or none. Empty: every automatic policy that applies to a rule message (tag rule). A name uses only that policy; none uses no policy."
+            "policy": "Automatic: every automatic policy that applies to a rule message (tag rule). A policy: only that policy, also after you rename it. None: no policy."
           }
         },
         "reconfigure": {

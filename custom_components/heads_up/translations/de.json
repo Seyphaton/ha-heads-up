@@ -809,7 +809,7 @@
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
-            "policy": "Der Name einer Richtlinie oder none. Leer: jede automatische Richtlinie, die für eine Regelmeldung gilt (Tag rule). Ein Name nutzt nur diese Richtlinie, none keine."
+            "policy": "Automatisch: jede automatische Richtlinie, die für eine Regelmeldung gilt (Tag rule). Eine Richtlinie: nur diese, auch nach einer Umbenennung. Keine: keine Richtlinie."
           }
         },
         "reconfigure": {

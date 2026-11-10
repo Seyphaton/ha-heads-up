@@ -398,9 +398,20 @@ export function recipientLabel(value, choices) {
   }
   const speaker = (choices.speaker_names || {})[value];
   if (speaker) return speaker === value ? value : `${speaker} (${value})`;
-  const area = (choices.areas || []).find((a) => a.id === value);
+  const area = (choices.areas || []).find((a) => a.id === value.replace(/^area:/, ""));
   if (area) return area.name;
+  // A stored group is its key; the name is for display (D-199).
+  const group = (choices.group_labels || {})[value];
+  if (group) return `${group} (group)`;
+  if (value.startsWith("name:")) return value.slice(5);
   return value;
+}
+
+// What an audience key is called: its name, or the text of a reference that matched nothing.
+export function audienceLabel(value, choices) {
+  const found = (choices.audience_choices || []).find((a) => a.id === value);
+  if (found) return found.name;
+  return value.startsWith("name:") ? value.slice(5) : value;
 }
 
 export function nameOf(list, id) {
@@ -448,7 +459,11 @@ export function targetBlock(channel, values, choices, labels, onChange) {
     );
   }
   if (mode === "audience") {
-    const options = [{ value: "", label: "—" }, ...choices.audience_names.map((n) => ({ value: n, label: n }))];
+    const choose = (choices.audience_choices || []).map((a) => ({ value: a.id, label: a.name }));
+    // A key that no audience has any more stays in the list, marked, so the policy still opens.
+    const current = values[audienceKey];
+    if (current && !choose.some((o) => o.value === current)) choose.push({ value: current, label: audienceLabel(current, choices) });
+    const options = [{ value: "", label: "—" }, ...choose];
     box.append(selectInput(options, values[audienceKey] || "", (v) => {
       values[audienceKey] = v;
       onChange();

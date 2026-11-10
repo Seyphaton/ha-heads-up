@@ -248,7 +248,7 @@ async def test_add_a_deliver_policy_with_a_target_per_channel(
     }
     assert (await run(hass, entry, "policy", data))["type"] is FlowResultType.CREATE_ENTRY
     (sub,) = subentries(entry, "policy")
-    assert dict(sub.data["targets"]) == {"push": {"audience": "Admins"}}
+    assert dict(sub.data["targets"]) == {"push": {"audience": "admins"}}
     assert "after_minutes" not in sub.data and sub.data["channels"] == ["push"]
 
 
@@ -301,7 +301,7 @@ async def test_a_fallback_can_take_its_channels_from_the_call(
     (sub,) = subentries(entry, "policy")
     assert sub.data["channels_from"] == "call" and "channels" in sub.data
     assert sub.data["channels"] == []
-    assert sub.data["targets"] == {"people": {"audience": "Everyone"}}
+    assert sub.data["targets"] == {"people": {"audience": "everyone"}}
     assert "targets_from" not in sub.data  # a default is not stored
 
 

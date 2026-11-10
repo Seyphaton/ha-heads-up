@@ -809,7 +809,7 @@
             "actions": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action. «dismiss» requiere «Se puede cerrar».\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```",
-            "policy": "El nombre de una política, o none. Vacío: cada política automática que se aplica a un mensaje de regla (etiqueta rule). Un nombre usa solo esa política, none ninguna."
+            "policy": "Automática: cada política automática que se aplica a un mensaje de regla (etiqueta rule). Una política: solo esa, también después de renombrarla. Ninguna: ninguna política."
           }
         },
         "reconfigure": {

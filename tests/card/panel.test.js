@@ -13,7 +13,7 @@ import {
   STRINGS,
   table,
 } from "../../custom_components/heads_up/frontend/heads-up-panel.js";
-import { recipientLabel } from "../../custom_components/heads_up/frontend/panel/ui.js";
+import { audienceLabel, recipientLabel } from "../../custom_components/heads_up/frontend/panel/ui.js";
 import { isDefault, profileValues, toProfileData } from "../../custom_components/heads_up/frontend/panel/recipients.js";
 import {
   changes,
@@ -459,5 +459,23 @@ describe("recipient profile enabled switch", () => {
     const values = { manual: [], removed: [], primary: "", mail_address: "", channels: ["push"], enabled: false };
     expect(toProfileData("person.anna", values, true).enabled).toBe(false);
     expect("enabled" in toProfileData("person.anna", { ...values, enabled: true }, true)).toBe(false);
+  });
+});
+
+describe("keys are shown by name (D-199)", () => {
+  const choices = {
+    areas: [{ id: "kitchen", name: "Kitchen" }],
+    group_labels: { "group:G1": "Ground floor" },
+    audience_choices: [{ id: "A1", name: "Parents" }, { id: "at_home", name: "At home" }],
+  };
+  it("names a stored group and area by their current name", () => {
+    expect(recipientLabel("group:G1", choices)).toBe("Ground floor (group)");
+    expect(recipientLabel("area:kitchen", choices)).toBe("Kitchen");
+    expect(recipientLabel("kitchen", choices)).toBe("Kitchen");
+  });
+  it("names an audience key, and shows what a missing reference said", () => {
+    expect(audienceLabel("A1", choices)).toBe("Parents");
+    expect(audienceLabel("at_home", choices)).toBe("At home");
+    expect(audienceLabel("name:Old", choices)).toBe("Old");
   });
 });

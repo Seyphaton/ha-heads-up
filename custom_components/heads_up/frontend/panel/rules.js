@@ -33,6 +33,7 @@ export const STRINGS = {
     f_policy: "Policy",
     policy_all: "All that apply (automatic)",
     policy_none: "None",
+    policy_missing: "missing",
     policy_hint: "A policy that is not automatic applies only when it is named here. A named policy is the only one used for this rule.",
     f_dismiss_scope: "Dismissing hides it for",
     scope_default: "Default (each user)",
@@ -89,6 +90,7 @@ export const STRINGS = {
     f_policy: "Richtlinie",
     policy_all: "Alle, die gelten (automatisch)",
     policy_none: "Keine",
+    policy_missing: "fehlt",
     policy_hint: "Eine Richtlinie, die nicht automatisch gilt, wirkt nur, wenn sie hier genannt ist. Eine genannte Richtlinie ist die einzige für diese Regel.",
     f_dismiss_scope: "Ausblenden gilt für",
     scope_default: "Standard (jeder Benutzer)",
@@ -145,6 +147,7 @@ export const STRINGS = {
     f_policy: "Politique",
     policy_all: "Toutes celles qui s'appliquent (automatiques)",
     policy_none: "Aucune",
+    policy_missing: "manquante",
     policy_hint: "Une politique non automatique ne s'applique que si elle est nommée ici. Une politique nommée est la seule utilisée pour cette règle.",
     f_dismiss_scope: "Masquer vaut pour",
     scope_default: "Par défaut (chaque utilisateur)",
@@ -201,6 +204,7 @@ export const STRINGS = {
     f_policy: "Política",
     policy_all: "Todas las que se aplican (automáticas)",
     policy_none: "Ninguna",
+    policy_missing: "falta",
     policy_hint: "Una política que no es automática solo se aplica si se nombra aquí. Una política nombrada es la única que se usa para esta regla.",
     f_dismiss_scope: "Descartar vale para",
     scope_default: "Por defecto (cada usuario)",
@@ -427,9 +431,12 @@ export function mount(container, ctx) {
     box.append(ui.field(t.f_snoozable, ui.selectInput([{ value: "", label: t.snooze_default }, { value: "on", label: t.snooze_on }, { value: "off", label: t.snooze_off }], values.snoozable, (v) => { values.snoozable = v; paint(); })));
     box.append(ui.field(t.f_snooze_scope, ui.selectInput(scopes.map((o) => (o.value === "" ? { ...o, label: t.snooze_default } : o)), values.snooze_scope, (v) => { values.snooze_scope = v; paint(); })));
     box.append(ui.chips(t.f_snooze_minutes, SNOOZE_MINUTES.map((m) => ({ value: String(m), label: String(m) })), values.snooze_minutes, (list) => { values.snooze_minutes = list; paint(); }));
-    const names = (data.policies || []).map((p) => p.name);
-    if (values.policy && values.policy !== "none" && !names.includes(values.policy)) names.push(values.policy);
-    const policies = [{ value: "", label: t.policy_all }, { value: "none", label: t.policy_none }, ...names.map((n) => ({ value: n, label: n }))];
+    // The value is the policy's key and the label its name, so a rename does not unset the rule (D-202).
+    const listed = (data.policies || []).map((p) => ({ value: p.subentry_id, label: p.name }));
+    if (values.policy && values.policy !== "none" && !listed.some((o) => o.value === values.policy)) {
+      listed.push({ value: values.policy, label: `${values.policy.replace(/^name:/, "")} (${t.policy_missing})` });
+    }
+    const policies = [{ value: "", label: t.policy_all }, { value: "none", label: t.policy_none }, ...listed];
     box.append(ui.field(t.f_policy, ui.selectInput(policies, values.policy, (v) => { values.policy = v; paint(); }), t.policy_hint));
     box.append(ui.checkbox(t.f_enabled, values.enabled, (on) => { values.enabled = on; paint(); }));
     if (own && (own.data.actions || own.data.tap_action)) box.append(el("div", { className: "hint", textContent: t.kept }));

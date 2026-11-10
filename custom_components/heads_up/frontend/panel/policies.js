@@ -748,14 +748,18 @@ export function appliesText(values, t) {
   return fill(t.s_applies, { parts: parts.join(t.s_and) });
 }
 
-export function sentence(values, t) {
+export function sentence(values, t, labels = {}) {
+  const audienceName = labels.audience || ((v) => v);
+  const recipientName = labels.recipient || ((v) => v);
   const text = sentenceBase(values, t);
   // Recipients taken from the call are said once, after the sentence (D-181).
   if (!["escalation", "fallback", "deliver"].includes(values.type)) return text;
   if (values.targets_from === "call") return `${text}${t.s_recipients_call}`;
   // Channels from the call and the people given by the policy: say who gets it.
   if (values.channels_from !== "policy") {
-    const who = [values.people_audience, ...(values.people_recipients || []), ...(values.speak_recipients || [])].filter(Boolean).join(", ");
+    const audience = values.people_audience ? audienceName(values.people_audience) : "";
+    const people = [...(values.people_recipients || []), ...(values.speak_recipients || [])].map(recipientName);
+    const who = [audience, ...people].filter(Boolean).join(", ");
     if (who) return `${text}${fill(t.s_recipients_policy, { who })}`;
   }
   return text;
@@ -1053,7 +1057,7 @@ export function mount(container, ctx) {
     function paint() {
       const found = validate(values, existing, own?.name);
       const codes = Object.values(found);
-      words.textContent = sentence(values, t);
+      words.textContent = sentence(values, t, { audience: (v) => ui.audienceLabel(v, data.choices), recipient: (v) => ui.recipientLabel(v, data.choices) });
       save.disabled = codes.length > 0;
       status.className = codes.length ? "hint problems" : "hint ok";
       status.textContent = codes.length ? codes.map((c) => ui.errorText(c, ctx.language)).join(" ") : message || s.common.valid;

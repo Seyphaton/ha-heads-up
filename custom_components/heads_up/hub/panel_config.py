@@ -236,6 +236,8 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
     if hub:
         # The persons of the "people" target of a policy whose channels come from the call (D-181).
         known["people"] = hub.recipients.known("popup")
+        # Speech is offered by key: a group and an area are not undone by a rename (D-199).
+        known["speak"] = [value for value, _label in hub.resolver.speak_choices()]
     return {
         "entry_id": entry.entry_id,
         "audiences": audiences,
@@ -259,6 +261,12 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
             "areas": area_choices(hass),
             "registrations": [{"id": k, "name": v or k} for k, v in registrations(hass).items()],
             "audience_names": hub.audiences.names() if hub else [],
+            "audience_choices": (
+                [{"id": k, "name": n} for k, n in hub.resolver.audience_choices()] if hub else []
+            ),
+            "group_labels": (
+                {f"{GROUP_PREFIX}{g.key}": g.name for g in hub.resolver.groups()} if hub else {}
+            ),
             "recipients": known,
             "notify_services": notify_services(hass),
         },

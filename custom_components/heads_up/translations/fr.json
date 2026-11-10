@@ -809,7 +809,7 @@
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
-            "policy": "Le nom d'une politique, ou none. Vide : chaque politique automatique qui s'applique à un message de règle (étiquette rule). Un nom n'utilise que cette politique, none n'en utilise aucune."
+            "policy": "Automatique : chaque politique automatique qui s'applique à un message de règle (balise rule). Une politique : seulement celle-ci, même après l'avoir renommée. Aucune : aucune politique."
           }
         },
         "reconfigure": {

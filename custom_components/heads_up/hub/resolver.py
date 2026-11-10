@@ -13,6 +13,7 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import area_registry as ar
 
 from ..const import (
     BANNER_NOBODY,
@@ -116,6 +117,16 @@ class HubResolver:
             return [*persons, MAIL_GLOBAL]
         return persons
 
+    def speak_choices(self) -> list[tuple[str, str]]:
+        """What a form offers for speech: value (the stored key) and label. A group and an area
+        are offered by key, so choosing one is not undone by a rename (D-199)."""
+        areas = {a.id: a.name for a in ar.async_get(self._hass).async_list_areas()}
+        return [
+            *((s, s) for s in speaker_entities(self._hass)),
+            *((f"{GROUP_PREFIX}{g.key}", f"{g.name}{GROUP_SUFFIX}") for g in self._groups.values()),
+            *((f"{AREA_PREFIX}{i}", areas[i]) for i in area_ids(self._hass)),
+        ]
+
     def accepts(self, channel: str, name: str) -> bool:
         """Whether a call may name this recipient. Speech also takes an area by its name."""
         if name in self.known(channel):
@@ -142,6 +153,14 @@ class HubResolver:
 
     def groups(self) -> list[Group]:
         return list(self._groups.values())
+
+    def audience_choices(self) -> list[tuple[str, str]]:
+        """Key and name of every audience a form offers."""
+        disabled = self.disabled_audiences()
+        return [
+            *((a.key, n) for n, a in BUILTINS.items() if a.key not in disabled),
+            *((a.key, a.name) for a in self._audiences.values()),
+        ]
 
     def disabled_audiences(self) -> set[str]:
         """Kinds of the built-in audiences the admin switched off (D-136): not offered, refused

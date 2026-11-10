@@ -348,16 +348,17 @@ class PolicySubentryFlow(_HubFlow):
     def _hub(self) -> Any:
         return getattr(getattr(self._get_entry(), "runtime_data", None), "hub", None)
 
-    def _options(self, names: list[str]) -> SelectSelectorConfig:
+    def _options(self, names: list[str] | list[tuple[str, str]]) -> SelectSelectorConfig:
+        pairs = [(n, n) if isinstance(n, str) else n for n in names]
         return SelectSelectorConfig(
-            options=[SelectOptionDict(value=n, label=n) for n in names],
+            options=[SelectOptionDict(value=v, label=label) for v, label in pairs],
             custom_value=True,
             multiple=True,
         )
 
     def _schema(self, reconfigure: bool) -> vol.Schema:
         hub = self._hub()
-        audiences = hub.audiences.names() if hub else []
+        audiences = hub.resolver.audience_choices() if hub else []
         fields: dict[Any, Any] = {
             vol.Required("enabled", default=True): BooleanSelector(),
             vol.Required("name"): TextSelector(),
@@ -426,12 +427,16 @@ class PolicySubentryFlow(_HubFlow):
                 fields[vol.Optional(f"{channel}_audience")] = SelectSelector(
                     # custom_value: a policy that names a deleted audience must still open (D-111).
                     SelectSelectorConfig(
-                        options=[SelectOptionDict(value=n, label=n) for n in audiences],
+                        options=[SelectOptionDict(value=k, label=n) for k, n in audiences],
                         custom_value=True,
                     )
                 )
             # "people": the persons of the target used for push, popup and mail (D-181).
-            known = hub.recipients.known("popup" if channel == "people" else channel) if hub else []
+            known: list[Any] = []
+            if hub and channel == "speak":
+                known = hub.resolver.speak_choices()
+            elif hub:
+                known = hub.recipients.known("popup" if channel == "people" else channel)
             fields[vol.Optional(f"{channel}_recipients")] = SelectSelector(self._options(known))
         return vol.Schema(fields)
 
@@ -439,10 +444,15 @@ class PolicySubentryFlow(_HubFlow):
         targets: dict[str, dict[str, Any]] = {}
         for channel in sources.target_keys(user_input):
             target: dict[str, Any] = {}
+            hub = self._hub()
             if audience := user_input.get(f"{channel}_audience"):
-                target["audience"] = audience
+                # Stored as the key, so a rename of the audience changes nothing (D-199).
+                target["audience"] = hub.resolver.stored_audience(audience) if hub else audience
             if recipients := user_input.get(f"{channel}_recipients"):
-                target["recipients"] = list(recipients)
+                kind = "speak" if channel == sources.SPEAK_KEY else "popup"
+                target["recipients"] = [
+                    hub.resolver.stored_recipient(kind, r) if hub else r for r in recipients
+                ]
             if target:
                 targets[channel] = target
         return targets
@@ -509,10 +519,10 @@ class PolicySubentryFlow(_HubFlow):
             any_set = True
             if bool(audience) == bool(recipients):
                 errors[field] = "target_exclusive"
-            elif hub is not None and audience and audience not in hub.audiences.names():
+            elif hub is not None and audience and hub.resolver.audience(audience) is None:
                 errors[field] = "audience_unknown"
             elif hub is not None and any(
-                r not in hub.recipients.known(channel) for r in recipients or []
+                not hub.recipients.accepts(channel, r) for r in recipients or []
             ):
                 errors[f"{key}_recipients"] = "recipient_unknown"
         if optional and keys and not any_set:
