@@ -1,6 +1,6 @@
 # Rename-proof identities (D-199 to D-202)
 
-Part 1 of the phase: research and design. No code changed. Part 2 starts only after the maintainer approves this document (CLAUDE.md rule 1).
+Part 1 of the phase: research and design. The maintainer approved it on 2026-11-10; part 2 is built (D-203). Steps 1 to 3 landed in one commit and 8 and 9 were split differently from the list in section 5; the order of the checks is the same.
 
 Scope statement from the maintainer: all of it is part of release 1.0.0, so breaking changes against the alphas are acceptable. Only the maintainer's own production data must migrate. The four open choices below were put as questions and not answered one by one; the recommended option is used and listed in "Choices to confirm".
 

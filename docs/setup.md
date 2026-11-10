@@ -152,7 +152,11 @@ Banners, closed states and timeouts are kept across the restart. So are the time
 
 From 0.4.0 or earlier to 1.0.0: the field `wait_for_condition` and the response status `condition_false` of `create_banner` are removed, and `mode: recurring` without a `condition` is refused. A call that still sends `wait_for_condition` works: Heads Up ignores the field and shows a repair notice under Settings > System > Repairs. Delete the field from your automations. A banner whose condition is false now waits; to send only when the condition is true now, add a condition to the automation before the action. The action `heads_up.notify` needs a `severity`.
 
-Heads Up uses [semantic versioning](https://semver.org/). Action names, field names, defaults, response keys, event types, event data keys, the card type and the card options are the public interface. A minor version adds to it. A removal or a change of meaning needs a major version, and the minor version before it logs a warning when you use the old form. The storage file has version 1.
+From an earlier 1.0.0 pre-release to 1.0.0: Heads Up stores policies, audiences and groups by an ID instead of by name, so a rename changes nothing that runs. The first start after the update converts the watch rules, the policy targets, the stored messages and the timers, keeps every due time, and writes a backup of the old data to `.storage/heads_up.migration_v2` first. The backup is written once and never overwritten. A group or an area written as text in a call fails now: name a group by the entity ID of its sensor (`sensor.heads_up_group_ground_floor`) and an area by its area ID. The speakers field of the action offers the group sensors.
+
+To go back to an earlier release, stop Home Assistant, run `python scripts/restore_identity_backup.py <config folder>` from the repository, then install the earlier release. Without the restore, Home Assistant refuses to set up the converted data in an older release instead of reading it wrongly.
+
+Heads Up uses [semantic versioning](https://semver.org/). Action names, field names, defaults, response keys, event types, event data keys, the card type and the card options are the public interface. A minor version adds to it. A removal or a change of meaning needs a major version, and the minor version before it logs a warning when you use the old form. The stored data has version 2.
 
 ## Uninstalling
 

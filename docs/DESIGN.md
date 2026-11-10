@@ -550,7 +550,8 @@ How both sources stay equal:
 | buttons stop acting once the message has ended (D-125) | yes | yes (one check in `BannerManager.press`; `tests/test_ended_buttons.py`) |
 | image under the message (D-127) | yes | yes (Image field of the rule form; `tests/hub/test_image.py`) |
 | `heads_up_delivery_failed` (D-128) | yes | yes for the deliveries a policy makes for a rule message, same engine path (no rule-specific test); the banner channel never fires it |
-| Policy field: name one policy or `none` (D-146) | yes (`policy`) | yes (Policy field of the rule form; `tests/test_rules_flow.py`) |
+| Policy field: name one policy or `none` (D-146, D-202) | yes (`policy`, by the entity ID of its switch, D-198) | yes (Policy dropdown of the rule form: Automatic, None or a policy by key; `tests/test_rules_flow.py`) |
+| references survive a rename (D-199) | yes (stored as keys) | yes (stored as keys; `tests/hub/test_identity_rename.py`, `tests/hub/test_identity_property.py`) |
 | a switched-off recipient gets nothing (D-147) | yes (named persons are dropped from the banner's people; all dropped means nobody) | yes (the rule's `people` are filtered when the rule is built and again when a profile changes, D-161; `tests/hub/test_recipient_disabled.py`) |
 
 Audit for the hub (H10, 2026-11-02), extended 2026-11-05: every banner feature above is in both columns or carries an exception with a decision number.
@@ -682,3 +683,13 @@ A separate integration consuming events (events lack recipients and silent trans
 
 ### 23.15 Open
 Whether the panel is registered through `panel_custom` or through the frontend function and which passes hassfest (N-77); the recent-messages list across restarts; the unit name in public docs; volume restore on platforms other than Sonos (N-76), the iOS action event, and a run against the dev instance; blueprints cannot be shipped by an integration (N-80); popup area recipients (not built); build phasing (delayed until the design is final). See `docs/OPEN_QUESTIONS.md`.
+
+### 23.16 Identities and renames (D-199 to D-202)
+Inside, a policy, a custom audience and a recipient group are known by their subentry ID, a built-in audience by its kind and an area by its area ID; names are for display. `Policy.key` is the subentry ID: timer rows (channel `timer`, recipient), the message id `summary:<key>`, `HeldMessage.policy`, `Banner.policy`, a rule's `policy`, a policy target's `audience` and the recipients `group:<id>` and `area:<id>` hold keys. `hub/identity.py` (`IdentityMaps`) turns a name of an earlier version into a key; reads accept both, writes use the key. A reference to a deleted object dangles and is listed (`reference_missing`); `name:<text>` marks a name that matched nothing when it was converted.
+
+Conversion: the config entry is version 2 (`async_migrate_entry` in `hub/migration.py`, atomic, writes `.storage/heads_up.migration_v2` once first); the stores of banners, deliveries and trace are version 2 (`storage.py`), their contents converted as they load with the same pure functions and saved at once, so a crash between entry and stores loses nothing. Timer `due` and `count` are kept. `scripts/restore_identity_backup.py` restores the backup for a downgrade; Home Assistant refuses the converted data in an older release.
+
+Calls: an audience and a policy by entity ID (D-198), a group by the entity ID of its sensor (`sensor.heads_up_group_<name>`, unique ID `<entry>_group_<subentry id>`), an area by its area ID; text names fail with `*_needs_entity` or `area_needs_id`. `hub/rename.py` follows an entity ID that changes in Home Assistant (event `entity_registry_updated` with `old_entity_id`) and rewrites only the integration's own copies, with a trace line.
+
+Not covered: another integration's names (the notify service of mail: reported as `mail_service_missing`), history in the trace and log (names of their time), `{name}` in a rule message without an entity (the rule's name, by design), a name of an area in hand-written YAML after the area is renamed (the stored form is the ID).
+

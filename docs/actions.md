@@ -53,7 +53,7 @@ The banner is on the dashboard for the people who are home, and each of them get
 | `policy` | list of policy switches | none | Manual policies: they apply next to the automatic policies that match the severity and tag, whatever their own severities and tags say. Name a policy by the entity ID of its switch, for example `switch.heads_up_policy_quiet_hours`. The ID stays when you rename the policy. The policy editor shows it. A policy name as text is refused. A disabled policy is never used. In YAML `policy: none` does the same as `disable_automatic_policies: true` without a manual policy. |
 | `recipients` | list of persons | none | Who gets the message on every channel that takes people: banner, push, popup and mail. Give either `recipients` or `audience`. |
 | `audience` | audience sensor | none | A group that gets the message on the same channels. Name it by the entity ID of its sensor, for example `binary_sensor.heads_up_audience_at_home`; the audience editor shows it. An audience name as text is refused. The group is worked out when the message is sent. |
-| `speakers` | list | none | Speakers, speaker groups or areas for `speak`. Speech takes no audience. |
+| `speakers` | list | none | Speakers, Assist satellites, speaker groups or areas for `speak`. Name a group by the entity ID of its sensor, for example `sensor.heads_up_group_ground_floor`, and an area by its area ID. Both stay when you rename the group or the area. Speech takes no audience. |
 
 `recipients` or `audience` gives the same people on every channel that takes people: banner, push, popup and mail. `speakers` is the target of speech. Give either `recipients` or `audience`, never both.
 
@@ -62,7 +62,7 @@ The banner is on the dashboard for the people who are home, and each of them get
 - `persistent` takes no target. The notification bell is shared, so everyone sees the entry (see [Persistent notifications](configuration.md#persistent-notification)).
 - `banner` needs none. Without `recipients` or `audience`, every user sees the banner; with them, only those people see it. Recipients limit the banner to the users linked to those persons. An audience does the same with the persons it has when the call is made; a person who joins the audience later does not see a banner that already exists, and an empty audience gives a banner nobody sees.
 
-The `audience`, `recipients`, `speakers` and `policy` of a call are checked when you call the action. An audience and a policy are named by the entity ID of their sensor or switch. A text name such as `At home` or `Night quiet` fails with an error that gives the entity ID to use. An ID that does not exist fails with an error that lists the valid IDs and, when one is close, asks "Did you mean ...?". A speaker group and an area name ignore case.
+The `audience`, `recipients`, `speakers` and `policy` of a call are checked when you call the action. An audience and a policy are named by the entity ID of their sensor or switch. A text name such as `At home` or `Night quiet` fails with an error that gives the entity ID to use. An ID that does not exist fails with an error that lists the valid IDs and, when one is close, asks "Did you mean ...?". A speaker group or an area written as text fails the same way, with the entity ID or area ID to use.
 
 ### How long it lives
 
@@ -452,7 +452,7 @@ Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipi
 | `tag` | text | none | As in `notify`. |
 | `tap_action` | object with `action` | none | As in `notify`. |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel. |
-| `recipients` | list | required | Speakers, Assist satellites, groups or areas. |
+| `recipients` | list | required | Speakers, Assist satellites, group sensors (`sensor.heads_up_group_...`) or area IDs. |
 
 ```yaml
 - action: heads_up.speak

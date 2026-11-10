@@ -102,10 +102,10 @@ data:
   message: The garage door has been open for 10 minutes.
   recipients:
     - media_player.kitchen
-    - Ground floor (group)
+    - sensor.heads_up_group_ground_floor
 ```
 
-`recipients` are media players, Assist satellites, speaker groups (written `Name (group)`) and areas. An area is written by its ID (`living_room`) or its name (`Living Room`, any case) and needs no group; it stands for the speakers assigned to it. Speech has no audience: it goes to speakers, not to people.
+`recipients` are media players, Assist satellites, speaker groups and areas. A group is written as the entity ID of its sensor. An area is written by its area ID (`living_room`) and needs no group; it stands for the speakers assigned to it. A group or area written as its name fails with the ID to use. Speech has no audience: it goes to speakers, not to people.
 
 The text is `tts_message` if you set it, otherwise the title, otherwise the message. A text longer than 200 characters is cut after the last word that fits and ends with `…` (option Spoken text: longest).
 
@@ -233,13 +233,22 @@ Every person has a recipient profile without any setup. Their Companion app devi
 
 The panel lists each person with a column per channel (Banner, Push, Popup, Mail): a tick when the person accepts the channel and it can work, a dash when the profile does not accept it, and a warning mark when it is accepted but cannot work (push without a usable device, popup without a Home Assistant user, mail without an address). Point at the mark for the reason. On a narrow screen the channels are written under the name, for example "Banner, Push (no device), Popup". A person who receives nothing is greyed out with a "disabled" badge. Devices, added and removed devices, the primary device, a missing notify service and the missing Home Assistant user are shown when you open a person. A profile that equals the detected devices is not stored. A person with no usable device is skipped on push (`no_usable_device`). A renamed device keeps working: the service is worked out from the device's current name each time.
 
-Speaker groups are named sets of speakers, Assist satellites and areas for speech. A call names one `<name> (group)`, for example `Ground floor (group)`. The panel shows how the group is written in calls and how many speakers reach it now. An area stands for the speakers and satellites assigned to it in Home Assistant, and a call may also name an area by its ID or name.
+Speaker groups are named sets of speakers, Assist satellites and areas for speech. Every group is a sensor, and a call names the group by the entity ID of that sensor, for example `sensor.heads_up_group_ground_floor`. The sensor shows how many speakers reach the group now. The panel shows the ID. An area stands for the speakers and satellites assigned to it in Home Assistant, and a call names an area by its area ID.
+
+## Renaming
+
+You can rename a policy, an audience, a speaker group, a watch rule or a person without breaking anything that is running. Heads Up keeps each of them under an ID that a rename does not change, and the name is only what the panel shows.
+
+- A call that names an audience, a policy or a group by its entity ID keeps working. The editor of each shows the ID.
+- Watch rules, policy targets, messages that are showing and the timers of running escalations, reminders and summaries keep their policy, audience and group.
+- If you change the entity ID of a person, a speaker, a zone or a watched entity in Home Assistant, Heads Up changes its own copies of that ID (audiences, groups, profiles, rules, policy targets, stored messages, templates) and writes one line to the Message Log. A call in your own YAML that names the old ID fails with the valid IDs; change it there.
+- Heads Up cannot follow a name that another integration owns. If the notify service that sends mail is renamed, Needs attention names the missing service; choose the new one on the Channels page.
 
 ## Policies
 
 A policy adds behaviour to messages without changing the automation that sends them. The types are Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize. Add one in the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy. Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, the fields of its type (for example `from_time`, `to_time`, `action` and `critical_passes` for Quiet hours) and `order`, its place in the list. The policy editor shows the entity ID of the switch. A new policy shows the ID it gets when you save.
 
-Renaming a policy does not change its entity ID. Name the policy in the `policy` field of a call by this ID, and a rename does not break the call. A call that names the policy by its text name fails after a rename, because the name is no longer known. A watch rule and a message that were created with the old name lose the policy too: change the name in the rule form. Running escalations and reminders of the policy end.
+Renaming a policy changes only its name. Its entity ID, the watch rules that use it, the messages that are running and their escalations, reminders and held summaries stay as they were. Deleting a policy ends its timers; a new policy with the same name is a different policy, and a rule or message that used the deleted one is listed under Needs attention until you choose another.
 
 ### How policies interact
 

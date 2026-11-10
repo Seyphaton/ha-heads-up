@@ -211,7 +211,7 @@ data:
 
 | Policy | Type | Settings | Effect |
 |---|---|---|---|
-| Water escalation | Escalation | severity `critical`, tag `water`; after 5 minutes; speak to the group `Ground floor (group)`; push to `Admins` | If nobody acknowledges within 5 minutes, the message is also said on the speakers and pushed to the administrators. |
+| Water escalation | Escalation | severity `critical`, tag `water`; after 5 minutes; speak to the group Ground floor; push to `Admins` | If nobody acknowledges within 5 minutes, the message is also said on the speakers and pushed to the administrators. |
 | Water reminder | Reminder | severity `critical`, tag `water`; every 10 minutes, at most 3 | Repeats the push while nobody acknowledges. |
 | Night quiet | Quiet hours | 22:00 to 07:00, critical messages pass | Lower severities become passive pushes at night; this message still alerts. |
 
@@ -453,6 +453,14 @@ Open the message in the Message Log.
 - The window uses the Home Assistant time zone (Settings > System > General).
 
 See [Policies](configuration.md#policies).
+
+### Needs attention says a rule or message uses a policy that no longer exists
+
+The policy was deleted. Rules and running messages keep pointing at it, and nothing takes its place by name: a new policy with the same name is a different policy. Open the rule on the Watch rules page and choose a policy from the list. The running message stays, but its escalation and reminder ended with the policy; send it again to use another policy.
+
+### Needs attention says the mail service does not exist
+
+The notify service that sends mail was renamed or removed in the integration that owns it. Open Channels and choose the current service in Notify service.
 
 ### A message does not show on the dashboard
 

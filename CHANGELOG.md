@@ -5,9 +5,16 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ## [Unreleased]
 
 ### Changed
-- Breaking, for the 1.0.0 release: a call names an audience and a policy only by the entity ID of its sensor or switch (`audience: binary_sensor.heads_up_audience_at_home`, `policy: switch.heads_up_policy_night`). A text name such as `At home` or `Night` is refused with an error that gives the ID to use. This applies to `notify`, `push`, `popup`, `create_banner` and Test send. The keywords `none` and `automatic` stay. Speaker groups, areas and `Global address` are still written as text.
+- Breaking, for the 1.0.0 release: a call names an audience and a policy only by the entity ID of its sensor or switch (`audience: binary_sensor.heads_up_audience_at_home`, `policy: switch.heads_up_policy_night`). A text name such as `At home` or `Night` is refused with an error that gives the ID to use. This applies to `notify`, `push`, `popup`, `create_banner` and Test send. The keywords `none` and `automatic` stay. `Global address` is still written as text. A speaker group is named by the entity ID of its sensor, and an area by its area ID; a name as text is refused.
+- Breaking, for the 1.0.0 release: the stored data has version 2 (config entry, banners, deliveries, trace). The first start converts it once; an older release refuses it. A timer that ended because its policy was disabled now says `policy_disabled` and one whose policy was deleted says `policy_deleted`.
 
 ### Added
+- Renaming is safe. Policies, audiences and speaker groups are stored by an ID, so renaming one keeps the watch rules, policy targets, running messages, escalations, reminders and held summaries that use it. Nothing is lost on a rename that only changes the case, and a deleted policy no longer passes its timers to a new one with the same name. A property test renames everything in random order while timers run.
+- Every speaker group has a sensor (`sensor.heads_up_group_<name>`). The speakers field of the action offers it, and the group editor shows its ID.
+- When you change the entity ID of a person, speaker, zone or watched entity in Home Assistant, Heads Up changes its own copies of it and writes a line to the trace.
+- Needs attention lists a rule or stored message whose policy was deleted, and a mail service that is not registered.
+- The watch rule form offers the policy as a dropdown: Automatic, None or a policy.
+- `scripts/restore_identity_backup.py` restores the data from before the conversion to IDs; the first start after the update writes the backup to `.storage/heads_up.migration_v2`.
 - The audience editor shows the entity ID of the audience's sensor, like the policy editor does for the switch. A new audience shows the ID it will get.
 - Policy editor: shows the entity ID of the policy's switch, and the ID a new policy will get. Naming a policy in a call by this ID keeps working after a rename; the docs say what a rename changes.
 
