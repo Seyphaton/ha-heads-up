@@ -48,14 +48,14 @@ async def test_a_policy_name_is_refused_with_the_entity_id_to_use(
 async def test_the_entity_ids_and_the_keywords_are_accepted(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
-    await add_policy(hass, entry, "Night", **ESCALATION)
+    night = await add_policy(hass, entry, "Night", **ESCALATION)
     await notify(
         hass,
         id="a",
         audience="binary_sensor.heads_up_audience_everyone",
         policy="switch.heads_up_policy_night",
     )
-    assert banners(entry)["a"].policy == ["automatic", "Night"]
+    assert banners(entry)["a"].policy == ["automatic", night.subentry_id]
     await notify(hass, id="b", policy="none")
     assert banners(entry)["b"].policy == "none"
     await notify(hass, id="c", policy=["automatic", "switch.heads_up_policy_night"])
@@ -68,7 +68,8 @@ async def test_after_a_rename_the_entity_id_still_works_and_the_old_name_does_no
     hass.config_entries.async_update_subentry(entry, subentry, title="Evening")
     await hass.async_block_till_done()
     await notify(hass, id="a", policy="switch.heads_up_policy_night")
-    assert banners(entry)["a"].policy == ["automatic", "Evening"]
+    # The stored key is the ID, so the rename changed nothing that is stored (D-199).
+    assert banners(entry)["a"].policy == ["automatic", subentry.subentry_id]
     with pytest.raises(ServiceValidationError) as err:
         await notify(hass, policy="Night")
     assert err.value.translation_key.startswith("unknown_policy")

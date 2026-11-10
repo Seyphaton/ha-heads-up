@@ -313,12 +313,12 @@ async def test_a_test_message_follows_the_policies_like_any_other(
     mobile_app_device: AddDevice,
 ) -> None:
     await make_household(hass, mobile_app_device)
-    await add_policy(hass, entry, "Water", **ESCALATION)
+    water = await add_policy(hass, entry, "Water", **ESCALATION)
     client = await hass_ws_client(hass)
     reply = await ask(client, "hub_test_send", **call())
     await settle(hass, entry)
     (row,) = entry.runtime_data.hub.ledger.timers(reply["result"]["id"])
-    assert row.recipient == "escalation:Water"
+    assert row.recipient == water.subentry_id
 
 
 async def test_a_test_message_can_be_cleared_from_the_page(

@@ -694,21 +694,23 @@ def _check_names(
     for channel, target in to.items():
         target = dict(target)
         if (audience := target.get("audience")) is not None:
-            target["audience"] = _by_entity(
-                audience,
-                hub.resolver.audience_entities(),
-                "unknown_audience",
-                "audience_needs_entity",
-                "binary_sensor.heads_up_audience_",
+            target["audience"] = hub.resolver.stored_audience(
+                _by_entity(
+                    audience,
+                    hub.resolver.audience_entities(),
+                    "unknown_audience",
+                    "audience_needs_entity",
+                    "binary_sensor.heads_up_audience_",
+                )
             )
         if "recipients" in target:
             known = hub.recipients.known(channel)
             recipients = []
             for recipient in target["recipients"]:
                 if hub.recipients.accepts(channel, recipient):
-                    recipients.append(recipient)
+                    recipients.append(hub.resolver.stored_recipient(channel, recipient))
                 elif (stored := _canonical(recipient, known)) is not None:
-                    recipients.append(stored)
+                    recipients.append(hub.resolver.stored_recipient(channel, stored))
                 else:
                     raise _unknown("unknown_recipient", recipient, known)
             target["recipients"] = recipients
@@ -728,15 +730,15 @@ def _check_policy_names(hub: HubEngine, policy: str | list[str] | None) -> str |
         if name == POLICY_AUTOMATIC:
             fixed.append(name)
         else:
-            fixed.append(
-                _by_entity(
-                    name,
-                    entities,
-                    "unknown_policy",
-                    "policy_needs_entity",
-                    "switch.heads_up_policy_",
-                )
+            policy_name = _by_entity(
+                name,
+                entities,
+                "unknown_policy",
+                "policy_needs_entity",
+                "switch.heads_up_policy_",
             )
+            found = hub.policies.by_name(policy_name)
+            fixed.append(found.key if found is not None else policy_name)
     return fixed[0] if len(fixed) == 1 else fixed
 
 

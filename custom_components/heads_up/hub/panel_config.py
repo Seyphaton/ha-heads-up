@@ -7,6 +7,7 @@ no second copy of the validation.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -41,6 +42,7 @@ from ..manager import BannerManager
 from ..switch import policy_entity_id
 from .audiences import BUILTINS
 from .channels import mail
+from .identity import GROUP_PREFIX
 from .recipients import area_speakers, registrations, speaker_entities
 
 
@@ -124,7 +126,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
     def of(kind: str) -> list[Any]:
         return [s for s in subs if s.subentry_type == kind]
 
-    usage = hub.policies.usage if hub is not None else (lambda name: [])
+    usage: Callable[..., list[str]] = hub.policies.usage if hub is not None else (lambda *refs: [])
     audiences: list[dict[str, Any]] = []
     if hub is not None:
         for name, audience in BUILTINS.items():
@@ -134,15 +136,15 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                     "name": name,
                     "kind": audience.kind,
                     "builtin": True,
-                    "enabled": name not in hub.resolver.disabled_audiences(),
+                    "enabled": audience.key not in hub.resolver.disabled_audiences(),
                     "subentry_id": None,
                     "data": {},
                     "members": [r.key for r in now.recipients],
-                    "used_by": usage(name),
+                    "used_by": usage(audience.key, name),
                 }
             )
         for sub in of(AUDIENCE_SUBENTRY):
-            found = hub.resolver.audience(sub.title)
+            found = hub.resolver.audience(sub.subentry_id)
             members = await hub.resolver.members(found, "warning") if found else None
             audiences.append(
                 {
@@ -152,7 +154,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                     "subentry_id": sub.subentry_id,
                     "data": dict(sub.data),
                     "members": [r.key for r in members.recipients] if members else [],
-                    "used_by": usage(sub.title),
+                    "used_by": usage(sub.subentry_id, sub.title),
                 }
             )
     ids = audience_entity_ids(hass, entry)
@@ -168,7 +170,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                 {m for m in sub.data.get("members", []) if hass.states.get(m) is not None}
                 | {s for a in sub.data.get("areas", []) for s in area_speakers(hass, a)}
             ),
-            "used_by": usage(sub.title),
+            "used_by": usage(f"{GROUP_PREFIX}{sub.subentry_id}", f"{sub.title}{GROUP_SUFFIX}"),
         }
         for sub in of(GROUP_SUBENTRY)
     ]

@@ -22,6 +22,7 @@ from .binary_sensor import audience_entity_id
 from .const import (
     BUILTIN_AUDIENCES,
     DOMAIN,
+    GROUP_SUFFIX,
     MAX_ATTENTION_DISMISSED,
     OPT_ATTENTION_DISMISSED,
     OPT_AUDIENCES_DISABLED,
@@ -33,6 +34,7 @@ from .const import (
 )
 from .frontend import async_popup_url
 from .hub import panel_config, panel_data, panel_test, settings, welcome
+from .hub.identity import GROUP_PREFIX
 from .manager import BannerManager, HeadsUpError
 from .switch import policy_entity_id
 
@@ -239,7 +241,7 @@ def ws_welcome_apply(
     if hub is None:
         connection.send_error(msg["id"], "hub_off", "The hub is switched off")
         return
-    if msg["audience"] not in hub.audiences.names():
+    if (chosen := hub.resolver.audience(msg["audience"])) is None:
         connection.send_error(
             msg["id"], "unknown_audience", f"Audience {msg['audience']} not found"
         )
@@ -250,7 +252,7 @@ def ws_welcome_apply(
     mode = msg.get("mode") or hub.policies.mode
     connection.send_result(
         msg["id"],
-        welcome.apply(hass, entry, msg["items"], msg["audience"], msg["speakers"], mode),
+        welcome.apply(hass, entry, msg["items"], chosen.key, msg["speakers"], mode),
     )
 
 
@@ -350,12 +352,18 @@ def ws_audience_enable(
     if name not in BUILTIN_AUDIENCES:
         connection.send_error(msg["id"], "not_found", f"{name} is not a built-in audience")
         return
-    disabled = [n for n in entry.options.get(OPT_AUDIENCES_DISABLED, []) if n != name]
+    kind = BUILTIN_AUDIENCES[name]
+    disabled = [
+        n
+        for n in entry.options.get(OPT_AUDIENCES_DISABLED, [])
+        if BUILTIN_AUDIENCES.get(n, n) != kind
+    ]
+    disabled = [BUILTIN_AUDIENCES.get(n, n) for n in disabled]  # kinds, not names (D-199)
     if not msg["enabled"]:
-        if users := hub.policies.usage(name):
+        if users := hub.policies.usage(kind, name):
             connection.send_error(msg["id"], "in_use", f"{name} is used by {', '.join(users)}")
             return
-        disabled.append(name)
+        disabled.append(kind)
     hass.config_entries.async_update_entry(
         entry, options={**entry.options, OPT_AUDIENCES_DISABLED: disabled}
     )
@@ -610,7 +618,13 @@ def ws_hub_usage(hass: HomeAssistant, connection: ActiveConnection, msg: dict[st
     if manager.hub is None:
         connection.send_error(msg["id"], "hub_off", "The hub is switched off")
         return
-    connection.send_result(msg["id"], {"policies": manager.hub.policies.usage(msg["name"])})
+    hub = manager.hub
+    refs = [msg["name"], f"{msg['name']}{GROUP_SUFFIX}"]
+    if (audience := hub.resolver.audience(msg["name"])) is not None:
+        refs.append(audience.key)
+    if (group := hub.resolver.group(msg["name"])) is not None:
+        refs += [f"{GROUP_PREFIX}{group.key}", f"{group.name}{GROUP_SUFFIX}"]
+    connection.send_result(msg["id"], {"policies": hub.policies.usage(*refs)})
 
 
 @websocket_command(

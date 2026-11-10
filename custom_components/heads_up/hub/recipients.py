@@ -67,6 +67,7 @@ class Group:
     name: str
     members: tuple[str, ...] = ()
     areas: tuple[str, ...] = ()
+    key: str = ""  # the subentry ID: what a stored `group:<id>` reference means (D-199)
 
 
 def notify_service(device_name: str) -> str:
@@ -165,6 +166,7 @@ def parse_group(subentry: ConfigSubentry) -> Group | None:
         subentry.title,
         tuple(subentry.data.get("members", ())),
         tuple(subentry.data.get("areas", ())),
+        subentry.subentry_id,
     )
 
 
@@ -194,6 +196,7 @@ def area_ids(hass: HomeAssistant) -> list[str]:
 def find_area(hass: HomeAssistant, value: str) -> str | None:
     """The id of the area a call names by id or by name (case-insensitive), or None."""
     registry = ar.async_get(hass)
+    value = value.removeprefix("area:")  # the stored form (D-199)
     if registry.async_get_area(value) is not None:
         return value
     wanted = value.casefold()

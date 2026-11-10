@@ -77,7 +77,7 @@ async def test_a_call_can_name_the_sensor_of_an_audience(
         {"id": "a", "message": "x", "channels": ["banner"], "audience": found},
         blocking=True,
     )
-    assert banners(entry)["a"].targets == {"banner": {"audience": "Everyone"}}
+    assert banners(entry)["a"].targets == {"banner": {"audience": "everyone"}}
 
 
 async def test_a_renamed_audience_keeps_its_sensor(
@@ -95,7 +95,7 @@ async def test_a_renamed_audience_keeps_its_sensor(
         {"id": "a", "message": "x", "channels": ["banner"], "audience": found},
         blocking=True,
     )
-    assert banners(entry)["a"].targets == {"banner": {"audience": "Adults"}}
+    assert banners(entry)["a"].targets == {"banner": {"audience": subentry.subentry_id}}
 
 
 async def test_a_switched_off_built_in_audience_loses_its_sensor(

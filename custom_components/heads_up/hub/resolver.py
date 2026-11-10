@@ -16,6 +16,7 @@ from homeassistant.core import HomeAssistant
 
 from ..const import (
     BANNER_NOBODY,
+    BUILTIN_AUDIENCES,
     CHANNEL_MAIL,
     GROUP_SUFFIX,
     MAIL_GLOBAL,
@@ -26,6 +27,7 @@ from ..const import (
     ZONE_KINDS,
 )
 from .audiences import BUILTINS, Audience, parse_audience
+from .identity import AREA_PREFIX, GROUP_PREFIX, dangling_name
 from .presence import PresenceTracker, is_unknown
 from .recipients import (
     Group,
@@ -86,9 +88,9 @@ class HubResolver:
     def sync(self, subentries: Mapping[str, ConfigSubentry]) -> None:
         """Read the audience, group and profile subentries (beside `sync_rules`)."""
         audiences = (parse_audience(s) for s in subentries.values())
-        self._audiences = {a.name: a for a in audiences if a is not None}
+        self._audiences = {a.key: a for a in audiences if a is not None}
         groups = (parse_group(s) for s in subentries.values())
-        self._groups = {g.name: g for g in groups if g is not None}
+        self._groups = {g.key: g for g in groups if g is not None}
         profiles = (parse_profile(s) for s in subentries.values())
         self._profiles = {p.person: p for p in profiles if p is not None}
 
@@ -96,13 +98,17 @@ class HubResolver:
 
     def names(self) -> list[str]:
         """Audience names (implements the H1 interface)."""
-        return [*(n for n in BUILTINS if n not in self.disabled_audiences()), *self._audiences]
+        disabled = self.disabled_audiences()
+        return [
+            *(n for n, a in BUILTINS.items() if a.key not in disabled),
+            *(a.name for a in self._audiences.values()),
+        ]
 
     def known(self, channel: str) -> list[str]:
         """Recipients a channel accepts (implements the H1 interface)."""
         persons = sorted(s.entity_id for s in self._hass.states.async_all("person"))
         if channel == "speak":
-            groups = [f"{n}{GROUP_SUFFIX}" for n in self._groups]
+            groups = [f"{g.name}{GROUP_SUFFIX}" for g in self._groups.values()]
             return [*speaker_entities(self._hass), *groups, *area_ids(self._hass)]
         if channel == "push":
             return [*persons, *registrations(self._hass)]
@@ -114,19 +120,67 @@ class HubResolver:
         """Whether a call may name this recipient. Speech also takes an area by its name."""
         if name in self.known(channel):
             return True
-        return channel == "speak" and find_area(self._hass, name) is not None
+        return channel == "speak" and (
+            self.group(name) is not None or find_area(self._hass, name) is not None
+        )
+
+    def stored_recipient(self, channel: str, value: str) -> str:
+        """How a recipient of a call is stored: a group and an area by their keys, so a rename
+        in either place changes nothing that is stored (D-199). Everything else as given."""
+        if channel != "speak" or "." in value:
+            return value
+        if (group := self.group(value)) is not None:
+            return f"{GROUP_PREFIX}{group.key}"
+        if value.startswith((GROUP_PREFIX, AREA_PREFIX)):
+            return value
+        area = find_area(self._hass, value)
+        return f"{AREA_PREFIX}{area}" if area is not None else value
+
+    def stored_audience(self, ref: str) -> str:
+        found = self.audience(ref)
+        return found.key if found is not None else ref
 
     def groups(self) -> list[Group]:
         return list(self._groups.values())
 
     def disabled_audiences(self) -> set[str]:
-        """Built-in audiences the admin switched off (D-136): not offered, refused in calls."""
-        return set(self._options.get(OPT_AUDIENCES_DISABLED, []))
+        """Kinds of the built-in audiences the admin switched off (D-136): not offered, refused
+        in calls. The option held names before D-199; both are read."""
+        return {
+            BUILTIN_AUDIENCES.get(str(v), str(v))
+            for v in self._options.get(OPT_AUDIENCES_DISABLED, [])
+        }
 
-    def audience(self, name: str) -> Audience | None:
-        if name in BUILTINS and name not in self.disabled_audiences():
-            return BUILTINS[name]
-        return self._audiences.get(name)
+    def audience(self, ref: str) -> Audience | None:
+        """The audience a reference means: a built-in kind, a subentry ID, or a name written by an
+        earlier version (`name:` marks one that matched nothing then)."""
+        disabled = self.disabled_audiences()
+        found = self._audiences.get(ref) or next(
+            (b for b in BUILTINS.values() if b.key == ref), None
+        )
+        if found is None:
+            name = dangling_name(ref).casefold()
+            found = next(
+                (
+                    a
+                    for a in [*BUILTINS.values(), *self._audiences.values()]
+                    if a.name.casefold() == name
+                ),
+                None,
+            )
+        return None if found is None or (found.builtin and found.key in disabled) else found
+
+    def is_group_ref(self, ref: str) -> bool:
+        return ref.startswith(GROUP_PREFIX) or ref.casefold().endswith(GROUP_SUFFIX.casefold())
+
+    def group(self, ref: str) -> Group | None:
+        """The group a `group:<id>` token or a `Name (group)` text means."""
+        if ref.startswith(GROUP_PREFIX):
+            return self._groups.get(ref[len(GROUP_PREFIX) :])
+        if ref.casefold().endswith(GROUP_SUFFIX.casefold()):
+            name = ref[: -len(GROUP_SUFFIX)].strip().casefold()
+            return next((g for g in self._groups.values() if g.name.casefold() == name), None)
+        return None
 
     def persons_of_user(self, user_id: str) -> list[str]:
         """Persons linked to a Home Assistant user (N-10)."""
@@ -246,7 +300,9 @@ class HubResolver:
         if "audience" in target:
             audience = self.audience(target["audience"])
             if audience is None:
-                out.skipped.append(Skipped(str(target["audience"]), "unknown_audience"))
+                out.skipped.append(
+                    Skipped(dangling_name(str(target["audience"])), "unknown_audience")
+                )
                 return out
             members = await self.members(audience, severity)
             out.skipped += members.skipped
@@ -319,11 +375,7 @@ class HubResolver:
             if item in speakers:
                 out.recipients.append(Recipient(item, "speaker"))
                 continue
-            group = (
-                self._groups.get(item.removesuffix(GROUP_SUFFIX))
-                if item.endswith(GROUP_SUFFIX)
-                else None
-            )
+            group = self.group(item) if self.is_group_ref(item) else None
             if group is not None:
                 members = [*group.members]
                 for area in group.areas:

@@ -24,6 +24,7 @@ from ..const import (
     TIMER_CHANNEL,
 )
 from ..models import Banner
+from .identity import IdentityMaps, count_changes
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -164,6 +165,9 @@ class DeliveryLedger:
         )
         self.rows: dict[tuple[str, str, str], Delivery] = {}
         self.held: dict[str, HeldMessage] = {}
+        # Set before the load: stored policy references of earlier versions become keys (D-200).
+        self.identity: IdentityMaps | None = None
+        self.migrated = 0  # how many stored values the load rewrote
 
     async def async_load(self) -> None:
         data = await self._store.async_load() or {}
@@ -179,6 +183,10 @@ class DeliveryLedger:
             held = []
         for raw in deliveries:
             try:
+                if self.identity is not None and raw.get("channel") == TIMER_CHANNEL:
+                    renamed = self.identity.timer_row(raw)
+                    self.migrated += count_changes(raw, renamed)
+                    raw = renamed
                 row = Delivery.from_dict(raw)
             except (TypeError, KeyError, ValueError, AttributeError) as err:
                 # One damaged row must not take the others down (like the banner store).
@@ -187,6 +195,10 @@ class DeliveryLedger:
             self.rows[row.key] = row
         for raw_held in held:
             try:
+                if self.identity is not None and isinstance(raw_held, dict):
+                    renamed = self.identity.held(raw_held)
+                    self.migrated += count_changes(raw_held, renamed)
+                    raw_held = renamed
                 kept = HeldMessage.from_dict(raw_held)
             except (TypeError, KeyError, ValueError, AttributeError) as err:
                 _LOGGER.error("Skipping unreadable held message %r in storage: %s", raw_held, err)

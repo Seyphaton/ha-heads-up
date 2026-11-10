@@ -7,8 +7,9 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigSubentry
 
-from ...const import GROUP_SUFFIX, OPT_POLICY_MODE, OPT_POLICY_ORDER, POLICY_MODES
+from ...const import OPT_POLICY_MODE, OPT_POLICY_ORDER, POLICY_MODES, POLICY_TYPES
 from ...models import Banner
+from ..identity import NAME_PREFIX
 from .matching import select
 from .models import Policy, parse_policy
 
@@ -70,7 +71,26 @@ class PolicyBook:
         return self.ordered()
 
     def by_key(self, key: str) -> Policy | None:
-        return next((p for p in self._policies.values() if p.key == key), None)
+        """The policy a stored key means: its subentry ID, or a name or `type:name` key written
+        before D-199 (the migration rewrites those; this keeps a missed one working)."""
+        if (found := self._policies.get(key)) is not None:
+            return found
+        by_name = {p.name.casefold(): p for p in self._policies.values()}
+        name = key[len(NAME_PREFIX) :] if key.startswith(NAME_PREFIX) else key
+        if (found := by_name.get(name.casefold())) is not None:
+            return found
+        kind, _, rest = name.partition(":")
+        if kind in POLICY_TYPES and rest:
+            return by_name.get(rest.casefold())
+        return None
+
+    def get(self, ref: str) -> Policy | None:
+        return self.by_key(ref)
+
+    def by_name(self, name: str) -> Policy | None:
+        return next(
+            (p for p in self._policies.values() if p.name.casefold() == name.casefold()), None
+        )
 
     def for_message(self, message: Banner) -> list[Policy]:
         return select(self.ordered(), message, first_only=self.mode == "first")
@@ -78,14 +98,16 @@ class PolicyBook:
     def timed_for(self, message: Banner) -> list[Policy]:
         return [p for p in self.for_message(message) if p.type in ACKNOWLEDGING]
 
-    def usage(self, name: str) -> list[str]:
-        """Policies that name this audience or recipient group (D-111: so a panel can warn
-        before it is deleted; Home Assistant itself cannot block a subentry deletion)."""
-        group = f"{name}{GROUP_SUFFIX}"
+    def usage(self, *refs: str) -> list[str]:
+        """Policies whose targets name this audience or recipient group, given every way it is
+        written: its key and, for data of earlier versions, its name (D-111: so a panel can
+        warn before it is deleted; Home Assistant cannot block a subentry deletion)."""
+        wanted = {r.casefold() for r in refs}
         users = []
         for policy in self._policies.values():
             for target in policy.targets.values():
-                if target.get("audience") == name or group in target.get("recipients", []):
+                named = [target.get("audience"), *target.get("recipients", [])]
+                if any(isinstance(n, str) and n.casefold() in wanted for n in named):
                     users.append(policy.name)
                     break
         return sorted(users)

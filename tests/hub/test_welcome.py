@@ -118,7 +118,7 @@ async def test_the_critical_item_creates_delivery_reminder_and_escalation(
     ]
     made = policies(entry)
     assert made["Critical delivery"]["type"] == "deliver"
-    assert made["Critical delivery"]["targets"] == {"push": {"audience": "Everyone"}}
+    assert made["Critical delivery"]["targets"] == {"push": {"audience": "everyone"}}
     assert (
         made["Critical reminder"]["every_minutes"] == 10
         and made["Critical reminder"]["max_count"] == 3
@@ -146,7 +146,7 @@ async def test_without_speakers_there_is_no_speech_escalation_and_the_default_au
     client = await hass_ws_client(hass)
     reply = await ask(client, "welcome_apply", items=["critical"])
     assert reply["result"]["added"] == ["Critical delivery", "Critical reminder"]
-    assert policies(entry)["Critical delivery"]["targets"] == {"push": {"audience": "Admins"}}
+    assert policies(entry)["Critical delivery"]["targets"] == {"push": {"audience": "admins"}}
 
 
 async def test_the_critical_policies_make_the_card_and_pushes_offer_acknowledge(

@@ -88,7 +88,7 @@ async def test_an_area_without_a_speaker_leaves_one_bell_entry_without_the_messa
     result = await say(hass, entry, area.id)
     assert result["channels"]["speak"]["skipped"] == 1
     (created,) = bell.create
-    assert created.data["notification_id"] == "heads_up_warning_garage"
+    assert created.data["notification_id"] == "heads_up_warning_area_garage"
     assert "Garage" in created.data["message"]
     assert "Water leak" not in created.data["message"] and "Water leak" not in created.data["title"]
 
@@ -100,7 +100,7 @@ async def test_a_repeat_uses_the_same_entry_id_so_it_replaces(
     area = ar.async_get(hass).async_create("Garage")
     await say(hass, entry, area.id)
     await say(hass, entry, "Garage")
-    assert [c.data["notification_id"] for c in bell.create] == ["heads_up_warning_garage"] * 2
+    assert [c.data["notification_id"] for c in bell.create] == ["heads_up_warning_area_garage"] * 2
 
 
 async def test_a_group_that_resolves_to_nothing_leaves_a_bell_entry(
@@ -111,7 +111,9 @@ async def test_a_group_that_resolves_to_nothing_leaves_a_bell_entry(
     await hass.async_block_till_done()
     await say(hass, entry, "Nobody (group)")
     (created,) = bell.create
-    assert created.data["notification_id"] == "heads_up_warning_nobody_group"
+    (group,) = [s for s in entry.subentries.values() if s.subentry_type == "recipient_group"]
+    # Named by the group's ID, so renaming the group would not change the entry.
+    assert created.data["notification_id"] == f"heads_up_warning_group_{group.subentry_id.lower()}"
 
 
 async def test_a_missing_speaker_entity_leaves_a_bell_entry(

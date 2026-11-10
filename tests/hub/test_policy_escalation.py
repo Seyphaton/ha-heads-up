@@ -41,10 +41,10 @@ async def test_the_timer_is_a_row_in_the_ledger_with_its_due_time(
     hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
 ) -> None:
     await make_household(hass, mobile_app_device)
-    await add_policy(hass, entry, "Water", **ESCALATION)
+    water = await add_policy(hass, entry, "Water", **ESCALATION)
     await send(hass, entry)
     (row,) = entry.runtime_data.hub.ledger.timers("m")
-    assert row.recipient == "escalation:Water" and row.state.value == "planned"
+    assert row.recipient == water.subentry_id and row.state.value == "planned"
     assert row.due is not None and row.due > row.updated_at
 
 

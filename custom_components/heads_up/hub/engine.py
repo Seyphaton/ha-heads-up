@@ -9,12 +9,13 @@ from __future__ import annotations
 import asyncio
 import logging
 import secrets
-from collections.abc import Callable, Coroutine
+from collections.abc import Callable, Coroutine, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import partial
 from typing import Any
 
+from homeassistant.config_entries import ConfigSubentry
 from homeassistant.const import EVENT_STATE_CHANGED
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
 from homeassistant.helpers.event import async_track_point_in_utc_time
@@ -28,7 +29,6 @@ from ..const import (
     DEFAULT_OPTIONS,
     EVENT_DELIVERY_FAILED,
     GLOBAL_SNOOZE_KEY,
-    GROUP_SUFFIX,
     HOLD_AWAY,
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
@@ -45,6 +45,7 @@ from .activity import Activity, ActivityLog, RecentMessages
 from .channels import ChannelRegistry, Outcome, Result, Target
 from .channels.persistent import warn_speech
 from .channels.speak import NO_SPEAKER
+from .identity import IdentityMaps, maps_for
 from .interfaces import AudienceResolver, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, HeldMessage, State
 from .limits import DUPLICATE, RATE_LIMITED, Limiter
@@ -119,6 +120,8 @@ class HubEngine:
         self.audiences: AudienceResolver = self.resolver
         self.recipients: RecipientResolver = self.resolver
         self.policies = PolicyBook(options)
+        # The objects that exist now, to turn a name stored by an earlier version into a key.
+        self.identity = IdentityMaps()
         self.chain = Chain()
         self.chain.replace(QuietHoursStage(self.policies))
         self.chain.replace(AwayStage(hass, self.policies))
@@ -138,6 +141,7 @@ class HubEngine:
 
     async def async_start(self, known_ids: set[str]) -> None:
         """Load the ledger and forget what no longer exists, without re-sending anything."""
+        self.ledger.identity = self.identity
         await self.ledger.async_load()
         stored = await self._trace_store.async_load() or {}
         self.trace.load(stored.get("entries"))
@@ -763,15 +767,17 @@ class HubEngine:
         """Why a policy cannot run now, as a stable reason code (D-111). Home Assistant cannot
         stop a user from deleting an audience or group a policy names, so this is checked when
         the policy fires and reported instead."""
-        for channel, target in policy.targets.items():
+        for target in policy.targets.values():
             audience = target.get("audience")
-            if audience is not None and audience not in self.audiences.names():
+            if audience is not None and self.resolver.audience(audience) is None:
                 return "audience_missing"
-            known = self.recipients.known(channel)
             for name in target.get("recipients", []):
-                if name.endswith(GROUP_SUFFIX) and name not in known:
+                if self.resolver.is_group_ref(name) and self.resolver.group(name) is None:
                     return "group_missing"
         return None
+
+    def sync_identity(self, subentries: Mapping[str, ConfigSubentry]) -> None:
+        self.identity = maps_for(self.hass, subentries.values())
 
     def _arm(self, banner: Banner) -> None:
         """Start the timers of the escalations and reminders that apply, once per message."""
@@ -885,8 +891,10 @@ class HubEngine:
         policy = self.policies.by_key(key)
         if banner is None or not banner.active or banner.acknowledged_by:
             self._finish(row, State.CLEARED, "no_longer_needed")
-        elif policy is None or not policy.enabled:
-            self._finish(row, State.CLEARED, "policy_gone")
+        elif policy is None:
+            self._finish(row, State.CLEARED, "policy_deleted")
+        elif not policy.enabled:
+            self._finish(row, State.CLEARED, "policy_disabled")
         elif policy.type == "escalation":
             await self._escalate(banner, policy, row)
         else:

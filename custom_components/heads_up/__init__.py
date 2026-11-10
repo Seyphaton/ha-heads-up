@@ -93,6 +93,7 @@ def _start_hub(hass: HomeAssistant, entry: HeadsUpConfigEntry, manager: BannerMa
     hub.visibility_changed = manager.refresh
     hub.resolver.sync(entry.subentries)
     hub.policies.sync(entry.subentries)
+    hub.sync_identity(entry.subentries)
     hub.resolver.audience_entities = lambda: audience_entity_ids(hass, entry)
     hub.policies.policy_entities = lambda: policy_entity_ids(hass, entry)
     hub.channels.register(PushChannel(hass, hub, manager))
@@ -115,6 +116,7 @@ async def _async_entry_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry) -
         manager.hub.limiter.configure(manager.options)
         manager.hub.resolver.sync(entry.subentries)
         manager.hub.policies.sync(entry.subentries)
+        manager.hub.sync_identity(entry.subentries)
         manager.hub.on_policies_changed()
         notify_audiences_changed(hass)
         async_dispatcher_send(hass, SIGNAL_POLICIES)

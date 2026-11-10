@@ -28,7 +28,7 @@ def select(policies: list[Policy], message: Banner, first_only: bool = False) ->
     names = policy_names(message.policy)
     if names == [POLICY_NONE]:
         return []
-    named = [p for p in enabled if p.name in names]
+    named = [p for p in enabled if any(p.is_named(n) for n in names)]
     if names and POLICY_AUTOMATIC not in names:
         return named
     found = [p for p in enabled if applies(p, message.severity, message.tag)]

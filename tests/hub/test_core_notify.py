@@ -309,7 +309,7 @@ async def test_an_audience_name_in_another_case_is_accepted_and_stored_as_writte
         channels=["banner"],
         to={"banner": {"audience": "at HOME"}},
     )
-    assert banners(entry)["case"].targets["banner"]["audience"] == "At home"
+    assert banners(entry)["case"].targets["banner"]["audience"] == "at_home"
 
 
 async def test_a_close_audience_id_gets_a_suggestion(
@@ -328,12 +328,12 @@ async def test_a_policy_is_named_by_its_switch_and_a_close_id_gets_a_suggestion(
 ) -> None:
     from .policy_support import add_policy
 
-    await add_policy(hass, entry, "Night", type="reminder", every_minutes=30, max_count=3)
+    night = await add_policy(hass, entry, "Night", type="reminder", every_minutes=30, max_count=3)
     result = await notify(
         hass, id="p", message="x", channels=["banner"], policy="switch.heads_up_policy_night"
     )
     assert result["status"] == "created"
-    assert banners(entry)["p"].policy == ["automatic", "Night"]
+    assert banners(entry)["p"].policy == ["automatic", night.subentry_id]
     with pytest.raises(ServiceValidationError) as err:
         await notify(hass, message="x", channels=["banner"], policy="switch.heads_up_policy_nigh")
     assert err.value.translation_key == "unknown_policy_hint"

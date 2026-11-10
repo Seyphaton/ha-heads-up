@@ -244,6 +244,20 @@ def _messages(manager: BannerManager) -> list[Any]:
     return [b for b in [*manager.banners.values(), *manager.rules.values()] if b.active]
 
 
+def _policy_kind_name(hub: Any, key: str) -> tuple[str, str]:
+    """The type and the current name of the policy a timer row holds; a deleted one keeps what
+    the key shows (an ID is not a name, so its name is unknown)."""
+    policy = hub.policies.by_key(key)
+    if policy is not None:
+        return policy.type, policy.name
+    kind, _, name = key.partition(":")
+    return (kind, name) if name else ("", "")
+
+
+def _policy_label(hub: Any, key: str) -> str:
+    return _policy_kind_name(hub, key)[1]
+
+
 def message_states(manager: BannerManager, banner: Any) -> list[dict[str, Any]]:
     """Why a message is in the list: the states the Overview badges count."""
     hub = manager.hub
@@ -252,9 +266,9 @@ def message_states(manager: BannerManager, banner: Any) -> list[dict[str, Any]]:
     if hub is not None:
         held = hub.ledger.held.get(banner.id)
         if held is not None and not held.resolved:
-            states.append({"state": "held", "policy": held.policy.split(":", 1)[-1]})
+            states.append({"state": "held", "policy": _policy_label(hub, held.policy)})
         for row in hub.ledger.timers(banner.id):
-            kind, _, name = row.recipient.partition(":")
+            kind, name = _policy_kind_name(hub, row.recipient)
             if kind == "escalation" and not banner.acknowledged_by:
                 if row.state is State.PLANNED:
                     states.append(
@@ -414,8 +428,8 @@ def trace(hass: HomeAssistant, manager: BannerManager, message_id: str) -> dict[
         ],
         "timers": [
             {
-                "type": r.recipient.partition(":")[0],
-                "policy": r.recipient.partition(":")[2],
+                "type": _policy_kind_name(hub, r.recipient)[0],
+                "policy": _policy_kind_name(hub, r.recipient)[1],
                 "state": r.state.value,
                 "due": r.due.isoformat() if r.due else None,
                 "count": r.count,

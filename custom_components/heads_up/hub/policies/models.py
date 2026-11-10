@@ -13,6 +13,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigSubentry
 
 from ...const import POLICY_SUBENTRY, POLICY_TYPES
+from ..identity import NAME_PREFIX
 
 DEFAULT_AFTER_MINUTES = 5
 DEFAULT_EVERY_MINUTES = 30
@@ -90,7 +91,16 @@ class Policy:
 
     @property
     def key(self) -> str:
-        return f"{self.type}:{self.name}"
+        """What timer rows, held messages and stored messages call this policy: the subentry ID,
+        which a rename does not change (D-199)."""
+        return self.subentry_id or f"{self.type}:{self.name}"
+
+    def is_named(self, ref: str) -> bool:
+        """Whether a stored reference means this policy: its ID, or a name from before D-199."""
+        if ref == self.key or ref == self.subentry_id:
+            return bool(ref)
+        name = ref[len(NAME_PREFIX) :] if ref.startswith(NAME_PREFIX) else ref
+        return name.casefold() == self.name.casefold()
 
     def describe(self) -> dict[str, Any]:
         """What the policy does, as plain values for entity attributes (D-194)."""

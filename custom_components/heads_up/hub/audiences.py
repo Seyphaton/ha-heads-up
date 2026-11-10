@@ -20,10 +20,13 @@ class Audience:
     zone: str | None = None
     # Presence audiences only: the persons the audience is limited to; empty means every person.
     limit: tuple[str, ...] = ()
+    # What a stored reference holds: the kind of a built-in audience, the subentry ID of a custom
+    # one. The name is for display (D-199).
+    key: str = ""
 
 
 BUILTINS: dict[str, Audience] = {
-    name: Audience(name, kind, builtin=True) for name, kind in BUILTIN_AUDIENCES.items()
+    name: Audience(name, kind, builtin=True, key=kind) for name, kind in BUILTIN_AUDIENCES.items()
 }
 
 
@@ -32,12 +35,18 @@ def parse_audience(subentry: ConfigSubentry) -> Audience | None:
         return None
     data = subentry.data
     if data.get("kind") == "persons":
-        return Audience(subentry.title, "persons", persons=tuple(data.get("persons", ())))
+        return Audience(
+            subentry.title,
+            "persons",
+            persons=tuple(data.get("persons", ())),
+            key=subentry.subentry_id,
+        )
     if data.get("presence"):
         return Audience(
             subentry.title,
             str(data["presence"]),
             zone=data.get("zone"),
             limit=tuple(data.get("limit", ())),
+            key=subentry.subentry_id,
         )
     return None

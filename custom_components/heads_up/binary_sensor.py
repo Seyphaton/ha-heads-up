@@ -50,8 +50,8 @@ async def async_setup_entry(
     @callback
     def sync() -> None:
         wanted: dict[str, tuple[str, str | None]] = {}  # unique ID: key, subentry ID
-        for name, kind in BUILTIN_AUDIENCES.items():
-            if name not in hub.resolver.disabled_audiences():
+        for kind in BUILTIN_AUDIENCES.values():
+            if kind not in hub.resolver.disabled_audiences():
                 wanted[f"{prefix}{kind}"] = (kind, None)
         for subentry_id, subentry in entry.subentries.items():
             if subentry.subentry_type == AUDIENCE_SUBENTRY and parse_audience(subentry):
@@ -104,7 +104,7 @@ class AudienceSensor(BinarySensorEntity):
     async def _refresh(self) -> None:
         hub = self._entry.runtime_data.hub
         name = self._name()
-        audience = hub.resolver.audience(name) if hub is not None and name else None
+        audience = hub.resolver.audience(self._key) if hub is not None else None
         if audience is None:
             self._attr_available = False
         else:
