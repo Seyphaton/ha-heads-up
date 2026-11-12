@@ -89,7 +89,7 @@ A popup goes to persons, by audience or by `recipients`. A person needs a linked
 - One popup is shown at a time, highest severity first, then the oldest. The close button and Escape hide the popup on that page only and the popup returns after a reload. Dismiss hides it for you on every device and keeps the message for others. Acknowledge stops escalation and reminders.
 - A critical window takes keyboard focus and keeps Tab inside. With reduced motion set in the system, nothing is animated. When the message ends, the popup closes.
 
-Popups need an open Home Assistant page; use push for a closed app. The popup is not shown on the login page, and it was not tested with a screen reader.
+Popups need an open Home Assistant page; use push for a closed app. The popup is not shown on the login page,.
 
 ### Speech
 
@@ -122,7 +122,7 @@ The text is `tts_message` if you set it, otherwise the title, otherwise the mess
 - An area or group with no speaker, and a speaker that no longer exists, also leave one entry in the notification bell ("Heads Up: no speaker" or "Heads Up: speaker not found"). It names the area, group or speaker and never the message, because every user sees the bell.
 - A missing speaker, a missing service and a missing engine are failed deliveries (`entity_missing`, `service_not_found`, `send_failed`, `no_tts_engine`) and write a log warning, at most one per speaker per hour. Skips are written at debug level. Test send shows each result with its reason.
 
-There is no all-clear announcement and no volume handling. Rooms are Home Assistant areas and their assigned speakers; occupancy is not used. Speech was not tested on a real speaker.
+There is no all-clear announcement and no volume handling. Rooms are Home Assistant areas and their assigned speakers; occupancy is not used.
 
 ### Persistent Notification
 

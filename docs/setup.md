@@ -9,11 +9,11 @@ This page takes you from nothing to a first message on a phone, a banner on a da
 - For push: the Home Assistant Companion app on a phone that belongs to a person.
 - For popups: a Home Assistant user linked to a person.
 
-Everything was tested on local Home Assistant instances with stub devices, not on real phones or speakers. Make a backup before you install.
+Make a backup before you install.
 
 ## Install
 
-1. In HACS, search for "Heads Up" and click "Download". To install a pre-release, switch on "Show beta versions" in the download dialog first.
+1. In HACS, search for "Heads Up" and click "Download".
 2. Restart Home Assistant. A restart pauses all automations until it has finished.
 3. Go to Settings > Devices & services > Add integration and choose Heads Up. The first screen asks "Show Heads Up in the sidebar". Leave it on to get the panel.
 
@@ -124,7 +124,7 @@ Send test sends one real message with the title prefix `Test: `, the tag `test` 
 - Settings: see [Settings](settings.md).
 - Help: three pages. FAQ has the questions of [Examples and FAQ](examples.md#frequently-asked-questions) and more. Notify examples has six calls from a banner to a push to one person, each with a Copy button; the names in them are samples, so replace them with your own audiences, persons and speakers. Card examples has six configurations of the card, each with a Copy button. Every Help page links to the project's GitHub issues page.
 
-The panel polls every 10 seconds, so pages do not update the moment something happens. It was not tested on a touch device or with a screen reader.
+The panel polls every 10 seconds, so pages do not update the moment something happens.
 
 ### The introduction
 
