@@ -286,6 +286,11 @@ class HubResolver:
             for person in persons:
                 if audience.limit and person not in audience.limit:
                     continue
+                if not self.profile(person).enabled:
+                    # Before the presence check: a disabled person with unknown presence would
+                    # otherwise be logged as "presence unknown" instead of "disabled".
+                    result.skipped.append(Skipped(person, "recipient_disabled"))
+                    continue
                 self._presence_member(result, person, kind, audience.zone, severity)
         return self._without_disabled(result)
 

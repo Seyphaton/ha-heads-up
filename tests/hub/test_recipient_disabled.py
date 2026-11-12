@@ -197,3 +197,16 @@ async def test_skipping_a_disabled_person_is_a_choice_not_a_failure(
     )
     await settle(hass, entry)
     assert failures == []
+
+
+async def test_a_disabled_person_with_unknown_presence_is_logged_as_disabled(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    set_person(hass, "person.anna", None)
+    set_person(hass, "person.ben", "home")
+    disable(hass, entry, "person.anna")
+    await hass.async_block_till_done()
+    resolver = entry.runtime_data.hub.resolver
+    result = await resolver.members(resolver.audience("At home"), "warning")
+    assert [m.key for m in result.recipients] == ["person.ben"]
+    assert [(s.who, s.reason) for s in result.skipped] == [("person.anna", "recipient_disabled")]

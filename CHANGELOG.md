@@ -9,6 +9,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - Breaking, for the 1.0.0 release: the stored data has version 2 (config entry, banners, deliveries, trace). The first start converts it once; an older release refuses it. A timer that ended because its policy was disabled now says `policy_disabled` and one whose policy was deleted says `policy_deleted`.
 
 ### Added
+- The Message Log opens a message's delivery trace in a window (a bottom sheet on a phone). Rows show an arrow and a hint that they open. Entries are grouped by channel and result, and phones and people show their names instead of ids.
 - The Overview list has two buttons per message: Acknowledge, and Clear, which takes the message back from every channel after a confirmation. An administrator can acknowledge a message that is not addressed to them.
 - Deleting an audience or speaker group that a policy still uses, on Home Assistant's own Devices & services page, raises a Repairs notice that names the policy and what to do. The panel already refused such a delete.
 - Renaming is safe. Policies, audiences and speaker groups are stored by an ID, so renaming one keeps the watch rules, policy targets, running messages, escalations, reminders and held summaries that use it. Nothing is lost on a rename that only changes the case, and a deleted policy no longer passes its timers to a new one with the same name. A property test renames everything in random order while timers run.
@@ -19,6 +20,9 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - `scripts/restore_identity_backup.py` restores the data from before the conversion to IDs; the first start after the update writes the backup to `.storage/heads_up.migration_v2`.
 - The audience editor shows the entity ID of the audience's sensor, like the policy editor does for the switch. A new audience shows the ID it will get.
 - Policy editor: shows the entity ID of the policy's switch, and the ID a new policy will get. Naming a policy in a call by this ID keeps working after a rename; the docs say what a rename changes.
+
+### Fixed
+- The Message Log named a switched-off person as "presence unknown" in an audience such as At home. It now says the recipient is disabled.
 
 ## [1.0.0-alpha.8] - 2026-11-09
 

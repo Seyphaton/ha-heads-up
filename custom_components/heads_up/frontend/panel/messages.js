@@ -2,6 +2,10 @@
 
 export const STRINGS = {
   en: {
+    tap_hint: "Select a message to see where it was delivered.",
+    close: "Close",
+    unknown_phone: "Unknown phone ({id})",
+    deliveries_title: "Deliveries",
     title: "Message Log",
     recent: "Recent messages",
     recent_hint: "Kept in memory; the list starts empty after a restart.",
@@ -35,6 +39,10 @@ export const STRINGS = {
     results: { sent: "sent", held: "held", skipped: "skipped", failed: "failed" },
   },
   de: {
+    tap_hint: "Wähle eine Meldung, um zu sehen, wohin sie zugestellt wurde.",
+    close: "Schließen",
+    unknown_phone: "Unbekanntes Telefon ({id})",
+    deliveries_title: "Zustellungen",
     title: "Meldungsprotokoll",
     recent: "Letzte Meldungen",
     recent_hint: "Im Speicher gehalten; die Liste ist nach einem Neustart leer.",
@@ -68,6 +76,10 @@ export const STRINGS = {
     results: { sent: "gesendet", held: "zurückgehalten", skipped: "übersprungen", failed: "fehlgeschlagen" },
   },
   fr: {
+    tap_hint: "Choisissez un message pour voir où il a été livré.",
+    close: "Fermer",
+    unknown_phone: "Téléphone inconnu ({id})",
+    deliveries_title: "Livraisons",
     title: "Journal des messages",
     recent: "Messages récents",
     recent_hint: "Gardés en mémoire ; la liste est vide après un redémarrage.",
@@ -101,6 +113,10 @@ export const STRINGS = {
     results: { sent: "envoyé", held: "retenu", skipped: "ignoré", failed: "échec" },
   },
   es: {
+    tap_hint: "Elige un mensaje para ver dónde se entregó.",
+    close: "Cerrar",
+    unknown_phone: "Teléfono desconocido ({id})",
+    deliveries_title: "Entregas",
     title: "Registro de mensajes",
     recent: "Mensajes recientes",
     recent_hint: "Se guardan en memoria; la lista está vacía tras un reinicio.",
@@ -154,6 +170,41 @@ export function statusLabel(message, t, s, reasonText) {
   return fill(t.ended, { reason: reasonText(message.reason, s) || "?" });
 }
 
+
+// "device:<id>" is a phone: show its name, or a short id when the device is gone. Anything else is
+// labelled by the editors' shared label function (person, speaker, group).
+export function recipientName(value, label, t) {
+  if (!value) return "";
+  if (!value.startsWith("device:")) return label(value);
+  const id = value.slice(7);
+  const name = label(id);
+  return name === id ? fill(t.unknown_phone, { id: id.slice(0, 4) }) : name;
+}
+
+// The trace entries of one message (newest first) as groups: one per channel, result and reason
+// within a minute, with the recipients listed once. Five skipped persons become one line.
+export const DELIVERY_CHANNELS = ["banner", "push", "popup", "speak", "persistent", "mail"];
+const deliveryChannel = (channel) => DELIVERY_CHANNELS.includes(channel);
+
+export function groupEntries(entries, label, t, windowMs = 60000) {
+  const groups = [];
+  for (const entry of entries) {
+    const reason = entry.reason || "";
+    const group = groups.find(
+      (g) => g.channel === entry.channel && g.result === entry.result && g.reason === reason && Math.abs(Date.parse(g.time) - Date.parse(entry.time)) <= windowMs,
+    );
+    // Only a delivery channel has recipients worth naming; the other rows (acknowledged, timer)
+    // carry internal ids.
+    const who = deliveryChannel(entry.channel) ? recipientName(entry.recipient, label, t) : "";
+    if (group) {
+      if (who && !group.recipients.includes(who)) group.recipients.push(who);
+    } else {
+      groups.push({ channel: entry.channel, result: entry.result, reason, time: entry.time, recipients: who ? [who] : [] });
+    }
+  }
+  return groups;
+}
+
 function el(tag, props = {}, children = []) {
   const created = document.createElement(tag);
   Object.assign(created, props);
@@ -165,26 +216,31 @@ const CSS = `
 .hu-messages section { background: var(--card-background-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
 .hu-messages h2 { font-size: 16px; margin: 0 0 8px; }
 .hu-messages ul { list-style: none; margin: 0; padding: 0; }
-.hu-messages li button.row { width: 100%; text-align: left; min-height: 48px; padding: 8px 12px; border: none; border-top: 1px solid var(--divider-color); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
-.hu-messages li button.row[aria-pressed="true"] { background: var(--secondary-background-color); }
-.hu-messages button:focus-visible { outline: 3px solid var(--primary-color); outline-offset: -3px; }
+.hu-messages .msgs li { margin-top: 8px; }
+.hu-messages button.row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; min-height: 56px; padding: 10px 12px; border: 1px solid var(--divider-color); border-radius: 10px; background: var(--secondary-background-color, transparent); color: var(--primary-text-color); font: inherit; cursor: pointer; }
+.hu-messages button.row:hover { border-color: var(--primary-color); }
+.hu-messages button.row:active { background: var(--divider-color); }
+.hu-messages button.row .main { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.hu-messages button.row .chev { font-size: 24px; line-height: 1; color: var(--primary-color); }
+.hu-messages button:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
 .hu-messages .sub { color: var(--secondary-text-color); font-size: 13px; }
 .hu-messages .sev { font-weight: 600; margin-right: 6px; }
-.hu-messages table { width: 100%; border-collapse: collapse; }
+.hu-messages .refresh { min-height: 40px; margin-top: 12px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--divider-color); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
+.hu-sheet { width: min(560px, calc(100% - 24px)); max-height: 85vh; padding: 0; border: 1px solid var(--divider-color); border-radius: 16px; background: var(--card-background-color); color: var(--primary-text-color); }
+.hu-sheet::backdrop { background: rgba(0, 0, 0, 0.5); }
+.hu-sheet .head { position: sticky; top: 0; display: flex; align-items: flex-start; gap: 8px; padding: 16px 8px 8px 16px; background: var(--card-background-color); border-bottom: 1px solid var(--divider-color); }
+.hu-sheet .head h2 { flex: 1; margin: 0; font-size: 18px; overflow-wrap: anywhere; }
+.hu-sheet .close { flex: none; width: 48px; height: 48px; border: none; border-radius: 24px; background: transparent; color: var(--primary-text-color); font-size: 24px; cursor: pointer; }
+.hu-sheet .body { padding: 8px 16px 16px; }
+.hu-sheet h3 { font-size: 14px; margin: 16px 0 4px; color: var(--secondary-text-color); }
+.hu-sheet .group { padding: 10px 0; border-bottom: 1px solid var(--divider-color); overflow-wrap: anywhere; }
+.hu-sheet .group .top { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.hu-sheet .group .ch { font-weight: 600; }
+.hu-sheet .sub { color: var(--secondary-text-color); font-size: 13px; }
 @media (max-width: 480px) {
-  /* A trace row becomes a small block, so the Result is never cut off: channel and recipient on
-     the first line, the result under them, the time last. */
-  .hu-messages table.trace thead { display: none; }
-  .hu-messages table.trace tbody { display: block; }
-  .hu-messages table.trace tr { display: flex; flex-wrap: wrap; gap: 0 8px; padding: 8px 0; border-bottom: 1px solid var(--divider-color); }
-  .hu-messages table.trace td { padding: 0; border: none; overflow-wrap: anywhere; }
-  .hu-messages table.trace td:nth-child(2) { order: 1; font-weight: 600; }
-  .hu-messages table.trace td:nth-child(3) { order: 2; flex: 1; min-width: 0; }
-  .hu-messages table.trace td:nth-child(4) { order: 3; flex-basis: 100%; }
-  .hu-messages table.trace td:nth-child(1) { order: 4; flex-basis: 100%; font-size: 12px; color: var(--secondary-text-color); }
+  /* A phone gets a sheet that sits at the bottom edge and fills the width. */
+  .hu-sheet { width: 100%; max-width: 100%; margin: auto 0 0; border-radius: 16px 16px 0 0; max-height: 90vh; }
 }
-.hu-messages th, .hu-messages td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--divider-color); font-size: 14px; vertical-align: top; }
-.hu-messages .refresh { min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--divider-color); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
 `;
 
 // "Escalation Water", "Reminder Water", "Delivery Critical delivery"; any other type shows only the
@@ -195,73 +251,110 @@ export function timerName(row, t) {
 }
 
 export function mount(container, ctx) {
-  const { t, s, fmt } = ctx;
+  const { t, s, fmt, ui } = ctx;
   let hass = ctx.hass;
   let list = null;
   let selected = null;
   let trace = null;
+  let choices = null;
   let timer = null;
   const root = el("div", { className: "hu-messages" });
+  const listHost = el("div");
+  // The sheet lives outside the list, so the 10-second refresh never closes it.
+  const sheet = el("dialog", { className: "hu-sheet" });
+  sheet.setAttribute("aria-labelledby", "hu-sheet-title");
+  root.append(el("style", { textContent: CSS }), el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }), listHost, sheet);
   container.append(root);
   const now = () => Date.now();
+  const label = (value) => (choices && ui ? ui.recipientLabel(value, choices) : value);
+  const when = (iso) => {
+    const date = new Date(iso);
+    const absolute = Number.isNaN(date.getTime()) ? "" : date.toLocaleString(ctx.language, { dateStyle: "short", timeStyle: "short" });
+    return [fmt.timeAgo(iso, now(), s), absolute].filter(Boolean).join(" · ");
+  };
 
-  function traceNode() {
-    const box = el("section", {}, [el("h2", { textContent: t.trace })]);
-    if (!selected) {
-      box.append(el("div", { className: "sub", textContent: t.pick }));
-      return box;
-    }
-    if (!trace) {
-      box.append(el("div", { className: "sub", textContent: t.loading }));
-      return box;
-    }
-    if (trace.error) {
-      box.append(el("div", { textContent: t.trace_failed }));
-      return box;
-    }
-    if (trace.held) box.append(el("div", { className: "sub", textContent: t.held }));
-    if (trace.acknowledged_count > 0) {
-      const names = trace.acknowledged_by.join(", ");
-      box.append(el("div", { textContent: names ? fill(t.ack, { names }) : fill(t.ack_count, { n: trace.acknowledged_count }) }));
-    }
-    if (trace.entries.length === 0) box.append(el("div", { className: "sub", textContent: t.no_entries }));
-    else {
-      const head = el("tr", {}, [t.time, t.channel, t.recipient, t.result].map((text) => el("th", { textContent: text })));
-      const rows = trace.entries.map((e) =>
-        el("tr", {}, [
-          el("td", { textContent: fmt.timeAgo(e.time, now(), s) }),
-          el("td", { textContent: fmt.channelName(e.channel, s) }),
-          el("td", { textContent: e.recipient || "" }),
-          el("td", { textContent: [s.result[e.result] || e.result, fmt.reasonText(e.reason, s)].filter(Boolean).join(": ") }),
-        ]),
-      );
-      box.append(el("table", { className: "trace" }, [el("thead", {}, [head]), el("tbody", {}, rows)]));
-    }
-    if (trace.timers.length > 0) {
-      box.append(el("h2", { textContent: t.timers, style: "margin-top:16px" }));
-      const items = trace.timers.map((row) => {
-        const name = timerName(row, t);
-        const state = fill(t[`timer_state_${row.state}`] || row.state, { when: row.due ? fmt.inTime(row.due, now(), s) : "" });
-        return el("li", {}, [el("span", { textContent: `${name}: ${state}` })]);
-      });
-      box.append(el("ul", {}, items));
-    }
-    return box;
+  function closeSheet() {
+    if (typeof sheet.close === "function") sheet.close();
+    else sheet.removeAttribute("open");
+    onClosed();
   }
 
-  function render() {
-    root.replaceChildren(el("style", { textContent: CSS }), el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }));
-    const box = el("section", {}, [el("h2", { textContent: t.recent }), el("div", { className: "sub", textContent: t.recent_hint })]);
-    const ul = el("ul");
+  function onClosed() {
+    selected = null;
+    trace = null;
+    renderList();
+  }
+  sheet.addEventListener("close", onClosed);
+  sheet.addEventListener("click", (event) => {
+    if (event.target === sheet) closeSheet();
+  });
+
+  function traceBody() {
+    const body = el("div", { className: "body" });
+    if (!trace) return body.append(el("div", { className: "sub", textContent: t.loading })), body;
+    if (trace.error) return body.append(el("div", { textContent: t.trace_failed })), body;
+    if (trace.held) body.append(el("div", { className: "sub", textContent: t.held }));
+    if (trace.acknowledged_count > 0) {
+      const names = trace.acknowledged_by.join(", ");
+      body.append(el("div", { textContent: names ? fill(t.ack, { names }) : fill(t.ack_count, { n: trace.acknowledged_count }) }));
+    }
+    body.append(el("h3", { textContent: t.deliveries_title }));
+    if (trace.entries.length === 0) body.append(el("div", { className: "sub", textContent: t.no_entries }));
+    for (const group of groupEntries(trace.entries, label, t)) {
+      const reason = group.reason === "ok" ? "" : fmt.reasonText(group.reason, s);
+      const outcome = [s.result[group.result] || group.result, reason].filter(Boolean).join(": ");
+      body.append(
+        el("div", { className: "group" }, [
+          el("div", { className: "top" }, [...(deliveryChannel(group.channel) ? [el("span", { className: "ch", textContent: fmt.channelName(group.channel, s) })] : []), el("span", { className: deliveryChannel(group.channel) ? "" : "ch", textContent: outcome })]),
+          ...(group.recipients.length ? [el("div", { textContent: group.recipients.join(", ") })] : []),
+          el("div", { className: "sub", textContent: when(group.time) }),
+        ]),
+      );
+    }
+    if (trace.timers.length > 0) {
+      body.append(el("h3", { textContent: t.timers }));
+      body.append(
+        el(
+          "ul",
+          {},
+          trace.timers.map((row) => {
+            const state = fill(t[`timer_state_${row.state}`] || row.state, { when: row.due ? fmt.inTime(row.due, now(), s) : "" });
+            return el("li", { textContent: `${timerName(row, t)}: ${state}`, style: "padding:4px 0" });
+          }),
+        ),
+      );
+    }
+    return body;
+  }
+
+  function renderSheet() {
+    const message = list?.find((m) => m.id === selected) || trace?.message || { id: selected, title: selected };
+    const close = el("button", { type: "button", className: "close", textContent: "×" });
+    close.setAttribute("aria-label", t.close);
+    close.addEventListener("click", closeSheet);
+    const head = el("div", { className: "head" }, [
+      el("h2", { id: "hu-sheet-title" }, [el("span", { className: "sev", textContent: s.severity[message.severity] || "" }), document.createTextNode(fmt.messageTitle(message))]),
+      close,
+    ]);
+    sheet.replaceChildren(head, traceBody());
+  }
+
+  function renderList() {
+    const box = el("section", {}, [el("h2", { textContent: t.recent }), el("div", { className: "sub", textContent: t.tap_hint }), el("div", { className: "sub", textContent: t.recent_hint })]);
+    const ul = el("ul", { className: "msgs" });
     if (list.length === 0) ul.append(el("li", { className: "sub", textContent: t.none }));
     for (const message of list) {
       const row = el("button", { type: "button", className: "row" });
-      row.setAttribute("aria-pressed", String(message.id === selected));
+      row.setAttribute("aria-haspopup", "dialog");
       row.append(
-        el("span", { className: "sev", textContent: s.severity[message.severity] || message.severity }),
-        el("span", { textContent: fmt.messageTitle(message) }),
-        el("div", { className: "sub", textContent: [fmt.timeAgo(message.created_at, now(), s), statusLabel(message, t, s, fmt.reasonText), resultsLine(message.results, t), message.source === "rule" ? t.from_rule : ""].filter(Boolean).join(" · ") }),
+        el("span", { className: "main" }, [
+          el("span", { className: "sev", textContent: s.severity[message.severity] || message.severity }),
+          el("span", { textContent: fmt.messageTitle(message) }),
+          el("div", { className: "sub", textContent: [fmt.timeAgo(message.created_at, now(), s), statusLabel(message, t, s, fmt.reasonText), resultsLine(message.results, t), message.source === "rule" ? t.from_rule : ""].filter(Boolean).join(" · ") }),
+        ]),
+        el("span", { className: "chev", textContent: "›" }),
       );
+      row.querySelector(".chev").setAttribute("aria-hidden", "true");
       row.addEventListener("click", () => select(message.id));
       ul.append(el("li", {}, [row]));
     }
@@ -269,13 +362,17 @@ export function mount(container, ctx) {
     const refresh = el("button", { type: "button", className: "refresh", textContent: t.refresh });
     refresh.addEventListener("click", load);
     box.append(refresh);
-    root.append(box, traceNode());
+    listHost.replaceChildren(box);
   }
 
   async function select(id) {
     selected = id;
     trace = null;
-    render();
+    renderSheet();
+    if (!sheet.open) {
+      if (typeof sheet.showModal === "function") sheet.showModal();
+      else sheet.setAttribute("open", "");
+    }
     await loadTrace();
   }
 
@@ -288,20 +385,25 @@ export function mount(container, ctx) {
     } catch (err) {
       if (id === selected) trace = { error: true };
     }
-    render();
+    if (id === selected) renderSheet();
   }
 
   async function load() {
     try {
       list = (await hass.callWS({ type: "heads_up/panel_messages" })).messages;
-      render();
+      renderList();
       if (selected) await loadTrace();
     } catch (err) {
-      root.replaceChildren(el("div", { textContent: t.load_failed }));
+      listHost.replaceChildren(el("div", { textContent: t.load_failed }));
     }
   }
 
-  root.append(el("div", { textContent: t.loading }));
+  listHost.append(el("div", { textContent: t.loading }));
+  // Names for the recipients; without them the log shows the ids.
+  hass.callWS({ type: "heads_up/panel_config" }).then((data) => {
+    choices = data.choices;
+    if (selected) renderSheet();
+  }, () => {});
   load();
   timer = setInterval(load, REFRESH_MS);
   return {
@@ -310,6 +412,7 @@ export function mount(container, ctx) {
     },
     destroy() {
       clearInterval(timer);
+      if (sheet.open && typeof sheet.close === "function") sheet.close();
       root.remove();
     },
   };

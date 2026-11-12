@@ -209,6 +209,8 @@ import {
   STRINGS as OVERVIEW_STRINGS,
 } from "../../custom_components/heads_up/frontend/panel/overview.js";
 import {
+  groupEntries,
+  recipientName,
   resultsLine,
   statusLabel,
   timerName,
@@ -353,11 +355,44 @@ describe("overview functions", () => {
 });
 
 describe("messages functions", () => {
+  const t = MESSAGES_STRINGS.en;
+
   it("counts delivery results in a fixed order", () => {
     const t = MESSAGES_STRINGS.en;
     expect(resultsLine({ skipped: 1, sent: 2 }, t)).toBe("2 sent, 1 skipped");
     expect(resultsLine({}, t)).toBe("");
     expect(resultsLine(undefined, t)).toBe("");
+  });
+
+  it("names a phone, and shows a short id for a phone that is gone", () => {
+    const label = (value) => ({ "person.anna": "Anna", abc123: "Anna's phone" })[value] || value;
+    expect(recipientName("device:abc123", label, t)).toBe("Anna's phone");
+    expect(recipientName("device:4ED34B13-6E36", label, t)).toBe("Unknown phone (4ED3)");
+    expect(recipientName("person.anna", label, t)).toBe("Anna");
+    expect(recipientName(null, label, t)).toBe("");
+  });
+
+  it("groups the entries of one send by channel, result and reason", () => {
+    const label = (value) => value;
+    const at = (time, channel, recipient, result, reason) => ({ time, channel, recipient, result, reason });
+    const groups = groupEntries(
+      [
+        at("2026-11-01T12:00:10Z", "push", "person.a", "skipped", "presence_unknown"),
+        at("2026-11-01T12:00:09Z", "push", "person.b", "skipped", "presence_unknown"),
+        at("2026-11-01T12:00:08Z", "push", "device:x1", "sent", null),
+        at("2026-11-01T12:00:07Z", "push", "device:x2", "sent", null),
+        at("2026-11-01T12:00:06Z", "banner", null, "sent", null),
+        at("2026-10-31T12:00:00Z", "push", "device:x1", "sent", null),
+      ],
+      label,
+      t,
+    );
+    expect(groups.map((g) => [g.channel, g.result, g.recipients])).toEqual([
+      ["push", "skipped", ["person.a", "person.b"]],
+      ["push", "sent", ["Unknown phone (x1)", "Unknown phone (x2)"]],
+      ["banner", "sent", []],
+      ["push", "sent", ["Unknown phone (x1)"]],
+    ]);
   });
 
   it("labels an active or ended message", () => {

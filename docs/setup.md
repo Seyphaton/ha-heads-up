@@ -55,7 +55,7 @@ data:
 
 ### When nothing arrived
 
-1. Open Heads Up > Notifications and rules > Message Log, choose the message and read the Result column. Every recipient and channel has a result (sent, held, skipped or failed) and a reason, for example `no_usable_device` (the person has no Companion app device) or `rate_limited`. The sidebar entry must be on; see Install.
+1. Open Heads Up > Notifications and rules > Message Log, select the message. A window lists every channel with its result (sent, held, skipped or failed), the people or phones it covers and a reason, for example `no_usable_device` (the person has no Companion app device) or `rate_limited`. The sidebar entry must be on; see Install.
 2. Use Test send, in the same group as the Message Log, to see the same reasons before you send anything. `dry_run: true` on the `notify` action does the same from an automation. The response of a `notify` call lists the reasons known at the call in `reasons`.
 3. [Examples and FAQ](examples.md#troubleshooting) lists every reason.
 4. To report a bug, download diagnostics from Settings > Devices & services > Heads Up. They hold the options, policies, rules, audiences and recipients, the last 200 trace entries and the list of recent messages, without mail addresses and message texts.
@@ -107,7 +107,7 @@ The Status page refreshes every 10 seconds.
 
 ### Message Log
 
-Lists the recent messages, newest first: severity, title, how long ago, whether it is active or how it ended, and a count of its results ("2 sent, 1 skipped"). Choose a message to see its trace: time, channel, recipient and result with the reason, who acknowledged, and the escalations and reminders with their state and due time. The delivery trace is stored and survives a restart. The log of last actions, the recent messages and the failure record are kept in memory and start empty after a restart. The History settings set their sizes. The action `heads_up.get_trace` returns the trace to an automation or a script; see [Actions](actions.md#heads_upget_trace).
+Lists the recent messages, newest first: severity, title, how long ago, whether it is active or how it ended, and a count of its results ("2 sent, 1 skipped"). Select a message to open its trace in a window (a sheet on a phone): who acknowledged, then one group per channel and result with the names of the people and phones, how long ago it happened and the reason, and the escalations and reminders with their state and due time. Close it with the × button, Escape or a tap outside. The delivery trace is stored and survives a restart. The log of last actions, the recent messages and the failure record are kept in memory and start empty after a restart. The History settings set their sizes. The action `heads_up.get_trace` returns the trace to an automation or a script; see [Actions](actions.md#heads_upget_trace).
 
 ### Test send
 

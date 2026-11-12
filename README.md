@@ -34,7 +34,7 @@ Install: in HACS, search for "Heads Up" and click "Download" (for a pre-release,
      audience: binary_sensor.heads_up_audience_everyone
    ```
 
-4. Nothing arrived? Open Heads Up > Notifications and rules > Message Log, choose the message and read the Result column. It names the reason for every skipped delivery.
+4. Nothing arrived? Open Heads Up > Notifications and rules > Message Log, select the message. A window lists each channel with the people and phones it reached and the reason for every skipped delivery.
 
 <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/hub/h9e-wizard/docs/images/card-default.png" width="420" alt="The card with four banners: critical, warning, info and success">
 
