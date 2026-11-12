@@ -339,6 +339,41 @@ def _card_configs(node: Any) -> list[dict[str, Any]]:
     return []
 
 
+LINK_RE = re.compile(r"\]\(([^)\s]+)\)")
+
+
+def _heading_anchors(path: Path) -> set[str]:
+    """GitHub heading anchors of a Markdown file (code fences skipped)."""
+    anchors = set()
+    in_fence = False
+    for line in path.read_text().splitlines():
+        if line.startswith("```"):
+            in_fence = not in_fence
+        match = None if in_fence else re.match(r"#{1,6}\s+(.*)", line)
+        if match:
+            text = re.sub(r"[`*]", "", match.group(1)).strip().lower()
+            anchors.add(re.sub(r"[^\w\- ]", "", text).replace(" ", "-"))
+    return anchors
+
+
+def check_links(files: list[Path]) -> list[str]:
+    """Relative links and heading anchors of the Markdown files must exist."""
+    errors = []
+    for path in files:
+        for match in LINK_RE.finditer(path.read_text()):
+            url = match.group(1)
+            if url.startswith(("http://", "https://", "mailto:")):
+                continue
+            target, _, anchor = url.partition("#")
+            dest = path.parent / target if target else path
+            rel = path.relative_to(ROOT)
+            if not dest.exists():
+                errors.append(f"{rel}: link {url} points to a missing file")
+            elif anchor and dest.suffix == ".md" and anchor not in _heading_anchors(dest):
+                errors.append(f"{rel}: link {url} points to a missing heading")
+    return errors
+
+
 def main() -> int:
     sys.path.insert(0, str(ROOT))
     import homeassistant  # noqa: F401  installs the probatio voluptuous shim (HA_API_NOTES N-24)
@@ -349,7 +384,7 @@ def main() -> int:
     panel_errors, panel_examples = check_panel_examples()
     examples += panel_examples
     errors += example_errors + panel_errors + check_field_parity() + check_card_options(files)
-    errors += check_style(files) + check_ui_strings()
+    errors += check_style(files) + check_ui_strings() + check_links(files)
     for e in errors:
         print(e)
     print(f"docs-check: {len(files)} files, {examples} examples validated, {len(errors)} errors")

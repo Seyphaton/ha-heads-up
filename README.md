@@ -21,7 +21,7 @@ Install: in HACS, search for "Heads Up" and click "Download" (for a pre-release,
    title: House Information
    ```
 
-3. Send a message to the banner and to the phones of everyone, from an automation, a script or Developer tools > Actions (named Tools in Home Assistant 2026.10), in YAML mode:
+3. Send a message to the banner and to the phones of everyone (a phone needs the Home Assistant Companion app and a person it belongs to), from an automation, a script or Developer tools > Actions (named Tools in Home Assistant 2026.10), in YAML mode:
 
    ```yaml
    action: heads_up.notify
@@ -48,12 +48,9 @@ data:
 
 Everything was tested on local Home Assistant instances with stub devices, not on real phones or speakers.
 
-### Go deeper
-
-- [Setup guide and initial configuration](https://github.com/Seyphaton/ha-heads-up/blob/hub/h9e-wizard/docs/setup.md): install, your first message, the panel, the introduction, upgrading and uninstalling.
-- [Actions](https://github.com/Seyphaton/ha-heads-up/blob/hub/h9e-wizard/docs/actions.md): every callable action with all its parameters and their defaults.
-
 ## Documentation
+
+Start with the setup guide.
 
 - [Setup guide](https://github.com/Seyphaton/ha-heads-up/blob/hub/h9e-wizard/docs/setup.md): install, first message, card, panel, introduction, upgrading, uninstalling.
 - [Actions, watch rules and card](https://github.com/Seyphaton/ha-heads-up/blob/hub/h9e-wizard/docs/actions.md): the actions with every field, banners from an entity state without an automation, and the card options.

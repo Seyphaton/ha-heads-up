@@ -13,9 +13,9 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §20 `empty` and `not_empty` operators, rule form without a prefilled State | implemented and tested (Phase 11); card unchanged |
 | §21 banner buttons and snooze | implemented and tested (Phase 12); card checked on the dev HA with a mouse |
 | §22 parity of banner sources, rule buttons, tap action, dismiss scope and template conditions | implemented and tested (Phase 12 follow-up) |
-| §23 notification hub | built (Phase 15, H0 to H10 and the later maintainer changes) on the branch `hub/h9e-wizard`; pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.7 are tagged and pushed (D-133, D-154, D-175, D-190), 1.0.0-alpha.8 is prepared and not tagged (D-196); not merged to `main`, no 1.0.0 |
+| §23 notification hub | built (Phase 15, H0 to H10 and the later maintainer changes) on the branch `hub/h9e-wizard`; pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.8 are tagged and pushed (D-133, D-154, D-175, D-190, D-196); not merged to `main`, no 1.0.0 |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
-| Human docs | README, `actions.md`, `card.md`, `examples.md`, `troubleshooting.md`, `limitations.md`, `uninstall.md`, `upgrading.md` done (Phase 6) |
+| Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
 
 ## 1. Goals, non-goals, scope cut

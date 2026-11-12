@@ -438,7 +438,7 @@ Open the message in the Message Log and look for entries with the channel `timer
 
 - `cleared` with `acknowledged`: someone acknowledged the message.
 - `cleared` with `dismissed_counts_as_acknowledged`: the policy counts a dismissal as an acknowledgement.
-- `skipped` with `audience_missing` or `group_missing`: an audience or group the policy names was deleted. Edit the policy.
+- `skipped` with `audience_missing` or `group_missing`: an audience or group the policy names was deleted. Edit the policy. Home Assistant lets you delete any entry on its Devices & services page, even one a policy uses, so Heads Up raises a notice under Settings > System > Repairs that names the policy, and Needs attention lists it. Delete audiences and speaker groups on the panel pages instead: they refuse while a policy uses them.
 - `cleared` with `nobody_left`: every recipient had dismissed or snoozed, so there was nobody to remind.
 - No entry: the policy did not match the message (severity, tag, or the `policy` field), is disabled, or was added after the message became visible. A policy added later starts at the message's next update. See [Policies](configuration.md#policies).
 
@@ -561,7 +561,7 @@ See also [CONTRIBUTING](../CONTRIBUTING.md#report-a-bug).
 - It keeps no history of messages. Each change fires an event; see [actions](actions.md#events). The panel's trace, recent messages and log of last actions are kept in memory and start empty after a restart.
 - Pushes were tried with stub devices only, not with a real Companion app. The critical level needs the app's permission on iOS and plays a sound in silent mode there. On Android it uses the alarm channel, which also sounds in silent mode; Do Not Disturb is overridden only if you allow it for that channel in the Android settings.
 - A watch rule watches one entity (its state or one attribute) or one template. The state is compared as text unless the condition is above, below or between.
-- Banner text is shown as you write it. The card's own labels and the integration's screens follow your Home Assistant language in English, German, French and Spanish; other languages show English. The German, French and Spanish texts were written without review by native speakers.
+- Banner text is shown as you write it. The card's own labels and the integration's screens follow your Home Assistant language in English, German, French and Spanish; other languages show English.
 
 ### Access
 

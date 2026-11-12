@@ -55,7 +55,10 @@ data:
 
 ### When nothing arrived
 
-Download diagnostics from Settings > Devices & services > Heads Up to attach to a bug report: the options, the policies, rules, audiences and recipients, the last 200 trace entries and the list of recent messages, without mail addresses and without message texts. Open Heads Up > Notifications and rules > Message Log, choose the message and read the Result column. Every recipient and channel has a result (sent, held, skipped or failed) and a reason, for example `no_usable_device` (the person has no Companion app device) or `rate_limited`. The response of the `notify` call lists the reasons known at the call in `reasons`. The sidebar entry must be on; see Install. Test send, on the same group, shows the same reasons before you send anything, and `dry_run: true` on the `notify` action does the same from an automation. [Examples and FAQ](examples.md#troubleshooting) lists the reasons.
+1. Open Heads Up > Notifications and rules > Message Log, choose the message and read the Result column. Every recipient and channel has a result (sent, held, skipped or failed) and a reason, for example `no_usable_device` (the person has no Companion app device) or `rate_limited`. The sidebar entry must be on; see Install.
+2. Use Test send, in the same group as the Message Log, to see the same reasons before you send anything. `dry_run: true` on the `notify` action does the same from an automation. The response of a `notify` call lists the reasons known at the call in `reasons`.
+3. [Examples and FAQ](examples.md#troubleshooting) lists every reason.
+4. To report a bug, download diagnostics from Settings > Devices & services > Heads Up. They hold the options, policies, rules, audiences and recipients, the last 200 trace entries and the list of recent messages, without mail addresses and message texts.
 
 ## Add the card
 
@@ -97,14 +100,14 @@ Five groups in a top row: Overview, Notifications and rules, Configuration, Sett
 
 The Status page refreshes every 10 seconds.
 
-- Active notifications: the number of messages that have not ended, with a badge for each state that occurs (escalating, reminding, snoozed, in a summary, acknowledged). Show list explains each message in one line.
+- Active notifications: the number of messages that have not ended, with a badge for each state that occurs (escalating, reminding, snoozed, in a summary, acknowledged). Show list explains each message in one line and gives it two buttons: Acknowledge (only while an escalation or reminder policy applies and nobody has acknowledged) and Clear, which takes the message back from every channel after a confirmation. A message made by a watch rule has no Clear; disable or delete the rule.
 - Shortcut cards for Watch rules, Channels, Audiences and Policies. A card opens its page.
 - Needs attention: each problem with a button to the page that fixes it. Errors are a watch rule on a missing entity, a device without a notify service, a speaker group without an existing speaker, an invalid policy and a policy that names a deleted audience. Warnings are a person without a usable device, sends that failed in the last 24 hours and no escalation policy for critical messages. Each warning has a Hide button; errors cannot be hidden.
 - Last actions: the latest events, newest first, with the reason for a skipped or failed delivery.
 
 ### Message Log
 
-Lists the recent messages, newest first: severity, title, how long ago, whether it is active or how it ended, and a count of its results ("2 sent, 1 skipped"). Choose a message to see its trace: time, channel, recipient and result with the reason, who acknowledged, and the escalations and reminders with their state and due time. The delivery trace is stored and survives a restart. The log of last actions, the recent messages and the failure record are kept in memory and start empty after a restart. The History settings set their sizes. The action `heads_up.get_trace` returns the trace to an automation or a script; see [Actions](actions.md#headsupget_trace).
+Lists the recent messages, newest first: severity, title, how long ago, whether it is active or how it ended, and a count of its results ("2 sent, 1 skipped"). Choose a message to see its trace: time, channel, recipient and result with the reason, who acknowledged, and the escalations and reminders with their state and due time. The delivery trace is stored and survives a restart. The log of last actions, the recent messages and the failure record are kept in memory and start empty after a restart. The History settings set their sizes. The action `heads_up.get_trace` returns the trace to an automation or a script; see [Actions](actions.md#heads_upget_trace).
 
 ### Test send
 
