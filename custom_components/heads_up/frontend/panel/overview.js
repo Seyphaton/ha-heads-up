@@ -12,6 +12,10 @@ export const STRINGS = {
     badge_acknowledged: "acknowledged",
     show_list: "Show list",
     hide_list: "Hide list",
+    clear_message: "Clear",
+    acknowledge_message: "Acknowledge",
+    clear_confirm: "Clear “{title}” on every channel?",
+    action_failed: "Could not do that: {error}",
     none_active: "No message is active.",
     active_sub: "Messages that have not ended yet. Some wait for someone to acknowledge them; others will come back (reminders, snooze) or escalate.",
     chart_title: "Last 24 hours",
@@ -68,6 +72,10 @@ export const STRINGS = {
     badge_acknowledged: "bestätigt",
     show_list: "Liste zeigen",
     hide_list: "Liste verbergen",
+    clear_message: "Entfernen",
+    acknowledge_message: "Bestätigen",
+    clear_confirm: "„{title}“ auf allen Kanälen entfernen?",
+    action_failed: "Das ging nicht: {error}",
     none_active: "Keine Meldung ist aktiv.",
     active_sub: "Meldungen, die noch nicht beendet sind. Manche warten darauf, dass jemand sie bestätigt; andere kommen wieder (Erinnerungen, Zurückstellen) oder eskalieren.",
     chart_title: "Letzte 24 Stunden",
@@ -124,6 +132,10 @@ export const STRINGS = {
     badge_acknowledged: "confirmées",
     show_list: "Afficher la liste",
     hide_list: "Masquer la liste",
+    clear_message: "Retirer",
+    acknowledge_message: "Acquitter",
+    clear_confirm: "Retirer « {title} » de tous les canaux ?",
+    action_failed: "Impossible : {error}",
     none_active: "Aucun message n'est actif.",
     active_sub: "Messages qui ne sont pas encore terminés. Certains attendent une confirmation ; d'autres reviendront (rappels, report) ou seront escaladés.",
     chart_title: "Dernières 24 heures",
@@ -180,6 +192,10 @@ export const STRINGS = {
     badge_acknowledged: "confirmadas",
     show_list: "Mostrar lista",
     hide_list: "Ocultar lista",
+    clear_message: "Retirar",
+    acknowledge_message: "Confirmar",
+    clear_confirm: "¿Retirar «{title}» de todos los canales?",
+    action_failed: "No se pudo: {error}",
     none_active: "Ningún mensaje está activo.",
     active_sub: "Mensajes que aún no han terminado. Algunos esperan a que alguien los confirme; otros volverán (recordatorios, pospuestas) o escalarán.",
     chart_title: "Últimas 24 horas",
@@ -464,6 +480,30 @@ export function mount(container, ctx) {
       tiles.append(box);
     };
 
+    // Clear and Acknowledge act on the message as the administrator (D-204).
+    const messageButtons = (item) => {
+      const row = el("div", { style: "display:flex;gap:8px;flex-wrap:wrap;margin-top:6px" });
+      const run = async (type, confirmText) => {
+        if (confirmText && !window.confirm(confirmText)) return;
+        try {
+          await hass.callWS({ type, message_id: item.id });
+        } catch (err) {
+          window.alert(fill(t.action_failed, { error: (err && err.message) || String(err) }));
+        }
+        await load();
+      };
+      if (item.can_acknowledge) {
+        const ack = el("button", { type: "button", textContent: t.acknowledge_message });
+        ack.addEventListener("click", () => run("heads_up/panel_acknowledge"));
+        row.append(ack);
+      }
+      if (item.can_clear) {
+        const clear = el("button", { type: "button", textContent: t.clear_message });
+        clear.addEventListener("click", () => run("heads_up/panel_clear", fill(t.clear_confirm, { title: fmt.messageTitle(item) })));
+        row.append(clear);
+      }
+      return row;
+    };
     const activeItems = data.active.items;
     const activeList = el("ul");
     if (activeItems.length === 0) activeList.append(el("li", { textContent: t.none_active }));
@@ -476,6 +516,7 @@ export function mount(container, ctx) {
           el("span", { textContent: fmt.messageTitle(item) }),
           origin,
           ...lines,
+          messageButtons(item),
         ]),
       );
     }

@@ -342,6 +342,10 @@
     "wait_for_condition_removed": {
       "title": "Se sigue usando un campo eliminado",
       "description": "Una automatización o un script llama a Heads Up con `wait_for_condition`. El campo se eliminó en la 1.0.0 y ahora se ignora: un mensaje cuya condición es falsa espera hasta que la condición sea verdadera. Quita el campo de la llamada. Para enviar solo si una condición es verdadera ahora, añade esa condición a la automatización antes de la acción."
+    },
+    "policy_target_missing": {
+      "title": "Una política apunta a algo eliminado",
+      "description": "La política «{policy}» envía a {what} que ya no existe y no hace nada para ese destino. Abre Heads Up > Configuración > Políticas, edita la política y elige una audiencia o un grupo de altavoces que exista. Elimina las audiencias y los grupos en la página del panel: se niega mientras una política los use."
     }
   },
   "services": {

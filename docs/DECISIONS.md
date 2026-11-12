@@ -1278,3 +1278,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Not done or not verified: nothing was run against the dev instance in a browser yet (see STATE); the entity selector with a list of filters in `services.yaml` is read from the selector docs, not run; the rule form dropdown was tested through the flow API, not in Home Assistant's UI; the rollback script was run on fixture files, not on a real `.storage`; entity ID following is tested with the entity registry in the test harness, not with a real rename in the UI.
 - Blast radius: restart; notification path; stored data version 2 and a backup file; breaking for calls that name a group or area as text.
 
+
+## D-204 Overview Clear and Acknowledge; warning for deleted audiences (2026-11-11)
+- Decided by the maintainer for the next pre-release: the Overview list gets Clear and Acknowledge per message; a used audience or group must not be deleted silently.
+- Built: admin-only `heads_up/panel_clear` (any message, every channel, refuses rule messages) and `heads_up/panel_acknowledge` (`any_message`, so an administrator need not be a target); items carry `can_clear` and `can_acknowledge`; Clear asks for a confirmation.
+- Home Assistant has no hook to refuse a subentry delete (`async_remove_subentry` and the `config_entries/subentries/delete` command just remove it). Options were restoring the entry with its ID, warning only, or the panel block only; the maintainer chose warning only. `hub/issues.py` creates one Repairs issue `policy_target_<subentry id>` per policy that names a missing audience or group, removes it when fixed, and clears all on unload. Needs attention and the trace already said so.
+- Not done: restoring a deleted entry. Blast radius: usual restart; a Repairs entry appears in the situation above; two admin commands.

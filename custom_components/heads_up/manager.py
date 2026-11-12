@@ -438,10 +438,14 @@ class BannerManager:
         self._changed()
 
     @callback
-    def acknowledge(self, banner_id: str, user_id: str) -> None:
-        """Someone saw it: escalations and reminders stop for everyone (D-081). The banner stays."""
+    def acknowledge(self, banner_id: str, user_id: str, *, any_message: bool = False) -> None:
+        """Someone saw it: escalations and reminders stop for everyone (D-081). The banner stays.
+
+        `any_message` lets an administrator acknowledge from the panel a message that is not
+        addressed to them (D-204).
+        """
         banner = self.rules.get(banner_id) or self._get(banner_id)
-        if not self._targets(banner, user_id):
+        if not any_message and not self._targets(banner, user_id):
             raise HeadsUpError("not_found", f"Banner {banner_id} not found")
         if user_id in banner.acknowledged_by:
             return
@@ -464,6 +468,21 @@ class BannerManager:
         self._fire(EVENT_UNSNOOZED, banner, user_id=user_id)
         self._emit(Kind.UNSNOOZED, banner, user_id=user_id)
         self._changed()
+
+    @callback
+    def can_acknowledge_any(self, banner: Banner) -> bool:
+        """An acknowledgement would stop something and nobody has given one yet (D-204)."""
+        return self.hub is not None and not banner.acknowledged_by and self.hub.ack_applies(banner)
+
+    @callback
+    def panel_clear(self, message_id: str) -> None:
+        """Take one message back from every channel, from the panel (D-204)."""
+        if message_id in self.rules:
+            raise HeadsUpError(
+                "rule_banner", f"Message {message_id} comes from a rule; disable or delete the rule"
+            )
+        if self.clear(message_id, all_channels=True) == 0:
+            raise HeadsUpError("not_found", f"Message {message_id} not found")
 
     @callback
     def admin_clear(self, banner_id: str) -> None:

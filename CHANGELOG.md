@@ -9,6 +9,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - Breaking, for the 1.0.0 release: the stored data has version 2 (config entry, banners, deliveries, trace). The first start converts it once; an older release refuses it. A timer that ended because its policy was disabled now says `policy_disabled` and one whose policy was deleted says `policy_deleted`.
 
 ### Added
+- The Overview list has two buttons per message: Acknowledge, and Clear, which takes the message back from every channel after a confirmation. An administrator can acknowledge a message that is not addressed to them.
+- Deleting an audience or speaker group that a policy still uses, on Home Assistant's own Devices & services page, raises a Repairs notice that names the policy and what to do. The panel already refused such a delete.
 - Renaming is safe. Policies, audiences and speaker groups are stored by an ID, so renaming one keeps the watch rules, policy targets, running messages, escalations, reminders and held summaries that use it. Nothing is lost on a rename that only changes the case, and a deleted policy no longer passes its timers to a new one with the same name. A property test renames everything in random order while timers run.
 - Every speaker group has a sensor (`sensor.heads_up_group_<name>`). The speakers field of the action offers it, and the group editor shows its ID.
 - When you change the entity ID of a person, speaker, zone or watched entity in Home Assistant, Heads Up changes its own copies of it and writes a line to the trace.

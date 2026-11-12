@@ -342,6 +342,10 @@
     "wait_for_condition_removed": {
       "title": "Ein entferntes Feld wird noch verwendet",
       "description": "Eine Automation oder ein Skript ruft Heads Up mit `wait_for_condition` auf. Das Feld wurde in 1.0.0 entfernt und wird jetzt ignoriert: Eine Meldung, deren Bedingung falsch ist, wartet, bis die Bedingung wahr ist. Entferne das Feld aus dem Aufruf. Soll nur gesendet werden, wenn eine Bedingung jetzt wahr ist, setze diese Bedingung vor die Aktion in die Automation."
+    },
+    "policy_target_missing": {
+      "title": "Eine Richtlinie verweist auf etwas Gelöschtes",
+      "description": "Die Richtlinie „{policy}“ sendet an {what}, die es nicht mehr gibt, und tut für dieses Ziel nichts. Öffne Heads Up > Konfiguration > Richtlinien, bearbeite die Richtlinie und wähle eine vorhandene Zielgruppe oder Lautsprechergruppe. Lösche Zielgruppen und Lautsprechergruppen auf der Seite des Panels: Dort wird das Löschen verweigert, solange eine Richtlinie sie nutzt."
     }
   },
   "services": {

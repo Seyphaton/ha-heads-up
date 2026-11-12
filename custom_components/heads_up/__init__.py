@@ -27,6 +27,7 @@ from .hub.channels.popup import PopupChannel
 from .hub.channels.push import PushChannel
 from .hub.channels.speak import SpeakChannel
 from .hub.engine import HubEngine
+from .hub.issues import clear_policy_issues, sync_policy_issues
 from .hub.ledger import remove_ledger
 from .hub.migration import async_migrate_entry as migrate_entry
 from .hub.panel import async_sync_panel
@@ -79,6 +80,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> b
     entry.runtime_data = manager
     follow_renames(hass, entry)
     entry.async_on_unload(entry.add_update_listener(_async_entry_updated))
+    if manager.hub is not None:
+        sync_policy_issues(hass, manager.hub)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     await async_add_card(hass)
     await async_sync_panel(hass, panel_wanted(manager.options))
@@ -126,6 +129,7 @@ async def _async_entry_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry) -
         manager.hub.policies.sync(entry.subentries)
         manager.hub.sync_identity(entry.subentries)
         manager.hub.on_policies_changed()
+        sync_policy_issues(hass, manager.hub)
         notify_audiences_changed(hass)
         async_dispatcher_send(hass, SIGNAL_POLICIES)
     manager.sync_rules(entry.subentries)
@@ -135,6 +139,7 @@ async def _async_entry_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry) -
 async def async_unload_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> bool:
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:
+        clear_policy_issues(hass)
         await async_remove_card(hass)
         await async_sync_panel(hass, False)
         if entry.runtime_data.hub is not None:

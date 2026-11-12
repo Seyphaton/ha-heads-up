@@ -693,6 +693,40 @@ def ws_dismiss_many(hass: HomeAssistant, connection: ActiveConnection, msg: dict
     connection.send_result(msg["id"], {"dismissed": dismissed, "skipped": skipped})
 
 
+@websocket_command({vol.Required("type"): "heads_up/panel_clear", vol.Required("message_id"): str})
+@require_admin
+@callback
+def ws_panel_clear(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """Overview: take one message back from every channel (D-204)."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    try:
+        manager.panel_clear(msg["message_id"])
+    except HeadsUpError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    connection.send_result(msg["id"])
+
+
+@websocket_command(
+    {vol.Required("type"): "heads_up/panel_acknowledge", vol.Required("message_id"): str}
+)
+@require_admin
+@callback
+def ws_panel_acknowledge(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Overview: acknowledge one message as the administrator, targeted or not (D-204)."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    try:
+        manager.acknowledge(msg["message_id"], connection.user.id, any_message=True)
+    except HeadsUpError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    connection.send_result(msg["id"])
+
+
 @websocket_command({vol.Required("type"): "heads_up/admin_clear", vol.Required("banner_id"): str})
 @require_admin
 @callback
@@ -794,6 +828,8 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_unsnooze,
         ws_action,
         ws_admin_clear,
+        ws_panel_clear,
+        ws_panel_acknowledge,
         ws_hub_trace,
         ws_hub_preview_audience,
     ):

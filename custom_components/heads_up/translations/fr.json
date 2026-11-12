@@ -342,6 +342,10 @@
     "wait_for_condition_removed": {
       "title": "Un champ supprimé est encore utilisé",
       "description": "Une automatisation ou un script appelle Heads Up avec `wait_for_condition`. Ce champ a été supprimé dans la version 1.0.0 et il est maintenant ignoré : un message dont la condition est fausse attend que la condition soit vraie. Supprimez le champ de l'appel. Pour n'envoyer que si une condition est vraie maintenant, ajoutez cette condition à l'automatisation avant l'action."
+    },
+    "policy_target_missing": {
+      "title": "Une politique pointe vers un élément supprimé",
+      "description": "La politique « {policy} » envoie à {what} qui n'existe plus et ne fait rien pour cette cible. Ouvrez Heads Up > Configuration > Politiques, modifiez la politique et choisissez une audience ou un groupe de haut-parleurs existant. Supprimez les audiences et groupes depuis la page du panneau : elle refuse tant qu'une politique les utilise."
     }
   },
   "services": {

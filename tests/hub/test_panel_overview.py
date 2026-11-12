@@ -50,6 +50,8 @@ async def test_every_panel_command_is_for_admins_only(
         ("panel_overview", {}),
         ("panel_messages", {}),
         ("panel_trace", {"message_id": "m"}),
+        ("panel_clear", {"message_id": "m"}),
+        ("panel_acknowledge", {"message_id": "m"}),
     ):
         assert (await ask(client, command, **data))["error"]["code"] == "unauthorized"
 
@@ -495,3 +497,60 @@ async def test_the_overview_carries_the_hourly_history(
     busy = (await overview(hass, client))["activity"]
     assert busy["total"] == 1
     assert busy["buckets"][23]["by"] == {"info": 1}
+
+
+async def test_the_overview_offers_acknowledge_only_while_a_policy_waits_for_one(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Water", **ESCALATION)
+    await send(hass, entry, id="a", message="Leak")
+    await send(hass, entry, id="b", message="Door", channels=["banner"], to={}, policy="none")
+    client = await hass_ws_client(hass)
+    items = {i["id"]: i for i in (await overview(hass, client))["active"]["items"]}
+    assert items["a"]["can_acknowledge"] and not items["b"]["can_acknowledge"]
+    assert items["a"]["can_clear"] and items["b"]["can_clear"]
+    assert (await ask(client, "panel_acknowledge", message_id="a"))["success"]
+    items = {i["id"]: i for i in (await overview(hass, client))["active"]["items"]}
+    assert not items["a"]["can_acknowledge"]
+    assert [s["state"] for s in items["a"]["states"]] == ["acknowledged"]
+
+
+async def test_an_administrator_acknowledges_a_message_that_is_not_addressed_to_them(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Water", **ESCALATION)
+    await send(hass, entry, id="a", message="Leak")
+    entry.runtime_data.banners["a"].people = ["person.nobody"]
+    client = await hass_ws_client(hass)
+    assert (await ask(client, "panel_acknowledge", message_id="a"))["success"]
+    assert entry.runtime_data.banners["a"].acknowledged_by
+
+
+async def test_the_overview_clears_a_message_on_every_channel(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    await send(hass, entry, id="a", message="Bell only", channels=["persistent"], to={})
+    client = await hass_ws_client(hass)
+    assert (await ask(client, "panel_clear", message_id="a"))["success"]
+    assert (await overview(hass, client))["active"]["count"] == 0
+
+
+async def test_clearing_or_acknowledging_an_unknown_message_is_not_found(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    for command in ("panel_clear", "panel_acknowledge"):
+        reply = await ask(client, command, message_id="missing")
+        assert reply["error"]["code"] == "not_found"

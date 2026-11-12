@@ -342,6 +342,10 @@
     "wait_for_condition_removed": {
       "title": "A removed field is still used",
       "description": "An automation or script calls Heads Up with `wait_for_condition`. The field was removed in 1.0.0 and is now ignored: a message whose condition is false waits until the condition is true. Delete the field from the call. To send only when a condition is true now, add that condition to the automation before the action."
+    },
+    "policy_target_missing": {
+      "title": "A policy points to something that was deleted",
+      "description": "The policy \"{policy}\" sends to {what} that no longer exists, so it does nothing for that target. Open Heads Up > Configuration > Policies, edit the policy and choose an audience or speaker group that exists. Delete an audience or speaker group on the panel's own page: it refuses while a policy uses it."
     }
   },
   "services": {

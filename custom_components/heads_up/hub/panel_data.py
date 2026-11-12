@@ -378,6 +378,8 @@ def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[st
                 "severity": banner.severity,
                 "source": banner.source,
                 "states": message_states(manager, banner),
+                "can_acknowledge": manager.can_acknowledge_any(banner),
+                "can_clear": banner.id not in manager.rules,
             }
         )
     counts = {
