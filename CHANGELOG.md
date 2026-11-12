@@ -4,6 +4,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [1.0.0-alpha.9] - 2026-11-12
+
 ### Changed
 - Breaking, for the 1.0.0 release: a call names an audience and a policy only by the entity ID of its sensor or switch (`audience: binary_sensor.heads_up_audience_at_home`, `policy: switch.heads_up_policy_night`). A text name such as `At home` or `Night` is refused with an error that gives the ID to use. This applies to `notify`, `push`, `popup`, `create_banner` and Test send. The keywords `none` and `automatic` stay. `Global address` is still written as text. A speaker group is named by the entity ID of its sensor, and an area by its area ID; a name as text is refused.
 - Breaking, for the 1.0.0 release: the stored data has version 2 (config entry, banners, deliveries, trace). The first start converts it once; an older release refuses it. A timer that ended because its policy was disabled now says `policy_disabled` and one whose policy was deleted says `policy_deleted`.
