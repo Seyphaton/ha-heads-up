@@ -4,6 +4,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [1.0.0-alpha.10] - 2026-11-15
+
 ### Added
 - Every YAML text in the panel has a Copy button: the stored YAML of an audience, recipient, policy and watch rule, the manual-policy line, and the rendered call of a pasted call in Test send (the call itself already had one). If the browser refuses the clipboard, the button says so.
 
