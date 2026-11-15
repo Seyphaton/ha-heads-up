@@ -357,6 +357,10 @@ async def test_the_trace_shows_entries_deliveries_timers_and_acknowledgements(
     result = (await ask(client, "panel_trace", message_id="m"))["result"]
     assert {e["channel"] for e in result["entries"]} >= {"banner", "push"}
     assert {d["channel"] for d in result["deliveries"]} == {"banner", "push"}
+    acknowledged = next(e for e in result["entries"] if e["result"] == "acknowledged")
+    assert acknowledged["who"] == "Anna"
+    stopped = [e for e in result["entries"] if e["channel"] == "timer"]
+    assert stopped and all(e["timer"] == {"type": "escalation", "policy": "Water"} for e in stopped)
     (timer,) = result["timers"]
     assert timer["type"] == "escalation" and timer["policy"] == "Water" and timer["due"]
     assert result["acknowledged_by"] == ["Anna"] and result["acknowledged_count"] == 1

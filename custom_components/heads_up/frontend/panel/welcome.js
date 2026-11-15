@@ -64,6 +64,9 @@ export const STRINGS = {
     desc_first_quiet: "The other info and success messages go out without sound from 22:00 to 07:00.",
     audience: "Push critical messages to",
     speakers: "Speak after 10 minutes on (none: no speech)",
+    tts_engine: "Text-to-speech engine for speakers",
+    tts_choose: "Choose an engine",
+    tts_none: "Home Assistant has no text-to-speech engine. Set one up under Settings > Devices & services, then choose it in Settings > Speech.",
     create: "Create the selected",
     not_now: "Not now",
     close: "Close",
@@ -133,6 +136,9 @@ export const STRINGS = {
     desc_first_quiet: "Die übrigen Info- und Erfolgsmeldungen gehen von 22:00 bis 07:00 ohne Ton raus.",
     audience: "Kritische Meldungen pushen an",
     speakers: "Nach 10 Minuten sprechen auf (keiner: keine Sprachausgabe)",
+    tts_engine: "Text-zu-Sprache-Engine für Lautsprecher",
+    tts_choose: "Engine wählen",
+    tts_none: "Home Assistant hat keine Text-zu-Sprache-Engine. Richte unter Einstellungen > Geräte & Dienste eine ein und wähle sie dann unter Einstellungen > Sprache.",
     create: "Auswahl erstellen",
     not_now: "Jetzt nicht",
     close: "Schließen",
@@ -202,6 +208,9 @@ export const STRINGS = {
     desc_first_quiet: "Les autres messages d'info et de succès partent sans son de 22:00 à 07:00.",
     audience: "Envoyer les messages critiques à",
     speakers: "Dire après 10 minutes sur (aucun : pas de voix)",
+    tts_engine: "Moteur de synthèse vocale pour les haut-parleurs",
+    tts_choose: "Choisir un moteur",
+    tts_none: "Home Assistant n'a aucun moteur de synthèse vocale. Configurez-en un sous Paramètres > Appareils et services, puis choisissez-le dans Paramètres > Voix.",
     create: "Créer la sélection",
     not_now: "Pas maintenant",
     close: "Fermer",
@@ -271,6 +280,9 @@ export const STRINGS = {
     desc_first_quiet: "Los demás mensajes de info y éxito salen sin sonido de 22:00 a 07:00.",
     audience: "Enviar los mensajes críticos a",
     speakers: "Decir a los 10 minutos en (ninguno: sin voz)",
+    tts_engine: "Motor de texto a voz para los altavoces",
+    tts_choose: "Elegir un motor",
+    tts_none: "Home Assistant no tiene ningún motor de texto a voz. Configura uno en Ajustes > Dispositivos y servicios y elígelo después en Ajustes > Voz.",
     create: "Crear la selección",
     not_now: "Ahora no",
     close: "Cerrar",
@@ -309,6 +321,7 @@ export function payloadFor(state) {
     // Only the mode "all" creates the escalation that says the message on speakers.
     payload.speakers = mode === "all" ? [...state.speakers] : [];
   }
+  if (state.ttsEngine) payload.tts_engine = state.ttsEngine;
   return payload;
 }
 
@@ -404,7 +417,7 @@ export async function open(host, ctx) {
   const data = await hass.callWS({ type: "heads_up/welcome_get" });
   if (!ctx.force && !data.show) return null;
   const summary = setupSummary(await hass.callWS({ type: "heads_up/panel_config" }).catch(() => null));
-  const state = { mode: data.policy_mode === "all" ? "all" : "first", on: Object.fromEntries(ITEMS.map((id) => [id, true])), audience: data.default_audience, speakers: [], step: Math.min(Math.max(ctx.step || 0, 0), STEPS.length - 1) };
+  const state = { mode: data.policy_mode === "all" ? "all" : "first", on: Object.fromEntries(ITEMS.map((id) => [id, true])), audience: data.default_audience, speakers: [], ttsEngine: data.tts_engine || "", step: Math.min(Math.max(ctx.step || 0, 0), STEPS.length - 1) };
   const scrim = el("div", { className: "hu-scrim" });
   const dialog = el("div", { className: "hu-dialog", role: "dialog" });
   dialog.setAttribute("aria-modal", "true");
@@ -521,6 +534,12 @@ export async function open(host, ctx) {
         item.append(ui.field(t.audience, ui.selectInput(data.audiences.map((n) => ({ value: n, label: n })), state.audience, (v) => { state.audience = v; })));
         if (state.mode === "all" && data.speakers.length) {
           item.append(ui.chips(t.speakers, data.speakers.map((id2) => ({ value: id2, label: ui.recipientLabel(id2, data) })), state.speakers, (list) => { state.speakers = list; }, true));
+          const engines = data.tts_engines || [];
+          if (state.speakers.length && engines.length === 0) item.append(el("div", { className: "hint", textContent: t.tts_none }));
+          // One engine is used by itself; with several, speech needs a choice.
+          if (state.speakers.length && engines.length > 1) {
+            item.append(ui.field(t.tts_engine, ui.selectInput([{ value: "", label: t.tts_choose }, ...engines.map((id3) => ({ value: id3, label: id3 }))], state.ttsEngine, (v) => { state.ttsEngine = v; })));
+          }
         }
       }
       out.push(item);

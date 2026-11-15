@@ -28,6 +28,7 @@ from .const import (
     OPT_AUDIENCES_DISABLED,
     OPT_POLICY_MODE,
     OPT_POLICY_ORDER,
+    OPT_SPEAK_TTS_ENTITY,
     POLICY_MODES,
     POLICY_SUBENTRY,
     SEVERITIES,
@@ -216,6 +217,8 @@ def ws_welcome_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
             "speakers": hub.recipients.known("speak") if hub else [],
             "speaker_names": panel_config.speaker_names(hass),
             "areas": panel_config.area_choices(hass),
+            "tts_engines": sorted(s.entity_id for s in hass.states.async_all("tts")),
+            "tts_engine": str(entry.options.get(OPT_SPEAK_TTS_ENTITY) or ""),
         },
     )
 
@@ -227,6 +230,7 @@ def ws_welcome_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
         vol.Optional("audience", default=welcome.DEFAULT_AUDIENCE): str,
         vol.Optional("speakers", default=list): [str],
         vol.Optional("mode"): vol.In(POLICY_MODES),
+        vol.Optional("tts_engine", default=""): vol.Any("", vol.Match(r"^tts\.[a-z0-9_]+$")),
     }
 )
 @require_admin
@@ -249,10 +253,15 @@ def ws_welcome_apply(
     if unknown := [s for s in msg["speakers"] if not hub.recipients.accepts("speak", s)]:
         connection.send_error(msg["id"], "unknown_recipient", f"Unknown speaker {unknown[0]}")
         return
+    if msg["tts_engine"] and hass.states.get(msg["tts_engine"]) is None:
+        connection.send_error(msg["id"], "unknown_tts_engine", f"Unknown {msg['tts_engine']}")
+        return
     mode = msg.get("mode") or hub.policies.mode
     connection.send_result(
         msg["id"],
-        welcome.apply(hass, entry, msg["items"], chosen.key, msg["speakers"], mode),
+        welcome.apply(
+            hass, entry, msg["items"], chosen.key, msg["speakers"], mode, msg["tts_engine"]
+        ),
     )
 
 

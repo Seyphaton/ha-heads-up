@@ -20,9 +20,11 @@ from ..const import (
     CHANNELS,
     OPT_ATTENTION_DISMISSED,
     OPT_MAIL_SERVICE,
+    OPT_SPEAK_TTS_ENTITY,
     POLICY_SUBENTRY,
     POLICY_TYPES,
     RULE_SUBENTRY,
+    TIMER_CHANNEL,
 )
 from ..manager import BannerManager
 from .activity import ActivityLog
@@ -205,6 +207,23 @@ def check_mail_service(service: str, exists: bool) -> list[Attention]:
     return [] if not service or exists else [Attention("mail_service_missing", "error", service)]
 
 
+def check_speech_engine(
+    player_spoken: bool, engines: list[str], configured: str
+) -> list[Attention]:
+    """Speech on a media player has no text-to-speech engine to use (error). Satellites announce
+    by themselves and need none, so only a speaker group with a media player counts."""
+    if not player_spoken:
+        return []
+    if configured:
+        if configured in engines:
+            return []
+        return [Attention("speech_engine_missing", "error", configured, None, "general")]
+    if len(engines) == 1:
+        return []
+    kind = "speech_engine_none" if not engines else "speech_engine_choose"
+    return [Attention(kind, "error", ", ".join(engines), None, "general")]
+
+
 def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[dict[str, Any]]:
     hub = manager.hub
     states = {s.entity_id: s.state for s in hass.states.async_all()}
@@ -235,6 +254,15 @@ def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[d
             for g in hub.resolver.groups()
         ]
         found += check_groups(groups)
+        player_spoken = any(
+            m.split(".", 1)[0] == "media_player" and hass.states.get(m) is not None
+            for g in hub.resolver.groups()
+            for m in [*g.members, *(s for a in g.areas for s in area_speakers(hass, a))]
+        )
+        engines = sorted(s.entity_id for s in hass.states.async_all("tts"))
+        found += check_speech_engine(
+            player_spoken, engines, str(manager.options.get(OPT_SPEAK_TTS_ENTITY) or "")
+        )
         found += check_policies(_policy_inputs(entry, hub))
         refs = [
             ("rules", s.title, f"rule_{s.subentry_id}", str(s.data["policy"]))
@@ -438,6 +466,20 @@ def messages(manager: BannerManager) -> list[dict[str, Any]]:
     return out
 
 
+def _trace_entry(manager: BannerManager, hub: Any, entry: dict[str, Any]) -> dict[str, Any]:
+    """A trace entry for the panel. A timer entry names its policy and type; a press of a person
+    (`channel` empty) names the person, not the user ID the acknowledgement stores."""
+    if entry["channel"] == TIMER_CHANNEL:
+        kind, name = _policy_kind_name(hub, entry["recipient"] or "")
+        return {**entry, "timer": {"type": kind, "policy": name}}
+    if not entry["channel"]:
+        who = entry["recipient"] or ""
+        if entry["result"] == "acknowledged":
+            who = manager._first_name(who) or ""
+        return {**entry, "who": who}
+    return entry
+
+
 def trace(hass: HomeAssistant, manager: BannerManager, message_id: str) -> dict[str, Any] | None:
     """The delivery trace of one message: entries, deliveries, timers, acknowledgements."""
     hub = manager.hub
@@ -450,7 +492,7 @@ def trace(hass: HomeAssistant, manager: BannerManager, message_id: str) -> dict[
     return {
         "id": message_id,
         "message": known,
-        "entries": hub.trace.entries(message_id),
+        "entries": [_trace_entry(manager, hub, e) for e in hub.trace.entries(message_id)],
         "deliveries": [
             {
                 "channel": r.channel,

@@ -197,15 +197,15 @@ export function groupEntries(entries, label, t, windowMs = 60000) {
   for (const entry of entries) {
     const reason = entry.reason || "";
     const group = groups.find(
-      (g) => g.channel === entry.channel && g.result === entry.result && g.reason === reason && Math.abs(Date.parse(g.time) - Date.parse(entry.time)) <= windowMs,
+      (g) => g.channel === entry.channel && g.result === entry.result && g.reason === reason && (g.timer?.policy ?? "") === (entry.timer?.policy ?? "") && Math.abs(Date.parse(g.time) - Date.parse(entry.time)) <= windowMs,
     );
     // Only a delivery channel has recipients worth naming; the other rows (acknowledged, timer)
     // carry internal ids.
-    const who = deliveryChannel(entry.channel) ? recipientName(entry.recipient, label, t) : "";
+    const who = deliveryChannel(entry.channel) ? recipientName(entry.recipient, label, t) : entry.channel === "" ? entry.who || "" : "";
     if (group) {
       if (who && !group.recipients.includes(who)) group.recipients.push(who);
     } else {
-      groups.push({ channel: entry.channel, result: entry.result, reason, time: entry.time, recipients: who ? [who] : [] });
+      groups.push({ channel: entry.channel, result: entry.result, reason, time: entry.time, recipients: who ? [who] : [], timer: entry.timer || null });
     }
   }
   return groups;
@@ -307,12 +307,16 @@ export function mount(container, ctx) {
     body.append(el("h3", { textContent: t.deliveries_title }));
     if (trace.entries.length === 0) body.append(el("div", { className: "sub", textContent: t.no_entries }));
     for (const group of groupEntries(trace.entries, label, t)) {
-      const reason = group.reason === "ok" ? "" : fmt.reasonText(group.reason, s);
+      // A reason code with no text (a timer's "escalated") says nothing a reader can use.
+      const known = deliveryChannel(group.channel) || Boolean(s.reason[group.reason]);
+      const reason = group.reason === "ok" || !known ? "" : fmt.reasonText(group.reason, s);
       const outcome = [s.result[group.result] || group.result, reason].filter(Boolean).join(": ");
+      const heading = group.timer ? timerName(group.timer, t) : deliveryChannel(group.channel) ? fmt.channelName(group.channel, s) : "";
       body.append(
         el("div", { className: "group" }, [
-          el("div", { className: "top" }, [...(deliveryChannel(group.channel) ? [el("span", { className: "ch", textContent: fmt.channelName(group.channel, s) })] : []), el("span", { className: deliveryChannel(group.channel) ? "" : "ch", textContent: outcome })]),
+          el("div", { className: "top" }, [...(heading ? [el("span", { className: "ch", textContent: heading })] : []), el("span", { className: heading ? "" : "ch", textContent: outcome })]),
           ...(group.recipients.length ? [el("div", { textContent: group.recipients.join(", ") })] : []),
+          ...(fmt.reasonHint(group.reason, s) ? [el("div", { className: "sub", textContent: fmt.reasonHint(group.reason, s) })] : []),
           el("div", { className: "sub", textContent: when(group.time) }),
         ]),
       );

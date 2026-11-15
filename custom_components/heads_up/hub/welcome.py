@@ -12,7 +12,13 @@ from typing import Any
 from homeassistant.config_entries import ConfigEntry, ConfigSubentry
 from homeassistant.core import HomeAssistant
 
-from ..const import DEFAULT_OPTIONS, OPT_POLICY_MODE, OPT_PUSH_LEVELS, POLICY_SUBENTRY
+from ..const import (
+    DEFAULT_OPTIONS,
+    OPT_POLICY_MODE,
+    OPT_PUSH_LEVELS,
+    OPT_SPEAK_TTS_ENTITY,
+    POLICY_SUBENTRY,
+)
 from .policies.matching import duplicate_of
 from .policies.models import parse_policy, policy_from_data
 
@@ -171,6 +177,7 @@ def apply(
     audience: str,
     speakers: list[str],
     mode: str = "all",
+    tts_engine: str = "",
 ) -> dict[str, Any]:
     """Create the policies of the chosen items, in the order of the mode, and store the mode. One
     that exists by name, or does the same as one that exists, is skipped. Critical also sets the
@@ -202,6 +209,8 @@ def apply(
             )
             added.append(name)
     options = {**entry.options, OPT_WELCOME_SEEN: True, OPT_POLICY_MODE: mode}
+    if tts_engine:
+        options[OPT_SPEAK_TTS_ENTITY] = tts_engine
     if "critical" in items:
         levels = {**DEFAULT_OPTIONS[OPT_PUSH_LEVELS], **entry.options.get(OPT_PUSH_LEVELS, {})}  # type: ignore[dict-item]
         options[OPT_PUSH_LEVELS] = {**levels, "critical": "critical"}

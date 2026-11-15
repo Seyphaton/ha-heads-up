@@ -43,6 +43,17 @@ describe("welcome", () => {
     expect(without.speakers).toBeUndefined();
   });
 
+  it("sends the chosen text-to-speech engine only when one is chosen", () => {
+    expect(payloadFor(state({}, { ttsEngine: "tts.cloud" })).tts_engine).toBe("tts.cloud");
+    expect(payloadFor(state({}, { ttsEngine: "" })).tts_engine).toBeUndefined();
+  });
+
+  it("has the engine texts in every language", () => {
+    for (const [code, language] of Object.entries(STRINGS)) {
+      for (const key of ["tts_engine", "tts_choose", "tts_none"]) expect(language[key], `${code} ${key}`).toBeTruthy();
+    }
+  });
+
   it("offers the list of the mode in its order and sends the mode", () => {
     expect(MODES).toEqual(["first", "all"]);
     expect(itemsFor("first")).toEqual(["critical", "warnings", "digest", "quiet"]);

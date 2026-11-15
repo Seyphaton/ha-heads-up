@@ -115,7 +115,7 @@ The text is `tts_message` if you set it, otherwise the title, otherwise the mess
 | Media player that supports announcements | `tts.speak`, which announces; the player lowers or pauses what it plays and continues afterwards, if the player does that |
 | Other media player | `media_player.play_media` with the text-to-speech media source, as plain playback |
 
-- The text-to-speech engine is the option Text-to-speech engine. If it is empty and exactly one `tts` entity exists, that one is used. With several or none, speech to media players fails with `no_tts_engine`.
+- The text-to-speech engine is the option Text-to-speech engine. If it is empty and exactly one `tts` entity exists, that one is used. With several or none, speech to media players fails with `no_tts_engine`. Overview > Needs attention shows this as an error while a speaker group has a media player, and the Welcome asks for the engine when there are several.
 - Heads Up never changes or restores a volume. What happens to music after an announcement depends on the player.
 - A speaker says one message at a time. The same text is not said again on the same speaker within 60 seconds (option Spoken text: repeat pause, 0 for no pause; the Message Log shows `cooldown`). An update does not say a message again (`already_spoken`).
 - Speech cannot be taken back. A Quiet hours policy with the action Send quietly skips speech (`quiet_hours`).

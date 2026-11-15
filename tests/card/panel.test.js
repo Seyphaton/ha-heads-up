@@ -198,6 +198,7 @@ import {
   inTime,
   logText,
   reasonText,
+  reasonHint,
   stateText,
   timeAgo,
 } from "../../custom_components/heads_up/frontend/heads-up-panel.js";
@@ -276,8 +277,16 @@ describe("shared wording", () => {
     expect(attentionText({ kind: "policy_invalid", subject: "Odd", detail: "unknown_type" }, S)).toBe(
       "Policy Odd is invalid: unknown policy type.",
     );
+    const ghost = { kind: "reference_missing", subject: "Test title", detail: "01M7FJ294WW05K4M9FKCH2WMYZ" };
+    const forMessage = attentionText({ ...ghost, page: "messages" }, S);
+    expect(forMessage).toContain("The message \"Test title\" names a policy that was deleted");
+    expect(forMessage).not.toContain("01M7FJ");
+    expect(attentionText({ ...ghost, subject: "Door", page: "rules" }, S)).toContain("Edit the rule and choose another policy");
     expect(reasonText("something_new", S)).toBe("something_new");
     expect(reasonText(null, S)).toBe("");
+    expect(reasonHint("no_tts_engine", S)).toContain("Settings > Speech");
+    expect(reasonHint("quiet_hours", S)).toBe("");
+    expect(reasonHint(null, S)).toBe("");
   });
 
   it("has every log, attention, reason and result key in every language", () => {
@@ -370,6 +379,22 @@ describe("messages functions", () => {
     expect(recipientName("device:4ED34B13-6E36", label, t)).toBe("Unknown phone (4ED3)");
     expect(recipientName("person.anna", label, t)).toBe("Anna");
     expect(recipientName(null, label, t)).toBe("");
+  });
+
+  it("names a timer entry by its policy and a press by the person", () => {
+    const label = (value) => value;
+    const groups = groupEntries(
+      [
+        { time: "2026-11-01T12:00:10Z", channel: "timer", recipient: "k", result: "sent", reason: "escalated", timer: { type: "escalation", policy: "Water" } },
+        { time: "2026-11-01T12:00:05Z", channel: "", recipient: "Philip", result: "dismissed", reason: "", who: "Philip" },
+      ],
+      label,
+      t,
+    );
+    expect(groups.map((g) => [g.channel, g.timer?.policy ?? null, g.recipients])).toEqual([
+      ["timer", "Water", []],
+      ["", null, ["Philip"]],
+    ]);
   });
 
   it("groups the entries of one send by channel, result and reason", () => {

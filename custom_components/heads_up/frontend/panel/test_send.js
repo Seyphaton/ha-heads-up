@@ -682,6 +682,9 @@ export function mount(container, ctx) {
       return el("tr", {}, [el("td", { textContent: who }), el("td", { textContent: channelLabel(entry.channel) }), el("td", { textContent: words.filter(Boolean).join(" · ") })]);
     });
     box.append(el("table", {}, [el("thead", {}, [head]), el("tbody", {}, rows)]));
+    for (const code of new Set(outcome.map((entry) => entry.reason))) {
+      if (fmt.reasonHint(code, s)) box.append(el("div", { className: "hint", textContent: fmt.reasonHint(code, s) }));
+    }
     if (outcome.some((entry) => entry.result === "failed")) box.append(el("div", { className: "hint problems", textContent: t.log_hint }));
     return box;
   }
