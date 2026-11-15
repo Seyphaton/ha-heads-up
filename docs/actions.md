@@ -41,6 +41,7 @@ The banner is on the dashboard for the people who are home, and each of them get
 | `icon` | icon, for example `mdi:water-alert` | the icon of the severity | Replaces the default icon on the banner and in the popup. A push, speech, mail and the notification bell do not show it. |
 | `image` | text | none | A picture shown under the message on the card, in the popup and on the push: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/local/door.jpg`, `/media/local/door.jpg`). Up to 2048 characters. Heads Up does not fetch or check it; a wrong path shows no picture. A picture from another host is loaded by the card, the popup and the phone, so that host learns the viewer's address and when the picture is shown. A path on this Home Assistant avoids that. Paths under `/api/` and `/media/` are signed for the card and the popup. The phone loads the picture itself, so it must reach the URL; camera proxy paths (`/api/camera_proxy/...`) work on Android only. The compact card layout shows no picture. With a lock screen setting other than `full`, the push has no picture (`image_hidden` in the trace). |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel, when it should differ from the written message. |
+| `volume` | number from 0 to 1 | none | Sets this volume on a media player before it speaks. Without it the volume stays as it is. Assist satellites and players that cannot set their volume ignore it. The volume is not restored afterwards. |
 | `tap_action` | object with `action` | none | A Home Assistant action that runs when someone taps the banner (the card) or the push. Passed on unchanged. Anyone who sees the banner can trigger it; see [SECURITY.md](../SECURITY.md). |
 
 ### Where it goes and who gets it
@@ -452,6 +453,7 @@ Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipi
 | `tag` | text | none | As in `notify`. |
 | `tap_action` | object with `action` | none | As in `notify`. |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel. |
+| `volume` | number from 0 to 1 | none | Sets this volume on a media player before it speaks. Without it the volume stays as it is. Assist satellites and players that cannot set their volume ignore it. The volume is not restored afterwards. |
 | `recipients` | list | required | Speakers, Assist satellites, group sensors (`sensor.heads_up_group_...`) or area IDs. |
 
 ```yaml

@@ -555,7 +555,7 @@ See also [CONTRIBUTING](../CONTRIBUTING.md#report-a-bug).
 ### What Heads Up does not do
 
 - Push has no retry: a failed push is not tried again, and a push over the rate limit is skipped ([Push notifications](configuration.md#push), [Settings](settings.md#limits)).
-- Speech has no volume handling and no all-clear announcement ([Speech](configuration.md#speech)).
+- Speech does not restore a volume it set and has no all-clear announcement ([Speech](configuration.md#speech)).
 - Mail delivery is the job of the notify service you choose; Heads Up knows only whether the call returned an error ([Mail](configuration.md#mail)).
 - A popup needs an open Home Assistant page ([Popups](configuration.md#popup)). A persistent notification goes to everyone ([Persistent notifications](configuration.md#persistent-notification)).
 - It keeps no history of messages. Each change fires an event; see [actions](actions.md#events). The panel's trace, recent messages and log of last actions are kept in memory and start empty after a restart.

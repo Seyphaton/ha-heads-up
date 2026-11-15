@@ -202,6 +202,14 @@ notify:
       example: The garage door is open.
       selector:
         text: {}
+    volume:
+      example: 0.4
+      selector:
+        number:
+          min: 0
+          max: 1
+          step: 0.05
+          mode: slider
     severity:
       required: true
       selector:
@@ -321,6 +329,14 @@ speak:
           translation_key: severity
     icon: *id005
     tts_message: *id016
+    volume:
+      example: 0.4
+      selector:
+        number:
+          min: 0
+          max: 1
+          step: 0.05
+          mode: slider
     recipients:
       example: '["media_player.kitchen"]'
       selector:

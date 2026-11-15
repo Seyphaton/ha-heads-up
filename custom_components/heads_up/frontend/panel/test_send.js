@@ -8,6 +8,7 @@ export const STRINGS = {
     f_title: "Title (optional)",
     f_message: "Message",
     f_tts: "Spoken text (optional, speech only)",
+    f_volume: "Volume in % (optional, speech only; media players)",
     f_mail_subject: "Mail subject (optional, mail only)",
     f_mail_body: "Mail text (optional, mail only)",
     call: "The call",
@@ -99,6 +100,7 @@ export const STRINGS = {
     f_title: "Titel (optional)",
     f_message: "Meldung",
     f_tts: "Gesprochener Text (optional, nur Sprache)",
+    f_volume: "Lautstärke in % (optional, nur Sprache; Mediaplayer)",
     f_mail_subject: "Mail-Betreff (optional, nur Mail)",
     f_mail_body: "Mail-Text (optional, nur Mail)",
     call: "Der Aufruf",
@@ -190,6 +192,7 @@ export const STRINGS = {
     f_title: "Titre (facultatif)",
     f_message: "Message",
     f_tts: "Texte parlé (facultatif, voix seulement)",
+    f_volume: "Volume en % (facultatif, voix seulement ; lecteurs multimédia)",
     f_mail_subject: "Objet du mail (facultatif, mail seulement)",
     f_mail_body: "Texte du mail (facultatif, mail seulement)",
     call: "L'appel",
@@ -281,6 +284,7 @@ export const STRINGS = {
     f_title: "Título (opcional)",
     f_message: "Mensaje",
     f_tts: "Texto hablado (opcional, solo voz)",
+    f_volume: "Volumen en % (opcional, solo voz; reproductores multimedia)",
     f_mail_subject: "Asunto del correo (opcional, solo correo)",
     f_mail_body: "Texto del correo (opcional, solo correo)",
     call: "La llamada",
@@ -376,7 +380,7 @@ export function fill(template, params) {
 }
 
 export function blankValues() {
-  return { title: "", message: "", tts_message: "", mail_subject: "", mail_body: "", severity: "info", tag: "", channels: ["banner"], policy: [], match_automatic: true, dismiss: "", snooze: "" };
+  return { title: "", message: "", tts_message: "", volume: "", mail_subject: "", mail_body: "", severity: "info", tag: "", channels: ["banner"], policy: [], match_automatic: true, dismiss: "", snooze: "" };
 }
 
 // Entity ID of an audience by the key the form stores ("admins", the id of an own audience) and by
@@ -393,6 +397,8 @@ export function buildCall(values, ids = {}) {
   const data = { message: String(values.message).trim(), severity: values.severity, channels: [...values.channels] };
   if (String(values.title).trim()) data.title = String(values.title).trim();
   if (values.channels.includes("speak") && String(values.tts_message).trim()) data.tts_message = String(values.tts_message).trim();
+  const percent = Number.parseFloat(String(values.volume ?? "").replace(",", "."));
+  if (values.channels.includes("speak") && Number.isFinite(percent)) data.volume = Math.min(Math.max(percent, 0), 100) / 100;
   if (values.channels.includes("mail") && String(values.mail_subject || "").trim()) data.mail_subject = String(values.mail_subject).trim();
   if (values.channels.includes("mail") && String(values.mail_body || "").trim()) data.mail_body = String(values.mail_body).trim();
   if (String(values.tag).trim()) data.tag = String(values.tag).trim();
@@ -579,6 +585,7 @@ export function mount(container, ctx) {
     const content = el("section", {}, [el("h2", { textContent: t.content })]);
     content.append(ui.field(t.f_title, ui.textInput(values.title, (v) => { values.title = v; change(); })));
     content.append(ui.field(t.f_message, ui.textInput(values.message, (v) => { values.message = v; change(); }, { style: "max-width:100%" })));
+    if (values.channels.includes("speak")) content.append(ui.field(t.f_volume, ui.textInput(values.volume || "", (v) => { values.volume = v; change(); }, { style: "max-width:100%" })));
     if (values.channels.includes("speak")) content.append(ui.field(t.f_tts, ui.textInput(values.tts_message, (v) => { values.tts_message = v; change(); }, { style: "max-width:100%" })));
 
     if (values.channels.includes("mail")) {

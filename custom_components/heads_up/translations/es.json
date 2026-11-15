@@ -523,6 +523,10 @@
           "name": "Texto hablado",
           "description": "Texto usado para la voz en lugar del título y el mensaje. Por defecto: el título si existe, si no el mensaje."
         },
+        "volume": {
+          "name": "Volumen",
+          "description": "Volumen de 0 a 1, ajustado en un reproductor multimedia antes de que hable. Por defecto: el volumen se queda como está. Los satélites Assist y los reproductores que no pueden ajustar su volumen lo ignoran. El volumen no se restablece después."
+        },
         "severity": {
           "name": "Gravedad",
           "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (éxito e información son silenciosos, advertencia es normal, crítico es urgente y se muestra al instante en un móvil inactivo), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
@@ -744,6 +748,10 @@
         "tts_message": {
           "name": "Texto hablado",
           "description": "Texto usado para la voz en lugar del título y el mensaje. Por defecto: el título si existe, si no el mensaje."
+        },
+        "volume": {
+          "name": "Volumen",
+          "description": "Volumen de 0 a 1, ajustado en un reproductor multimedia antes de que hable. Por defecto: el volumen se queda como está. Los satélites Assist y los reproductores que no pueden ajustar su volumen lo ignoran. El volumen no se restablece después."
         },
         "recipients": {
           "name": "Destinatarios",

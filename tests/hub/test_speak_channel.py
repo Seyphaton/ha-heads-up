@@ -3,6 +3,7 @@
 import asyncio
 from typing import Any
 
+import probatio as vol
 import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.config_entries import ConfigSubentry
@@ -76,7 +77,7 @@ async def test_a_player_without_announce_gets_plain_playback_at_its_volume(
     assert not fake_speakers.tts_speak
 
 
-async def test_the_hub_never_changes_the_volume(
+async def test_the_volume_is_left_alone_when_the_call_has_none(
     hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
 ) -> None:
     await say(
@@ -87,6 +88,51 @@ async def test_the_hub_never_changes_the_volume(
         fake_speakers.satellite,
     )
     assert not fake_speakers.volume_set
+
+
+async def test_a_volume_is_set_on_a_player_before_it_speaks(
+    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+) -> None:
+    await say(hass, entry, fake_speakers.plain_player, fake_speakers.announce_player, volume=0.4)
+    levels = {c.data["entity_id"]: c.data["volume_level"] for c in fake_speakers.volume_set}
+    assert levels == {fake_speakers.plain_player: 0.4, fake_speakers.announce_player: 0.4}
+    assert fake_speakers.play_media and fake_speakers.tts_speak
+
+
+async def test_a_satellite_gets_no_volume_call(
+    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+) -> None:
+    await say(hass, entry, fake_speakers.satellite, volume=0.4)
+    assert not fake_speakers.volume_set
+    assert fake_speakers.announce
+
+
+async def test_a_player_that_cannot_set_its_volume_still_speaks(
+    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+) -> None:
+    hass.states.async_set("media_player.tv", "idle", {"supported_features": 512})  # PLAY_MEDIA
+    await say(hass, entry, "media_player.tv", volume=0.4)
+    assert not fake_speakers.volume_set
+    assert len(fake_speakers.play_media) == 1
+
+
+async def test_a_refused_volume_does_not_stop_the_speech(
+    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+) -> None:
+    async def refuse(call: ServiceCall) -> None:
+        raise HomeAssistantError("no")
+
+    hass.services.async_register("media_player", "volume_set", refuse)
+    result = await say(hass, entry, fake_speakers.plain_player, volume=0.4)
+    assert result["channels"]["speak"]["sent"] == 1
+    assert len(fake_speakers.play_media) == 1
+
+
+async def test_a_volume_outside_zero_to_one_is_refused(
+    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+) -> None:
+    with pytest.raises(vol.Invalid):
+        await say(hass, entry, fake_speakers.plain_player, volume=1.5)
 
 
 async def test_the_text_is_tts_message_then_title_then_message(

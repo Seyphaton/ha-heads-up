@@ -53,6 +53,8 @@ class Banner:
     # One name or `none` (older calls and rules), or a list of names (a call, D-184).
     policy: str | list[str] | None = None
     tts_message: str | None = None
+    # Volume 0 to 1 set on a media player before it speaks; None leaves the volume alone.
+    volume: float | None = None
     acknowledged_by: list[str] = field(default_factory=list)
     source: str = SOURCE_ACTION
     # Picture under the message: an http(s) URL or a path starting with `/` (D-127).
@@ -119,6 +121,7 @@ class Banner:
             "targets",
             "policy",
             "tts_message",
+            "volume",
             "acknowledged_by",
             "source",
             "mail_subject",

@@ -1292,3 +1292,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Disabled people: kept in the log on purpose (D-147), but `Resolver.members` now drops a disabled person before the presence check, so the reason is `recipient_disabled` and never `presence_unknown`. No change to who receives what.
 - Not done: the Message Log still lists the calls of one message id together (grouping is per minute, not per call); the log does not hide disabled people.
 - Blast radius: panel only (`messages.js`, four languages), one line in the resolver; no restart beyond the usual.
+
+## D-206 Speech: optional volume before speaking (2026-11-15)
+- Context: on the maintainer's speakers the speech volume could not be chosen. D-091 had the hub never touch volume.
+- Decided by the maintainer ("Yes optional set volume before speaking"): `notify` and `speak` take an optional `volume` (0 to 1). The speak channel calls `media_player.volume_set` before `tts.speak` or `play_media`. Without `volume` nothing changes, as under D-091.
+- Not restored afterwards: speech end cannot be known for announce players, and Sonos restores its own volume for announce (N-76). A satellite has no volume to set, and a player without the `VOLUME_SET` feature is skipped. A refused volume call logs a warning (once per hour per speaker) and the message is still spoken.
+- Test send has a Volume field (percent). No per-speaker volume setting and no policy target field: the policies' speech uses the volume of the original call.
+- Parity (rule 9): speech exists only for actions and policies, so there is no watch-rule counterpart.
+- Blast radius: new optional field in two action schemas, `services.yaml`, `strings.json` and four translations, Test send; no restart beyond the usual.

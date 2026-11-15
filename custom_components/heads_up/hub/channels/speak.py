@@ -3,7 +3,8 @@
 Satellites get `assist_satellite.announce`. A media player whose state shows the announce feature
 gets `tts.speak`, which announces (it passes `announce: true` itself). Any other player gets
 `media_player.play_media` with the tts media source and no `announce`, at the volume it has. The
-hub never changes or restores volume (N-66, N-75, N-76, N-86).
+hub sets a volume only when the call has `volume` and never restores one (N-66, N-75, N-76,
+N-86).
 
 Speech cannot be taken back, so a message that ends says nothing. A speaker does one thing at a
 time and does not repeat the same text within the cooldown.
@@ -116,7 +117,7 @@ class SpeakChannel:
                     "Speech on %s skipped: the same text was said within the pause", entity
                 )
                 return Outcome(Result.SKIPPED, "cooldown")
-            outcome = await self._speak(entity, state.attributes, text)
+            outcome = await self._speak(entity, state.attributes, text, message.volume)
             if outcome.result is Result.SENT:
                 self._spoken[(entity, text)] = dt_util.utcnow()
                 await self._wait_until_done(entity, outcome)
@@ -140,7 +141,9 @@ class SpeakChannel:
             del self._spoken[key]
         return bool(cooldown and said and now - said < timedelta(seconds=cooldown))
 
-    async def _speak(self, entity: str, attributes: Any, text: str) -> Outcome:
+    async def _speak(
+        self, entity: str, attributes: Any, text: str, volume: float | None = None
+    ) -> Outcome:
         language = str(self._opt(OPT_SPEAK_LANGUAGE) or self._hass.config.language)
         if entity.split(".", 1)[0] == SATELLITE:
             return await self._call(
@@ -161,6 +164,7 @@ class SpeakChannel:
             )
             return Outcome(Result.FAILED, "no_tts_engine")
         features = int(attributes.get("supported_features", 0))
+        await self._set_volume(entity, features, volume)
         if features & MediaPlayerEntityFeature.MEDIA_ANNOUNCE:
             data = {
                 "entity_id": engine,
@@ -176,6 +180,22 @@ class SpeakChannel:
             return Outcome(Result.FAILED, "no_tts_engine")
         media = {"media_content_id": media_id, "media_content_type": "music"}
         return await self._call(entity, PLAYER, "play_media", {"entity_id": entity, **media})
+
+    async def _set_volume(self, entity: str, features: int, volume: float | None) -> None:
+        """Set the volume before speech when the call asks for one. A player that cannot be set,
+        or that refuses, still speaks: the message matters more than its volume. Nothing is
+        restored afterwards (D-091); a satellite has no volume to set."""
+        if volume is None:
+            return
+        if not features & MediaPlayerEntityFeature.VOLUME_SET:
+            _LOGGER.debug("Volume for %s ignored: the player cannot set its volume", entity)
+            return
+        try:
+            await self._hass.services.async_call(
+                PLAYER, "volume_set", {"entity_id": entity, "volume_level": volume}, blocking=True
+            )
+        except HomeAssistantError as err:
+            self._warn(f"volume:{entity}", "Setting the volume of %s failed: %s", entity, err)
 
     async def _call(self, entity: str, domain: str, service: str, data: dict[str, Any]) -> Outcome:
         _LOGGER.debug("Speaking on %s through %s.%s", entity, domain, service)

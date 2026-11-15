@@ -102,7 +102,7 @@ The Status page refreshes every 10 seconds.
 
 - Active notifications: the number of messages that have not ended, with a badge for each state that occurs (escalating, reminding, snoozed, in a summary, acknowledged). Show list explains each message in one line and gives it two buttons: Acknowledge (only while an escalation or reminder policy applies and nobody has acknowledged) and Clear, which takes the message back from every channel after a confirmation. A message made by a watch rule has no Clear; disable or delete the rule.
 - Shortcut cards for Watch rules, Channels, Audiences and Policies. A card opens its page.
-- Needs attention: each problem with a button to the page that fixes it. Errors are a watch rule on a missing entity, a device without a notify service, a speaker group without an existing speaker, an invalid policy and a policy that names a deleted audience. Warnings are a person without a usable device, sends that failed in the last 24 hours and no escalation policy for critical messages. Each warning has a Hide button; errors cannot be hidden.
+- Needs attention: each problem with a button to the page that fixes it. Errors are a watch rule on a missing entity, a device without a notify service, a speaker group without an existing speaker, a speaker group with a media player and no usable text-to-speech engine, an invalid policy and a policy that names a deleted audience. Warnings are a person without a usable device, sends that failed in the last 24 hours and no escalation policy for critical messages. Each warning has a Hide button; errors cannot be hidden.
 - Last actions: the latest events, newest first, with the reason for a skipped or failed delivery.
 
 ### Message Log
@@ -140,6 +140,8 @@ The last step first asks how policies interact: Only the first policy that appli
 | Quiet hours | Night quiet: info and success messages without that tag are sent quietly from 22:00 to 07:00. |
 
 Create adds only what is missing. A policy with the same name, or one that does the same as a policy you have, is skipped, and nothing you have is changed or deleted. Edit the policies afterwards on the Policies page.
+
+Under Every policy that applies runs, the Critical item also asks for speakers that say an unacknowledged critical message after 10 minutes. When you choose speakers and Home Assistant has more than one text-to-speech engine, the item asks which engine to use.
 
 "Critical delivery" matches every critical message, so it comes first in the list and hides later policies for critical messages. Put a narrower policy, such as an escalation for severity `critical` and tag `water`, above it. The Policies page marks a policy that a policy above it hides.
 

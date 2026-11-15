@@ -266,6 +266,7 @@ class BannerManager:
             targets={k: dict(v) for k, v in data.get("targets", {}).items()},
             policy=data.get("policy"),
             tts_message=data.get("tts_message"),
+            volume=data.get("volume"),
             mail_subject=data.get("mail_subject"),
             mail_body=data.get("mail_body"),
             source=data.get("source", SOURCE_ACTION),

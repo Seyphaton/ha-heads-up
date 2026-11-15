@@ -115,14 +115,15 @@ The text is `tts_message` if you set it, otherwise the title, otherwise the mess
 | Media player that supports announcements | `tts.speak`, which announces; the player lowers or pauses what it plays and continues afterwards, if the player does that |
 | Other media player | `media_player.play_media` with the text-to-speech media source, as plain playback |
 
+- `volume` (0 to 1) sets the volume of a media player before it speaks. A player that cannot set its volume, and an Assist satellite, speaks at its own volume. Heads Up never restores the volume afterwards.
 - The text-to-speech engine is the option Text-to-speech engine. If it is empty and exactly one `tts` entity exists, that one is used. With several or none, speech to media players fails with `no_tts_engine`. Overview > Needs attention shows this as an error while a speaker group has a media player, and the Welcome asks for the engine when there are several.
-- Heads Up never changes or restores a volume. What happens to music after an announcement depends on the player.
+- Without `volume`, Heads Up does not change a volume. What happens to music after an announcement depends on the player.
 - A speaker says one message at a time. The same text is not said again on the same speaker within 60 seconds (option Spoken text: repeat pause, 0 for no pause; the Message Log shows `cooldown`). An update does not say a message again (`already_spoken`).
 - Speech cannot be taken back. A Quiet hours policy with the action Send quietly skips speech (`quiet_hours`).
 - An area or group with no speaker, and a speaker that no longer exists, also leave one entry in the notification bell ("Heads Up: no speaker" or "Heads Up: speaker not found"). It names the area, group or speaker and never the message, because every user sees the bell.
 - A missing speaker, a missing service and a missing engine are failed deliveries (`entity_missing`, `service_not_found`, `send_failed`, `no_tts_engine`) and write a log warning, at most one per speaker per hour. Skips are written at debug level. Test send shows each result with its reason.
 
-There is no all-clear announcement and no volume handling. Rooms are Home Assistant areas and their assigned speakers; occupancy is not used.
+There is no all-clear announcement and no volume restore. Rooms are Home Assistant areas and their assigned speakers; occupancy is not used.
 
 ### Persistent Notification
 

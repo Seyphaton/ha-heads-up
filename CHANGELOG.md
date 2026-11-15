@@ -4,11 +4,16 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [1.0.0-beta.1] - 2026-11-15
+
+### Added
+- Speech: `heads_up.notify` and `heads_up.speak` take an optional `volume` from 0 to 1, set on a media player before it speaks. The volume is not restored afterwards. Test send has a Volume field.
+- Speech: Overview > Needs attention warns when a speaker group has a media player and no text-to-speech engine works (none set up, several without a choice, or the chosen one is gone). The Welcome asks for the engine when Home Assistant has more than one.
+
 ### Fixed
 - Overview > Needs attention: a message or watch rule that names a deleted policy no longer shows the policy's internal ID. A message says it ends by itself and no policy runs for it; a watch rule says to edit it and choose another policy.
 - Message Log details: an escalation or reminder entry names its policy ("Escalation Water sent") instead of the bare word "sent: escalated", and a dismissal, snooze or acknowledgement names the person who did it.
 - Message Log details and Test send: a failed speech, service or speaker entry (`no_tts_engine`, `send_failed`, `service_not_found`, `entity_missing`) now says what to do next, for example to choose an engine in Settings > Speech.
-- Speech: Overview > Needs attention warns when a speaker group has a media player and no text-to-speech engine works (none set up, several without a choice, or the chosen one is gone). The Welcome asks for the engine when Home Assistant has more than one.
 
 ## [1.0.0-alpha.10] - 2026-11-15
 

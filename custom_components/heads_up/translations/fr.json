@@ -523,6 +523,10 @@
           "name": "Texte parlé",
           "description": "Texte utilisé pour la voix à la place du titre et du message. Par défaut : le titre s'il existe, sinon le message."
         },
+        "volume": {
+          "name": "Volume",
+          "description": "Volume de 0 à 1, réglé sur un lecteur multimédia avant qu'il parle. Par défaut : le volume reste tel quel. Les satellites Assist et les lecteurs qui ne peuvent pas régler leur volume l'ignorent. Le volume n'est pas rétabli ensuite."
+        },
         "severity": {
           "name": "Gravité",
           "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
@@ -744,6 +748,10 @@
         "tts_message": {
           "name": "Texte parlé",
           "description": "Texte utilisé pour la voix à la place du titre et du message. Par défaut : le titre s'il existe, sinon le message."
+        },
+        "volume": {
+          "name": "Volume",
+          "description": "Volume de 0 à 1, réglé sur un lecteur multimédia avant qu'il parle. Par défaut : le volume reste tel quel. Les satellites Assist et les lecteurs qui ne peuvent pas régler leur volume l'ignorent. Le volume n'est pas rétabli ensuite."
         },
         "recipients": {
           "name": "Destinataires",

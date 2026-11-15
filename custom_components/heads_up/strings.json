@@ -523,6 +523,10 @@
           "name": "Spoken text",
           "description": "Text used for speech instead of the title and message. Default: the title if set, otherwise the message."
         },
+        "volume": {
+          "name": "Volume",
+          "description": "Volume from 0 to 1, set on a media player before it speaks. Default: the volume stays as it is. Assist satellites and players that cannot set their volume ignore it. The volume is not restored afterwards."
+        },
         "severity": {
           "name": "Severity",
           "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
@@ -744,6 +748,10 @@
         "tts_message": {
           "name": "Spoken text",
           "description": "Text used for speech instead of the title and message. Default: the title if set, otherwise the message."
+        },
+        "volume": {
+          "name": "Volume",
+          "description": "Volume from 0 to 1, set on a media player before it speaks. Default: the volume stays as it is. Assist satellites and players that cannot set their volume ignore it. The volume is not restored afterwards."
         },
         "recipients": {
           "name": "Recipients",

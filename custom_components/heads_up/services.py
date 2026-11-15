@@ -402,11 +402,13 @@ TARGET_SCHEMA = vol.Schema(
 )
 # In the schema, not in services.yaml or docs/actions.md.
 HIDDEN_FIELDS = {"notify": {"to", REMOVED_WAIT}, "create_banner": {REMOVED_WAIT}}
+VOLUME = vol.All(vol.Coerce(float), vol.Range(min=0, max=1))
 NOTIFY_SCHEMA = vol.All(
     vol.Schema(
         {
             **_NOTIFY_FIELDS,
             vol.Optional("tts_message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
+            vol.Optional("volume"): VOLUME,
             vol.Required("channels"): vol.All(
                 cv.ensure_list, [vol.In(CHANNELS)], vol.Length(min=1)
             ),
@@ -442,6 +444,7 @@ def _shortcut_schema(channel: str) -> VolSchemaType:
         **_CONTENT_FIELDS,
         vol.Optional("severity", default=ACTION_SEVERITY): vol.In(SEVERITIES),
         vol.Optional("tts_message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
+        **({vol.Optional("volume"): VOLUME} if channel == "speak" else {}),
         vol.Optional("tag"): SLUG,
         vol.Optional("timeout"): vol.All(cv.time_period, _timeout),
         vol.Optional("actions"): ACTIONS_SCHEMA,
@@ -824,6 +827,7 @@ def _shortcut(channel: str) -> Callable[[ServiceCall], Coroutine[Any, Any, Servi
             image=data.get("image"),
             actions=[dict(a) for a in data.get("actions", [])],
             tts_message=data.get("tts_message"),
+            volume=data.get("volume"),
             channels=[channel],
             targets={channel: target},
         )

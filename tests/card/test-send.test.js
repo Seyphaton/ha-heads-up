@@ -104,6 +104,14 @@ describe("test send call", () => {
     expect(call.to).toEqual({ speak: { recipients: ["media_player.k"] } });
   });
 
+  it("sends the volume as 0 to 1 only for speech and clamps it", () => {
+    const speak = { channels: ["speak"], speak_recipients: ["media_player.k"] };
+    expect(buildCall(values({ ...speak, volume: "40" })).volume).toBe(0.4);
+    expect(buildCall(values({ ...speak, volume: "250" })).volume).toBe(1);
+    expect(buildCall(values({ ...speak, volume: "" })).volume).toBeUndefined();
+    expect(buildCall(values({ channels: ["push"], volume: "40" })).volume).toBeUndefined();
+  });
+
   it("sends the mail subject and text only when mail is a channel", () => {
     expect(buildCall(values({ mail_subject: "{person}" })).mail_subject).toBeUndefined();
     const call = buildCall(values({ channels: ["mail"], mail_subject: " {person} ", mail_body: "{title}: {message}" }));

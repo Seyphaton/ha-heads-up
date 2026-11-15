@@ -523,6 +523,10 @@
           "name": "Gesprochener Text",
           "description": "Text für die Sprachausgabe statt Titel und Nachricht. Standard: der Titel, falls gesetzt, sonst die Nachricht."
         },
+        "volume": {
+          "name": "Lautstärke",
+          "description": "Lautstärke von 0 bis 1, die vor dem Sprechen auf einem Mediaplayer gesetzt wird. Standard: Die Lautstärke bleibt, wie sie ist. Assist-Satelliten und Player, die ihre Lautstärke nicht setzen können, ignorieren sie. Die Lautstärke wird danach nicht zurückgesetzt."
+        },
         "severity": {
           "name": "Dringlichkeit",
           "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
@@ -744,6 +748,10 @@
         "tts_message": {
           "name": "Gesprochener Text",
           "description": "Text für die Sprachausgabe statt Titel und Nachricht. Standard: der Titel, falls gesetzt, sonst die Nachricht."
+        },
+        "volume": {
+          "name": "Lautstärke",
+          "description": "Lautstärke von 0 bis 1, die vor dem Sprechen auf einem Mediaplayer gesetzt wird. Standard: Die Lautstärke bleibt, wie sie ist. Assist-Satelliten und Player, die ihre Lautstärke nicht setzen können, ignorieren sie. Die Lautstärke wird danach nicht zurückgesetzt."
         },
         "recipients": {
           "name": "Empfänger",

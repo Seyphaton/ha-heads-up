@@ -81,6 +81,7 @@ async def banner_from(hub: HubEngine, data: dict[str, Any]) -> Banner:
         targets={k: dict(v) for k, v in data.get("to", {}).items()},
         policy=data.get("policy"),
         tts_message=data.get("tts_message"),
+        volume=data.get("volume"),
         mail_subject=data.get("mail_subject"),
         mail_body=data.get("mail_body"),
     )
