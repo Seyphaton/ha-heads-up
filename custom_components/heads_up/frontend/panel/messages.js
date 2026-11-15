@@ -2,6 +2,7 @@
 
 export const STRINGS = {
   en: {
+    inactive: "inactive",
     tap_hint: "Select a message to see where it was delivered.",
     close: "Close",
     unknown_phone: "Unknown phone ({id})",
@@ -39,6 +40,7 @@ export const STRINGS = {
     results: { sent: "sent", held: "held", skipped: "skipped", failed: "failed" },
   },
   de: {
+    inactive: "inaktiv",
     tap_hint: "Wähle eine Meldung, um zu sehen, wohin sie zugestellt wurde.",
     close: "Schließen",
     unknown_phone: "Unbekanntes Telefon ({id})",
@@ -76,6 +78,7 @@ export const STRINGS = {
     results: { sent: "gesendet", held: "zurückgehalten", skipped: "übersprungen", failed: "fehlgeschlagen" },
   },
   fr: {
+    inactive: "inactif",
     tap_hint: "Choisissez un message pour voir où il a été livré.",
     close: "Fermer",
     unknown_phone: "Téléphone inconnu ({id})",
@@ -113,6 +116,7 @@ export const STRINGS = {
     results: { sent: "envoyé", held: "retenu", skipped: "ignoré", failed: "échec" },
   },
   es: {
+    inactive: "inactivo",
     tap_hint: "Elige un mensaje para ver dónde se entregó.",
     close: "Cerrar",
     unknown_phone: "Teléfono desconocido ({id})",
@@ -167,7 +171,9 @@ export function resultsLine(results, t) {
 
 export function statusLabel(message, t, s, reasonText) {
   if (message.active) return t.active;
-  return fill(t.ended, { reason: reasonText(message.reason, s) || "?" });
+  const reason = reasonText(message.reason, s);
+  // A watch rule whose condition is false is not active, but nothing ended: it has no reason.
+  return reason ? fill(t.ended, { reason }) : t.inactive;
 }
 
 

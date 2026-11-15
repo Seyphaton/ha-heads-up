@@ -379,6 +379,15 @@ export function blankValues() {
   return { title: "", message: "", tts_message: "", mail_subject: "", mail_body: "", severity: "info", tag: "", channels: ["banner"], policy: [], match_automatic: true, dismiss: "", snooze: "" };
 }
 
+// Entity ID of an audience by the key the form stores ("admins", the id of an own audience) and by
+// its name. The form holds keys, the call needs the sensor's entity ID.
+export function audienceIds(data) {
+  const byName = Object.fromEntries((data?.audiences || []).filter((a) => a.entity_id).map((a) => [a.name, a.entity_id]));
+  const ids = { ...byName };
+  for (const choice of data?.choices?.audience_choices || []) if (byName[choice.name]) ids[choice.id] = byName[choice.name];
+  return ids;
+}
+
 // The `notify` call the values describe: only what is set, targets only for the chosen channels.
 export function buildCall(values, ids = {}) {
   const data = { message: String(values.message).trim(), severity: values.severity, channels: [...values.channels] };
@@ -557,11 +566,12 @@ export function mount(container, ctx) {
   const channelLabel = (c) => s.channel[c] || c;
   // Name to entity ID of every audience and policy: the call and its YAML use the IDs.
   const entityIds = () => ({
-    audiences: Object.fromEntries((data?.audiences || []).filter((a) => a.entity_id).map((a) => [a.name, a.entity_id])),
+    audiences: audienceIds(data),
     policies: Object.fromEntries((data?.policies || []).filter((p) => p.entity_id).map((p) => [p.name, p.entity_id])),
   });
 
   function render() {
+    ui.lockHeight(root);
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
     const change = () => schedule();
@@ -600,7 +610,8 @@ export function mount(container, ctx) {
     const labels = { audience: t.target_audience, recipients: t.target_recipients, persistent: t.target_persistent };
     for (const channel of values.channels) {
       who.append(ui.targetBlock(channel, values, data.choices, { ...labels, channel: fill(t.target_channel, { channel: channelLabel(channel) }) }, (mode) => { if (mode) render(); schedule(); }));
-      const audience = data.audiences.find((a) => a.name === values[`${channel}_audience`]);
+      const chosen = values[`${channel}_audience`];
+      const audience = data.audiences.find((a) => a.name === (data.choices.audience_choices || []).find((c) => c.id === chosen)?.name);
       if (audience) {
         const names = audience.members.map((m) => data.choices.persons.find((p) => p.id === m)?.name ?? m);
         who.append(el("div", { className: "hint", textContent: names.length ? fill(t.audience_now, { names: names.join(", ") }) : t.audience_nobody }));
@@ -726,7 +737,7 @@ export function mount(container, ctx) {
     if (pasted.error) box.append(el("div", { className: "hint problems", textContent: fill(t.preview_failed, { text: pasted.error }) }));
     if (pasted.notice) box.append(el("div", { className: "hint", textContent: pasted.notice }));
     if (pasted.result) {
-      box.append(el("h2", { textContent: t.rendered, style: "margin-top:12px" }), el("pre", { textContent: ui.toYaml({ action: "heads_up.notify", data: pasted.result.call }) }));
+      box.append(el("h2", { textContent: t.rendered, style: "margin-top:12px" }), ui.yamlBlock(ui.toYaml({ action: "heads_up.notify", data: pasted.result.call }), s.common));
       box.append(...planBody(pasted.result));
     }
     return box;

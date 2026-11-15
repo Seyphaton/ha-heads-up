@@ -8,6 +8,59 @@ export function el(tag, props = {}, children = []) {
   return created;
 }
 
+// Redrawing a page empties it first, so for a moment it is shorter than the screen and the browser
+// resets the scroll position to the top (seen on an iPhone when a channel is ticked in Test send).
+// Hold the old height until the redraw is on screen, and put every scroll position that was set
+// back afterwards, wherever the page scrolls (the window or a container of Home Assistant).
+export function lockHeight(root) {
+  const saved = [];
+  const scroller = document.scrollingElement;
+  if (scroller?.scrollTop) saved.push([scroller, scroller.scrollTop]);
+  for (let n = root; n; ) {
+    if (n.scrollTop && n !== scroller) saved.push([n, n.scrollTop]);
+    const top = n.getRootNode?.();
+    n = n.parentElement || (top && top.host ? top.host : null);
+  }
+  root.style.minHeight = `${root.offsetHeight}px`;
+  const restore = () => {
+    for (const [node, top] of saved) if (node.scrollTop !== top) node.scrollTop = top;
+  };
+  // Timers, not frame callbacks: a page in a background tab gets no frames.
+  setTimeout(restore, 0);
+  setTimeout(() => {
+    restore();
+    root.style.minHeight = "";
+  }, 100);
+}
+
+// A YAML text with a Copy button under it. The clipboard API needs a secure page; the fallback
+// selects a hidden textarea, which also works on a plain http address.
+export function yamlBlock(text, common) {
+  const status = el("span", { className: "hint", style: "margin-left:8px" });
+  status.setAttribute("role", "status");
+  status.setAttribute("aria-live", "polite");
+  const button = el("button", { type: "button", textContent: common.copy });
+  button.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      status.textContent = common.copied;
+    } catch (err) {
+      const area = el("textarea", { value: text, style: "position:fixed;opacity:0" });
+      document.body.append(area);
+      area.select();
+      let done = false;
+      try {
+        done = document.execCommand("copy");
+      } catch (e) {
+        done = false;
+      }
+      area.remove();
+      status.textContent = done ? common.copied : common.copy_failed;
+    }
+  });
+  return el("div", {}, [el("pre", { textContent: text }), el("div", { className: "row" }, [button, status])]);
+}
+
 // A small "?" button with a short explanation. Hover shows the native tooltip; a click or Enter
 // opens the same text under the button, so touch and keyboard users get it too. Place `button`
 // next to the label and `note` where the text may appear.
@@ -79,6 +132,9 @@ export const BASE_CSS = `
 .hu-page ul.list li { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 8px 0; border-top: 1px solid var(--divider-color); min-height: 48px; }
 .hu-page ul.list li:first-child { border-top: 0; }
 .hu-page ul.list li.dim { opacity: .55; }
+.hu-page code.entity { display: block; margin-top: 2px; font-size: 11px; color: var(--secondary-text-color); overflow-wrap: anywhere; }
+.hu-page ul.list li > div:first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.hu-page ul.list li > button { flex: none; }
 .hu-page button.help { min-width: 24px; min-height: 24px; width: 24px; height: 24px; padding: 0; margin-left: 6px; border-radius: 50%; border: 1px solid var(--divider-color); background: transparent; color: var(--secondary-text-color); font: inherit; font-size: 13px; line-height: 1; cursor: help; vertical-align: middle; }
 .hu-page button.help[aria-expanded="true"], .hu-page button.help:hover { color: var(--primary-text-color); border-color: var(--primary-text-color); }
 .hu-page button.help:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
@@ -94,7 +150,7 @@ export const BASE_CSS = `
 .hu-page .badge.sev-warning { color: var(--warning-color); border-color: var(--warning-color); }
 .hu-page .badge.sev-critical { color: var(--error-color); border-color: var(--error-color); }
 .hu-page .badges { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 4px 0 6px; }
-.hu-page code.tpl { display: block; margin-top: 4px; padding: 4px 8px; border-radius: 6px; background: var(--hu-fill); font-size: 12px; overflow-wrap: anywhere; }
+.hu-page code.tpl { display: block; margin-top: 4px; padding: 4px 8px; border-radius: 6px; background: var(--hu-fill); color: var(--secondary-text-color); font-size: 12px; overflow-wrap: anywhere; }
 .hu-page label.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
 .hu-page label.inline { display: flex; align-items: center; gap: 10px; min-height: 48px; }
 .hu-page input[type=text], .hu-page input[type=number], .hu-page input[type=time], .hu-page select, .hu-page textarea { box-sizing: border-box; height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--hu-line); background: var(--hu-fill); color: var(--primary-text-color); font: inherit; width: 100%; max-width: 360px; }

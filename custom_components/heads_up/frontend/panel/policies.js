@@ -1025,7 +1025,7 @@ export function mount(container, ctx) {
     const choice = el("fieldset", {}, [el("legend", { textContent: t.apply_label }), radio("auto", t.apply_auto, t.apply_auto_hint), radio("manual", t.apply_manual, t.apply_manual_hint)]);
     when.append(choice);
     if (values.apply === "manual") {
-      when.append(el("div", { className: "hint", textContent: t.manual_how }), el("pre", { textContent: `policy: ${String(values.name).trim() || "…"}` }), el("div", { className: "hint", textContent: t.manual_note }));
+      when.append(el("div", { className: "hint", textContent: t.manual_how }), ui.yamlBlock(`policy: ${String(values.name).trim() || "…"}`, s.common), el("div", { className: "hint", textContent: t.manual_note }));
     } else {
       when.append(ui.chips(t.severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.severities, (list) => { values.severities = list; paint(); }));
       when.append(ui.field(t.tags, ui.textInput(values.tags, (v) => { values.tags = v; paint(); })));
@@ -1053,7 +1053,7 @@ export function mount(container, ctx) {
       buttons.append(del);
     }
     box.append(buttons, el("div", { className: "summary" }, [el("strong", { textContent: t.sentence }), words, status]));
-    if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), el("pre", { textContent: ui.toYaml({ name: own.name, ...own.data }) }));
+    if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ name: own.name, ...own.data }), s.common));
     function paint() {
       const found = validate(values, existing, own?.name);
       const codes = Object.values(found);
@@ -1068,6 +1068,7 @@ export function mount(container, ctx) {
   }
 
   function render() {
+    ui.lockHeight(root);
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS + CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
     if (editing) return void root.append(editor());

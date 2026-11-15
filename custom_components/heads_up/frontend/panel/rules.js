@@ -456,7 +456,7 @@ export function mount(container, ctx) {
       buttons.append(del);
     }
     box.append(el("h2", { textContent: t.sentence, style: "margin-top:12px" }), words, status, buttons);
-    if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), el("pre", { textContent: ui.toYaml({ name: own.name, ...own.data }) }));
+    if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ name: own.name, ...own.data }), s.common));
     function paint() {
       const codes = Object.values(validate(values, existing, own?.name));
       words.textContent = sentence(values, t);
@@ -469,6 +469,7 @@ export function mount(container, ctx) {
   }
 
   function render() {
+    ui.lockHeight(root);
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
     root.append(ui.richNode(t.intro, { className: "hint" }));
     if (editing) return void root.append(editor());

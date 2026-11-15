@@ -4,6 +4,16 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Added
+- Every YAML text in the panel has a Copy button: the stored YAML of an audience, recipient, policy and watch rule, the manual-policy line, and the rendered call of a pasted call in Test send (the call itself already had one). If the browser refuses the clipboard, the button says so.
+
+### Fixed
+- On a phone the panel jumped to the top when you ticked a channel in Test send or changed other options that redraw a page. The page now keeps its height while it redraws, so the scroll position stays.
+- Lists in the panel's editors on a phone: a long entity ID or template no longer pushes the checkbox or the Edit button out of view. On the Audiences page the entity ID is small secondary text under the name.
+- Test send showed "Audience \"admins\" is given by its entity ID" for every audience chosen from the list, in the preview, the YAML and Send test. The call now names the audience's sensor.
+- Test send showed "The preview is not available" and could not send when "Match policies automatically" was switched off. The panel's call is now accepted.
+- The Message Log said "ended (?)" for a watch rule whose condition is false. It now says "inactive".
+
 ## [1.0.0-alpha.9] - 2026-11-12
 
 ### Changed

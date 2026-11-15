@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ackText,
   blankValues,
+  audienceIds,
   buildCall,
   callYaml,
   laterText,
@@ -23,6 +24,20 @@ const T = STRINGS.en;
 const values = (extra = {}) => ({ ...blankValues(), message: "Door open", ...extra });
 
 describe("test send call", () => {
+  it("finds the entity ID of an audience by the key the form stores", () => {
+    const data = {
+      audiences: [
+        { name: "Admins", entity_id: "binary_sensor.heads_up_audience_admins" },
+        { name: "Kids", entity_id: "binary_sensor.heads_up_audience_kids" },
+      ],
+      choices: { audience_choices: [{ id: "admins", name: "Admins" }, { id: "01ABC", name: "Kids" }] },
+    };
+    const ids = audienceIds(data);
+    expect(ids.admins).toBe("binary_sensor.heads_up_audience_admins");
+    expect(ids["01ABC"]).toBe("binary_sensor.heads_up_audience_kids");
+    expect(buildCall(values({ channels: ["popup"], popup_audience: "admins" }), { audiences: ids }).audience).toBe("binary_sensor.heads_up_audience_admins");
+  });
+
   it("names an audience and a policy by the entity ID of its sensor or switch", () => {
     const ids = { audiences: { "At home": "binary_sensor.heads_up_audience_at_home" }, policies: { Night: "switch.heads_up_policy_night" } };
     const call = buildCall(values({ channels: ["push"], push_audience: "At home", policy: ["Night", "none"] }), ids);

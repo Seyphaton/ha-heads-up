@@ -206,6 +206,7 @@ export function mount(container, ctx) {
   container.append(root);
 
   function render() {
+    ui.lockHeight(root);
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
     const push = el("section", {}, [el("h2", { textContent: t.push })]);

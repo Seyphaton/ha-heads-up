@@ -378,7 +378,7 @@ export function mount(container, ctx) {
       row.append(reset);
     }
     box.append(status, row);
-    if (view.subentry_id) box.append(el("div", { className: "hint", textContent: s.common.yaml }), el("pre", { textContent: ui.toYaml({ person: view.person, enabled: values.enabled !== false, channels: values.channels, devices: values.manual, removed_devices: values.removed, primary: values.primary || null, mail_address: values.mail_address || null }) }));
+    if (view.subentry_id) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ person: view.person, enabled: values.enabled !== false, channels: values.channels, devices: values.manual, removed_devices: values.removed, primary: values.primary || null, mail_address: values.mail_address || null }), s.common));
     return box;
   }
 
@@ -411,7 +411,7 @@ export function mount(container, ctx) {
       if (blocked) box.append(el("div", { className: "hint problems", textContent: fill(s.common.in_use, { names: own.used_by.join(", ") }) }));
     }
     box.append(status, row);
-    if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), el("pre", { textContent: ui.toYaml({ name: own.name, ...own.data }) }));
+    if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ name: own.name, ...own.data }), s.common));
     function paint() {
       const found = validate();
       const codes = Object.values(found);
@@ -426,6 +426,7 @@ export function mount(container, ctx) {
   const validate = () => validateGroup(group.values, data.groups.map((g) => g.name), group.own?.name);
 
   function render() {
+    ui.lockHeight(root);
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS + PEOPLE_CSS }), el("h1", { textContent: t.title }));
     if (profile) return void root.append(profileEditor());
     if (group) return void root.append(groupEditor());

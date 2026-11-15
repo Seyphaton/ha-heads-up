@@ -311,6 +311,7 @@ export function mount(container, ctx) {
   }
 
   function render() {
+    ctx.ui?.lockHeight(root);
     root.replaceChildren(el("style", { textContent: CSS }));
     root.append(el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }));
     // Every block of settings sits under a heading of its own, so a card never looks like it belongs to

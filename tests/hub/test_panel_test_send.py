@@ -387,3 +387,14 @@ async def test_test_send_has_no_wait_for_condition_and_takes_no_mode_or_conditio
     for field in ({"wait_for_condition": False}, {"mode": "recurring"}):
         reply = await ask(client, "hub_plan", **call(**field))
         assert not reply["success"]
+
+
+async def test_a_call_with_only_manual_policies_can_be_previewed_and_sent(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    set_person(hass, "person.anna", "home", user_id="anna-id")
+    client = await hass_ws_client(hass)
+    plan = await ask(client, "hub_plan", **call(match_policies_automatically=False))
+    assert plan["success"], plan
+    sent = await ask(client, "hub_test_send", **call(match_policies_automatically=False))
+    assert sent["success"], sent

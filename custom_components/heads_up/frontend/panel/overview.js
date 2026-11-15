@@ -453,6 +453,7 @@ export function mount(container, ctx) {
   function render() {
     const intro = !played;
     played = true;
+    ctx.ui?.lockHeight(root);
     root.replaceChildren(el("style", { textContent: CSS }), el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }));
     if (data.first_run) {
       const go = el("button", { type: "button", textContent: t.first_run_button });

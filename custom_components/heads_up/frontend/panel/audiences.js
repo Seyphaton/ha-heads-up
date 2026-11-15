@@ -266,7 +266,7 @@ export function mount(container, ctx) {
       const lines = a.enabled === false ? t.off_hint : `${memberLine(a)} · ${usedLine(a)}`;
       builtin.append(
         el("li", { className: a.enabled === false ? "dim" : "" }, [
-          el("div", {}, [el("strong", { textContent: a.name }), ...(tip ? [tip.button] : []), ...(a.enabled === false ? [el("span", { className: "badge", textContent: t.off })] : []), ...(tip ? [tip.note] : []), el("div", { className: "sub", textContent: lines }), ...(a.entity_id ? [el("code", { textContent: a.entity_id })] : [])]),
+          el("div", {}, [el("strong", { textContent: a.name }), ...(tip ? [tip.button] : []), ...(a.enabled === false ? [el("span", { className: "badge", textContent: t.off })] : []), ...(tip ? [tip.note] : []), el("div", { className: "sub", textContent: lines }), ...(a.entity_id ? [el("code", { className: "entity", textContent: a.entity_id })] : [])]),
           el("label", { className: "inline" }, [box2]),
         ]),
       );
@@ -292,7 +292,7 @@ export function mount(container, ctx) {
     const rerender = () => render();
     const box = el("section", {}, [el("h2", { textContent: own ? t.editing : t.new })]);
     // The sensor of the audience: the registered ID, or the one a new audience will get (D-198).
-    const entityLine = el("code", { textContent: own?.entity_id || "…" });
+    const entityLine = el("code", { className: "tpl", textContent: own?.entity_id || "…" });
     let entityTimer = null;
     const showEntity = (name) => {
       if (own) return; // a rename does not change the ID of an existing audience
@@ -348,7 +348,7 @@ export function mount(container, ctx) {
       if (blocked) box.append(el("div", { className: "hint problems", textContent: fill(s.common.in_use, { names: own.used_by.join(", ") }) }));
     }
     box.append(sentence, status, row);
-    if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), el("pre", { textContent: ui.toYaml({ name: own.name, ...own.data }) }));
+    if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ name: own.name, ...own.data }), s.common));
     function paint() {
       const found = validate(values, data.audiences.map((a) => a.name), own?.name);
       sentence.textContent = describe(values, data.choices, t);
@@ -362,6 +362,7 @@ export function mount(container, ctx) {
   }
 
   function render() {
+    ui.lockHeight(root);
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
     if (editing) root.append(editorNode());

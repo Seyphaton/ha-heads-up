@@ -399,7 +399,7 @@ describe("messages functions", () => {
     const t = MESSAGES_STRINGS.en;
     expect(statusLabel({ active: true }, t, S, reasonText)).toBe("active");
     expect(statusLabel({ active: false, reason: "expired" }, t, S, reasonText)).toBe("ended (expired)");
-    expect(statusLabel({ active: false, reason: null }, t, S, reasonText)).toBe("ended (?)");
+    expect(statusLabel({ active: false, reason: null }, t, S, reasonText)).toBe("inactive");
   });
 });
 

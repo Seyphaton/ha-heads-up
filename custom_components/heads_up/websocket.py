@@ -464,6 +464,7 @@ _TEST_CALL: dict[Any, Any] = {
     vol.Optional("severity"): str,
     vol.Optional("tag"): str,
     vol.Optional("policy"): vol.Any(str, [str]),
+    vol.Optional("match_policies_automatically"): bool,
     vol.Optional("to"): {str: dict},
     vol.Optional("audience"): str,
     vol.Optional("recipients"): [str],
