@@ -101,7 +101,7 @@ See [Popups](configuration.md#popup).
 | Setting | Default | Meaning |
 |---|---|---|
 | Spoken text: longest (`speak_max_length`) | 200 characters (20–1000) | Longer texts are cut after the last word that fits. |
-| Spoken text: repeat pause (`speak_cooldown_seconds`) | 60 seconds (0–3600) | The same text is not spoken again on the same speaker within this time. 0: always speak. |
+| Spoken text: repeat pause (`speak_cooldown_seconds`) | 60 seconds (0–3600) | The same text at the same volume is not spoken again on the same speaker within this time. Critical messages and Test send ignore it. 0: always speak. |
 | Text-to-speech engine (`speak_tts_entity`) | automatic | The engine for media players. Automatic: the only text-to-speech entity, if there is exactly one. |
 | Spoken language (`speak_language`) | the Home Assistant language | The language of the speech. |
 

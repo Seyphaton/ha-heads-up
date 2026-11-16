@@ -16,14 +16,13 @@ from homeassistant.exceptions import ServiceValidationError, TemplateError
 from homeassistant.helpers.template import Template
 from homeassistant.util import dt as dt_util
 
-from ..const import CHANNEL_BANNER, DEFAULT_SEVERITY, DOMAIN
+from ..const import CHANNEL_BANNER, DEFAULT_SEVERITY, DOMAIN, TEST_ID_PREFIX
 from ..models import Banner
 from ..services import NOTIFY_SCHEMA, _check_names, banner_people
 from .engine import HubEngine
 
 TEST_TAG = "test"
 TEST_TITLE = "Test"
-TEST_ID_PREFIX = "hu_test_"
 TEST_TIMEOUT_MINUTES = 10
 
 

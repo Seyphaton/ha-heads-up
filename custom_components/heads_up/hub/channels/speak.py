@@ -30,6 +30,7 @@ from ...const import (
     OPT_SPEAK_LANGUAGE,
     OPT_SPEAK_MAX_LENGTH,
     OPT_SPEAK_TTS_ENTITY,
+    TEST_ID_PREFIX,
 )
 from ...models import Banner
 from .base import Capabilities, Outcome, Result, Target
@@ -82,7 +83,9 @@ class SpeakChannel:
         self._manager = manager
         self._warned: dict[str, float] = {}
         self._locks: dict[str, asyncio.Lock] = {}
-        self._spoken: dict[tuple[str, str], Any] = {}  # (speaker, text) to the time it was said
+        self._spoken: dict[
+            tuple[str, str, float | None], Any
+        ] = {}  # (speaker, text, volume) to the time
 
     # Settings ---------------------------------------------------------------------------
 
@@ -112,14 +115,15 @@ class SpeakChannel:
             _LOGGER.debug("Speech on %s skipped: nothing to say", entity)
             return Outcome(Result.SKIPPED, "nothing_to_say")
         async with self._locks.setdefault(entity, asyncio.Lock()):
-            if self._repeated(entity, text):
+            key = (entity, text, message.volume)
+            if self._repeated(key, message):
                 _LOGGER.debug(
                     "Speech on %s skipped: the same text was said within the pause", entity
                 )
                 return Outcome(Result.SKIPPED, "cooldown")
             outcome = await self._speak(entity, state.attributes, text, message.volume)
             if outcome.result is Result.SENT:
-                self._spoken[(entity, text)] = dt_util.utcnow()
+                self._spoken[key] = dt_util.utcnow()
                 await self._wait_until_done(entity, outcome)
             return outcome
 
@@ -133,9 +137,14 @@ class SpeakChannel:
     async def clear(self, message_id: str, target: Target, ref: str | None) -> Outcome:
         return Outcome(Result.SKIPPED, "not_clearable")  # nothing is said when a message ends
 
-    def _repeated(self, entity: str, text: str) -> bool:
+    def _repeated(self, key: tuple[str, str, float | None], message: Banner) -> bool:
+        """The same text on the same speaker at the same volume within the pause. A critical
+        message and a message sent from Test send are never held back: a test repeats text on
+        purpose, and a critical message must not be silenced by another one."""
+        if message.severity == "critical" or message.id.startswith(TEST_ID_PREFIX):
+            return False
         cooldown = int(self._opt(OPT_SPEAK_COOLDOWN))
-        said = self._spoken.get((entity, text))
+        said = self._spoken.get(key)
         now = dt_util.utcnow()
         for key in [k for k, t in self._spoken.items() if now - t > timedelta(hours=1)]:
             del self._spoken[key]

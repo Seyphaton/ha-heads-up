@@ -196,6 +196,7 @@ DEFAULT_POPUP_STYLES: Final[dict[str, str]] = {
 }
 # Speech settings (D-114).
 OPT_SPEAK_MAX_LENGTH: Final = "speak_max_length"  # characters
+TEST_ID_PREFIX: Final = "hu_test_"  # ids of the messages sent from Test send
 OPT_SPEAK_COOLDOWN: Final = "speak_cooldown_seconds"  # 0 for none
 OPT_SPEAK_TTS_ENTITY: Final = "speak_tts_entity"  # empty: the only tts entity
 OPT_SPEAK_LANGUAGE: Final = "speak_language"  # empty: the Home Assistant language

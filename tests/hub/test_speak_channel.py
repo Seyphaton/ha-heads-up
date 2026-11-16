@@ -206,6 +206,27 @@ async def test_the_same_text_is_not_repeated_on_a_speaker_within_the_cooldown(
     assert len(fake_speakers.announce) == 3
 
 
+async def test_critical_messages_and_test_messages_ignore_the_cooldown(
+    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+) -> None:
+    await say(hass, entry, fake_speakers.satellite, id="a", severity="critical")
+    await say(hass, entry, fake_speakers.satellite, id="b", severity="critical")
+    assert len(fake_speakers.announce) == 2
+    await say(hass, entry, fake_speakers.satellite, id="hu_test_1", message="Test text")
+    await say(hass, entry, fake_speakers.satellite, id="hu_test_2", message="Test text")
+    assert len(fake_speakers.announce) == 4
+
+
+async def test_the_same_text_at_another_volume_is_spoken_again(
+    hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
+) -> None:
+    await say(hass, entry, fake_speakers.plain_player, id="a", volume=0.3)
+    await say(hass, entry, fake_speakers.plain_player, id="b", volume=0.3)
+    assert len(fake_speakers.play_media) == 1
+    await say(hass, entry, fake_speakers.plain_player, id="c", volume=0.6)
+    assert len(fake_speakers.play_media) == 2
+
+
 async def test_a_cooldown_of_zero_speaks_every_time(
     hass: HomeAssistant, entry: MockConfigEntry, fake_speakers: FakeSpeakers
 ) -> None:

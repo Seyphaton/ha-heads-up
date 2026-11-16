@@ -8,7 +8,8 @@ export const STRINGS = {
     f_title: "Title (optional)",
     f_message: "Message",
     f_tts: "Spoken text (optional, speech only)",
-    f_volume: "Volume in % (optional, speech only; media players)",
+    f_volume: "Volume (optional, speech only; media players)",
+    volume_unchanged: "Leave as it is",
     f_mail_subject: "Mail subject (optional, mail only)",
     f_mail_body: "Mail text (optional, mail only)",
     call: "The call",
@@ -100,7 +101,8 @@ export const STRINGS = {
     f_title: "Titel (optional)",
     f_message: "Meldung",
     f_tts: "Gesprochener Text (optional, nur Sprache)",
-    f_volume: "Lautstärke in % (optional, nur Sprache; Mediaplayer)",
+    f_volume: "Lautstärke (optional, nur Sprache; Mediaplayer)",
+    volume_unchanged: "Unverändert lassen",
     f_mail_subject: "Mail-Betreff (optional, nur Mail)",
     f_mail_body: "Mail-Text (optional, nur Mail)",
     call: "Der Aufruf",
@@ -192,7 +194,8 @@ export const STRINGS = {
     f_title: "Titre (facultatif)",
     f_message: "Message",
     f_tts: "Texte parlé (facultatif, voix seulement)",
-    f_volume: "Volume en % (facultatif, voix seulement ; lecteurs multimédia)",
+    f_volume: "Volume (facultatif, voix seulement ; lecteurs multimédia)",
+    volume_unchanged: "Laisser tel quel",
     f_mail_subject: "Objet du mail (facultatif, mail seulement)",
     f_mail_body: "Texte du mail (facultatif, mail seulement)",
     call: "L'appel",
@@ -284,7 +287,8 @@ export const STRINGS = {
     f_title: "Título (opcional)",
     f_message: "Mensaje",
     f_tts: "Texto hablado (opcional, solo voz)",
-    f_volume: "Volumen en % (opcional, solo voz; reproductores multimedia)",
+    f_volume: "Volumen (opcional, solo voz; reproductores multimedia)",
+    volume_unchanged: "Dejar como está",
     f_mail_subject: "Asunto del correo (opcional, solo correo)",
     f_mail_body: "Texto del correo (opcional, solo correo)",
     call: "La llamada",
@@ -391,6 +395,8 @@ export function audienceIds(data) {
   for (const choice of data?.choices?.audience_choices || []) if (byName[choice.name]) ids[choice.id] = byName[choice.name];
   return ids;
 }
+
+const VOLUME_STEPS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
 // The `notify` call the values describe: only what is set, targets only for the chosen channels.
 export function buildCall(values, ids = {}) {
@@ -585,8 +591,8 @@ export function mount(container, ctx) {
     const content = el("section", {}, [el("h2", { textContent: t.content })]);
     content.append(ui.field(t.f_title, ui.textInput(values.title, (v) => { values.title = v; change(); })));
     content.append(ui.field(t.f_message, ui.textInput(values.message, (v) => { values.message = v; change(); }, { style: "max-width:100%" })));
-    if (values.channels.includes("speak")) content.append(ui.field(t.f_volume, ui.textInput(values.volume || "", (v) => { values.volume = v; change(); }, { style: "max-width:100%" })));
     if (values.channels.includes("speak")) content.append(ui.field(t.f_tts, ui.textInput(values.tts_message, (v) => { values.tts_message = v; change(); }, { style: "max-width:100%" })));
+    if (values.channels.includes("speak")) content.append(ui.field(t.f_volume, ui.selectInput([{ value: "", label: t.volume_unchanged }, ...VOLUME_STEPS.map((n) => ({ value: String(n), label: `${n} %` }))], String(values.volume || ""), (v) => { values.volume = v; change(); })));
 
     if (values.channels.includes("mail")) {
       content.append(ui.field(t.f_mail_subject, ui.textInput(values.mail_subject, (v) => { values.mail_subject = v; change(); }, { style: "max-width:100%" })));
