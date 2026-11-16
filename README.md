@@ -9,6 +9,10 @@ The channel it adds to Home Assistant is the banner. A banner sits in a dashboar
 
 ![Your automation makes one call, and Heads Up delivers it by the channels, audiences and policies you set: where the message shows up (banner, push, popup, speech, mail, Persistent Notification), who gets it (everyone, admins, whoever is home, the last one to leave, one person) and when (quiet at night, repeat until acknowledged, escalate, evening summary, send on arrival).](https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/where-who-when.svg)
 
+<p><img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/card-banners.png" width="300" alt="The Heads Up card with four banners: a critical Water leak and a warning Garage door open, each with an Acknowledge link, an info and a success banner"> <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/push-critical.png" width="420" alt="An iPhone push for the critical message Water leak, expanded to show its buttons Mute alarm and Dismiss"></p>
+
+One `heads_up.notify` call, on the dashboard card and on a phone.
+
 ## What it takes out of your automations
 
 ### Channels
@@ -33,22 +37,20 @@ Acknowledging a message on a phone, the card or a popup stops its escalations an
 
 When something did not arrive, the Message Log tells you why. It lists each channel with the people and phones it reached and a reason for every skipped delivery, such as "push to Anna skipped: quiet hours".
 
-<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/panel-message-log.png" width="414" alt="The Message Log trace of a warning: the Persistent Notification and the banner were sent, the push to Anna and Ben was skipped because they have no usable device">
-
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/message-log-trace.png" width="420" alt="The Message Log trace of a critical message: the Persistent Notification, the popup and the banner were sent, the push was skipped because there is no usable device, and a reminder policy is waiting">
 
 ## Get started in the UI
 
 1. In HACS, search for "Heads Up", click Download and restart Home Assistant. It needs Home Assistant 2026.9.0 or newer. Make a backup first.
 2. Go to Settings > Devices & services > Add integration > Heads Up. Leave "Show Heads Up in the sidebar" on: it adds the panel, visible to administrators.
 3. Open Heads Up in the sidebar. A four-step introduction shows what it found in your Home Assistant and offers four default policies: critical messages pushed at once to the administrators, warnings repeated every 30 minutes up to three times, an evening summary and quiet hours at night. Not now creates nothing.
-4. Open Notifications and rules > Test send. Pick channels and an audience, and the table shows who would get the message on which channel, or why not. Send test sends one real message, which ends by itself after 10 minutes.
 
-   <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/panel-test-send.png" width="480" alt="Test send preview: the banner would be sent to everyone, the push to Anna and Ben skipped for lack of a device, and a reminder policy applies until someone acknowledges">
+   <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/overview-active.png" width="480" alt="The Heads Up Overview: four active messages, a chart of the last 24 hours, and Acknowledge and Clear buttons on each message">
+
+4. Open Notifications and rules > Test send. Pick channels and an audience, and the table shows who would get the message on which channel, or why not. Send test sends one real message, which ends by itself after 10 minutes.
 
 5. Add the card to a dashboard of your own (the built-in Overview cannot be edited): Edit, Add card, then search for Heads Up.
 6. In an automation, add the action Heads Up: Notify and fill in the form. For a banner that shows while an entity is in a state, with no automation at all, add a watch rule under Notifications and rules > Watch rules.
-
-<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/card-default.png" width="420" alt="The card with four banners: critical, warning, info and success">
 
 ## The same in YAML
 
