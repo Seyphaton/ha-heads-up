@@ -4,7 +4,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
-## [1.0.0]
+## [1.0.0] - 2026-11-16
 
 Heads Up turns from a dashboard banner into a notification hub. One `heads_up.notify` call delivers a message on up to six channels, to audiences that follow who is home, with policies for escalation, reminders, quiet hours and summaries. Banners, the card and watch rules from 0.4.0 keep working.
 
