@@ -1,277 +1,73 @@
 # Changelog
 
-All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions: [SemVer](https://semver.org/).
+All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions: [SemVer](https://semver.org/). Only releases are listed; the 1.0.0 pre-releases are summarized under 1.0.0.
 
 ## [Unreleased]
 
-## [1.0.0-beta.2] - 2026-11-16
+## [1.0.0]
+
+Heads Up turns from a dashboard banner into a notification hub. One `heads_up.notify` call delivers a message on up to six channels, to audiences that follow who is home, with policies for escalation, reminders, quiet hours and summaries. Banners, the card and watch rules from 0.4.0 keep working.
+
+### Before you upgrade
+
+Read these if you have automations that use 0.4.0. Make a backup first; [Upgrading](docs/setup.md#upgrading) has the steps.
+
+- `wait_for_condition` and the response status `condition_false` are removed from `heads_up.create_banner`. A call that still sends the field works, Heads Up ignores it and shows a notice under Settings > System > Repairs. A banner whose condition is false now always waits. To send only when the condition is true at the time of the call, add a condition to the automation before the action.
+- `mode: recurring` without a `condition` is refused. Before, `mode` was ignored without a condition.
+- `heads_up.clear_banner` and `heads_up.clear_all` are deprecated. They keep working and write one warning to the log per start. Use `heads_up.clear_notifications`; `clear_all` already removes every message on every channel, not only banners.
+- The card shows "Snoozed (n)" with a Show now button to anyone who snoozed a banner. Set `show_snoozed: false` for the 0.4.0 look.
+- A press on a banner's own button is refused once the banner was dismissed or its condition turned false. The setting "Disable message buttons once the message has ended" turns this off.
+- The sidebar panel stays off on an existing installation. Switch on "Show Heads Up in the sidebar" under Settings > Devices & services > Heads Up > Configure.
+- The stored data is converted on the first start and a backup is written to `.storage/heads_up.migration_v2`. 0.4.0 refuses the converted data; to go back, follow [Upgrading](docs/setup.md#upgrading).
+
+### Added
+
+- `heads_up.notify`: one message on several channels, with `recipients`, `audience` and `speakers` for all of them. `severity` is required. Calling it again with the same `id` replaces the message on every channel. `dry_run: true` returns who would get it and why, and sends nothing.
+- Channels next to the banner: push to the Companion app, a popup over any dashboard, speech on media players and Assist satellites, mail through a notify service you choose, and Home Assistant's Persistent Notification. The shortcuts `heads_up.push`, `heads_up.popup` and `heads_up.speak` send on one channel.
+- Push: one notification per message that is replaced on update and removed when the message ends, a level per severity (critical is the iOS critical alert and the Android alarm channel), and Acknowledge, Snooze, Dismiss and the message's own buttons. Pushes are rate limited per phone and in total; critical messages are never held back.
+- `heads_up.clear_notifications` takes messages back from every channel by `id`, `tag`, `severity` or `channels`, or all of them with `all: true`. Speech and mail cannot be taken back.
+- Audiences: Everyone, Admins, At home, Not home, Last to leave and First home, plus your own lists of persons or presence, including in a zone. Each audience is a sensor, and a call names it by its entity ID.
+- Recipient profiles: every person's Companion devices are found through their trackers. A profile adds or removes a device, limits the channels, holds the mail address or switches the person off.
+- Speaker groups of speakers, satellites and areas, each with a sensor that a call names.
+- Policies, set once and matched by severity and tag or named in a call: Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize. Each is a switch. Due times and held deliveries survive a restart. By default only the first matching policy in the ordered list runs.
+- Acknowledgement: an Acknowledge button on the card, the popup and the push stops every escalation and reminder of the message, and the card shows "Acknowledged by Anna".
+- The sidebar panel, for administrators: Overview with Needs attention, the Message Log with each message's delivery trace and the reason for every skipped delivery, Test send with a live preview and one real send, Watch rules, editors for audiences, recipients, policies and channels, Settings, and Help pages with examples. A four-step introduction offers four default policies.
+- `image` on messages and watch rules: a picture under the message on the card, in the popup and on the push.
+- Buttons can be `destructive` (red) and `require_auth` (a push button that works only on an unlocked phone).
+- Conditions take `treat_unavailable_as` (`met` or `not_met`) for an entity that is unavailable or unknown.
+- `heads_up.create_banner` takes `audience` and `recipients` like `notify`; `people` keeps working.
+- `heads_up.get_trace` returns the delivery trace to an automation. The event `heads_up_delivery_failed` fires when a send failed or a channel reached nobody.
+- Download diagnostics from the integration page, without mail addresses and message texts.
+- Renaming a policy, audience or speaker group changes nothing that runs. When you change the entity ID of a person, speaker, zone or watched entity, Heads Up updates its own copies.
 
 ### Changed
-- Test send: Volume is a list from 10 to 100 percent, with "Leave as it is" as the default, instead of a text box.
+
+- The integration options (Configure) are grouped in sections and hold the same entries as the panel's Settings page.
+- The event `heads_up_banner_action` carries `person` and `channel`.
+- An invalid call is explained in a sentence, for example "The field message is required.", and a close misspelling of a name gets "Did you mean ...?".
 
 ### Fixed
-- Speech repeat pause: Test send and critical messages are no longer skipped as "said a moment ago", the same text at another volume is spoken again, and the reason now points to the setting.
 
-## [1.0.0-beta.1] - 2026-11-15
-
-### Added
-- Speech: `heads_up.notify` and `heads_up.speak` take an optional `volume` from 0 to 1, set on a media player before it speaks. The volume is not restored afterwards. Test send has a Volume field.
-- Speech: Overview > Needs attention warns when a speaker group has a media player and no text-to-speech engine works (none set up, several without a choice, or the chosen one is gone). The Welcome asks for the engine when Home Assistant has more than one.
-
-### Fixed
-- Overview > Needs attention: a message or watch rule that names a deleted policy no longer shows the policy's internal ID. A message says it ends by itself and no policy runs for it; a watch rule says to edit it and choose another policy.
-- Message Log details: an escalation or reminder entry names its policy ("Escalation Water sent") instead of the bare word "sent: escalated", and a dismissal, snooze or acknowledgement names the person who did it.
-- Message Log details and Test send: a failed speech, service or speaker entry (`no_tts_engine`, `send_failed`, `service_not_found`, `entity_missing`) now says what to do next, for example to choose an engine in Settings > Speech.
-
-## [1.0.0-alpha.10] - 2026-11-15
-
-### Added
-- Every YAML text in the panel has a Copy button: the stored YAML of an audience, recipient, policy and watch rule, the manual-policy line, and the rendered call of a pasted call in Test send (the call itself already had one). If the browser refuses the clipboard, the button says so.
-
-### Fixed
-- On a phone the panel jumped to the top when you ticked a channel in Test send or changed other options that redraw a page. The page now keeps its height while it redraws, so the scroll position stays.
-- Lists in the panel's editors on a phone: a long entity ID or template no longer pushes the checkbox or the Edit button out of view. On the Audiences page the entity ID is small secondary text under the name.
-- Test send showed "Audience \"admins\" is given by its entity ID" for every audience chosen from the list, in the preview, the YAML and Send test. The call now names the audience's sensor.
-- Test send showed "The preview is not available" and could not send when "Match policies automatically" was switched off. The panel's call is now accepted.
-- The Message Log said "ended (?)" for a watch rule whose condition is false. It now says "inactive".
-
-## [1.0.0-alpha.9] - 2026-11-12
-
-### Changed
-- Breaking, for the 1.0.0 release: a call names an audience and a policy only by the entity ID of its sensor or switch (`audience: binary_sensor.heads_up_audience_at_home`, `policy: switch.heads_up_policy_night`). A text name such as `At home` or `Night` is refused with an error that gives the ID to use. This applies to `notify`, `push`, `popup`, `create_banner` and Test send. The keywords `none` and `automatic` stay. `Global address` is still written as text. A speaker group is named by the entity ID of its sensor, and an area by its area ID; a name as text is refused.
-- Breaking, for the 1.0.0 release: the stored data has version 2 (config entry, banners, deliveries, trace). The first start converts it once; an older release refuses it. A timer that ended because its policy was disabled now says `policy_disabled` and one whose policy was deleted says `policy_deleted`.
-
-### Added
-- The Message Log opens a message's delivery trace in a window (a bottom sheet on a phone). Rows show an arrow and a hint that they open. Entries are grouped by channel and result, and phones and people show their names instead of ids.
-- The Overview list has two buttons per message: Acknowledge, and Clear, which takes the message back from every channel after a confirmation. An administrator can acknowledge a message that is not addressed to them.
-- Deleting an audience or speaker group that a policy still uses, on Home Assistant's own Devices & services page, raises a Repairs notice that names the policy and what to do. The panel already refused such a delete.
-- Renaming is safe. Policies, audiences and speaker groups are stored by an ID, so renaming one keeps the watch rules, policy targets, running messages, escalations, reminders and held summaries that use it. Nothing is lost on a rename that only changes the case, and a deleted policy no longer passes its timers to a new one with the same name. A property test renames everything in random order while timers run.
-- Every speaker group has a sensor (`sensor.heads_up_group_<name>`). The speakers field of the action offers it, and the group editor shows its ID.
-- When you change the entity ID of a person, speaker, zone or watched entity in Home Assistant, Heads Up changes its own copies of it and writes a line to the trace.
-- Needs attention lists a rule or stored message whose policy was deleted, and a mail service that is not registered.
-- The watch rule form offers the policy as a dropdown: Automatic, None or a policy.
-- `scripts/restore_identity_backup.py` restores the data from before the conversion to IDs; the first start after the update writes the backup to `.storage/heads_up.migration_v2`.
-- The audience editor shows the entity ID of the audience's sensor, like the policy editor does for the switch. A new audience shows the ID it will get.
-- Policy editor: shows the entity ID of the policy's switch, and the ID a new policy will get. Naming a policy in a call by this ID keeps working after a rename; the docs say what a rename changes.
-
-### Fixed
-- The Message Log named a switched-off person as "presence unknown" in an audience such as At home. It now says the recipient is disabled.
-
-## [1.0.0-alpha.8] - 2026-11-09
-
-### Added
-- `heads_up.notify` takes `mail_subject` and `mail_body`: the subject and body of the mail for that one message, instead of the templates on the Channels page. Both use the same placeholders, and `{person}` is the recipient, so each person gets their own subject. Test send has both fields.
-- Mail placeholder `{person_id}`: the part of the person's entity ID after `person.`, for example `philip`. Use it as the subject when a mail rule needs a fixed name that does not depend on the friendly name.
-- `heads_up.notify` with `dry_run: true` returns the plan and sends nothing: for each channel and recipient whether it would be sent, held or skipped, why, the mail address and the push level.
-- Test send: Test a pasted call. Paste an action step or its data with templates, give sample values such as a `trigger`, and see the rendered call and the plan; Send test sends it as a test message.
-- `heads_up.get_trace` returns the delivery trace to an automation. The trace is stored and survives a restart.
-- Download diagnostics for the integration (options, policies, rules, audiences, recipients, trace, recent messages) without mail addresses and message texts.
-- The policy switches show what the policy does in their attributes: type, severities, tags, times, channels and their place in the list.
-- Buttons: `destructive` (red text on the banner, the popup and an iPhone push) and `require_auth` (a push button works only on an unlocked phone). They work in the action and in a watch rule.
-- The event `heads_up_banner_action` has `person` (the person entity of the user) and `channel` (`banner`, `popup` or `push`).
-- Conditions: `treat_unavailable_as` (`met` or `not_met`) says what an unavailable or unknown entity counts as, so a "not online" banner shows when the device is gone.
-- `heads_up.create_banner` takes `audience` and `recipients`, like `notify`; `people` keeps working. The recipients fields of `push`, `popup` and `speak` show a picker for persons or speakers in the action form.
-- Away policy: Critical messages pass (on by default). A critical message goes to people who are away at once; switch it off to hold critical messages for the arrival too.
-
-### Changed
-- `heads_up.notify` needs a `severity`; it has no default any more. `push`, `popup` and `speak` still default to `info`.
-- `wait_for_condition` is accepted again and ignored. A call that sends it no longer fails; Heads Up raises a repair notice that names the migration. A message whose condition is false waits.
-
-### Fixed
-- Panel: a long policy name no longer pushes the buttons out of the policy list on a narrow screen.
-
-## [1.0.0-alpha.7] - 2026-11-06
-
-### Added
-- Every audience is a sensor (`binary_sensor.heads_up_audience_at_home`, on while someone is in it) and every policy is a switch (`switch.heads_up_policy_...`, the policy's enabled setting). The action form lists them as dropdowns for `audience` and `policy`; a call may name the entity or, in YAML, the name.
-- `heads_up.notify` takes `recipients`, `audience` and `speakers`: the same people for every channel at once (banner, push, popup, mail), and speakers for speech. `to` is no longer in the action form or the docs; the action still accepts it.
-- `match_policies_automatically` (default on). Off, only the manual policies in `policy` apply, and none without one.
-- Panel: Test send writes the short call (shared recipients, `dismiss`, `snooze`, manual policies) and has the same policy switch.
-
-### Changed
-- `heads_up.notify`: `dismiss` and `snooze` (`off`, `user` or `everyone`, named "Dismiss for" and "Snooze for") replace `dismissible`, `dismiss_scope`, `snoozable` and `snooze_scope`. `create_banner` and watch rules keep the old fields.
-- `heads_up.notify`: the policies named in `policy` are manual policies and apply next to the automatic ones that match. In alpha.6 a named policy replaced the automatic ones; `policy: none` still means no policy.
-- `heads_up.notify`, `push`, `popup` and `speak` default to severity `info` (a push of severity `info` is passive). `create_banner` and watch rules keep `warning`.
-- The mode field is "Show once" or "Recurring". A watch rule is always recurring.
-- The action form lists the fields by purpose, with the policy right after the channels, and `audience` is checked by default. The texts of severity, icon, ID, dismiss and snooze say what they do; boolean fields say that an unchecked field uses the default.
-
-### Removed
-- Breaking, for the 1.0.0 release: the field `wait_for_condition` is removed from `heads_up.create_banner` and `heads_up.notify`, and the response status `condition_false` is gone. A message or banner whose condition is false when you call the action now always waits. To send only when the condition is true now, check it in the automation before the action.
-- Breaking, for the 1.0.0 release: `mode: recurring` without a `condition` is refused in `heads_up.create_banner` and `heads_up.notify`. Until now `mode` was ignored without a condition.
-
-## [1.0.0-alpha.6] - 2026-11-05
-
-### Added
-- Action `heads_up.clear_notifications` takes messages back from every channel, selected by `id`, `tag`, `severity` or `channels`; `all: true` removes every message. A call with no field is refused.
-
-### Changed
-- The response of `heads_up.notify` and the shortcuts has `reasons`: for every held or skipped delivery the channel, recipient, result and reason. An update of a message counts speech and mail the recipient already got as skipped.
-- Audience, speaker group, recipient and policy names in a call ignore case, and an unknown name close to a valid one fails with "Did you mean ...?".
-- An invalid call is explained in a sentence, for example "The field message is required." instead of the raw schema text.
-- The card option `show_snoozed` is on by default: a viewer with snoozed banners sees "Snoozed (n)" with Show now. Set `show_snoozed: false` for the old look.
-- Buttons on a banner name the banner for screen readers ("Dismiss: Garage door open").
-- Panel: Test send lists the banner after Send test; the Message Log words a Deliver policy as "Delivery"; on a phone the groups wrap and each trace row stacks; dark-mode controls and form spacing are clearer.
-- Documentation is in five documents (Setup guide, Actions with watch rules and card, Configuration, Settings, Examples and FAQ) and a shorter README. The earlier pages are merged into them; the README no longer lists defaults.
-- Push level critical is an alarm on Android too: it uses the alarm channel (sounds in vibrate and silent mode) with `priority: high` and `ttl: 0`; time-sensitive messages on Android are delivered at once as well. The level is called Critical (alarm). When a push has more buttons than the phone shows, Acknowledge and Dismiss are kept before the message's own buttons and Snooze goes first.
-
-### Deprecated
-- `heads_up.clear_banner` and `heads_up.clear_all` still work and write one warning to the log per Home Assistant start. `clear_all` removes every stored message on every channel, not only banners; the action text and the docs now say so.
-
-### Removed
-- `heads_up.clear`, which existed only in the 1.0.0 pre-releases. Use `heads_up.clear_notifications`.
-
-### Fixed
-- Action and setup texts in Home Assistant: the setup dialog names `heads_up.notify` instead of `create_banner`; the fields of `notify`, `push`, `popup` and `speak` say "message" where they said "banner"; `image` accepts `http://` as well as `https://`; the `notify` channel list names `mail`; the snoozable text says the call fails together with dismissible off. German, French and Spanish follow.
-- A watch rule that names people no longer shows its banner to a person whose recipient profile is switched off; if all named people are off, nobody sees it.
-- A signed-in user can no longer dismiss, snooze or unsnooze a banner that is addressed to other people. The commands answer `not_targeted`; `heads_up/dismiss_many` counts such banners as skipped.
-
-## [1.0.0-alpha.5] - 2026-11-04
-
-1.0.0-alpha.3 and 1.0.0-alpha.4 were tagged on the way and have no notes of their own; their changes are listed here.
-
-### Added
-- Recipients: a profile has a Receives notifications switch. Off, the person gets nothing on any channel: not in an audience, not when named in a call, not for critical messages. Banners without a target stay visible on their dashboard.
-- Panel: the FAQ page is now the Help group with three pills: FAQ, Notify examples and Card examples (six `custom:heads-up-card` configurations with a Copy button). Each Help page has a link to the GitHub issues page next to its intro line.
-- Needs attention warns about sends that failed in the last 24 hours, per channel and reason.
-- Built-in audiences have a checkbox to switch them off; a presence audience can be limited to chosen persons (for example At home for one person).
-- Test send shows what happened after Send test: the real delivery results with their reasons.
-- FAQ: how to set up mail (SMTP): why it does not work out of the box and what it needs.
-- Overview: a chart of the messages created in the last 24 hours, one bar per hour stacked by severity, in the Active notifications card.
-- Test send: a Behaviour section for dismissible, dismiss scope and snoozable, and a line that says whether any policy makes acknowledging matter.
-- Overview: shortcut cards for Watch rules, Channels, Audiences and Policies that open their pages, an explanation under Active notifications, and a Hide button on each warning of Needs attention (Show again restores them).
-- Panel: the Watch rules page lists every rule with its state and adds, edits and deletes rules in a form with sections (When, What to show, Who sees it, Behaviour). Buttons and the tap action stay as they are; change them in the rule form on the integration page.
-
-### Changed
-- By default only the first matching policy runs. An installation with several policies on one message now runs only the first one in the list; choose Every policy that applies runs on the Policies page to keep the earlier behaviour. Policies without a stored order start as Summarize, Quiet hours, Away, Escalation, Reminder, Fallback, Deliver, each type by name.
-- The hub is always on. The option Hub enabled is removed from the integration options and the panel's Settings page; a stored value is ignored. The sidebar switch explains what you cannot use without the panel: Test send, the Message Log, the Overview, the welcome, the Channels settings and the Help pages.
-- The panel page Messages is called Message Log. The Watch rules page and the FAQ explain that rules are stored in Heads Up and that an automation with a condition does the same.
-- The Channels names in the FAQ and the panel read Persistent Notification instead of Persistent HASS Notification.
-
-- Maximum number of stored messages and Evict are in the Limits section, next to the rate limits, and the texts say they count messages on every channel.
-- Policies: the editor has Enabled at the top, a short text for the chosen type and two blocks under headings, Which messages and What it does. A policy can be automatic (severity and tag, as before) or manual (only when a call or a watch rule names it). The Watch rules form has a Policy field.
-- Policies: the setting How policies interact, at the top of the Policies page and as the first question of the policies step of the introduction. The default is Only the first policy that applies runs: the policy list is in order, you drag a policy or use the arrows, and a message gets the first matching policy. The other value, Every policy that applies runs, is how policies worked before. The introduction offers four policies that do not overlap under the first value (Critical delivery, Warning reminders, Evening summary for info and success tagged digest, Night quiet for the rest). The editor lists policies that overlap.
-- Every block of the panel's Settings page has a heading of its own (Introduction, Sidebar panel, Messages, Presence, Speech, Limits, History, Identity, People and devices), so a card no longer looks like part of the heading above it.
-- The Messages settings are grouped in clusters: Dismiss settings, Snooze settings, and under snooze one card for the banner and one for push and popup. Each card says which channels it applies to, and the snooze scope names them.
-- Snooze has a separate setting for the push and the popup: Snooze time on push and popup (15 minutes by default). The snooze choices of a message are now only for the banner; before, the push and the popup used the first choice.
-- The Settings section Banners is called Messages: its options (dismiss scope, timeout, snooze, ended buttons) apply to the banner, the push and the popup of a message, and the texts now say so.
-- The button Show the welcome is Restart introduction, and the welcome is called the introduction in the panel.
-- Longer explanations (FAQ answers, the Watch rules text, the sidebar text) have paragraphs and bullet lists.
-
-### Fixed
-- Speech logs a warning when no text-to-speech engine is chosen (naming the engines found) and when the speaker is missing; before these failures were visible only in the trace.
-- The built-in audiences no longer show their name twice on the Audiences page.
-- Needs attention no longer reports a missing device for a person whose profile does not accept push.
-
-## [1.0.0-alpha.2] - 2026-11-03
-
-### Added
-- Welcome tour: four steps (what Heads Up does, channels, recipients, policies) with the numbers found in your Home Assistant, links to the pages and a bar to continue after a visit. The four default policies are on the last step.
-- Question marks next to the built-in audiences on the Audiences page explain who each one is.
-
-### Changed
-- The Add buttons on the integration page are ordered audience, recipient group, recipient profile, policy, watch rule (before: watch rule first).
-- The channel formerly called Bell is named Persistent Notification in the panel.
-- `to.banner.audience` limits the banner to the persons the audience has when the call is made. Before, the audience was accepted and ignored, so the banner went to everyone.
-- The audience `Admins` no longer lists a person without a Home Assistant user as skipped.
-
-### Fixed
-- Test send: the Recipients option next to Audience can be chosen, and the preview shows who a banner is for and which device each push goes to.
-
-## [1.0.0-alpha.1] - 2026-11-03
-
-### Added
-- Mail channel: `channels: [mail]` calls a notify service you choose once per recipient, with a subject and a body made from two templates (`{severity}`, `{title}`, `{message}`, `{person}`, `{id}`, `{tag}`). A person has a mail address and Mail switched on in their profile; a shared Global address can be named as a recipient. Settings are on the Channels page.
-- Event `heads_up_delivery_failed`: fired once per channel and delivery step when a send failed or a message reached nobody on that channel. It carries `id`, `tag`, `channel`, `origin`, `reached` and the failed recipients with a reason.
-- Images: the field `image` (an http(s) URL or a path such as `/media/local/door.jpg`) on `create_banner`, `notify`, `push` and `popup`, and an Image field in the watch rule form. The picture shows under the message on the card (not in the compact layout) and in the popup, and goes to the phone as `data.image`. A push leaves it out when the lock screen setting is not `full`.
-- Notification hub: the actions `heads_up.notify`, `heads_up.push`, `heads_up.popup`, `heads_up.speak` and `heads_up.clear`. `notify` takes a list of channels and a target per channel. The option `hub_enabled` (on by default) switches the hub off; with it off, `notify` accepts only `channels: [banner]` and no hub listener, task or store exists. The option `install_token` is generated once. See [Notification hub](docs/setup.md).
-- Delivery ledger in `.storage/heads_up.deliveries`, a trace of delivery decisions (admin WebSocket command `heads_up/hub_trace`) and optional banner fields `channels`, `targets`, `policy`, `tts_message`, `acknowledged_by` and `source`. Banners saved by an older version load unchanged. After using `notify`, a downgrade needs the banners cleared.
-- Push channel: Companion app notifications through `notify.mobile_app_<device>`, one tag per message so devices replace instead of stacking, a level per severity, buttons (the message's own, Snooze, Dismiss, Acknowledge) and clearing when the message ends. Options `push_levels`, `push_lockscreen`, `push_channel_id`, `push_sticky`. Manifest: `after_dependencies` `mobile_app` and `notify`. See [Push notifications](docs/configuration.md#push).
-- Popup channel: a corner card for success, info and warning and a centered window for critical, over any dashboard, one at a time, with the message's buttons, Acknowledge, Snooze and Dismiss. A script under 1 KB is added to every page and loads the popup code only when a popup is due. Option `popup_styles`; WebSocket commands `heads_up/popup_config` and `heads_up/popup_subscribe`. See [Popups](docs/configuration.md#popup).
-- Speak channel: a message said on media players and Assist satellites through `assist_satellite.announce`, `tts.speak` or plain playback. Groups and areas expand to their speakers. Options for the longest text (200 characters), the repeat pause (60 seconds) and the text-to-speech engine. Manifest: `after_dependencies` `assist_satellite`, `media_player` and `tts`. See [Speech](docs/configuration.md#speech).
-- Notification bell channel: `channels: [persistent]` mirrors a message to Home Assistant's notification bell with the id `hu_<message id>`, replaces it on update and dismisses it when the message ends. After a restart, the entries of active messages come back. See [Persistent notifications](docs/configuration.md#persistent-notification).
-- Audiences, recipient groups and recipient profiles: built-in audiences `Everyone`, `Admins`, `At home`, `Not home`, `Last to leave`, `First home`; custom audiences of persons or presence (including in a zone); recipient groups of speakers, satellites and areas; profiles derived from each person's Companion devices. Option Presence delay (60 seconds). Admin command `heads_up/hub_preview_audience`. See [Audiences and recipients](docs/configuration.md#audiences).
-- Policies: Escalation, Reminder, Quiet hours, Away, Fallback, Summarize and Deliver, each a new entry type with a form, matched by severity and tag (watch rule messages have the tag `rule`) or named in the `policy` field of `notify`. Due times and held deliveries survive a restart. Admin command `heads_up/hub_usage`. See [Policies](docs/configuration.md#policies).
-- Acknowledgement: the command `heads_up/acknowledge`, an Acknowledge button on banners, popups and pushes that an escalation or reminder policy covers, and the line "Acknowledged by Anna" (or "and 2 others") on the card. New card option `show_acknowledged` (on by default) and the banner fields `acknowledged`, `acknowledged_by`, `acknowledged_count` and `can_acknowledge`. See [Card](docs/actions.md#the-card).
-- Rate limits for pushes: 5 per device per minute and 60 in total are skipped (`rate_limited` in the trace), and an update with the same content within 30 seconds is ignored (`duplicate`). Critical messages are never held back. The three numbers are settings.
-- Panel: a Heads Up entry in the sidebar for administrators (option `show_panel`; the setup flow asks, existing installations keep it off). It has the Overview, Messages with the delivery trace of each message, editors for audiences, recipients, policies and channels, Test send with a live preview and one real send, Settings, a welcome that creates four default policies, and a FAQ and examples page in English, German, French and Spanish. Admin WebSocket commands `heads_up/settings_get`, `settings_set`, `settings_apply_preset`, `welcome_get`, `welcome_apply`, `hub_plan`, `hub_test_send`, `panel_config`, `channels_set`, `panel_overview`, `panel_messages` and `panel_trace`. See [Panel](docs/setup.md#the-panel).
-
-### Changed
-- Speech accepts any Home Assistant area by ID or name in `recipients`; before, an area needed a recipient group. An area or group with no speaker, and a missing speaker, leave an entry in the notification bell that names the area, group or speaker.
-- A press on a message's own button is refused with `message_ended` once the message was dismissed, acknowledged or its condition turned false. Before, it was accepted until the message was removed. The option "Disable message buttons once the message has ended" (Banners, on by default) turns the check off.
-- The options screen (Configure) and the panel's Settings page hold the same entries in the same order and wording: Hub, Banners, Presence, Speech, Limits and History. The options screen is grouped in sections, shows the install token and gained the limits and the history sizes; the panel gained the banner defaults, the presence delay and the speech settings.
+- A signed-in user can no longer dismiss, snooze or unsnooze a banner addressed to other people (`not_targeted`).
 
 ## [0.4.0] - 2026-10-27
 
-### Added
-- Watch rules got the features that actions have: Buttons and Tap action (YAML fields in the rule form, same format as `actions` and `tap_action`), Dismiss scope (per user or everyone) and a Template in place of an entity. A rule without a dismiss scope stays per user.
-- German, French and Spanish: the integration's screens and the card follow your Home Assistant language. Other languages show English. The texts are not reviewed by native speakers.
-- Snooze: `snoozable`, `snooze_scope` and `snooze_options` in `heads_up.create_banner`, and a Snoozable option in the watch rule form. The card shows a snooze button; with `swipe_to_dismiss`, a right swipe opens the choices. New options `default_snoozable`, `default_snooze_scope`, `default_snooze_options`. New event `heads_up_banner_snoozed`.
-- End a snooze early: card option `show_snoozed` lists your snoozed banners with a Show now button. New WebSocket command `heads_up/unsnooze`, option `show_snoozed` for `heads_up/subscribe`, new event `heads_up_banner_unsnoozed`.
-- Banner buttons: `actions` in `heads_up.create_banner` (up to 3 buttons with `key`, `label`, `dismiss` and an optional `action`). New event `heads_up_banner_action`.
-- Conditions `empty` and `not_empty` ("Is empty", "Is not empty" in the rule form) for `heads_up.create_banner` and watch rules. They need no `state`.
-
-### Fixed
-- The card no longer shows "Custom element doesn't exist: heads-up-card" on some reloads. It registered itself before Home Assistant's scripts had finished loading, which Home Assistant then ignored until the page was reloaded. It now waits for Home Assistant.
-- The watch rule form no longer fills the State field with `on`. A rule with equals or does not equal and no value still uses `on`.
-
-## [0.3.0] - 2026-10-26
+Summary of the 0.x releases (0.1.0 to 0.4.0): dashboard banners, the card and watch rules. Tested on Home Assistant 2026.9.4 and 2026.10.4.
 
 ### Added
-- Conditions can hold for a while first: `condition.for` in `heads_up.create_banner` and the "Condition must hold for" field of watch rules. The banner shows only after the condition has been true for that long (1 second to 24 hours). After a restart the wait starts again.
-- `heads_up.create_banner` accepts `condition.template`: a Home Assistant template that must be true. It cannot be combined with `entity_id`, `operator`, `state` or `attribute`.
+
+- `heads_up.create_banner`, `heads_up.clear_banner` and `heads_up.clear_all`, with response data. Calling `create_banner` again with the same `id` replaces the banner.
+- Banners end when someone dismisses them (per user or for everyone), when their `timeout` passes, also across a restart, or when an action clears them. At most 50 are kept by default; the oldest low-severity banner goes first and critical banners are never removed.
+- Conditions: a banner shows only while an entity matches, with the operators `equals`, `not_equals`, `above`, `below`, `between`, `contains`, `not_contains`, `empty` and `not_empty`, or while a template is true. `for` makes the condition hold for a while first. `mode: once` ends the banner when the condition turns false; `mode: recurring` hides it and shows it again.
+- `people` limits a banner to the users of the listed persons.
+- Buttons: up to three per banner, each with an optional action, and `tap_action` with confirmation. The event `heads_up_banner_action` fires on a press.
+- Snooze, with the choices you give and per user or for everyone. The card option `show_snoozed` lists snoozed banners with Show now.
+- The card `custom:heads-up-card`, loaded by the integration with no dashboard resource. It filters by severity and tag, has the layouts comfortable and compact, and options for title, time, colors, "Show N more", Clear all, swipe to dismiss and an empty state. It has a visual editor.
+- Watch rules: a banner while an entity is in a state or a template is true, set up under Settings > Devices & services > Heads Up, without an automation. Rules have the same buttons, tap action, snooze, dismiss scope and templated messages as actions.
+- Events for created, updated, dismissed, expired, cleared, snoozed and unsnoozed banners, and the sensor `sensor.heads_up_active_banners`.
+- English, German, French and Spanish, following your Home Assistant language. The translations are not reviewed by native speakers.
 
 ### Fixed
-- A watch rule banner's "time ago" counts from the moment its condition turned true. Before, it counted from when Home Assistant started or the rule was edited.
-- The card file is now cached by the browser (its address already changes with the file). This avoids the occasional "Custom element doesn't exist: heads-up-card" on page reloads when the file loads too slowly.
 
-## [0.2.2] - 2026-10-26
-
-### Fixed
-- Watch rule messages now render Home Assistant templates. Before, `{{ states('...') }}` appeared as literal text. The text updates when the entities the template reads change, not for time functions such as `now()`. The rule form refuses an invalid template; a template that fails at render time shows its raw text and logs a warning.
-
-## [0.2.1] - 2026-10-25
-
-### Fixed
-- Home Assistant showed version 0.1.0 for the 0.2.0 release because `manifest.json` was not updated. It now matches the release. No other change from 0.2.0.
-
-## [0.2.0] - 2026-10-25
-
-### Added
-- `condition.operator` for `create_banner` and watch rules: `equals` (default), `not_equals`, `above`, `below`, `between`, `contains`, `not_contains`. Banners and rules without an operator behave as before. See [actions](docs/actions.md#conditions) and [rules](docs/actions.md#watch-rules).
-- README section with watch rule examples and a screenshot of the rule form.
-
-### Fixed
-- The "Add watch rule" form no longer shows a translation error in its description.
-
-## [0.1.0] - 2026-10-25
-
-First release. Tested on a local Home Assistant 2026.9.4 instance and, with the test suite only, on 2026.10.4.
-
-### Added
-- Actions `heads_up.create_banner`, `heads_up.clear_banner` and `heads_up.clear_all` with response data.
-- Banners with a `timeout` disappear after that time, also when Home Assistant restarts in between.
-- When the banner limit (default 50) is reached, the oldest lowest-severity banner is removed; `critical` banners are never removed.
-- Events `heads_up_banner_created`, `_updated`, `_dismissed`, `_expired`, `_cleared`.
-- Sensor `sensor.heads_up_active_banners` with the number of active banners (not waiting for a condition).
-- `condition`: a banner shows only while an entity matches a state, a list of states or an attribute value. `mode: once` removes it when the entity stops matching; `mode: recurring` hides it and shows it again.
-- `wait_for_condition`: a banner whose condition is false at the time of the call waits for it, or is not stored (`condition_false`).
-- `people`: a banner reaches only the users linked to the listed person entities.
-- Options: maximum banners, eviction on/off, default dismiss scope, default timeout (24 hours).
-- Card `custom:heads-up-card` with options `severity`, `tag`, `max_items`, `sort`, `layout`, `show_all`, `show_empty` and a visual editor. It loads with the integration; no dashboard resource is needed. See [docs/actions.md#the-card](docs/actions.md#the-card).
-- Banners with a `tap_action` are tappable in the card, including `confirmation`.
-- Examples for an open window, a critical alert for one person, a tap action with confirmation, and REST and WebSocket calls: [docs/examples.md](docs/examples.md).
-- Card options `title`, `show_time`, `collapsed_items` ("Show N more"), `clear_all`, `swipe_to_dismiss`, `colors`, `colorize`, `empty_message` and `empty_icon`. The `compact` layout now shows each banner on one line.
-- WebSocket command `heads_up/dismiss_many`, used by the "Clear all" button.
-- Brand icon for the integration.
-- Pages: [troubleshooting](docs/examples.md#troubleshooting), [limitations](docs/examples.md#limitations), [upgrading](docs/setup.md#upgrading), [uninstalling](docs/setup.md#uninstalling).
-- The card reconnects after a Home Assistant restart and retries until the integration is loaded.
-- Watch rules: add a rule in Settings > Devices & services > Heads Up, and a banner shows on every Heads Up card while an entity is in a state, without an automation. Rules can be dismissible per user, target people and use `{name}` for the entity name. See [docs/actions.md#watch-rules](docs/actions.md#watch-rules).
-- `heads_up_banner_cleared` has the new `reason` value `rule`.
-- WebSocket error `rule_banner` for `heads_up/admin_clear` on a rule banner. The card shows no "Clear for everyone" button on rule banners.
-
-### Changed
-- The card no longer shows the severity text label by default. The icon and color still show the severity, and screen readers still get the label. Set `show_severity: true` to show it.
-
-### Fixed
-- A banner that cannot be read from storage is skipped with an error in the log; the other banners and the integration still load.
-- After an update, browsers could keep showing the previous card because its address did not change. The address now includes a hash of the card file.
+- The card no longer shows "Custom element doesn't exist: heads-up-card" on a reload: it waits for Home Assistant before it registers, and the browser caches the card file.
+- After an update, the card address includes a hash of the card file, so a reloaded dashboard loads the new card.
