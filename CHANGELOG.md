@@ -4,6 +4,14 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+## [1.0.0-beta.2] - 2026-11-16
+
+### Changed
+- Test send: Volume is a list from 10 to 100 percent, with "Leave as it is" as the default, instead of a text box.
+
+### Fixed
+- Speech repeat pause: Test send and critical messages are no longer skipped as "said a moment ago", the same text at another volume is spoken again, and the reason now points to the setting.
+
 ## [1.0.0-beta.1] - 2026-11-15
 
 ### Added
