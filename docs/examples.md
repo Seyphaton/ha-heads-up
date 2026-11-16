@@ -312,7 +312,7 @@ The panel's Help > FAQ has the same questions and more, from first steps to deta
 
 ### What does Heads Up do?
 
-Your automation makes one call, `heads_up.notify`. Heads Up decides where the message shows up (channels), who gets it (audiences and recipients) and when it is delivered or escalated (policies). You set this up once in the panel, not in every automation.
+Heads Up is a central notification hub. Your automation makes one call, `heads_up.notify`, and Heads Up delivers the message by what you set: the channels where it shows up, the audiences and recipients who get it, and the policies for when it is delivered or escalated. You set the policies up once in the panel, not in every automation.
 
 ### How is this different from what Home Assistant already has?
 

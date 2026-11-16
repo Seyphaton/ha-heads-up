@@ -3,11 +3,11 @@
 [![Open your Home Assistant instance and open this repository in the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Seyphaton&repository=ha-heads-up&category=integration)
 [![Open your Home Assistant instance and start setting up the Heads Up integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=heads_up)
 
-Heads Up is a notification hub for Home Assistant. An automation makes one call that says what happened and how serious it is. Heads Up decides where the message goes, who gets it and when, and takes it back from every channel when it is over.
+Heads Up is a central notification hub for Home Assistant. It gives your automations one way in to every channel: the dashboard, phones, popups, speakers, mail and persistent notifications. Audiences can follow who is home, who left a zone or who arrived first, and policies add reminders, escalation, quiet hours and an evening summary.
 
-The channel it adds to Home Assistant is the banner. A banner sits in a dashboard card until someone dismisses it, its condition stops matching or its timeout passes. The same call also reaches phones through the Companion app, shows a popup over any dashboard, speaks on speakers and Assist satellites, sends mail and writes a Persistent Notification.
+The channel it adds to Home Assistant is the banner. A banner sits in a dashboard card until someone dismisses it, its condition stops matching or its timeout passes. When a message ends, Heads Up takes it back from every channel that can be cleared: the banner, the pushes, the popup and the persistent notification.
 
-![Your automation makes one call, and Heads Up orchestrates where the message shows up (banner, push, popup, speech, mail, Persistent Notification), who gets it (everyone, admins, whoever is home, the last one to leave, one person) and when (quiet at night, repeat until acknowledged, escalate, evening summary, send on arrival).](https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/where-who-when.svg)
+![Your automation makes one call, and Heads Up delivers it by the channels, audiences and policies you set: where the message shows up (banner, push, popup, speech, mail, Persistent Notification), who gets it (everyone, admins, whoever is home, the last one to leave, one person) and when (quiet at night, repeat until acknowledged, escalate, evening summary, send on arrival).](https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/where-who-when.svg)
 
 ## What it takes out of your automations
 

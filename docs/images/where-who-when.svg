@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 580" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
-  <title id="t">Heads Up orchestrates where, who and when</title>
-  <desc id="d">An automation makes one call. Heads Up, centrally configured and customized, orchestrates where the message shows up, who gets it, and when it is delivered or escalated.</desc>
+  <title id="t">Heads Up delivers by where, who and when</title>
+  <desc id="d">An automation makes one call. Heads Up delivers it by the channels, audiences and policies you set up once: where the message shows up, who gets it, and when it is delivered or escalated.</desc>
   <style>
     .canvas { fill: #f6f8fa; stroke: #d1d9e0; }
     .card { fill: #ffffff; stroke: #d1d9e0; }
@@ -73,7 +73,7 @@
     <path d="M-7 5 C-5 3 -5 0 -5 -3 C-5 -8 5 -8 5 -3 C5 0 5 3 7 5 Z"/>
     <path d="M-2 8.5 C-1 10 1 10 2 8.5"/>
   </g>
-  <text x="420" y="165" font-size="19" font-weight="700" fill="#ffffff">Heads Up orchestrates</text>
+  <text x="420" y="165" font-size="19" font-weight="700" fill="#ffffff">Heads Up delivers</text>
   <text x="420" y="185" font-size="13" fill="#ffffff" fill-opacity="0.85">Centrally configured and customized</text>
 
   <!-- Branches -->
