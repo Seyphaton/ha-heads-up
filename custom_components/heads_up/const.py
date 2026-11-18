@@ -254,4 +254,7 @@ EVENT_CLEARED: Final = f"{DOMAIN}_banner_cleared"
 EVENT_ACTION: Final = f"{DOMAIN}_banner_action"
 EVENT_SNOOZED: Final = f"{DOMAIN}_banner_snoozed"
 EVENT_UNSNOOZED: Final = f"{DOMAIN}_banner_unsnoozed"
+# `reason` of the unsnoozed event (D-221): ended by the viewer, or the time ran out.
+UNSNOOZE_USER: Final = "user"
+UNSNOOZE_ENDED: Final = "ended"
 EVENT_DELIVERY_FAILED: Final = f"{DOMAIN}_delivery_failed"  # D-128

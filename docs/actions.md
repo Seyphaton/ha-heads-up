@@ -572,13 +572,15 @@ Each change fires an event. Use them as automation triggers.
 | `heads_up_banner_updated` | `id`, `severity`, `tag` |
 | `heads_up_banner_dismissed` | `id`, `tag`, `scope` (`user` or `global`), `user_id` |
 | `heads_up_banner_snoozed` | `id`, `tag`, `scope` (`user` or `global`), `user_id`, `until` |
-| `heads_up_banner_unsnoozed` | `id`, `tag`, `user_id` |
+| `heads_up_banner_unsnoozed` | `id`, `tag`, `user_id`, `reason` (`user` or `ended`) |
 | `heads_up_banner_action` | `id`, `tag`, `key`, `user_id`, `person`, `channel` (`banner`, `popup` or `push`) |
 | `heads_up_banner_expired` | `id`, `tag` |
 | `heads_up_banner_cleared` | `id`, `tag`, `reason` (`action`, `clear_all`, `condition`, `evicted`, `admin`, `rule`) |
 | `heads_up_delivery_failed` | `id`, `tag`, `channel`, `origin`, `reached`, `failed` |
 
 The event names say "banner" for every message, whatever its channels.
+
+`heads_up_banner_unsnoozed` fires when someone ends a snooze in the card (`reason: user`) and when the snooze time runs out (`reason: ended`). A snooze that ran out while Home Assistant was stopped fires once at the next start. For a global snooze that ran out, `user_id` is empty.
 
 Banners from [watch rules](#watch-rules) fire `created` when the entity enters the state and `cleared` with `reason: rule` when it leaves, or when the rule is disabled or deleted. Their `id` starts with `rule_` and their `tag` is `rule`.
 

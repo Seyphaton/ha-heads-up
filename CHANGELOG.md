@@ -4,6 +4,14 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Before you upgrade
+
+- `heads_up_banner_unsnoozed` also fires when a snooze runs out, not only when someone ends it in the card. The event has a new field `reason`: `ended` or `user`. An automation that should react only to the card, as before, needs a condition on `reason: user`.
+
+### Added
+
+- `heads_up_banner_unsnoozed` has the field `reason` and fires when a snooze ends by itself, including a snooze that ran out while Home Assistant was stopped. A global snooze has no `user_id`.
+
 ## [1.0.0] - 2026-11-16
 
 Heads Up turns from a dashboard banner into a notification hub. One `heads_up.notify` call delivers a message on up to six channels, to audiences that follow who is home, with policies for escalation, reminders, quiet hours and summaries. Banners, the card and watch rules from 0.4.0 keep working.

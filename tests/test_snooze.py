@@ -222,10 +222,36 @@ async def test_snooze_that_ended_during_downtime_is_dropped_on_load(
     assert (await snooze(client, "a", 900))["success"]
     await hass.async_block_till_done()
     assert await hass.config_entries.async_unload(entry.entry_id)
+    events = async_capture_events(hass, f"{DOMAIN}_banner_unsnoozed")
     freezer.tick(timedelta(hours=1))
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
     assert banners(entry)["a"].snoozed_until == {}
+    # It ran out while Home Assistant was down: the end fires once at start (D-221).
+    assert [(e.data["id"], e.data["reason"]) for e in events] == [("a", "ended")]
+
+
+async def test_a_snooze_that_runs_out_fires_unsnoozed_with_reason_ended(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    create: CreateBanner,
+    hass_ws_client: WebSocketGenerator,
+    hass_admin_user: User,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    await create(id="a", message="x", snoozable=True)
+    await create(id="b", message="y", snoozable=True, snooze_scope="global")
+    events = async_capture_events(hass, f"{DOMAIN}_banner_unsnoozed")
+    client = await hass_ws_client(hass)
+    assert (await snooze(client, "a", 900))["success"]
+    assert (await snooze(client, "b", 900))["success"]
+    assert events == []
+
+    await tick(hass, freezer, 901)
+    data = {e.data["id"]: e.data for e in events}
+    assert data["a"]["reason"] == "ended" and data["a"]["user_id"] == hass_admin_user.id
+    assert data["b"]["reason"] == "ended" and data["b"]["user_id"] is None  # global: nobody
+    assert len(events) == 2
 
 
 async def test_snoozed_banner_is_flagged_for_show_all(
@@ -318,6 +344,7 @@ async def test_unsnooze_brings_the_banner_back_and_fires_an_event(
     assert (await client.receive_json())["success"]
     assert banners(entry)["a"].snoozed_until == {}
     assert events[0].data["id"] == "a" and events[0].data["user_id"]
+    assert events[0].data["reason"] == "user"  # D-221
 
     # The cancelled timer must not fire a second change later.
     await tick(hass, freezer, 901)

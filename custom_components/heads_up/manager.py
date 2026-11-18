@@ -62,6 +62,8 @@ from .const import (
     SEVERITIES,
     SOURCE_ACTION,
     SOURCE_RULE,
+    UNSNOOZE_ENDED,
+    UNSNOOZE_USER,
 )
 from .hub.engine import HubEngine
 from .hub.rename import rewrite
@@ -466,7 +468,7 @@ class BannerManager:
                 cancel := self._snooze_timers.pop((banner.id, key), None)
             ):
                 cancel()
-        self._fire(EVENT_UNSNOOZED, banner, user_id=user_id)
+        self._fire(EVENT_UNSNOOZED, banner, user_id=user_id, reason=UNSNOOZE_USER)
         self._emit(Kind.UNSNOOZED, banner, user_id=user_id)
         self._changed()
 
@@ -1018,7 +1020,7 @@ class BannerManager:
         self._snooze_timers.pop((banner_id, key), None)
         banner = self.banners.get(banner_id) or self.rules.get(banner_id)
         if banner is not None and banner.snoozed_until.pop(key, None) is not None:
-            # No bus event fires for an ended snooze; the engine still needs to know (D-078).
+            self._fire_snooze_ended(banner, key)
             self._emit(
                 Kind.UNSNOOZED,
                 banner,
@@ -1039,6 +1041,7 @@ class BannerManager:
         ended = [key for key, until in banner.snoozed_until.items() if until <= now]
         for key in ended:
             del banner.snoozed_until[key]
+            self._fire_snooze_ended(banner, key)  # ran out while Home Assistant was down
         for key, until in banner.snoozed_until.items():
             self._schedule_snooze(banner.id, key, until)
         return bool(ended)
@@ -1058,6 +1061,11 @@ class BannerManager:
         )
         for listener in list(self._transition_listeners):
             listener(transition)
+
+    def _fire_snooze_ended(self, banner: Banner, key: str) -> None:
+        """A snooze ran out by itself (D-221); a global one has no user."""
+        user_id = None if key == GLOBAL_SNOOZE_KEY else key
+        self._fire(EVENT_UNSNOOZED, banner, user_id=user_id, reason=UNSNOOZE_ENDED)
 
     def _fire(self, event: str, banner: Banner, **extra: Any) -> None:
         self.hass.bus.async_fire(event, {"id": banner.id, "tag": banner.tag, **extra})
