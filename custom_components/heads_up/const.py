@@ -202,6 +202,11 @@ TEST_ID_PREFIX: Final = "hu_test_"  # ids of the messages sent from Test send
 OPT_SPEAK_COOLDOWN: Final = "speak_cooldown_seconds"  # 0 for none
 OPT_SPEAK_TTS_ENTITY: Final = "speak_tts_entity"  # empty: the only tts entity
 OPT_SPEAK_LANGUAGE: Final = "speak_language"  # empty: the Home Assistant language
+# Speech volume (D-208, D-215, D-217): put back after speaking, time bands, per severity.
+OPT_SPEAK_RESTORE_VOLUME: Final = "speak_restore_volume"
+OPT_SPEAK_VOLUME_BANDS: Final = "speak_volume_bands"  # [{from, to, volume (percent)}], at most 4
+OPT_SPEAK_SEVERITY_VOLUME: Final = "speak_severity_volume"  # {severity: percent}
+MAX_VOLUME_BANDS: Final = 4
 # Mail settings (D-129). Edited on the panel's Channels page.
 OPT_MAIL_SERVICE: Final = "mail_service"  # name of a notify service, empty: mail is off
 OPT_MAIL_ADDRESS: Final = "mail_global_address"  # the shared address, empty: none
@@ -237,6 +242,9 @@ DEFAULT_OPTIONS: Final = {
     OPT_SPEAK_COOLDOWN: 60,
     OPT_SPEAK_TTS_ENTITY: "",
     OPT_SPEAK_LANGUAGE: "",
+    OPT_SPEAK_RESTORE_VOLUME: True,  # D-215
+    OPT_SPEAK_VOLUME_BANDS: [],  # none: the volume is not changed (1.0 behaviour, D-213)
+    OPT_SPEAK_SEVERITY_VOLUME: {},
     OPT_MAIL_SERVICE: "",
     OPT_MAIL_ADDRESS: "",
     OPT_MAIL_SUBJECT: "{severity}: {title}",
