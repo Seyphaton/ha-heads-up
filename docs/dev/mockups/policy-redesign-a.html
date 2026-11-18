@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two lanes mockup</title>
+<style>
+:root {
+  --bg: #f5f6f8; --card: #fff; --text: #1c1e21; --muted: #5f6672; --line: #d9dde3;
+  --accent: #0b6bcb; --accent-bg: #e4f0fc; --hold: #7a4b00; --hold-bg: #fff4d6;
+  --send: #11602c; --send-bg: #e3f5e8; --band: #8a1c1c; --band-bg: #fde8e8; --chip: #eef0f3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #14161a; --card: #1e2127; --text: #e8eaed; --muted: #a0a7b3; --line: #343a44;
+    --accent: #6cb4ff; --accent-bg: #1c2f45; --hold: #e3b341; --hold-bg: #3a2f12; --send: #5bd17b; --send-bg: #173322;
+    --band: #ff8a80; --band-bg: #3d1a1a; --chip: #2a2f38; }
+}
+:root[data-theme="dark"] { --bg: #14161a; --card: #1e2127; --text: #e8eaed; --muted: #a0a7b3; --line: #343a44;
+  --accent: #6cb4ff; --accent-bg: #1c2f45; --hold: #e3b341; --hold-bg: #3a2f12; --send: #5bd17b; --send-bg: #173322;
+  --band: #ff8a80; --band-bg: #3d1a1a; --chip: #2a2f38; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, sans-serif; }
+header { padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--card); display: flex; gap: 10px; align-items: flex-start; }
+header div { flex: 1; }
+header h1 { margin: 0; font-size: 18px; }
+header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+main { max-width: 420px; margin: 0 auto; padding: 16px; }
+nav.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+nav.tabs button { flex: 1; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; }
+h2 { margin: 0 0 6px; font-size: 16px; }
+.lane { border-left: 6px solid; border-radius: 12px; padding: 12px; margin-bottom: 14px; }
+.lane.hold { border-color: var(--hold); background: var(--hold-bg); }
+.lane.send { border-color: var(--send); background: var(--send-bg); }
+.lane > h2 { display: flex; align-items: center; gap: 8px; }
+.lane .rule { font-size: 13px; margin: 0 0 10px; }
+.glyph { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 2px solid currentColor; font-weight: 700; font-size: 13px; }
+.hold .glyph { color: var(--hold); } .send .glyph { color: var(--send); }
+.band { border: 2px dashed var(--band); background: var(--band-bg); border-radius: 12px; padding: 12px; margin: 0 0 14px; }
+.band h2 { color: var(--band); display: flex; gap: 8px; align-items: center; }
+.band .glyph { color: var(--band); }
+.pol { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin-top: 8px; }
+.pol .top { display: flex; align-items: center; gap: 8px; }
+.pol .name { font-weight: 600; flex: 1; }
+.pol .type { font-size: 12px; color: var(--muted); }
+.pol .words { font-size: 13px; margin-top: 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.c { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--chip); }
+.c.not { text-decoration: line-through; }
+.c.not::before { content: "not "; text-decoration: none; display: inline-block; margin-right: 2px; }
+label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+input[type=text], input[type=number], select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; min-height: 40px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.row > select, .row > input { flex: 1 1 110px; width: auto; }
+.chip { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 999px; background: var(--chip); border: 1px solid transparent; cursor: pointer; min-height: 40px; font: inherit; color: var(--text); }
+.chip[aria-pressed="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chip[aria-pressed="true"]::before { content: "\2713\00a0"; }
+.hint { color: var(--muted); font-size: 13px; margin-top: 4px; }
+h3.sec { margin: 16px 0 4px; font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
+.out { margin-top: 10px; padding: 10px; border-radius: 10px; background: var(--accent-bg); font-size: 14px; }
+.out ul { margin: 4px 0 0; padding-left: 18px; }
+.out strong { color: var(--accent); }
+button.ghost, button.primary { border-radius: 8px; padding: 8px 12px; font: inherit; cursor: pointer; min-height: 40px; }
+button.ghost { background: var(--card); border: 1px solid var(--line); color: var(--text); }
+button.primary { background: var(--accent); color: #fff; border: 0; }
+:root[data-theme="dark"] button.primary { color: #0b1620; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.primary { color: #0b1620; } }
+button[aria-selected="true"] { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.switch { width: 22px; height: 22px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.check { border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 12px; }
+.lanetag { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--hold-bg); color: var(--hold); border: 1px solid var(--hold); }
+.lanetag.send { background: var(--send-bg); color: var(--send); border-color: var(--send); }
+.overlap { margin-top: 12px; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); font-size: 14px; }
+.entries { list-style: none; margin: 0; padding: 0; }
+.entries li { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px 0; border-top: 1px solid var(--line); }
+.wk { font-size: 13px; }
+.warnline { margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--band); }
+.warnline:not(:empty)::before { content: "Warning: "; }
+.promise { font-size: 13px; margin-top: 6px; padding-left: 8px; border-left: 3px solid var(--line); }
+.promise::before { content: "Promise: "; font-weight: 600; }
+.promise.bent { border-left-style: dashed; }
+.det { display: none; font-size: 12px; color: var(--muted); font-family: ui-monospace, monospace; margin-top: 4px; width: 100%; }
+body.details .det { display: block; }
+.overlap strong { display: block; font-size: 13px; margin-bottom: 2px; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Policies (design AB: two lanes, one band)</h1>
+    <p>Mockup for the policy redesign. Nothing is saved. Names are samples.</p>
+  </div>
+  <button class="ghost" id="theme" aria-label="Switch between light and dark">Dark</button>
+</header>
+<main>
+  <nav class="tabs" role="tablist" aria-label="Mockup views">
+    <button class="ghost" role="tab" id="tabPage" aria-selected="true" aria-controls="page">Policies page</button>
+    <button class="ghost" role="tab" id="tabForm" aria-selected="false" aria-controls="form">Edit a policy</button>
+  </nav>
+
+  <section id="page" role="tabpanel" aria-labelledby="tabPage">
+    <div class="card">
+      <h2>What happens to a message?</h2>
+      <div class="row">
+        <select id="tSev" aria-label="Severity">
+          <option>info</option><option>success</option><option selected>warning</option><option>critical</option>
+        </select>
+        <select id="tTag" aria-label="Tag">
+          <option value="">no tag</option><option selected>alarm</option><option>digest</option><option>doorbell</option><option>shopping</option>
+        </select>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <select id="tTime" aria-label="Time of day">
+          <option value="day">14:00</option><option value="eve">20:00</option><option value="night" selected>03:00</option>
+        </select>
+        <select id="tHome" aria-label="Who is home">
+          <option value="home">Someone home</option><option value="empty">Nobody home</option>
+        </select>
+      </div>
+      <div class="out" id="tOut" aria-live="polite"></div>
+    </div>
+
+    <div class="check" role="region" aria-labelledby="hCheck">
+      <h2 id="hCheck">Check after the update</h2>
+      <p class="hint" style="margin-top:0">Every message gets the same deliveries as in 1.0. These items explain how; each offer is your choice.</p>
+      <div class="pol">
+        <div class="top"><span class="name">Night quiet</span></div>
+        <div class="words">Not for messages that Evening summary takes, while it is on (kept from 1.0). Same result as "Not for tag digest" while both are on.</div>
+        <div class="row" style="margin-top:6px"><button class="ghost">Keep as before</button><button class="primary">Write as Not for tag digest</button></div>
+      </div>
+      <div class="pol">
+        <div class="top"><span class="name">Away, now Presence</span></div>
+        <div class="words">Never acts: the four policies above it took every message first in 1.0.</div>
+        <div class="row" style="margin-top:6px"><button class="ghost">Keep as before</button><button class="primary">Let it act</button></div>
+      </div>
+      <div class="pol">
+        <div class="top"><span class="name">Warning reminder</span></div>
+        <div class="words">Counts from when the message was created, as in 1.0.</div>
+        <div class="row" style="margin-top:6px"><button class="ghost">Keep as before</button><button class="primary">Count from when it has reached someone</button></div>
+      </div>
+      <div class="row" style="margin-top:10px"><button class="ghost">Restore 1.0 links</button></div>
+    </div>
+
+    <div class="row" style="margin:14px 0"><label class="row" style="margin:0;color:var(--text)"><input type="checkbox" class="switch" id="showDetails"> Show details (type key, entity ID)</label></div>
+
+    <div class="lane hold" role="region" aria-labelledby="hHold">
+      <h2 id="hHold"><span class="glyph" aria-hidden="true">||</span> Keep it calm</h2>
+      <p class="rule">These act on every delivery, also on what the other lane adds. Where two disagree, the calmer counts: summary, then drop, then wait, then quiet. Repeats never wait: they are skipped.</p>
+      <div class="pol">
+        <div class="top"><span class="name">Evening summary</span><span class="type">Summarize</span><input type="checkbox" class="switch" checked aria-label="Evening summary on"></div>
+        <div class="words">Holds messages tagged digest and sends one summary at 20:00.</div>
+        <div class="promise">Kept.</div>
+        <div class="det">summarize &middot; switch.heads_up_policy_evening_summary</div>
+      </div>
+      <div class="pol">
+        <div class="top"><span class="name">Night quiet</span><span class="type">Quiet hours</span><input type="checkbox" class="switch" checked aria-label="Night quiet on"></div>
+        <div class="words">From 22:00 to 07:00, sends every message quietly: no sound, no speech.</div>
+        <div class="chips"><span class="c not">messages Evening summary takes</span></div>
+        <div class="promise bent">Bent for critical and for tag alarm by Always gets through: they pass for the people covered.</div>
+        <div class="det">quiet_hours &middot; switch.heads_up_policy_night_quiet</div>
+      </div>
+      <div class="pol">
+        <div class="top"><span class="name">Doorbell in an empty house</span><span class="type">Presence</span><input type="checkbox" class="switch" checked aria-label="Doorbell in an empty house on"></div>
+        <div class="words">Drops doorbell speech when nobody is home, unless guest mode is on.</div>
+        <div class="chips"><span class="c">tag doorbell</span><span class="c not">critical</span><span class="c">only if guest mode is off</span></div>
+        <div class="promise">Kept. Presence is never passed by Always gets through.</div>
+        <div class="det">presence &middot; switch.heads_up_policy_doorbell_in_an_empty_house</div>
+      </div>
+      <div class="pol">
+        <div class="top"><span class="name">Shopping list on leaving</span><span class="type">Presence</span><input type="checkbox" class="switch" checked aria-label="Shopping list on leaving on"></div>
+        <div class="words">Holds a shopping push while the recipient is home; sends it when they leave.</div>
+        <div class="chips"><span class="c">tag shopping</span></div>
+        <div class="promise">Kept.</div>
+        <div class="det">presence &middot; switch.heads_up_policy_shopping_list_on_leaving</div>
+      </div>
+      <button class="ghost" style="margin-top:10px">Add: keep something calm</button>
+    </div>
+
+    <div class="band" role="region" aria-labelledby="hBand">
+      <h2 id="hBand"><span class="glyph" aria-hidden="true">&rarr;</span> Always gets through</h2>
+      <p class="rule" style="margin:0 0 8px;font-size:13px">For these messages, quiet hours and summaries do not apply to the people covered. Presence still decides by where people are. Each entry only lets through; it sends nothing.</p>
+      <ul class="entries" aria-label="Entries of Always gets through">
+        <li><input type="checkbox" class="switch" checked aria-label="Critical gets through on"> <strong>Critical</strong> <span class="c">critical</span> <span class="wk">covers everyone it reaches. Sent by Critical to Admins.</span><span class="det">get_through &middot; switch.heads_up_policy_critical</span></li>
+        <li><input type="checkbox" class="switch" checked aria-label="Alarms wake Admins on"> <strong>Alarms wake Admins</strong> <span class="c">tag alarm</span> <span class="wk">covers only Admins. Sent by Alarms to Admins.</span><span class="det">get_through &middot; switch.heads_up_policy_alarms_wake_admins</span></li>
+      </ul>
+      <p style="margin:8px 0 0;font-size:14px;font-weight:600">Critical messages may wake everyone they reach at night. Messages tagged alarm may wake the Admins; others get them quietly.</p>
+      <p class="hint">Holds these anyway: none. (A converted hold that held critical in 1.0 would be listed here.)</p>
+      <div class="row" style="margin-top:8px"><button class="ghost" id="bandEdit" aria-expanded="false" aria-controls="bandForm">Edit Alarms wake Admins</button><button class="ghost">Add: wake people for …</button></div>
+      <div id="bandForm" class="pol" hidden>
+        <label for="bTag">Which messages: tag</label>
+        <input type="text" id="bTag" value="alarm">
+        <label for="bWakes">Covers</label>
+        <select id="bWakes"><option value="only">only these</option><option value="all">everyone it reaches</option><option value="none">switch this entry off</option></select>
+        <label for="bWho">These</label>
+        <input type="text" id="bWho" value="Admins">
+        <div class="warnline" id="bWarn" aria-live="polite"></div>
+        <div class="row" style="margin-top:8px"><button class="primary">Save</button></div>
+      </div>
+    </div>
+
+    <div class="lane send" role="region" aria-labelledby="hSend">
+      <h2 id="hSend"><span class="glyph" aria-hidden="true">+</span> Make sure it arrives</h2>
+      <p class="rule">Every sending policy that fits runs. Escalations and reminders start counting once the message has reached someone. On one channel the shortest repeat rhythm in force counts, unless a reminder runs alongside; each reminder counts its own repeats.</p>
+      <div class="pol">
+        <div class="top"><span class="name">Critical to Admins</span><span class="type">Deliver</span><input type="checkbox" class="switch" checked aria-label="Critical to Admins on"></div>
+        <div class="words">At once, also pushes critical messages to the Admins.</div>
+        <div class="promise">Kept. Lets through: Critical.</div>
+        <div class="det">deliver &middot; switch.heads_up_policy_critical_to_admins</div>
+      </div>
+      <div class="pol">
+        <div class="top"><span class="name">Alarms to Admins</span><span class="type">Deliver</span><input type="checkbox" class="switch" checked aria-label="Alarms to Admins on"></div>
+        <div class="words">At once, also pushes messages tagged alarm to the Admins with sound.</div>
+        <div class="promise">Kept. Lets through: Alarms wake Admins.</div>
+        <div class="det">deliver &middot; switch.heads_up_policy_alarms_to_admins</div>
+      </div>
+      <div class="pol">
+        <div class="top"><span class="name">Warnings</span><span class="type">Reminder</span><input type="checkbox" class="switch" checked aria-label="Warnings reminder on"></div>
+        <div class="words">Repeats warnings every 60 min, every 15 min while X is on, at most 12 repeats in all.</div>
+        <div class="promise bent">Bent for warnings at night by Night quiet: a repeat that would wait is skipped.</div>
+        <div class="det">reminder &middot; switch.heads_up_policy_warnings</div>
+      </div>
+      <div class="pol">
+        <div class="top"><span class="name">Say it in the house</span><span class="type">Fallback</span><input type="checkbox" class="switch" checked aria-label="Say it in the house on"></div>
+        <div class="words">If nobody could be reached, Kitchen speaker says it. A held push is not "nobody reached".</div>
+        <div class="promise bent">Bent for info, success and warnings at night by Night quiet; bent when nobody is home by Doorbell in an empty house (doorbell only).</div>
+        <div class="det">fallback &middot; switch.heads_up_policy_say_it_in_the_house</div>
+      </div>
+      <button class="ghost" style="margin-top:10px">Add: make sure it arrives</button>
+    </div>
+
+    <div class="card" role="region" aria-labelledby="hNamed">
+      <h2 id="hNamed">Only when named</h2>
+      <p class="hint" style="margin-top:0">These act only when a call or a watch rule names them by their switch entity ID.</p>
+      <div class="pol">
+        <div class="top"><span class="name">Garage to Ben</span><span class="type">Deliver</span><input type="checkbox" class="switch" checked aria-label="Garage to Ben on"></div>
+        <div class="words">Pushes to Ben when named.</div>
+        <div class="promise">Kept. Named as switch.heads_up_policy_garage_to_ben</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="form" role="tabpanel" aria-labelledby="tabForm" hidden>
+    <div class="card">
+      <h2>Edit policy</h2>
+      <div class="out" aria-live="polite"><strong>In words</strong> <span id="fWords"></span><div class="promise" id="fPromise"></div></div>
+      <div class="row"><label class="row" style="margin:0;color:var(--text)"><input type="checkbox" class="switch" checked> Enabled</label></div>
+      <label for="fName">Name</label>
+      <input type="text" id="fName" value="Warnings">
+      <label>Type</label>
+      <div class="row"><strong>Reminder</strong> <span class="lanetag send">Make sure it arrives</span></div>
+      <div class="hint">Repeats the deliveries already sent while nobody acknowledged.</div>
+
+      <h3 class="sec">Which messages</h3>
+      <div class="row" role="group" aria-label="How the policy is attached">
+        <button class="chip" aria-pressed="true">Automatically</button>
+        <button class="chip" aria-pressed="false">Manually</button>
+      </div>
+      <label id="lFor">For severities (none: all)</label>
+      <div class="row" role="group" aria-labelledby="lFor" data-group="for">
+        <button class="chip" aria-pressed="false">info</button><button class="chip" aria-pressed="false">success</button>
+        <button class="chip" aria-pressed="true">warning</button>
+        <button class="chip" aria-pressed="false">critical</button>
+      </div>
+      <label for="fTags">For tags (empty: all)</label>
+      <input type="text" id="fTags" placeholder="e.g. door, garage">
+      <label id="lNot">Not for severities</label>
+      <div class="row" role="group" aria-labelledby="lNot">
+        <button class="chip" aria-pressed="false">info</button><button class="chip" aria-pressed="false">critical</button>
+      </div>
+      <label for="fNotTags">Not for tags</label>
+      <input type="text" id="fNotTags" value="">
+      <label>Only if</label>
+      <div class="row">
+        <select aria-label="Only if: entity"><option>input_boolean.x</option><option>No condition: always</option></select>
+        <select aria-label="Only if: operator"><option>is</option><option>is not</option></select>
+        <input type="text" aria-label="Only if: state" value="on">
+      </div>
+      <div class="hint">Checked at every repeat and whenever it changes. Unknown counts as true.</div>
+
+      <h3 class="sec">What it does</h3>
+      <label for="fEvery">Repeat every (minutes)</label>
+      <input type="number" id="fEvery" value="60" min="1">
+      <label for="fFast">Faster while X is on: every (minutes, empty for no)</label>
+      <input type="number" id="fFast" value="15" min="1">
+      <label for="fMax">At most (repeats in all)</label>
+      <input type="number" id="fMax" value="12" min="1">
+      <label for="fCount">Count from</label>
+      <select id="fCount">
+        <option selected>when it has reached someone</option>
+        <option>when it was created</option>
+      </select>
+      <div class="hint">"When it has reached someone": a person or speaker got a delivery other than the banner. A message held by Night quiet starts counting when it is released.</div>
+      <label class="row" style="color:var(--text);margin-top:12px"><input type="checkbox" class="switch" id="fAlong"> Runs alongside other reminders</label>
+      <div class="hint">Off: on a channel where another reminder also repeats, the shortest rhythm in force counts. This reminder counts its own repeats.</div>
+
+      <div class="overlap" aria-live="polite">
+        <strong>Where it overlaps</strong>
+        <span id="fOverlap"></span>
+      </div>
+      <div class="row" style="margin-top:14px"><button class="primary">Save</button><button class="ghost">Cancel</button></div>
+    </div>
+  </section>
+</main>
+<script>
+(function () {
+  var root = document.documentElement, themeBtn = document.getElementById('theme');
+  function dark() { var t = root.getAttribute('data-theme'); return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+  function label() { themeBtn.textContent = dark() ? 'Light' : 'Dark'; }
+  themeBtn.addEventListener('click', function () { root.setAttribute('data-theme', dark() ? 'light' : 'dark'); label(); });
+  label();
+
+  var tabs = [['tabPage', 'page'], ['tabForm', 'form']];
+  tabs.forEach(function (t) {
+    document.getElementById(t[0]).addEventListener('click', function () {
+      tabs.forEach(function (u) {
+        var on = u[0] === t[0];
+        document.getElementById(u[0]).setAttribute('aria-selected', on);
+        document.getElementById(u[1]).hidden = !on;
+      });
+    });
+  });
+
+  document.querySelectorAll('.chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      var group = c.parentElement;
+      if (group.getAttribute('aria-label') === 'How the policy is attached') {
+        group.querySelectorAll('.chip').forEach(function (o) { o.setAttribute('aria-pressed', o === c); });
+      } else { c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true'); }
+      words();
+    });
+  });
+
+  // The checker: the three rules applied to the sample policies, per recipient.
+  function check() {
+    var sev = tSev.value, tag = tTag.value, night = tTime.value === 'night', empty = tHome.value === 'empty';
+    var lines = [], send = [];
+    var quietFits = night && tag !== 'digest';
+    function band(who) {
+      if (sev === 'critical') return 'Critical covers everyone it reaches';
+      if (tag === 'alarm' && who === 'Admins') return 'Alarms wake Admins covers the Admins';
+      return '';
+    }
+    if (tag === 'digest' && sev !== 'critical') {
+      lines.push('Everyone: in the 20:00 summary (Evening summary).');
+      send.push('Nothing: a message in a summary gets no sending policy.');
+    } else {
+      var who = ['Admins', 'Anna'];
+      if (tag === 'alarm' || sev === 'critical') who = ['Admins', 'Anna', 'Ben'];
+      who.forEach(function (w) {
+        var b = band(w), r;
+        if (tag === 'shopping' && !empty) r = 'push held until they leave (Shopping list on leaving)';
+        else if (b) r = 'push with sound (' + b + ')';
+        else if (quietFits) r = 'quiet push (Night quiet)';
+        else r = 'push with sound';
+        lines.push(w + ': ' + r + '.');
+      });
+      if (tag === 'doorbell') {
+        if (empty) lines.push('Kitchen speaker: not spoken, nobody home (Doorbell in an empty house).');
+        else if (night) lines.push('Kitchen speaker: not spoken at night (Night quiet).');
+        else lines.push('Kitchen speaker: spoken.');
+      }
+      if (sev === 'critical') send.push('Critical to Admins: push at once.');
+      if (tag === 'alarm') send.push('Alarms to Admins: push at once, with sound.');
+      if (sev === 'warning') send.push('Warnings: every 60 min, every 15 min while X is on, at most 12 in all' + (night ? '; repeats skipped at night by Night quiet' : '') + '.');
+      var fb = band('Kitchen speaker') ? 'spoken, also at night' : (night && quietFits ? 'sent quietly by Night quiet' : (empty ? 'dropped if a presence policy drops speech' : 'spoken'));
+      send.push('Say it in the house: only if nobody could be reached; then ' + fb + '.');
+    }
+    tOut.innerHTML = '<strong>Who gets what</strong><ul>' + li(lines) + '</ul><strong>Make sure it arrives</strong><ul>' + li(send) + '</ul>';
+  }
+  function li(a) { return a.map(function (x) { return '<li>' + x + '</li>'; }).join(''); }
+  var tSev = document.getElementById('tSev'), tTag = document.getElementById('tTag'),
+      tTime = document.getElementById('tTime'), tHome = document.getElementById('tHome'), tOut = document.getElementById('tOut');
+  [tSev, tTag, tTime, tHome].forEach(function (s) { s.addEventListener('change', check); });
+  check();
+
+  function words() {
+    var every = +document.getElementById('fEvery').value || 60, fast = +document.getElementById('fFast').value || 0,
+        max = document.getElementById('fMax').value, along = document.getElementById('fAlong').checked;
+    var sevs = Array.prototype.filter.call(document.querySelectorAll('[data-group="for"] .chip'), function (c) {
+      return c.getAttribute('aria-pressed') === 'true'; }).map(function (c) { return c.textContent; });
+    var not = document.getElementById('fNotTags').value.trim();
+    document.getElementById('fWords').textContent = 'Repeats ' + (sevs.length ? sevs.join(' and ') : 'all') +
+      ' messages' + (not ? ' except those tagged ' + not : '') + ' every ' + every + ' min' +
+      (fast ? ', every ' + fast + ' min while X is on' : '') + ', at most ' + max + ' repeats in all, counting from when the message reached someone.';
+    document.getElementById('fPromise').textContent = 'Bent for ' + (sevs.length ? sevs.join(' and ') : 'all messages') + ' at night by Night quiet: a repeat that would wait is skipped.';
+    var o = document.getElementById('fOverlap');
+    if (along) o.textContent = 'Overlaps "Garage pump" (warning tagged pump, every 5 min). Both repeat side by side on the same channels.';
+    else o.textContent = 'Overlaps "Garage pump" (warning tagged pump, every 5 min, at most 6). For pump warnings the 5-minute rhythm counts; this card then shows "Bent for tag pump by Garage pump". Each counts its own repeats, so after the 6 pump repeats this one goes on with its own count.';
+  }
+  ['fEvery', 'fFast', 'fMax', 'fNotTags'].forEach(function (id) { document.getElementById(id).addEventListener('input', words); });
+  document.getElementById('fAlong').addEventListener('change', words);
+  document.getElementById('showDetails').addEventListener('change', function (e) { document.body.classList.toggle('details', e.target.checked); });
+
+  var bEdit = document.getElementById('bandEdit'), bForm = document.getElementById('bandForm');
+  bEdit.addEventListener('click', function () { var open = bForm.hidden; bForm.hidden = !open; bEdit.setAttribute('aria-expanded', open); });
+  function bandWarn() {
+    var w = document.getElementById('bWakes').value, t = document.getElementById('bTag').value.trim() || 'this tag';
+    var el = document.getElementById('bWarn');
+    if (w === 'none') el.textContent = 'Messages tagged ' + t + ' will no longer wake the Admins at night. The push from Alarms to Admins still goes, quietly.';
+    else if (w === 'all') el.textContent = 'Messages tagged ' + t + ' will wake everyone they reach at night, not only the Admins.';
+    else el.textContent = '';
+  }
+  ['bWakes', 'bTag'].forEach(function (id) { document.getElementById(id).addEventListener('input', bandWarn); document.getElementById(id).addEventListener('change', bandWarn); });
+  words();
+})();
+</script>
+</body>
+</html>

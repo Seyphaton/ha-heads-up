@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Policy list mockup</title>
+<style>
+:root {
+  --bg: #f5f6f8; --card: #fff; --text: #1c1e21; --muted: #5f6672; --line: #d9dde3;
+  --accent: #0b6bcb; --accent-bg: #e4f0fc; --warn: #8a5a00; --warn-bg: #fff4d6; --crit: #b42318; --crit-bg: #fde8e6;
+  --chip: #eef0f3; --on-accent: #fff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #14161a; --card: #1e2127; --text: #e8eaed; --muted: #a0a7b3; --line: #343a44;
+    --accent: #6cb4ff; --accent-bg: #1c2f45; --warn: #e3b341; --warn-bg: #3a2f12; --crit: #ff8a80; --crit-bg: #3d1d1b; --chip: #2a2f38; --on-accent: #0b1620; }
+}
+:root[data-theme="dark"] { --bg: #14161a; --card: #1e2127; --text: #e8eaed; --muted: #a0a7b3; --line: #343a44;
+  --accent: #6cb4ff; --accent-bg: #1c2f45; --warn: #e3b341; --warn-bg: #3a2f12; --crit: #ff8a80; --crit-bg: #3d1d1b; --chip: #2a2f38; --on-accent: #0b1620; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, sans-serif; }
+header { padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--card); display: flex; gap: 8px; align-items: center; }
+header div { flex: 1; min-width: 0; }
+header h1 { margin: 0; font-size: 18px; }
+header p { margin: 2px 0 0; color: var(--muted); font-size: 12.5px; }
+main { max-width: 420px; margin: 0 auto; padding: 16px; }
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.tabs button { flex: 1; }
+button { font: inherit; color: var(--text); cursor: pointer; min-height: 40px; border-radius: 8px; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.ghost { background: var(--card); border: 1px solid var(--line); padding: 8px 12px; }
+.ghost[aria-selected="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.primary { background: var(--accent); color: var(--on-accent); border: 0; padding: 10px 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+h2 { margin: 18px 0 4px; font-size: 15px; }
+h2 .icon { display: inline-block; width: 1.4em; }
+.secnote { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+.goal { display: flex; gap: 10px; align-items: flex-start; }
+.goal .body { flex: 1; min-width: 0; }
+.kind { display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; color: var(--muted); }
+.kind.through { color: var(--crit); }
+.sentence { margin: 2px 0 0; }
+.note { display: block; margin-top: 6px; font-size: 12.5px; padding: 4px 8px; border-radius: 6px; background: var(--chip); color: var(--text); }
+.note.warn { background: var(--warn-bg); color: var(--warn); }
+.details { margin-top: 6px; font-size: 12px; color: var(--muted); font-family: ui-monospace, monospace; word-break: break-all; }
+.switch { flex: none; width: 52px; height: 32px; min-height: 32px; border-radius: 16px; border: 1px solid var(--line); background: var(--chip); position: relative; padding: 0; }
+.switch::after { content: "Off"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 7px; font-size: 11px; color: var(--muted); }
+.switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
+.switch[aria-checked="true"]::after { content: "On"; justify-content: flex-start; padding-left: 9px; padding-right: 0; color: var(--on-accent); font-weight: 700; }
+.banner { background: var(--warn-bg); color: var(--warn); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; margin-bottom: 12px; }
+.banner button { margin-top: 6px; min-height: 36px; }
+label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+select, input[type=text], input[type=number] { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; min-height: 40px; }
+.row { display: flex; gap: 8px; }
+.row > * { flex: 1; min-width: 0; }
+ol.timeline { margin: 8px 0 0; padding-left: 0; list-style: none; }
+ol.timeline li { border-left: 2px solid var(--line); padding: 2px 0 8px 12px; position: relative; font-size: 14px; }
+ol.timeline li b { display: inline-block; min-width: 3.4em; }
+ol.timeline li small { display: block; color: var(--muted); font-size: 12.5px; }
+.fill { font: inherit; font-weight: 600; color: var(--accent); background: var(--accent-bg); border: 1px dashed var(--accent); border-radius: 6px; padding: 0 6px; min-height: 30px; }
+.bigsentence { font-size: 17px; line-height: 2; margin: 0; }
+details { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 8px; }
+summary { cursor: pointer; font-weight: 600; min-height: 32px; display: flex; align-items: center; }
+.check { display: flex; gap: 8px; align-items: center; margin: 8px 0; font-size: 14px; }
+.check input { width: 18px; height: 18px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { background: var(--chip); border: 1px solid transparent; border-radius: 999px; padding: 6px 12px; min-height: 36px; }
+.chip[aria-pressed="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chip[aria-pressed="true"]::before { content: "\2713  "; }
+.preview { background: var(--accent-bg); border-radius: 10px; padding: 10px 12px; margin-top: 14px; }
+.preview h3 { margin: 0 0 4px; font-size: 14px; color: var(--accent); }
+.preview p { margin: 4px 0; font-size: 14px; }
+.actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+.hint { color: var(--muted); font-size: 12.5px; margin: 4px 0 0; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.group { margin-top: 18px; }
+.new { display: inline-block; font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-bg); border-radius: 6px; padding: 1px 6px; margin-left: 6px; }
+ul.plain { margin: 0; }
+.group > h2 { font-size: 16px; margin: 0 0 2px; }
+.type { margin: 12px 0 6px; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .02em; }
+.type small { text-transform: none; font-weight: 400; letter-spacing: 0; }
+.pol { display: flex; gap: 8px; align-items: flex-start; }
+.pol .body { flex: 1; min-width: 0; }
+.pos { display: inline-block; min-width: 1.6em; font-weight: 700; color: var(--muted); }
+.moves { display: flex; flex-direction: column; gap: 4px; flex: none; }
+.moves button { min-height: 32px; min-width: 40px; padding: 2px 6px; background: var(--card); border: 1px solid var(--line); }
+.moves button[disabled] { opacity: .35; cursor: default; }
+.chiprow { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.mini { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--chip); }
+.letthrough { background: var(--accent-bg); border-radius: 10px; padding: 8px 10px; font-size: 13.5px; margin: 6px 0 8px; }
+dialog { border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--text); max-width: 388px; width: calc(100% - 32px); padding: 14px; }
+dialog::backdrop { background: rgba(0,0,0,.45); }
+dialog ul { padding-left: 18px; margin: 6px 0; }
+dialog li { margin-bottom: 10px; font-size: 14px; }
+.choice { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+.choice button { min-height: 34px; padding: 4px 10px; }
+.choice button[aria-pressed="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Policies</h1>
+    <p>Mockup, design E "Keep the list". Not part of the integration; nothing is saved. Sample data only.</p>
+  </div>
+  <button class="ghost" id="theme" type="button" aria-label="Switch between light and dark theme">Theme</button>
+</header>
+<main>
+  <div class="tabs" role="tablist" aria-label="Mockup views">
+    <button class="ghost" role="tab" id="tab-page" aria-selected="true" aria-controls="view-page" type="button">Policies page</button>
+    <button class="ghost" role="tab" id="tab-form" aria-selected="false" aria-controls="view-form" type="button">One policy</button>
+  </div>
+
+  <!-- ============ POLICIES PAGE ============ -->
+  <section id="view-page" role="tabpanel" aria-labelledby="tab-page">
+    <div class="banner" role="region" aria-label="Rule of the list">
+      Your list uses the 1.0 rule "Only the first". Switch to "One of each type": each kind of policy gets its own place.
+      <br><button class="ghost" type="button" id="open-switch">What changes</button>
+    </div>
+    <p class="hint" id="mode-line">Mockup: the page below already shows how the list looks after the switch.</p>
+
+    <div class="card">
+      <strong>What happens to a message?</strong>
+      <div class="row">
+        <div><label for="cm-sev">Severity</label>
+          <select id="cm-sev"><option value="warning">Warning</option><option value="info">Info</option><option value="critical">Critical</option></select></div>
+        <div><label for="cm-tag">Tag</label>
+          <select id="cm-tag"><option value="leak">leak</option><option value="digest">digest</option><option value="">no tag</option></select></div>
+        <div><label for="cm-time">Time</label>
+          <select id="cm-time"><option value="night">03:00</option><option value="day">14:00</option></select></div>
+      </div>
+      <ol class="timeline" id="cm-out" aria-live="polite"></ol>
+    </div>
+
+    <div class="group" role="region" aria-labelledby="g-hold">
+      <h2 id="g-hold">Hold back</h2>
+      <p class="secnote">A hold beats a send: every delivery passes the hold in effect, also those added below.</p>
+      <div class="letthrough"><strong>Let through at night:</strong> critical messages (all quiet hours), tag leak (Night quiet).</div>
+
+      <div class="type">Summarize</div>
+      <ul class="plain" style="list-style:none;padding:0" data-type="summarize">
+        <li class="card pol"><div class="body"><b>Evening summary</b><p class="sentence">Info and success tagged digest: one summary at 20:00.</p></div>
+          <button class="switch" role="switch" aria-checked="true" aria-label="Evening summary" type="button"></button></li>
+      </ul>
+
+      <div class="type">Quiet hours <small>· Higher in the list counts</small></div>
+      <ul class="plain movable" style="list-style:none;padding:0" data-type="quiet">
+        <li class="card pol" data-name="Night quiet"><span class="pos" aria-hidden="true"></span><div class="body"><b>Night quiet</b><p class="sentence">Info and success, every night 22:00 to 07:00: sent quietly.</p>
+          <div class="chiprow"><span class="mini">Critical messages pass</span><span class="mini">Not for tag: leak</span></div></div>
+          <div class="moves"></div>
+          <button class="switch" role="switch" aria-checked="true" aria-label="Night quiet" type="button"></button></li>
+        <li class="card pol" data-name="Weekend lie-in"><span class="pos" aria-hidden="true"></span><div class="body"><b>Weekend lie-in</b><p class="sentence">Info, Saturday and Sunday 06:00 to 10:00: waits until the end.</p>
+          <div class="chiprow"><span class="mini">Critical messages pass</span></div>
+          <span class="note warn">Night quiet lets through tag leak; this one does not.</span></div>
+          <div class="moves"></div>
+          <button class="switch" role="switch" aria-checked="true" aria-label="Weekend lie-in" type="button"></button></li>
+      </ul>
+
+      <div class="type">Presence <small>· Higher in the list counts</small></div>
+      <ul class="plain movable" style="list-style:none;padding:0" data-type="presence">
+        <li class="card pol" data-name="Shopping on leaving"><span class="pos" aria-hidden="true"></span><div class="body"><b>Shopping on leaving</b><p class="sentence">Tag shopping, push: held while the recipient is home.</p></div>
+          <div class="moves"></div>
+          <button class="switch" role="switch" aria-checked="true" aria-label="Shopping on leaving" type="button"></button></li>
+        <li class="card pol" data-name="Away"><span class="pos" aria-hidden="true"></span><div class="body"><b>Away</b><p class="sentence">All messages, push, popup, mail: held until the recipient is home.</p>
+          <div class="chiprow"><span class="mini">Critical messages pass</span></div></div>
+          <div class="moves"></div>
+          <button class="switch" role="switch" aria-checked="true" aria-label="Away" type="button"></button></li>
+      </ul>
+    </div>
+
+    <div class="group" role="region" aria-labelledby="g-send">
+      <h2 id="g-send">Send</h2>
+      <p class="secnote">Escalations and reminders count from when the message reached someone.</p>
+
+      <div class="type">Deliver <small>· Higher in the list counts</small></div>
+      <ul class="plain movable" style="list-style:none;padding:0" data-type="deliver">
+        <li class="card pol" data-name="Leak to Admins"><span class="pos" aria-hidden="true"></span><div class="body"><b>Leak to Admins</b><p class="sentence">Tag leak: also push to Admins.</p></div>
+          <div class="moves"></div>
+          <button class="switch" role="switch" aria-checked="true" aria-label="Leak to Admins" type="button"></button></li>
+        <li class="card pol" data-name="Critical delivery"><span class="pos" aria-hidden="true"></span><div class="body"><b>Critical delivery</b><p class="sentence">Critical: also push to Admins.</p></div>
+          <div class="moves"></div>
+          <button class="switch" role="switch" aria-checked="true" aria-label="Critical delivery" type="button"></button></li>
+      </ul>
+
+      <div class="type">Reminder <small>· Higher in the list counts</small></div>
+      <ul class="plain movable" style="list-style:none;padding:0" data-type="reminder">
+        <li class="card pol" data-name="Urgent"><span class="pos" aria-hidden="true"></span><div class="body"><b>Urgent</b><p class="sentence">Warnings, every 15 min, at most 8, only if Pump alarm is on.</p></div>
+          <div class="moves"></div>
+          <button class="switch" role="switch" aria-checked="true" aria-label="Urgent" type="button"></button></li>
+        <li class="card pol" data-name="Hourly"><span class="pos" aria-hidden="true"></span><div class="body"><b>Hourly</b><p class="sentence">Warnings, every 60 min, at most 6. Counts separately from Urgent.</p></div>
+          <div class="moves"></div>
+          <button class="switch" role="switch" aria-checked="true" aria-label="Hourly" type="button"></button></li>
+      </ul>
+
+      <div class="type">Fallback</div>
+      <ul class="plain" style="list-style:none;padding:0">
+        <li class="card pol"><div class="body"><b>Say it in the house</b><p class="sentence">Nobody reached: speech on Household speakers. Holds still apply.</p></div>
+          <button class="switch" role="switch" aria-checked="true" aria-label="Say it in the house" type="button"></button></li>
+      </ul>
+    </div>
+    <p class="sr" id="move-status" aria-live="polite"></p>
+    <div class="actions"><button class="primary" type="button">Add policy</button></div>
+  </section>
+
+  <!-- ============ ONE POLICY (QUIET HOURS) ============ -->
+  <section id="view-form" role="tabpanel" aria-labelledby="tab-form" hidden>
+    <div class="card">
+      <span class="kind">Quiet hours · Hold back</span>
+      <label for="f-name">Name</label>
+      <input type="text" id="f-name" value="Weekend lie-in">
+
+      <h2>Which messages</h2>
+      <div class="chips" role="group" aria-label="Severities">
+        <button class="chip" type="button" aria-pressed="true">Info</button>
+        <button class="chip" type="button" aria-pressed="false">Success</button>
+        <button class="chip" type="button" aria-pressed="false">Warning</button>
+        <button class="chip" type="button" aria-pressed="false">Critical</button>
+      </div>
+      <div class="row">
+        <div><label for="f-tags">Tags</label><input type="text" id="f-tags" placeholder="any tag"></div>
+        <div><label for="f-not">Not for tags <span class="new">new</span></label><input type="text" id="f-not" placeholder="none"></div>
+      </div>
+      <p class="hint">Night quiet lets through tag leak; this policy does not. <button class="ghost" type="button" id="copy" style="min-height:30px;padding:2px 8px">Copy "leak"</button></p>
+      <label class="check"><input type="checkbox" checked> Critical messages pass</label>
+      <label class="check"><input type="checkbox"> Only if …</label>
+
+      <h2>What it does</h2>
+      <div class="row">
+        <div><label for="f-from">From</label><input type="text" id="f-from" value="06:00"></div>
+        <div><label for="f-to">To</label><input type="text" id="f-to" value="10:00"></div>
+      </div>
+      <label for="f-days">Days</label><input type="text" id="f-days" value="Sat, Sun">
+      <label for="f-act">Then</label>
+      <select id="f-act"><option>Wait until the end</option><option>Send quietly</option><option>Drop</option></select>
+
+      <label for="f-place">Place <span class="new">new</span></label>
+      <select id="f-place"><option value="below">Below Night quiet</option><option value="above">Above Night quiet</option></select>
+
+      <div class="preview" aria-live="polite">
+        <h3>Where it overlaps</h3>
+        <p id="ov"></p>
+        <p>In words: on Saturday and Sunday from 06:00 to 10:00 info messages wait until the end. Critical messages pass.</p>
+      </div>
+      <div class="actions">
+        <button class="ghost" type="button">Cancel</button>
+        <button class="primary" type="button">Save</button>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="switch-dlg" aria-labelledby="dlg-title">
+    <h2 id="dlg-title">What changes with "One of each type"</h2>
+    <p class="hint">Compared with your 1.0 list, with today's switch states. Pick one answer per line.</p>
+    <ul>
+      <li>Away starts holding push, popup and mail for people not home: info, success and warning messages. Critical still passes.
+        <div class="choice" role="group" aria-label="Away"><button class="ghost" type="button" aria-pressed="true">Keep as before</button><button class="ghost" type="button" aria-pressed="false">Let it act</button></div></li>
+      <li>Escalation "Nobody looked" starts acting on warnings. In 1.0 "Night wait" came first for every warning, at any hour.
+        <div class="choice" role="group" aria-label="Nobody looked"><button class="ghost" type="button" aria-pressed="false">Keep as before</button><button class="ghost" type="button" aria-pressed="true">Let it act</button></div></li>
+      <li>Evening summary and Night quiet both fit digest messages. The summary holds them first: no change.</li>
+      <li>Escalation and Reminder keep counting from when the message was created.
+        <div class="choice" role="group" aria-label="Count from"><button class="ghost" type="button" aria-pressed="true">Keep as before</button><button class="ghost" type="button" aria-pressed="false">Count from when it reached someone</button></div></li>
+    </ul>
+    <p class="hint">Way back: set How the list works to "Only the first (1.0)". The list itself is not reordered.</p>
+    <div class="actions"><button class="ghost" type="button" id="dlg-cancel">Cancel</button><button class="primary" type="button" id="dlg-ok">Switch</button></div>
+  </dialog>
+</main>
+<script>
+(function () {
+  var root = document.documentElement;
+  var themeBtn = document.getElementById('theme');
+  function currentDark() {
+    var t = root.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function label() { themeBtn.textContent = currentDark() ? 'Light' : 'Dark'; }
+  themeBtn.addEventListener('click', function () { root.setAttribute('data-theme', currentDark() ? 'light' : 'dark'); label(); });
+  label();
+
+  var tabs = [['tab-page', 'view-page'], ['tab-form', 'view-form']];
+  tabs.forEach(function (p) {
+    document.getElementById(p[0]).addEventListener('click', function () {
+      tabs.forEach(function (q) {
+        var on = q[0] === p[0];
+        document.getElementById(q[0]).setAttribute('aria-selected', on);
+        document.getElementById(q[1]).hidden = !on;
+      });
+    });
+  });
+  document.querySelectorAll('.switch').forEach(function (b) {
+    b.addEventListener('click', function () { b.setAttribute('aria-checked', b.getAttribute('aria-checked') !== 'true'); });
+  });
+  document.querySelectorAll('.chip, .choice button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var g = b.closest('.choice');
+      if (g) { g.querySelectorAll('button').forEach(function (o) { o.setAttribute('aria-pressed', o === b); }); }
+      else b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true');
+    });
+  });
+
+  // Move up / Move down, only within one type.
+  var status = document.getElementById('move-status');
+  function refresh(list) {
+    var items = Array.prototype.slice.call(list.children);
+    items.forEach(function (li, i) {
+      var name = li.getAttribute('data-name');
+      li.querySelector('.pos').textContent = (i + 1) + '.';
+      var m = li.querySelector('.moves');
+      m.innerHTML = '';
+      [['up', '↑', 'Move ' + name + ' up within ' + list.getAttribute('data-type')], ['down', '↓', 'Move ' + name + ' down within ' + list.getAttribute('data-type')]].forEach(function (d) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.textContent = d[1]; b.setAttribute('aria-label', d[2]);
+        b.disabled = d[0] === 'up' ? i === 0 : i === items.length - 1;
+        b.addEventListener('click', function () {
+          if (d[0] === 'up') list.insertBefore(li, li.previousElementSibling);
+          else list.insertBefore(li.nextElementSibling, li);
+          refresh(list);
+          status.textContent = name + ' is now number ' + (Array.prototype.indexOf.call(list.children, li) + 1) + '.';
+          var again = li.querySelector('.moves button:not([disabled])'); if (again) again.focus();
+        });
+        m.appendChild(b);
+      });
+    });
+  }
+  document.querySelectorAll('.movable').forEach(refresh);
+
+  // Switch dialog.
+  var dlg = document.getElementById('switch-dlg');
+  document.getElementById('open-switch').addEventListener('click', function () { if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', ''); });
+  function closeDlg() { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); }
+  document.getElementById('dlg-cancel').addEventListener('click', closeDlg);
+  document.getElementById('dlg-ok').addEventListener('click', function () {
+    closeDlg();
+    document.querySelector('.banner').hidden = true;
+    document.getElementById('mode-line').textContent = 'How the list works: One of each type.';
+  });
+
+  // What happens to a message?
+  var sev = document.getElementById('cm-sev'), tag = document.getElementById('cm-tag'), time = document.getElementById('cm-time');
+  function li(a, b, c) { return '<li><b>' + a + '</b> ' + b + (c ? '<small>' + c + '</small>' : '') + '</li>'; }
+  function check() {
+    var s = sev.value, t = tag.value, night = time.value === 'night', out = [];
+    if (s === 'info' && t === 'digest') {
+      out.push(li('Summarize', 'Evening summary collects it; sent at 20:00', 'Night quiet fits too but never sees it'));
+    } else {
+      out.push(li('Summarize', 'none fits', ''));
+      if (s === 'info' && night) out.push(li('Quiet hours', 'Night quiet: sent quietly', 'Highest quiet hour whose window is now'));
+      else out.push(li('Quiet hours', s === 'critical' ? 'none: critical messages pass' : 'none fits now', ''));
+      out.push(li('Presence', s === 'critical' ? 'Away: critical passes' : 'Away: push held for people not home', 'Shopping on leaving is higher but needs tag shopping'));
+      if (t === 'leak') out.push(li('Deliver', 'Leak to Admins: push to Admins', 'Higher than Critical delivery'));
+      else if (s === 'critical') out.push(li('Deliver', 'Critical delivery: push to Admins', ''));
+      if (s === 'warning') out.push(li('Reminder', 'Hourly (Urgent while Pump alarm is on)', 'Each counts its own repeats'));
+    }
+    document.getElementById('cm-out').innerHTML = out.join('');
+  }
+  [sev, tag, time].forEach(function (el) { el.addEventListener('change', check); });
+  check();
+
+  // Overlap sentence in the form.
+  var place = document.getElementById('f-place');
+  function ov() {
+    document.getElementById('ov').textContent = place.value === 'below'
+      ? 'Where both fit (info, Saturday and Sunday 06:00 to 09:00) Night quiet counts because it is higher: info goes quietly. From 09:00 to 10:00 only Weekend lie-in fits: info waits until 10:00.'
+      : 'Where both fit (info, Saturday and Sunday 06:00 to 09:00) Weekend lie-in counts because it is higher: info waits until 10:00. Night quiet still acts on the other nights and on success messages.';
+  }
+  place.addEventListener('change', ov); ov();
+  document.getElementById('copy').addEventListener('click', function () { document.getElementById('f-not').value = 'leak'; });
+})();
+</script>
+</body>
+</html>

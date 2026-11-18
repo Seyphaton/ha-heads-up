@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goals mockup B</title>
+<style>
+:root {
+  --bg: #f5f6f8; --card: #fff; --text: #1c1e21; --muted: #5f6672; --line: #d9dde3;
+  --accent: #0b6bcb; --accent-bg: #e4f0fc; --warn: #8a5a00; --warn-bg: #fff4d6; --crit: #b42318; --crit-bg: #fde8e6;
+  --chip: #eef0f3; --on-accent: #fff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #14161a; --card: #1e2127; --text: #e8eaed; --muted: #a0a7b3; --line: #343a44;
+    --accent: #6cb4ff; --accent-bg: #1c2f45; --warn: #e3b341; --warn-bg: #3a2f12; --crit: #ff8a80; --crit-bg: #3d1d1b; --chip: #2a2f38; --on-accent: #0b1620; }
+}
+:root[data-theme="dark"] { --bg: #14161a; --card: #1e2127; --text: #e8eaed; --muted: #a0a7b3; --line: #343a44;
+  --accent: #6cb4ff; --accent-bg: #1c2f45; --warn: #e3b341; --warn-bg: #3a2f12; --crit: #ff8a80; --crit-bg: #3d1d1b; --chip: #2a2f38; --on-accent: #0b1620; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, sans-serif; }
+header { padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--card); display: flex; gap: 8px; align-items: center; }
+header div { flex: 1; min-width: 0; }
+header h1 { margin: 0; font-size: 18px; }
+header p { margin: 2px 0 0; color: var(--muted); font-size: 12.5px; }
+main { max-width: 420px; margin: 0 auto; padding: 16px; }
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.tabs button { flex: 1; }
+button { font: inherit; color: var(--text); cursor: pointer; min-height: 40px; border-radius: 8px; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.ghost { background: var(--card); border: 1px solid var(--line); padding: 8px 12px; }
+.ghost[aria-selected="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.primary { background: var(--accent); color: var(--on-accent); border: 0; padding: 10px 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+h2 { margin: 18px 0 4px; font-size: 15px; }
+h2 .icon { display: inline-block; width: 1.4em; }
+.secnote { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+.goal { display: flex; gap: 10px; align-items: flex-start; }
+.goal .body { flex: 1; min-width: 0; }
+.kind { display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; color: var(--muted); }
+.kind.through { color: var(--crit); }
+.sentence { margin: 2px 0 0; }
+.note { display: block; margin-top: 6px; font-size: 12.5px; padding: 4px 8px; border-radius: 6px; background: var(--chip); color: var(--text); }
+.note.warn { background: var(--warn-bg); color: var(--warn); }
+.details { margin-top: 6px; font-size: 12px; color: var(--muted); font-family: ui-monospace, monospace; word-break: break-all; }
+.switch { flex: none; width: 52px; height: 32px; min-height: 32px; border-radius: 16px; border: 1px solid var(--line); background: var(--chip); position: relative; padding: 0; }
+.switch::after { content: "Off"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 7px; font-size: 11px; color: var(--muted); }
+.switch[aria-checked="true"] { background: var(--accent); border-color: var(--accent); }
+.switch[aria-checked="true"]::after { content: "On"; justify-content: flex-start; padding-left: 9px; padding-right: 0; color: var(--on-accent); font-weight: 700; }
+.banner { background: var(--warn-bg); color: var(--warn); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; margin-bottom: 12px; }
+.banner button { margin-top: 6px; min-height: 36px; }
+label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+select, input[type=text], input[type=number] { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; min-height: 40px; }
+.row { display: flex; gap: 8px; }
+.row > * { flex: 1; min-width: 0; }
+ol.timeline { margin: 8px 0 0; padding-left: 0; list-style: none; }
+ol.timeline li { border-left: 2px solid var(--line); padding: 2px 0 8px 12px; position: relative; font-size: 14px; }
+ol.timeline li b { display: inline-block; min-width: 3.4em; }
+ol.timeline li small { display: block; color: var(--muted); font-size: 12.5px; }
+.fill { font: inherit; font-weight: 600; color: var(--accent); background: var(--accent-bg); border: 1px dashed var(--accent); border-radius: 6px; padding: 0 6px; min-height: 30px; }
+.bigsentence { font-size: 17px; line-height: 2; margin: 0; }
+details { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 8px; }
+summary { cursor: pointer; font-weight: 600; min-height: 32px; display: flex; align-items: center; }
+.check { display: flex; gap: 8px; align-items: center; margin: 8px 0; font-size: 14px; }
+.check input { width: 18px; height: 18px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { background: var(--chip); border: 1px solid transparent; border-radius: 999px; padding: 6px 12px; min-height: 36px; }
+.chip[aria-pressed="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chip[aria-pressed="true"]::before { content: "\2713  "; }
+.preview { background: var(--accent-bg); border-radius: 10px; padding: 10px 12px; margin-top: 14px; }
+.preview h3 { margin: 0 0 4px; font-size: 14px; color: var(--accent); }
+.preview p { margin: 4px 0; font-size: 14px; }
+.actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+.hint { color: var(--muted); font-size: 12.5px; margin: 4px 0 0; }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.promise { display: block; margin-top: 6px; font-size: 12.5px; }
+.promise::before { content: attr(data-mark) " "; font-weight: 700; }
+.promise.kept { color: var(--muted); }
+.promise.bent { color: var(--warn); }
+.line { margin-top: 10px; }
+.line .frag { display: block; font-size: 14px; color: var(--text); margin-bottom: 4px; }
+.readout { font-size: 16px; margin: 6px 0 0; padding: 8px 10px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Goals</h1>
+    <p>Mockup, design B v2. Not part of the integration; nothing is saved. Sample data only.</p>
+  </div>
+  <button class="ghost" id="theme" type="button" aria-label="Switch between light and dark theme">Theme</button>
+</header>
+<main>
+  <div class="tabs" role="tablist" aria-label="Mockup views">
+    <button class="ghost" role="tab" id="tab-page" aria-selected="true" aria-controls="view-page" type="button">Goals page</button>
+    <button class="ghost" role="tab" id="tab-form" aria-selected="false" aria-controls="view-form" type="button">One goal</button>
+  </div>
+
+  <!-- ============ GOALS PAGE ============ -->
+  <section id="view-page" role="tabpanel" aria-labelledby="tab-page">
+    <div class="card">
+      <strong>Check a message</strong>
+      <p class="hint">Pick a message; the list shows what happens, which goal does it and why.</p>
+      <div class="row">
+        <div><label for="cm-sev">Severity</label>
+          <select id="cm-sev"><option value="warning">Warning</option><option value="info">Info</option><option value="critical">Critical</option></select></div>
+        <div><label for="cm-tag">Tag</label>
+          <select id="cm-tag"><option value="leak">leak</option><option value="digest">digest</option><option value="doorbell">doorbell</option><option value="">no tag</option></select></div>
+        <div><label for="cm-time">Time</label>
+          <select id="cm-time"><option value="03:00">03:00</option><option value="14:00">14:00</option><option value="23:00">23:00</option></select></div>
+      </div>
+      <ol class="timeline" id="cm-out" aria-live="polite"></ol>
+    </div>
+
+    <div class="banner" role="region" aria-label="Converted from 1.0">
+      <strong>Converted from 1.0</strong><br>
+      Presence never acts: Critical delivery, Warning reminder, Evening summary and Night quiet take all its messages first.
+      <div class="row" style="margin-top:6px">
+        <button class="ghost" type="button">Keep as before</button>
+        <button class="ghost" type="button">Let it act</button>
+      </div>
+      <p style="margin:8px 0 0">Night quiet is not for messages Evening summary takes.</p>
+      <div class="row" style="margin-top:6px">
+        <button class="ghost" type="button">Keep as before</button>
+        <button class="ghost" type="button">Use "except tag digest"</button>
+      </div>
+    </div>
+
+    <label class="check"><input type="checkbox" id="show-details"> Show details (type, entity ID, YAML)</label>
+
+    <h2><span class="icon" aria-hidden="true">&#9889;</span>Always gets through</h2>
+    <p class="secnote">These pass the kinds of calm goal they name. No goal holds them anyway.</p>
+    <div class="card goal">
+      <div class="body">
+        <span class="kind through">Gets through</span>
+        <p class="sentence">Lets <b>warnings tagged leak</b> through <b>Quiet times and Summary</b> for <b>only the people this goal sends to</b>, and pushes it to <b>Admins</b>.</p>
+        <span class="promise kept" data-mark="Kept.">Others it reaches stay quiet at night.</span>
+        <div class="details" hidden>get_through · switch.heads_up_leak</div>
+      </div>
+      <button class="switch" role="switch" aria-checked="true" aria-label="Leak, gets through" type="button"></button>
+    </div>
+    <div class="card goal">
+      <div class="body">
+        <span class="kind through">Gets through</span>
+        <p class="sentence">Lets <b>critical messages</b> through <b>Quiet times, Summary and Presence</b> for <b>everyone it reaches</b>.</p>
+        <span class="note">Converted from 1.0 ("Critical messages pass")</span>
+        <span class="promise kept" data-mark="Kept."></span>
+        <div class="details" hidden>get_through · switch.heads_up_critical_gets_through</div>
+      </div>
+      <button class="switch" role="switch" aria-checked="true" aria-label="Critical messages get through" type="button"></button>
+    </div>
+
+    <h2><span class="icon" aria-hidden="true">&#9790;</span>Keep it calm</h2>
+    <p class="secnote">All that fit act together; the calmest wins.</p>
+    <div class="card goal">
+      <div class="body">
+        <span class="kind">Summary</span>
+        <p class="sentence">Collects <b>info and success tagged digest</b> into one summary at <b>20:00</b>.</p>
+        <span class="promise kept" data-mark="Kept."></span>
+        <div class="details" hidden>summarize · switch.heads_up_evening_summary</div>
+      </div>
+      <button class="switch" role="switch" aria-checked="true" aria-label="Evening summary" type="button"></button>
+    </div>
+    <div class="card goal">
+      <div class="body">
+        <span class="kind">Quiet times</span>
+        <p class="sentence">Keeps <b>info and success</b> quiet on nights starting Sun to Thu <b>22:00 to 07:00</b> and Fri, Sat <b>23:00 to 09:00</b>: goes quietly. Not for messages Evening summary takes (from 1.0).</p>
+        <span class="promise kept" data-mark="Kept."></span>
+        <div class="details" hidden>quiet_hours · switch.heads_up_night_quiet</div>
+      </div>
+      <button class="switch" role="switch" aria-checked="true" aria-label="Night quiet" type="button"></button>
+    </div>
+    <div class="card goal">
+      <div class="body">
+        <span class="kind">Presence</span>
+        <p class="sentence">Speaks <b>doorbell</b> messages only when <b>somebody of Household</b> is home; otherwise drops; unless <b>Guest mode</b> is on.</p>
+        <span class="promise kept" data-mark="Kept."></span>
+        <div class="details" hidden>presence · switch.heads_up_doorbell_at_home</div>
+      </div>
+      <button class="switch" role="switch" aria-checked="true" aria-label="Doorbell at home" type="button"></button>
+    </div>
+    <div class="card goal">
+      <div class="body">
+        <span class="kind">Presence</span>
+        <p class="sentence">Holds push for <b>any message</b> while the recipient is not home. Not for messages other goals take (from 1.0).</p>
+        <span class="promise bent" data-mark="Never acts:">Critical delivery, Warning reminder, Evening summary and Night quiet take all its messages first.</span>
+        <div class="details" hidden>presence · switch.heads_up_away</div>
+      </div>
+      <button class="switch" role="switch" aria-checked="true" aria-label="Away" type="button"></button>
+    </div>
+
+    <h2><span class="icon" aria-hidden="true">&#10148;</span>Make sure it arrives</h2>
+    <p class="secnote">Waiting times count from when the message reached someone.</p>
+    <div class="card goal">
+      <div class="body">
+        <span class="kind">Also send</span>
+        <p class="sentence">Also sends <b>critical messages</b> to <b>Admins</b> on push.</p>
+        <span class="promise kept" data-mark="Kept."></span>
+        <div class="details" hidden>deliver · switch.heads_up_critical_delivery</div>
+      </div>
+      <button class="switch" role="switch" aria-checked="true" aria-label="Critical delivery" type="button"></button>
+    </div>
+    <div class="card goal">
+      <div class="body">
+        <span class="kind">Repeat</span>
+        <p class="sentence">Repeats <b>warnings</b> every <b>1 h</b>, every <b>15 min while Pump alarm is on</b>, at most <b>12 times in all</b>.</p>
+        <span class="promise kept" data-mark="Kept."></span>
+        <div class="details" hidden>reminder · switch.heads_up_warning_reminder</div>
+      </div>
+      <button class="switch" role="switch" aria-checked="true" aria-label="Warning reminder" type="button"></button>
+    </div>
+    <div class="card goal">
+      <div class="body">
+        <span class="kind">If unreached</span>
+        <p class="sentence">If <b>any message</b> reaches nobody, sends it to <b>Kitchen speaker</b>.</p>
+        <span class="promise bent" data-mark="Bent:">info and success at night stay quiet (Night quiet).</span>
+        <div class="details" hidden>fallback · switch.heads_up_kitchen_fallback</div>
+      </div>
+      <button class="switch" role="switch" aria-checked="true" aria-label="Kitchen fallback" type="button"></button>
+    </div>
+
+    <h2><span class="icon" aria-hidden="true">&#9998;</span>Only when named</h2>
+    <p class="secnote">Act only when an automation or watch rule names them.</p>
+    <div class="card goal">
+      <div class="body">
+        <span class="kind">Also send</span>
+        <p class="sentence">Also sends to <b>Ben</b> on mail.</p>
+        <div class="details">deliver · switch.heads_up_mail_ben</div>
+      </div>
+      <button class="switch" role="switch" aria-checked="true" aria-label="Mail Ben" type="button"></button>
+    </div>
+
+    <div class="actions"><button class="primary" type="button">Add a goal</button></div>
+  </section>
+
+  <!-- ============ ONE GOAL (PASS ON), SENTENCE COLUMN ============ -->
+  <section id="view-form" role="tabpanel" aria-labelledby="tab-form" hidden>
+    <div class="card">
+      <div class="row" style="align-items:center">
+        <span class="kind" id="f-kind">Pass on</span>
+        <div class="chips" role="group" aria-label="Form language (mockup only)" style="flex:none">
+          <button class="chip" type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button class="chip" type="button" data-lang="de" aria-pressed="false">DE</button>
+        </div>
+      </div>
+
+      <label for="f-name" id="l-name">Name</label>
+      <input type="text" id="f-name" value="Tell Admins">
+
+      <div id="sentence"></div>
+
+      <details>
+        <summary id="l-more">More options</summary>
+        <div id="more"></div>
+      </details>
+
+      <p class="readout" id="readout" aria-live="polite"></p>
+
+      <div class="preview" aria-live="polite">
+        <h3 id="l-what">What will happen</h3>
+        <p id="pv-1"></p>
+        <p id="pv-2"></p>
+        <label for="pv-when" id="l-try">Try: a warning at</label>
+        <select id="pv-when"><option value="23">23:00 (Night wait covers warnings)</option><option value="14">14:00</option></select>
+        <ol class="timeline" id="pv-out"></ol>
+      </div>
+
+      <div class="actions">
+        <button class="ghost" type="button" id="b-cancel">Cancel</button>
+        <button class="primary" type="button" id="b-save">Save</button>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+(function () {
+  var root = document.documentElement;
+  var themeBtn = document.getElementById('theme');
+  function currentDark() {
+    var t = root.getAttribute('data-theme');
+    if (t) return t === 'dark';
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  function label() { themeBtn.textContent = currentDark() ? 'Light' : 'Dark'; }
+  themeBtn.addEventListener('click', function () { root.setAttribute('data-theme', currentDark() ? 'light' : 'dark'); label(); });
+  label();
+
+  var tabs = [['tab-page', 'view-page'], ['tab-form', 'view-form']];
+  tabs.forEach(function (p) {
+    document.getElementById(p[0]).addEventListener('click', function () {
+      tabs.forEach(function (q) {
+        var on = q[0] === p[0];
+        document.getElementById(q[0]).setAttribute('aria-selected', on);
+        document.getElementById(q[1]).hidden = !on;
+      });
+    });
+  });
+
+  document.querySelectorAll('.switch').forEach(function (b) {
+    b.addEventListener('click', function () { b.setAttribute('aria-checked', b.getAttribute('aria-checked') !== 'true'); });
+  });
+  document.getElementById('show-details').addEventListener('change', function (e) {
+    document.querySelectorAll('#view-page .details').forEach(function (d) {
+      if (d.textContent.indexOf('mail_ben') < 0) d.hidden = !e.target.checked;
+    });
+  });
+
+  function render(list, rows) {
+    list.innerHTML = rows.map(function (r) { return '<li><b>' + r[0] + '</b> ' + r[1] + (r[2] ? '<small>' + r[2] + '</small>' : '') + '</li>'; }).join('');
+  }
+
+  // ----- Check a message -----
+  var sev = document.getElementById('cm-sev'), tag = document.getElementById('cm-tag'), time = document.getElementById('cm-time');
+  function check() {
+    var s = sev.value, t = tag.value, h = time.value, night = h !== '14:00', rows = [];
+    if (t === 'digest' && s === 'info') {
+      rows.push([h, 'Collected, not sent now', 'Evening summary, because it is tagged digest']);
+      rows.push(['20:00', 'Sent in the summary', 'No calm goal acts at 20:00']);
+    } else if (s === 'info') {
+      rows.push([h, night ? 'Push goes quietly, no sound, no speech' : 'Push and banner as normal', night ? 'Night quiet, because it is info' : 'No goal fits']);
+      if (t === 'doorbell') rows.push([h, night ? 'Not spoken' : 'Spoken if somebody of Household is home', night ? 'Night quiet is calmer than speaking' : 'Doorbell at home']);
+    } else if (s === 'warning') {
+      if (t === 'leak') rows.push([h, 'Push to Admins with sound', 'Leak gets through, because it is tagged leak; only for the Admins']);
+      else rows.push([h, 'Push and banner as normal', 'No calm goal fits warnings']);
+      rows.push(['+1 h', 'Repeat (every 15 min while Pump alarm is on)', 'Warning reminder, at most 12 in all']);
+    } else {
+      rows.push([h, 'Push and banner, passing every calm goal', 'Critical messages get through']);
+      rows.push([h, 'Also sent to Admins on push', 'Critical delivery']);
+    }
+    render(document.getElementById('cm-out'), rows);
+  }
+  [sev, tag, time].forEach(function (el) { el.addEventListener('change', check); });
+  check();
+
+  // ----- Sentence-column form, English and German -----
+  // Each language lists the fragments of the sentence in its own order; a field follows each fragment.
+  var FIELDS = {
+    msgs: function (L) { return '<select id="f-msgs"><option>' + L.warnings + '</option><option>' + L.critical + '</option></select>'; },
+    mins: function (L) { return '<input type="number" id="f-mins" value="30" min="1">'; },
+    who: function (L) { return '<select id="f-who"><option>Admins</option><option>Ben</option></select>'; },
+    chan: function (L) { return '<select id="f-chan"><option>Push</option><option>' + L.speech + '</option></select>'; }
+  };
+  var LANG = {
+    en: {
+      kind: 'Pass on', name: 'Name', more: 'More options', what: 'What will happen', tr: 'Try: a warning at', cancel: 'Cancel', save: 'Save',
+      warnings: 'Warnings', critical: 'Critical messages', speech: 'Speech',
+      aMsgs: 'Which messages', aMins: 'Minutes', aWho: 'Who', aChan: 'Channel',
+      lines: [['If nobody reacts to', 'msgs'], ['within … minutes', 'mins'], ['after it reached someone, tell', 'who'], ['on', 'chan']],
+      moreLines: '<label for="m-count">Counts from</label><select id="m-count"><option>After it reached someone</option><option>When the message was created</option></select><label for="m-except">Except tags</label><input type="text" id="m-except" value="digest"><label class="check"><input type="checkbox"> Only when named</label>',
+      readout: 'If nobody reacts to warnings within 30 minutes after it reached someone, tell Admins on push.',
+      pv1: 'Also fits warnings: Warning reminder (Repeat). Both act.',
+      pv2: 'Promise check: Kept. Night wait may delay it until morning; no goal lets it through at night.',
+      t23: [['23:00', 'Warning waits', 'Night wait; it has reached nobody'], ['07:00', 'Delivered', ''], ['07:30', 'Admins told if nobody reacted', 'Tell Admins']],
+      t14: [['14:00', 'Delivered', 'Reached Anna'], ['14:30', 'Admins told if nobody reacted', 'Tell Admins']]
+    },
+    de: {
+      kind: 'Weitergeben', name: 'Name', more: 'Weitere Optionen', what: 'Was passiert', tr: 'Ausprobieren: eine Warnung um', cancel: 'Abbrechen', save: 'Speichern',
+      warnings: 'Warnungen', critical: 'Kritische Nachrichten', speech: 'Sprache',
+      aMsgs: 'Welche Nachrichten', aMins: 'Minuten', aWho: 'Wer', aChan: 'Kanal',
+      lines: [['Wenn niemand reagiert auf', 'msgs'], ['innerhalb von … Minuten', 'mins'], ['nachdem sie jemanden erreicht hat, informiere', 'who'], ['über', 'chan']],
+      moreLines: '<label for="m-count">Zählt ab</label><select id="m-count"><option>Nachdem sie jemanden erreicht hat</option><option>Ab dem Erstellen</option></select><label for="m-except">Außer Tags</label><input type="text" id="m-except" value="digest"><label class="check"><input type="checkbox"> Nur wenn genannt</label>',
+      readout: 'Wenn niemand innerhalb von 30 Minuten auf Warnungen reagiert, nachdem sie jemanden erreicht hat, informiere Admins über Push.',
+      pv1: 'Passt auch auf Warnungen: Warnung wiederholen (Wiederholen). Beide wirken.',
+      pv2: 'Prüfung: Eingehalten. Nachtruhe kann es bis zum Morgen verzögern; kein Ziel lässt es nachts durch.',
+      t23: [['23:00', 'Warnung wartet', 'Nachtruhe; sie hat niemanden erreicht'], ['07:00', 'Zugestellt', ''], ['07:30', 'Admins informiert, falls niemand reagiert hat', 'Admins informieren']],
+      t14: [['14:00', 'Zugestellt', 'Hat Anna erreicht'], ['14:30', 'Admins informiert, falls niemand reagiert hat', 'Admins informieren']]
+    }
+  };
+  var lang = 'en';
+  function drawForm() {
+    var L = LANG[lang];
+    document.getElementById('view-form').setAttribute('lang', lang);
+    document.getElementById('f-kind').textContent = L.kind;
+    document.getElementById('l-name').textContent = L.name;
+    document.getElementById('l-more').textContent = L.more;
+    document.getElementById('l-what').textContent = L.what;
+    document.getElementById('l-try').textContent = L.tr;
+    document.getElementById('b-cancel').textContent = L.cancel;
+    document.getElementById('b-save').textContent = L.save;
+    document.getElementById('sentence').innerHTML = L.lines.map(function (ln) {
+      return '<div class="line"><label class="frag" for="f-' + ln[1] + '">' + ln[0] + '</label>' + FIELDS[ln[1]](L) + '</div>';
+    }).join('');
+    document.getElementById('more').innerHTML = L.moreLines;
+    document.getElementById('readout').textContent = L.readout;
+    document.getElementById('pv-1').textContent = L.pv1;
+    document.getElementById('pv-2').textContent = L.pv2;
+    preview();
+  }
+  var when = document.getElementById('pv-when');
+  function preview() { render(document.getElementById('pv-out'), LANG[lang][when.value === '23' ? 't23' : 't14']); }
+  when.addEventListener('change', preview);
+  document.querySelectorAll('[data-lang]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      lang = b.getAttribute('data-lang');
+      document.querySelectorAll('[data-lang]').forEach(function (o) { o.setAttribute('aria-pressed', o === b); });
+      drawForm();
+    });
+  });
+  drawForm();
+})();
+</script>
+</body>
+</html>

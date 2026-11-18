@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Policies, design C v2</title>
+<style>
+:root {
+  --bg: #f5f6f8; --card: #fff; --text: #1c1e21; --muted: #5f6672; --line: #d9dde3;
+  --accent: #0b6bcb; --accent-bg: #e4f0fc; --warn: #8a5a00; --warn-bg: #fff4d6; --chip: #eef0f3;
+  --on: #0b6bcb; --off: #9aa1ab;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #14161a; --card: #1e2127; --text: #e8eaed; --muted: #a0a7b3; --line: #343a44;
+    --accent: #6cb4ff; --accent-bg: #1c2f45; --warn: #e3b341; --warn-bg: #3a2f12; --chip: #2a2f38; --on: #6cb4ff; --off: #5a616c; }
+}
+:root[data-theme="dark"] { --bg: #14161a; --card: #1e2127; --text: #e8eaed; --muted: #a0a7b3; --line: #343a44;
+  --accent: #6cb4ff; --accent-bg: #1c2f45; --warn: #e3b341; --warn-bg: #3a2f12; --chip: #2a2f38; --on: #6cb4ff; --off: #5a616c; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, sans-serif; }
+header { padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--card); display: flex; gap: 8px; align-items: center; }
+header h1 { margin: 0; font-size: 18px; flex: 1; }
+main { max-width: 420px; margin: 0 auto; padding: 12px 16px 40px; }
+.tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+h2 { margin: 18px 0 2px; font-size: 16px; }
+.sub { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+h3 { margin: 0; font-size: 15px; flex: 1; }
+.head { display: flex; align-items: center; gap: 8px; }
+.kind { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 0 6px; }
+.which { color: var(--muted); font-size: 13px; margin: 4px 0 6px; }
+ol.steps { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); margin-left: 6px; }
+ol.steps li { position: relative; padding: 2px 0 6px 14px; font-size: 14px; }
+ol.steps li::before { content: ""; position: absolute; left: -6px; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: var(--card); border: 2px solid var(--muted); }
+.when { font-weight: 600; }
+.badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 6px; border-radius: 6px; background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn); }
+.badge::before { content: "\26A1 "; }
+.lets { margin: 0 0 6px; }
+.byline { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+.byline::before { content: "\26A1 "; }
+.details { font-size: 12px; color: var(--muted); font-family: ui-monospace, monospace; margin: 4px 0 0; word-break: break-all; }
+button, select, input { font: inherit; color: var(--text); }
+.btn { background: var(--chip); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; min-height: 40px; cursor: pointer; }
+.btn[aria-selected="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+:root[data-theme="dark"] .primary { color: #0b1a2a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .primary { color: #0b1a2a; } }
+.switch { width: 46px; height: 28px; border-radius: 14px; border: 1px solid var(--line); background: var(--off); position: relative; cursor: pointer; flex: none; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .15s; }
+.switch[aria-checked="true"] { background: var(--on); }
+.switch[aria-checked="true"]::after { left: 21px; }
+.state { font-size: 12px; color: var(--muted); min-width: 22px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+label, .lbl { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+input[type=text], input[type=number], input[type=time], select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); min-height: 40px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.row > * { flex: 1 1 120px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 999px; background: var(--chip); border: 1px solid transparent; cursor: pointer; min-height: 38px; margin: 0 4px 6px 0; }
+.chip[aria-pressed="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chip[aria-pressed="true"]::before { content: "\2713"; }
+.radio { display: flex; gap: 8px; align-items: center; margin: 6px 0; font-size: 14px; color: var(--text); }
+.radio input { width: 18px; height: 18px; flex: none; }
+.result { margin-top: 10px; padding: 10px; border-radius: 8px; background: var(--accent-bg); font-size: 14px; }
+.result p { margin: 0 0 4px; }
+.list { padding-left: 18px; margin: 4px 0 0; }
+.list li { margin-bottom: 6px; font-size: 14px; }
+.step { border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin-top: 8px; }
+.step .head h4 { margin: 0; font-size: 14px; flex: 1; }
+.words { margin-top: 12px; padding: 10px; border-radius: 10px; background: var(--accent-bg); font-size: 14px; }
+.words strong, .overlap strong { display: block; font-size: 13px; margin-bottom: 2px; }
+.overlap { margin-top: 8px; padding: 10px; border-radius: 10px; border: 1px dashed var(--warn); font-size: 14px; }
+.converted { border-style: dashed; }
+.hint { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 14px; margin: 8px 0; }
+.check input { width: 18px; height: 18px; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Policies</h1>
+  <button class="btn" id="theme" type="button" aria-label="Switch between light and dark theme">Theme</button>
+</header>
+<main>
+  <div class="tabs" role="tablist" aria-label="Mockup views">
+    <button class="btn" role="tab" id="tab-page" aria-selected="true" aria-controls="view-page">Policies page</button>
+    <button class="btn" role="tab" id="tab-form" aria-selected="false" aria-controls="view-form">Edit a plan</button>
+  </div>
+
+  <!-- ============ PAGE ============ -->
+  <section id="view-page" role="tabpanel" aria-labelledby="tab-page">
+
+    <div class="card converted">
+      <div class="head"><h3>Converted from 1.0.0</h3></div>
+      <p class="hint">Everything behaves as before. Two policies never acted, because Away took their messages first:</p>
+      <ul class="list">
+        <li>Critical delivery: never acts (1.0.0). <button class="btn" type="button">Let it act</button></li>
+        <li>Warning reminder: never acts (1.0.0). <button class="btn" type="button">Let it act</button></li>
+      </ul>
+      <p><button class="btn" type="button">Restore 1.0.0 links</button></p>
+    </div>
+
+    <div class="card">
+      <div class="head"><h3>Try a message</h3></div>
+      <div class="row">
+        <div><label for="t-sev">Severity</label>
+          <select id="t-sev"><option>info</option><option>success</option><option selected>warning</option><option>critical</option></select></div>
+        <div><label for="t-time">Time</label><input id="t-time" type="time" value="03:00"></div>
+      </div>
+      <div class="row">
+        <div><label for="t-tag">Tag</label>
+          <select id="t-tag"><option value="">none</option><option selected>leak</option><option>digest</option><option>doorbell</option><option>shopping</option></select></div>
+        <div><label for="t-home">Somebody home</label>
+          <select id="t-home"><option>yes</option><option>no</option></select></div>
+      </div>
+      <div class="result" id="t-out" aria-live="polite"></div>
+    </div>
+
+    <div class="card">
+      <div class="head"><h3>Can wake people</h3></div>
+      <ul class="list">
+        <li>Critical messages: every delivery passes all quiet times, presence rules and summaries, also later ones.</li>
+        <li>Leaks: its own sends pass Night quiet (push to Admins, Kitchen speaker).</li>
+      </ul>
+    </div>
+
+    <div class="row"><label class="check" for="details"><input type="checkbox" id="details"> Show details</label></div>
+
+    <h2>Plans</h2>
+    <p class="sub">What is sent, and when. Every plan that fits a message adds its steps; each person gets one delivery per channel.</p>
+
+    <div class="card">
+      <div class="head"><h3>Critical messages</h3><span class="state" id="s1-l">On</span>
+        <button class="switch" role="switch" aria-checked="true" aria-label="Critical messages" data-label="s1-l"></button></div>
+      <p class="which">Critical · from automations and watch rules</p>
+      <p class="lets"><span class="badge">Lets through: all quiet times, presence, summaries · every delivery</span></p>
+      <ol class="steps">
+        <li><span class="when">At once</span> push to Admins</li>
+        <li><span class="when">Every 10 min</span> until acknowledged</li>
+        <li><span class="when">If nobody reached</span> Household speakers</li>
+      </ol>
+      <p class="details" hidden>switch.heads_up_critical_messages</p>
+    </div>
+
+    <div class="card">
+      <div class="head"><h3>Leaks</h3><span class="state" id="s2-l">On</span>
+        <button class="switch" role="switch" aria-checked="true" aria-label="Leaks" data-label="s2-l"></button></div>
+      <p class="which">Tags leak, smoke · any severity</p>
+      <p class="lets"><span class="badge">Lets through: Night quiet · its own sends</span></p>
+      <ol class="steps">
+        <li><span class="when">At once</span> push to Admins</li>
+        <li><span class="when">After 10 min</span> if nobody reacts: Kitchen speaker</li>
+        <li><span class="when">If nobody reached</span> Household speakers</li>
+      </ol>
+      <p class="details" hidden>switch.heads_up_leaks</p>
+    </div>
+
+    <div class="card">
+      <div class="head"><h3>Warnings</h3><span class="state" id="s3-l">On</span>
+        <button class="switch" role="switch" aria-checked="true" aria-label="Warnings" data-label="s3-l"></button></div>
+      <p class="which">Warning · not tagged digest</p>
+      <ol class="steps">
+        <li><span class="when">Every 60 min</span>, every 15 min while Water valve open, at most 6 times</li>
+        <li><span class="when">After 30 min</span> if nobody reacts: push to Admins</li>
+      </ol>
+      <p class="details" hidden>switch.heads_up_warnings</p>
+      <p><button class="btn" type="button" data-open-form>Edit Warnings</button></p>
+    </div>
+
+    <div class="card">
+      <div class="head"><h3>Safety net</h3><span class="state" id="s4-l">On</span>
+        <button class="switch" role="switch" aria-checked="true" aria-label="Safety net" data-label="s4-l"></button></div>
+      <p class="which">All messages · lets nothing through</p>
+      <ol class="steps">
+        <li><span class="when">If nobody reached</span> Household speakers (quiet at night for info and success)</li>
+      </ol>
+      <p class="details" hidden>switch.heads_up_safety_net</p>
+    </div>
+
+    <h2>House rules</h2>
+    <p class="sub">When the house holds back. Where several act on one delivery, the strictest wins.</p>
+
+    <div class="card">
+      <div class="head"><h3>Night quiet</h3><span class="kind">Quiet times</span><span class="state" id="s5-l">On</span>
+        <button class="switch" role="switch" aria-checked="true" aria-label="Night quiet" data-label="s5-l"></button></div>
+      <p class="which">All severities</p>
+      <p class="hint">Weekdays 22:00 to 07:00, weekends 23:00 to 09:00: send quietly. A window belongs to the day it starts.</p>
+      <p class="byline">Let through by: Critical messages (every delivery), Leaks (its own sends)</p>
+      <p class="details" hidden>switch.heads_up_night_quiet</p>
+    </div>
+
+    <div class="card">
+      <div class="head"><h3>Doorbell speech</h3><span class="kind">Presence</span><span class="state" id="s6-l">On</span>
+        <button class="switch" role="switch" aria-checked="true" aria-label="Doorbell speech" data-label="s6-l"></button></div>
+      <p class="which">Tag doorbell · speech · only if Guest mode is off</p>
+      <p class="hint">Speak when somebody is home, otherwise drop.</p>
+      <p class="byline">Let through by: Critical messages (every delivery)</p>
+      <p class="details" hidden>switch.heads_up_doorbell_speech</p>
+    </div>
+
+    <div class="card">
+      <div class="head"><h3>Shopping list</h3><span class="kind">Presence</span><span class="state" id="s7-l">On</span>
+        <button class="switch" role="switch" aria-checked="true" aria-label="Shopping list" data-label="s7-l"></button></div>
+      <p class="which">Tag shopping · push</p>
+      <p class="hint">Hold each push until its person leaves Home; drop after 12 h.</p>
+      <p class="byline">Let through by: Critical messages (every delivery)</p>
+      <p class="details" hidden>switch.heads_up_shopping_list</p>
+    </div>
+
+    <div class="card">
+      <div class="head"><h3>Evening summary</h3><span class="kind">Summary</span><span class="state" id="s8-l">On</span>
+        <button class="switch" role="switch" aria-checked="true" aria-label="Evening summary" data-label="s8-l"></button></div>
+      <p class="which">Tag digest</p>
+      <p class="hint">Collect and send one summary at 20:00. Collected messages start no plan steps.</p>
+      <p class="byline">Let through by: Critical messages (every delivery)</p>
+      <p class="details" hidden>switch.heads_up_evening_summary</p>
+    </div>
+
+    <div class="row"><button class="btn" type="button">Add a plan</button><button class="btn" type="button">Add a house rule</button></div>
+  </section>
+
+  <!-- ============ FORM ============ -->
+  <section id="view-form" role="tabpanel" aria-labelledby="tab-form" hidden>
+    <div class="card">
+      <h3>Plan: Warnings</h3>
+      <label for="f-name">Name</label>
+      <input id="f-name" type="text" value="Warnings">
+
+      <h2>Which messages</h2>
+      <div role="group" aria-labelledby="sev-l">
+        <span class="lbl" id="sev-l">Severity</span>
+        <button class="chip" type="button" aria-pressed="false">info</button>
+        <button class="chip" type="button" aria-pressed="false">success</button>
+        <button class="chip" type="button" aria-pressed="true">warning</button>
+        <button class="chip" type="button" aria-pressed="false">critical</button>
+      </div>
+      <label for="f-tags">With tags</label>
+      <input id="f-tags" type="text" placeholder="any tag">
+      <label for="f-not">Not with tags</label>
+      <input id="f-not" type="text" value="digest">
+      <label for="f-if">Only if</label>
+      <select id="f-if"><option>always</option><option>a condition</option></select>
+      <label for="f-runs">Runs</label>
+      <select id="f-runs"><option>automatically</option><option>only when named</option></select>
+
+      <h2>Lets through</h2>
+      <p class="hint">Off by default. Whatever you pick shows under "Can wake people" and on each house rule.</p>
+      <div role="group" aria-labelledby="lets-l">
+        <span class="lbl" id="lets-l">House rules this plan may pass</span>
+        <button class="chip lt" type="button" aria-pressed="false" data-name="Night quiet">Night quiet</button>
+        <button class="chip lt" type="button" aria-pressed="false" data-name="Doorbell speech">Doorbell speech</button>
+        <button class="chip lt" type="button" aria-pressed="false" data-name="Shopping list">Shopping list</button>
+        <button class="chip lt" type="button" aria-pressed="false" data-name="Evening summary">Evening summary</button>
+        <button class="chip lt" type="button" aria-pressed="false" data-name="all quiet times, also later ones">All quiet times, also later ones</button>
+      </div>
+      <fieldset style="border:0;padding:0;margin:0">
+        <legend class="lbl">For</legend>
+        <label class="radio"><input type="radio" name="reach" value="own" checked> only for what this plan sends</label>
+        <label class="radio"><input type="radio" name="reach" value="all"> every delivery of these messages</label>
+      </fieldset>
+
+      <h2>Steps</h2>
+      <div class="step">
+        <div class="head"><h4>Repeat</h4><button class="btn" type="button" aria-label="Remove step Repeat">Remove</button></div>
+        <div class="row">
+          <div><label for="r-every">Every (min)</label><input id="r-every" type="number" value="60" min="1"></div>
+          <div><label for="r-max">At most (times)</label><input id="r-max" type="number" value="6" min="0"></div>
+        </div>
+        <label for="r-fast-if">Faster while</label>
+        <select id="r-fast-if"><option>Water valve open is on</option><option>never</option></select>
+        <label for="r-fast">Then every (min)</label>
+        <input id="r-fast" type="number" value="15" min="1">
+        <label for="r-from">Count from</label>
+        <select id="r-from"><option>when it reached someone</option><option>when it appeared</option></select>
+      </div>
+      <div class="step">
+        <div class="head"><h4>If nobody reacts within</h4><button class="btn" type="button" aria-label="Remove step If nobody reacts">Remove</button></div>
+        <div class="row">
+          <div><label for="e-min">Minutes</label><input id="e-min" type="number" value="30" min="1"></div>
+          <div><label for="e-to">Send to</label><select id="e-to"><option>Admins, push</option><option>as the call says</option></select></div>
+        </div>
+      </div>
+      <p><label for="add-step">Add a step</label>
+        <select id="add-step"><option>Choose…</option><option>At once</option><option>If nobody reacts within</option><option>Repeat</option><option>If nobody could be reached</option></select></p>
+
+      <div class="words" aria-live="polite">
+        <strong>In words</strong>
+        <span id="words"></span>
+      </div>
+      <div class="overlap">
+        <strong>Also acting on these messages</strong>
+        Leaks also fits warnings tagged leak: the Admins get one push at once, not two; repeats follow the shorter rhythm with one count. Night quiet acts on every warning at night.
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" type="button" data-close-form>Cancel</button>
+        <button class="btn primary" type="button" data-close-form>Save</button>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+(function () {
+  var root = document.documentElement;
+  document.getElementById('theme').addEventListener('click', function () {
+    var dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+  });
+
+  document.querySelectorAll('.switch').forEach(function (s) {
+    s.addEventListener('click', function () {
+      var on = s.getAttribute('aria-checked') !== 'true';
+      s.setAttribute('aria-checked', on);
+      document.getElementById(s.dataset.label).textContent = on ? 'On' : 'Off';
+    });
+  });
+  document.querySelectorAll('.chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      c.setAttribute('aria-pressed', c.getAttribute('aria-pressed') !== 'true');
+      words();
+    });
+  });
+  document.getElementById('details').addEventListener('change', function (e) {
+    document.querySelectorAll('.details').forEach(function (d) { d.hidden = !e.target.checked; });
+  });
+
+  var tabs = { page: document.getElementById('tab-page'), form: document.getElementById('tab-form') };
+  function show(which) {
+    ['page', 'form'].forEach(function (k) {
+      tabs[k].setAttribute('aria-selected', k === which);
+      document.getElementById('view-' + k).hidden = k !== which;
+    });
+  }
+  tabs.page.onclick = function () { show('page'); };
+  tabs.form.onclick = function () { show('form'); };
+  document.querySelectorAll('[data-open-form]').forEach(function (b) { b.onclick = function () { show('form'); tabs.form.focus(); }; });
+  document.querySelectorAll('[data-close-form]').forEach(function (b) { b.onclick = function () { show('page'); tabs.page.focus(); }; });
+
+  function v(id) { return document.getElementById(id).value; }
+  function words() {
+    var fast = v('r-fast-if') !== 'never';
+    var s = 'Warnings not tagged digest repeat every ' + v('r-every') + ' min';
+    if (fast) s += ', every ' + v('r-fast') + ' min while ' + v('r-fast-if').replace(' is on', '') + ' is on';
+    s += ', at most ' + v('r-max') + ' times, counted from ' + v('r-from') + '. ';
+    if (fast) s += 'Changing rhythm keeps the count; the next repeat follows the new rhythm from the last one. ';
+    s += 'If nobody reacts within ' + v('e-min') + ' min: ' + v('e-to') + '. ';
+    var picked = [];
+    document.querySelectorAll('.lt[aria-pressed="true"]').forEach(function (c) { picked.push(c.dataset.name); });
+    var reach = document.querySelector('input[name="reach"]:checked').value;
+    if (picked.length) {
+      s += (reach === 'all' ? 'Every delivery of these messages' : 'What this plan sends') + ' passes ' + picked.join(', ') + '; this will show under Can wake people.';
+    } else {
+      s += 'House rules can hold what this plan sends; while a message is held, nothing repeats or escalates.';
+    }
+    document.getElementById('words').textContent = s;
+  }
+  ['r-every', 'r-max', 'r-fast', 'r-fast-if', 'r-from', 'e-min', 'e-to'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', words);
+  });
+  document.querySelectorAll('input[name="reach"]').forEach(function (r) { r.addEventListener('change', words); });
+  words();
+
+  function trial() {
+    var sev = v('t-sev'), tag = v('t-tag'), home = v('t-home') === 'yes';
+    var h = parseInt(v('t-time'), 10) || 0;
+    var night = h >= 22 || h < 7;
+    var crit = sev === 'critical';
+    var lines = [];
+    if (tag === 'digest' && !crit) {
+      lines.push('Collected by Evening summary; one summary goes out at 20:00.');
+      lines.push('Collected messages start no plan steps.');
+    } else {
+      var q = night && !crit;
+      lines.push('At once: banner and the call\'s own deliveries' + (q ? ', sent quietly (Night quiet).' : '.'));
+      if (tag === 'leak') lines.push('At once: push to Admins, one push each, it rings (Leaks lets Night quiet through for its own sends).');
+      if (crit) lines.push('At once and every 10 min until acknowledged: push to Admins; every delivery passes all house rules (Critical messages).');
+      if (sev === 'warning' && tag !== 'leak') lines.push('Every 60 min, at most 6 times; after 30 min push to Admins (Warnings)' + (q ? ', sent quietly.' : '.'));
+      if (sev === 'warning' && tag === 'leak') lines.push('Repeats from Warnings follow one rhythm with Leaks, one count.');
+      if (tag === 'doorbell') lines.push(home || crit ? 'Speech plays.' : 'Speech dropped by Doorbell speech; push still goes out. With guest mode on it plays.');
+      if (tag === 'shopping') lines.push(home && !crit ? 'Push held by Shopping list until you leave Home.' : 'Push goes out.');
+      lines.push('If nobody could be reached: Household speakers' + (q && tag !== 'leak' ? ', quietly (Night quiet; Safety net lets nothing through).' : '.'));
+    }
+    var out = document.getElementById('t-out');
+    out.innerHTML = '';
+    lines.forEach(function (l) { var p = document.createElement('p'); p.textContent = l; out.appendChild(p); });
+  }
+  ['t-sev', 't-tag', 't-time', 't-home'].forEach(function (id) { document.getElementById(id).addEventListener('input', trial); });
+  trial();
+})();
+</script>
+</body>
+</html>

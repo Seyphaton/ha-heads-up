@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Message types mockup (design D)</title>
+<style>
+:root {
+  --bg: #f5f6f8; --card: #fff; --text: #1c1e21; --muted: #5f6672; --line: #d9dde3;
+  --accent: #0b6bcb; --accent-bg: #e4f0fc; --warn: #8a5a00; --warn-bg: #fff4d6; --chip: #eef0f3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #14161a; --card: #1e2127; --text: #e8eaed; --muted: #a0a7b3; --line: #343a44;
+    --accent: #6cb4ff; --accent-bg: #1c2f45; --warn: #e3b341; --warn-bg: #3a2f12; --chip: #2a2f38; }
+}
+:root[data-theme="dark"] { --bg: #14161a; --card: #1e2127; --text: #e8eaed; --muted: #a0a7b3; --line: #343a44;
+  --accent: #6cb4ff; --accent-bg: #1c2f45; --warn: #e3b341; --warn-bg: #3a2f12; --chip: #2a2f38; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, sans-serif; }
+header { padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--card); display: flex; gap: 8px; align-items: center; }
+header h1 { margin: 0; font-size: 18px; flex: 1; }
+main { max-width: 420px; margin: 0 auto; padding: 16px; }
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.tabs button, .btn { flex: 1; min-height: 40px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--text); font: inherit; cursor: pointer; padding: 6px 10px; }
+.tabs button[aria-selected="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+h2 { margin: 0 0 8px; font-size: 16px; }
+h3 { margin: 0; font-size: 15px; }
+.muted { color: var(--muted); font-size: 13px; }
+label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+input[type=text], input[type=number], input[type=time], select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; min-height: 40px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.row > * { flex: 1 1 100px; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+.badge { font-size: 12px; padding: 3px 8px; border-radius: 999px; background: var(--chip); border: 1px solid var(--line); }
+.badge.wake { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); font-weight: 600; }
+.chip { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 999px; background: var(--chip); border: 1px solid transparent; cursor: pointer; min-height: 36px; font: inherit; color: var(--text); }
+.chip[aria-pressed="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.chip[aria-pressed="true"]::before { content: "\2713\00a0"; }
+.answer { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: var(--accent-bg); }
+.answer strong { color: var(--accent); }
+.note { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: 8px 10px; font-size: 13px; margin-top: 8px; }
+.typecard { display: block; width: 100%; text-align: left; font: inherit; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; cursor: pointer; }
+.typecard:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+code { font-size: 13px; background: var(--chip); padding: 1px 5px; border-radius: 5px; }
+details.sec { border-top: 1px solid var(--line); padding: 10px 0; }
+details.sec summary { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; min-height: 32px; list-style: none; }
+details.sec summary::-webkit-details-marker { display: none; }
+details.sec summary .state { margin-left: auto; font-weight: 400; font-size: 13px; color: var(--muted); }
+details.sec summary::before { content: "\25B8"; }
+details.sec[open] summary::before { content: "\25BE"; }
+.radio { display: flex; gap: 8px; align-items: center; margin: 6px 0; }
+.radio input, .check input { width: 18px; height: 18px; }
+.check { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
+.qt { display: flex; justify-content: space-between; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }
+.qt:first-of-type { border-top: 0; }
+.qtrow { display: flex; gap: 8px; align-items: center; padding: 4px 0; }
+.qtrow label { flex: 0 0 90px; margin: 0; color: var(--text); font-size: 14px; }
+.qtrow select { flex: 1; }
+button.primary { background: var(--accent); color: #fff; border: 0; }
+:root[data-theme="dark"] button.primary { color: #0b1a2a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) button.primary { color: #0b1a2a; } }
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Heads Up: Message types</h1>
+  <button class="btn" id="theme" type="button" style="flex:none" aria-label="Switch between light and dark theme">Theme</button>
+</header>
+<main>
+  <div class="tabs" role="tablist" aria-label="Mockup views">
+    <button role="tab" id="tab-page" aria-selected="true" aria-controls="view-page" type="button">Types page</button>
+    <button role="tab" id="tab-form" aria-selected="false" aria-controls="view-form" type="button">Type form: Doorbell</button>
+  </div>
+
+  <!-- Page -->
+  <section id="view-page" role="tabpanel" aria-labelledby="tab-page">
+    <div class="card">
+      <h2>Try a message</h2>
+      <div class="row">
+        <div><label for="t-sev">Severity</label>
+          <select id="t-sev"><option>success</option><option>info</option><option selected>warning</option><option>critical</option></select></div>
+        <div><label for="t-tag">Tag</label><input id="t-tag" type="text" value="leak" placeholder="none"></div>
+        <div><label for="t-time">Time</label><input id="t-time" type="time" value="03:00"></div>
+      </div>
+      <div class="answer" id="t-answer" aria-live="polite"></div>
+    </div>
+
+    <div class="card">
+      <h2>&#9888; Can wake people</h2>
+      <p class="muted" style="margin:0 0 6px">Types that send as usual during a quiet time.</p>
+      <div class="qt"><div><strong>Alarm</strong><div class="muted">What this type adds: critical; tagged leak, smoke; watch rule Leak sensor</div></div></div>
+      <div class="qt"><div><strong>Warning</strong><div class="muted">Everything else warning</div></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Quiet times</h2>
+      <p class="muted" style="margin:0 0 6px">Windows for the whole house. A window belongs to the day it starts.</p>
+      <div class="qt"><div><strong>Weekday nights</strong><div class="muted">22:00 to 07:00, Mon to Fri</div></div></div>
+      <div class="qt"><div><strong>Weekend nights</strong><div class="muted">23:00 to 09:00, Sat and Sun</div></div></div>
+      <button class="btn" type="button" style="margin-top:8px;width:100%">Add quiet time</button>
+      <h3 style="margin:14px 0 4px">What each type does during them</h3>
+      <div class="qtrow"><label for="q-alarm">Alarm</label><select id="q-alarm" aria-label="Alarm during quiet times"><option>Call: quietly; adds: as usual</option><option>Send as usual</option><option>Send quietly</option></select></div>
+      <div class="qtrow"><label for="q-digest">Digest</label><select id="q-digest"><option>Send quietly</option><option>Wait until they end</option><option>Drop</option><option>Send as usual</option></select></div>
+      <div class="qtrow"><label for="q-door">Doorbell</label><select id="q-door"><option>Send quietly</option><option>Wait until they end</option><option>Drop</option><option>Send as usual</option></select></div>
+      <div class="qtrow"><label for="q-every">Everyday</label><select id="q-every"><option>Send quietly</option><option>Wait until they end</option><option>Drop</option><option>Send as usual</option></select></div>
+      <div class="qtrow"><label for="q-shop">Shopping</label><select id="q-shop"><option>Wait until they end</option><option>Send quietly</option><option>Drop</option><option>Send as usual</option></select></div>
+      <div class="qtrow"><label for="q-warn">Warning</label><select id="q-warn"><option>Send as usual</option><option>Send quietly</option><option>Wait until they end</option><option>Drop</option></select></div>
+    </div>
+
+    <h2 style="margin:16px 0 8px">Types</h2>
+    <button class="typecard" type="button" aria-label="Open type Alarm">
+      <h3>Alarm <span class="muted">alarm</span></h3>
+      <div class="muted">Used for: everything else critical; tagged <code>leak</code>, <code>smoke</code>; watch rule Leak sensor</div>
+      <div class="badges"><span class="badge wake">&#9888; May wake people</span><span class="badge">&#8635; Repeats</span><span class="badge">&#8599; Escalates</span></div>
+      <div class="muted">Push with sound to Admins at once, repeated every 10 minutes until acknowledged, also during quiet times.</div>
+    </button>
+    <button class="typecard" type="button" aria-label="Open type Digest">
+      <h3>Digest <span class="muted">digest</span></h3>
+      <div class="muted">Used for: tagged <code>digest</code> (info, success)</div>
+      <div class="badges"><span class="badge">&#9776; Summarized</span><span class="badge">&#9790; Quiet at night</span></div>
+      <div class="muted">Collected and sent as one summary at 20:00.</div>
+    </button>
+    <button class="typecard" type="button" aria-label="Open type Doorbell">
+      <h3>Doorbell <span class="muted">doorbell</span></h3>
+      <div class="muted">Used for: tagged <code>doorbell</code></div>
+      <div class="badges"><span class="badge">&#9673; Holds by presence</span><span class="badge">&#9790; Quiet at night</span><span class="badge">&#8856; No fallback</span></div>
+      <div class="muted">Push to Household; spoken on Kitchen speaker only when someone is home, or while guest mode is on.</div>
+    </button>
+    <button class="typecard" type="button" aria-label="Open type Everyday">
+      <h3>Everyday <span class="muted">everyday</span></h3>
+      <div class="muted">Used for: everything else info, success</div>
+      <div class="badges"><span class="badge">&#9790; Quiet at night</span></div>
+      <div class="muted">Sent as the call says; quietly during quiet times.</div>
+    </button>
+    <button class="typecard" type="button" aria-label="Open type Shopping">
+      <h3>Shopping <span class="muted">shopping</span></h3>
+      <div class="muted">Used for: only when a call names it</div>
+      <div class="badges"><span class="badge">&#9673; Holds by presence</span></div>
+      <div class="muted">Push held while the recipient is home, sent when they leave.</div>
+    </button>
+    <button class="typecard" type="button" aria-label="Open type Warning">
+      <h3>Warning <span class="muted">warning</span></h3>
+      <div class="muted">Used for: everything else warning; tagged <code>rule</code> (warning)</div>
+      <div class="badges"><span class="badge wake">&#9888; May wake people</span><span class="badge">&#8635; Repeats</span></div>
+      <div class="muted">Repeats every hour, every 15 minutes while Freezer door is open. If nobody was reached, Household speakers say it.</div>
+    </button>
+    <div class="card">
+      <label for="start-from" style="margin-top:0">Start from</label>
+      <select id="start-from"><option>Everyday</option><option>Alarm</option><option>Digest</option><option>Doorbell</option><option>Shopping</option><option>Warning</option></select>
+      <p class="muted">A new type copies every setting of this type, including quiet times and the fallback.</p>
+      <button class="btn primary" type="button" style="width:100%">Add type</button>
+    </div>
+
+    <div class="card">
+      <h2>Check after the update</h2>
+      <div class="qt"><div><strong>Warning reminder</strong><div class="muted">Did nothing in 1.0.0 because Away came first.</div>
+        <div class="row" style="margin-top:6px"><button class="btn" type="button">Keep as before</button><button class="btn" type="button">Let it act</button></div></div></div>
+      <div class="qt"><div><strong>Night quiet</strong><div class="muted">When switched off: Away (from 1.0.0).</div>
+        <div class="row" style="margin-top:6px"><button class="btn" type="button">Keep as before</button><button class="btn" type="button" aria-label="Remove the handoff to Away">Remove</button></div></div></div>
+      <button class="btn" type="button" style="width:100%;margin-top:8px">Restore 1.0.0</button>
+    </div>
+  </section>
+
+  <!-- Form -->
+  <section id="view-form" role="tabpanel" aria-labelledby="tab-form" class="hidden">
+    <div class="card">
+      <h2>Doorbell</h2>
+      <label for="f-name">Name</label><input id="f-name" type="text" value="Doorbell">
+      <label for="f-key">Type key (for calls: <code>type: doorbell</code>)</label>
+      <div class="row"><input id="f-key" type="text" value="doorbell" readonly aria-readonly="true"><button class="btn" type="button" style="flex:none" aria-label="Copy type key">Copy</button></div>
+
+      <label>Used for: tagged</label>
+      <div class="row" style="flex-wrap:wrap"><input id="f-tag" type="text" value="doorbell" aria-label="Tag that gets this type"></div>
+      <label>Only with severity (none chosen means any)</label>
+      <div class="badges" role="group" aria-label="Severities for the tag">
+        <button class="chip sev" type="button" aria-pressed="false">success</button>
+        <button class="chip sev" type="button" aria-pressed="false">info</button>
+        <button class="chip sev" type="button" aria-pressed="false">warning</button>
+        <button class="chip sev" type="button" aria-pressed="false">critical</button>
+      </div>
+      <div class="note" id="f-overlap" aria-live="polite" role="status"></div>
+      <div id="f-move" class="hidden">
+        <label class="check"><input type="checkbox" id="f-movebox"> <span id="f-movetext"></span></label>
+      </div>
+      <label for="f-rule">From watch rule</label>
+      <select id="f-rule"><option>None</option><option>Front door bell rule</option><option disabled>Leak sensor (belongs to Alarm)</option></select>
+
+      <label>Everything else with severity</label>
+      <p class="muted" style="margin:0">None. info and success go to Everyday, warning to Warning, critical to Alarm.</p>
+
+      <details class="sec" open>
+        <summary>Also send <span class="state">On</span></summary>
+        <label for="f-ch">Channels</label><select id="f-ch"><option>Push and speech</option><option>Push</option><option>Speech</option></select>
+        <label for="f-to">Recipients</label><select id="f-to"><option>Household</option><option>Admins</option><option>From the call</option></select>
+        <label for="f-spk">Speakers</label><select id="f-spk"><option>Kitchen speaker</option></select>
+      </details>
+
+      <details class="sec">
+        <summary>Collect into a summary <span class="state">Off</span></summary>
+        <label class="check"><input type="checkbox" id="f-sum"> Collect this type</label>
+      </details>
+
+      <details class="sec" open>
+        <summary>During quiet times <span class="state">Send quietly</span></summary>
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend class="muted">What the call sends, during Weekday nights and Weekend nights (What this type adds: the same)</legend>
+          <label class="radio"><input type="radio" name="qt" value="wait"> Wait until they end</label>
+          <label class="radio"><input type="radio" name="qt" value="quiet" checked> Send quietly (no sound, no speech)</label>
+          <label class="radio"><input type="radio" name="qt" value="drop"> Drop</label>
+          <label class="radio"><input type="radio" name="qt" value="usual"> Send as usual (may wake people)</label>
+        </fieldset>
+        <button class="btn" type="button" style="width:100%;margin-top:6px">Set per quiet time</button>
+      </details>
+
+      <details class="sec" open>
+        <summary>Presence <span class="state">Speech</span></summary>
+        <label for="f-pch">Channel</label><select id="f-pch"><option>Speech</option><option>Push</option></select>
+        <label for="f-pwho">Speak only when</label><select id="f-pwho"><option>Somebody of Household is home</option><option>Nobody of Household is home</option></select>
+        <label for="f-pelse">Otherwise</label><select id="f-pelse"><option>Do not speak</option><option>Wait until it changes</option></select>
+        <label class="check"><input type="checkbox" id="f-onlyw" checked> Skip this while a condition is true</label>
+        <label for="f-cond">Condition</label><select id="f-cond"><option>Guest mode is on</option></select>
+      </details>
+
+      <details class="sec">
+        <summary>Repeat <span class="state">Off</span></summary>
+        <div class="row"><div><label for="f-every">Every (minutes)</label><input id="f-every" type="number" value="60"></div><div><label for="f-max">At most (times)</label><input id="f-max" type="number" value="3"></div></div>
+        <label class="check"><input type="checkbox"> Faster while a condition is true</label>
+        <p class="muted">The count does not restart when the rhythm changes.</p>
+      </details>
+
+      <details class="sec">
+        <summary>Escalate <span class="state">Off</span></summary>
+        <p class="muted">Add a step: after minutes without acknowledgement, send to someone else.</p>
+      </details>
+
+      <details class="sec">
+        <summary>If nobody was reached <span class="state">Off</span></summary>
+        <p class="muted">Send on other channels or to other people.</p>
+      </details>
+
+      <details class="sec">
+        <summary>When switched off <span class="state">Delivered as the call says</span></summary>
+        <label for="f-off">If every section of this type is off, its messages go to</label>
+        <select id="f-off"><option>Nobody: delivered as the call says</option><option>Everyday</option></select>
+      </details>
+
+      <details class="sec">
+        <summary>Clocks start <span class="state">When first delivered</span></summary>
+        <label class="radio"><input type="radio" name="clk" checked> When first delivered</label>
+        <label class="radio"><input type="radio" name="clk"> When the message appears (held repeats and escalations wait with the message)</label>
+      </details>
+
+      <div class="answer"><strong>In words</strong><div id="f-words"></div></div>
+      <div class="row" style="margin-top:12px"><button class="btn" type="button">Cancel</button><button class="btn primary" type="button">Save</button></div>
+    </div>
+  </section>
+</main>
+<script>
+(function () {
+  var root = document.documentElement;
+  document.getElementById('theme').addEventListener('click', function () {
+    var dark = root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', dark ? 'light' : 'dark');
+  });
+
+  var tabs = [['tab-page', 'view-page'], ['tab-form', 'view-form']];
+  tabs.forEach(function (t) {
+    document.getElementById(t[0]).addEventListener('click', function () {
+      tabs.forEach(function (o) {
+        var on = o[0] === t[0];
+        document.getElementById(o[0]).setAttribute('aria-selected', on);
+        document.getElementById(o[1]).classList.toggle('hidden', !on);
+      });
+    });
+  });
+
+  // Try a message
+  var types = {
+    alarm: { name: 'Alarm', wake: true, text: 'Push with sound to Admins at once; repeats every 10 minutes until acknowledged.' },
+    warning: { name: 'Warning', wake: true, text: 'Sent as the call says; repeats every hour (every 15 minutes while Freezer door is open).' },
+    everyday: { name: 'Everyday', wake: false, quiet: 'quietly', text: 'Sent as the call says.' },
+    digest: { name: 'Digest', wake: false, quiet: 'quietly', text: 'Collected into the summary at 20:00.' },
+    doorbell: { name: 'Doorbell', wake: false, quiet: 'quietly', text: 'Push to Household; spoken on Kitchen speaker if someone is home or guest mode is on.' }
+  };
+  var tagClaims = { leak: ['alarm'], smoke: ['alarm'], doorbell: ['doorbell'], digest: ['digest', ['info', 'success']], rule: ['warning', ['warning']] };
+  var sevDefault = { critical: 'alarm', warning: 'warning', info: 'everyday', success: 'everyday' };
+  function inQuiet(t) {
+    var p = t.split(':'); var m = (+p[0]) * 60 + (+p[1]);
+    return m >= 22 * 60 || m < 9 * 60; // mockup: either window, ignoring days
+  }
+  function tryIt() {
+    var sev = document.getElementById('t-sev').value;
+    var tag = document.getElementById('t-tag').value.trim();
+    var time = document.getElementById('t-time').value || '12:00';
+    var key, why;
+    var c = tagClaims[tag];
+    if (c && (!c[1] || c[1].indexOf(sev) >= 0)) { key = c[0]; why = 'because it is tagged ' + tag; }
+    else { key = sevDefault[sev]; why = 'because it is ' + sev + (tag ? ' and no type claims the tag ' + tag + (c ? ' at this severity' : '') : ''); }
+    var t = types[key];
+    var night = inQuiet(time);
+    var q = night ? (t.wake ? ' During quiet times it is sent as usual (may wake people).' : ' It is a quiet time, so it is sent quietly.') : '';
+    document.getElementById('t-answer').innerHTML = '<strong>Type ' + t.name + '</strong>, ' + why + '. ' + t.text + q;
+  }
+  ['t-sev', 't-tag', 't-time'].forEach(function (id) { document.getElementById(id).addEventListener('input', tryIt); });
+  tryIt();
+
+  // Form: overlap sentence and In words
+  var sevs = document.querySelectorAll('.sev');
+  function picked() { var a = []; sevs.forEach(function (b) { if (b.getAttribute('aria-pressed') === 'true') a.push(b.textContent); }); return a; }
+  function formText() {
+    var p = picked();
+    var tag = document.getElementById('f-tag').value.trim() || 'doorbell';
+    var which = p.length ? p.join(', ') + ' messages tagged ' + tag : 'Messages tagged ' + tag;
+    var other = tagClaims[tag] && tagClaims[tag][0] !== 'doorbell' ? types[tagClaims[tag][0]] : null;
+    var mv = document.getElementById('f-move');
+    if (other) {
+      document.getElementById('f-overlap').textContent = which + ' belong to ' + other.name + '.';
+      document.getElementById('f-movetext').textContent = 'Move them to Doorbell.' + (other.wake ? ' They will no longer wake people at night.' : '');
+      mv.classList.remove('hidden');
+    } else {
+      document.getElementById('f-overlap').textContent = which + ' get this type. No other type claims them.';
+      mv.classList.add('hidden');
+    }
+    var qt = document.querySelector('input[name=qt]:checked').value;
+    var qtext = { wait: 'wait until quiet times end', quiet: 'go quietly during quiet times, without speech', drop: 'are dropped during quiet times', usual: 'are sent as usual during quiet times and may wake people' }[qt];
+    document.getElementById('f-words').textContent = which + ' are pushed to Household and spoken on Kitchen speaker. Speech happens only when somebody of Household is home, or while guest mode is on. They ' + qtext + '.';
+  }
+  sevs.forEach(function (b) { b.addEventListener('click', function () { b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true'); formText(); }); });
+  document.getElementById('f-tag').addEventListener('input', formText);
+  document.querySelectorAll('input[name=qt]').forEach(function (r) { r.addEventListener('change', formText); });
+  formText();
+})();
+</script>
+</body>
+</html>
