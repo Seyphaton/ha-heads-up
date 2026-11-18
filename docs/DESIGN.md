@@ -721,7 +721,8 @@ Status: design only, on `release/1.1` (D-207); nothing built. Binding for every 
 - `heads_up_banner_unsnoozed` also fires when a snooze runs out, with `reason: ended` or `user`; an ended snooze found at start fires once.
 
 ### 24.6 Severities (D-222)
-- The four keys stay. A Severities page under Configuration holds per level a display label (overrides the translation), the color, and its channel implications (today's per-severity channel settings). The card editor drops `colors`; an existing card `colors` keeps working.
+- The four keys stay. A Severities page under Configuration holds per level a display label (overrides the translation), an icon, the color, and its channel implications (today's per-severity channel settings). The card editor drops `colors`; an existing card `colors` keeps working.
+- The label shows in the card, the popup, the mail placeholder `{severity}` and the panel; YAML, events, attributes and the action form keep the keys. The icon is used when a message has none of its own (D-223).
 
 ### 24.7 Parity (rule 9)
 - `snooze_custom` and the snooze event: actions and watch rules. Presence, Quiet hours sources, "only if" and severity settings are policy or global settings and apply to both sources by severity and tag. Speech volume: speech exists only for actions and policies (D-206).

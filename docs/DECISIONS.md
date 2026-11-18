@@ -1395,3 +1395,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Colors (maintainer: "Configuration only"): the card no longer offers its own `colors` option in the editor. To stay without a breaking change (D-213), a card that already has `colors` in its configuration keeps using them; the docs mark the option as replaced by the Severities page.
 - Open: whether the icon per level is also configurable; where the label shows (card, panel, popup, push, Message Log).
 - Supersedes the custom-severity parts of D-207 (step 1: custom severities mapped to a base level).
+
+## D-223 Severity icon and where the label shows (2026-11-18, design, maintainer)
+- Icon (maintainer): configurable per level on the Severities page, next to label and color; the default is today's icon. Used wherever a message has no `icon` of its own: card, popup, panel lists. Icon shape and the screen-reader label keep severity from being shown by color alone; the same icon on two levels gets a warning, not a block.
+- Label (maintainer): an overridden label shows wherever users read the severity: the card (screen-reader label, and visible with `show_severity`), the popup, the mail placeholder `{severity}`, and every panel place (lists, Message Log, Test send, policy form). YAML, events, entity attributes and the action form keep the keys (`success`, `info`, `warning`, `critical`), so automations do not change.
+- Migration (D-213): no label or icon is set after the update, so everything looks as in 1.0.
+- Closes the open item of D-222.
