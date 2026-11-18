@@ -88,7 +88,7 @@ ul.plain { margin: 6px 0 0; padding-left: 18px; }
     <div class="hint" id="criticalHint">A critical message is never held back or dropped by this policy. Shown on every policy that holds back: Quiet hours, Presence, Summarize.</div>
     <label for="tags">Tags, comma separated (empty: any)</label>
     <input type="text" id="tags">
-    <label>Only if <span class="new">new (E)</span></label>
+    <label>Only if <span class="new">2.0.0 (D-224)</span></label>
     <div class="row">
       <select id="onlyEntity">
         <option value="">No condition: always</option>
@@ -166,7 +166,7 @@ ul.plain { margin: 6px 0 0; padding-left: 18px; }
       <li>Unknown presence (unknown, unavailable) delivers at once, as Away does today.</li>
       <li>A stored Away policy opens as the first example: push, popup and mail; recipient not in Home; hold; same wait and critical setting.</li>
       <li>"Critical messages pass" sits under Which messages, next to the severities, on every policy that holds back (Quiet hours, Presence, Summarize). It is hidden when the chosen severities exclude critical. Summarize's "Include critical" becomes the same switch with the opposite meaning.</li>
-      <li>Guests: put "Only if input_boolean.guest_mode is off" on a speech policy; with guests the policy steps aside.</li>
+      <li>Guests: put "Only if input_boolean.guest_mode is off" on a speech policy; with guests the policy steps aside. "Only if" ships in 2.0.0 (D-224), not in 1.1.0.</li>
     </ul>
   </div>
 </main>
