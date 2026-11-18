@@ -56,6 +56,9 @@ async def test_options_flow_sets_defaults_for_new_banners(
         "speak_max_length": 200,
         "speak_cooldown_seconds": 60,
         "speak_tts_entity": "",
+        "speak_restore_volume": True,
+        "speak_volume_bands": [],
+        "speak_severity_volume": {},
         "max_banners": 10,
         "evict": False,
         "default_dismiss_scope": "global",
@@ -150,3 +153,32 @@ async def test_a_value_saved_in_the_options_screen_shows_in_the_panel_data(
         90,
         700,
     )
+
+
+async def test_options_screen_stores_volume_bands_and_refuses_overlaps(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    bands = [{"from": "22:00", "to": "7:00", "volume": 20}]
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        options_input(
+            {
+                "speech_volume": {
+                    "speak_restore_volume": True,
+                    "speak_volume_bands": bands,
+                    "speak_severity_volume": {"critical": 80},
+                }
+            }
+        ),
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert entry.options["speak_volume_bands"] == [{"from": "22:00", "to": "07:00", "volume": 20}]
+    assert entry.options["speak_severity_volume"] == {"critical": 80}
+
+    overlap = [*bands, {"from": "06:00", "to": "09:00", "volume": 50}]
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], options_input({"speech_volume": {"speak_volume_bands": overlap}})
+    )
+    assert result["errors"] == {"speak_volume_bands": "bands_overlap"}

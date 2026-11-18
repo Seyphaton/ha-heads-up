@@ -97,6 +97,19 @@
               "speak_tts_entity": "Die Engine, die auf Mediaplayern spricht. Leer: die einzige Text-zu-Sprache-Entität, wenn es genau eine gibt."
             }
           },
+          "speech_volume": {
+            "name": "Lautstärke der Sprache",
+            "data": {
+              "speak_restore_volume": "Lautstärke nach dem Sprechen zurücksetzen",
+              "speak_severity_volume": "Lautstärke nach Schweregrad (Prozent)",
+              "speak_volume_bands": "Lautstärke nach Uhrzeit"
+            },
+            "data_description": {
+              "speak_restore_volume": "Ein Lautsprecher, dessen Lautstärke Heads Up geändert hat, bekommt seine vorherige Lautstärke zurück, sobald die Meldung gesagt ist, außer jemand hat die Lautstärke inzwischen geändert. Sonos-Lautsprecher behalten ihre Lautstärke und sagen die Meldung in der gewählten Lautstärke. Aus: der Lautsprecher bleibt auf der Sprachlautstärke.",
+              "speak_severity_volume": "0–100 pro Schweregrad. Leer: die Uhrzeit entscheidet. Eine Lautstärke im Aktionsaufruf hat Vorrang.",
+              "speak_volume_bands": "Bis zu 4 Zeiträume, jeder mit Beginn, Ende und Lautstärke in Prozent. Ein Zeitraum von 22:00 bis 07:00 geht über Mitternacht. Zeiträume dürfen sich nicht überschneiden. Außerhalb aller Zeiträume bleibt die Lautstärke unverändert."
+            }
+          },
           "limits": {
             "name": "Grenzen",
             "data": {
@@ -129,7 +142,12 @@
       }
     },
     "error": {
-      "timeout_too_long": "Das Standard-Zeitlimit beträgt höchstens 365 Tage."
+      "timeout_too_long": "Das Standard-Zeitlimit beträgt höchstens 365 Tage.",
+      "bands_invalid": "Jeder Zeitraum braucht Beginn und Ende (HH:MM) und eine Lautstärke von 0 bis 100.",
+      "bands_too_many": "Höchstens 4 Zeiträume.",
+      "bands_empty": "Beginn und Ende eines Zeitraums müssen verschieden sein.",
+      "bands_overlap": "Zeiträume dürfen sich nicht überschneiden.",
+      "severity_volume_invalid": "Gib eine Lautstärke von 0 bis 100 für success, info, warning oder critical an."
     }
   },
   "selector": {

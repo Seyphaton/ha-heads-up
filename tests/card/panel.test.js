@@ -27,6 +27,7 @@ import {
   splitDuration,
   STRINGS as SETTINGS_STRINGS,
   ttsEntities,
+  volumeProblems,
 } from "../../custom_components/heads_up/frontend/panel/settings.js";
 
 describe("panel navigation", () => {
@@ -428,10 +429,28 @@ describe("messages functions", () => {
   });
 });
 
+describe("volumeProblems", () => {
+  const night = { from: "22:00", to: "07:00", volume: 20 };
+
+  it("accepts bands over midnight and severity volumes", () => {
+    expect(volumeProblems({ speak_volume_bands: [night, { from: "07:00", to: "09:00", volume: 50 }], speak_severity_volume: { critical: 80 } })).toEqual([]);
+  });
+
+  it("names empty, overlapping, invalid and too many bands", () => {
+    expect(volumeProblems({ speak_volume_bands: [{ from: "08:00", to: "08:00", volume: 5 }] })).toEqual(["bands_empty"]);
+    expect(volumeProblems({ speak_volume_bands: [night, { from: "06:00", to: "08:00", volume: 5 }] })).toEqual(["bands_overlap"]);
+    expect(volumeProblems({ speak_volume_bands: [{ from: "", to: "08:00", volume: 5 }] })).toEqual(["bands_invalid"]);
+    expect(volumeProblems({ speak_volume_bands: [{ ...night, volume: NaN }] })).toEqual(["bands_invalid"]);
+    const five = [0, 1, 2, 3, 4].map((h) => ({ from: `0${h}:00`, to: `0${h}:30`, volume: 5 }));
+    expect(volumeProblems({ speak_volume_bands: five })).toContain("bands_too_many");
+    expect(volumeProblems({ speak_severity_volume: { critical: 101 } })).toEqual(["severity_volume_invalid"]);
+  });
+});
+
 describe("settings wording equals the integration's options screen (D-122)", () => {
   const dir = new URL("../../custom_components/heads_up/", import.meta.url);
   const files = { en: "strings.json", de: "translations/de.json", fr: "translations/fr.json", es: "translations/es.json" };
-  const SECTIONS = ["sidebar", "dismiss", "snooze", "snooze_banner", "snooze_push", "presence", "speech", "limits", "history"];
+  const SECTIONS = ["sidebar", "dismiss", "snooze", "snooze_banner", "snooze_push", "presence", "speech", "speech_volume", "limits", "history"];
 
   for (const [code, file] of Object.entries(files)) {
     it(`uses the same section names, labels and hints in ${code}`, () => {

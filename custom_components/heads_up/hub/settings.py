@@ -12,6 +12,7 @@ from ..const import (
     DEFAULT_SNOOZE_SECONDS,
     DISMISS_SCOPES,
     MAX_TIMEOUT_DAYS,
+    MAX_VOLUME_BANDS,
     OPT_DEDUPE_SECONDS,
     OPT_DEFAULT_DISMISS_SCOPE,
     OPT_DEFAULT_SNOOZABLE,
@@ -30,8 +31,12 @@ from ..const import (
     OPT_SHOW_PANEL,
     OPT_SPEAK_COOLDOWN,
     OPT_SPEAK_MAX_LENGTH,
+    OPT_SPEAK_RESTORE_VOLUME,
+    OPT_SPEAK_SEVERITY_VOLUME,
     OPT_SPEAK_TTS_ENTITY,
+    OPT_SPEAK_VOLUME_BANDS,
     OPT_TRACE_ENTRIES,
+    SEVERITIES,
     SNOOZE_PRESET_MINUTES,
     SNOOZE_SCOPES,
 )
@@ -58,6 +63,14 @@ SECTIONS: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
     (
         "speech",
         ((OPT_SPEAK_MAX_LENGTH, "int"), (OPT_SPEAK_COOLDOWN, "int"), (OPT_SPEAK_TTS_ENTITY, "tts")),
+    ),
+    (
+        "speech_volume",
+        (
+            (OPT_SPEAK_RESTORE_VOLUME, "bool"),
+            (OPT_SPEAK_SEVERITY_VOLUME, "severity_percent"),
+            (OPT_SPEAK_VOLUME_BANDS, "bands"),
+        ),
     ),
     (
         "limits",
@@ -94,6 +107,73 @@ EDITABLE = tuple(key for _, items in SECTIONS for key, _ in items)
 MAX_TIMEOUT_SECONDS = MAX_TIMEOUT_DAYS * 86400
 
 
+def _clock(value: Any) -> str:
+    text = str(value).strip()
+    parts = text.split(":")
+    if len(parts) not in (2, 3) or not all(p.isdigit() for p in parts):
+        raise vol.Invalid("time_invalid")
+    hours, minutes = int(parts[0]), int(parts[1])
+    if hours > 23 or minutes > 59:
+        raise vol.Invalid("time_invalid")
+    return f"{hours:02d}:{minutes:02d}"
+
+
+def _band_minutes(band: dict[str, Any]) -> set[int]:
+    start, end = (int(band[k][:2]) * 60 + int(band[k][3:5]) for k in ("from", "to"))
+    if start < end:
+        return set(range(start, end))
+    return set(range(start, 1440)) | set(range(end))
+
+
+def check_bands(value: Any) -> list[dict[str, Any]]:
+    """Speech volume bands (D-217): at most 4, each from, to (HH:MM) and a volume in percent,
+    not empty, not overlapping. Errors are translation keys."""
+    if not isinstance(value, list):
+        raise vol.Invalid("bands_invalid")
+    if len(value) > MAX_VOLUME_BANDS:
+        raise vol.Invalid("bands_too_many")
+    bands: list[dict[str, Any]] = []
+    taken: set[int] = set()
+    for item in value:
+        if not isinstance(item, dict):
+            raise vol.Invalid("bands_invalid")
+        try:
+            volume = int(item["volume"])
+            band = {"from": _clock(item["from"]), "to": _clock(item["to"]), "volume": volume}
+        except (KeyError, TypeError, ValueError, vol.Invalid) as err:
+            raise vol.Invalid("bands_invalid") from err
+        if not 0 <= volume <= 100:
+            raise vol.Invalid("bands_invalid")
+        if band["from"] == band["to"]:
+            raise vol.Invalid("bands_empty")
+        minutes = _band_minutes(band)
+        if minutes & taken:
+            raise vol.Invalid("bands_overlap")
+        taken |= minutes
+        bands.append(band)
+    return bands
+
+
+def check_severity_volume(value: Any) -> dict[str, int]:
+    """A volume in percent per severity; empty or missing means none."""
+    if not isinstance(value, dict):
+        raise vol.Invalid("severity_volume_invalid")
+    out: dict[str, int] = {}
+    for severity, percent in value.items():
+        if severity not in SEVERITIES:
+            raise vol.Invalid("severity_volume_invalid")
+        if percent is None or percent == "":
+            continue
+        try:
+            number = int(percent)
+        except (TypeError, ValueError) as err:
+            raise vol.Invalid("severity_volume_invalid") from err
+        if not 0 <= number <= 100:
+            raise vol.Invalid("severity_volume_invalid")
+        out[severity] = number
+    return out
+
+
 def layout() -> list[dict[str, Any]]:
     """The sections for the panel: kind, range or choices per entry."""
     sections = []
@@ -126,6 +206,8 @@ def schema_fields() -> dict[Any, Any]:
     )
     fields[vol.Optional(OPT_DEFAULT_SNOOZE_OPTIONS)] = [vol.In(SNOOZE_PRESET_MINUTES)]
     fields[vol.Optional(OPT_SPEAK_TTS_ENTITY)] = vol.Any("", vol.Match(r"^tts\.[a-z0-9_]+$"))
+    fields[vol.Optional(OPT_SPEAK_VOLUME_BANDS)] = check_bands
+    fields[vol.Optional(OPT_SPEAK_SEVERITY_VOLUME)] = check_severity_volume
     return fields
 
 

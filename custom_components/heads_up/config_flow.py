@@ -56,6 +56,8 @@ from .const import (
     OPT_DEFAULT_TIMEOUT,
     OPT_INSTALL_TOKEN,
     OPT_SHOW_PANEL,
+    OPT_SPEAK_SEVERITY_VOLUME,
+    OPT_SPEAK_VOLUME_BANDS,
     POLICY_AUTOMATIC,
     POLICY_NONE,
     POLICY_SUBENTRY,
@@ -141,6 +143,17 @@ class HeadsUpOptionsFlow(OptionsFlow):
             )
             if flat[OPT_DEFAULT_TIMEOUT] > settings.MAX_TIMEOUT_SECONDS:
                 return self._show(errors={OPT_DEFAULT_TIMEOUT: "timeout_too_long"})
+            # Volume bands and severity volumes come as YAML objects (D-217).
+            for key, check in (
+                (OPT_SPEAK_VOLUME_BANDS, settings.check_bands),
+                (OPT_SPEAK_SEVERITY_VOLUME, settings.check_severity_volume),
+            ):
+                try:
+                    flat[key] = check(
+                        flat.get(key) or ([] if key == OPT_SPEAK_VOLUME_BANDS else {})
+                    )
+                except vol.Invalid as err:
+                    return self._show(errors={key: str(err.msg)})
             flat[OPT_DEFAULT_SNOOZE_OPTIONS] = settings.snooze_seconds(
                 flat.get(OPT_DEFAULT_SNOOZE_OPTIONS)
             )
@@ -222,6 +235,8 @@ def _option_field(key: str, kind: str, current: dict[str, Any]) -> tuple[Any, An
         if current[key]
         else vol.Optional(key)
     )
+    if kind in ("bands", "severity_percent"):
+        return field, ObjectSelector()
     return field, EntitySelector(EntitySelectorConfig(domain="tts"))
 
 

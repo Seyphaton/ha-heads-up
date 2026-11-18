@@ -97,6 +97,19 @@
               "speak_tts_entity": "Le moteur qui parle sur les lecteurs multimédia. Vide : la seule entité de synthèse vocale, s'il n'y en a qu'une."
             }
           },
+          "speech_volume": {
+            "name": "Volume de la voix",
+            "data": {
+              "speak_restore_volume": "Remettre le volume après avoir parlé",
+              "speak_severity_volume": "Volume par gravité (pour cent)",
+              "speak_volume_bands": "Volume selon l'heure"
+            },
+            "data_description": {
+              "speak_restore_volume": "Un haut-parleur dont Heads Up a changé le volume retrouve son volume précédent une fois le message dit, sauf si quelqu'un a changé le volume entre-temps. Les haut-parleurs Sonos gardent leur volume et disent le message au niveau choisi. Désactivé : le haut-parleur reste au volume de la voix.",
+              "speak_severity_volume": "0–100 par gravité. Vide : l'heure décide. Un volume dans l'appel d'action passe en premier.",
+              "speak_volume_bands": "Jusqu'à 4 plages, chacune avec un début, une fin et un volume en pour cent. Une plage de 22:00 à 07:00 passe minuit. Les plages ne doivent pas se chevaucher. En dehors de toute plage, le volume ne change pas."
+            }
+          },
           "limits": {
             "name": "Limites",
             "data": {
@@ -129,7 +142,12 @@
       }
     },
     "error": {
-      "timeout_too_long": "Le délai par défaut est d'au plus 365 jours."
+      "timeout_too_long": "Le délai par défaut est d'au plus 365 jours.",
+      "bands_invalid": "Chaque plage a besoin d'un début et d'une fin (HH:MM) et d'un volume de 0 à 100.",
+      "bands_too_many": "4 plages au plus.",
+      "bands_empty": "Le début et la fin d'une plage doivent être différents.",
+      "bands_overlap": "Les plages ne doivent pas se chevaucher.",
+      "severity_volume_invalid": "Indiquez un volume de 0 à 100 pour success, info, warning ou critical."
     }
   },
   "selector": {

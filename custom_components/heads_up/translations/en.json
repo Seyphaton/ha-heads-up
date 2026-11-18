@@ -97,6 +97,19 @@
               "speak_tts_entity": "The engine that speaks on media players. Empty: the only text-to-speech entity, if there is exactly one."
             }
           },
+          "speech_volume": {
+            "name": "Speech volume",
+            "data": {
+              "speak_restore_volume": "Put the volume back after speaking",
+              "speak_severity_volume": "Volume by severity (percent)",
+              "speak_volume_bands": "Volume by time of day"
+            },
+            "data_description": {
+              "speak_restore_volume": "A speaker whose volume Heads Up changed gets its earlier volume back once the message was said, unless someone changed the volume meanwhile. Sonos speakers keep their volume and say the message at the chosen level. Off: the speaker stays at the speech volume.",
+              "speak_severity_volume": "0–100 per severity. Empty: the time of day decides. A volume in the action call comes first.",
+              "speak_volume_bands": "Up to 4 bands, each with a start, an end and a volume in percent. A band from 22:00 to 07:00 runs over midnight. Bands must not overlap. Outside every band the volume is not changed."
+            }
+          },
           "limits": {
             "name": "Limits",
             "data": {
@@ -129,7 +142,12 @@
       }
     },
     "error": {
-      "timeout_too_long": "The default timeout is at most 365 days."
+      "timeout_too_long": "The default timeout is at most 365 days.",
+      "bands_invalid": "Each band needs a start and an end (HH:MM) and a volume from 0 to 100.",
+      "bands_too_many": "At most 4 bands.",
+      "bands_empty": "A band needs a start different from its end.",
+      "bands_overlap": "Bands must not overlap.",
+      "severity_volume_invalid": "Give a volume from 0 to 100 for success, info, warning or critical."
     }
   },
   "selector": {

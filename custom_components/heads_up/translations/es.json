@@ -97,6 +97,19 @@
               "speak_tts_entity": "El motor que habla en los reproductores multimedia. Vacío: la única entidad de texto a voz, si solo hay una."
             }
           },
+          "speech_volume": {
+            "name": "Volumen de la voz",
+            "data": {
+              "speak_restore_volume": "Devolver el volumen después de hablar",
+              "speak_severity_volume": "Volumen por gravedad (por ciento)",
+              "speak_volume_bands": "Volumen según la hora"
+            },
+            "data_description": {
+              "speak_restore_volume": "Un altavoz cuyo volumen cambió Heads Up recupera su volumen anterior en cuanto se dijo el mensaje, salvo que alguien haya cambiado el volumen mientras tanto. Los altavoces Sonos mantienen su volumen y dicen el mensaje al nivel elegido. Desactivado: el altavoz se queda al volumen de la voz.",
+              "speak_severity_volume": "0–100 por gravedad. Vacío: decide la hora. Un volumen en la llamada a la acción va primero.",
+              "speak_volume_bands": "Hasta 4 franjas, cada una con inicio, fin y un volumen en por ciento. Una franja de 22:00 a 07:00 pasa la medianoche. Las franjas no deben solaparse. Fuera de toda franja el volumen no cambia."
+            }
+          },
           "limits": {
             "name": "Límites",
             "data": {
@@ -129,7 +142,12 @@
       }
     },
     "error": {
-      "timeout_too_long": "El tiempo predeterminado es de 365 días como máximo."
+      "timeout_too_long": "El tiempo predeterminado es de 365 días como máximo.",
+      "bands_invalid": "Cada franja necesita un inicio y un fin (HH:MM) y un volumen de 0 a 100.",
+      "bands_too_many": "Como máximo 4 franjas.",
+      "bands_empty": "El inicio y el fin de una franja deben ser distintos.",
+      "bands_overlap": "Las franjas no deben solaparse.",
+      "severity_volume_invalid": "Indica un volumen de 0 a 100 para success, info, warning o critical."
     }
   },
   "selector": {
