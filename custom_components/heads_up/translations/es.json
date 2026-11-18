@@ -1126,6 +1126,7 @@
             "from_time": "Silencio desde",
             "to_time": "Silencio hasta",
             "days": "Días",
+            "quiet_entity": "O silencio mientras esto esté encendido",
             "action": "Durante las horas de silencio",
             "critical_passes": "Los mensajes críticos pasan",
             "max_wait": "Esperar la llegada (minutos)",
@@ -1153,6 +1154,7 @@
             "from_time": "Horas de silencio: inicio de la franja, en la zona horaria de Home Assistant.",
             "to_time": "Horas de silencio: fin de la franja. Una franja puede cruzar la medianoche.",
             "days": "Horas de silencio: los días en que empieza una franja. Vacío: todos los días.",
+            "quiet_entity": "Horas de silencio: en lugar de las horas, silencio mientras este horario, este interruptor de entrada o este sensor binario esté encendido. Los mensajes retenidos salen cuando se apaga. Una entidad ausente o no disponible no cuenta como silencio.",
             "action": "Horas de silencio: enviar en silencio (push sin sonido, sin voz), retener hasta el final o descartar el envío.",
             "critical_passes": "Horas de silencio: los mensajes críticos ignoran esta política.",
             "max_wait": "Ausente: minutos de espera a que llegue la persona. 0: mientras exista el mensaje.",
@@ -1192,6 +1194,7 @@
             "from_time": "Silencio desde",
             "to_time": "Silencio hasta",
             "days": "Días",
+            "quiet_entity": "O silencio mientras esto esté encendido",
             "action": "Durante las horas de silencio",
             "critical_passes": "Los mensajes críticos pasan",
             "max_wait": "Esperar la llegada (minutos)",
@@ -1218,6 +1221,7 @@
             "from_time": "Horas de silencio: inicio de la franja, en la zona horaria de Home Assistant.",
             "to_time": "Horas de silencio: fin de la franja. Una franja puede cruzar la medianoche.",
             "days": "Horas de silencio: los días en que empieza una franja. Vacío: todos los días.",
+            "quiet_entity": "Horas de silencio: en lugar de las horas, silencio mientras este horario, este interruptor de entrada o este sensor binario esté encendido. Los mensajes retenidos salen cuando se apaga. Una entidad ausente o no disponible no cuenta como silencio.",
             "action": "Horas de silencio: enviar en silencio (push sin sonido, sin voz), retener hasta el final o descartar el envío.",
             "critical_passes": "Horas de silencio: los mensajes críticos ignoran esta política.",
             "max_wait": "Ausente: minutos de espera a que llegue la persona. 0: mientras exista el mensaje.",
@@ -1248,7 +1252,8 @@
         "channels_from_unknown": "Solo una política de alternativa puede usar los canales que no llegaron a nadie.",
         "targets_from_unknown": "Elige de dónde vienen los destinatarios.",
         "nothing_new": "Toma de la llamada o los canales o los destinatarios, no ambos: la política no añadiría nada.",
-        "target_required": "Indica las personas o los altavoces que deben recibirlo."
+        "target_required": "Indica las personas o los altavoces que deben recibirlo.",
+        "quiet_entity_invalid": "Elige un horario, un interruptor de entrada o un sensor binario."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguración se realizó correctamente."

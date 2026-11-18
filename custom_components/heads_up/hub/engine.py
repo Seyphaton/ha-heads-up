@@ -29,6 +29,7 @@ from ..const import (
     EVENT_DELIVERY_FAILED,
     GLOBAL_SNOOZE_KEY,
     HOLD_AWAY,
+    HOLD_QUIET,
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
     SAVE_DELAY,
@@ -122,9 +123,10 @@ class HubEngine:
         # The objects that exist now, to turn a name stored by an earlier version into a key.
         self.identity = IdentityMaps()
         self.chain = Chain()
-        self.chain.replace(QuietHoursStage(self.policies))
+        self.chain.replace(QuietHoursStage(self.policies, hass))
         self.chain.replace(AwayStage(hass, self.policies))
         self._unsub_arrival: CALLBACK_TYPE | None = None
+        self._unsub_quiet: CALLBACK_TYPE | None = None
         # Set by the manager: make a message (the summaries), and tell viewers a hold changed.
         self.create_message: Callable[[dict[str, Any]], dict[str, Any]] = lambda data: {}
         self.visibility_changed: Callable[[], None] = lambda: None
@@ -170,6 +172,10 @@ class HubEngine:
         self._unsub_arrival = self.hass.bus.async_listen(
             EVENT_STATE_CHANGED, self._on_state_change, event_filter=self._is_person
         )
+        # The end of a Quiet hours entity releases what it held (D-218, D-220).
+        self._unsub_quiet = self.hass.bus.async_listen(
+            EVENT_STATE_CHANGED, self._on_quiet_entity, event_filter=self._is_quiet_entity
+        )
         self._ready.set()
 
     async def _restore_bell(self) -> None:
@@ -194,6 +200,9 @@ class HubEngine:
         if self._unsub_arrival is not None:
             self._unsub_arrival()
             self._unsub_arrival = None
+        if self._unsub_quiet is not None:
+            self._unsub_quiet()
+            self._unsub_quiet = None
         tasks = list(self._tails.values())
         for task in tasks:
             task.cancel()
@@ -853,6 +862,40 @@ class HubEngine:
                 self._schedule(row)
         for held in [r for r in self.ledger.rows.values() if r.state is State.HELD and r.hold]:
             self._schedule_held(held.message_id, held.channel, held.recipient)
+        # Held by an entity that may have turned off while stopped: try again; still quiet holds
+        # it again.
+        self._release_quiet(lambda row: row.due is None, "heads_up quiet restart")
+
+    def _quiet_entities(self) -> set[str]:
+        return {
+            p.quiet_entity
+            for p in self.policies.all()
+            if p.type == "quiet_hours" and p.quiet_entity and p.enabled
+        }
+
+    @callback
+    def _is_quiet_entity(self, data: Any) -> bool:  # HA requires a callback as an event filter
+        return str(data["entity_id"]) in self._quiet_entities()
+
+    @callback
+    def _on_quiet_entity(self, event: Event[Any]) -> None:
+        new, old = event.data["new_state"], event.data["old_state"]
+        if self._closed or old is None or old.state != "on":
+            return
+        if new is not None and new.state == "on":
+            return
+        self._release_quiet(lambda row: True, f"heads_up quiet end {event.data['entity_id']}")
+
+    def _release_quiet(self, wanted: Any, name: str) -> None:
+        """Send the deliveries quiet hours hold again through the chain: those no quiet policy
+        holds any more go out, the others are held again."""
+        for row in list(self.ledger.rows.values()):
+            if row.state is State.HELD and row.hold == HOLD_QUIET and wanted(row):
+                self._enqueue(
+                    row.message_id,
+                    partial(self._release, row.message_id, row.channel, row.recipient),
+                    name,
+                )
 
     def _cancel_timer_callbacks(self, message_id: str) -> None:
         for key in [k for k in self._timers if k[0] == message_id]:

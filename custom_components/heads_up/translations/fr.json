@@ -1126,6 +1126,7 @@
             "from_time": "Calme de",
             "to_time": "Calme jusqu'à",
             "days": "Jours",
+            "quiet_entity": "Ou calme tant que ceci est allumé",
             "action": "Pendant les heures calmes",
             "critical_passes": "Les messages critiques passent",
             "max_wait": "Attendre l'arrivée (minutes)",
@@ -1153,6 +1154,7 @@
             "from_time": "Heures calmes : début de la plage, dans le fuseau horaire de Home Assistant.",
             "to_time": "Heures calmes : fin de la plage. Une plage peut passer minuit.",
             "days": "Heures calmes : les jours où une plage commence. Vide : tous les jours.",
+            "quiet_entity": "Heures calmes : au lieu des heures, calme tant que ce planning, cet interrupteur d'entrée ou ce capteur binaire est allumé. Les messages retenus partent quand il s'éteint. Une entité absente ou indisponible n'est pas calme.",
             "action": "Heures calmes : envoyer discrètement (push sans son, pas de voix), retenir jusqu'à la fin ou abandonner l'envoi.",
             "critical_passes": "Heures calmes : les messages critiques ignorent cette politique.",
             "max_wait": "Absent : minutes d'attente de l'arrivée de la personne. 0 : tant que le message existe.",
@@ -1192,6 +1194,7 @@
             "from_time": "Calme de",
             "to_time": "Calme jusqu'à",
             "days": "Jours",
+            "quiet_entity": "Ou calme tant que ceci est allumé",
             "action": "Pendant les heures calmes",
             "critical_passes": "Les messages critiques passent",
             "max_wait": "Attendre l'arrivée (minutes)",
@@ -1218,6 +1221,7 @@
             "from_time": "Heures calmes : début de la plage, dans le fuseau horaire de Home Assistant.",
             "to_time": "Heures calmes : fin de la plage. Une plage peut passer minuit.",
             "days": "Heures calmes : les jours où une plage commence. Vide : tous les jours.",
+            "quiet_entity": "Heures calmes : au lieu des heures, calme tant que ce planning, cet interrupteur d'entrée ou ce capteur binaire est allumé. Les messages retenus partent quand il s'éteint. Une entité absente ou indisponible n'est pas calme.",
             "action": "Heures calmes : envoyer discrètement (push sans son, pas de voix), retenir jusqu'à la fin ou abandonner l'envoi.",
             "critical_passes": "Heures calmes : les messages critiques ignorent cette politique.",
             "max_wait": "Absent : minutes d'attente de l'arrivée de la personne. 0 : tant que le message existe.",
@@ -1248,7 +1252,8 @@
         "channels_from_unknown": "Seule une politique de repli peut utiliser les canaux qui n'ont atteint personne.",
         "targets_from_unknown": "Choisissez d'où viennent les destinataires.",
         "nothing_new": "Prenez soit les canaux, soit les destinataires de l'appel, pas les deux : la politique n'ajouterait rien.",
-        "target_required": "Indiquez les personnes ou les haut-parleurs qui doivent le recevoir."
+        "target_required": "Indiquez les personnes ou les haut-parleurs qui doivent le recevoir.",
+        "quiet_entity_invalid": "Choisissez un planning, un interrupteur d'entrée ou un capteur binaire."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."

@@ -28,7 +28,7 @@ DEFAULT_QUIET_TO = "07:00:00"
 DESCRIBED = {
     "escalation": ("after_minutes", "channels"),
     "reminder": ("every_minutes", "max_count", "channels"),
-    "quiet_hours": ("from_time", "to_time", "days", "action", "critical_passes"),
+    "quiet_hours": ("from_time", "to_time", "days", "quiet_entity", "action", "critical_passes"),
     "away": ("max_wait", "critical_passes"),
     "fallback": ("when", "channels"),
     "deliver": ("channels",),
@@ -62,6 +62,8 @@ class Policy:
     from_time: str = DEFAULT_QUIET_FROM
     to_time: str = DEFAULT_QUIET_TO
     days: tuple[str, ...] = ()  # empty means every day
+    # Quiet while this on/off entity is on, instead of the times (D-218, D-220); empty: times.
+    quiet_entity: str = ""
     action: str = "quiet"
     critical_passes: bool = True
     # Away: minutes to wait for arrival; 0 means as long as the message lives
@@ -80,6 +82,8 @@ class Policy:
         if self.type == "reminder":
             return ("every", self.every_minutes)
         if self.type == "quiet_hours":
+            if self.quiet_entity:
+                return ("entity", self.quiet_entity)
             return ("window", self.from_time, self.to_time, tuple(sorted(self.days)))
         if self.type == "fallback":
             return ("when", self.when)
@@ -140,6 +144,7 @@ def policy_from_data(name: str, subentry_id: str, data: Mapping[str, Any]) -> Po
         from_time=str(data.get("from_time", DEFAULT_QUIET_FROM)),
         to_time=str(data.get("to_time", DEFAULT_QUIET_TO)),
         days=tuple(data.get("days") or ()),
+        quiet_entity=str(data.get("quiet_entity") or ""),
         action=str(data.get("action", "quiet")),
         critical_passes=bool(data.get("critical_passes", True)),
         max_wait=int(data.get("max_wait", 0)),

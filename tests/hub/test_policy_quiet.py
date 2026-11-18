@@ -270,3 +270,144 @@ async def test_an_escalation_of_a_rule_message_follows_quiet_hours(
     await settle(hass, entry)
     await wait(hass, entry, freezer, 6)
     assert not pushes(home.ben)
+
+
+# Quiet while an entity is on (D-218, D-220) ------------------------------------------------
+
+GUESTS = "input_boolean.quiet"
+SCHEDULE = "schedule.night"
+
+
+def entity_quiet(entity: str, action: str = "quiet") -> dict[str, object]:
+    return {**QUIET, "quiet_entity": entity, "action": action}
+
+
+async def test_an_entity_that_is_on_makes_it_quiet_whatever_the_time(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    hass.states.async_set(GUESTS, "on")
+    await add_policy(hass, entry, "Nap", **entity_quiet(GUESTS))
+    freezer.move_to("2026-11-02 12:00:00+01:00")  # outside the policy's times
+    await send(hass, entry, severity="warning")
+    assert pushes(home.anna)[0].data["data"]["importance"] == "low"
+    hass.states.async_set(GUESTS, "off")
+    await send(hass, entry, id="n", severity="warning")
+    assert pushes(home.anna)[1].data["data"]["importance"] == "default"
+
+
+async def test_a_missing_or_unavailable_entity_is_not_quiet(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Nap", **entity_quiet(GUESTS))
+    freezer.move_to("2026-11-02 23:00:00+01:00")  # inside the times: they are not used
+    await send(hass, entry, severity="warning")
+    hass.states.async_set(GUESTS, "unavailable")
+    await send(hass, entry, id="n", severity="warning")
+    assert [p.data["data"]["importance"] for p in pushes(home.anna)] == ["default", "default"]
+
+
+async def test_wait_holds_until_the_entity_turns_off(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    hass.states.async_set(GUESTS, "on")
+    await add_policy(hass, entry, "Nap", **entity_quiet(GUESTS, "wait"))
+    freezer.move_to("2026-11-02 12:00:00+01:00")
+    await send(hass, entry, severity="warning")
+    await wait(hass, entry, freezer, 120)
+    assert not pushes(home.anna)
+    hass.states.async_set(GUESTS, "off")
+    await settle(hass, entry)
+    assert len(pushes(home.anna)) == 1
+
+
+async def test_a_schedule_releases_at_its_next_event(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    freezer.move_to("2026-11-02 12:00:00+01:00")
+    hass.states.async_set(SCHEDULE, "on", {"next_event": "2026-11-02T13:00:00+01:00"})
+    await add_policy(hass, entry, "Lunch", **entity_quiet(SCHEDULE, "wait"))
+    await send(hass, entry, severity="warning")
+    (row,) = [r for r in entry.runtime_data.hub.ledger.rows.values() if r.channel == "push"][:1]
+    assert row.due is not None and row.due.isoformat() == "2026-11-02T12:00:00+00:00"
+    await wait(hass, entry, freezer, 59)
+    assert not pushes(home.anna)
+    # At 13:00 the schedule turns off and moves its next_event on, as Home Assistant does.
+    hass.states.async_set(SCHEDULE, "off", {"next_event": "2026-11-02T22:00:00+01:00"})
+    await wait(hass, entry, freezer, 2)
+    assert len(pushes(home.anna)) == 1
+
+
+async def test_a_stale_next_event_does_not_release_and_hold_again_forever(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    freezer.move_to("2026-11-02 12:00:00+01:00")
+    hass.states.async_set(SCHEDULE, "on", {"next_event": "2026-11-02T11:00:00+01:00"})
+    await add_policy(hass, entry, "Lunch", **entity_quiet(SCHEDULE, "wait"))
+    await send(hass, entry, severity="warning")
+    await wait(hass, entry, freezer, 5)
+    assert not pushes(home.anna)
+    hass.states.async_set(SCHEDULE, "off")
+    await settle(hass, entry)
+    assert len(pushes(home.anna)) == 1
+
+
+async def test_a_delivery_held_by_an_entity_goes_out_after_a_restart_if_it_turned_off(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    hass.states.async_set(GUESTS, "on")
+    await add_policy(hass, entry, "Nap", **entity_quiet(GUESTS, "wait"))
+    freezer.move_to("2026-11-02 12:00:00+01:00")
+    await send(hass, entry, severity="warning")
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    hass.states.async_set(GUESTS, "off")
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await settle(hass, entry)
+    assert len(pushes(home.anna)) == 1
+
+
+async def test_the_overview_warns_about_a_missing_quiet_entity(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    from custom_components.heads_up.hub import panel_data
+
+    await add_policy(hass, entry, "Nap", **entity_quiet(GUESTS))
+    found = panel_data.attention(hass, entry.runtime_data, entry)
+    assert [(a["kind"], a["detail"]) for a in found if a["kind"] == "quiet_entity_missing"] == [
+        ("quiet_entity_missing", GUESTS)
+    ]
+    hass.states.async_set(GUESTS, "off")
+    found = panel_data.attention(hass, entry.runtime_data, entry)
+    assert not [a for a in found if a["kind"] == "quiet_entity_missing"]
+
+
+def test_the_form_refuses_an_entity_that_is_not_on_or_off() -> None:
+    from custom_components.heads_up.hub.policies import quiet
+
+    assert quiet.check({"quiet_entity": "sensor.temperature"}) == {
+        "quiet_entity": "quiet_entity_invalid"
+    }
+    assert quiet.check({"quiet_entity": SCHEDULE, "from_time": "x", "to_time": "x"}) == {}

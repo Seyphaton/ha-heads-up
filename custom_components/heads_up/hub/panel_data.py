@@ -146,6 +146,25 @@ def check_policies(
     return found
 
 
+def check_quiet_entities(policies: list[Any], states: dict[str, str]) -> list[Attention]:
+    """A Quiet hours policy whose entity is missing or unavailable is never quiet (warning)."""
+    return [
+        Attention(
+            "quiet_entity_missing",
+            "warning",
+            p.name,
+            p.quiet_entity,
+            "policies",
+            ref=p.key,
+        )
+        for p in policies
+        if p.type == "quiet_hours"
+        and p.enabled
+        and p.quiet_entity
+        and states.get(p.quiet_entity) in (None, "unavailable", "unknown")
+    ]
+
+
 FAILURE_WINDOW = timedelta(hours=24)
 
 
@@ -276,6 +295,7 @@ def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[d
         service = str(manager.options.get(OPT_MAIL_SERVICE) or "")
         found += check_mail_service(service, hass.services.has_service("notify", service))
         found += check_critical_escalation(hub.policies.all())
+        found += check_quiet_entities(hub.policies.all(), states)
         found += check_failures(hub.log.latest(), dt_util.utcnow())
     return [item.as_dict() for item in found]
 

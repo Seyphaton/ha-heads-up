@@ -128,6 +128,10 @@ export const STRINGS = {
     s_summarize_at: "{applies}: held, and one summary is sent every day at {time}{critical}.",
     s_in_channels: ", only on {channels}",
     s_days: " on {days}",
+    quiet_entity: "Or quiet while this is on",
+    quiet_entity_none: "No entity: use the times",
+    quiet_entity_hint: "A schedule, input boolean or binary sensor. While it is on, the times are not used. Held messages go out when it turns off; a missing or unavailable entity is not quiet.",
+    s_quiet_entity: "{applies}: while {entity} is on, deliveries outside the dashboard are {action}{critical}.",
     s_critical_pass: ", critical messages pass",
     s_critical_held: ", critical messages included",
     s_wait: ", for at most {n} min",
@@ -240,6 +244,10 @@ export const STRINGS = {
     s_summarize_at: "{applies}: zurückgehalten, und eine Zusammenfassung wird jeden Tag um {time} gesendet{critical}.",
     s_in_channels: ", nur auf {channels}",
     s_days: " an {days}",
+    quiet_entity: "Oder ruhig, solange dies an ist",
+    quiet_entity_none: "Keine Entität: Uhrzeiten verwenden",
+    quiet_entity_hint: "Ein Zeitplan, ein Eingabe-Schalter oder ein binärer Sensor. Solange er an ist, gelten die Uhrzeiten nicht. Zurückgehaltene Meldungen gehen raus, wenn er aus geht; eine fehlende oder nicht verfügbare Entität ist nicht ruhig.",
+    s_quiet_entity: "{applies}: solange {entity} an ist, werden Zustellungen außerhalb des Dashboards {action}{critical}.",
     s_critical_pass: ", kritische Meldungen kommen durch",
     s_critical_held: ", kritische Meldungen eingeschlossen",
     s_wait: ", höchstens {n} Min.",
@@ -352,6 +360,10 @@ export const STRINGS = {
     s_summarize_at: "{applies} : retenu, et un résumé est envoyé chaque jour à {time}{critical}.",
     s_in_channels: ", seulement sur {channels}",
     s_days: " le {days}",
+    quiet_entity: "Ou calme tant que ceci est allumé",
+    quiet_entity_none: "Aucune entité : utiliser les heures",
+    quiet_entity_hint: "Un planning, un interrupteur d'entrée ou un capteur binaire. Tant qu'il est allumé, les heures ne servent pas. Les messages retenus partent quand il s'éteint ; une entité absente ou indisponible n'est pas calme.",
+    s_quiet_entity: "{applies} : tant que {entity} est allumé, les livraisons hors tableau de bord sont {action}{critical}.",
     s_critical_pass: ", les messages critiques passent",
     s_critical_held: ", messages critiques inclus",
     s_wait: ", au plus {n} min",
@@ -464,6 +476,10 @@ export const STRINGS = {
     s_summarize_at: "{applies}: retenido, y se envía un resumen cada día a las {time}{critical}.",
     s_in_channels: ", solo por {channels}",
     s_days: " en {days}",
+    quiet_entity: "O silencio mientras esto esté encendido",
+    quiet_entity_none: "Sin entidad: usar las horas",
+    quiet_entity_hint: "Un horario, un interruptor de entrada o un sensor binario. Mientras esté encendido, las horas no se usan. Los mensajes retenidos salen cuando se apaga; una entidad ausente o no disponible no cuenta como silencio.",
+    s_quiet_entity: "{applies}: mientras {entity} esté encendido, las entregas fuera del panel se {action}{critical}.",
     s_critical_pass: ", los mensajes críticos pasan",
     s_critical_held: ", mensajes críticos incluidos",
     s_wait: ", como máximo {n} min",
@@ -522,6 +538,7 @@ export function blankValues(type = "escalation") {
     from_time: "22:00:00",
     to_time: "07:00:00",
     days: [],
+    quiet_entity: "",
     action: "quiet",
     critical_passes: true,
     max_wait: 0,
@@ -541,6 +558,14 @@ export function blankValues(type = "escalation") {
 }
 
 // The values of the form from a stored policy: the targets are flattened per channel.
+// The domains Quiet hours can follow, and the entities of them that exist (plus the stored one).
+const QUIET_DOMAINS = ["schedule", "input_boolean", "binary_sensor"];
+export function quietEntities(hass, current) {
+  const ids = Object.keys(hass?.states || {}).filter((id) => QUIET_DOMAINS.includes(id.split(".")[0])).sort();
+  if (current && !ids.includes(current)) ids.push(current);
+  return ids;
+}
+
 export function fromPolicy(policy) {
   const data = policy.data || {};
   const values = { ...blankValues(data.type), name: policy.name };
@@ -553,7 +578,7 @@ export function fromPolicy(policy) {
   for (const key of ["after_minutes", "every_minutes", "max_count", "max_wait", "summary_every"]) {
     if (data[key] !== undefined) values[key] = data[key];
   }
-  for (const key of ["from_time", "to_time", "action", "when", "summary_at"]) {
+  for (const key of ["from_time", "to_time", "quiet_entity", "action", "when", "summary_at"]) {
     if (data[key]) values[key] = data[key];
   }
   if (data.channels_from) values.channels_from = data.channels_from;
@@ -611,6 +636,7 @@ export function toFlowData(values) {
       break;
     case "quiet_hours":
       Object.assign(data, { from_time: values.from_time, to_time: values.to_time, days: [...values.days], action: values.action, critical_passes: Boolean(values.critical_passes) });
+      if (values.quiet_entity) data.quiet_entity = values.quiet_entity;
       break;
     case "away":
       Object.assign(data, { max_wait: values.max_wait || 0, critical_passes: Boolean(values.critical_passes) });
@@ -647,7 +673,9 @@ export function validate(values, existingNames, ownName) {
     if (!positive(values.every_minutes)) problems.every_minutes = "every_required";
     if (!positive(values.max_count)) problems.max_count = "max_required";
   }
-  if (values.type === "quiet_hours" && (!values.from_time || !values.to_time)) problems.from_time = "time_invalid";
+  if (values.type === "quiet_hours" && values.quiet_entity) {
+    if (!QUIET_DOMAINS.includes(values.quiet_entity.split(".")[0])) problems.quiet_entity = "quiet_entity_invalid";
+  } else if (values.type === "quiet_hours" && (!values.from_time || !values.to_time)) problems.from_time = "time_invalid";
   else if (values.type === "quiet_hours" && values.from_time === values.to_time) problems.to_time = "window_empty";
   if (values.type === "away" && !(values.max_wait >= 0)) problems.max_wait = "wait_invalid";
   if (values.type === "summarize") {
@@ -775,6 +803,9 @@ function sentenceBase(values, t) {
     case "reminder":
       return fill(t.s_reminder, { applies, n: values.every_minutes, m: values.max_count, channels: values.channels.length ? fill(t.s_in_channels, { channels }) : "" });
     case "quiet_hours": {
+      if (values.quiet_entity) {
+        return fill(t.s_quiet_entity, { applies, entity: values.quiet_entity, action: t[`a_${values.action}`], critical: values.critical_passes ? t.s_critical_pass : "" });
+      }
       const days = values.days.length ? fill(t.s_days, { days: values.days.map((d) => t.days_names[d]).join(", ") }) : "";
       return fill(t.s_quiet_hours, {
         applies,
@@ -990,9 +1021,12 @@ export function mount(container, ctx) {
         does.append(el("div", { className: "hint", textContent: t.ack_note }));
         break;
       case "quiet_hours":
-        does.append(ui.field(t.from, ui.timeInput(values.from_time, (v) => { values.from_time = v; paint(); })));
-        does.append(ui.field(t.to, ui.timeInput(values.to_time, (v) => { values.to_time = v; paint(); })));
-        does.append(ui.chips(t.days, DAYS.map((d) => ({ value: d, label: t.days_names[d] })), values.days, (list) => { values.days = list; paint(); }));
+        does.append(ui.field(t.quiet_entity, ui.selectInput([{ value: "", label: t.quiet_entity_none }, ...quietEntities(hass, values.quiet_entity).map((id) => ({ value: id, label: id }))], values.quiet_entity, (v) => { values.quiet_entity = v; again(); }), t.quiet_entity_hint));
+        if (!values.quiet_entity) {
+          does.append(ui.field(t.from, ui.timeInput(values.from_time, (v) => { values.from_time = v; paint(); })));
+          does.append(ui.field(t.to, ui.timeInput(values.to_time, (v) => { values.to_time = v; paint(); })));
+          does.append(ui.chips(t.days, DAYS.map((d) => ({ value: d, label: t.days_names[d] })), values.days, (list) => { values.days = list; paint(); }));
+        }
         does.append(ui.field(t.action, ui.selectInput(["quiet", "wait", "drop"].map((k) => ({ value: k, label: t.actions[k] })), values.action, (v) => { values.action = v; paint(); })));
         does.append(ui.checkbox(t.critical_passes, values.critical_passes, (on) => { values.critical_passes = on; paint(); }));
         break;

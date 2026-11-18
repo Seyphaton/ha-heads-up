@@ -1126,6 +1126,7 @@
             "from_time": "Quiet from",
             "to_time": "Quiet until",
             "days": "Days",
+            "quiet_entity": "Or quiet while this is on",
             "action": "During quiet hours",
             "critical_passes": "Critical messages pass",
             "max_wait": "Wait for arrival (minutes)",
@@ -1153,6 +1154,7 @@
             "from_time": "Quiet hours: start of the window, in the Home Assistant time zone.",
             "to_time": "Quiet hours: end of the window. A window may cross midnight.",
             "days": "Quiet hours: the days a window starts on. Empty: every day.",
+            "quiet_entity": "Quiet hours: instead of the times, quiet while this schedule, input boolean or binary sensor is on. Held messages go out when it turns off. A missing or unavailable entity is not quiet.",
             "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
             "critical_passes": "Quiet hours and Away: critical messages ignore this policy.",
             "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
@@ -1192,6 +1194,7 @@
             "from_time": "Quiet from",
             "to_time": "Quiet until",
             "days": "Days",
+            "quiet_entity": "Or quiet while this is on",
             "action": "During quiet hours",
             "critical_passes": "Critical messages pass",
             "max_wait": "Wait for arrival (minutes)",
@@ -1218,6 +1221,7 @@
             "from_time": "Quiet hours: start of the window, in the Home Assistant time zone.",
             "to_time": "Quiet hours: end of the window. A window may cross midnight.",
             "days": "Quiet hours: the days a window starts on. Empty: every day.",
+            "quiet_entity": "Quiet hours: instead of the times, quiet while this schedule, input boolean or binary sensor is on. Held messages go out when it turns off. A missing or unavailable entity is not quiet.",
             "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
             "critical_passes": "Quiet hours and Away: critical messages ignore this policy.",
             "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
@@ -1248,7 +1252,8 @@
         "channels_from_unknown": "Only a Fallback policy can use the channels that reached nobody.",
         "targets_from_unknown": "Choose where the recipients come from.",
         "nothing_new": "Take either the channels or the recipients from the call, not both: the policy would add nothing.",
-        "target_required": "Give the people or the speakers who should receive it."
+        "target_required": "Give the people or the speakers who should receive it.",
+        "quiet_entity_invalid": "Choose a schedule, an input boolean or a binary sensor."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

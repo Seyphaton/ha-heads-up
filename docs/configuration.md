@@ -344,18 +344,20 @@ Only people who still have the notification are reminded. Someone who dismissed 
 
 ### Quiet hours
 
-Between two times of day, deliveries outside the dashboard are held, sent quietly or dropped. The banner on the dashboard is never affected.
+Between two times of day, or while an entity of your choice is on, deliveries outside the dashboard are held, sent quietly or dropped. The banner on the dashboard is never affected.
 
 | Field | Default | Meaning |
 |---|---|---|
 | Quiet from, Quiet until | 22:00 to 07:00 | The window, on the clock of the Home Assistant time zone. A window may cross midnight. The two times must differ. |
 | Days | every day | The days a window starts on. A window that starts on Friday ends on Saturday morning. |
+| Or quiet while this is on | none | A schedule, input boolean or binary sensor. While it is `on`, quiet hours apply and the times and days are not used. A missing or unavailable entity counts as not quiet, so messages go out, and the Overview shows a warning. |
 | During quiet hours | Send quietly | Send quietly: a push is passive and without sound, speech is skipped, a popup is a corner card. Wait: hold the delivery until the window ends, then send it once. Drop: do not deliver. |
 | Critical messages pass | on | Critical messages ignore the policy. |
 
 - The window follows the wall clock. On the day the clocks change it is one hour shorter or longer. A time that does not exist or occurs twice uses its first occurrence.
 - Reminders during the window are skipped, not held, whatever the action.
 - A held delivery is stored and released once at the end of the window, also after a restart. If the message was cleared, expired or acknowledged meanwhile, or the person dismissed it, nothing is sent and the Message Log says why.
+- With an entity, Wait holds the delivery until the entity turns off. A schedule also releases it at its next change (`next_event`). If the entity turned off while Home Assistant was stopped, the held delivery goes out at the next start.
 - If several quiet hours policies are in their window, the strictest action applies: Drop, then Wait, then Send quietly.
 
 ### Away

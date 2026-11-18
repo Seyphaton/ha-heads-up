@@ -408,6 +408,9 @@ class PolicySubentryFlow(_HubFlow):
                     options=list(WEEKDAYS), multiple=True, translation_key="weekday"
                 )
             ),
+            vol.Optional("quiet_entity"): EntitySelector(
+                EntitySelectorConfig(domain=list(quiet.QUIET_ENTITY_DOMAINS))
+            ),
             vol.Optional("action", default=QUIET_ACTIONS[0]): SelectSelector(
                 SelectSelectorConfig(options=list(QUIET_ACTIONS), translation_key="quiet_action")
             ),
@@ -569,6 +572,8 @@ class PolicySubentryFlow(_HubFlow):
                 action=user_input.get("action", QUIET_ACTIONS[0]),
                 critical_passes=bool(user_input.get("critical_passes", True)),
             )
+            if user_input.get("quiet_entity"):  # stored only when set (D-213)
+                data["quiet_entity"] = str(user_input["quiet_entity"])
         elif kind == "away":
             data["max_wait"] = int(user_input.get("max_wait") or 0)
             data["critical_passes"] = bool(user_input.get("critical_passes", True))

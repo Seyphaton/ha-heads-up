@@ -11,6 +11,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ### Added
 
+- Quiet hours can follow a schedule, input boolean or binary sensor instead of fixed times: quiet while it is on. Held messages go out when it turns off.
 - Speech volume by time of day (up to 4 bands) and by severity, under Settings, Speech volume. Without bands or a severity volume the volume is not changed.
 - `snooze_custom` on `heads_up.notify`, `heads_up.create_banner` and watch rules: the card's snooze row offers **Other…**, so the viewer can snooze for any number of minutes or until a time of day, up to 24 hours.
 - `heads_up_banner_unsnoozed` has the field `reason` and fires when a snooze ends by itself, including a snooze that ran out while Home Assistant was stopped. A global snooze has no `user_id`.
