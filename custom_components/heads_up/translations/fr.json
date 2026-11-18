@@ -397,6 +397,10 @@
           "name": "Durées de report",
           "description": "Jusqu'à 6 durées de report, de 1 minute à 7 jours.\n\nExemple :\n```yaml\n- minutes: 15\n- hours: 4\n```"
         },
+        "snooze_custom": {
+          "name": "Le spectateur choisit la durée",
+          "description": "Propose aussi « Autre… » dans la carte : reporter d'un nombre de minutes au choix ou jusqu'à une heure, 24 heures au plus et pas au-delà de la fin du message. Le message doit pouvoir être reporté."
+        },
         "actions": {
           "name": "Boutons",
           "description": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action.\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
@@ -578,6 +582,10 @@
         "snooze_options": {
           "name": "Durées de report",
           "description": "Jusqu'à 6 durées de report, de 1 minute à 7 jours.\n\nExemple :\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "snooze_custom": {
+          "name": "Le spectateur choisit la durée",
+          "description": "Propose aussi « Autre… » dans la carte : reporter d'un nombre de minutes au choix ou jusqu'à une heure, 24 heures au plus et pas au-delà de la fin du message. Le message doit pouvoir être reporté."
         },
         "mail_subject": {
           "name": "Objet du mail",
@@ -803,6 +811,7 @@
             "snoozable": "Reportable",
             "snooze_scope": "Portée du report",
             "snooze_options": "Durées de report",
+            "snooze_custom": "Le spectateur peut choisir la durée",
             "actions": "Boutons",
             "tap_action": "Action au toucher",
             "image": "Image",
@@ -824,6 +833,7 @@
             "snoozable": "Activé : les utilisateurs peuvent masquer la bannière un moment ; elle revient ensuite. Nécessite « Fermable ». Vide : le réglage des options de l'intégration.",
             "snooze_scope": "Par utilisateur ou tout le monde. Vide : le réglage des options de l'intégration.",
             "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration.",
+            "snooze_custom": "La carte propose aussi « Autre… » : un nombre de minutes au choix ou jusqu'à une heure, 24 heures au plus.",
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
@@ -852,6 +862,7 @@
             "snoozable": "Reportable",
             "snooze_scope": "Portée du report",
             "snooze_options": "Durées de report",
+            "snooze_custom": "Le spectateur peut choisir la durée",
             "actions": "Boutons",
             "tap_action": "Action au toucher",
             "image": "Image"
@@ -872,6 +883,7 @@
             "snoozable": "Activé : les utilisateurs peuvent masquer la bannière un moment ; elle revient ensuite. Nécessite « Fermable ». Vide : le réglage des options de l'intégration.",
             "snooze_scope": "Par utilisateur ou tout le monde. Vide : le réglage des options de l'intégration.",
             "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration.",
+            "snooze_custom": "La carte propose aussi « Autre… » : un nombre de minutes au choix ou jusqu'à une heure, 24 heures au plus.",
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"

@@ -90,6 +90,7 @@ The setting Maximum number of stored messages (default 50) limits how many messa
 | `dismiss` | `off`, `user`, `everyone` | dismissible, scope from the setting Default dismiss scope (shipped as `user`) | To whom a dismissal applies. `user`: only the person who dismisses it; closing hides the message for that person and takes back only their push. `everyone`: one dismissal ends the message for all. `off`: nobody can dismiss it, so dismiss buttons and `snooze` are rejected; it still ends by itself (condition false, timeout) or by an admin clear. A dismissal removes the message from all channels except speak and mail. Write `"off"` in quotes in YAML: an unquoted `off` is read as false (Heads Up accepts that too). |
 | `snooze` | `off`, `user`, `everyone` | setting Messages can be snoozed by default, shipped as off; scope from the setting Default snooze scope | To whom a snooze applies. `user`: the banner, the push and the popup offer Snooze and a snooze hides the message only for the person who snoozes it. `everyone`: a snooze hides it for all. `off`: nobody can snooze it. The message returns after the chosen time. Rejected together with `dismiss: off`. |
 | `snooze_options` | list of durations, 1 minute to 7 days, at most 6 | setting Snooze choices on the banner, shipped as 15 minutes, 1 hour, 4 hours | The choices the banner offers. The push and the popup have one Snooze time, the setting Snooze time on push and popup. The timeout and the condition keep running while a message is snoozed. Creating the message again with the same `id`, or a recurring condition turning false and true again, ends all snoozes. |
+| `snooze_custom` | boolean | `false` | The card's snooze row also offers **Other…**: the viewer types a number of minutes or a time of day. Allowed from 1 minute to 24 hours and not past the end of the message. Needs a message that can be snoozed. |
 | `actions` | list of up to 3 buttons | none | Your own buttons. See [Buttons and snooze](#buttons-and-snooze). |
 
 ### Mail text of this message
@@ -330,6 +331,7 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `snoozable` | boolean | setting Messages can be snoozed by default | `true` is `snooze: user` of `notify`; rejected with `dismissible: false`. |
 | `snooze_scope` | `user`, `global` | setting Default snooze scope | `user` and `global` are `snooze: user` and `snooze: everyone` of `notify`. |
 | `snooze_options` | list of durations | setting Snooze choices on the banner | As in `notify`. |
+| `snooze_custom` | boolean | `false` | As in `notify`. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. See [Buttons and snooze](#buttons-and-snooze). |
 | `audience` | audience sensor | everyone | Show the banner only to the members of the audience as of the call, like `audience` in `notify`. Give only one of `audience`, `recipients` and `people`. |
 | `recipients` | list of person entities | everyone | Show the banner only to the users linked to these persons. |
@@ -682,7 +684,7 @@ Notes:
 - `heads_up.clear_banner` and `heads_up.clear_all` do not remove them, and administrators cannot clear them in the card. Disable or delete the rule instead.
 - Events: see [actions](#events).
 - "Policy" is empty (every automatic policy that applies to a rule message), `none` (no policy) or the name of one policy, which may be a manual policy. A named policy is the only one used for the rule.
-- "Snoozable" needs "Dismissible". It adds a snooze button to the banner. "Snooze scope" and "Snooze choices" are optional; when empty, the integration options apply (per user; 15 minutes, 1 hour, 4 hours). A snooze ends when the time passes or when the entity leaves the state, and a restart ends it too. Buttons are set in the Buttons field.
+- "Snoozable" needs "Dismissible". It adds a snooze button to the banner. "Snooze scope" and "Snooze choices" are optional; when empty, the integration options apply (per user; 15 minutes, 1 hour, 4 hours). "Viewer may choose the duration" adds **Other…** to the choices, as `snooze_custom` does. A snooze ends when the time passes or when the entity leaves the state, and a restart ends it too. Buttons are set in the Buttons field.
 
 ## The card
 
@@ -860,7 +862,7 @@ On touch screens the card tells the browser to keep vertical scrolling for itsel
 
 ### Snooze and buttons
 
-A banner created with `snoozable: true` shows a snooze button (an alarm icon) next to the X. Pressing it opens a row of choices under the banner, for example "15 min", "1 h", "4 h". Pick one and the banner disappears for that time and then comes back. Escape closes the row. With `snooze_scope: user` (the default) it disappears only for you; with `global` for everyone. A banner that is not dismissible is never snoozable.
+A banner created with `snoozable: true` shows a snooze button (an alarm icon) next to the X. Pressing it opens a row of choices under the banner, for example "15 min", "1 h", "4 h". Pick one and the banner disappears for that time and then comes back. Escape closes the row. If the message was created with `snooze_custom: true`, the row ends with **Other…**: type a number of minutes or pick a time of day, then press **Snooze**. A time that has passed today means tomorrow. Anything under 1 minute or over 24 hours shows an error, and the backend also refuses a time after the end of the message. With `snooze_scope: user` (the default) it disappears only for you; with `global` for everyone. A banner that is not dismissible is never snoozable.
 
 With `swipe_to_dismiss: true`, swiping a snoozable banner to the right opens the same row of choices; swiping left dismisses it. On other banners both directions dismiss.
 

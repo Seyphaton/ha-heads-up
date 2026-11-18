@@ -10,6 +10,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ### Added
 
+- `snooze_custom` on `heads_up.notify`, `heads_up.create_banner` and watch rules: the card's snooze row offers **Other…**, so the viewer can snooze for any number of minutes or until a time of day, up to 24 hours.
 - `heads_up_banner_unsnoozed` has the field `reason` and fires when a snooze ends by itself, including a snooze that ran out while Home Assistant was stopped. A global snooze has no `user_id`.
 
 ## [1.0.0] - 2026-11-16

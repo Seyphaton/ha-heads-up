@@ -45,6 +45,7 @@ export const STRINGS = {
     snooze_off: "No",
     f_snooze_scope: "Snoozing hides it for",
     f_snooze_minutes: "Snooze choices, in minutes",
+    f_snooze_custom: "Viewer may choose another duration (at most 24 hours)",
     f_enabled: "Enabled",
     kept: "Buttons and the tap action stay as they are. Change them in the full form on the integration page.",
     sentence: "Sentence",
@@ -102,6 +103,7 @@ export const STRINGS = {
     snooze_off: "Nein",
     f_snooze_scope: "Zurückstellen gilt für",
     f_snooze_minutes: "Auswahl zum Zurückstellen, in Minuten",
+    f_snooze_custom: "Betrachter darf eine andere Dauer wählen (höchstens 24 Stunden)",
     f_enabled: "Aktiv",
     kept: "Schaltflächen und Tippaktion bleiben unverändert. Ändere sie im vollständigen Formular auf der Integrationsseite.",
     sentence: "Satz",
@@ -159,6 +161,7 @@ export const STRINGS = {
     snooze_off: "Non",
     f_snooze_scope: "Reporter vaut pour",
     f_snooze_minutes: "Durées de report, en minutes",
+    f_snooze_custom: "Le spectateur peut choisir une autre durée (24 heures au plus)",
     f_enabled: "Activée",
     kept: "Les boutons et l'action au toucher restent inchangés. Modifiez-les dans le formulaire complet de la page de l'intégration.",
     sentence: "Phrase",
@@ -216,6 +219,7 @@ export const STRINGS = {
     snooze_off: "No",
     f_snooze_scope: "Posponer vale para",
     f_snooze_minutes: "Opciones de pospuesta, en minutos",
+    f_snooze_custom: "El espectador puede elegir otra duración (como máximo 24 horas)",
     f_enabled: "Activada",
     kept: "Los botones y la acción al tocar se quedan como están. Cámbialos en el formulario completo de la página de la integración.",
     sentence: "Frase",
@@ -245,7 +249,7 @@ export function blankValues() {
   return {
     name: "", kind: "entity", entity_id: "", operator: "equals", state: "", attribute: "", for_minutes: "", template: "",
     message: "", title: "", severity: "warning", icon: "", image: "", people: [],
-    dismissible: false, dismiss_scope: "", snoozable: "", snooze_scope: "", snooze_minutes: [], policy: "", enabled: true,
+    dismissible: false, dismiss_scope: "", snoozable: "", snooze_scope: "", snooze_minutes: [], snooze_custom: false, policy: "", enabled: true,
   };
 }
 
@@ -275,6 +279,7 @@ export function fromRule(rule) {
     snoozable: d.snoozable === undefined ? "" : d.snoozable ? "on" : "off",
     snooze_scope: text(d.snooze_scope),
     snooze_minutes: (d.snooze_options || []).map((s) => String(Math.round(s / 60))),
+    snooze_custom: Boolean(d.snooze_custom),
     policy: text(d.policy),
     enabled: d.enabled !== false,
   };
@@ -310,6 +315,7 @@ export function toFlowData(values, own) {
   if (values.snoozable) data.snoozable = values.snoozable === "on";
   if (values.snooze_scope) data.snooze_scope = values.snooze_scope;
   if (values.snooze_minutes.length) data.snooze_options = [...values.snooze_minutes];
+  if (values.snooze_custom) data.snooze_custom = true;
   if (values.policy) data.policy = values.policy;
   const kept = own?.data || {};
   if (kept.actions) data.actions = kept.actions;
@@ -431,6 +437,7 @@ export function mount(container, ctx) {
     box.append(ui.field(t.f_snoozable, ui.selectInput([{ value: "", label: t.snooze_default }, { value: "on", label: t.snooze_on }, { value: "off", label: t.snooze_off }], values.snoozable, (v) => { values.snoozable = v; paint(); })));
     box.append(ui.field(t.f_snooze_scope, ui.selectInput(scopes.map((o) => (o.value === "" ? { ...o, label: t.snooze_default } : o)), values.snooze_scope, (v) => { values.snooze_scope = v; paint(); })));
     box.append(ui.chips(t.f_snooze_minutes, SNOOZE_MINUTES.map((m) => ({ value: String(m), label: String(m) })), values.snooze_minutes, (list) => { values.snooze_minutes = list; paint(); }));
+    box.append(ui.checkbox(t.f_snooze_custom, values.snooze_custom, (on) => { values.snooze_custom = on; paint(); }));
     // The value is the policy's key and the label its name, so a rename does not unset the rule (D-202).
     const listed = (data.policies || []).map((p) => ({ value: p.subentry_id, label: p.name }));
     if (values.policy && values.policy !== "none" && !listed.some((o) => o.value === values.policy)) {

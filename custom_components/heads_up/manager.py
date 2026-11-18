@@ -46,6 +46,8 @@ from .const import (
     EVENT_UNSNOOZED,
     EVENT_UPDATED,
     GLOBAL_SNOOZE_KEY,
+    MAX_CUSTOM_SNOOZE_SECONDS,
+    MIN_SNOOZE_SECONDS,
     OPT_DEFAULT_DISMISS_SCOPE,
     OPT_DEFAULT_SNOOZABLE,
     OPT_DEFAULT_SNOOZE_OPTIONS,
@@ -252,6 +254,7 @@ class BannerManager:
             snooze_options=list(
                 data.get("snooze_options") or self.options[OPT_DEFAULT_SNOOZE_OPTIONS]
             ),
+            snooze_custom=bool(data.get("snooze_custom")),
             tag=data.get("tag"),
             tap_action=data.get("tap_action"),
             image=data.get("image"),
@@ -422,7 +425,11 @@ class BannerManager:
         self._require_target(banner, user_id)
         if not banner.snoozable:
             raise HeadsUpError("not_snoozable", f"Banner {banner_id} cannot be snoozed")
-        if seconds not in banner.snooze_options and seconds != self.quick_snooze_seconds:
+        if (
+            seconds not in banner.snooze_options
+            and seconds != self.quick_snooze_seconds
+            and not self._custom_snooze_allowed(banner, seconds)
+        ):
             raise HeadsUpError(
                 "invalid_snooze", f"{seconds} s is not a choice of banner {banner_id}"
             )
@@ -439,6 +446,18 @@ class BannerManager:
         )
         self._emit(Kind.SNOOZED, banner, user_id=user_id)
         self._changed()
+
+    @staticmethod
+    def _custom_snooze_allowed(banner: Banner, seconds: int) -> bool:
+        """A duration the viewer chose: at least a minute, at most 24 hours and not past the
+        end of the message (D-219)."""
+        if not banner.snooze_custom or seconds < MIN_SNOOZE_SECONDS:
+            return False
+        limit = MAX_CUSTOM_SNOOZE_SECONDS
+        if banner.expires_at is not None:
+            left = (banner.expires_at - dt_util.utcnow()).total_seconds()
+            limit = min(limit, max(int(left), MIN_SNOOZE_SECONDS))
+        return seconds <= limit
 
     @callback
     def acknowledge(self, banner_id: str, user_id: str, *, any_message: bool = False) -> None:
@@ -666,6 +685,7 @@ class BannerManager:
             snooze_options=list(
                 source.get("snooze_options") or self.options[OPT_DEFAULT_SNOOZE_OPTIONS]
             ),
+            snooze_custom=bool(source.get("snooze_custom")),
             tag=RULE_TAG,
             policy=(source.get("policy") or None),
             source=SOURCE_RULE,

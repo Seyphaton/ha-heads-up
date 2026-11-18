@@ -271,6 +271,7 @@ _RULE_SCHEMA = vol.Schema(
                 translation_key="snooze_minutes",
             )
         ),
+        vol.Optional("snooze_custom"): BooleanSelector(),
         vol.Optional("actions"): ObjectSelector(),
         vol.Optional("tap_action"): ObjectSelector(),
         vol.Optional("image"): TextSelector(),

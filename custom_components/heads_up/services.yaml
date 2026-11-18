@@ -101,6 +101,9 @@ create_banner:
       example: '[{"minutes": 15}, {"hours": 1}, {"hours": 4}]'
       selector:
         object: null
+    snooze_custom: &id_snooze_custom
+      selector:
+        boolean: null
 clear_banner:
   fields:
     id: &id001
@@ -242,6 +245,7 @@ notify:
       example: user
       selector: *id014
     snooze_options: *id015
+    snooze_custom: *id_snooze_custom
     mail_subject:
       example: '{person}'
       selector:

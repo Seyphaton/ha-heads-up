@@ -397,6 +397,10 @@
           "name": "Auswahl beim Zurückstellen",
           "description": "Bis zu 6 Zeitspannen zum Zurückstellen, 1 Minute bis 7 Tage.\n\nBeispiel:\n```yaml\n- minutes: 15\n- hours: 4\n```"
         },
+        "snooze_custom": {
+          "name": "Betrachter wählt die Dauer",
+          "description": "Bietet in der Karte zusätzlich „Andere…“ an: zurückstellen um beliebige Minuten oder bis zu einer Uhrzeit, höchstens 24 Stunden und nicht über das Ende der Meldung hinaus. Die Meldung muss zurückgestellt werden können."
+        },
         "actions": {
           "name": "Schaltflächen",
           "description": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```"
@@ -578,6 +582,10 @@
         "snooze_options": {
           "name": "Auswahl beim Zurückstellen",
           "description": "Bis zu 6 Zeitspannen zum Zurückstellen, 1 Minute bis 7 Tage.\n\nBeispiel:\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "snooze_custom": {
+          "name": "Betrachter wählt die Dauer",
+          "description": "Bietet in der Karte zusätzlich „Andere…“ an: zurückstellen um beliebige Minuten oder bis zu einer Uhrzeit, höchstens 24 Stunden und nicht über das Ende der Meldung hinaus. Die Meldung muss zurückgestellt werden können."
         },
         "mail_subject": {
           "name": "Mail-Betreff",
@@ -803,6 +811,7 @@
             "snoozable": "Zurückstellbar",
             "snooze_scope": "Bereich beim Zurückstellen",
             "snooze_options": "Auswahl beim Zurückstellen",
+            "snooze_custom": "Betrachter darf die Dauer wählen",
             "actions": "Schaltflächen",
             "tap_action": "Tipp-Aktion",
             "image": "Bild",
@@ -824,6 +833,7 @@
             "snoozable": "An: Betrachter können das Banner eine Weile ausblenden; danach kehrt es zurück. Benötigt „Schließbar“. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_scope": "Pro Benutzer oder alle. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen.",
+            "snooze_custom": "Die Karte bietet zusätzlich „Andere…“ an: beliebige Minuten oder bis zu einer Uhrzeit, höchstens 24 Stunden.",
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
@@ -852,6 +862,7 @@
             "snoozable": "Zurückstellbar",
             "snooze_scope": "Bereich beim Zurückstellen",
             "snooze_options": "Auswahl beim Zurückstellen",
+            "snooze_custom": "Betrachter darf die Dauer wählen",
             "actions": "Schaltflächen",
             "tap_action": "Tipp-Aktion",
             "image": "Bild"
@@ -872,6 +883,7 @@
             "snoozable": "An: Betrachter können das Banner eine Weile ausblenden; danach kehrt es zurück. Benötigt „Schließbar“. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_scope": "Pro Benutzer oder alle. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen.",
+            "snooze_custom": "Die Karte bietet zusätzlich „Andere…“ an: beliebige Minuten oder bis zu einer Uhrzeit, höchstens 24 Stunden.",
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"

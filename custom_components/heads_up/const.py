@@ -26,6 +26,8 @@ MAX_ACTIONS: Final = 3
 MAX_ACTION_LABEL: Final = 40
 MIN_SNOOZE_SECONDS: Final = 60
 MAX_SNOOZE_SECONDS: Final = 7 * 86400
+# A duration the viewer chooses (`snooze_custom`, D-219) is at most this long.
+MAX_CUSTOM_SNOOZE_SECONDS: Final = 86400
 MAX_SNOOZE_OPTIONS: Final = 6
 # Choices of the options flow, in minutes (D-069).
 DEFAULT_SNOOZE_SECONDS: Final = (900, 3600, 14400)  # 15 min, 1 h, 4 h

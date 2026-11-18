@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime
 from typing import Any
 
@@ -43,6 +43,8 @@ class Banner:
     # Buttons: {key, label, dismiss, action?}; `action` is run by the card (DESIGN §21).
     actions: list[dict[str, Any]] = field(default_factory=list)
     snooze_options: list[int] = field(default_factory=list)
+    # The viewer may also choose another duration (D-219).
+    snooze_custom: bool = False
     # Snooze end by user ID, or GLOBAL_SNOOZE_KEY for everyone (D-069).
     snoozed_until: dict[str, datetime] = field(default_factory=dict)
     # Hub fields (DESIGN §23). The defaults are what `create_banner` produces, so stored banners
@@ -87,13 +89,18 @@ class Banner:
         for key in ("created_at", "updated_at", "expires_at"):
             data[key] = data[key].isoformat() if data[key] else None
         data["snoozed_until"] = {k: v.isoformat() for k, v in self.snoozed_until.items()}
+        # Written only when set, so a banner without it still loads in 1.0 (D-213).
+        if not data["snooze_custom"]:
+            del data["snooze_custom"]
         return data
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Banner:
+        # A key of a later version is ignored, so a downgrade keeps the banner.
+        known = {f.name for f in fields(cls)}
         return cls(
             **{
-                **data,
+                **{k: v for k, v in data.items() if k in known},
                 "created_at": _parse(data["created_at"]),
                 "updated_at": _parse(data["updated_at"]),
                 "expires_at": _parse(data.get("expires_at")),

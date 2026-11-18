@@ -119,6 +119,10 @@ def _check_create(data: dict[str, Any]) -> dict[str, Any]:
         raise vol.Invalid(
             "a banner that is not dismissible cannot be snoozable", path=["snoozable"]
         )
+    if data.get("snooze_custom") and data.get("snoozable") is False:
+        raise vol.Invalid(
+            "snooze_custom needs a message that can be snoozed", path=["snooze_custom"]
+        )
     return data
 
 
@@ -343,6 +347,7 @@ _CREATE_FIELDS: dict[Any, Any] = {
     vol.Optional("snooze_options"): vol.All(
         cv.ensure_list, [vol.All(cv.time_period, _snooze_seconds)], _snooze_options
     ),
+    vol.Optional("snooze_custom"): cv.boolean,
     vol.Optional("tag"): SLUG,
     # Passed to the card unchanged (D-015).
     vol.Optional("condition"): CONDITION_SCHEMA,
