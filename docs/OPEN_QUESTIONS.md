@@ -1,5 +1,10 @@
 # Open questions
 
+## 2.0.0 design (branch `release/2.0`, 2026-11-18)
+- Policy redesign AB decided (D-224); design set in `docs/dev/policy-redesign/` (fact sheet, stories, designs, reviews, comparison, reviewer scores), mockup `docs/dev/mockups/policy-redesign-a.html`.
+- Open: a 2.0 section in `docs/DESIGN.md`; the conversion check list in detail (wording per kind of change, fixtures for both positions of a later policy in `policy_order`, "all" setups); translations of the lane names and "Always gets through" in four languages; the dry run behind "What happens to a message?" and the message history; promise lines later, short form only.
+- Open: when 2.0 takes the 1.1 features (Presence, quiet hours from an entity) from `release/1.1` (D-224: when 1.1.0 is released; the 1.1.0 decisions D-207 to D-223 live on `release/1.1` until then); whether 2.0.0 also takes the editable notify presets or per-channel targets.
+
 ## Card follow-ups (found in Phase 4)
 - Checked 2026-10-27 in the browser pane (admin, dev HA 2026.9.4, 375×812 emulation): both layouts at phone width, Enter on a tappable banner, keyboard use of the snooze button and its choices (Enter, Escape, focus), right swipe with a mouse and with synthetic touch pointer events. Banner buttons wrap to a second line at 375 px; text buttons are 40 px high, the icon buttons 48 px.
 - Not checked: `show_all` with a banner targeted at another person, Space on a tappable banner, screen readers (only the DOM was read: live regions, hidden severity labels, `aria-label`s), swipe on a real touch screen (R-10; `touch-action: pan-y` is untested), and the card editor inside HA's own card dialog (only as a floating element).
