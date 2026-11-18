@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presence policy mockup</title>
+<style>
+:root {
+  --bg: #f5f6f8; --card: #fff; --text: #1c1e21; --muted: #5f6672; --line: #d9dde3;
+  --accent: #0b6bcb; --accent-bg: #e4f0fc; --ok: #1a7f37; --warn: #9a6700; --warn-bg: #fff4d6; --crit: #c62828;
+  --chip: #eef0f3;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #14161a; --card: #1e2127; --text: #e8eaed; --muted: #a0a7b3; --line: #343a44;
+    --accent: #6cb4ff; --accent-bg: #1c2f45; --ok: #5bd17b; --warn: #e3b341; --warn-bg: #3a2f12; --crit: #ff7b72; --chip: #2a2f38; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.45 system-ui, sans-serif; }
+header { padding: 14px 16px; border-bottom: 1px solid var(--line); background: var(--card); }
+header h1 { margin: 0; font-size: 18px; }
+header p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+main { max-width: 760px; margin: 0 auto; padding: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+h2 { margin: 0 0 8px; font-size: 16px; }
+h3.sec { margin: 18px 0 6px; font-size: 14px; color: var(--muted); font-weight: 600; border-top: 1px solid var(--line); padding-top: 12px; }
+label { display: block; font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+input[type=text], input[type=number], select { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; min-height: 40px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.row > select, .row > input { flex: 1 1 140px; width: auto; }
+.lead { flex: none; min-width: 110px; font-weight: 600; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; background: var(--chip); border: 1px solid transparent; cursor: pointer; min-height: 40px; font: inherit; color: var(--text); }
+.chip[aria-pressed="true"] { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.check { display: flex; gap: 8px; align-items: center; margin: 10px 0; color: var(--text); font-size: 15px; }
+.check input { width: 18px; height: 18px; }
+.hint { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.warnbox { background: var(--warn-bg); color: var(--warn); border-radius: 8px; padding: 8px 10px; font-size: 13px; margin-top: 8px; }
+.new { display: inline-block; font-size: 11px; font-weight: 700; color: var(--accent); background: var(--accent-bg); border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
+.cond { border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin-top: 8px; }
+.cond .tag { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.summary { margin-top: 14px; padding: 10px 12px; border-radius: 10px; background: var(--accent-bg); }
+.summary strong { display: block; font-size: 13px; color: var(--accent); margin-bottom: 2px; }
+pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; overflow-x: auto; font-size: 12.5px; margin: 8px 0 0; }
+button.primary { background: var(--accent); color: #fff; border: 0; border-radius: 8px; padding: 10px 14px; font: inherit; cursor: pointer; min-height: 40px; }
+@media (prefers-color-scheme: dark) { button.primary { color: #0b1620; } }
+button.ghost { background: none; border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 8px 12px; font: inherit; cursor: pointer; min-height: 40px; }
+[hidden] { display: none !important; }
+ul.plain { margin: 6px 0 0; padding-left: 18px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Presence policy (mockup)</h1>
+  <p>Static mockup for the 1.1.0 design: the Away policy becomes Presence. Not part of the integration; nothing is saved. Names (Work, Adults, guest mode) are samples.</p>
+</header>
+<main>
+  <div class="card">
+    <h2>Examples</h2>
+    <div class="hint">Each fills the form below.</div>
+    <div class="row" style="margin-top:8px">
+      <button class="ghost" data-preset="away">Away, converted from 1.0</button>
+      <button class="ghost" data-preset="empty">No speech in an empty house</button>
+      <button class="ghost" data-preset="leave">Shopping list when leaving</button>
+      <button class="ghost" data-preset="work">Hold until at work</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Edit policy</h2>
+    <label class="check"><input type="checkbox" id="enabled" checked> Enabled</label>
+    <label for="name">Name</label>
+    <input type="text" id="name">
+    <label for="type">Type</label>
+    <select id="type">
+      <option>Escalation</option><option>Reminder</option><option>Quiet hours</option>
+      <option selected>Presence</option><option>Fallback</option><option>Summarize</option><option>Deliver</option>
+    </select>
+    <div class="hint">Holds or drops a message depending on where people are: for each recipient on push, popup and mail; for the household on speakers.</div>
+
+    <h3 class="sec">Which messages</h3>
+    <div class="row">
+      <button class="chip" data-apply="auto" aria-pressed="true">Automatically</button>
+      <button class="chip" data-apply="manual" aria-pressed="false">Manually</button>
+    </div>
+    <div class="hint" id="applyHint"></div>
+    <label>Severities (none selected: any)</label>
+    <div class="row" id="sev"></div>
+    <label class="check" id="criticalRow"><input type="checkbox" id="critical" checked> Critical messages pass</label>
+    <div class="hint" id="criticalHint">A critical message is never held back or dropped by this policy. Shown on every policy that holds back: Quiet hours, Presence, Summarize.</div>
+    <label for="tags">Tags, comma separated (empty: any)</label>
+    <input type="text" id="tags">
+    <label>Only if <span class="new">new (E)</span></label>
+    <div class="row">
+      <select id="onlyEntity">
+        <option value="">No condition: always</option>
+        <option value="input_boolean.guest_mode">input_boolean.guest_mode</option>
+        <option value="alarm_control_panel.house">alarm_control_panel.house</option>
+      </select>
+      <select id="onlyOp"><option value="equals">is</option><option value="not_equals">is not</option></select>
+      <input type="text" id="onlyState" placeholder="state, e.g. on">
+    </div>
+    <div class="hint">The policy applies only while this condition is true. The same condition as in a notify call (entity, operator, value, optional "for"), or a template.</div>
+
+    <h3 class="sec">What it does</h3>
+    <label>Channels it covers</label>
+    <div class="row" id="chan"></div>
+    <div class="hint">The banner on dashboards is never held.</div>
+
+    <label for="zone">Zone</label>
+    <select id="zone">
+      <option value="zone.home">Home</option>
+      <option value="zone.work">Work</option>
+      <option value="zone.school">School</option>
+    </select>
+
+    <div class="cond" id="condPeople">
+      <div class="tag">Push, popup, mail: checked for each recipient</div>
+      <div class="row">
+        <span class="lead">When the recipient</span>
+        <select id="peopleIs"><option value="not_in">is not in the zone</option><option value="in">is in the zone</option></select>
+      </div>
+    </div>
+
+    <div class="cond" id="condSpeak">
+      <div class="tag">Speech: checked for the household</div>
+      <div class="row">
+        <span class="lead">When</span>
+        <select id="speakWho"><option value="nobody">nobody of</option><option value="somebody">somebody of</option></select>
+        <select id="speakAudience">
+          <option value="everyone">Everyone</option>
+          <option value="admins">Admins</option>
+          <option value="adults">Adults (custom audience)</option>
+        </select>
+        <span>is in the zone</span>
+      </div>
+    </div>
+
+    <label for="then">Then</label>
+    <select id="then">
+      <option value="hold">Hold until that changes</option>
+      <option value="drop">Drop</option>
+    </select>
+    <div id="holdFields">
+      <label for="wait">Wait at most (minutes, 0: as long as the message lives)</label>
+      <input type="number" id="wait" min="0" value="0">
+      <label for="waitEnd">When the wait ends</label>
+      <select id="waitEnd" disabled><option value="send">Send anyway</option><option value="drop">Drop</option></select>
+      <div class="hint">A change of presence counts after the presence delay in Settings (60 seconds), so a flip at the zone edge does not release a message.</div>
+    </div>
+    <div id="warn" class="warnbox" hidden></div>
+
+    <div class="row" style="margin-top:14px">
+      <button class="primary" type="button">Save</button>
+      <button class="ghost" type="button">Cancel</button>
+    </div>
+    <div class="summary"><strong>In words</strong><span id="words"></span></div>
+    <div class="hint" style="margin-top:10px">Stored as</div>
+    <pre id="yaml"></pre>
+  </div>
+
+  <div class="card">
+    <h2>Design notes</h2>
+    <ul class="plain">
+      <li>Your four cases are two dropdowns: "is not in" + Hold = hold until in; "is in" + Hold = hold until they leave; "is in" + Drop = drop when in; "is not in" + Drop = drop when out.</li>
+      <li>Speech has no person, so it uses "nobody of" or "somebody of" an audience. "Anyone is not in" would be ambiguous.</li>
+      <li>One zone per policy, shared by both rows. Two zones need two policies.</li>
+      <li>Unknown presence (unknown, unavailable) delivers at once, as Away does today.</li>
+      <li>A stored Away policy opens as the first example: push, popup and mail; recipient not in Home; hold; same wait and critical setting.</li>
+      <li>"Critical messages pass" sits under Which messages, next to the severities, on every policy that holds back (Quiet hours, Presence, Summarize). It is hidden when the chosen severities exclude critical. Summarize's "Include critical" becomes the same switch with the opposite meaning.</li>
+      <li>Guests: put "Only if input_boolean.guest_mode is off" on a speech policy; with guests the policy steps aside.</li>
+    </ul>
+  </div>
+</main>
+<script>
+const SEV = ["success", "info", "warning", "critical"];
+const SEV_NAMES = { success: "Success", info: "Info", warning: "Warning", critical: "Critical" };
+const CHANNELS = ["push", "popup", "mail", "speak"];
+const CH_NAMES = { push: "Push", popup: "Popup", mail: "Mail", speak: "Speak" };
+const ZONE_NAMES = { "zone.home": "Home", "zone.work": "Work", "zone.school": "School" };
+const AUD_NAMES = { everyone: "Everyone", admins: "Admins", adults: "Adults" };
+
+const state = {
+  name: "Away", apply: "auto", severities: new Set(), tags: "", only: { entity: "", op: "equals", state: "" },
+  channels: new Set(["push", "popup", "mail"]), zone: "zone.home", peopleIs: "not_in",
+  speakWho: "nobody", speakAudience: "everyone", then: "hold", wait: 0, waitEnd: "send", critical: true,
+};
+
+const PRESETS = {
+  away: { name: "Away", severities: [], tags: "", only: { entity: "", op: "equals", state: "" }, channels: ["push", "popup", "mail"], zone: "zone.home", peopleIs: "not_in", then: "hold", wait: 0, waitEnd: "send", critical: true },
+  empty: { name: "No speech in an empty house", severities: [], tags: "", only: { entity: "input_boolean.guest_mode", op: "equals", state: "off" }, channels: ["speak"], zone: "zone.home", speakWho: "nobody", speakAudience: "everyone", then: "drop", critical: true },
+  leave: { name: "Shopping list when leaving", severities: ["info"], tags: "shopping", only: { entity: "", op: "equals", state: "" }, channels: ["push"], zone: "zone.home", peopleIs: "in", then: "hold", wait: 720, waitEnd: "drop", critical: false },
+  work: { name: "Work items at work", severities: ["info"], tags: "work", only: { entity: "", op: "equals", state: "" }, channels: ["push", "mail"], zone: "zone.work", peopleIs: "not_in", then: "hold", wait: 0, waitEnd: "send", critical: false },
+};
+
+const $ = (id) => document.getElementById(id);
+
+function chips(container, items, names, set) {
+  container.replaceChildren(...items.map((key) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "chip"; b.textContent = names[key];
+    b.setAttribute("aria-pressed", set.has(key));
+    b.addEventListener("click", () => { set.has(key) ? set.delete(key) : set.add(key); paint(); });
+    return b;
+  }));
+}
+
+function load(p) {
+  Object.assign(state, { speakWho: "nobody", speakAudience: "everyone", wait: 0, waitEnd: "send" }, p);
+  state.severities = new Set(p.severities);
+  state.channels = new Set(p.channels);
+  state.only = { ...p.only };
+  $("name").value = state.name; $("tags").value = state.tags;
+  $("onlyEntity").value = state.only.entity; $("onlyOp").value = state.only.op; $("onlyState").value = state.only.state;
+  $("zone").value = state.zone; $("peopleIs").value = state.peopleIs;
+  $("speakWho").value = state.speakWho; $("speakAudience").value = state.speakAudience;
+  $("then").value = state.then; $("wait").value = state.wait; $("waitEnd").value = state.waitEnd;
+  $("critical").checked = state.critical;
+  paint();
+}
+
+function sentence() {
+  const sev = state.severities.size ? [...state.severities].map((s) => SEV_NAMES[s]).join(", ") : "Any severity";
+  const tags = state.tags.trim() ? ` with the tag ${state.tags.trim()}` : "";
+  const only = state.only.entity ? `, only while ${state.only.entity} ${state.only.op === "equals" ? "is" : "is not"} ${state.only.state || "…"}` : "";
+  const zone = ZONE_NAMES[state.zone];
+  const parts = [];
+  const people = [...state.channels].filter((c) => c !== "speak");
+  const verb = state.then === "hold" ? "held until that changes" : "dropped";
+  if (people.length) {
+    const where = state.peopleIs === "in" ? `is in ${zone}` : `is not in ${zone}`;
+    parts.push(`${people.map((c) => CH_NAMES[c]).join(", ")} to a recipient who ${where} is ${verb}`);
+  }
+  if (state.channels.has("speak")) {
+    parts.push(`speech while ${state.speakWho} of ${AUD_NAMES[state.speakAudience]} is in ${zone} is ${verb}`);
+  }
+  if (!parts.length) return "Choose at least one channel.";
+  let wait = "";
+  if (state.then === "hold" && state.wait > 0) wait = `, for at most ${state.wait} min, then ${state.waitEnd === "send" ? "sent anyway" : "dropped"}`;
+  const canMatchCritical = !state.severities.size || state.severities.has("critical");
+  const crit = state.critical && canMatchCritical ? ", critical messages pass" : "";
+  return `${sev}${tags}${only}: ${parts.join("; ")}${wait}${crit}.`;
+}
+
+function yaml() {
+  const lines = [`name: ${state.name}`, "type: presence", `apply: ${state.apply}`];
+  lines.push(`severities: [${[...state.severities].join(", ")}]`);
+  lines.push(`tags: [${state.tags.split(",").map((t) => t.trim()).filter(Boolean).join(", ")}]`);
+  if (state.only.entity) {
+    lines.push("only_if:", `  entity_id: ${state.only.entity}`, `  operator: ${state.only.op}`, `  state: "${state.only.state}"`);
+  }
+  lines.push(`channels: [${CHANNELS.filter((c) => state.channels.has(c)).join(", ")}]`);
+  lines.push(`zone: ${state.zone}`);
+  if ([...state.channels].some((c) => c !== "speak")) lines.push(`recipient: ${state.peopleIs}`);
+  if (state.channels.has("speak")) lines.push(`household: {${state.speakWho}: binary_sensor.heads_up_audience_${state.speakAudience}}`);
+  lines.push(`then: ${state.then}`);
+  if (state.then === "hold") lines.push(`max_wait: ${state.wait}`, `after_wait: ${state.waitEnd}`);
+  lines.push(`critical_passes: ${state.critical}`);
+  return lines.join("\n");
+}
+
+function warnings() {
+  const out = [];
+  if (state.channels.has("speak") && state.speakWho === "somebody" && state.then === "hold" && state.zone === "zone.home") {
+    out.push("Speech is then said only once nobody of this audience is home. Is that what you want?");
+  }
+  if (state.channels.has("speak") && state.zone !== "zone.home") {
+    out.push("Speakers are at home; a speech rule on another zone is unusual.");
+  }
+  if (state.then === "drop" && state.critical === false && state.severities.has("critical")) {
+    out.push("Critical messages can be dropped by this policy.");
+  }
+  return out;
+}
+
+function paint() {
+  chips($("sev"), SEV, SEV_NAMES, state.severities);
+  chips($("chan"), CHANNELS, CH_NAMES, state.channels);
+  document.querySelectorAll("[data-apply]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.apply === state.apply));
+  $("applyHint").textContent = state.apply === "auto"
+    ? "Every message whose severity and tag match gets this policy. An empty list matches any."
+    : "Only a call that names this policy gets it. The severity and the tag of the message do not matter.";
+  $("condPeople").hidden = ![...state.channels].some((c) => c !== "speak");
+  $("condSpeak").hidden = !state.channels.has("speak");
+  $("holdFields").hidden = state.then !== "hold";
+  $("waitEnd").disabled = !(state.wait > 0);
+  $("onlyOp").disabled = $("onlyState").disabled = !state.only.entity;
+  // Only meaningful when the policy can match critical messages at all.
+  const canMatchCritical = !state.severities.size || state.severities.has("critical");
+  $("criticalRow").hidden = $("criticalHint").hidden = !canMatchCritical;
+  $("words").textContent = sentence();
+  $("yaml").textContent = yaml();
+  const w = warnings();
+  $("warn").hidden = !w.length;
+  $("warn").textContent = w.join(" ");
+}
+
+$("name").addEventListener("input", (e) => { state.name = e.target.value; paint(); });
+$("tags").addEventListener("input", (e) => { state.tags = e.target.value; paint(); });
+$("onlyEntity").addEventListener("change", (e) => { state.only.entity = e.target.value; paint(); });
+$("onlyOp").addEventListener("change", (e) => { state.only.op = e.target.value; paint(); });
+$("onlyState").addEventListener("input", (e) => { state.only.state = e.target.value; paint(); });
+$("zone").addEventListener("change", (e) => { state.zone = e.target.value; paint(); });
+$("peopleIs").addEventListener("change", (e) => { state.peopleIs = e.target.value; paint(); });
+$("speakWho").addEventListener("change", (e) => { state.speakWho = e.target.value; paint(); });
+$("speakAudience").addEventListener("change", (e) => { state.speakAudience = e.target.value; paint(); });
+$("then").addEventListener("change", (e) => { state.then = e.target.value; paint(); });
+$("wait").addEventListener("input", (e) => { state.wait = Math.max(0, Number(e.target.value) || 0); paint(); });
+$("waitEnd").addEventListener("change", (e) => { state.waitEnd = e.target.value; paint(); });
+$("critical").addEventListener("change", (e) => { state.critical = e.target.checked; paint(); });
+document.querySelectorAll("[data-apply]").forEach((b) => b.addEventListener("click", () => { state.apply = b.dataset.apply; paint(); }));
+document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => load(PRESETS[b.dataset.preset])));
+load(PRESETS.away);
+</script>
+</body>
+</html>

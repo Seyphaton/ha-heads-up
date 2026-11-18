@@ -693,3 +693,40 @@ Calls: an audience and a policy by entity ID (D-198), a group by the entity ID o
 
 Not covered: another integration's names (the notify service of mail: reported as `mail_service_missing`), history in the trace and log (names of their time), `{name}` in a rule message without an entity (the rule's name, by design), a name of an area in hand-written YAML after the area is renamed (the stored form is the ID).
 
+
+## 24. 1.1.0 (Phase 16, design)
+
+Status: design only, on `release/1.1` (D-207); nothing built. Binding for every part: a 1.0.0 setup converts without a breaking change, and each intended behaviour change has a CHANGELOG line with the way back (D-213).
+
+### 24.1 Speech volume (D-206, D-208, D-215, D-217)
+- Speech settings: up to 4 time bands (from, to, volume in percent), no overlap; an optional volume per severity. Precedence: the call's `volume`, then the severity volume, then the band, else no change.
+- Restore, on by default (setting "Restore volume after speech"): a player without announce gets its earlier `volume_level` (N-106) back when playback ends; a `sonos` player (entity registry integration) gets the volume as clip volume through `play_media` with `announce: true` and `extra: {volume}` (N-104, N-105) and its main volume is not touched; other announce players are set and restored after about 15 characters per second plus 2 s (4 to 60 s). No restore when the volume was changed by someone else meanwhile; one restore after the last queued message on a speaker. No per-speaker volume.
+
+### 24.2 Presence replaces Away (D-211, D-212, D-214, D-220)
+- Fields: channels it covers (push, popup, mail, speak; default the first three); one zone (default Home); push, popup and mail: "the recipient is in / is not in the zone", per recipient; speech: "nobody of / somebody of <audience> is in the zone"; then hold until that changes, or drop; for hold a maximum wait and its end (send, default, or drop); "Critical messages pass" in the Which messages block; "only if".
+- A presence change counts after `presence_debounce_seconds`. Unknown presence delivers. The banner is never held.
+- "Home" per person comes from the person state or, if set on the Recipients page, an entity (`on` means home); used by Presence, the presence audiences and speech.
+- Conversion: config entry version 2, minor 2; `type: away` becomes `type: presence` with the 1.0 defaults; held deliveries with hold kind `away` become `presence` when the deliveries store loads; `away` stays accepted on read. Downgrade needs the backup (extended restore script). Visible change: the switch attribute `type`.
+- Mockup: `docs/dev/mockups/presence-policy-mockup.html`.
+
+### 24.3 Quiet hours source (D-218, D-220)
+- Own times (default, 1.0 behaviour) or any on/off entity (`schedule`, `input_boolean`, `binary_sensor`); `on` means quiet. Release when it turns off, or at a schedule's `next_event` (N-103) if earlier. Missing or unavailable: not quiet, Overview warning.
+
+### 24.4 "Only if" on policies (D-209, D-216)
+- The `notify` condition (entity, operator, value, attribute, `for`, or a template), checked whenever the policy would act; a held delivery is released when the condition of its policy turns false; unknown values: whatever delivers more.
+- How a false condition meets "only the first policy runs" is not decided; the policy redesign is a separate session (D-210, `docs/OPEN_QUESTIONS.md`). The build of "only if" waits for it.
+
+### 24.5 Snooze (D-219, D-221)
+- `snooze_custom` (default off) on `notify`, `create_banner` and watch rules: the card adds "Other…" (minutes or until a time); the backend accepts up to the remaining lifetime, at most 24 h.
+- `heads_up_banner_unsnoozed` also fires when a snooze runs out, with `reason: ended` or `user`; an ended snooze found at start fires once.
+
+### 24.6 Severities (D-222)
+- The four keys stay. A Severities page under Configuration holds per level a display label (overrides the translation), the color, and its channel implications (today's per-severity channel settings). The card editor drops `colors`; an existing card `colors` keeps working.
+
+### 24.7 Parity (rule 9)
+- `snooze_custom` and the snooze event: actions and watch rules. Presence, Quiet hours sources, "only if" and severity settings are policy or global settings and apply to both sources by severity and tag. Speech volume: speech exists only for actions and policies (D-206).
+
+### 24.8 Blast radius
+- Restart: the usual one after an update; the config entry and the deliveries store are converted once (backup first).
+- Notification path: speech volume calls (`volume_set`, `play_media` with `extra`) and restore; holds and releases of Presence and Quiet hours.
+- Dashboard: the card editor loses `colors`; labels may change if a label is overridden.
