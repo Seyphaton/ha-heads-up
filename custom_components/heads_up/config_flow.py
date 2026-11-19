@@ -82,6 +82,7 @@ class HeadsUpConfigFlow(ConfigFlow, domain=DOMAIN):
     """Create the single Heads Up entry."""
 
     VERSION = 2  # 2: stored references are keys, not names (D-200)
+    MINOR_VERSION = 2  # 2.2: Away policies became Presence (D-214)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         # Duplicate entries are prevented by "single_config_entry" in manifest.json.

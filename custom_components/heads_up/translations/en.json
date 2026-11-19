@@ -241,7 +241,7 @@
         "escalation": "Escalation",
         "reminder": "Reminder",
         "quiet_hours": "Quiet hours",
-        "away": "Away",
+        "presence": "Presence",
         "fallback": "Fallback",
         "summarize": "Summarize",
         "deliver": "Deliver"
@@ -302,6 +302,30 @@
       "options": {
         "automatic": "Automatic",
         "none": "None"
+      }
+    },
+    "presence_when": {
+      "options": {
+        "not_in": "is not in the zone",
+        "in": "is in the zone"
+      }
+    },
+    "household_who": {
+      "options": {
+        "nobody": "nobody",
+        "somebody": "somebody"
+      }
+    },
+    "presence_then": {
+      "options": {
+        "hold": "Hold until that changes",
+        "drop": "Drop"
+      }
+    },
+    "after_wait": {
+      "options": {
+        "send": "Send anyway",
+        "drop": "Drop"
       }
     }
   },
@@ -1134,6 +1158,12 @@
             "quiet_entity": "Or quiet while this is on",
             "action": "During quiet hours",
             "critical_passes": "Critical messages pass",
+            "zone": "Zone",
+            "presence_when": "Push, popup, mail: when the recipient",
+            "household_who": "Speech: when",
+            "household_audience": "of this audience is in the zone",
+            "presence_then": "Then",
+            "after_wait": "When the wait ends",
             "max_wait": "Wait for arrival (minutes)",
             "when": "Use when",
             "summary_every": "Summary every (minutes)",
@@ -1161,7 +1191,13 @@
             "days": "Quiet hours: the days a window starts on. Empty: every day.",
             "quiet_entity": "Quiet hours: instead of the times, quiet while this schedule, input boolean or binary sensor is on. Held messages go out when it turns off. A missing or unavailable entity is not quiet.",
             "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
-            "critical_passes": "Quiet hours and Away: critical messages ignore this policy.",
+            "critical_passes": "Quiet hours and Presence: critical messages ignore this policy.",
+            "zone": "Presence: the zone that is checked. Home uses each person's home entity if the recipient profile names one.",
+            "presence_when": "Presence: checked for each recipient of push, popup and mail.",
+            "household_who": "Presence: speech is checked for the household, nobody or somebody of the audience below.",
+            "household_audience": "Presence: a list of persons. Empty: everyone.",
+            "presence_then": "Presence: hold the delivery until that changes, or drop it.",
+            "after_wait": "Presence: what happens to a held delivery when the maximum wait is over.",
             "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
             "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed.",
             "summary_every": "Summarize: send one summary this many minutes after the first message was held.",
@@ -1202,6 +1238,12 @@
             "quiet_entity": "Or quiet while this is on",
             "action": "During quiet hours",
             "critical_passes": "Critical messages pass",
+            "zone": "Zone",
+            "presence_when": "Push, popup, mail: when the recipient",
+            "household_who": "Speech: when",
+            "household_audience": "of this audience is in the zone",
+            "presence_then": "Then",
+            "after_wait": "When the wait ends",
             "max_wait": "Wait for arrival (minutes)",
             "when": "Use when",
             "summary_every": "Summary every (minutes)",
@@ -1228,7 +1270,13 @@
             "days": "Quiet hours: the days a window starts on. Empty: every day.",
             "quiet_entity": "Quiet hours: instead of the times, quiet while this schedule, input boolean or binary sensor is on. Held messages go out when it turns off. A missing or unavailable entity is not quiet.",
             "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
-            "critical_passes": "Quiet hours and Away: critical messages ignore this policy.",
+            "critical_passes": "Quiet hours and Presence: critical messages ignore this policy.",
+            "zone": "Presence: the zone that is checked. Home uses each person's home entity if the recipient profile names one.",
+            "presence_when": "Presence: checked for each recipient of push, popup and mail.",
+            "household_who": "Presence: speech is checked for the household, nobody or somebody of the audience below.",
+            "household_audience": "Presence: a list of persons. Empty: everyone.",
+            "presence_then": "Presence: hold the delivery until that changes, or drop it.",
+            "after_wait": "Presence: what happens to a held delivery when the maximum wait is over.",
             "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
             "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed.",
             "summary_every": "Summarize: send one summary this many minutes after the first message was held.",
@@ -1258,7 +1306,9 @@
         "targets_from_unknown": "Choose where the recipients come from.",
         "nothing_new": "Take either the channels or the recipients from the call, not both: the policy would add nothing.",
         "target_required": "Give the people or the speakers who should receive it.",
-        "quiet_entity_invalid": "Choose a schedule, an input boolean or a binary sensor."
+        "quiet_entity_invalid": "Choose a schedule, an input boolean or a binary sensor.",
+        "zone_invalid": "Choose a zone.",
+        "choice_invalid": "Choose one of the options."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

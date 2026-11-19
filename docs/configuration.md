@@ -231,7 +231,7 @@ Every person has a recipient profile without any setup. Their Companion app devi
 - Primary device: listed first. A push still goes to every device of the person.
 - Accepted channels: banner, push and popup by default. A channel you remove is skipped for that person. Mail is off until you add it.
 - Mail address: where mail to this person goes.
-- Home from: an input boolean or binary sensor that says the person is home while it is `on`, instead of the person's own state. Use it when "home" comes from a rule of your own, for example a template binary sensor that also checks the alarm. It applies to the audiences At home, Not home, Last to leave and First home and to the Away policy. Audiences by zone keep the person's own state. An unavailable entity counts as unknown presence.
+- Home from: an input boolean or binary sensor that says the person is home while it is `on`, instead of the person's own state. Use it when "home" comes from a rule of your own, for example a template binary sensor that also checks the alarm. It applies to the audiences At home, Not home, Last to leave and First home and to the Presence policy. Audiences by zone keep the person's own state. An unavailable entity counts as unknown presence.
 
 The panel lists each person with a column per channel (Banner, Push, Popup, Mail): a tick when the person accepts the channel and it can work, a dash when the profile does not accept it, and a warning mark when it is accepted but cannot work (push without a usable device, popup without a Home Assistant user, mail without an address). Point at the mark for the reason. On a narrow screen the channels are written under the name, for example "Banner, Push (no device), Popup". A person who receives nothing is greyed out with a "disabled" badge. Devices, added and removed devices, the primary device, a missing notify service and the missing Home Assistant user are shown when you open a person. A profile that equals the detected devices is not stored. A person with no usable device is skipped on push (`no_usable_device`). A renamed device keeps working: the service is worked out from the device's current name each time.
 
@@ -248,7 +248,7 @@ You can rename a policy, an audience, a speaker group, a watch rule or a person 
 
 ## Policies
 
-A policy adds behaviour to messages without changing the automation that sends them. The types are Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize. Add one in the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy. Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, the fields of its type (for example `from_time`, `to_time`, `action` and `critical_passes` for Quiet hours) and `order`, its place in the list. The policy editor shows the entity ID of the switch. A new policy shows the ID it gets when you save.
+A policy adds behaviour to messages without changing the automation that sends them. The types are Escalation, Reminder, Quiet hours, Presence, Fallback, Deliver and Summarize. Add one in the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy. Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, the fields of its type (for example `from_time`, `to_time`, `action` and `critical_passes` for Quiet hours) and `order`, its place in the list. The policy editor shows the entity ID of the switch. A new policy shows the ID it gets when you save.
 
 Renaming a policy changes only its name. Its entity ID, the watch rules that use it, the messages that are running and their escalations, reminders and held summaries stay as they were. Deleting a policy ends its timers; a new policy with the same name is a different policy, and a rule or message that used the deleted one is listed under Needs attention until you choose another.
 
@@ -259,7 +259,7 @@ A setting on the Policies page, and the first question of the policies step of t
 - Only the first policy that applies runs (the default). The Policies page is one ordered list, and a message gets the first enabled automatic policy of the list that matches its severity and tag. Drag a policy or use the arrows to change the order. A policy you add later goes to the bottom. When a policy above it matches every message it matches, the list marks it "Never runs by itself"; a call that names it still uses it.
 - Every policy that applies runs. A message can get several policies at once, for example quiet hours and a reminder. The order does not matter. Policies can interfere with each other: check a call with Test send.
 
-A call or a watch rule that names a policy uses only that policy under both settings. `none` uses no policy. Policies that have no stored order start in this order: Summarize, Quiet hours, Away, Escalation, Reminder, Fallback, Deliver, each type by name.
+A call or a watch rule that names a policy uses only that policy under both settings. `none` uses no policy. Policies that have no stored order start in this order: Summarize, Quiet hours, Presence, Escalation, Reminder, Fallback, Deliver, each type by name.
 
 "Critical delivery" from the introduction matches every critical message, so under the first setting it comes first and hides later policies for critical messages. Put a policy for a narrower critical case, such as severity `critical` with tag `water`, above it.
 
@@ -361,19 +361,28 @@ Between two times of day, or while an entity of your choice is on, deliveries ou
 - With an entity, Wait holds the delivery until the entity turns off. A schedule also releases it at its next change (`next_event`). If the entity turned off while Home Assistant was stopped, the held delivery goes out at the next start.
 - If several quiet hours policies are in their window, the strictest action applies: Drop, then Wait, then Send quietly.
 
-### Away
+### Presence
 
-A person who is not home when a message is sent gets it when they arrive, if the message is still there.
+Holds or drops a delivery depending on where people are. Push, popup and mail are checked for each recipient. Speech is checked for the household.
 
 | Field | Default | Meaning |
 |---|---|---|
-| Wait for arrival (minutes) | 0 | How long to wait. 0 means as long as the message lives. After that time the delivery is skipped (`max_wait_exceeded`). |
-| Critical messages pass | on | On: critical messages are sent at once to people who are away. Off: they wait for the arrival like other messages. |
+| Channels it covers | push, popup, mail | Add Speak for speakers. The banner is never held. |
+| Zone | Home | The zone that is checked. For Home, a person's Home from entity counts if their recipient profile names one. |
+| Push, popup, mail: when the recipient | is not in the zone | Or: is in the zone. |
+| Speech: when … of this audience is in the zone | nobody, everyone | Nobody or somebody, of everyone or of a list of persons. |
+| Then | Hold until that changes | Or: Drop. |
+| Wait at most (minutes) | 0 | For Hold. 0 means as long as the message lives. |
+| When the wait ends | Send anyway | Or: Drop (`max_wait_exceeded`). |
+| Critical messages pass | on | Off: the policy holds or drops critical messages too. |
 
-- Away holds only deliveries to an audience, and only for people whose state is known and not `home`. Recipients you list yourself, and people whose presence is unknown, are sent at once.
-- Arrival is the person's state changing to `home`. The delivery is sent once, and not if the message was cleared, expired or acknowledged meanwhile, or that person dismissed or snoozed it.
-- With Critical messages pass off, Away holds critical messages too.
+- For push, popup and mail, Presence holds only deliveries to an audience. Recipients you list yourself are sent at once.
+- Unknown presence is never held: the delivery goes out at once. For speech, people whose presence is unknown do not count.
+- A change of presence counts after the presence delay in Settings (60 seconds by default), so a short flip at the zone edge releases nothing. With the delay at 0 it counts at once.
+- A released delivery is sent once, and not if the message was cleared, expired or acknowledged meanwhile, or the person dismissed or snoozed it.
 - Held deliveries are stored and survive a restart.
+
+Examples: "the recipient is not in Home, hold" sends a message when the person comes home. "The recipient is in Home, hold" sends a shopping list when the person leaves. "Speech, nobody of everyone is in Home, drop" keeps speakers silent in an empty house.
 
 ### Fallback
 

@@ -94,7 +94,7 @@ POLICY_TYPES: Final = (
     "escalation",
     "reminder",
     "quiet_hours",
-    "away",
+    "presence",
     "fallback",
     "summarize",
     "deliver",
@@ -103,7 +103,15 @@ WEEKDAYS: Final = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 QUIET_ACTIONS: Final = ("quiet", "wait", "drop")
 FALLBACK_WHEN: Final = ("no_audience", "failed", "both")
 HOLD_QUIET: Final = "quiet_hours"
+# Kept as "away" in stored deliveries, so 1.0 holds stay valid (D-214); Presence uses it too.
 HOLD_AWAY: Final = "away"
+TYPE_AWAY_OLD: Final = "away"  # the 1.0 type key, converted to "presence" (D-212, D-214)
+PRESENCE_WHEN: Final = ("not_in", "in")
+PRESENCE_WHO: Final = ("nobody", "somebody")
+PRESENCE_THEN: Final = ("hold", "drop")
+AFTER_WAIT: Final = ("send", "drop")
+PRESENCE_PEOPLE_CHANNELS: Final = ("push", "popup", "mail")
+PRESENCE_CHANNELS: Final = ("push", "popup", "mail", "speak")
 POLICY_CHANNELS: Final = (
     "push",
     "popup",

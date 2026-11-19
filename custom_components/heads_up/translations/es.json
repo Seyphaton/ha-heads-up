@@ -241,7 +241,7 @@
         "escalation": "Escalado",
         "reminder": "Recordatorio",
         "quiet_hours": "Horas de silencio",
-        "away": "Ausente",
+        "presence": "Presencia",
         "fallback": "Alternativa",
         "summarize": "Resumir",
         "deliver": "Entregar"
@@ -302,6 +302,30 @@
       "options": {
         "automatic": "Automática",
         "none": "Ninguna"
+      }
+    },
+    "presence_when": {
+      "options": {
+        "not_in": "no está en la zona",
+        "in": "está en la zona"
+      }
+    },
+    "household_who": {
+      "options": {
+        "nobody": "nadie",
+        "somebody": "alguien"
+      }
+    },
+    "presence_then": {
+      "options": {
+        "hold": "Retener hasta que eso cambie",
+        "drop": "Descartar"
+      }
+    },
+    "after_wait": {
+      "options": {
+        "send": "Enviar igualmente",
+        "drop": "Descartar"
       }
     }
   },
@@ -1134,6 +1158,12 @@
             "quiet_entity": "O silencio mientras esto esté encendido",
             "action": "Durante las horas de silencio",
             "critical_passes": "Los mensajes críticos pasan",
+            "zone": "Zona",
+            "presence_when": "Push, ventana, correo: cuando el destinatario",
+            "household_who": "Voz: cuando",
+            "household_audience": "de esta audiencia está en la zona",
+            "presence_then": "Entonces",
+            "after_wait": "Cuando termina la espera",
             "max_wait": "Esperar la llegada (minutos)",
             "when": "Usar cuando",
             "summary_every": "Resumen cada (minutos)",
@@ -1161,7 +1191,13 @@
             "days": "Horas de silencio: los días en que empieza una franja. Vacío: todos los días.",
             "quiet_entity": "Horas de silencio: en lugar de las horas, silencio mientras este horario, este interruptor de entrada o este sensor binario esté encendido. Los mensajes retenidos salen cuando se apaga. Una entidad ausente o no disponible no cuenta como silencio.",
             "action": "Horas de silencio: enviar en silencio (push sin sonido, sin voz), retener hasta el final o descartar el envío.",
-            "critical_passes": "Horas de silencio: los mensajes críticos ignoran esta política.",
+            "critical_passes": "Horas de silencio y Presencia: los mensajes críticos ignoran esta política.",
+            "zone": "Presencia: la zona que se comprueba. Casa usa la entidad de presencia de una persona si su perfil de destinatario nombra una.",
+            "presence_when": "Presencia: se comprueba para cada destinatario de push, ventana y correo.",
+            "household_who": "Presencia: la voz se comprueba para el hogar, nadie o alguien de la audiencia de abajo.",
+            "household_audience": "Presencia: una lista de personas. Vacío: todos.",
+            "presence_then": "Presencia: retener la entrega hasta que eso cambie, o descartarla.",
+            "after_wait": "Presencia: qué pasa con una entrega retenida cuando termina la espera máxima.",
             "max_wait": "Ausente: minutos de espera a que llegue la persona. 0: mientras exista el mensaje.",
             "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló.",
             "summary_every": "Resumir: envía un resumen este número de minutos después del primer mensaje retenido.",
@@ -1202,6 +1238,12 @@
             "quiet_entity": "O silencio mientras esto esté encendido",
             "action": "Durante las horas de silencio",
             "critical_passes": "Los mensajes críticos pasan",
+            "zone": "Zona",
+            "presence_when": "Push, ventana, correo: cuando el destinatario",
+            "household_who": "Voz: cuando",
+            "household_audience": "de esta audiencia está en la zona",
+            "presence_then": "Entonces",
+            "after_wait": "Cuando termina la espera",
             "max_wait": "Esperar la llegada (minutos)",
             "when": "Usar cuando",
             "summary_every": "Resumen cada (minutos)",
@@ -1228,7 +1270,13 @@
             "days": "Horas de silencio: los días en que empieza una franja. Vacío: todos los días.",
             "quiet_entity": "Horas de silencio: en lugar de las horas, silencio mientras este horario, este interruptor de entrada o este sensor binario esté encendido. Los mensajes retenidos salen cuando se apaga. Una entidad ausente o no disponible no cuenta como silencio.",
             "action": "Horas de silencio: enviar en silencio (push sin sonido, sin voz), retener hasta el final o descartar el envío.",
-            "critical_passes": "Horas de silencio: los mensajes críticos ignoran esta política.",
+            "critical_passes": "Horas de silencio y Presencia: los mensajes críticos ignoran esta política.",
+            "zone": "Presencia: la zona que se comprueba. Casa usa la entidad de presencia de una persona si su perfil de destinatario nombra una.",
+            "presence_when": "Presencia: se comprueba para cada destinatario de push, ventana y correo.",
+            "household_who": "Presencia: la voz se comprueba para el hogar, nadie o alguien de la audiencia de abajo.",
+            "household_audience": "Presencia: una lista de personas. Vacío: todos.",
+            "presence_then": "Presencia: retener la entrega hasta que eso cambie, o descartarla.",
+            "after_wait": "Presencia: qué pasa con una entrega retenida cuando termina la espera máxima.",
             "max_wait": "Ausente: minutos de espera a que llegue la persona. 0: mientras exista el mensaje.",
             "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló.",
             "summary_every": "Resumir: envía un resumen este número de minutos después del primer mensaje retenido.",
@@ -1258,7 +1306,9 @@
         "targets_from_unknown": "Elige de dónde vienen los destinatarios.",
         "nothing_new": "Toma de la llamada o los canales o los destinatarios, no ambos: la política no añadiría nada.",
         "target_required": "Indica las personas o los altavoces que deben recibirlo.",
-        "quiet_entity_invalid": "Elige un horario, un interruptor de entrada o un sensor binario."
+        "quiet_entity_invalid": "Elige un horario, un interruptor de entrada o un sensor binario.",
+        "zone_invalid": "Elige una zona.",
+        "choice_invalid": "Elige una de las opciones."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguración se realizó correctamente."

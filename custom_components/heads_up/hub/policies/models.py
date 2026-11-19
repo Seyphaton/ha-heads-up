@@ -12,7 +12,12 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigSubentry
 
-from ...const import POLICY_SUBENTRY, POLICY_TYPES
+from ...const import (
+    POLICY_SUBENTRY,
+    POLICY_TYPES,
+    PRESENCE_PEOPLE_CHANNELS,
+    TYPE_AWAY_OLD,
+)
 from ..identity import NAME_PREFIX
 
 DEFAULT_AFTER_MINUTES = 5
@@ -29,7 +34,17 @@ DESCRIBED = {
     "escalation": ("after_minutes", "channels"),
     "reminder": ("every_minutes", "max_count", "channels"),
     "quiet_hours": ("from_time", "to_time", "days", "quiet_entity", "action", "critical_passes"),
-    "away": ("max_wait", "critical_passes"),
+    "presence": (
+        "channels",
+        "zone",
+        "presence_when",
+        "household_who",
+        "household_audience",
+        "presence_then",
+        "max_wait",
+        "after_wait",
+        "critical_passes",
+    ),
     "fallback": ("when", "channels"),
     "deliver": ("channels",),
     "summarize": ("summary_every", "summary_at", "include_critical"),
@@ -66,8 +81,14 @@ class Policy:
     quiet_entity: str = ""
     action: str = "quiet"
     critical_passes: bool = True
-    # Away: minutes to wait for arrival; 0 means as long as the message lives
+    # Presence (was Away, D-212): minutes to wait; 0 means as long as the message lives
     max_wait: int = 0
+    zone: str = "zone.home"
+    presence_when: str = "not_in"  # push, popup, mail: the recipient is not in / in the zone
+    household_who: str = "nobody"  # speech: nobody / somebody of the audience is in the zone
+    household_audience: str = ""  # an audience key; empty: everyone
+    presence_then: str = "hold"  # hold until that changes, or drop
+    after_wait: str = "send"  # when the maximum wait ends: send, or drop (1.0 Away: drop)
     # Summarize: every N minutes, or daily at a time of day when `summary_at` is set
     summary_every: int = 0
     summary_at: str = ""
@@ -91,6 +112,15 @@ class Policy:
             return ("summary", self.summary_every, self.summary_at)
         if self.type == "deliver":
             return ("deliver", tuple(sorted(self.channels)), self.channels_from, self.targets_from)
+        if self.type == "presence":
+            return (
+                "presence",
+                tuple(sorted(presence_channels(self))),
+                self.zone,
+                self.presence_when,
+                self.household_who,
+                self.household_audience,
+            )
         return (self.type,)
 
     @property
@@ -121,12 +151,21 @@ class Policy:
         return out
 
 
+def presence_channels(policy: Policy) -> tuple[str, ...]:
+    """The channels a Presence policy covers; none chosen means push, popup and mail (1.0)."""
+    return policy.channels or PRESENCE_PEOPLE_CHANNELS
+
+
 def policy_from_data(name: str, subentry_id: str, data: Mapping[str, Any]) -> Policy | None:
-    if data.get("type") not in POLICY_TYPES:
+    kind = data.get("type")
+    old_away = kind == TYPE_AWAY_OLD  # a 1.0 Away policy, read as Presence (D-214)
+    if old_away:
+        kind = "presence"
+    if kind not in POLICY_TYPES:
         return None
     return Policy(
         name=name,
-        type=str(data["type"]),
+        type=str(kind),
         subentry_id=subentry_id,
         severities=frozenset(data.get("severities") or ()),
         tags=frozenset(data.get("tags") or ()),
@@ -148,6 +187,13 @@ def policy_from_data(name: str, subentry_id: str, data: Mapping[str, Any]) -> Po
         action=str(data.get("action", "quiet")),
         critical_passes=bool(data.get("critical_passes", True)),
         max_wait=int(data.get("max_wait", 0)),
+        zone=str(data.get("zone") or "zone.home"),
+        presence_when=str(data.get("presence_when") or "not_in"),
+        household_who=str(data.get("household_who") or "nobody"),
+        household_audience=str(data.get("household_audience") or ""),
+        presence_then=str(data.get("presence_then") or "hold"),
+        # 1.0 Away dropped a delivery when the wait ended, so its default is drop (D-213).
+        after_wait=str(data.get("after_wait") or ("drop" if old_away else "send")),
         summary_every=int(data.get("summary_every", 0)),
         summary_at=str(data.get("summary_at", "")),
         include_critical=bool(data.get("include_critical", False)),

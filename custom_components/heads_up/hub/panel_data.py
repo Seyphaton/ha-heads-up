@@ -29,7 +29,7 @@ from ..const import (
 from ..manager import BannerManager
 from .activity import ActivityLog
 from .ledger import State
-from .policies import away, deliver, escalation, fallback, quiet, reminder, summarize
+from .policies import deliver, escalation, fallback, presence, quiet, reminder, summarize
 from .policies.matching import applies
 from .policies.models import Policy, parse_policy
 from .presence import UNKNOWN_STATES
@@ -39,7 +39,8 @@ CHECKS = {
     "escalation": escalation.check,
     "reminder": reminder.check,
     "quiet_hours": quiet.check,
-    "away": away.check,
+    "presence": presence.check,
+    "away": presence.check,  # a 1.0 type key that was not converted yet
     "fallback": fallback.check,
     "summarize": summarize.check,
     "deliver": deliver.check,

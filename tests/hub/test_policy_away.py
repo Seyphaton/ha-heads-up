@@ -1,5 +1,9 @@
-"""Away: hold for a person who is not home, send on arrival while the message is active."""
+"""Away (now Presence, D-212): hold for a person who is not home, send on arrival while the
+message is active. These tests keep the 1.0 timing: the presence delay is 0."""
 
+from typing import Any
+
+import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -18,6 +22,11 @@ from .policy_support import (
     trace,
     wait,
 )
+
+
+@pytest.fixture
+def options() -> dict[str, Any]:
+    return {"policy_mode": "all", "presence_debounce_seconds": 0}
 
 
 async def family(hass: HomeAssistant, entry: MockConfigEntry) -> None:

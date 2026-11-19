@@ -28,6 +28,7 @@ from homeassistant.helpers.selector import (
 )
 
 from ..const import (
+    AFTER_WAIT,
     AUDIENCE_KINDS,
     AUDIENCE_SUBENTRY,
     DEFAULT_PROFILE_CHANNELS,
@@ -41,7 +42,12 @@ from ..const import (
     POLICY_NONE,
     POLICY_SUBENTRY,
     POLICY_TYPES,
+    PRESENCE_CHANNELS,
     PRESENCE_KINDS,
+    PRESENCE_PEOPLE_CHANNELS,
+    PRESENCE_THEN,
+    PRESENCE_WHEN,
+    PRESENCE_WHO,
     PROFILE_CHANNELS,
     PROFILE_SUBENTRY,
     QUIET_ACTIONS,
@@ -50,7 +56,16 @@ from ..const import (
     ZONE_KINDS,
 )
 from .audiences import BUILTINS
-from .policies import away, deliver, escalation, fallback, quiet, reminder, sources, summarize
+from .policies import (
+    deliver,
+    escalation,
+    fallback,
+    presence,
+    quiet,
+    reminder,
+    sources,
+    summarize,
+)
 from .policies.matching import duplicate_of
 from .policies.models import (
     DEFAULT_AFTER_MINUTES,
@@ -427,6 +442,27 @@ class PolicySubentryFlow(_HubFlow):
                 SelectSelectorConfig(options=list(QUIET_ACTIONS), translation_key="quiet_action")
             ),
             vol.Optional("critical_passes", default=True): BooleanSelector(),
+            vol.Optional("zone", default="zone.home"): EntitySelector(
+                EntitySelectorConfig(domain="zone")
+            ),
+            vol.Optional("presence_when", default="not_in"): SelectSelector(
+                SelectSelectorConfig(options=list(PRESENCE_WHEN), translation_key="presence_when")
+            ),
+            vol.Optional("household_who", default="nobody"): SelectSelector(
+                SelectSelectorConfig(options=list(PRESENCE_WHO), translation_key="household_who")
+            ),
+            vol.Optional("household_audience"): SelectSelector(
+                SelectSelectorConfig(
+                    options=[SelectOptionDict(value=k, label=n) for k, n in audiences],
+                    custom_value=True,
+                )
+            ),
+            vol.Optional("presence_then", default="hold"): SelectSelector(
+                SelectSelectorConfig(options=list(PRESENCE_THEN), translation_key="presence_then")
+            ),
+            vol.Optional("after_wait", default="send"): SelectSelector(
+                SelectSelectorConfig(options=list(AFTER_WAIT), translation_key="after_wait")
+            ),
             vol.Optional("max_wait", default=0): NumberSelector(
                 NumberSelectorConfig(min=0, max=10080, step=1, mode=NumberSelectorMode.BOX)
             ),
@@ -496,8 +532,8 @@ class PolicySubentryFlow(_HubFlow):
             errors.update(reminder.check(user_input))
         elif kind == "quiet_hours":
             errors.update(quiet.check(user_input))
-        elif kind == "away":
-            errors.update(away.check(user_input))
+        elif kind == "presence":
+            errors.update(presence.check(user_input))
         elif kind == "summarize":
             errors.update(summarize.check(user_input))
         elif kind == "deliver":
@@ -586,9 +622,22 @@ class PolicySubentryFlow(_HubFlow):
             )
             if user_input.get("quiet_entity"):  # stored only when set (D-213)
                 data["quiet_entity"] = str(user_input["quiet_entity"])
-        elif kind == "away":
+        elif kind == "presence":
             data["max_wait"] = int(user_input.get("max_wait") or 0)
             data["critical_passes"] = bool(user_input.get("critical_passes", True))
+            # Only what differs from the defaults is stored (the 1.0 Away behaviour, D-213).
+            if channels and set(channels) != set(PRESENCE_PEOPLE_CHANNELS):
+                data["channels"] = [c for c in PRESENCE_CHANNELS if c in channels]
+            for key, default in (
+                ("zone", "zone.home"),
+                ("presence_when", "not_in"),
+                ("household_who", "nobody"),
+                ("household_audience", ""),
+                ("presence_then", "hold"),
+            ):
+                if (value := str(user_input.get(key) or default)) != default:
+                    data[key] = value
+            data["after_wait"] = str(user_input.get("after_wait") or "send")
         elif kind == "summarize":
             data["include_critical"] = bool(user_input.get("include_critical", False))
             if user_input.get("summary_at"):

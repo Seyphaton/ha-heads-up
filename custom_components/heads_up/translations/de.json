@@ -241,7 +241,7 @@
         "escalation": "Eskalation",
         "reminder": "Erinnerung",
         "quiet_hours": "Ruhezeit",
-        "away": "Abwesend",
+        "presence": "Anwesenheit",
         "fallback": "Ersatz",
         "summarize": "Zusammenfassen",
         "deliver": "Zustellen"
@@ -302,6 +302,30 @@
       "options": {
         "automatic": "Automatisch",
         "none": "Keine"
+      }
+    },
+    "presence_when": {
+      "options": {
+        "not_in": "nicht in der Zone ist",
+        "in": "in der Zone ist"
+      }
+    },
+    "household_who": {
+      "options": {
+        "nobody": "niemand",
+        "somebody": "jemand"
+      }
+    },
+    "presence_then": {
+      "options": {
+        "hold": "Zurückhalten, bis sich das ändert",
+        "drop": "Verwerfen"
+      }
+    },
+    "after_wait": {
+      "options": {
+        "send": "Trotzdem senden",
+        "drop": "Verwerfen"
       }
     }
   },
@@ -1134,6 +1158,12 @@
             "quiet_entity": "Oder ruhig, solange dies an ist",
             "action": "Während der Ruhezeit",
             "critical_passes": "Kritische Meldungen kommen durch",
+            "zone": "Zone",
+            "presence_when": "Push, Popup, Mail: wenn der Empfänger",
+            "household_who": "Sprache: wenn",
+            "household_audience": "dieser Zielgruppe in der Zone ist",
+            "presence_then": "Dann",
+            "after_wait": "Wenn die Wartezeit endet",
             "max_wait": "Auf Ankunft warten (Minuten)",
             "when": "Verwenden, wenn",
             "summary_every": "Zusammenfassung alle (Minuten)",
@@ -1161,7 +1191,13 @@
             "days": "Ruhezeit: die Tage, an denen ein Fenster beginnt. Leer: jeden Tag.",
             "quiet_entity": "Ruhezeit: statt der Uhrzeiten ruhig, solange dieser Zeitplan, dieser Eingabe-Schalter oder dieser binäre Sensor an ist. Zurückgehaltene Meldungen gehen raus, wenn er aus geht. Eine fehlende oder nicht verfügbare Entität ist nicht ruhig.",
             "action": "Ruhezeit: leise senden (Push ohne Ton, keine Sprachausgabe), bis zum Ende zurückhalten oder die Zustellung verwerfen.",
-            "critical_passes": "Ruhezeit: kritische Meldungen ignorieren diese Richtlinie.",
+            "critical_passes": "Ruhezeit und Anwesenheit: kritische Meldungen ignorieren diese Richtlinie.",
+            "zone": "Anwesenheit: die geprüfte Zone. Zuhause nutzt die Zuhause-Entität einer Person, wenn ihr Empfängerprofil eine nennt.",
+            "presence_when": "Anwesenheit: geprüft für jeden Empfänger von Push, Popup und Mail.",
+            "household_who": "Anwesenheit: Sprache wird für den Haushalt geprüft, niemand oder jemand der Zielgruppe darunter.",
+            "household_audience": "Anwesenheit: eine Liste von Personen. Leer: alle.",
+            "presence_then": "Anwesenheit: die Zustellung zurückhalten, bis sich das ändert, oder verwerfen.",
+            "after_wait": "Anwesenheit: was mit einer zurückgehaltenen Zustellung passiert, wenn die maximale Wartezeit vorbei ist.",
             "max_wait": "Abwesend: Minuten, die auf die Ankunft der Person gewartet wird. 0: solange die Meldung besteht.",
             "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl.",
             "summary_every": "Zusammenfassen: eine Zusammenfassung so viele Minuten nach der ersten zurückgehaltenen Meldung senden.",
@@ -1202,6 +1238,12 @@
             "quiet_entity": "Oder ruhig, solange dies an ist",
             "action": "Während der Ruhezeit",
             "critical_passes": "Kritische Meldungen kommen durch",
+            "zone": "Zone",
+            "presence_when": "Push, Popup, Mail: wenn der Empfänger",
+            "household_who": "Sprache: wenn",
+            "household_audience": "dieser Zielgruppe in der Zone ist",
+            "presence_then": "Dann",
+            "after_wait": "Wenn die Wartezeit endet",
             "max_wait": "Auf Ankunft warten (Minuten)",
             "when": "Verwenden, wenn",
             "summary_every": "Zusammenfassung alle (Minuten)",
@@ -1228,7 +1270,13 @@
             "days": "Ruhezeit: die Tage, an denen ein Fenster beginnt. Leer: jeden Tag.",
             "quiet_entity": "Ruhezeit: statt der Uhrzeiten ruhig, solange dieser Zeitplan, dieser Eingabe-Schalter oder dieser binäre Sensor an ist. Zurückgehaltene Meldungen gehen raus, wenn er aus geht. Eine fehlende oder nicht verfügbare Entität ist nicht ruhig.",
             "action": "Ruhezeit: leise senden (Push ohne Ton, keine Sprachausgabe), bis zum Ende zurückhalten oder die Zustellung verwerfen.",
-            "critical_passes": "Ruhezeit: kritische Meldungen ignorieren diese Richtlinie.",
+            "critical_passes": "Ruhezeit und Anwesenheit: kritische Meldungen ignorieren diese Richtlinie.",
+            "zone": "Anwesenheit: die geprüfte Zone. Zuhause nutzt die Zuhause-Entität einer Person, wenn ihr Empfängerprofil eine nennt.",
+            "presence_when": "Anwesenheit: geprüft für jeden Empfänger von Push, Popup und Mail.",
+            "household_who": "Anwesenheit: Sprache wird für den Haushalt geprüft, niemand oder jemand der Zielgruppe darunter.",
+            "household_audience": "Anwesenheit: eine Liste von Personen. Leer: alle.",
+            "presence_then": "Anwesenheit: die Zustellung zurückhalten, bis sich das ändert, oder verwerfen.",
+            "after_wait": "Anwesenheit: was mit einer zurückgehaltenen Zustellung passiert, wenn die maximale Wartezeit vorbei ist.",
             "max_wait": "Abwesend: Minuten, die auf die Ankunft der Person gewartet wird. 0: solange die Meldung besteht.",
             "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl.",
             "summary_every": "Zusammenfassen: eine Zusammenfassung so viele Minuten nach der ersten zurückgehaltenen Meldung senden.",
@@ -1258,7 +1306,9 @@
         "targets_from_unknown": "Wähle, woher die Empfänger stammen.",
         "nothing_new": "Nimm entweder die Kanäle oder die Empfänger aus dem Aufruf, nicht beides: Die Richtlinie würde nichts hinzufügen.",
         "target_required": "Gib die Personen oder Lautsprecher an, die es erhalten sollen.",
-        "quiet_entity_invalid": "Wähle einen Zeitplan, einen Eingabe-Schalter oder einen binären Sensor."
+        "quiet_entity_invalid": "Wähle einen Zeitplan, einen Eingabe-Schalter oder einen binären Sensor.",
+        "zone_invalid": "Wähle eine Zone.",
+        "choice_invalid": "Wähle eine der Möglichkeiten."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."

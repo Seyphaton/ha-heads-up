@@ -205,8 +205,8 @@ describe("test send wording", () => {
     expect(laterText({ type: "reminder", policy: "Nag", every_minutes: 30, max_count: 3, channels: ["push"] }, T, S)).toBe(
       "Reminder Nag: every 30 min, at most 3 times, only on Push.",
     );
-    expect(laterText({ type: "away", policy: "Back", max_wait: 0 }, T, S)).toBe("Away Back: people who are not home get it when they arrive.");
-    expect(laterText({ type: "away", policy: "Back", max_wait: 20 }, T, S)).toBe("Away Back: people who are not home get it when they arrive, for at most 20 min.");
+    expect(laterText({ type: "presence", policy: "Back", max_wait: 0 }, T, S)).toBe("Presence Back: held until the people it waits for are where it expects them.");
+    expect(laterText({ type: "presence", policy: "Back", max_wait: 20 }, T, S)).toBe("Presence Back: held until the people it waits for are where it expects them, for at most 20 min.");
     expect(laterText({ type: "fallback", policy: "Backup", when: "failed", channels: ["persistent"] }, T, S)).toBe(
       "Fallback Backup: if delivery fails, it is sent on Persistent Notification instead.",
     );

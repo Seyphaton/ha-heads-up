@@ -25,13 +25,16 @@ from ..const import (
     RULE_SUBENTRY,
     STORAGE_KEY,
     TRACE_KEY,
+    TYPE_AWAY_OLD,
 )
 from .identity import IdentityMaps, count_changes, maps_for
 
 _LOGGER = logging.getLogger(__name__)
 
 ENTRY_VERSION = 2
+ENTRY_MINOR_VERSION = 2  # 2.2: Away policies became Presence (D-214)
 BACKUP_KEY = "heads_up.migration_v2"
+PRESENCE_BACKUP_KEY = "heads_up.migration_v2_2"
 OLD_STORE_VERSIONS = {STORAGE_KEY: 1, DELIVERIES_KEY: 1, TRACE_KEY: 1}
 
 
@@ -93,10 +96,62 @@ def _dismissed_key(key: str, person_names: dict[str, str]) -> str:
     return key
 
 
+def presence_from_away(data: dict[str, Any]) -> dict[str, Any]:
+    """A 1.0 Away policy as Presence with its 1.0 behaviour: push, popup and mail, the
+    recipient not in Home, hold, and the delivery dropped when the wait ends (D-213, D-214)."""
+    if data.get("type") != TYPE_AWAY_OLD:
+        return data
+    return {**data, "type": "presence", "after_wait": data.get("after_wait") or "drop"}
+
+
+async def _write_presence_backup(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    store: Store[dict[str, Any]] = Store(hass, 1, PRESENCE_BACKUP_KEY)
+    if await store.async_load() is not None:
+        return
+    await store.async_save(
+        {
+            "entry": {
+                "version": entry.version,
+                "minor_version": entry.minor_version,
+                "subentries": [
+                    {
+                        "subentry_id": s.subentry_id,
+                        "subentry_type": s.subentry_type,
+                        "title": s.title,
+                        "unique_id": s.unique_id,
+                        "data": dict(s.data),
+                    }
+                    for s in entry.subentries.values()
+                    if s.subentry_type == POLICY_SUBENTRY
+                ],
+            }
+        }
+    )
+
+
+async def migrate_presence(hass: HomeAssistant, entry: ConfigEntry) -> int:
+    """2.1 to 2.2: every Away policy becomes Presence; the policy subentries are backed up
+    first. Returns how many policies changed."""
+    await _write_presence_backup(hass, entry)
+    changed = 0
+    for sub in list(entry.subentries.values()):
+        if sub.subentry_type != POLICY_SUBENTRY:
+            continue
+        new = presence_from_away(dict(sub.data))
+        if new != dict(sub.data):
+            hass.config_entries.async_update_subentry(entry, sub, data=new)
+            changed += 1
+    hass.config_entries.async_update_entry(entry, minor_version=ENTRY_MINOR_VERSION)
+    _LOGGER.info("%s: %d Away policies became Presence", DOMAIN, changed)
+    return changed
+
+
 async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if entry.version > ENTRY_VERSION:
         return False  # Home Assistant refuses this before it gets here; kept for clarity
     if entry.version == ENTRY_VERSION:
+        if entry.minor_version < ENTRY_MINOR_VERSION:
+            await migrate_presence(hass, entry)
         return True
     await write_backup(hass, entry)
     maps = maps_for(hass, entry.subentries.values())
@@ -119,4 +174,6 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     changed += count_changes(dict(entry.options), options)
     hass.config_entries.async_update_entry(entry, options=options, version=ENTRY_VERSION)
     _LOGGER.info("%s: stored names became keys (%d values in the entry)", DOMAIN, changed)
+    if entry.minor_version < ENTRY_MINOR_VERSION:
+        await migrate_presence(hass, entry)
     return True

@@ -19,7 +19,7 @@ ACKNOWLEDGING = ("escalation", "reminder")  # types that make an Acknowledge but
 TYPE_RANK = {
     "summarize": 0,
     "quiet_hours": 1,
-    "away": 2,
+    "presence": 2,
     "escalation": 3,
     "reminder": 4,
     "fallback": 5,

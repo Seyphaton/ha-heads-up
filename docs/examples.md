@@ -301,7 +301,7 @@ Any user with a valid token can call the actions; Heads Up does not check for ad
 - A leak at 03:00: a critical message reaches every phone and the dashboard, quiet hours let it pass, and speakers say it. Ben acknowledges on his phone, so the escalation stops. The banner stays until the sensor is dry.
 - A window left open in an empty house: the audience Last to leave gets a push. Nobody else is disturbed. The push is taken back when the window closes.
 - The doorbell: a short message on the wall tablet and a spoken line. With a timeout of 60 seconds everything clears itself.
-- The washing machine: a push to the person who started it. Quiet hours turn it into a banner at night. An Away policy sends it when they arrive.
+- The washing machine: a push to the person who started it. Quiet hours turn it into a banner at night. A Presence policy sends it when they arrive.
 - Nobody reacts to a critical message: after five minutes an escalation notifies a backup person and the speakers. A reminder repeats it. An acknowledgement stops both.
 - A phone is replaced: edit the person's recipient profile once. No automation changes.
 - Why you did not get a message: Test send previews a call, who is reached now and why anyone is skipped, held or dropped. The Message Log shows what happened, for example "push to Anna skipped: quiet hours".
@@ -357,7 +357,7 @@ Add a Quiet hours policy. During the window it can send quietly, hold the messag
 
 ### What if someone is not home?
 
-An Away policy sends the message when the person arrives, as long as it is still there. A Fallback policy sends it to someone else when the first delivery reached nobody.
+A Presence policy sends the message when the person arrives, as long as it is still there. A Fallback policy sends it to someone else when the first delivery reached nobody.
 
 ### Do critical messages get special treatment?
 

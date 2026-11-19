@@ -18,7 +18,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigSubentry
 from homeassistant.const import EVENT_STATE_CHANGED
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
-from homeassistant.helpers.event import async_track_point_in_utc_time
+from homeassistant.helpers.event import async_call_later, async_track_point_in_utc_time
 from homeassistant.util import dt as dt_util
 
 from ..const import (
@@ -30,6 +30,7 @@ from ..const import (
     GLOBAL_SNOOZE_KEY,
     HOLD_AWAY,
     HOLD_QUIET,
+    OPT_PRESENCE_DEBOUNCE,
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
     SAVE_DELAY,
@@ -50,11 +51,10 @@ from .interfaces import AudienceResolver, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, HeldMessage, State
 from .limits import DUPLICATE, RATE_LIMITED, Limiter
 from .policies import PolicyBook, escalation, fallback, reminder, summarize
-from .policies.away import AwayStage
 from .policies.chain import Chain, Hold, Skip, Step
 from .policies.models import Policy
+from .policies.presence import PresenceStage
 from .policies.quiet import QuietHoursStage
-from .presence import home_of
 from .resolver import HubResolver, Recipient
 from .trace import TraceBuffer, TraceEntry
 from .transitions import BannerTransition, Kind, Reason
@@ -107,6 +107,7 @@ class HubEngine:
         self, hass: HomeAssistant, options: dict[str, Any], create_task: TaskFactory
     ) -> None:
         self.hass = hass
+        self._options = options  # the live options of the entry
         self.channels = ChannelRegistry()
         self.ledger = DeliveryLedger(hass)
         self.trace = TraceBuffer(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
@@ -125,9 +126,12 @@ class HubEngine:
         self.identity = IdentityMaps()
         self.chain = Chain()
         self.chain.replace(QuietHoursStage(self.policies, hass))
-        self.chain.replace(AwayStage(hass, self.policies, self.resolver.home_entity))
+        self.chain.replace(
+            PresenceStage(hass, self.policies, self.resolver.home_entity, self.resolver.household)
+        )
         self._unsub_arrival: CALLBACK_TYPE | None = None
         self._unsub_quiet: CALLBACK_TYPE | None = None
+        self._presence_waits: dict[str, CALLBACK_TYPE] = {}  # person to the presence delay
         # Set by the manager: make a message (the summaries), and tell viewers a hold changed.
         self.create_message: Callable[[dict[str, Any]], dict[str, Any]] = lambda data: {}
         self.visibility_changed: Callable[[], None] = lambda: None
@@ -204,6 +208,9 @@ class HubEngine:
         if self._unsub_quiet is not None:
             self._unsub_quiet()
             self._unsub_quiet = None
+        for cancel in self._presence_waits.values():
+            cancel()
+        self._presence_waits.clear()
         tasks = list(self._tails.values())
         for task in tasks:
             task.cancel()
@@ -410,7 +417,7 @@ class HubEngine:
         fields = {
             "escalation": ("after_minutes", "channels"),
             "reminder": ("every_minutes", "max_count", "channels"),
-            "away": ("max_wait",),
+            "presence": ("max_wait",),
             "fallback": ("when", "channels"),
             "deliver": ("channels",),
             "summarize": ("summary_every", "summary_at", "include_critical"),
@@ -1042,20 +1049,42 @@ class HubEngine:
 
     @callback
     def _on_state_change(self, event: Event[Any]) -> None:
-        """An arrival releases what Away holds for that person; "home" is the person state, or
-        the person's home entity turning on (D-220)."""
+        """A change of where someone is: what Presence holds for that person, and what it holds
+        for the household (speech), goes through the chain again after the presence delay; those
+        it no longer holds go out (D-212). "Home" may come from a home entity (D-220)."""
         if self._closed:
             return
-        entity_id = str(event.data["entity_id"])
         new, old = event.data["new_state"], event.data["old_state"]
-        for person in self.resolver.presence.persons_of(entity_id):
-            from_entity = bool(self.resolver.home_entity(person))
-            if home_of(new, from_entity) and not home_of(old, from_entity):
+        if (
+            new is not None
+            and old is not None
+            and new.state == old.state
+            and new.attributes.get("in_zones") == old.attributes.get("in_zones")
+        ):
+            return  # only other attributes changed
+        for person in self.resolver.presence.persons_of(str(event.data["entity_id"])):
+            delay = int(self._options.get(OPT_PRESENCE_DEBOUNCE, 60))
+            if cancel := self._presence_waits.pop(person, None):
+                cancel()
+            if delay <= 0:
                 self._release_away(person)
+                continue
+
+            @callback
+            def settled(_now: Any, person: str = person) -> None:
+                self._presence_waits.pop(person, None)
+                if not self._closed:
+                    self._release_away(person)
+
+            self._presence_waits[person] = async_call_later(self.hass, delay, settled)
 
     def _release_away(self, person: str) -> None:
         for row in list(self.ledger.rows.values()):
-            if row.state is State.HELD and row.hold == HOLD_AWAY and row.person == person:
+            if (
+                row.state is State.HELD
+                and row.hold == HOLD_AWAY
+                and row.person in (person, None, "")
+            ):
                 self._enqueue(
                     row.message_id,
                     partial(self._release, row.message_id, row.channel, row.recipient),
@@ -1067,8 +1096,16 @@ class HubEngine:
         row = self.ledger.rows.get((message_id, channel, recipient))
         if row is None or row.state is not State.HELD or not row.hold:
             return
-        if row.hold == HOLD_AWAY:  # the timer of an away delivery is its deadline
-            self._end_held(row, State.SKIPPED, "max_wait_exceeded")
+        if row.hold == HOLD_AWAY:  # the timer of a Presence hold is its deadline
+            banner = self.lookup(message_id)
+            send = banner is not None and any(
+                p.type == "presence" and p.after_wait == "send"
+                for p in self.policies.for_message(banner)
+            )
+            if not send:
+                self._end_held(row, State.SKIPPED, "max_wait_exceeded")
+                return
+            await self._release(message_id, channel, recipient, skip_presence=True)
         else:
             await self._release(message_id, channel, recipient)
 
@@ -1083,11 +1120,15 @@ class HubEngine:
         self.ledger.put(row)
         self._trace(row.message_id, row.channel, row.recipient, state.value, reason)
 
-    async def _release(self, message_id: str, channel: str, recipient: str) -> None:
-        """Send a held delivery now, if the message still needs it."""
+    async def _release(
+        self, message_id: str, channel: str, recipient: str, skip_presence: bool = False
+    ) -> None:
+        """Send a held delivery now, if the message still needs it. `skip_presence`: the wait of
+        a Presence hold ended with "send anyway"."""
         row = self.ledger.rows.get((message_id, channel, recipient))
         if row is None or row.state is not State.HELD or not row.hold:
             return
+        deadline = row.due if row.hold == HOLD_AWAY else None
         banner = self.lookup(message_id)
         user = self.resolver.user_of_person(row.person) if row.person else None
         if banner is None or not banner.active or banner.acknowledged_by:
@@ -1099,11 +1140,14 @@ class HubEngine:
         else:
             self._end_held(row, State.PLANNED, "released")
             target = self._row_target(row, banner)
-            step = self.chain.run(Step(banner, channel, target, "message"))
+            skip = ("presence",) if skip_presence else ()
+            step = self.chain.run(Step(banner, channel, target, "message"), skip=skip)
             if isinstance(step, Skip):
                 outcome = Outcome(Result.SKIPPED, step.reason)
             elif isinstance(step, Hold):
-                outcome = Outcome(Result.HELD, step.reason, due=step.until, hold=step.kind)
+                # Held again by Presence: the first deadline stays, a new one would never end.
+                until = deadline if step.kind == HOLD_AWAY and deadline else step.until
+                outcome = Outcome(Result.HELD, step.reason, due=until, hold=step.kind)
             elif channel == "push" and not self.limiter.push_allowed(step.banner, step.target.key):
                 outcome = Outcome(Result.SKIPPED, RATE_LIMITED)
             else:

@@ -178,11 +178,30 @@ async def test_the_same_quiet_window_for_the_same_messages_is_a_duplicate(
     assert (await run(hass, entry, "policy", other))["type"] is FlowResultType.CREATE_ENTRY
 
 
-async def test_add_away_with_a_maximum_wait(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    result = await run(hass, entry, "policy", {"name": "Back", "type": "away", "max_wait": 45})
+async def test_add_presence_with_a_maximum_wait(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await run(hass, entry, "policy", {"name": "Back", "type": "presence", "max_wait": 45})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     (sub,) = subentries(entry, "policy")
     assert sub.data["max_wait"] == 45 and "targets" not in sub.data
+    assert sub.data["type"] == "presence" and sub.data["after_wait"] == "send"
+    assert "zone" not in sub.data and "channels" not in sub.data  # defaults are not stored
+
+
+async def test_add_presence_for_speech_when_nobody_is_home(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    data = {
+        "name": "Quiet house",
+        "type": "presence",
+        "channels": ["speak"],
+        "household_who": "nobody",
+        "presence_then": "drop",
+    }
+    assert (await run(hass, entry, "policy", data))["type"] is FlowResultType.CREATE_ENTRY
+    (sub,) = subentries(entry, "policy")
+    assert sub.data["channels"] == ["speak"] and sub.data["presence_then"] == "drop"
 
 
 async def test_add_a_fallback_with_a_target_per_channel(

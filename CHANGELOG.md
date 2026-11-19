@@ -6,11 +6,15 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ### Before you upgrade
 
+- The Away policy is now called Presence. Your Away policies are converted on the first start and keep what they did: push, popup and mail, held until the person comes home, and dropped when the maximum wait ends. A backup of the policies is written to `.storage/heads_up.migration_v2_2`. The policy switch attribute `type` reads `presence`.
+- A held message is released 60 seconds after the person arrives (the presence delay in Settings), not at once, so a short GPS flip releases nothing. Set the presence delay to 0 for the old timing; it also changes Last to leave and First home.
+- Going back to 1.0.0 after the update ignores the converted policies. Restore the backup first, as described in [Upgrading](docs/setup.md#upgrading).
 - After speaking, Heads Up puts a speaker's volume back to where it was, if the message set a volume. Sonos speakers keep their volume and say the message at the chosen level. For the 1.0 behaviour, switch off "Put the volume back after speaking" under Settings, Speech volume.
 - `heads_up_banner_unsnoozed` also fires when a snooze runs out, not only when someone ends it in the card. The event has a new field `reason`: `ended` or `user`. An automation that should react only to the card, as before, needs a condition on `reason: user`.
 
 ### Added
 
+- Presence policy: hold or drop by where people are, for any zone. "Hold until the recipient leaves" and "drop while they are in the zone" for push, popup and mail; "nobody or somebody of an audience is in the zone" for speech; send or drop when the maximum wait ends.
 - A recipient profile can take "home" from an input boolean or binary sensor instead of the person's state. The presence audiences and the Away policy follow it.
 - Quiet hours can follow a schedule, input boolean or binary sensor instead of fixed times: quiet while it is on. Held messages go out when it turns off.
 - Speech volume by time of day (up to 4 bands) and by severity, under Settings, Speech volume. Without bands or a severity volume the volume is not changed.

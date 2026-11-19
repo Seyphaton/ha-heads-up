@@ -81,7 +81,7 @@ def test_without_a_stored_order_the_starting_order_is_by_type_then_name() -> Non
         policy("Reminder", "reminder"),
         policy("Quiet", "quiet_hours"),
         policy("Summary", "summarize"),
-        policy("Away", "away"),
+        policy("Away", "presence"),
         policy("Deliver A", "deliver"),
         policy("Escalate", "escalation"),
         policy("Fallback", "fallback"),

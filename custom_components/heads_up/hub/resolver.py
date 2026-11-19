@@ -100,6 +100,14 @@ class HubResolver:
         self._profiles = {p.person: p for p in profiles if p is not None}
         self.presence.refresh()  # a changed home entity takes effect at once
 
+    def household(self, audience_key: str) -> list[str]:
+        """The persons whose presence a speech rule of Presence checks: a persons audience by
+        its key, else every person (D-212)."""
+        audience = self._audiences.get(audience_key) if audience_key else None
+        if audience is not None and audience.kind == "persons":
+            return list(audience.persons)
+        return sorted(s.entity_id for s in self._hass.states.async_all("person"))
+
     def home_entity(self, person: str) -> str:
         """The entity that says whether a person is home, or "" for the person state (D-220)."""
         stored = self._profiles.get(person)
