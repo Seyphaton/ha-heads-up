@@ -147,13 +147,13 @@
       "bands_too_many": "4 plages au plus.",
       "bands_empty": "Le début et la fin d'une plage doivent être différents.",
       "bands_overlap": "Les plages ne doivent pas se chevaucher.",
-      "severity_volume_invalid": "Indiquez un volume de 0 à 100 pour success, info, warning ou critical."
+      "severity_volume_invalid": "Indiquez un volume de 0 à 100 pour passive, info, warning ou critical."
     }
   },
   "selector": {
     "severity": {
       "options": {
-        "success": "Succès",
+        "passive": "Passif",
         "info": "Info",
         "warning": "Avertissement",
         "critical": "Critique"
@@ -575,7 +575,7 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (par défaut passif est discret, info normal, avertissement urgent et critique une alarme), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",
@@ -657,7 +657,7 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (par défaut passif est discret, info normal, avertissement urgent et critique une alarme), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",
@@ -715,7 +715,7 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (par défaut passif est discret, info normal, avertissement urgent et critique une alarme), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",
@@ -773,7 +773,7 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (par défaut passif est discret, info normal, avertissement urgent et critique une alarme), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",

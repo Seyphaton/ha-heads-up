@@ -1,7 +1,7 @@
 """Constants for Heads Up."""
 
 import re
-from typing import Final
+from typing import Any, Final
 
 DOMAIN: Final = "heads_up"
 
@@ -10,10 +10,12 @@ STORAGE_VERSION: Final = 2  # 2: policy and target references are keys (D-200)
 SAVE_DELAY: Final = 1  # seconds; batches parallel callers (D-023)
 
 # Ordered lowest to highest: eviction picks from the front, the card sorts from the back.
-SEVERITIES: Final = ("success", "info", "warning", "critical")
+SEVERITIES: Final = ("passive", "info", "warning", "critical")
+# Earlier names still accepted in calls and card options (D-231): `success` is now `passive`.
+SEVERITY_ALIASES: Final = {"success": "passive"}
 DEFAULT_SEVERITY: Final = "warning"
 DEFAULT_ICONS: Final = {
-    "success": "mdi:check-circle",
+    "passive": "mdi:check-circle",
     "info": "mdi:information",
     "warning": "mdi:alert",
     "critical": "mdi:alert-octagon",
@@ -178,7 +180,7 @@ OPT_PUSH_STICKY: Final = "push_sticky"
 PUSH_LEVELS: Final = ("passive", "normal", "time-sensitive", "critical")
 PUSH_LOCKSCREEN: Final = ("full", "title_only", "generic")
 DEFAULT_PUSH_LEVELS: Final = {
-    "success": "passive",
+    "passive": "passive",
     "info": "normal",
     "warning": "time-sensitive",
     "critical": "critical",  # an alarm on iOS and Android (D-155); default for new setups (D-230)
@@ -186,7 +188,7 @@ DEFAULT_PUSH_LEVELS: Final = {
 # The defaults up to 1.1.0-beta.2: written into the options of an existing setup at the upgrade,
 # so its phones behave as before (D-230, D-213).
 PUSH_LEVELS_1_0: Final = {
-    "success": "passive",
+    "passive": "passive",
     "info": "passive",
     "warning": "normal",
     "critical": "time-sensitive",
@@ -209,7 +211,7 @@ POPUP_STYLES: Final = (
     "off",
 )
 DEFAULT_POPUP_STYLES: Final[dict[str, str]] = {
-    "success": "card",
+    "passive": "card",
     "info": "card",
     "warning": "card",
     "critical": "modal",
@@ -290,3 +292,8 @@ EVENT_UNSNOOZED: Final = f"{DOMAIN}_banner_unsnoozed"
 UNSNOOZE_USER: Final = "user"
 UNSNOOZE_ENDED: Final = "ended"
 EVENT_DELIVERY_FAILED: Final = f"{DOMAIN}_delivery_failed"  # D-128
+
+
+def canonical_severity(value: Any) -> Any:
+    """A severity by its current name: `success` is read as `passive` (D-231)."""
+    return SEVERITY_ALIASES.get(value, value) if isinstance(value, str) else value

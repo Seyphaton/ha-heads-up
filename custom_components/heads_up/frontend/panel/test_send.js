@@ -375,7 +375,7 @@ export const STRINGS = {
   },
 };
 
-const SEVERITIES = ["success", "info", "warning", "critical"];
+const SEVERITIES = ["passive", "info", "warning", "critical"];
 const CHANNELS = ["banner", "push", "popup", "speak", "persistent", "mail"];
 const NEEDS_TARGET = ["push", "popup", "speak", "mail"];
 

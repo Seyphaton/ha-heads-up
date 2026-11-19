@@ -81,7 +81,7 @@ These settings belong to the message, not to one channel. They apply to the bann
 
 | Setting | Default | Meaning |
 |---|---|---|
-| Push level per severity (`push_levels`) | success `passive`, info `normal`, warning `time-sensitive`, critical `critical` | The level of the notification. `critical` is an alarm on both platforms: the critical alert on iOS (needs the app's permission, plays in silent mode) and the alarm channel on Android (sounds in vibrate and silent mode; Do Not Disturb is overridden only if you allow it for that channel in the Android settings). |
+| Push level per severity (`push_levels`) | passive `passive`, info `normal`, warning `time-sensitive`, critical `critical` | The level of the notification. `critical` is an alarm on both platforms: the critical alert on iOS (needs the app's permission, plays in silent mode) and the alarm channel on Android (sounds in vibrate and silent mode; Do Not Disturb is overridden only if you allow it for that channel in the Android settings). |
 | Lock screen text (`push_lockscreen`) | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
 | Android channel name (`push_channel_id`) | `heads_up` | Prefix of the Android notification channel. |
 | Keep after tap (`push_sticky`) | off | Keeps the notification after a tap (Android). |
@@ -98,7 +98,7 @@ See [Push notifications](configuration.md#push).
 
 | Setting | Default | Meaning |
 |---|---|---|
-| Popup style per severity (`popup_styles`) | success, info and warning `card`; critical `modal` | `card` is a card in the bottom right corner, `card_bottom_left`, `card_top_right` and `card_top_left` are cards in the other corners, `modal` a centered window over a dimmed page, `off` shows nothing. |
+| Popup style per severity (`popup_styles`) | passive, info and warning `card`; critical `modal` | `card` is a card in the bottom right corner, `card_bottom_left`, `card_top_right` and `card_top_left` are cards in the other corners, `modal` a centered window over a dimmed page, `off` shows nothing. |
 
 See [Popups](configuration.md#popup).
 

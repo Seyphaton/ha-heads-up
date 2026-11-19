@@ -1,19 +1,19 @@
 // Heads Up popup (docs/configuration.md#popup). Imported by the loader when the first popup is due.
 // Plain ES module, no build step (D-021, D-115). Message text only via textContent.
 
-const SEVERITY_RANK = { critical: 3, warning: 2, info: 1, success: 0 };
+const SEVERITY_RANK = { critical: 3, warning: 2, info: 1, passive: 0 };
 const COLOR = {
   critical: "var(--error-color, #db4437)",
   warning: "var(--warning-color, #ffa600)",
   info: "var(--info-color, #4285f4)",
-  success: "var(--success-color, #43a047)",
+  passive: "var(--success-color, #43a047)",
 };
 
 export const STRINGS = {
-  en: { dismiss: "Dismiss", snooze: "Snooze", ack: "Acknowledge", close: "Close", critical: "Critical", warning: "Warning", info: "Info", success: "Success" },
-  de: { dismiss: "Schließen", snooze: "Später", ack: "Bestätigen", close: "Ausblenden", critical: "Kritisch", warning: "Warnung", info: "Info", success: "Erfolg" },
-  fr: { dismiss: "Fermer", snooze: "Reporter", ack: "Confirmer", close: "Masquer", critical: "Critique", warning: "Avertissement", info: "Info", success: "Succès" },
-  es: { dismiss: "Descartar", snooze: "Posponer", ack: "Confirmar", close: "Ocultar", critical: "Crítico", warning: "Aviso", info: "Info", success: "Éxito" },
+  en: { dismiss: "Dismiss", snooze: "Snooze", ack: "Acknowledge", close: "Close", critical: "Critical", warning: "Warning", info: "Info", passive: "Passive" },
+  de: { dismiss: "Schließen", snooze: "Später", ack: "Bestätigen", close: "Ausblenden", critical: "Kritisch", warning: "Warnung", info: "Info", passive: "Passiv" },
+  fr: { dismiss: "Fermer", snooze: "Reporter", ack: "Confirmer", close: "Masquer", critical: "Critique", warning: "Avertissement", info: "Info", passive: "Passif" },
+  es: { dismiss: "Descartar", snooze: "Posponer", ack: "Confirmar", close: "Ocultar", critical: "Crítico", warning: "Aviso", info: "Info", passive: "Pasivo" },
 };
 
 export function text(language, key) {

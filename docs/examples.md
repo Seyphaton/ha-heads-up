@@ -16,12 +16,12 @@ data:
   id: pv_status
   title: PV Information
   message: Autarky today at almost 100%.
-  severity: success
+  severity: passive
   channels: [banner]
 ```
 
 - The `id` makes a second call replace the banner instead of adding another one.
-- `severity` is required in `heads_up.notify`. It is one of `success`, `info`, `warning` and `critical`. It sets the color, the icon and the sort order. `critical` sorts first and is never removed to make room for new messages.
+- `severity` is required in `heads_up.notify`. It is one of `passive`, `info`, `warning` and `critical`. It sets the color, the icon and the sort order. `critical` sorts first and is never removed to make room for new messages.
 - `timeout` takes seconds or a duration. `timeout: {minutes: 30}` ends the message after 30 minutes, `timeout: 0` keeps it until someone closes or clears it.
 
 ### A push to everyone at home
@@ -258,7 +258,7 @@ Any program that can call the Home Assistant API can use the actions. Create a l
 curl -X POST "http://homeassistant.local:8123/api/services/heads_up/create_banner?return_response" \
   -H "Authorization: Bearer $HA_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"id": "backup_done", "message": "Backup finished", "severity": "success", "timeout": 3600}'
+  -d '{"id": "backup_done", "message": "Backup finished", "severity": "passive", "timeout": 3600}'
 ```
 
 Response:
@@ -334,7 +334,7 @@ An audience is a set of people, and speech goes to a speaker in a place. Heads U
 
 ### What does severity do?
 
-A message has one of four severities: success, info, warning and critical. On the banner it sets the color, the icon and the order, critical first. On a push it sets the level: success is passive, info normal, warning time-sensitive and critical an alarm. The popup style is set per severity, and policies can match on it.
+A message has one of four severities: passive, info, warning and critical. On the banner it sets the color, the icon and the order, critical first. On a push it sets the level: passive is quiet, info normal, warning time-sensitive and critical an alarm. The popup style is set per severity, and policies can match on it.
 
 ### What are tags for?
 

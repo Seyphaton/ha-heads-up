@@ -136,8 +136,8 @@ The last step first asks how policies interact: Only the first policy that appli
 |---|---|
 | Critical messages | Critical delivery: critical messages are pushed at once to the audience you choose (Admins by default). It also sets the push level of critical messages back to critical, the alert on iOS and the alarm channel on Android, if it was changed. A critical message gets this and no reminder. |
 | Warning reminders | Warning reminders: a warning nobody acknowledges is repeated every 30 minutes, at most 3 times. |
-| Evening summary | Evening summary: info and success messages tagged `digest` are held and sent as one summary at 20:00. |
-| Quiet hours | Night quiet: info and success messages without that tag are sent quietly from 22:00 to 07:00. |
+| Evening summary | Evening summary: info and passive messages tagged `digest` are held and sent as one summary at 20:00. |
+| Quiet hours | Night quiet: info and passive messages without that tag are sent quietly from 22:00 to 07:00. |
 
 Create adds only what is missing. A policy with the same name, or one that does the same as a policy you have, is skipped, and nothing you have is changed or deleted. Edit the policies afterwards on the Policies page.
 

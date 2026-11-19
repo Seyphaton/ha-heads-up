@@ -392,7 +392,7 @@ describe("resolveColors and colorParts", () => {
       critical: "var(--error-color)",
       warning: "var(--warning-color)",
       info: "var(--info-color)",
-      success: "var(--success-color)",
+      passive: "var(--success-color)",
     });
   });
   it("overrides single severities", () => {
@@ -650,5 +650,12 @@ describe("images", () => {
     expect(await imageSource(hass, "/media/local/a.jpg", 1000 + 51 * 60 * 1000)).toBe(
       "/media/local/a.jpg?authSig=2",
     );
+  });
+});
+
+describe("severity names", () => {
+  it("reads success in a card's colors as passive", () => {
+    expect(normalizeConfig({ colors: { success: "#00ff00" } }).colors).toEqual({ passive: "#00ff00" });
+    expect(normalizeConfig({ severity: ["success", "info"] }).severity).toEqual(["passive", "info"]);
   });
 });

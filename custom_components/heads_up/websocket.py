@@ -32,6 +32,7 @@ from .const import (
     POLICY_MODES,
     POLICY_SUBENTRY,
     SEVERITIES,
+    canonical_severity,
 )
 from .frontend import async_popup_url
 from .hub import panel_config, panel_data, panel_test, settings, welcome
@@ -793,7 +794,9 @@ def ws_hub_trace(hass: HomeAssistant, connection: ActiveConnection, msg: dict[st
     {
         vol.Required("type"): "heads_up/hub_preview_audience",
         vol.Required("audience"): str,
-        vol.Optional("severity", default="warning"): vol.In(SEVERITIES),
+        vol.Optional("severity", default="warning"): vol.All(
+            canonical_severity, vol.In(SEVERITIES)
+        ),
     }
 )
 @require_admin

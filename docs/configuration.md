@@ -24,11 +24,11 @@ The panel's Channels page sets the options below, except the push level and the 
 | Option | Default | Meaning |
 |---|---|---|
 | `severity_display` | none | Label, icon and color per severity, set on the Severities page. See Severities below. |
-| `push_levels` | success `passive`, info `normal`, warning `time-sensitive`, critical `critical` | Push level per severity, set on the Severities page. |
+| `push_levels` | passive `passive`, info `normal`, warning `time-sensitive`, critical `critical` | Push level per severity, set on the Severities page. |
 | `push_lockscreen` | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
 | `push_channel_id` | `heads_up` | Prefix of the Android notification channel. |
 | `push_sticky` | off | Keeps the notification after a tap (Android). |
-| `popup_styles` | corner card (bottom right) for success, info and warning, centered window for critical | Per severity: `card` (bottom right), `card_bottom_left`, `card_top_right`, `card_top_left`, `modal` (centered window) or `off`. The Channels page words them as the corner or the centered window. |
+| `popup_styles` | corner card (bottom right) for passive, info and warning, centered window for critical | Per severity: `card` (bottom right), `card_bottom_left`, `card_top_right`, `card_top_left`, `modal` (centered window) or `off`. The Channels page words them as the corner or the centered window. |
 | `speak_language` | the Home Assistant language | Language of the spoken text. The Channels page offers the languages of the text-to-speech engine that speech uses; without a chosen or single engine you type a code such as `en-US`. Assist satellites speak in the language of their own voice assistant. |
 | `mail_service`, `mail_global_address`, `mail_subject`, `mail_body` | none, none, `{severity}: {title}`, `{message}` | The mail channel, see Mail below. |
 
@@ -54,7 +54,7 @@ Every device of a person gets the notification. A person with no usable device, 
 | Title and text | The message's `title` and `message`. |
 | `tag` | `hu-<install token>-<message id>`. A new notification with the same tag replaces the old one on the device. |
 | `group` | `hu-<install token>`. |
-| Level | By severity: `success` passive, `info` normal, `warning` time-sensitive, `critical` critical; change them on the Severities page. Passive is `importance: low`, normal `default`, time-sensitive `high`, critical `max`. |
+| Level | By severity: `passive` passive, `info` normal, `warning` time-sensitive, `critical` critical; change them on the Severities page. Passive is `importance: low`, normal `default`, time-sensitive `high`, critical `max`. |
 | Android delivery | For time-sensitive and critical: `priority: high` and `ttl: 0`, so an idle phone shows the notification at once. |
 | Android channel | `heads_up_<level>`; the level critical uses the channel `alarm_stream`, which plays from the alarm stream. Android keeps the importance a channel had when it was first used. |
 | Tap | A `navigate` tap action opens its `navigation_path`, a `url` tap action its `url_path`. |
@@ -86,7 +86,7 @@ data:
 
 A popup goes to persons, by audience or by `recipients`. A person needs a linked Home Assistant user; a person without one is skipped (`no_user`). The popup appears on every dashboard and device where that user has Home Assistant open. Areas are not supported.
 
-- Each severity is shown as a card in one of the four corners (bottom right by default for success, info and warning), as a centered window over a dimmed page (the default for critical) or not at all. At phone width a card spans the screen and sits at the top or the bottom, as chosen; left and right make no difference there. A quiet message (Quiet hours with the action Send quietly) is always a card.
+- Each severity is shown as a card in one of the four corners (bottom right by default for passive, info and warning), as a centered window over a dimmed page (the default for critical) or not at all. At phone width a card spans the screen and sits at the top or the bottom, as chosen; left and right make no difference there. A quiet message (Quiet hours with the action Send quietly) is always a card.
 - An `image` shows under the text, up to 200 px high; a picture that does not load is left out.
 - Buttons are at least 48 px high: the message's own, Acknowledge when an escalation or reminder policy applies, Snooze when the message is snoozable, Dismiss when it can be dismissed. A button's `action` is not run by the popup; only `heads_up_banner_action` is fired.
 - One popup is shown at a time, highest severity first, then the oldest. The close button and Escape hide the popup on that page only and the popup returns after a reload. Dismiss hides it for you on every device and keeps the message for others. Acknowledge stops escalation and reminders.
@@ -205,7 +205,7 @@ Delivery is the notify service's job: Heads Up knows only whether the call retur
 
 ## Severities
 
-The four severities are `success`, `info`, `warning` and `critical`. Calls, watch rules, policies, events and entity attributes always use these names. The panel's Severities page lists them in one table with their icon, label, color, push level and popup. Select a severity to change it:
+The four severities are `passive`, `info`, `warning` and `critical`. Calls, watch rules, policies, events and entity attributes always use these names. A call or a card's YAML may still say `success`, an earlier name: it is read as `passive`. The panel's Severities page lists them in one table with their icon, label, color, push level and popup. Select a severity to change it:
 
 - Label: the word shown instead of the built-in name, in every language. It appears on the card (as the screen-reader label, and visibly with `show_severity`), in the popup, in the mail placeholder `{severity}` and everywhere in the panel. At most 30 characters. Empty: the translated name.
 - Icon: an `mdi:` icon used when a message has no `icon` of its own, on the card, the popup and in the panel. Empty: the built-in icon. The page warns when two severities share an icon, because the icon shape is what tells them apart without color.
@@ -279,7 +279,7 @@ A call or a watch rule that names a policy uses only that policy under both sett
 
 ### The defaults of the introduction
 
-Under "only the first policy that applies runs" the introduction offers four policies that do not overlap, in this order: Critical delivery (critical messages are pushed at once to the audience you choose, Admins by default, and the push level of critical becomes critical; no reminder follows), Warning reminders (every 30 minutes, at most 3 times), Evening summary (info and success messages tagged `digest` are held and sent at 20:00) and Night quiet (info and success messages without that tag are sent quietly from 22:00 to 07:00).
+Under "only the first policy that applies runs" the introduction offers four policies that do not overlap, in this order: Critical delivery (critical messages are pushed at once to the audience you choose, Admins by default, and the push level of critical becomes critical; no reminder follows), Warning reminders (every 30 minutes, at most 3 times), Evening summary (info and passive messages tagged `digest` are held and sent at 20:00) and Night quiet (info and passive messages without that tag are sent quietly from 22:00 to 07:00).
 
 Under "every policy that applies runs" it offers: Night quiet (22:00 to 07:00, send quietly, critical passes), Evening summary (messages tagged `digest`, critical never held), Critical messages (Critical delivery as a Deliver policy, Critical reminder every 10 minutes at most 3 times and, if you choose speakers, Critical escalation after 10 minutes on those speakers; dismissing counts as acknowledging) and Warning reminders. Before you switch on Critical messages in this mode:
 

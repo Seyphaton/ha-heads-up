@@ -2,13 +2,15 @@
 // Plain ES module, no build step (D-021). Banner text is caller-supplied and is only
 // ever written with textContent.
 
-export const SEVERITIES = ["critical", "warning", "info", "success"];
+export const SEVERITIES = ["critical", "warning", "info", "passive"];
+// Earlier severity names a card's YAML may still use: `success` is now `passive`.
+export const SEVERITY_ALIASES = { success: "passive" };
 const SEVERITY_RANK = Object.fromEntries(SEVERITIES.map((s, i) => [s, i]));
 const SEVERITY_COLOR = {
   critical: "--error-color",
   warning: "--warning-color",
   info: "--info-color",
-  success: "--success-color",
+  passive: "--success-color",
 };
 // Read by scripts/docs_check.py to keep docs/actions.md in step with the card.
 export const CONFIG_KEYS = [
@@ -53,7 +55,7 @@ export const STRINGS = {
     critical: "Critical",
     warning: "Warning",
     info: "Info",
-    success: "Success",
+    passive: "Passive",
   },
   dismiss: "Dismiss",
   snooze: "Snooze",
@@ -122,7 +124,7 @@ export const TRANSLATIONS = {
       "critical": "Kritisch",
       "warning": "Warnung",
       "info": "Info",
-      "success": "Erfolg"
+      "passive": "Passiv"
     },
     "dismiss": "Schließen",
     "snooze": "Zurückstellen",
@@ -192,7 +194,7 @@ export const TRANSLATIONS = {
       "critical": "Critique",
       "warning": "Avertissement",
       "info": "Info",
-      "success": "Succès"
+      "passive": "Passif"
     },
     "dismiss": "Fermer",
     "snooze": "Reporter",
@@ -262,7 +264,7 @@ export const TRANSLATIONS = {
       "critical": "Crítico",
       "warning": "Advertencia",
       "info": "Información",
-      "success": "Éxito"
+      "passive": "Pasivo"
     },
     "dismiss": "Cerrar",
     "snooze": "Posponer",
@@ -373,7 +375,8 @@ function toColors(value) {
     throw new Error("colors must map severities to colors");
   }
   const colors = {};
-  for (const [severity, color] of Object.entries(value)) {
+  for (const [key, color] of Object.entries(value)) {
+    const severity = SEVERITY_ALIASES[key] || key;
     if (!SEVERITIES.includes(severity)) {
       throw new Error(`colors: ${severity} is not one of ${SEVERITIES.join(", ")}`);
     }
@@ -389,7 +392,7 @@ function toColors(value) {
 // Validates a card config and fills defaults. Throws Error with a readable message.
 export function normalizeConfig(config) {
   if (!config || typeof config !== "object") throw new Error("Invalid configuration");
-  const severity = toList(config.severity, "severity");
+  const severity = toList(config.severity, "severity").map((s) => SEVERITY_ALIASES[s] || s);
   for (const s of severity) {
     if (!SEVERITIES.includes(s)) {
       throw new Error(`severity must be one of ${SEVERITIES.join(", ")}`);

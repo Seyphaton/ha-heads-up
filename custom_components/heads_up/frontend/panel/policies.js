@@ -38,7 +38,7 @@ export const STRINGS = {
     applies: "Applies to",
     severities: "Severities (none selected: any)",
     tags: "Tags, comma separated (empty: any)",
-    severity_names: { success: "Success", info: "Info", warning: "Warning", critical: "Critical" },
+    severity_names: { passive: "Passive", info: "Info", warning: "Warning", critical: "Critical" },
     channel_names: { push: "Push", popup: "Popup", speak: "Speak", persistent: "Persistent Notification", mail: "Mail" },
     after: "Escalate after (minutes)",
     channels: "Channels",
@@ -179,7 +179,7 @@ export const STRINGS = {
     applies: "Gilt für",
     severities: "Schweregrade (keiner gewählt: alle)",
     tags: "Tags, durch Komma getrennt (leer: alle)",
-    severity_names: { success: "Erfolg", info: "Info", warning: "Warnung", critical: "Kritisch" },
+    severity_names: { passive: "Passiv", info: "Info", warning: "Warnung", critical: "Kritisch" },
     channel_names: { push: "Push", popup: "Popup", speak: "Sprache", persistent: "Persistente Benachrichtigung", mail: "E-Mail" },
     after: "Eskalieren nach (Minuten)",
     channels: "Kanäle",
@@ -320,7 +320,7 @@ export const STRINGS = {
     applies: "S'applique à",
     severities: "Gravités (aucune choisie : toutes)",
     tags: "Étiquettes, séparées par des virgules (vide : toutes)",
-    severity_names: { success: "Succès", info: "Info", warning: "Avertissement", critical: "Critique" },
+    severity_names: { passive: "Passif", info: "Info", warning: "Avertissement", critical: "Critique" },
     channel_names: { push: "Push", popup: "Fenêtre", speak: "Voix", persistent: "Notification persistante", mail: "Courriel" },
     after: "Escalader après (minutes)",
     channels: "Canaux",
@@ -461,7 +461,7 @@ export const STRINGS = {
     applies: "Se aplica a",
     severities: "Gravedades (ninguna elegida: todas)",
     tags: "Etiquetas, separadas por comas (vacío: todas)",
-    severity_names: { success: "Éxito", info: "Info", warning: "Aviso", critical: "Crítico" },
+    severity_names: { passive: "Pasivo", info: "Info", warning: "Aviso", critical: "Crítico" },
     channel_names: { push: "Push", popup: "Ventana", speak: "Voz", persistent: "Notificación persistente", mail: "Correo" },
     after: "Escalar tras (minutos)",
     channels: "Canales",
@@ -613,7 +613,7 @@ const CSS = `
 const TYPES = ["escalation", "reminder", "quiet_hours", "presence", "fallback", "deliver", "summarize"];
 const PRESENCE_CHANNELS = ["push", "popup", "mail", "speak"];
 const PEOPLE_CHANNELS = ["push", "popup", "mail"];
-const SEVERITIES = ["success", "info", "warning", "critical"];
+const SEVERITIES = ["passive", "info", "warning", "critical"];
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const POLICY_CHANNELS = ["push", "popup", "speak", "persistent", "mail"];
 const TARGET_CHANNELS = ["push", "popup", "speak", "mail"];

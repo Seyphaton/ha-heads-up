@@ -4,7 +4,7 @@
 export const STRINGS = {
   "en": {
     "title": "Severities",
-    "intro": "What each severity looks like everywhere (card, popup, panel, mail) and how it sounds on push and popup. YAML, events and automations keep the names success, info, warning and critical.",
+    "intro": "What each severity looks like everywhere (card, popup, panel, mail) and how it sounds on push and popup. YAML, events and automations keep the names passive, info, warning and critical.",
     "label": "Label",
     "icon": "Icon",
     "color": "Color",
@@ -38,7 +38,7 @@ export const STRINGS = {
     },
     "critical_note": "The level critical is an alarm on both platforms. iOS: the critical alert; it needs the app's permission, plays a sound even in silent mode and cannot be replaced or grouped. Android: the alarm channel; it sounds even in vibrate and silent mode and is delivered at once. Do Not Disturb is only overridden if you allow it for that channel in the Android settings. Time sensitive is delivered at once on Android too.",
     "severities": {
-      "success": "Success",
+      "passive": "Passive",
       "info": "Info",
       "warning": "Warning",
       "critical": "Critical"
@@ -46,7 +46,7 @@ export const STRINGS = {
   },
   "de": {
     "title": "Schweregrade",
-    "intro": "Wie jeder Schweregrad überall aussieht (Karte, Popup, Panel, Mail) und wie er bei Push und Popup klingt. YAML, Ereignisse und Automationen behalten die Namen success, info, warning und critical.",
+    "intro": "Wie jeder Schweregrad überall aussieht (Karte, Popup, Panel, Mail) und wie er bei Push und Popup klingt. YAML, Ereignisse und Automationen behalten die Namen passive, info, warning und critical.",
     "label": "Bezeichnung",
     "icon": "Symbol",
     "color": "Farbe",
@@ -80,7 +80,7 @@ export const STRINGS = {
     },
     "critical_note": "Die Stufe kritisch ist auf beiden Plattformen ein Alarm. iOS: die kritische Mitteilung; sie braucht die Erlaubnis der App, spielt auch im Lautlosmodus einen Ton und kann nicht ersetzt oder gruppiert werden. Android: der Alarmkanal; er ertönt auch im Vibrations- und Lautlosmodus und wird sofort zugestellt. Nicht stören wird nur übergangen, wenn du es in den Android-Einstellungen für diesen Kanal erlaubst. Zeitkritisch wird auch auf Android sofort zugestellt.",
     "severities": {
-      "success": "Erfolg",
+      "passive": "Passiv",
       "info": "Info",
       "warning": "Warnung",
       "critical": "Kritisch"
@@ -88,7 +88,7 @@ export const STRINGS = {
   },
   "fr": {
     "title": "Gravités",
-    "intro": "L'apparence de chaque gravité partout (carte, popup, panneau, courriel) et son son sur le push et le popup. Le YAML, les événements et les automatisations gardent les noms success, info, warning et critical.",
+    "intro": "L'apparence de chaque gravité partout (carte, popup, panneau, courriel) et son son sur le push et le popup. Le YAML, les événements et les automatisations gardent les noms passive, info, warning et critical.",
     "label": "Libellé",
     "icon": "Icône",
     "color": "Couleur",
@@ -122,7 +122,7 @@ export const STRINGS = {
     },
     "critical_note": "Le niveau critique est une alarme sur les deux plateformes. iOS : l'alerte critique ; elle demande l'autorisation de l'app, joue un son même en mode silencieux et ne peut être ni remplacée ni groupée. Android : le canal d'alarme ; il sonne même en mode vibreur et silencieux et est livré tout de suite. Ne pas déranger n'est contourné que si vous l'autorisez pour ce canal dans les réglages d'Android. Urgent est aussi livré tout de suite sur Android.",
     "severities": {
-      "success": "Succès",
+      "passive": "Passif",
       "info": "Info",
       "warning": "Avertissement",
       "critical": "Critique"
@@ -130,7 +130,7 @@ export const STRINGS = {
   },
   "es": {
     "title": "Gravedades",
-    "intro": "Cómo se ve cada gravedad en todas partes (tarjeta, ventana, panel, correo) y cómo suena en push y ventana. El YAML, los eventos y las automatizaciones mantienen los nombres success, info, warning y critical.",
+    "intro": "Cómo se ve cada gravedad en todas partes (tarjeta, ventana, panel, correo) y cómo suena en push y ventana. El YAML, los eventos y las automatizaciones mantienen los nombres passive, info, warning y critical.",
     "label": "Etiqueta",
     "icon": "Icono",
     "color": "Color",
@@ -164,7 +164,7 @@ export const STRINGS = {
     },
     "critical_note": "El nivel crítico es una alarma en ambas plataformas. iOS: la alerta crítica; necesita el permiso de la app, suena incluso en modo silencio y no se puede reemplazar ni agrupar. Android: el canal de alarma; suena incluso en modo vibración y silencio y se entrega de inmediato. No molestar solo se anula si lo permites para ese canal en los ajustes de Android. Urgente también se entrega de inmediato en Android.",
     "severities": {
-      "success": "Éxito",
+      "passive": "Pasivo",
       "info": "Info",
       "warning": "Aviso",
       "critical": "Crítico"
@@ -172,14 +172,14 @@ export const STRINGS = {
   }
 };
 
-export const SEVERITIES = ["critical", "warning", "info", "success"];
+export const SEVERITIES = ["critical", "warning", "info", "passive"];
 const LEVELS = ["passive", "normal", "time-sensitive", "critical"];
 const STYLES = ["card", "card_bottom_left", "card_top_right", "card_top_left", "modal", "off"];
-const DEFAULT_ICONS = { critical: "mdi:alert-octagon", warning: "mdi:alert", info: "mdi:information", success: "mdi:check-circle" };
+const DEFAULT_ICONS = { critical: "mdi:alert-octagon", warning: "mdi:alert", info: "mdi:information", passive: "mdi:check-circle" };
 const ICON = /^mdi:[a-z0-9-]+$/;
 const COLOR = /^(#[0-9a-fA-F]{3,8}|var\(--[a-z0-9-]+\)|[a-z]+|rgba?\([0-9., %]+\))$/;
 
-const DEFAULT_COLORS = { critical: "var(--error-color)", warning: "var(--warning-color)", info: "var(--info-color)", success: "var(--success-color)" };
+const DEFAULT_COLORS = { critical: "var(--error-color)", warning: "var(--warning-color)", info: "var(--info-color)", passive: "var(--success-color)" };
 
 // A push level without its explanation in brackets, for the overview row: "Passive (no sound)" is "Passive".
 export function short(text) {

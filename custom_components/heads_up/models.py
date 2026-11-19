@@ -9,7 +9,13 @@ from typing import Any
 
 from homeassistant.util import dt as dt_util
 
-from .const import CHANNEL_BANNER, DEFAULT_ICONS, GLOBAL_SNOOZE_KEY, SOURCE_ACTION
+from .const import (
+    CHANNEL_BANNER,
+    DEFAULT_ICONS,
+    GLOBAL_SNOOZE_KEY,
+    SOURCE_ACTION,
+    canonical_severity,
+)
 
 
 def _parse(value: str | None) -> datetime | None:
@@ -102,6 +108,7 @@ class Banner:
         return cls(
             **{
                 **{k: v for k, v in data.items() if k in known},
+                "severity": canonical_severity(data.get("severity")),
                 "created_at": _parse(data["created_at"]),
                 "updated_at": _parse(data["updated_at"]),
                 "expires_at": _parse(data.get("expires_at")),

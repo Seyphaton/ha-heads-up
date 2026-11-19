@@ -77,7 +77,7 @@ Non-functional
 | `id` | string | generated `hu_` + 10 hex chars, returned in response | `^[a-z0-9_-]{1,64}$` |
 | `message` | string | required | 1–1000 chars |
 | `title` | string | none | ≤ 100 chars |
-| `severity` | `info` \| `success` \| `warning` \| `critical` | `warning` | enum |
+| `severity` | `info` \| `passive` \| `warning` \| `critical` | `warning` | enum; `success` accepted as `passive` (D-231) |
 | `icon` | mdi string | per severity: `mdi:information`, `mdi:check-circle`, `mdi:alert`, `mdi:alert-octagon` | `cv.icon` (N-2) |
 | `timeout` | seconds or duration; `0` = no timeout | option `default_timeout` (shipped: 24 h, D-031) | `cv.time_period`, 0 or 1 s – 365 days |
 | `condition` | object `{entity_id, state, attribute}` | none | `entity_id` must exist at creation (`entity_not_found`); `state` string or list of strings, default `"on"`; `attribute` optional string |
@@ -108,7 +108,7 @@ All input fields after defaults, plus:
 
 ### 4.4 Limits and overflow (D-016)
 - `max_banners` option, default 50, range 1–200.
-- New ID when full and `evict` on: remove the banner with the lowest severity (`success` < `info` < `warning`), oldest `updated_at` first; `critical` is never evicted. Fires `heads_up_banner_cleared` with `reason: evicted`.
+- New ID when full and `evict` on: remove the banner with the lowest severity (`passive` < `info` < `warning`), oldest `updated_at` first; `critical` is never evicted. Fires `heads_up_banner_cleared` with `reason: evicted`.
 - No candidate or `evict` off: fails with `too_many_banners`. Upserts of existing IDs never evict.
 
 ## 5. Lifecycle

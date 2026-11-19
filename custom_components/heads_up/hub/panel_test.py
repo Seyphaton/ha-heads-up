@@ -16,7 +16,13 @@ from homeassistant.exceptions import ServiceValidationError, TemplateError
 from homeassistant.helpers.template import Template
 from homeassistant.util import dt as dt_util
 
-from ..const import CHANNEL_BANNER, DEFAULT_SEVERITY, DOMAIN, TEST_ID_PREFIX
+from ..const import (
+    CHANNEL_BANNER,
+    DEFAULT_SEVERITY,
+    DOMAIN,
+    TEST_ID_PREFIX,
+    canonical_severity,
+)
 from ..models import Banner
 from ..services import NOTIFY_SCHEMA, _check_names, banner_people
 from .engine import HubEngine
@@ -62,7 +68,7 @@ async def build(hub: HubEngine, payload: dict[str, Any]) -> Banner:
 async def banner_from(hub: HubEngine, data: dict[str, Any]) -> Banner:
     """The dry-run message of a call that the schema and the name checks already accepted."""
     now = dt_util.utcnow()
-    severity = data.get("severity", DEFAULT_SEVERITY)
+    severity = canonical_severity(data.get("severity", DEFAULT_SEVERITY))
     return Banner(
         id="preview",
         message=data["message"],

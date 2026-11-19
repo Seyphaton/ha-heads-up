@@ -147,13 +147,13 @@
       "bands_too_many": "At most 4 bands.",
       "bands_empty": "A band needs a start different from its end.",
       "bands_overlap": "Bands must not overlap.",
-      "severity_volume_invalid": "Give a volume from 0 to 100 for success, info, warning or critical."
+      "severity_volume_invalid": "Give a volume from 0 to 100 for passive, info, warning or critical."
     }
   },
   "selector": {
     "severity": {
       "options": {
-        "success": "Success",
+        "passive": "Passive",
         "info": "Info",
         "warning": "Warning",
         "critical": "Critical"
@@ -575,7 +575,7 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (by default passive is quiet, info normal, warning time-sensitive and critical an alarm), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",
@@ -657,7 +657,7 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (by default passive is quiet, info normal, warning time-sensitive and critical an alarm), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",
@@ -715,7 +715,7 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (by default passive is quiet, info normal, warning time-sensitive and critical an alarm), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",
@@ -773,7 +773,7 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (by default passive is quiet, info normal, warning time-sensitive and critical an alarm), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",

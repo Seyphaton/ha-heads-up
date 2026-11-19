@@ -43,6 +43,7 @@ from .const import (
     SEVERITIES,
     SNOOZE_SCOPES,
     SOURCE_ACTION,
+    canonical_severity,
 )
 from .hub.channels.mail import check_body, check_subject
 from .hub.engine import HubEngine, Planned
@@ -333,11 +334,14 @@ _CONTENT_FIELDS: dict[Any, Any] = {
     vol.Optional("title"): vol.All(cv.string, vol.Length(max=MAX_TITLE)),
     vol.Optional("icon"): cv.icon,
 }
+# A severity by name; `success` is accepted and read as `passive` (D-231).
+SEVERITY = vol.All(canonical_severity, vol.In(SEVERITIES))
+
 _CREATE_FIELDS: dict[Any, Any] = {
     vol.Optional("id"): SLUG,
     vol.Required("message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
     vol.Optional("title"): vol.All(cv.string, vol.Length(max=MAX_TITLE)),
-    vol.Optional("severity"): vol.In(SEVERITIES),
+    vol.Optional("severity"): SEVERITY,
     vol.Optional("icon"): cv.icon,
     vol.Optional("timeout"): vol.All(cv.time_period, _timeout),
     vol.Optional("dismissible"): cv.boolean,
@@ -390,7 +394,7 @@ _NOTIFY_FIELDS = {
 # `notify` has no default severity: a caller states it (D-192). The shortcuts default to info
 # (D-189); `create_banner` and the rules keep warning.
 ACTION_SEVERITY = "info"
-_NOTIFY_FIELDS[vol.Required("severity")] = vol.In(SEVERITIES)
+_NOTIFY_FIELDS[vol.Required("severity")] = SEVERITY
 
 
 def _who_can(value: Any) -> Any:
@@ -447,7 +451,7 @@ def _shortcut_schema(channel: str) -> VolSchemaType:
     fields: dict[Any, Any] = {
         vol.Optional("id"): SLUG,
         **_CONTENT_FIELDS,
-        vol.Optional("severity", default=ACTION_SEVERITY): vol.In(SEVERITIES),
+        vol.Optional("severity", default=ACTION_SEVERITY): SEVERITY,
         vol.Optional("tts_message"): vol.All(cv.string, vol.Length(min=1, max=MAX_MESSAGE)),
         **({vol.Optional("volume"): VOLUME} if channel == "speak" else {}),
         vol.Optional("tag"): SLUG,
@@ -488,9 +492,7 @@ CLEAR_NOTIFICATIONS_SCHEMA = vol.All(
         {
             vol.Optional("id"): SLUG,
             vol.Optional("tag"): SLUG,
-            vol.Optional("severity"): vol.All(
-                cv.ensure_list, [vol.In(SEVERITIES)], vol.Length(min=1)
-            ),
+            vol.Optional("severity"): vol.All(cv.ensure_list, [SEVERITY], vol.Length(min=1)),
             vol.Optional("channels"): vol.All(
                 cv.ensure_list, [vol.In(CHANNELS)], vol.Length(min=1)
             ),

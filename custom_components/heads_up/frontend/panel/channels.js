@@ -30,7 +30,7 @@ export const STRINGS = {
     push: "Push",
     popup: "Popup",
     speech: "Speech",
-    severities: { success: "Success", info: "Info", warning: "Warning", critical: "Critical" },
+    severities: { passive: "Passive", info: "Info", warning: "Warning", critical: "Critical" },
     levels: { passive: "Passive (no sound)", normal: "Normal", "time-sensitive": "Time sensitive", critical: "Critical (alarm)" },
     styles: { card: "Corner, bottom right", card_bottom_left: "Corner, bottom left", card_top_right: "Corner, top right", card_top_left: "Corner, top left", modal: "Centered window", off: "Off" },
     push_level: "Push level when the severity is {severity}",
@@ -96,7 +96,7 @@ export const STRINGS = {
     push: "Push",
     popup: "Popup",
     speech: "Sprache",
-    severities: { success: "Erfolg", info: "Info", warning: "Warnung", critical: "Kritisch" },
+    severities: { passive: "Passiv", info: "Info", warning: "Warnung", critical: "Kritisch" },
     levels: { passive: "Passiv (kein Ton)", normal: "Normal", "time-sensitive": "Zeitkritisch", critical: "Kritisch (Alarm)" },
     styles: { card: "Ecke unten rechts", card_bottom_left: "Ecke unten links", card_top_right: "Ecke oben rechts", card_top_left: "Ecke oben links", modal: "Zentriertes Fenster", off: "Aus" },
     push_level: "Push-Stufe bei Schweregrad {severity}",
@@ -162,7 +162,7 @@ export const STRINGS = {
     push: "Push",
     popup: "Fenêtre",
     speech: "Voix",
-    severities: { success: "Succès", info: "Info", warning: "Avertissement", critical: "Critique" },
+    severities: { passive: "Passif", info: "Info", warning: "Avertissement", critical: "Critique" },
     levels: { passive: "Passif (sans son)", normal: "Normal", "time-sensitive": "Urgent", critical: "Critique (alarme)" },
     styles: { card: "Coin en bas à droite", card_bottom_left: "Coin en bas à gauche", card_top_right: "Coin en haut à droite", card_top_left: "Coin en haut à gauche", modal: "Fenêtre centrée", off: "Désactivé" },
     push_level: "Niveau du push quand la gravité est {severity}",
@@ -228,7 +228,7 @@ export const STRINGS = {
     push: "Push",
     popup: "Ventana",
     speech: "Voz",
-    severities: { success: "Éxito", info: "Info", warning: "Aviso", critical: "Crítico" },
+    severities: { passive: "Pasivo", info: "Info", warning: "Aviso", critical: "Crítico" },
     levels: { passive: "Pasivo (sin sonido)", normal: "Normal", "time-sensitive": "Urgente", critical: "Crítico (alarma)" },
     styles: { card: "Esquina inferior derecha", card_bottom_left: "Esquina inferior izquierda", card_top_right: "Esquina superior derecha", card_top_left: "Esquina superior izquierda", modal: "Ventana centrada", off: "Desactivado" },
     push_level: "Nivel del push cuando la gravedad es {severity}",
@@ -267,7 +267,7 @@ export const STRINGS = {
   },
 };
 
-const SEVERITIES = ["success", "info", "warning", "critical"];
+const SEVERITIES = ["passive", "info", "warning", "critical"];
 const LEVELS = ["passive", "normal", "time-sensitive", "critical"];
 const STYLES = ["card", "card_bottom_left", "card_top_right", "card_top_left", "modal", "off"];
 const LOCKSCREENS = ["full", "title_only", "generic"];
@@ -285,7 +285,7 @@ const CHANNELS = [
 // The two snooze settings these rows show are stored with the other settings (heads_up/settings_set).
 export const SETTING_KEYS = ["default_snooze_options", "quick_snooze_minutes"];
 const SNOOZE_MINUTES = [5, 15, 30, 60, 120, 240, 480, 1440];
-const SEVERITY_ORDER = ["critical", "warning", "info", "success"];
+const SEVERITY_ORDER = ["critical", "warning", "info", "passive"];
 
 export function minutesText(n, t) {
   return t.minutes[String(n)] || fill(t.minutes_n, { n });

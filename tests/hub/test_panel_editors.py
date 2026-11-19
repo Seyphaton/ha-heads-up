@@ -169,12 +169,12 @@ async def test_the_config_has_the_entry_id_and_the_channel_settings(
     assert result["channels"] == {
         "severity_display": {},
         "push_levels": {
-            "success": "passive",
+            "passive": "passive",
             "info": "passive",
             "warning": "normal",
             "critical": "time-sensitive",
         },
-        "popup_styles": {"success": "card", "info": "card", "warning": "card", "critical": "modal"},
+        "popup_styles": {"passive": "card", "info": "card", "warning": "card", "critical": "modal"},
         "push_lockscreen": "full",
         "push_sticky": False,
         "push_channel_id": "heads_up",
@@ -191,7 +191,7 @@ async def test_channel_settings_are_written_to_the_options_and_used(
 ) -> None:
     client = await hass_ws_client(hass)
     levels = {
-        "success": "passive",
+        "passive": "passive",
         "info": "normal",
         "warning": "time-sensitive",
         "critical": "critical",

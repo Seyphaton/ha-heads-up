@@ -23,9 +23,9 @@ export const STRINGS = {
     minutes: {"5": "5 minutes", "15": "15 minutes", "30": "30 minutes", "60": "1 hour", "120": "2 hours", "240": "4 hours", "480": "8 hours", "1440": "24 hours"},
     units: {"days": "Days", "hours": "Hours", "minutes": "Minutes", "seconds": "Seconds"},
     tts_auto: "Automatic",
-    severity: {"success": "Success", "info": "Info", "warning": "Warning", "critical": "Critical"},
+    severity: {"passive": "Passive", "info": "Info", "warning": "Warning", "critical": "Critical"},
     band: {"from": "From", "to": "To", "volume": "Volume (%)", "add": "Add band", "remove": "Remove"},
-    volume_errors: {"bands_invalid": "Each band needs a start and an end (HH:MM) and a volume from 0 to 100.", "bands_too_many": "At most 4 bands.", "bands_empty": "A band needs a start different from its end.", "bands_overlap": "Bands must not overlap.", "severity_volume_invalid": "Give a volume from 0 to 100 for success, info, warning or critical."},
+    volume_errors: {"bands_invalid": "Each band needs a start and an end (HH:MM) and a volume from 0 to 100.", "bands_too_many": "At most 4 bands.", "bands_empty": "A band needs a start different from its end.", "bands_overlap": "Bands must not overlap.", "severity_volume_invalid": "Give a volume from 0 to 100 for passive, info, warning or critical."},
   },
   de: {
     title: "Einstellungen",
@@ -47,9 +47,9 @@ export const STRINGS = {
     minutes: {"5": "5 Minuten", "15": "15 Minuten", "30": "30 Minuten", "60": "1 Stunde", "120": "2 Stunden", "240": "4 Stunden", "480": "8 Stunden", "1440": "24 Stunden"},
     units: {"days": "Tage", "hours": "Stunden", "minutes": "Minuten", "seconds": "Sekunden"},
     tts_auto: "Automatisch",
-    severity: {"success": "Erfolg", "info": "Info", "warning": "Warnung", "critical": "Kritisch"},
+    severity: {"passive": "Passiv", "info": "Info", "warning": "Warnung", "critical": "Kritisch"},
     band: {"from": "Von", "to": "Bis", "volume": "Lautstärke (%)", "add": "Zeitraum hinzufügen", "remove": "Entfernen"},
-    volume_errors: {"bands_invalid": "Jeder Zeitraum braucht Beginn und Ende (HH:MM) und eine Lautstärke von 0 bis 100.", "bands_too_many": "Höchstens 4 Zeiträume.", "bands_empty": "Beginn und Ende eines Zeitraums müssen verschieden sein.", "bands_overlap": "Zeiträume dürfen sich nicht überschneiden.", "severity_volume_invalid": "Gib eine Lautstärke von 0 bis 100 für success, info, warning oder critical an."},
+    volume_errors: {"bands_invalid": "Jeder Zeitraum braucht Beginn und Ende (HH:MM) und eine Lautstärke von 0 bis 100.", "bands_too_many": "Höchstens 4 Zeiträume.", "bands_empty": "Beginn und Ende eines Zeitraums müssen verschieden sein.", "bands_overlap": "Zeiträume dürfen sich nicht überschneiden.", "severity_volume_invalid": "Gib eine Lautstärke von 0 bis 100 für passive, info, warning oder critical an."},
   },
   fr: {
     title: "Réglages",
@@ -71,9 +71,9 @@ export const STRINGS = {
     minutes: {"5": "5 minutes", "15": "15 minutes", "30": "30 minutes", "60": "1 heure", "120": "2 heures", "240": "4 heures", "480": "8 heures", "1440": "24 heures"},
     units: {"days": "Jours", "hours": "Heures", "minutes": "Minutes", "seconds": "Secondes"},
     tts_auto: "Automatique",
-    severity: {"success": "Succès", "info": "Info", "warning": "Avertissement", "critical": "Critique"},
+    severity: {"passive": "Passif", "info": "Info", "warning": "Avertissement", "critical": "Critique"},
     band: {"from": "De", "to": "À", "volume": "Volume (%)", "add": "Ajouter une plage", "remove": "Retirer"},
-    volume_errors: {"bands_invalid": "Chaque plage a besoin d'un début et d'une fin (HH:MM) et d'un volume de 0 à 100.", "bands_too_many": "4 plages au plus.", "bands_empty": "Le début et la fin d'une plage doivent être différents.", "bands_overlap": "Les plages ne doivent pas se chevaucher.", "severity_volume_invalid": "Indiquez un volume de 0 à 100 pour success, info, warning ou critical."},
+    volume_errors: {"bands_invalid": "Chaque plage a besoin d'un début et d'une fin (HH:MM) et d'un volume de 0 à 100.", "bands_too_many": "4 plages au plus.", "bands_empty": "Le début et la fin d'une plage doivent être différents.", "bands_overlap": "Les plages ne doivent pas se chevaucher.", "severity_volume_invalid": "Indiquez un volume de 0 à 100 pour passive, info, warning ou critical."},
   },
   es: {
     title: "Ajustes",
@@ -95,9 +95,9 @@ export const STRINGS = {
     minutes: {"5": "5 minutos", "15": "15 minutos", "30": "30 minutos", "60": "1 hora", "120": "2 horas", "240": "4 horas", "480": "8 horas", "1440": "24 horas"},
     units: {"days": "Días", "hours": "Horas", "minutes": "Minutos", "seconds": "Segundos"},
     tts_auto: "Automático",
-    severity: {"success": "Éxito", "info": "Info", "warning": "Advertencia", "critical": "Crítico"},
+    severity: {"passive": "Pasivo", "info": "Info", "warning": "Advertencia", "critical": "Crítico"},
     band: {"from": "Desde", "to": "Hasta", "volume": "Volumen (%)", "add": "Añadir franja", "remove": "Quitar"},
-    volume_errors: {"bands_invalid": "Cada franja necesita un inicio y un fin (HH:MM) y un volumen de 0 a 100.", "bands_too_many": "Como máximo 4 franjas.", "bands_empty": "El inicio y el fin de una franja deben ser distintos.", "bands_overlap": "Las franjas no deben solaparse.", "severity_volume_invalid": "Indica un volumen de 0 a 100 para success, info, warning o critical."},
+    volume_errors: {"bands_invalid": "Cada franja necesita un inicio y un fin (HH:MM) y un volumen de 0 a 100.", "bands_too_many": "Como máximo 4 franjas.", "bands_empty": "El inicio y el fin de una franja deben ser distintos.", "bands_overlap": "Las franjas no deben solaparse.", "severity_volume_invalid": "Indica un volumen de 0 a 100 para passive, info, warning o critical."},
   },
 };
 
@@ -122,7 +122,7 @@ export function problems(values, ranges) {
   return found;
 }
 
-const SEVERITY_ORDER = ["critical", "warning", "info", "success"];
+const SEVERITY_ORDER = ["critical", "warning", "info", "passive"];
 const MAX_BANDS = 4;
 
 function bandMinutes(band) {

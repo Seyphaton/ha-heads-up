@@ -37,7 +37,7 @@ The banner is on the dashboard for the people who are home, and each of them get
 |---|---|---|---|
 | `message` | text | required | The text, 1–1000 characters. |
 | `title` | text | none | A heading above the message, up to 100 characters. |
-| `severity` | `success`, `info`, `warning`, `critical` | required | How important the message is. It sets the color, the default icon and the sort order of the banner; the push level (`success` and `info` are passive, `warning` normal, `critical` time-sensitive, shown at once on an idle phone); the popup style; and whether quiet hours let the message pass (`critical` does unless you change it). |
+| `severity` | `passive`, `info`, `warning`, `critical` | required | How important the message is. `success`, an earlier name, is accepted and read as `passive`. It sets the color, the default icon and the sort order of the banner; the push level (by default `passive` is quiet, `info` normal, `warning` time-sensitive and `critical` an alarm; set on the Severities page); the popup style; and whether quiet hours let the message pass (`critical` does unless you change it). |
 | `icon` | icon, for example `mdi:water-alert` | the icon of the severity | Replaces the default icon on the banner and in the popup. A push, speech, mail and the notification bell do not show it. |
 | `image` | text | none | A picture shown under the message on the card, in the popup and on the push: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/local/door.jpg`, `/media/local/door.jpg`). Up to 2048 characters. Heads Up does not fetch or check it; a wrong path shows no picture. A picture from another host is loaded by the card, the popup and the phone, so that host learns the viewer's address and when the picture is shown. A path on this Home Assistant avoids that. Paths under `/api/` and `/media/` are signed for the card and the popup. The phone loads the picture itself, so it must reach the URL; camera proxy paths (`/api/camera_proxy/...`) work on Android only. The compact card layout shows no picture. With a lock screen setting other than `full`, the push has no picture (`image_hidden` in the trace). |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel, when it should differ from the written message. |
@@ -81,7 +81,7 @@ Replacing a message with the same `id`:
 - The timeout starts again.
 - Users who closed the message see it again.
 
-The setting Maximum number of stored messages (default 50) limits how many messages can exist. When it is reached, Heads Up removes the oldest message with the lowest severity: `success` first, then `info`, then `warning`. It never removes a `critical` message. If none can be removed, the call fails with "Heads Up already holds 50 banners and none can be evicted."
+The setting Maximum number of stored messages (default 50) limits how many messages can exist. When it is reached, Heads Up removes the oldest message with the lowest severity: `passive` first, then `info`, then `warning`. It never removes a `critical` message. If none can be removed, the call fails with "Heads Up already holds 50 banners and none can be evicted."
 
 ### What people can do with it
 
@@ -318,7 +318,7 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `message` | text | required | As in [`notify`](#what-the-message-says). |
 | `id` | text | generated | As in [`notify`](#how-long-it-lives). |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `notify`, but the default is `warning`. |
+| `severity` | `passive`, `info`, `warning`, `critical` | `warning` | As in `notify`, but the default is `warning`. |
 | `icon` | icon | the icon of the severity | As in `notify`. |
 | `image` | text | none | As in `notify`. |
 | `tap_action` | object with `action` | none | As in `notify`. |
@@ -393,7 +393,7 @@ Shortcut for `notify` with `channels: [push]` and no policies. It needs `audienc
 | `message` | text | required | As in `notify`. |
 | `id` | text | none | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, the message is sent once and cannot be cleared. |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `info` | As in `notify`. |
+| `severity` | `passive`, `info`, `warning`, `critical` | `info` | As in `notify`. |
 | `icon` | icon | none | A push does not show an icon, so the field has no effect. |
 | `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. |
@@ -421,7 +421,7 @@ Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audien
 | `message` | text | required | As in `notify`. |
 | `id` | text | none | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, the message is sent once and cannot be cleared. |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `info` | As in `notify`. |
+| `severity` | `passive`, `info`, `warning`, `critical` | `info` | As in `notify`. |
 | `icon` | icon | the icon of the severity | Replaces the default icon in the popup. |
 | `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. |
@@ -448,7 +448,7 @@ Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipi
 | `message` | text | required | As in `notify`. |
 | `id` | text | none | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, the message is sent once and cannot be cleared. |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `info` | As in `notify`. |
+| `severity` | `passive`, `info`, `warning`, `critical` | `info` | As in `notify`. |
 | `icon` | icon | none | Speech has no icon, so the field has no effect. |
 | `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. |
@@ -474,7 +474,7 @@ Removes messages from every channel: the banner, the push on the phones, the pop
 |---|---|---|---|
 | `id` | text | none | The `id` of the message to remove. |
 | `tag` | text | none | Removes messages with this tag. |
-| `severity` | list of `success`, `info`, `warning`, `critical` | none | Removes messages with one of these severities. |
+| `severity` | list of `passive`, `info`, `warning`, `critical` | none | Removes messages with one of these severities. |
 | `channels` | list of `banner`, `push`, `popup`, `speak`, `persistent`, `mail` | none | Removes messages whose call named at least one of these channels. A channel a policy added is not counted. |
 | `all` | boolean | `false` | `true` removes every message. It cannot be combined with another field. |
 
@@ -702,11 +702,11 @@ The card shows a banner while it is active, not dismissed by you, and not remove
 
 | Option | Type | Default | Meaning |
 |---|---|---|---|
-| `severity` | list of `critical`, `warning`, `info`, `success` | all | Show only these severities. A single string is accepted. |
+| `severity` | list of `critical`, `warning`, `info`, `passive` | all | Show only these severities. A single string is accepted. |
 | `tag` | list of strings | all | Show only banners with one of these tags. A single string is accepted. |
 | `max_items` | integer, 1 or more | no limit | Show at most this many banners, after sorting. Banners beyond the limit are never shown. |
 | `collapsed_items` | integer, 1 or more | off | Show this many banners and a "Show N more" button for the rest. The button then reads "Show less". |
-| `sort` | `severity` or `time` | `severity` | `severity`: critical first, then warning, info, success; newest first within a severity. `time`: newest first. |
+| `sort` | `severity` or `time` | `severity` | `severity`: critical first, then warning, info, passive; newest first within a severity. `time`: newest first. |
 | `layout` | `comfortable` or `compact` | `comfortable` | `compact` puts each banner on one line. |
 | `title` | text | none | A header above the banners. |
 | `show_time` | boolean | `false` | Show how long ago the banner was created or replaced ("just now", "50 min ago", "3 h ago", "1 day ago", "2 days ago"). |
@@ -766,7 +766,7 @@ colors:
   critical: "#2d1f33"
   warning: "#1d2d33"
   info: "#1c2b2b"
-  success: "#243021"
+  passive: "#243021"
 ```
 
 ![Card with custom background colors](images/card-custom-colors.png)
@@ -844,7 +844,7 @@ In the compact layout, a long title or message is cut with "…" and the full te
 
 ### Colors
 
-Set the colors for every card on the panel's Severities page ([Configuration](configuration.md#severities)). In YAML, `colors` takes any CSS color (`#c62828`, `teal`, `rgb(…)`) or a theme variable (`var(--primary-color)`) for each of `critical`, `warning`, `info` and `success`. Severities you leave out use the theme colors `--error-color`, `--warning-color`, `--info-color` and `--success-color`. A value the browser does not accept as a color falls back to the theme color. The card does not check contrast: choose colors that stay readable in your light and dark themes.
+Set the colors for every card on the panel's Severities page ([Configuration](configuration.md#severities)). In YAML, `colors` takes any CSS color (`#c62828`, `teal`, `rgb(…)`) or a theme variable (`var(--primary-color)`) for each of `critical`, `warning`, `info` and `passive`. Severities you leave out use the theme colors `--error-color`, `--warning-color`, `--info-color` and `--success-color`. A value the browser does not accept as a color falls back to the theme color. The card does not check contrast: choose colors that stay readable in your light and dark themes.
 
 With `colorize: background` the icon and label use the theme text colors; with `colorize: icon` the background is the theme's secondary background and the left bar is not drawn.
 

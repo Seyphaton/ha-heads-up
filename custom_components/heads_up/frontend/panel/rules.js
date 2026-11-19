@@ -55,7 +55,7 @@ export const STRINGS = {
     watches: "watches {entity} {operator} {value}",
     watches_template: "watches a template",
     operators: {"equals": "equals", "not_equals": "does not equal", "above": "above", "below": "below", "between": "between", "contains": "contains", "not_contains": "does not contain", "empty": "is empty", "not_empty": "is not empty"},
-    severities: {"success": "Success", "info": "Info", "warning": "Warning", "critical": "Critical"},
+    severities: {"passive": "Passive", "info": "Info", "warning": "Warning", "critical": "Critical"},
     saved: "Saved.",
     failed: "Could not save. Try again.",
     errors: {"entity_not_found": "This entity does not exist.", "message_required": "Enter a message.", "message_too_long": "The message can have up to 1000 characters.", "message_template_invalid": "The message contains an invalid template.", "title_too_long": "The title can have up to 100 characters.", "state_count": "Above and below need one number, between needs two.", "state_not_numeric": "Enter numbers only for this condition.", "state_required": "Enter at least one value.", "for_too_long": "Use 24 hours or less.", "snoozable_needs_dismissible": "Snoozable needs Dismissible to be on.", "entity_and_template": "Use an entity or a template, not both.", "entity_or_template_required": "Choose an entity or enter a template.", "template_invalid": "The template is not valid.", "actions_invalid": "The buttons are not valid. Each needs a key and a label, up to 3.", "tap_action_invalid": "The tap action needs an action key.", "image_invalid": "The image must be an http(s) URL or a path starting with /.", "actions_dismiss_needs_dismissible": "A button with dismiss needs Dismissible to be on.", "policy_unknown": "This policy does not exist. Use the name of a policy, or none.", "name_required": "Enter a name.", "name_exists": "This name is already used."},
@@ -113,7 +113,7 @@ export const STRINGS = {
     watches: "überwacht {entity} {operator} {value}",
     watches_template: "überwacht eine Vorlage",
     operators: {"equals": "ist gleich", "not_equals": "ist ungleich", "above": "über", "below": "unter", "between": "zwischen", "contains": "enthält", "not_contains": "enthält nicht", "empty": "ist leer", "not_empty": "ist nicht leer"},
-    severities: {"success": "Erfolg", "info": "Info", "warning": "Warnung", "critical": "Kritisch"},
+    severities: {"passive": "Passiv", "info": "Info", "warning": "Warnung", "critical": "Kritisch"},
     saved: "Gespeichert.",
     failed: "Speichern fehlgeschlagen. Versuche es erneut.",
     errors: {"entity_not_found": "Diese Entität existiert nicht.", "message_required": "Gib eine Nachricht ein.", "message_too_long": "Die Nachricht darf bis zu 1000 Zeichen haben.", "message_template_invalid": "Die Nachricht enthält eine ungültige Vorlage.", "title_too_long": "Der Titel darf bis zu 100 Zeichen haben.", "state_count": "„Über“ und „Unter“ brauchen eine Zahl, „Zwischen“ braucht zwei.", "state_not_numeric": "Gib für diese Bedingung nur Zahlen ein.", "state_required": "Gib mindestens einen Wert ein.", "for_too_long": "Verwende 24 Stunden oder weniger.", "snoozable_needs_dismissible": "„Zurückstellbar“ benötigt, dass „Schließbar“ an ist.", "entity_and_template": "Verwende eine Entität oder eine Vorlage, nicht beides.", "entity_or_template_required": "Wähle eine Entität oder gib eine Vorlage ein.", "template_invalid": "Die Vorlage ist ungültig.", "actions_invalid": "Die Schaltflächen sind ungültig. Jede braucht key und label, höchstens 3.", "tap_action_invalid": "Die Tipp-Aktion braucht einen action-Schlüssel.", "image_invalid": "Das Bild muss eine http(s)-URL oder ein Pfad sein, der mit / beginnt.", "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an.", "policy_unknown": "Diese Richtlinie gibt es nicht. Nimm den Namen einer Richtlinie oder none.", "name_required": "Gib einen Namen ein.", "name_exists": "Dieser Name wird schon verwendet."},
@@ -171,7 +171,7 @@ export const STRINGS = {
     watches: "surveille {entity} {operator} {value}",
     watches_template: "surveille un modèle",
     operators: {"equals": "est égal à", "not_equals": "est différent de", "above": "au-dessus de", "below": "en dessous de", "between": "entre", "contains": "contient", "not_contains": "ne contient pas", "empty": "est vide", "not_empty": "n'est pas vide"},
-    severities: {"success": "Succès", "info": "Info", "warning": "Avertissement", "critical": "Critique"},
+    severities: {"passive": "Passif", "info": "Info", "warning": "Avertissement", "critical": "Critique"},
     saved: "Enregistré.",
     failed: "Échec de l'enregistrement. Réessayez.",
     errors: {"entity_not_found": "Cette entité n'existe pas.", "message_required": "Saisissez un message.", "message_too_long": "Le message peut contenir jusqu'à 1000 caractères.", "message_template_invalid": "Le message contient un modèle non valide.", "title_too_long": "Le titre peut contenir jusqu'à 100 caractères.", "state_count": "« Supérieur » et « Inférieur » demandent un nombre, « Entre » en demande deux.", "state_not_numeric": "Saisissez uniquement des nombres pour cette condition.", "state_required": "Saisissez au moins une valeur.", "for_too_long": "Utilisez 24 heures ou moins.", "snoozable_needs_dismissible": "« Reportable » nécessite que « Fermable » soit activé.", "entity_and_template": "Utilisez une entité ou un modèle, pas les deux.", "entity_or_template_required": "Choisissez une entité ou saisissez un modèle.", "template_invalid": "Le modèle n'est pas valide.", "actions_invalid": "Les boutons ne sont pas valides. Chacun a besoin d'une key et d'un label, 3 au maximum.", "tap_action_invalid": "L'action au toucher a besoin d'une clé action.", "image_invalid": "L'image doit être une URL http(s) ou un chemin commençant par /.", "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé.", "policy_unknown": "Cette politique n'existe pas. Utilisez le nom d'une politique, ou none.", "name_required": "Saisissez un nom.", "name_exists": "Ce nom est déjà utilisé."},
@@ -229,7 +229,7 @@ export const STRINGS = {
     watches: "vigila {entity} {operator} {value}",
     watches_template: "vigila una plantilla",
     operators: {"equals": "es igual a", "not_equals": "es distinto de", "above": "por encima de", "below": "por debajo de", "between": "entre", "contains": "contiene", "not_contains": "no contiene", "empty": "está vacío", "not_empty": "no está vacío"},
-    severities: {"success": "Éxito", "info": "Info", "warning": "Aviso", "critical": "Crítico"},
+    severities: {"passive": "Pasivo", "info": "Info", "warning": "Aviso", "critical": "Crítico"},
     saved: "Guardado.",
     failed: "No se pudo guardar. Inténtalo de nuevo.",
     errors: {"entity_not_found": "Esta entidad no existe.", "message_required": "Introduce un mensaje.", "message_too_long": "El mensaje puede tener hasta 1000 caracteres.", "message_template_invalid": "El mensaje contiene una plantilla no válida.", "title_too_long": "El título puede tener hasta 100 caracteres.", "state_count": "«Por encima» y «Por debajo» necesitan un número, «Entre» necesita dos.", "state_not_numeric": "Introduce solo números para esta condición.", "state_required": "Introduce al menos un valor.", "for_too_long": "Usa 24 horas o menos.", "snoozable_needs_dismissible": "«Se puede posponer» requiere que «Se puede cerrar» esté activado.", "entity_and_template": "Usa una entidad o una plantilla, no ambas.", "entity_or_template_required": "Elige una entidad o introduce una plantilla.", "template_invalid": "La plantilla no es válida.", "actions_invalid": "Los botones no son válidos. Cada uno necesita key y label, como máximo 3.", "tap_action_invalid": "La acción al tocar necesita una clave action.", "image_invalid": "La imagen debe ser una URL http(s) o una ruta que empieza por /.", "actions_dismiss_needs_dismissible": "Un botón con dismiss requiere que «Se puede cerrar» esté activado.", "policy_unknown": "Esta política no existe. Usa el nombre de una política, o none.", "name_required": "Introduce un nombre.", "name_exists": "Este nombre ya se usa."},
@@ -237,7 +237,7 @@ export const STRINGS = {
 };
 
 export const OPERATORS = ["equals", "not_equals", "above", "below", "between", "contains", "not_contains", "empty", "not_empty"];
-const SEVERITIES = ["success", "info", "warning", "critical"];
+const SEVERITIES = ["passive", "info", "warning", "critical"];
 const SNOOZE_MINUTES = [5, 15, 30, 60, 120, 240, 480, 1440];
 const NO_VALUE = ["empty", "not_empty"];
 

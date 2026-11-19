@@ -26,13 +26,13 @@ async def test_evicts_lowest_severity_then_oldest(
 ) -> None:
     await create(id="info_old", message="x", severity="info")
     freezer.tick(timedelta(seconds=1))
-    await create(id="success", message="x", severity="success")
+    await create(id="passive", message="x", severity="passive")
     freezer.tick(timedelta(seconds=1))
     await create(id="info_new", message="x", severity="info")
     events = async_capture_events(hass, f"{DOMAIN}_banner_cleared")
 
     result = await create(id="d", message="x")
-    assert result == {"id": "d", "status": "created", "evicted": "success"}
+    assert result == {"id": "d", "status": "created", "evicted": "passive"}
     result = await create(id="e", message="x")
     assert result["evicted"] == "info_old"
     assert set(banners(entry)) == {"info_new", "d", "e"}
@@ -63,8 +63,8 @@ async def test_upsert_at_limit_does_not_evict(entry: MockConfigEntry, create: Cr
 
 @pytest.mark.parametrize("options", [{"max_banners": 2, "evict": False}])
 async def test_eviction_off_rejects(entry: MockConfigEntry, create: CreateBanner) -> None:
-    await create(id="a", message="x", severity="success")
-    await create(id="b", message="x", severity="success")
+    await create(id="a", message="x", severity="passive")
+    await create(id="b", message="x", severity="passive")
     with pytest.raises(ServiceValidationError) as err:
         await create(id="c", message="x")
     assert err.value.translation_key == "too_many_banners"

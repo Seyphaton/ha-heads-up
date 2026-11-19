@@ -477,7 +477,7 @@ describe("the policy list order and the overlap note", () => {
   it("says two policies overlap when some message can match both, an empty list matching any", () => {
     expect(overlaps({ severities: [], tags: [] }, { severities: ["critical"], tags: ["water"] })).toBe(true);
     expect(overlaps({ severities: ["info"], tags: [] }, { severities: ["critical"], tags: [] })).toBe(false);
-    expect(overlaps({ severities: ["info"], tags: ["digest"] }, { severities: ["info", "success"], tags: [] })).toBe(true);
+    expect(overlaps({ severities: ["info"], tags: ["digest"] }, { severities: ["info", "passive"], tags: [] })).toBe(true);
     expect(overlaps({ severities: ["info"], tags: ["digest"] }, { severities: ["info"], tags: ["door"] })).toBe(false);
   });
 

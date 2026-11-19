@@ -147,13 +147,13 @@
       "bands_too_many": "Höchstens 4 Zeiträume.",
       "bands_empty": "Beginn und Ende eines Zeitraums müssen verschieden sein.",
       "bands_overlap": "Zeiträume dürfen sich nicht überschneiden.",
-      "severity_volume_invalid": "Gib eine Lautstärke von 0 bis 100 für success, info, warning oder critical an."
+      "severity_volume_invalid": "Gib eine Lautstärke von 0 bis 100 für passive, info, warning oder critical an."
     }
   },
   "selector": {
     "severity": {
       "options": {
-        "success": "Erfolg",
+        "passive": "Passiv",
         "info": "Info",
         "warning": "Warnung",
         "critical": "Kritisch"
@@ -575,7 +575,7 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (standardmäßig ist Passiv leise, Info normal, Warnung zeitkritisch und Kritisch ein Alarm), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",
@@ -657,7 +657,7 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (standardmäßig ist Passiv leise, Info normal, Warnung zeitkritisch und Kritisch ein Alarm), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",
@@ -715,7 +715,7 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (standardmäßig ist Passiv leise, Info normal, Warnung zeitkritisch und Kritisch ein Alarm), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",
@@ -773,7 +773,7 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (standardmäßig ist Passiv leise, Info normal, Warnung zeitkritisch und Kritisch ein Alarm), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",

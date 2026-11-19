@@ -55,9 +55,9 @@ async def test_the_first_mode_creates_four_policies_that_do_not_overlap_in_this_
     made = policies(entry)
     assert made["Critical delivery"]["severities"] == ["critical"]
     assert made["Warning reminders"]["severities"] == ["warning"]
-    assert made["Evening summary"]["severities"] == ["info", "success"]
+    assert made["Evening summary"]["severities"] == ["info", "passive"]
     assert made["Evening summary"]["tags"] == ["digest"]
-    assert made["Night quiet"]["severities"] == ["info", "success"]
+    assert made["Night quiet"]["severities"] == ["info", "passive"]
     assert entry.options["policy_mode"] == "first" and entry.options["welcome_seen"] is True
     listed = [p.name for p in entry.runtime_data.hub.policies.ordered()]
     assert listed == ["Critical delivery", "Warning reminders", "Evening summary", "Night quiet"]
@@ -91,7 +91,7 @@ async def test_each_kind_of_message_meets_exactly_one_of_the_four(
     assert used("critical") == ["Critical delivery"]
     assert used("warning") == ["Warning reminders"]
     assert used("info", "digest") == ["Evening summary"]
-    assert used("success", "digest") == ["Evening summary"]
+    assert used("passive", "digest") == ["Evening summary"]
     assert used("info") == ["Night quiet"]
     assert used("warning", "digest") == ["Warning reminders"]  # the order, not the lists, decides
 

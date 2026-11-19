@@ -262,7 +262,7 @@ export function fixKey(page) {
 
 // The bars of the activity chart: one per hour, oldest first, stacked by severity (the least
 // severe at the bottom). An empty hour is a small capsule so the chart never looks broken.
-export const CHART_SEVERITIES = ["critical", "warning", "info", "success"];
+export const CHART_SEVERITIES = ["critical", "warning", "info", "passive"];
 
 export function chartModel(activity, { width = 600, height = 150, gap = 6, minimum = 5 } = {}) {
   const buckets = activity?.buckets ?? [];
@@ -341,7 +341,7 @@ const CSS = `
 .hu-overview svg.chart .sev-critical { fill: var(--error-color, #db4437); }
 .hu-overview svg.chart .sev-warning { fill: var(--warning-color, #ffa600); }
 .hu-overview svg.chart .sev-info { fill: var(--info-color, #039be5); }
-.hu-overview svg.chart .sev-success { fill: var(--success-color, #43a047); }
+.hu-overview svg.chart .sev-passive { fill: var(--success-color, #43a047); }
 .hu-overview svg.chart.intro .bar { animation: hu-grow .8s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i) * 30ms); }
 .hu-overview svg.chart .bar.now .shine { animation: hu-glow 2.6s ease-in-out infinite; }
 @keyframes hu-grow { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }

@@ -147,13 +147,13 @@
       "bands_too_many": "Como máximo 4 franjas.",
       "bands_empty": "El inicio y el fin de una franja deben ser distintos.",
       "bands_overlap": "Las franjas no deben solaparse.",
-      "severity_volume_invalid": "Indica un volumen de 0 a 100 para success, info, warning o critical."
+      "severity_volume_invalid": "Indica un volumen de 0 a 100 para passive, info, warning o critical."
     }
   },
   "selector": {
     "severity": {
       "options": {
-        "success": "Éxito",
+        "passive": "Pasivo",
         "info": "Información",
         "warning": "Advertencia",
         "critical": "Crítico"
@@ -575,7 +575,7 @@
         },
         "severity": {
           "name": "Gravedad",
-          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (éxito e información son silenciosos, advertencia es normal, crítico es urgente y se muestra al instante en un móvil inactivo), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
+          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (por defecto pasivo es silencioso, información normal, advertencia urgente y crítico una alarma), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
         },
         "icon": {
           "name": "Icono",
@@ -657,7 +657,7 @@
         },
         "severity": {
           "name": "Gravedad",
-          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (éxito e información son silenciosos, advertencia es normal, crítico es urgente y se muestra al instante en un móvil inactivo), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
+          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (por defecto pasivo es silencioso, información normal, advertencia urgente y crítico una alarma), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
         },
         "icon": {
           "name": "Icono",
@@ -715,7 +715,7 @@
         },
         "severity": {
           "name": "Gravedad",
-          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (éxito e información son silenciosos, advertencia es normal, crítico es urgente y se muestra al instante en un móvil inactivo), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
+          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (por defecto pasivo es silencioso, información normal, advertencia urgente y crítico una alarma), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
         },
         "icon": {
           "name": "Icono",
@@ -773,7 +773,7 @@
         },
         "severity": {
           "name": "Gravedad",
-          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (éxito e información son silenciosos, advertencia es normal, crítico es urgente y se muestra al instante en un móvil inactivo), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
+          "description": "Qué importancia tiene el mensaje. Determina el color, el icono predeterminado y el orden del aviso, el nivel del push (por defecto pasivo es silencioso, información normal, advertencia urgente y crítico una alarma), el estilo de la ventana emergente y si las horas silenciosas dejan pasar el mensaje (crítico pasa salvo que lo cambies). Predeterminado: Información."
         },
         "icon": {
           "name": "Icono",
