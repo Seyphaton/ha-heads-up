@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { countText, initials, peopleText, STRINGS as AUD, usageText } from "../../custom_components/heads_up/frontend/panel/audiences.js";
-import { languageName, languageOptions, STRINGS as CH, summaryText } from "../../custom_components/heads_up/frontend/panel/channels.js";
+import { languageName, languageOptions, settingChanges, settingProblems, STRINGS as CH, stylesText, summaryText } from "../../custom_components/heads_up/frontend/panel/channels.js";
 import { byAudience, STRINGS as MSG } from "../../custom_components/heads_up/frontend/panel/messages.js";
 
 const sameKeys = (strings) => {
@@ -42,6 +42,19 @@ describe("Channels overview", () => {
     expect(options[0]).toEqual({ value: "", label: "Home Assistant language (English · en)" });
     expect(options.slice(1).map((o) => o.value)).toEqual(["fr", "de-DE"]);
     expect(languageName("de-DE", "en")).toBe("German (Germany) · de-DE");
+  });
+
+  it("sums up the banner snooze choices and the popup styles by severity", () => {
+    expect(summaryText("banner", {}, t, "en", { default_snooze_options: [15, 60] })).toBe("Snooze 15 minutes, 1 hour");
+    expect(summaryText("banner", {}, t, "en", { default_snooze_options: [] })).toBe("no snooze choices");
+    expect(stylesText({ critical: "modal", warning: "card", info: "card" }, t)).toBe("Centered window (Critical) · Corner, bottom right (Warning, Info)");
+  });
+
+  it("sends only the snooze settings that changed and checks the snooze time", () => {
+    const saved = { default_snooze_options: [15], quick_snooze_minutes: 15 };
+    expect(settingChanges({ ...saved, quick_snooze_minutes: 30 }, saved)).toEqual({ quick_snooze_minutes: 30 });
+    expect(settingProblems({ quick_snooze_minutes: 0 })).toEqual(["bad_snooze_time"]);
+    expect(settingProblems({ quick_snooze_minutes: 1440 })).toEqual([]);
   });
 
   it("keeps a saved language that the engine does not list", () => {

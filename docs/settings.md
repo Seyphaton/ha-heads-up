@@ -18,7 +18,7 @@ Every block has a heading of its own. Save is enabled only when something change
 |---|---|
 | Introduction | A button, Restart introduction, that opens the introduction again. Only in the panel. |
 | Sidebar panel | The sidebar switch (`show_panel`). |
-| Messages | Dismiss settings (default dismiss scope, default timeout in days, hours, minutes and seconds, the ended-buttons switch) and snooze settings (snoozable by default, default snooze scope, the snooze choices of the banner and the snooze time of push and popup). Each card says which channels it applies to. |
+| Messages | Dismiss settings (default dismiss scope, default timeout in days, hours, minutes and seconds, the ended-buttons switch) and snooze settings (snoozable by default, default snooze scope). Each card says which channels it applies to. The snooze choices of the banner and the snooze time of push and popup are on the Channels page, in the Banner, Push and Popup rows. |
 | Presence | The presence delay for Last to leave, First home and the Presence policy. |
 | Speech | Longest spoken text, repeat pause and the text-to-speech engine. |
 | Speech volume | Putting the volume back after speaking, a volume per severity and up to 4 time bands. |
@@ -58,8 +58,8 @@ These settings belong to the message, not to one channel. They apply to the bann
 | Disable message buttons once the message has ended (`disable_ended_buttons`) | on | none | A press on the message's own buttons, on the banner, the push or the popup, is refused with `message_ended` after the message was dismissed (by that person or for everyone), acknowledged by anyone, or its condition turned false. A snooze does not end it. Dismiss, Snooze and Acknowledge are not affected. Off: presses are accepted until the message is removed. |
 | Messages can be snoozed by default (`default_snoozable`) | off | `snoozable` | Adds Snooze to the banner, the push and the popup. Messages that are not dismissible are never snoozable. |
 | Default snooze scope (`default_snooze_scope`) | `user` | `snooze_scope` | `user`: a snooze hides the message only for that person. `global`: for everyone. |
-| Snooze choices on the banner (`default_snooze_options`) | 15 minutes, 1 hour, 4 hours | `snooze_options` | The choices the banner offers, from 5 minutes to 24 hours. |
-| Snooze time on push and popup (`quick_snooze_minutes`) | 15 (1–1440) | none | The Snooze button of the push and of the popup snoozes for this many minutes, whatever `snooze_options` says. |
+| Snooze choices on the banner (`default_snooze_options`) | 15 minutes, 1 hour, 4 hours | `snooze_options` | The choices the banner offers, from 5 minutes to 24 hours. In the panel: Channels, Banner. |
+| Snooze time on push and popup (`quick_snooze_minutes`) | 15 (1–1440) | none | The Snooze button of the push and of the popup snoozes for this many minutes, whatever `snooze_options` says. In the panel: Channels, Push or Popup. |
 
 ## Limits
 

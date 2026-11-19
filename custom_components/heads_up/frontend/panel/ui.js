@@ -243,7 +243,7 @@ export function tableHead(labels) {
 export function tableRow({ id, lead, cells = [], end = [], open = false, dim = false, label, onToggle, body }) {
   const row = el("button", { type: "button", className: "tl-row" }, [
     el("span", { className: "tl-lead" }, lead),
-    el("span", { className: "tl-meta" }, cells.map((c) => el("span", { className: `tl-cell ${c.muted ? "muted" : ""}` }, [el("span", { className: "tl-k", textContent: c.label }), c.node]))),
+    el("span", { className: "tl-meta" }, cells.map((c) => el("span", { className: `tl-cell ${c.muted ? "muted" : ""}` }, [...(c.label ? [el("span", { className: "tl-k", textContent: c.label })] : []), c.node]))),
     el("span", { className: "tl-end" }, [...end, el("span", { className: "tl-chev" })]),
   ]);
   row.setAttribute("aria-expanded", String(open));

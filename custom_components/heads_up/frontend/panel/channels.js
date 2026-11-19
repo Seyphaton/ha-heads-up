@@ -3,6 +3,18 @@
 export const STRINGS = {
   en: {
     title: "Channels",
+    banner: "Banner",
+    banner_snooze: "Snooze choices on the banner",
+    banner_snooze_hint: "Used when a call or watch rule sets no snooze choices of its own. Whether a message can be snoozed, and the dismiss settings, are under Settings, Messages: they apply to banner, push and popup. The look of the card is set in the card's options.",
+    snooze_time: "Snooze time on push and popup (minutes)",
+    snooze_time_hint: "1–1440. The Snooze button of the push and of the popup snoozes for this time. It is the same setting on the Push and Popup rows.",
+    bad_snooze_time: "The snooze time is a whole number of minutes from 1 to 1440.",
+    snooze_summary: "Snooze {time}",
+    styles_label: "Popup by severity",
+    styles_hint: "Set on the Severities page.",
+    minutes: {"5": "5 minutes", "15": "15 minutes", "30": "30 minutes", "60": "1 hour", "120": "2 hours", "240": "4 hours", "480": "8 hours", "1440": "24 hours"},
+    minutes_n: "{n} minutes",
+    no_choices: "no snooze choices",
     col_channel: "Channel",
     col_settings: "Settings",
     sticky_on: "kept after a tap",
@@ -14,7 +26,7 @@ export const STRINGS = {
     changed: "changed",
     severities_note: "The push level and the popup style of each severity are set on the Severities page.",
     severities_link: "Severities",
-    intro: "How push, speech and mail work for every message. Select a channel to change it.",
+    intro: "How each channel works for every message. Select a channel to change it.",
     push: "Push",
     popup: "Popup",
     speech: "Speech",
@@ -54,6 +66,18 @@ export const STRINGS = {
   },
   de: {
     title: "Kanäle",
+    banner: "Banner",
+    banner_snooze: "Auswahl beim Zurückstellen im Banner",
+    banner_snooze_hint: "Gilt, wenn ein Aufruf oder eine Überwachungsregel keine eigene Auswahl angibt. Ob eine Meldung zurückgestellt werden kann und die Einstellungen zum Schließen stehen unter Einstellungen, Meldungen: Sie gelten für Banner, Push und Popup. Das Aussehen der Karte legst du in den Optionen der Karte fest.",
+    snooze_time: "Zurückstellzeit bei Push und Popup (Minuten)",
+    snooze_time_hint: "1–1440. Die Schaltfläche Zurückstellen von Push und Popup stellt für diese Zeit zurück. Es ist dieselbe Einstellung in den Zeilen Push und Popup.",
+    bad_snooze_time: "Die Zurückstellzeit ist eine ganze Zahl von 1 bis 1440 Minuten.",
+    snooze_summary: "Zurückstellen {time}",
+    styles_label: "Popup nach Schweregrad",
+    styles_hint: "Wird auf der Seite Schweregrade festgelegt.",
+    minutes: {"5": "5 Minuten", "15": "15 Minuten", "30": "30 Minuten", "60": "1 Stunde", "120": "2 Stunden", "240": "4 Stunden", "480": "8 Stunden", "1440": "24 Stunden"},
+    minutes_n: "{n} Minuten",
+    no_choices: "keine Auswahl beim Zurückstellen",
     col_channel: "Kanal",
     col_settings: "Einstellungen",
     sticky_on: "bleibt nach Tippen",
@@ -65,7 +89,7 @@ export const STRINGS = {
     changed: "geändert",
     severities_note: "Push-Stufe und Popup-Stil jedes Schweregrads stehen auf der Seite Schweregrade.",
     severities_link: "Schweregrade",
-    intro: "Wie Push, Sprache und Mail für alle Meldungen arbeiten. Wähle einen Kanal, um ihn zu ändern.",
+    intro: "Wie jeder Kanal für alle Meldungen arbeitet. Wähle einen Kanal, um ihn zu ändern.",
     push: "Push",
     popup: "Popup",
     speech: "Sprache",
@@ -105,6 +129,18 @@ export const STRINGS = {
   },
   fr: {
     title: "Canaux",
+    banner: "Bannière",
+    banner_snooze: "Durées de report sur la bannière",
+    banner_snooze_hint: "Utilisé quand un appel ou une règle de surveillance ne définit pas ses propres durées. La possibilité de reporter un message et les réglages de fermeture sont dans Réglages, Messages : ils valent pour la bannière, le push et le popup. L'apparence de la carte se règle dans les options de la carte.",
+    snooze_time: "Durée de report sur le push et le popup (minutes)",
+    snooze_time_hint: "1–1440. Le bouton Reporter du push et du popup reporte pour cette durée. C'est le même réglage sur les lignes Push et Popup.",
+    bad_snooze_time: "La durée de report est un nombre entier de minutes de 1 à 1440.",
+    snooze_summary: "Report {time}",
+    styles_label: "Popup par gravité",
+    styles_hint: "Réglé sur la page Gravités.",
+    minutes: {"5": "5 minutes", "15": "15 minutes", "30": "30 minutes", "60": "1 heure", "120": "2 heures", "240": "4 heures", "480": "8 heures", "1440": "24 heures"},
+    minutes_n: "{n} minutes",
+    no_choices: "aucune durée de report",
     col_channel: "Canal",
     col_settings: "Réglages",
     sticky_on: "conservée après un appui",
@@ -116,7 +152,7 @@ export const STRINGS = {
     changed: "modifié",
     severities_note: "Le niveau du push et le style du popup de chaque gravité se règlent sur la page Gravités.",
     severities_link: "Gravités",
-    intro: "Le fonctionnement du push, de la voix et du courriel pour tous les messages. Choisissez un canal pour le modifier.",
+    intro: "Le fonctionnement de chaque canal pour tous les messages. Choisissez un canal pour le modifier.",
     push: "Push",
     popup: "Fenêtre",
     speech: "Voix",
@@ -156,6 +192,18 @@ export const STRINGS = {
   },
   es: {
     title: "Canales",
+    banner: "Aviso",
+    banner_snooze: "Opciones de posposición en el aviso",
+    banner_snooze_hint: "Se usa cuando una llamada o una regla de vigilancia no define sus propias opciones. Si un mensaje se puede posponer y los ajustes de cierre están en Ajustes, Mensajes: valen para aviso, push y ventana emergente. El aspecto de la tarjeta se ajusta en las opciones de la tarjeta.",
+    snooze_time: "Tiempo de posposición en push y ventana emergente (minutos)",
+    snooze_time_hint: "1–1440. El botón Posponer del push y de la ventana emergente pospone durante este tiempo. Es el mismo ajuste en las filas Push y Ventana.",
+    bad_snooze_time: "El tiempo de posposición es un número entero de minutos de 1 a 1440.",
+    snooze_summary: "Posponer {time}",
+    styles_label: "Ventana por gravedad",
+    styles_hint: "Se ajusta en la página Gravedades.",
+    minutes: {"5": "5 minutos", "15": "15 minutos", "30": "30 minutos", "60": "1 hora", "120": "2 horas", "240": "4 horas", "480": "8 horas", "1440": "24 horas"},
+    minutes_n: "{n} minutos",
+    no_choices: "sin opciones de posposición",
     col_channel: "Canal",
     col_settings: "Ajustes",
     sticky_on: "se mantiene tras tocar",
@@ -167,7 +215,7 @@ export const STRINGS = {
     changed: "cambiado",
     severities_note: "El nivel del push y el estilo de la ventana de cada gravedad se ajustan en la página Gravedades.",
     severities_link: "Gravedades",
-    intro: "Cómo funcionan el push, la voz y el correo para todos los mensajes. Elige un canal para cambiarlo.",
+    intro: "Cómo funciona cada canal para todos los mensajes. Elige un canal para cambiarlo.",
     push: "Push",
     popup: "Ventana",
     speech: "Voz",
@@ -214,10 +262,43 @@ const LOCKSCREENS = ["full", "title_only", "generic"];
 
 // The channels the page lists, the settings each one owns and its icon.
 const CHANNELS = [
-  { key: "push", icon: "mdi:cellphone-message", keys: ["push_lockscreen", "push_channel_id", "push_sticky"] },
-  { key: "speech", icon: "mdi:account-voice", keys: ["speak_language"] },
-  { key: "mail", icon: "mdi:email-outline", keys: ["mail_service", "mail_global_address", "mail_subject", "mail_body"] },
+  { key: "banner", icon: "mdi:card-text-outline", keys: [], settings: ["default_snooze_options"] },
+  { key: "push", icon: "mdi:cellphone-message", keys: ["push_lockscreen", "push_channel_id", "push_sticky"], settings: ["quick_snooze_minutes"] },
+  { key: "popup", icon: "mdi:dock-window", keys: [], settings: ["quick_snooze_minutes"] },
+  { key: "speech", icon: "mdi:account-voice", keys: ["speak_language"], settings: [] },
+  { key: "mail", icon: "mdi:email-outline", keys: ["mail_service", "mail_global_address", "mail_subject", "mail_body"], settings: [] },
 ];
+
+// The two snooze settings these rows show are stored with the other settings (heads_up/settings_set).
+export const SETTING_KEYS = ["default_snooze_options", "quick_snooze_minutes"];
+const SNOOZE_MINUTES = [5, 15, 30, 60, 120, 240, 480, 1440];
+const SEVERITY_ORDER = ["critical", "warning", "info", "success"];
+
+export function minutesText(n, t) {
+  return t.minutes[String(n)] || fill(t.minutes_n, { n });
+}
+
+// Popup styles grouped: "Centered window (Critical) · Corner, bottom right (Warning, Info, Success)".
+export function stylesText(styles, t) {
+  const groups = new Map();
+  for (const severity of SEVERITY_ORDER) {
+    const style = (styles || {})[severity];
+    if (!style) continue;
+    groups.set(style, [...(groups.get(style) || []), t.severities[severity] || severity]);
+  }
+  return [...groups].map(([style, names]) => `${t.styles[style] || style} (${names.join(", ")})`).join(" · ");
+}
+
+export function settingProblems(settings) {
+  const time = settings.quick_snooze_minutes;
+  return Number.isInteger(time) && time >= 1 && time <= 1440 ? [] : ["bad_snooze_time"];
+}
+
+export function settingChanges(settings, saved) {
+  const out = {};
+  for (const key of SETTING_KEYS) if (JSON.stringify(settings[key]) !== JSON.stringify(saved[key])) out[key] = settings[key];
+  return out;
+}
 
 // "German (Germany) · de-DE" in the panel's language; the code alone where the browser cannot name it.
 export function languageName(code, language) {
@@ -238,7 +319,14 @@ export function languageOptions(supported, current, haLanguage, language, t) {
 }
 
 // The overview line of a channel: what a reader needs to know without opening it.
-export function summaryText(key, values, t, language) {
+export function summaryText(key, values, t, language, settings = {}) {
+  if (key === "banner") {
+    const choices = settings.default_snooze_options || [];
+    return choices.length ? fill(t.snooze_summary, { time: choices.map((m) => minutesText(m, t)).join(", ") }) : t.no_choices;
+  }
+  if (key === "popup") {
+    return [settings.quick_snooze_minutes ? fill(t.snooze_summary, { time: minutesText(settings.quick_snooze_minutes, t) }) : "", stylesText(values.popup_styles, t)].filter(Boolean).join(" · ");
+  }
   if (key === "push") {
     return [t.lockscreens[values.push_lockscreen] || values.push_lockscreen, fill(t.android, { id: values.push_channel_id || "" }), values.push_sticky ? t.sticky_on : ""].filter(Boolean).join(" · ");
   }
@@ -257,6 +345,11 @@ const PAGE_CSS = `
 .hu-page .tl-body .tl-wide label.field { margin: 0; }
 .hu-page .tl-body .tl-wide label.inline { min-height: 44px; }
 .hu-page .ch-lang { max-width: 460px; }
+.hu-page .ch-chips fieldset { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); column-gap: 12px; margin: 0; }
+.hu-page .ch-chips label.inline { min-height: 40px; }
+.hu-page .ch-sub { font-size: 14px; margin: 4px 0 8px; }
+.hu-page .ch-go { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.hu-page .ch-go .hint { margin: 0; }
 .hu-page .ch-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 8px; }
 .hu-page .ch-note .hint { margin: 0; flex: 1; min-width: 200px; }
 `;
@@ -305,6 +398,8 @@ export function mount(container, ctx) {
   let message = "";
   let open = null;
   let languages = null;
+  let settings = {};
+  let savedSettings = {};
   let paint = () => {};
   const root = el("div", { className: "hu-page" });
   container.append(root);
@@ -325,7 +420,7 @@ export function mount(container, ctx) {
       const { item, row } = ui.tableRow({
         id,
         lead: [el("ha-icon", { icon: channel.icon }), el("span", { className: "tl-name", textContent: t[channel.key] })],
-        cells: [{ label: t.col_settings, node: summary }],
+        cells: [{ label: "", node: summary }],
         end: [mark],
         open: isOpen,
         onToggle: () => {
@@ -337,8 +432,8 @@ export function mount(container, ctx) {
       });
       if (body) body.append(fields(channel.key));
       rows.push(() => {
-        summary.textContent = summaryText(channel.key, values, t, ctx.language);
-        const changed = channel.keys.some((k) => JSON.stringify(values[k]) !== JSON.stringify(data.channels[k]));
+        summary.textContent = summaryText(channel.key, values, t, ctx.language, settings);
+        const changed = channel.keys.some((k) => JSON.stringify(values[k]) !== JSON.stringify(data.channels[k])) || channel.settings.some((k) => JSON.stringify(settings[k]) !== JSON.stringify(savedSettings[k]));
         mark.textContent = changed ? "●" : "";
         row.setAttribute("aria-label", `${fill(t.edit, { name: t[channel.key] })}: ${summary.textContent}${changed ? `, ${t.changed}` : ""}`);
       });
@@ -358,8 +453,8 @@ export function mount(container, ctx) {
     root.append(bar);
     paint = () => {
       for (const update of rows) update();
-      const found = problems(values);
-      const dirty = Object.keys(changes(values, data.channels)).length > 0;
+      const found = [...problems(values), ...settingProblems(settings)];
+      const dirty = Object.keys(changes(values, data.channels)).length > 0 || Object.keys(settingChanges(settings, savedSettings)).length > 0;
       save.disabled = found.length > 0 || !dirty;
       bar.classList.toggle("dirty", dirty);
       status.className = found.length ? "hint problems" : "hint ok";
@@ -371,7 +466,22 @@ export function mount(container, ctx) {
   function fields(key) {
     const box = el("div", { className: "tl-grid" });
     const hint = (text) => el("div", { className: "hint tl-wide", textContent: text });
+    const snoozeTime = () => ui.field(t.snooze_time, ui.numberInput(settings.quick_snooze_minutes, (v) => { settings.quick_snooze_minutes = v; paint(); }, { min: 1, max: 1440 }), t.snooze_time_hint);
+    if (key === "banner") {
+      box.append(el("div", { className: "tl-wide ch-chips" }, [ui.chips(t.banner_snooze, SNOOZE_MINUTES.map((m) => ({ value: m, label: minutesText(m, t) })), settings.default_snooze_options || [], (list) => { settings.default_snooze_options = SNOOZE_MINUTES.filter((m) => list.includes(m)); paint(); })]));
+      box.append(hint(t.banner_snooze_hint));
+      return box;
+    }
+    if (key === "popup") {
+      box.append(snoozeTime());
+      const styles = ui.facts(SEVERITY_ORDER.map((sev) => [t.severities[sev], t.styles[values.popup_styles?.[sev]] || values.popup_styles?.[sev] || "–"]));
+      const go = el("button", { type: "button", textContent: t.severities_link });
+      go.addEventListener("click", () => ctx.navigate("severities"));
+      box.append(el("div", { className: "tl-wide" }, [el("div", { className: "ch-sub", textContent: t.styles_label }), styles, el("div", { className: "ch-go" }, [el("span", { className: "hint", textContent: t.styles_hint }), go])]));
+      return box;
+    }
     if (key === "push") {
+      box.append(snoozeTime());
       box.append(ui.field(t.lockscreen, ui.selectInput(LOCKSCREENS.map((l) => ({ value: l, label: t.lockscreens[l] })), values.push_lockscreen, (v) => { values.push_lockscreen = v; paint(); })));
       box.append(ui.field(t.channel_id, ui.textInput(values.push_channel_id, (v) => { values.push_channel_id = v; paint(); }, { spellcheck: false, autocapitalize: "off" })));
       box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.sticky, values.push_sticky, (on) => { values.push_sticky = on; paint(); })]));
@@ -399,10 +509,19 @@ export function mount(container, ctx) {
 
   async function saveIt() {
     try {
-      const result = await hass.callWS({ type: "heads_up/channels_set", ...changes(values, data.channels) });
+      const own = changes(values, data.channels);
+      if (Object.keys(own).length) {
+        const result = await hass.callWS({ type: "heads_up/channels_set", ...own });
+        data.channels = result;
+        values = JSON.parse(JSON.stringify(result));
+      }
+      const shared = settingChanges(settings, savedSettings);
+      if (Object.keys(shared).length) {
+        const stored = (await hass.callWS({ type: "heads_up/settings_set", ...shared })).options || {};
+        savedSettings = Object.fromEntries(SETTING_KEYS.map((k) => [k, stored[k]]));
+        settings = JSON.parse(JSON.stringify(savedSettings));
+      }
       message = t.saved;
-      data.channels = result;
-      values = JSON.parse(JSON.stringify(result));
     } catch (err) {
       message = t.failed;
     }
@@ -411,6 +530,9 @@ export function mount(container, ctx) {
 
   async function load() {
     data = await hass.callWS({ type: "heads_up/panel_config" });
+    const stored = (await hass.callWS({ type: "heads_up/settings_get" })).options || {};
+    savedSettings = Object.fromEntries(SETTING_KEYS.map((k) => [k, stored[k]]));
+    settings = JSON.parse(JSON.stringify(savedSettings));
     // The languages of the engine speech uses (N-108); without one the field stays free text.
     const engine = data.choices?.tts_engine;
     if (engine) {

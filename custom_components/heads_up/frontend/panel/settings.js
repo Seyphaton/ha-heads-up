@@ -102,6 +102,10 @@ export const STRINGS = {
 };
 
 // Ranges of the numbers and the duration, from the layout the server sends: { key: [min, max] }.
+// Sections the Channels page shows on its Banner, Push and Popup rows; Home Assistant's own
+// options form still lists them.
+export const ON_CHANNELS = ["snooze_banner", "snooze_push"];
+
 export function rangesOf(layout) {
   const ranges = {};
   for (const section of layout) for (const entry of section.entries) if (entry.range) ranges[entry.key] = entry.range;
@@ -403,7 +407,7 @@ export function mount(container, ctx) {
     section(null, [welcomeButton, el("div", { className: "hint", textContent: t.welcome_hint })]);
 
     let shown = null;
-    for (const block of entriesOf(data.layout, t)) {
+    for (const block of entriesOf(data.layout.filter((section) => !ON_CHANNELS.includes(section.name)), t)) {
       const { group: top, title } = headingOf(block.name);
       if (!top || top !== shown) group(top || title);
       shown = top;
