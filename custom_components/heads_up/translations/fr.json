@@ -81,7 +81,7 @@
               "presence_debounce_seconds": "Délai de présence (secondes)"
             },
             "data_description": {
-              "presence_debounce_seconds": "Une personne doit rester à la maison ou absente ce temps avant que « Last to leave » et « First home » changent. 0 réagit tout de suite."
+              "presence_debounce_seconds": "Une personne doit rester dans ou hors d'une zone ce temps avant que « Last to leave » et « First home » changent et qu'une politique de présence libère ce qu'elle retient. 0 réagit tout de suite."
             }
           },
           "speech": {

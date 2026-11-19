@@ -81,7 +81,7 @@
               "presence_debounce_seconds": "Anwesenheitsverzögerung (Sekunden)"
             },
             "data_description": {
-              "presence_debounce_seconds": "Eine Person muss so lange zu Hause oder weg bleiben, bevor sich \"Last to leave\" und \"First home\" ändern. 0 reagiert sofort."
+              "presence_debounce_seconds": "Eine Person muss so lange in oder außerhalb einer Zone bleiben, bevor sich \"Last to leave\" und \"First home\" ändern und eine Anwesenheitsrichtlinie freigibt, was sie zurückhält. 0 reagiert sofort."
             }
           },
           "speech": {

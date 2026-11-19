@@ -81,7 +81,7 @@
               "presence_debounce_seconds": "Retraso de presencia (segundos)"
             },
             "data_description": {
-              "presence_debounce_seconds": "Una persona debe estar en casa o fuera este tiempo antes de que cambien \"Last to leave\" y \"First home\". 0 reacciona al instante."
+              "presence_debounce_seconds": "Una persona debe estar dentro o fuera de una zona este tiempo antes de que cambien \"Last to leave\" y \"First home\" y una política de presencia libere lo que retiene. 0 reacciona al instante."
             }
           },
           "speech": {

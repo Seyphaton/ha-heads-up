@@ -81,7 +81,7 @@
               "presence_debounce_seconds": "Presence delay (seconds)"
             },
             "data_description": {
-              "presence_debounce_seconds": "A person must stay home or away this long before \"Last to leave\" and \"First home\" change. 0 reacts at once."
+              "presence_debounce_seconds": "A person must stay in or out of a zone this long before \"Last to leave\" and \"First home\" change and a Presence policy releases what it holds. 0 reacts at once."
             }
           },
           "speech": {
