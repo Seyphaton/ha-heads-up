@@ -1427,3 +1427,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer): Configuration pages in the order Channels, Audiences, Recipients, Policies, Severities. Severities, Audiences and Channels share one table layout (`ui.TABLE_CSS`, `tableRow`): a header and one row per item on a wide page, two lines per row on a phone, the item's fields or details open under its row.
 - Follow-up: when the Message Log is stored (Phase 13 candidate), derive the usage from it or keep both consistent (maintainer note).
 - Blast radius: one new storage file; a downgrade to 1.0 ignores it. The panel shows other pages first in Configuration. No change to calls, events or entities.
+
+## D-228 Pre-release 1.1.0-beta.2 (2026-11-19)
+- Context: `v1.1.0-beta.1` (D-226) was tagged and pushed before the Configuration page redesign (D-227). Moving a pushed tag would give users who installed beta.1 different code under the same version.
+- Decision (maintainer, explicit): a new pre-release instead of moving the tag. Push `release/1.1`, set the manifest version to `1.1.0-beta.2`, tag `v1.1.0-beta.2` and push the tag. beta.1 stays as it is. `CHANGELOG.md` keeps `[Unreleased]`. The GitHub pre-release, not marked as the latest release, is created by the maintainer. No merge to `main`.
+- In beta.2 beyond beta.1: the Severities, Channels and Audiences pages as compact tables; Channels rows for banner, popup and Persistent Notification; audience usage count with a Message Log filter (`.storage/heads_up.audience_usage`); People and devices moved from Settings to the Recipients table; spoken language as a list from the TTS engine.
+- Blast radius: the manifest version is `1.1.0-beta.2`; HACS offers it only to users who show beta versions; restart needed. From 1.0.x, updating converts Away policies as in beta.1 (D-214).
