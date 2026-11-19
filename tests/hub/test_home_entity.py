@@ -41,16 +41,16 @@ async def anna_home_from_entity(hass: HomeAssistant, entry: MockConfigEntry) -> 
     await hass.async_block_till_done()
 
 
-async def test_at_home_follows_the_home_entity_and_zones_keep_the_person_state(
+async def test_at_home_follows_the_home_entity_and_other_zones_keep_the_person_state(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
     set_person(hass, "person.anna", "home")  # the GPS says home
     hass.states.async_set(ANNA_HOME, "off")  # the better rule says not
     await anna_home_from_entity(hass, entry)
-    await add_audience(hass, entry, "In Home zone", presence="in_zone", zone="zone.home")
+    await add_audience(hass, entry, "In Work zone", presence="in_zone", zone="zone.work")
     assert await members(entry, "At home") == []
     assert await members(entry, "Not home") == ["person.anna"]
-    assert await members(entry, "In Home zone") == ["person.anna"]
+    assert await members(entry, "In Work zone") == []
     hass.states.async_set(ANNA_HOME, "on")
     await hass.async_block_till_done()
     assert await members(entry, "At home") == ["person.anna"]

@@ -12,6 +12,8 @@ import {
   channelState,
   PROFILE_CHANNELS,
   groupData,
+  haInZone,
+  homeEntities,
   isDefault,
   profileValues,
   removeDevice,
@@ -19,6 +21,7 @@ import {
   STRINGS as RECIPIENT_STRINGS,
   toProfileData,
   validateGroup,
+  zoneOrder,
 } from "../../custom_components/heads_up/frontend/panel/recipients.js";
 import {
   appliesText,
@@ -130,7 +133,7 @@ describe("recipient editor", () => {
   };
 
   it("starts from what the profile changes", () => {
-    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "", home_entity: "", enabled: true });
+    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "", home_entity: "", zone_entities: {}, enabled: true });
     expect(profileValues({ ...profile, home_entity: "binary_sensor.anna_home" }).home_entity).toBe("binary_sensor.anna_home");
   });
 
@@ -142,6 +145,32 @@ describe("recipient editor", () => {
     expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup", "mail"] })).toBe(false);
     expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "a@b.c" })).toBe(false);
     expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], home_entity: "input_boolean.x" })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], zone_entities: { "zone.work": "" } })).toBe(true);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], zone_entities: { "zone.work": "binary_sensor.w" } })).toBe(false);
+  });
+
+  it("stores only the zones that have an entity", () => {
+    const values = { manual: [], removed: [], primary: "", channels: ["push"], home_entity: "input_boolean.h", zone_entities: { "zone.work": "binary_sensor.w", "zone.gym": "" } };
+    expect(toProfileData("person.anna", values, false)).toEqual({ channels: ["push"], home_entity: "input_boolean.h", zone_entities: { "zone.work": "binary_sensor.w" } });
+  });
+
+  it("offers on/off entities for a zone, without Heads Up's own audience sensors", () => {
+    const hass = {
+      states: { "input_boolean.b": {}, "binary_sensor.a": {}, "binary_sensor.heads_up_audience_admins": {}, "sensor.t": {} },
+      entities: { "binary_sensor.heads_up_audience_admins": { platform: "heads_up" } },
+    };
+    expect(homeEntities(hass, "")).toEqual(["binary_sensor.a", "input_boolean.b"]);
+    expect(homeEntities(hass, "binary_sensor.gone")).toEqual(["binary_sensor.a", "input_boolean.b", "binary_sensor.gone"]);
+  });
+
+  it("reads Home Assistant's zone of a person as the integration does", () => {
+    expect(haInZone({ state: "home", attributes: {} }, "zone.home")).toBe(true);
+    expect(haInZone({ state: "not_home", attributes: {} }, "zone.home")).toBe(false);
+    expect(haInZone({ state: "not_home", attributes: { in_zones: ["zone.work"] } }, "zone.work")).toBe(true);
+    expect(haInZone({ state: "work", attributes: {} }, "zone.work")).toBe(true);
+    expect(haInZone({ state: "unavailable", attributes: {} }, "zone.work")).toBe(null);
+    expect(haInZone(undefined, "zone.home")).toBe(null);
+    expect(zoneOrder([{ id: "zone.work", name: "Work" }, { id: "zone.home", name: "Home" }, { id: "zone.gym", name: "Gym" }]).map((z) => z.id)).toEqual(["zone.home", "zone.gym", "zone.work"]);
   });
 
   it("builds the flow data, with the person only when creating", () => {

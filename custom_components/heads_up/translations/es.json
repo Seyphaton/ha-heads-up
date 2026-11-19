@@ -1072,7 +1072,8 @@
             "primary": "Dispositivo principal",
             "channels": "Canales aceptados",
             "mail_address": "Dirección de correo",
-            "home_entity": "En casa según"
+            "home_entity": "En casa según",
+            "zone_entities": "Otras zonas según"
           },
           "data_description": {
             "enabled": "Desactivado: esta persona no recibe nada por ningún canal, ni mensajes críticos ni aunque se la nombre directamente. Los banners sin destino siguen visibles en su panel.",
@@ -1081,7 +1082,8 @@
             "primary": "Se lista primero. Los push siguen yendo a todos los dispositivos de la persona. Vacío: el primer dispositivo detectado.",
             "channels": "Canales que pueden llegar a esta persona. Un canal omitido se salta para ella.",
             "mail_address": "A dónde va el correo de esta persona: la dirección que se pasa como destino del servicio de notificación elegido en la página Canales. Activa Correo en los canales de arriba. Vacío: el correo a esta persona falla con no_mail_address.",
-            "home_entity": "Opcional: un interruptor de entrada o un sensor binario que indica que esta persona está en casa cuando está encendido, en lugar del estado propio de la persona. Se usa para At home, Not home, Last to leave, First home y Ausente. Las zonas siguen usando el estado de la persona."
+            "home_entity": "Opcional: un interruptor de entrada o un sensor binario que indica que esta persona está en casa mientras está encendido. Vacío: el estado propio de la persona, tal como lo da Home Assistant. Se usa para At home, Not home, Last to leave, First home, las audiencias por la zona Home y la política Presencia.",
+            "zone_entities": "Opcional, para zonas distintas de Home: por zona un interruptor de entrada o un sensor binario que indica que esta persona está en la zona mientras está encendido, una línea por zona, por ejemplo zone.work: binary_sensor.anna_at_work. Una zona no listada usa el estado propio de la persona, tal como lo da Home Assistant: la zona en la que está la persona."
           }
         },
         "reconfigure": {
@@ -1094,7 +1096,8 @@
             "primary": "Dispositivo principal",
             "channels": "Canales aceptados",
             "mail_address": "Dirección de correo",
-            "home_entity": "En casa según"
+            "home_entity": "En casa según",
+            "zone_entities": "Otras zonas según"
           },
           "data_description": {
             "enabled": "Desactivado: esta persona no recibe nada por ningún canal, ni mensajes críticos ni aunque se la nombre directamente. Los banners sin destino siguen visibles en su panel.",
@@ -1103,7 +1106,8 @@
             "primary": "Se lista primero. Los push siguen yendo a todos los dispositivos de la persona. Vacío: el primer dispositivo detectado.",
             "channels": "Canales que pueden llegar a esta persona. Un canal omitido se salta para ella.",
             "mail_address": "A dónde va el correo de esta persona: la dirección que se pasa como destino del servicio de notificación elegido en la página Canales. Activa Correo en los canales de arriba. Vacío: el correo a esta persona falla con no_mail_address.",
-            "home_entity": "Opcional: un interruptor de entrada o un sensor binario que indica que esta persona está en casa cuando está encendido, en lugar del estado propio de la persona. Se usa para At home, Not home, Last to leave, First home y Ausente. Las zonas siguen usando el estado de la persona."
+            "home_entity": "Opcional: un interruptor de entrada o un sensor binario que indica que esta persona está en casa mientras está encendido. Vacío: el estado propio de la persona, tal como lo da Home Assistant. Se usa para At home, Not home, Last to leave, First home, las audiencias por la zona Home y la política Presencia.",
+            "zone_entities": "Opcional, para zonas distintas de Home: por zona un interruptor de entrada o un sensor binario que indica que esta persona está en la zona mientras está encendido, una línea por zona, por ejemplo zone.work: binary_sensor.anna_at_work. Una zona no listada usa el estado propio de la persona, tal como lo da Home Assistant: la zona en la que está la persona."
           }
         }
       },
@@ -1114,7 +1118,8 @@
         "device_added_and_removed": "Un dispositivo no puede añadirse y quitarse a la vez.",
         "channels_required": "Elija al menos un canal.",
         "mail_address_too_long": "La dirección puede tener como máximo 254 caracteres.",
-        "home_entity_invalid": "Elige un interruptor de entrada o un sensor binario."
+        "home_entity_invalid": "Elige un interruptor de entrada o un sensor binario.",
+        "zone_entities_invalid": "Cada línea necesita una zona (zone.…) y un interruptor de entrada o un sensor binario."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguración se realizó correctamente."

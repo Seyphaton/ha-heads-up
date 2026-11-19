@@ -1072,7 +1072,8 @@
             "primary": "Hauptgerät",
             "channels": "Akzeptierte Kanäle",
             "mail_address": "E-Mail-Adresse",
-            "home_entity": "Zu Hause laut"
+            "home_entity": "Zu Hause laut",
+            "zone_entities": "Andere Zonen laut"
           },
           "data_description": {
             "enabled": "Aus: Diese Person erhält auf keinem Kanal etwas, auch keine kritischen Meldungen und auch nicht, wenn sie direkt genannt wird. Banner ohne Ziel bleiben auf ihrem Dashboard sichtbar.",
@@ -1081,7 +1082,8 @@
             "primary": "Wird zuerst gelistet. Pushes gehen weiterhin an alle Geräte der Person. Leer: das erste erkannte Gerät.",
             "channels": "Kanäle, die diese Person erreichen dürfen. Ein ausgelassener Kanal wird für sie übersprungen.",
             "mail_address": "Wohin die Mail dieser Person geht: die Adresse, die als Ziel des Benachrichtigungsdienstes von der Kanäle-Seite übergeben wird. Aktiviere oben E-Mail bei den Kanälen. Leer: Mail an diese Person scheitert mit no_mail_address.",
-            "home_entity": "Optional: ein Eingabe-Schalter oder binärer Sensor, der sagt, dass diese Person zu Hause ist, wenn er an ist, statt des eigenen Zustands der Person. Gilt für At home, Not home, Last to leave, First home und Abwesend. Zonen nutzen weiter den Zustand der Person."
+            "home_entity": "Optional: ein Eingabe-Schalter oder binärer Sensor, der sagt, dass diese Person zu Hause ist, solange er an ist. Leer: der eigene Zustand der Person, wie Home Assistant ihn meldet. Gilt für At home, Not home, Last to leave, First home, Zielgruppen nach der Zone Home und die Richtlinie Anwesenheit.",
+            "zone_entities": "Optional, für andere Zonen als Home: je Zone ein Eingabe-Schalter oder binärer Sensor, der sagt, dass diese Person in der Zone ist, solange er an ist, eine Zeile je Zone, zum Beispiel zone.work: binary_sensor.anna_at_work. Eine nicht genannte Zone nutzt den eigenen Zustand der Person, wie Home Assistant ihn meldet: die Zone, in der die Person ist."
           }
         },
         "reconfigure": {
@@ -1094,7 +1096,8 @@
             "primary": "Hauptgerät",
             "channels": "Akzeptierte Kanäle",
             "mail_address": "E-Mail-Adresse",
-            "home_entity": "Zu Hause laut"
+            "home_entity": "Zu Hause laut",
+            "zone_entities": "Andere Zonen laut"
           },
           "data_description": {
             "enabled": "Aus: Diese Person erhält auf keinem Kanal etwas, auch keine kritischen Meldungen und auch nicht, wenn sie direkt genannt wird. Banner ohne Ziel bleiben auf ihrem Dashboard sichtbar.",
@@ -1103,7 +1106,8 @@
             "primary": "Wird zuerst gelistet. Pushes gehen weiterhin an alle Geräte der Person. Leer: das erste erkannte Gerät.",
             "channels": "Kanäle, die diese Person erreichen dürfen. Ein ausgelassener Kanal wird für sie übersprungen.",
             "mail_address": "Wohin die Mail dieser Person geht: die Adresse, die als Ziel des Benachrichtigungsdienstes von der Kanäle-Seite übergeben wird. Aktiviere oben E-Mail bei den Kanälen. Leer: Mail an diese Person scheitert mit no_mail_address.",
-            "home_entity": "Optional: ein Eingabe-Schalter oder binärer Sensor, der sagt, dass diese Person zu Hause ist, wenn er an ist, statt des eigenen Zustands der Person. Gilt für At home, Not home, Last to leave, First home und Abwesend. Zonen nutzen weiter den Zustand der Person."
+            "home_entity": "Optional: ein Eingabe-Schalter oder binärer Sensor, der sagt, dass diese Person zu Hause ist, solange er an ist. Leer: der eigene Zustand der Person, wie Home Assistant ihn meldet. Gilt für At home, Not home, Last to leave, First home, Zielgruppen nach der Zone Home und die Richtlinie Anwesenheit.",
+            "zone_entities": "Optional, für andere Zonen als Home: je Zone ein Eingabe-Schalter oder binärer Sensor, der sagt, dass diese Person in der Zone ist, solange er an ist, eine Zeile je Zone, zum Beispiel zone.work: binary_sensor.anna_at_work. Eine nicht genannte Zone nutzt den eigenen Zustand der Person, wie Home Assistant ihn meldet: die Zone, in der die Person ist."
           }
         }
       },
@@ -1114,7 +1118,8 @@
         "device_added_and_removed": "Ein Gerät kann nicht gleichzeitig hinzugefügt und entfernt werden.",
         "channels_required": "Mindestens einen Kanal wählen.",
         "mail_address_too_long": "Die Adresse darf höchstens 254 Zeichen lang sein.",
-        "home_entity_invalid": "Wähle einen Eingabe-Schalter oder einen binären Sensor."
+        "home_entity_invalid": "Wähle einen Eingabe-Schalter oder einen binären Sensor.",
+        "zone_entities_invalid": "Jede Zeile braucht eine Zone (zone.…) und einen Eingabe-Schalter oder binären Sensor."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."

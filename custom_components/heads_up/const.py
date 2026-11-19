@@ -155,6 +155,7 @@ PRESENCE_KINDS: Final = (
     "not_in_zone",
 )
 ZONE_KINDS: Final = ("in_zone", "not_in_zone")
+HOME_ZONE: Final = "zone.home"
 PROFILE_CHANNELS: Final = (
     "banner",
     "push",

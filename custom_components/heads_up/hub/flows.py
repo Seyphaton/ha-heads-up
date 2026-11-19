@@ -19,6 +19,7 @@ from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
+    ObjectSelector,
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
@@ -35,6 +36,7 @@ from ..const import (
     FALLBACK_WHEN,
     GROUP_SUBENTRY,
     GROUP_SUFFIX,
+    HOME_ZONE,
     MAX_MAIL_ADDRESS,
     POLICY_APPLY,
     POLICY_AUTOMATIC,
@@ -92,6 +94,24 @@ def _names_taken(flow: ConfigSubentryFlow, subentry_type: str, own: str | None) 
 
 # On/off entities that can say whether a person is home instead of the person state (D-220).
 HOME_ENTITY_DOMAINS = ("binary_sensor", "input_boolean")
+
+
+def zone_entities_valid(value: Any) -> bool:
+    """A mapping of zone entity IDs to input booleans or binary sensors; empty values are
+    ignored (they mean: the person state)."""
+    if value in (None, ""):
+        return True
+    if not isinstance(value, dict):
+        return False
+    return all(
+        isinstance(zone, str)
+        and zone.startswith("zone.")
+        and (
+            not entity
+            or (isinstance(entity, str) and entity.split(".", 1)[0] in HOME_ENTITY_DOMAINS)
+        )
+        for zone, entity in value.items()
+    )
 
 
 class _HubFlow(ConfigSubentryFlow):
@@ -281,6 +301,8 @@ class RecipientProfileSubentryFlow(_HubFlow):
                 vol.Optional("home_entity"): EntitySelector(
                     EntitySelectorConfig(domain=list(HOME_ENTITY_DOMAINS))
                 ),
+                # Other zones: zone entity ID to an on/off entity (D-229).
+                vol.Optional("zone_entities"): ObjectSelector(),
             }
         )
         return vol.Schema(fields)
@@ -315,6 +337,8 @@ class RecipientProfileSubentryFlow(_HubFlow):
         home = str(user_input.get("home_entity") or "")
         if home and home.split(".", 1)[0] not in HOME_ENTITY_DOMAINS:
             errors["home_entity"] = "home_entity_invalid"
+        if not zone_entities_valid(user_input.get("zone_entities")):
+            errors["zone_entities"] = "zone_entities_invalid"
         return errors
 
     def _title(self, user_input: dict[str, Any], subentry: ConfigSubentry | None) -> str:
@@ -337,8 +361,13 @@ class RecipientProfileSubentryFlow(_HubFlow):
             data["primary"] = user_input["primary"]
         if address := str(user_input.get("mail_address") or "").strip():
             data["mail_address"] = address
-        if home := str(user_input.get("home_entity") or ""):  # stored only when set (D-213)
+        zones = {str(z): str(e) for z, e in (user_input.get("zone_entities") or {}).items() if e}
+        # Home is kept under its own key, which 1.1.0-beta.1 reads too.
+        home = zones.pop(HOME_ZONE, "") or str(user_input.get("home_entity") or "")
+        if home:  # stored only when set (D-213)
             data["home_entity"] = home
+        if zones:
+            data["zone_entities"] = dict(sorted(zones.items()))
         return data
 
     def _reconfigure_id(self) -> str | None:

@@ -245,6 +245,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                 "channels": list(profile.channels),
                 "mail_address": profile.mail_address,
                 "home_entity": profile.home_entity,
+                "zone_entities": dict(profile.zone_entities),
                 "devices": [
                     {
                         "device_id": d.device_id,

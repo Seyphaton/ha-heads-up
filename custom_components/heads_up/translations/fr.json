@@ -1072,7 +1072,8 @@
             "primary": "Appareil principal",
             "channels": "Canaux acceptés",
             "mail_address": "Adresse de courriel",
-            "home_entity": "À la maison selon"
+            "home_entity": "À la maison selon",
+            "zone_entities": "Autres zones selon"
           },
           "data_description": {
             "enabled": "Désactivé : cette personne ne reçoit rien sur aucun canal, pas même les messages critiques ni quand elle est nommée directement. Les bannières sans cible restent visibles sur son tableau de bord.",
@@ -1081,7 +1082,8 @@
             "primary": "Listé en premier. Les push vont toujours à tous les appareils de la personne. Vide : le premier appareil détecté.",
             "channels": "Canaux pouvant atteindre cette personne. Un canal omis est ignoré pour elle.",
             "mail_address": "Où va le courriel de cette personne : l'adresse transmise comme cible du service de notification choisi sur la page Canaux. Activez Courriel dans les canaux ci-dessus. Vide : le courriel à cette personne échoue avec no_mail_address.",
-            "home_entity": "Facultatif : un interrupteur d'entrée ou un capteur binaire qui indique que cette personne est à la maison quand il est allumé, au lieu de l'état propre de la personne. Utilisé pour At home, Not home, Last to leave, First home et Absent. Les zones gardent l'état de la personne."
+            "home_entity": "Facultatif : un interrupteur d'entrée ou un capteur binaire qui indique que cette personne est à la maison tant qu'il est allumé. Vide : l'état propre de la personne, tel que Home Assistant le donne. Utilisé pour At home, Not home, Last to leave, First home, les audiences par la zone Home et la politique Présence.",
+            "zone_entities": "Facultatif, pour les zones autres que Home : par zone un interrupteur d'entrée ou un capteur binaire qui indique que cette personne est dans la zone tant qu'il est allumé, une ligne par zone, par exemple zone.work: binary_sensor.anna_at_work. Une zone non listée utilise l'état propre de la personne, tel que Home Assistant le donne : la zone où se trouve la personne."
           }
         },
         "reconfigure": {
@@ -1094,7 +1096,8 @@
             "primary": "Appareil principal",
             "channels": "Canaux acceptés",
             "mail_address": "Adresse de courriel",
-            "home_entity": "À la maison selon"
+            "home_entity": "À la maison selon",
+            "zone_entities": "Autres zones selon"
           },
           "data_description": {
             "enabled": "Désactivé : cette personne ne reçoit rien sur aucun canal, pas même les messages critiques ni quand elle est nommée directement. Les bannières sans cible restent visibles sur son tableau de bord.",
@@ -1103,7 +1106,8 @@
             "primary": "Listé en premier. Les push vont toujours à tous les appareils de la personne. Vide : le premier appareil détecté.",
             "channels": "Canaux pouvant atteindre cette personne. Un canal omis est ignoré pour elle.",
             "mail_address": "Où va le courriel de cette personne : l'adresse transmise comme cible du service de notification choisi sur la page Canaux. Activez Courriel dans les canaux ci-dessus. Vide : le courriel à cette personne échoue avec no_mail_address.",
-            "home_entity": "Facultatif : un interrupteur d'entrée ou un capteur binaire qui indique que cette personne est à la maison quand il est allumé, au lieu de l'état propre de la personne. Utilisé pour At home, Not home, Last to leave, First home et Absent. Les zones gardent l'état de la personne."
+            "home_entity": "Facultatif : un interrupteur d'entrée ou un capteur binaire qui indique que cette personne est à la maison tant qu'il est allumé. Vide : l'état propre de la personne, tel que Home Assistant le donne. Utilisé pour At home, Not home, Last to leave, First home, les audiences par la zone Home et la politique Présence.",
+            "zone_entities": "Facultatif, pour les zones autres que Home : par zone un interrupteur d'entrée ou un capteur binaire qui indique que cette personne est dans la zone tant qu'il est allumé, une ligne par zone, par exemple zone.work: binary_sensor.anna_at_work. Une zone non listée utilise l'état propre de la personne, tel que Home Assistant le donne : la zone où se trouve la personne."
           }
         }
       },
@@ -1114,7 +1118,8 @@
         "device_added_and_removed": "Un appareil ne peut pas être à la fois ajouté et retiré.",
         "channels_required": "Choisissez au moins un canal.",
         "mail_address_too_long": "L'adresse ne peut pas dépasser 254 caractères.",
-        "home_entity_invalid": "Choisissez un interrupteur d'entrée ou un capteur binaire."
+        "home_entity_invalid": "Choisissez un interrupteur d'entrée ou un capteur binaire.",
+        "zone_entities_invalid": "Chaque ligne demande une zone (zone.…) et un interrupteur d'entrée ou un capteur binaire."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."

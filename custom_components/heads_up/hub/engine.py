@@ -129,7 +129,7 @@ class HubEngine:
         self.chain = Chain()
         self.chain.replace(QuietHoursStage(self.policies, hass))
         self.chain.replace(
-            PresenceStage(hass, self.policies, self.resolver.home_entity, self.resolver.household)
+            PresenceStage(hass, self.policies, self.resolver.zone_entity, self.resolver.household)
         )
         self._unsub_arrival: CALLBACK_TYPE | None = None
         self._unsub_quiet: CALLBACK_TYPE | None = None
@@ -1062,13 +1062,13 @@ class HubEngine:
 
     @callback
     def _is_presence_source(self, data: Any) -> bool:  # HA requires a callback as a filter
-        return bool(self.resolver.presence.persons_of(str(data["entity_id"])))
+        return bool(self.resolver.location_persons(str(data["entity_id"])))
 
     @callback
     def _on_state_change(self, event: Event[Any]) -> None:
         """A change of where someone is: what Presence holds for that person, and what it holds
         for the household (speech), goes through the chain again after the presence delay; those
-        it no longer holds go out (D-212). "Home" may come from a home entity (D-220)."""
+        it no longer holds go out (D-212). A zone may come from an entity of the profile (D-229)."""
         if self._closed:
             return
         new, old = event.data["new_state"], event.data["old_state"]
@@ -1079,7 +1079,7 @@ class HubEngine:
             and new.attributes.get("in_zones") == old.attributes.get("in_zones")
         ):
             return  # only other attributes changed
-        for person in self.resolver.presence.persons_of(str(event.data["entity_id"])):
+        for person in self.resolver.location_persons(str(event.data["entity_id"])):
             delay = int(self._options.get(OPT_PRESENCE_DEBOUNCE, 60))
             if cancel := self._presence_waits.pop(person, None):
                 cancel()

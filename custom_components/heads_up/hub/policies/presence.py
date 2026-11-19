@@ -4,7 +4,8 @@ Push, popup and mail are checked per recipient: "the recipient is (not) in the z
 checked for the household: "nobody / somebody of an audience is in the zone". Then the delivery
 is held until that changes, or dropped. Unknown presence is sent at once (fail safe, D-080), the
 banner is never held and a reminder is never held. "Home" may come from a person's home entity
-(D-220); other zones use the person state.
+(D-220), and any other zone from an entity on the person's recipient profile (D-229);
+without one, the person state counts.
 
 A 1.0 Away policy reads as Presence with its 1.0 behaviour: push, popup and mail, the recipient
 not in Home, hold, and the delivery dropped when the wait ends.
@@ -23,20 +24,19 @@ from ...const import (
     AFTER_WAIT,
     CHANNEL_BANNER,
     HOLD_AWAY,
+    HOME_ZONE,
     PRESENCE_CHANNELS,
     PRESENCE_PEOPLE_CHANNELS,
     PRESENCE_THEN,
     PRESENCE_WHEN,
     PRESENCE_WHO,
 )
-from ..presence import is_home, is_unknown
+from ..presence import in_zone
 from .chain import Hold, Skip, Step
 from .models import Policy, presence_channels
 
 if TYPE_CHECKING:
     from . import PolicyBook
-
-HOME_ZONE = "zone.home"
 
 
 def check(data: dict[str, Any]) -> dict[str, str]:
@@ -59,18 +59,6 @@ def check(data: dict[str, Any]) -> dict[str, str]:
     return errors
 
 
-def in_zone(hass: HomeAssistant, person: str, zone: str, home_entity: str = "") -> bool | None:
-    """Whether a person is in a zone now; None when it is unknown."""
-    if zone == HOME_ZONE:
-        return is_home(hass, person, home_entity)
-    state = hass.states.get(person)
-    if is_unknown(state):
-        return None
-    assert state is not None
-    zones = state.attributes.get("in_zones") or []
-    return zone in zones or state.state == zone.split(".", 1)[1]
-
-
 class PresenceStage:
     """Presence in the precedence chain (the place of Away)."""
 
@@ -80,13 +68,16 @@ class PresenceStage:
         self,
         hass: HomeAssistant,
         policies: PolicyBook,
-        home_entity: Callable[[str], str] = lambda person: "",
+        zone_entity: Callable[[str, str], str] = lambda person, zone: "",
         household: Callable[[str], list[str]] = lambda audience: [],
     ) -> None:
         self._hass = hass
         self._policies = policies
-        self._home_entity = home_entity
+        self._zone_entity = zone_entity
         self._household = household
+
+    def _inside(self, person: str, zone: str) -> bool | None:
+        return in_zone(self._hass, person, zone, self._zone_entity(person, zone))
 
     def applies(self, policy: Policy, step: Step) -> bool | None:
         """Whether the policy's condition holds for this delivery; None: not for it or unknown."""
@@ -98,7 +89,7 @@ class PresenceStage:
             # Audience targets only, as Away in 1.0: a named person is meant to get it now.
             if person is None or "audience" not in step.banner.targets.get(channel, {}):
                 return None
-            inside = in_zone(self._hass, person, policy.zone, self._home_entity(person))
+            inside = self._inside(person, policy.zone)
             if inside is None:
                 return None
             return not inside if policy.presence_when == "not_in" else inside
@@ -106,8 +97,7 @@ class PresenceStage:
             known = [
                 inside
                 for person in self._household(policy.household_audience)
-                if (inside := in_zone(self._hass, person, policy.zone, self._home_entity(person)))
-                is not None
+                if (inside := self._inside(person, policy.zone)) is not None
             ]
             if not known:
                 return None  # nobody's presence is known: speak (fail safe)

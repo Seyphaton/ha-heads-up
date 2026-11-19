@@ -245,7 +245,7 @@ Every person has a recipient profile without any setup. Their Companion app devi
 - Primary device: listed first. A push still goes to every device of the person.
 - Accepted channels: banner, push and popup by default. A channel you remove is skipped for that person. Mail is off until you add it.
 - Mail address: where mail to this person goes.
-- Home from: an input boolean or binary sensor that says the person is home while it is `on`, instead of the person's own state. Use it when "home" comes from a rule of your own, for example a template binary sensor that also checks the alarm. It applies to the audiences At home, Not home, Last to leave and First home and to the Presence policy. Audiences by zone keep the person's own state. An unavailable entity counts as unknown presence.
+- Where this person is: by default, where Home Assistant says the person is. For Home that is the person's state `home`; for another zone, the zone the person entity is in. For any zone you can choose an input boolean or binary sensor instead: the person counts as in that zone while it is `on`. Use it when the location comes from a rule of your own, for example a template binary sensor that also checks the alarm. Zones without a choice keep Home Assistant's location. It applies to At home, Not home, Last to leave, First home, audiences by zone and the Presence policy. An unavailable entity counts as unknown presence. In Home Assistant's own form the entity for Home is "Home from" and the others are "Other zones from", one `zone.work: binary_sensor.anna_at_work` per line.
 
 The panel lists each person with a column per channel (Banner, Push, Popup, Mail): a tick when the person accepts the channel and it can work, a dash when the profile does not accept it, and a warning mark when it is accepted but cannot work (push without a usable device, popup without a Home Assistant user, mail without an address). Point at the mark for the reason. On a narrow screen the channels are written under the name, for example "Banner, Push (no device), Popup". A person who receives nothing is greyed out with a "disabled" badge. Devices, added and removed devices, the primary device, a missing notify service and the missing Home Assistant user are shown when you open a person. A profile that equals the detected devices is not stored. A person with no usable device is skipped on push (`no_usable_device`). A renamed device keeps working: the service is worked out from the device's current name each time.
 
@@ -382,7 +382,7 @@ Holds or drops a delivery depending on where people are. Push, popup and mail ar
 | Field | Default | Meaning |
 |---|---|---|
 | Channels it covers | push, popup, mail | Add Speak for speakers. The banner is never held. |
-| Zone | Home | The zone that is checked. For Home, a person's Home from entity counts if their recipient profile names one. |
+| Zone | Home | The zone that is checked. If a person's recipient profile names an entity for this zone, that entity counts instead of Home Assistant's location. |
 | Push, popup, mail: when the recipient | is not in the zone | Or: is in the zone. |
 | Speech: when … of this audience is in the zone | nobody, everyone | Nobody or somebody, of everyone or of a list of persons. |
 | Then | Hold until that changes | Or: Drop. |

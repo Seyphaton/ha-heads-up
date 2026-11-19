@@ -19,7 +19,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - The Channels, Audiences and Severities pages show one row per item with the current settings, and open an item's fields under its row. The Configuration group starts with Channels.
 - Severities page in the panel: a label, an icon and a color for each severity, used by the card, the popup, mail and the panel, and the push level and popup style of each severity. YAML and events keep the names success, info, warning and critical.
 - Presence policy: hold or drop by where people are, for any zone. "Hold until the recipient leaves" and "drop while they are in the zone" for push, popup and mail; "nobody or somebody of an audience is in the zone" for speech; send or drop when the maximum wait ends.
-- A recipient profile can take "home" from an input boolean or binary sensor instead of the person's state. The presence audiences and the Away policy follow it.
+- A recipient profile can say where the person is from an input boolean or binary sensor, per zone, instead of Home Assistant's location. Zones without one keep the person's state. The presence audiences and the Presence policy follow it.
 - Quiet hours can follow a schedule, input boolean or binary sensor instead of fixed times: quiet while it is on. Held messages go out when it turns off.
 - Speech volume by time of day (up to 4 bands) and by severity, under Settings, Speech volume. Without bands or a severity volume the volume is not changed.
 - `snooze_custom` on `heads_up.notify`, `heads_up.create_banner` and watch rules: the card's snooze row offers **Other…**, so the viewer can snooze for any number of minutes or until a time of day, up to 24 hours.

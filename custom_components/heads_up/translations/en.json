@@ -1072,7 +1072,8 @@
             "primary": "Primary device",
             "channels": "Accepted channels",
             "mail_address": "Mail address",
-            "home_entity": "Home from"
+            "home_entity": "Home from",
+            "zone_entities": "Other zones from"
           },
           "data_description": {
             "enabled": "Off: this person gets nothing on any channel, not even critical messages or messages that name them directly. Banners without a target stay visible on their dashboard.",
@@ -1081,7 +1082,8 @@
             "primary": "Listed first. Pushes still go to every device of the person. Empty: the first detected device.",
             "channels": "Channels that may reach this person. A channel left out is skipped for them.",
             "mail_address": "Where mail for this person goes: the address passed as the target of the notify service chosen on the Channels page. Turn on Mail in Channels above. Empty: mail to this person fails with no_mail_address.",
-            "home_entity": "Optional: an input boolean or binary sensor that says this person is home when it is on, instead of the person's own state. Used for At home, Not home, Last to leave, First home and Away. Zones keep the person state."
+            "home_entity": "Optional: an input boolean or binary sensor that says this person is home while it is on. Empty: the person's own state, as Home Assistant reports it. Used for At home, Not home, Last to leave, First home, audiences by the zone Home and the Presence policy.",
+            "zone_entities": "Optional, for zones other than Home: per zone an input boolean or binary sensor that says this person is in the zone while it is on, one per line, for example zone.work: binary_sensor.anna_at_work. A zone not listed uses the person's own state, as Home Assistant reports it: the zone the person is in."
           }
         },
         "reconfigure": {
@@ -1094,7 +1096,8 @@
             "primary": "Primary device",
             "channels": "Accepted channels",
             "mail_address": "Mail address",
-            "home_entity": "Home from"
+            "home_entity": "Home from",
+            "zone_entities": "Other zones from"
           },
           "data_description": {
             "enabled": "Off: this person gets nothing on any channel, not even critical messages or messages that name them directly. Banners without a target stay visible on their dashboard.",
@@ -1103,7 +1106,8 @@
             "primary": "Listed first. Pushes still go to every device of the person. Empty: the first detected device.",
             "channels": "Channels that may reach this person. A channel left out is skipped for them.",
             "mail_address": "Where mail for this person goes: the address passed as the target of the notify service chosen on the Channels page. Turn on Mail in Channels above. Empty: mail to this person fails with no_mail_address.",
-            "home_entity": "Optional: an input boolean or binary sensor that says this person is home when it is on, instead of the person's own state. Used for At home, Not home, Last to leave, First home and Away. Zones keep the person state."
+            "home_entity": "Optional: an input boolean or binary sensor that says this person is home while it is on. Empty: the person's own state, as Home Assistant reports it. Used for At home, Not home, Last to leave, First home, audiences by the zone Home and the Presence policy.",
+            "zone_entities": "Optional, for zones other than Home: per zone an input boolean or binary sensor that says this person is in the zone while it is on, one per line, for example zone.work: binary_sensor.anna_at_work. A zone not listed uses the person's own state, as Home Assistant reports it: the zone the person is in."
           }
         }
       },
@@ -1114,7 +1118,8 @@
         "device_added_and_removed": "A device cannot be both added and removed.",
         "channels_required": "Choose at least one channel.",
         "mail_address_too_long": "The address can be at most 254 characters.",
-        "home_entity_invalid": "Choose an input boolean or a binary sensor."
+        "home_entity_invalid": "Choose an input boolean or a binary sensor.",
+        "zone_entities_invalid": "Each line needs a zone (zone.…) and an input boolean or binary sensor."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

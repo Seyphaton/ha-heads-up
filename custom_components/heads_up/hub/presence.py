@@ -19,7 +19,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.storage import Store
 
-from ..const import PRESENCE_KEY, SAVE_DELAY, SIGNAL_AUDIENCES
+from ..const import HOME_ZONE, PRESENCE_KEY, SAVE_DELAY, SIGNAL_AUDIENCES
 
 UNKNOWN_STATES = {STATE_UNKNOWN, STATE_UNAVAILABLE}
 
@@ -39,6 +39,24 @@ def home_of(state: State | None, from_entity: bool) -> bool | None:
 def is_home(hass: HomeAssistant, person: str, home_entity: str = "") -> bool | None:
     """Whether a person is home now, from their home entity if they have one (D-220)."""
     return home_of(hass.states.get(home_entity or person), bool(home_entity))
+
+
+def in_zone(hass: HomeAssistant, person: str, zone: str, entity: str = "") -> bool | None:
+    """Whether a person is in a zone now; None when it is unknown.
+
+    With an override entity for the zone (D-220, D-229): in the zone while it is `on`. Without
+    one, as Home Assistant says it: the person's state is the zone's name (`home` for Home), or
+    the zone is in the person's `in_zones` attribute."""
+    if entity:
+        return home_of(hass.states.get(entity), True)
+    if zone == HOME_ZONE:
+        return is_home(hass, person)
+    state = hass.states.get(person)
+    if is_unknown(state):
+        return None
+    assert state is not None
+    zones = state.attributes.get("in_zones") or []
+    return zone in zones or state.state == zone.split(".", 1)[1]
 
 
 class PresenceTracker:

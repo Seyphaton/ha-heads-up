@@ -37,7 +37,8 @@ def rewrite(value: Any, old: str, new: str, key: str = "") -> Any:
     if isinstance(value, list):
         return [rewrite(v, old, new, key) for v in value]
     if isinstance(value, dict):
-        return {k: rewrite(v, old, new, str(k)) for k, v in value.items()}
+        # A key can be an entity ID too: the zones of a profile's `zone_entities`.
+        return {(new if k == old else k): rewrite(v, old, new, str(k)) for k, v in value.items()}
     return value
 
 
