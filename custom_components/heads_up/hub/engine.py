@@ -58,6 +58,7 @@ from .policies.quiet import QuietHoursStage
 from .resolver import HubResolver, Recipient
 from .trace import TraceBuffer, TraceEntry
 from .transitions import BannerTransition, Kind, Reason
+from .usage import AudienceUsage
 
 _LOGGER = logging.getLogger(__name__)
 MAX_CONCURRENT = 8
@@ -112,6 +113,7 @@ class HubEngine:
         self.ledger = DeliveryLedger(hass)
         self.trace = TraceBuffer(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
         self._trace_store = trace_store(hass)
+        self.usage = AudienceUsage(hass)
         self.resolver = HubResolver(hass, options)
         self.limiter = Limiter(options)
         self.log = ActivityLog(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
@@ -154,6 +156,7 @@ class HubEngine:
             await self.ledger.async_save()
         stored = await self._trace_store.async_load() or {}
         self.trace.load(stored.get("entries"))
+        await self.usage.async_load()
         await self.resolver.async_start()
         for held in list(self.ledger.held.values()):
             if held.message_id not in known_ids:  # it ended while Home Assistant was stopped
@@ -219,6 +222,7 @@ class HubEngine:
         await self.resolver.async_stop()
         await self.ledger.async_save()
         await self._trace_store.async_save(self._trace_data())
+        await self.usage.async_save()
 
     async def async_wait_idle(self) -> None:
         """Wait until the queued deliveries are done (tests, and a clean unload)."""
@@ -497,6 +501,18 @@ class HubEngine:
             "created_at": banner.created_at.isoformat(),
         }
 
+    def _count_audiences(self, banner: Banner) -> None:
+        """Count the audiences this message is sent to, once per message (D-227). A summary
+        counts for its own message id; the messages it summarizes were counted when held."""
+        keys = []
+        for target in banner.targets.values():
+            if "audience" in target and (found := self.resolver.audience(str(target["audience"]))):
+                keys.append(found.key)
+        if not keys:
+            return
+        self.usage.record(banner.id, keys, dt_util.utcnow())
+        self.recent.audiences(banner.id, keys)
+
     def _log(self, kind: str, message_id: str, detail: str | None = None) -> None:
         banner = self.lookup(message_id)
         known = next((m for m in self.recent.listed() if m["id"] == message_id), {})
@@ -630,6 +646,7 @@ class HubEngine:
     ) -> list[tuple[Planned, Outcome]]:
         """Run planned deliveries through the precedence chain and the channels."""
         results: list[tuple[Planned, Outcome]] = []
+        self._count_audiences(banner)
         # `resume` also means "skip what was sent" for escalations and fallbacks; only the
         # first delivery after a restart is silent about problems (D-126, D-128).
         startup = resume and origin == "message"

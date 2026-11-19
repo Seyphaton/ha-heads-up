@@ -178,6 +178,8 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                     "data": {},
                     "members": [r.key for r in now.recipients],
                     "used_by": usage(audience.key, name),
+                    "key": audience.key,
+                    "usage": hub.usage.of(audience.key),
                 }
             )
         for sub in of(AUDIENCE_SUBENTRY):
@@ -192,6 +194,8 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                     "data": dict(sub.data),
                     "members": [r.key for r in members.recipients] if members else [],
                     "used_by": usage(sub.subentry_id, sub.title),
+                    "key": sub.subentry_id,
+                    "usage": hub.usage.of(sub.subentry_id),
                 }
             )
     ids = audience_entity_ids(hass, entry)

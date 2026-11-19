@@ -123,6 +123,7 @@ TIMER_CHANNEL: Final = "timer"  # ledger rows of this channel hold escalation an
 GROUP_SUFFIX: Final = " (group)"  # how a recipient group is named in calls
 PRESENCE_KEY: Final = "heads_up.presence"
 TRACE_VERSION: Final = 2  # raised with the other stores so older code refuses it (D-200)
+AUDIENCE_USAGE_KEY: Final = "heads_up.audience_usage"  # count and last use (D-227)
 TRACE_KEY: Final = "heads_up.trace"  # the delivery trace survives a restart (D-194)
 # Built in, not stored (D-080). Names are the ones calls use.
 # A banner whose audience is empty when it is created is aimed at this person, who does not exist:
