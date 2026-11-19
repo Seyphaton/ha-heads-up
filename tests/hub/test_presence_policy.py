@@ -65,7 +65,7 @@ async def test_away_policies_become_presence_with_their_1_0_behaviour(
     freezer.move_to(CAPTURED)
     entry, _ = await upgrade(hass, hass_storage, mobile_app_device)
     data = policy_data(entry)
-    assert entry.minor_version == 2
+    assert entry.minor_version == 3
     assert data["Away"] == {**_old("Away"), "type": "presence", "after_wait": "drop"}
     assert data["Away short"]["type"] == "presence" and data["Away short"]["max_wait"] == 30
     others = ("Escalate", "Remind", "Night", "Backup", "Digest")

@@ -179,9 +179,17 @@ PUSH_LEVELS: Final = ("passive", "normal", "time-sensitive", "critical")
 PUSH_LOCKSCREEN: Final = ("full", "title_only", "generic")
 DEFAULT_PUSH_LEVELS: Final = {
     "success": "passive",
+    "info": "normal",
+    "warning": "time-sensitive",
+    "critical": "critical",  # an alarm on iOS and Android (D-155); default for new setups (D-230)
+}
+# The defaults up to 1.1.0-beta.2: written into the options of an existing setup at the upgrade,
+# so its phones behave as before (D-230, D-213).
+PUSH_LEVELS_1_0: Final = {
+    "success": "passive",
     "info": "passive",
     "warning": "normal",
-    "critical": "time-sensitive",  # "critical" (alarm on iOS and Android) is an opt-in (D-155)
+    "critical": "time-sensitive",
 }
 # The admin panel (D-107, D-117). Off until the user switches it on in the setup step or Settings.
 OPT_SHOW_PANEL: Final = "show_panel"

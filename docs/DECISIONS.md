@@ -1441,3 +1441,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Panel: the person editor on Recipients has "Where this person is": one row per zone, Home first, the default option names Home Assistant's location with what it says now. Home Assistant's own form keeps "Home from" and adds "Other zones from" (object selector, `zone.work: binary_sensor.x`).
 - A renamed zone or entity is rewritten in `zone_entities`, keys included.
 - Blast radius: restart needed; audiences by the zone Home now follow a person's home entity (was the person state, D-220); no change without an override. A downgrade to 1.0 ignores both fields.
+
+## D-230 Default push levels for new setups (2026-11-19, maintainer)
+- Context: the defaults were success and info `passive`, warning `normal`, critical `time-sensitive`; critical as an alarm was an opt-in (D-155), set by the introduction's Critical messages item.
+- Decision (maintainer): new setups default to critical `critical`, warning `time-sensitive`, info `normal`, success `passive` (`DEFAULT_PUSH_LEVELS`). Supersedes the opt-in part of D-155 for new setups.
+- Existing setups keep their levels (D-213, maintainer: "new setups only"): config entry minor version 2.3 writes the old defaults (`PUSH_LEVELS_1_0`), with any saved levels on top, into the options at the upgrade. New entries are created at 2.3 and store no levels until the user saves them.
+- Blast radius: restart needed; no change for existing setups; on a new setup critical pushes sound in silent mode and info pushes make a sound. The introduction's Critical messages item still sets critical (no-op unless changed).
+- Open (maintainer chose "rename the severity"): `success` becomes `passive`; scoped separately, not part of this change.

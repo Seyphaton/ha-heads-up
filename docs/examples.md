@@ -334,7 +334,7 @@ An audience is a set of people, and speech goes to a speaker in a place. Heads U
 
 ### What does severity do?
 
-A message has one of four severities: success, info, warning and critical. On the banner it sets the color, the icon and the order, critical first. On a push it sets the level: success and info are passive, warning is normal, critical is time-sensitive until you set the level critical. The popup style is set per severity, and policies can match on it.
+A message has one of four severities: success, info, warning and critical. On the banner it sets the color, the icon and the order, critical first. On a push it sets the level: success is passive, info normal, warning time-sensitive and critical an alarm. The popup style is set per severity, and policies can match on it.
 
 ### What are tags for?
 

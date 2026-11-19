@@ -15,6 +15,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ### Added
 
+- New setups get other default push levels: critical `critical` (an alarm that sounds in silent mode), warning `time-sensitive`, info `normal`, success `passive`. An existing setup keeps the levels it had; change them on the Severities page.
 - Audiences page: a table with who is in each audience now and how many messages were sent to it and when last, kept across restarts. An audience's details list its policies and link to the Message Log filtered to the messages sent to it.
 - The Channels, Audiences and Severities pages show one row per item with the current settings, and open an item's fields under its row. The Configuration group starts with Channels.
 - Severities page in the panel: a label, an icon and a color for each severity, used by the card, the popup, mail and the panel, and the push level and popup style of each severity. YAML and events keep the names success, info, warning and critical.

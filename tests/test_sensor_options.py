@@ -73,6 +73,13 @@ async def test_options_flow_sets_defaults_for_new_banners(
         "dedupe_seconds": 30,
         "trace_entries": 500,
         "recent_messages": 100,
+        # The test entry is an old version: the upgrade kept the 1.0 push levels (D-230).
+        "push_levels": {
+            "success": "passive",
+            "info": "passive",
+            "warning": "normal",
+            "critical": "time-sensitive",
+        },
     }
 
     await create(id="after", message="x")

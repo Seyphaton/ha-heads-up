@@ -24,7 +24,7 @@ The panel's Channels page sets the options below, except the push level and the 
 | Option | Default | Meaning |
 |---|---|---|
 | `severity_display` | none | Label, icon and color per severity, set on the Severities page. See Severities below. |
-| `push_levels` | success and info `passive`, warning `normal`, critical `time-sensitive` | Push level per severity, set on the Severities page. |
+| `push_levels` | success `passive`, info `normal`, warning `time-sensitive`, critical `critical` | Push level per severity, set on the Severities page. |
 | `push_lockscreen` | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
 | `push_channel_id` | `heads_up` | Prefix of the Android notification channel. |
 | `push_sticky` | off | Keeps the notification after a tap (Android). |
@@ -54,7 +54,7 @@ Every device of a person gets the notification. A person with no usable device, 
 | Title and text | The message's `title` and `message`. |
 | `tag` | `hu-<install token>-<message id>`. A new notification with the same tag replaces the old one on the device. |
 | `group` | `hu-<install token>`. |
-| Level | By severity: `success` and `info` passive, `warning` normal, `critical` time-sensitive until you set the level critical. Passive is `importance: low`, normal `default`, time-sensitive `high`, critical `max`. |
+| Level | By severity: `success` passive, `info` normal, `warning` time-sensitive, `critical` critical; change them on the Severities page. Passive is `importance: low`, normal `default`, time-sensitive `high`, critical `max`. |
 | Android delivery | For time-sensitive and critical: `priority: high` and `ttl: 0`, so an idle phone shows the notification at once. |
 | Android channel | `heads_up_<level>`; the level critical uses the channel `alarm_stream`, which plays from the alarm stream. Android keeps the importance a channel had when it was first used. |
 | Tap | A `navigate` tap action opens its `navigation_path`, a `url` tap action its `url_path`. |

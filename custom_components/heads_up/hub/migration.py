@@ -21,7 +21,9 @@ from ..const import (
     DOMAIN,
     OPT_ATTENTION_DISMISSED,
     OPT_AUDIENCES_DISABLED,
+    OPT_PUSH_LEVELS,
     POLICY_SUBENTRY,
+    PUSH_LEVELS_1_0,
     RULE_SUBENTRY,
     STORAGE_KEY,
     TRACE_KEY,
@@ -32,7 +34,8 @@ from .identity import IdentityMaps, count_changes, maps_for
 _LOGGER = logging.getLogger(__name__)
 
 ENTRY_VERSION = 2
-ENTRY_MINOR_VERSION = 2  # 2.2: Away policies became Presence (D-214)
+ENTRY_MINOR_VERSION = 3  # 2.2: Away became Presence (D-214); 2.3: push levels kept (D-230)
+PRESENCE_MINOR_VERSION = 2
 BACKUP_KEY = "heads_up.migration_v2"
 PRESENCE_BACKUP_KEY = "heads_up.migration_v2_2"
 OLD_STORE_VERSIONS = {STORAGE_KEY: 1, DELIVERIES_KEY: 1, TRACE_KEY: 1}
@@ -141,17 +144,26 @@ async def migrate_presence(hass: HomeAssistant, entry: ConfigEntry) -> int:
         if new != dict(sub.data):
             hass.config_entries.async_update_subentry(entry, sub, data=new)
             changed += 1
-    hass.config_entries.async_update_entry(entry, minor_version=ENTRY_MINOR_VERSION)
+    hass.config_entries.async_update_entry(entry, minor_version=PRESENCE_MINOR_VERSION)
     _LOGGER.info("%s: %d Away policies became Presence", DOMAIN, changed)
     return changed
+
+
+def migrate_push_levels(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """2.2 to 2.3: new setups get other default push levels (D-230). An existing setup keeps the
+    levels it had: the old defaults, with what it saved on top, are written into its options."""
+    stored = entry.options.get(OPT_PUSH_LEVELS) or {}
+    options = {**entry.options, OPT_PUSH_LEVELS: {**PUSH_LEVELS_1_0, **stored}}
+    hass.config_entries.async_update_entry(
+        entry, options=options, minor_version=ENTRY_MINOR_VERSION
+    )
 
 
 async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if entry.version > ENTRY_VERSION:
         return False  # Home Assistant refuses this before it gets here; kept for clarity
     if entry.version == ENTRY_VERSION:
-        if entry.minor_version < ENTRY_MINOR_VERSION:
-            await migrate_presence(hass, entry)
+        await _migrate_minor(hass, entry)
         return True
     await write_backup(hass, entry)
     maps = maps_for(hass, entry.subentries.values())
@@ -174,6 +186,12 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     changed += count_changes(dict(entry.options), options)
     hass.config_entries.async_update_entry(entry, options=options, version=ENTRY_VERSION)
     _LOGGER.info("%s: stored names became keys (%d values in the entry)", DOMAIN, changed)
-    if entry.minor_version < ENTRY_MINOR_VERSION:
-        await migrate_presence(hass, entry)
+    await _migrate_minor(hass, entry)
     return True
+
+
+async def _migrate_minor(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    if entry.minor_version < PRESENCE_MINOR_VERSION:
+        await migrate_presence(hass, entry)
+    if entry.minor_version < ENTRY_MINOR_VERSION:
+        migrate_push_levels(hass, entry)
