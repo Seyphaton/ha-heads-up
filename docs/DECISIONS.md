@@ -1415,3 +1415,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Severities: `severity_display` is saved through `heads_up/channels_set` (same command as push levels and popup styles) and read by the panel through `heads_up/severity_display`. The Channels page links to the Severities page instead of showing the per-severity rows.
 - Stored banners: `snooze_custom` is written only when true, and `Banner.from_dict` ignores keys it does not know, so a downgrade keeps banners of a later version.
 - Verified on the dev instance (2026-11-19): the conversion at start, `make dev-smoke`, `make hassfest`, and in the browser pane the Severities page (label and color on Test send and on a card), a volume band saved from Settings, the Presence editor and the Home from field. Not verified on real phones or speakers.
+
+## D-226 Pre-release 1.1.0-beta.1 (2026-11-19)
+- Context: 1.1.0 is built on `release/1.1` (D-225); real-device checks are open.
+- Decision (maintainer, explicit): push `release/1.1`, set the manifest version to `1.1.0-beta.1`, tag `v1.1.0-beta.1` and push the tag. `CHANGELOG.md` keeps `[Unreleased]` (only releases are listed). The GitHub pre-release, not marked as the latest release, is created by the maintainer. No merge to `main`.
+- Blast radius: the manifest version is `1.1.0-beta.1`; HACS offers it only to users who show beta versions. Updating converts Away policies (D-214, backup `.storage/heads_up.migration_v2_2`); restart needed.
