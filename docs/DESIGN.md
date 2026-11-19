@@ -2,7 +2,7 @@
 
 Living design document: requirements and architecture. Decisions are referenced as D-nnn (`docs/DECISIONS.md`), API facts as N-nn (row in `docs/dev/HA_API_NOTES.md`), risks as R-n (§14). Where code and this document disagree, fix one of them in the same commit.
 
-## 0. Implementation status (2026-11-05)
+## 0. Implementation status (2026-11-19)
 
 | Part | Status |
 |---|---|
@@ -14,6 +14,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §21 banner buttons and snooze | implemented and tested (Phase 12); card checked on the dev HA with a mouse |
 | §22 parity of banner sources, rule buttons, tap action, dismiss scope and template conditions | implemented and tested (Phase 12 follow-up) |
 | §23 notification hub | built (Phase 15, H0 to H10 and the later maintainer changes) on the branch `hub/h9e-wizard`; pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.8 are tagged and pushed (D-133, D-154, D-175, D-190, D-196); not merged to `main`, no 1.0.0 |
+| §24 1.1.0: speech volume, Presence, quiet hours and home from an entity, snooze, severities | built and tested on `release/1.1` (Phase 16, D-225); checked on the dev HA; not on real devices; "only if" moved to 2.0.0 |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -696,9 +697,9 @@ Calls: an audience and a policy by entity ID (D-198), a group by the entity ID o
 Not covered: another integration's names (the notify service of mail: reported as `mail_service_missing`), history in the trace and log (names of their time), `{name}` in a rule message without an entity (the rule's name, by design), a name of an area in hand-written YAML after the area is renamed (the stored form is the ID).
 
 
-## 24. 1.1.0 (Phase 16, design)
+## 24. 1.1.0 (Phase 16)
 
-Status: design only, on `release/1.1` (D-207); nothing built. Binding for every part: a 1.0.0 setup converts without a breaking change, and each intended behaviour change has a CHANGELOG line with the way back (D-213).
+Status: built on `release/1.1` (D-207, build choices D-225), checked on the dev instance on 2026-11-19, not released. Binding for every part: a 1.0.0 setup converts without a breaking change, and each intended behaviour change has a CHANGELOG line with the way back (D-213).
 
 ### 24.1 Speech volume (D-206, D-208, D-215, D-217)
 - Speech settings: up to 4 time bands (from, to, volume in percent), no overlap; an optional volume per severity. Precedence: the call's `volume`, then the severity volume, then the band, else no change.

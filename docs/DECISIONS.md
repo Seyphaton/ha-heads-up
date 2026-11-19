@@ -1401,3 +1401,17 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Label (maintainer): an overridden label shows wherever users read the severity: the card (screen-reader label, and visible with `show_severity`), the popup, the mail placeholder `{severity}`, and every panel place (lists, Message Log, Test send, policy form). YAML, events, entity attributes and the action form keep the keys (`success`, `info`, `warning`, `critical`), so automations do not change.
 - Migration (D-213): no label or icon is set after the update, so everything looks as in 1.0.
 - Closes the open item of D-222.
+
+## D-225 1.1.0 build: choices made while building (2026-11-19)
+- Context: the 1.1.0 features of DESIGN §24 were built on `release/1.1` (Phase 16 build, approved by the maintainer: "start implementation"). These choices were made during the build, without a separate question, and are recorded here; each is also in §24.
+- Presence conversion: 1.0 Away dropped a held delivery when its maximum wait ended (`max_wait_exceeded`); the design assumed it sent it. Converted policies therefore get `after_wait: drop`, new Presence policies default to `send`. A stored `away` is read as Presence with the same default.
+- Hold kind: held deliveries keep the stored hold kind `away`; D-214 planned to convert it to `presence`. It is internal, and keeping it leaves the deliveries store unchanged. Supersedes that line of D-214.
+- Release after the presence delay: a delivery held by Presence goes through the chain again `presence_debounce_seconds` after a presence change (60 s), not at once as 1.0 Away did. Listed under "Before you upgrade"; the delay 0 gives the old timing. A delivery held again keeps its first deadline.
+- Presence scope, as in 1.0 Away: push, popup and mail are held only for audience targets; the household audience of speech is a persons audience or everyone.
+- Migration test data: the 1.0.0 setup was captured by running the 1.0.0 code in a test (`tests/fixtures/setup_1_0_0.json`, capture script beside it) instead of from a dev instance. It holds every policy type and a push held by Away.
+- Downgrade: `scripts/restore_presence_backup.py` puts the policies of `.storage/heads_up.migration_v2_2` back and sets the entry's minor version to 1.
+- Quiet hours from an entity: a schedule whose `next_event` lies in the past waits for `off` instead of releasing at once (it would release and hold again in a loop).
+- Home from an entity: `binary_sensor` and `input_boolean` only; a schedule is not offered.
+- Severities: `severity_display` is saved through `heads_up/channels_set` (same command as push levels and popup styles) and read by the panel through `heads_up/severity_display`. The Channels page links to the Severities page instead of showing the per-severity rows.
+- Stored banners: `snooze_custom` is written only when true, and `Banner.from_dict` ignores keys it does not know, so a downgrade keeps banners of a later version.
+- Verified on the dev instance (2026-11-19): the conversion at start, `make dev-smoke`, `make hassfest`, and in the browser pane the Severities page (label and color on Test send and on a card), a volume band saved from Settings, the Presence editor and the Home from field. Not verified on real phones or speakers.

@@ -128,13 +128,13 @@
 - A hand-written call that names an area by name works until the area is renamed in Home Assistant; the stored form is the area ID.
 - Whether the property-style rename test should also run against the dev instance (real entity registry) and not only unit fixtures.
 
-## 1.1.0 design (branch `release/1.1`, 2026-11-17)
-- Away becomes Presence: adopted (D-212). Open with it: precedence under "only the first" (D-210).
-- Policy modes and selection with "only if" (D-210, D-216): out of scope for the Phase 16 session (maintainer, 2026-11-18). A separate, independent policy redesign session is prepared (prompt in `.private/policy-redesign-session-prompt.md`); options on the table: hold back wins, send wins, one sorted list, one policy per type, "May wake people". Until then "only if" has no agreed selection rule; the build of "only if" waits for that session.
-- "Only if" on policies (reopens D-099): condition shape (the notify `condition`: entity, operator, value, `for`, or a template), when it is evaluated (at each delivery step), and what a running escalation does when it turns false.
-- Migration (D-213, D-214): collect 1.0.0 fixtures (config entry with every policy type, deliveries store with an away hold, timers) from a clean 1.0.0 dev instance before the build; check the downgrade path with the backup.
-- Volume: per-player choice of the clip-volume path, the estimate for other announce players, a real-device check (D-208).
-- Severity naming in YAML and the action form after renames and custom severities: first item of the severity session (D-207). `custom_value` on a select selector is verified (N-102).
+## 1.1.0 (branch `release/1.1`, built 2026-11-19)
+- Built and checked on the dev instance (D-225). Not verified on real hardware: the Sonos clip volume (`extra.volume`, N-105), volume restore and the speech estimate on other announce players, Presence with real GPS presence, push and popup with an overridden severity label and color on phones and a wall tablet.
+- "Only if" on policies and guests through it (D-209, D-216) are not in 1.1.0; they come with the policy redesign of 2.0.0. 1.1.0 keeps the 1.0 policy modes, so a speech Presence policy under "only the first" competes with other policies for the same message (D-210).
+- Presence holds push, popup and mail only for audience targets, as 1.0 Away did; whether named recipients should be held too is open.
+- The household audience of a speech Presence policy is a persons audience or everyone; presence audiences (At home and the others) are not offered there.
+- The Settings page sits at `/heads-up/general`; `/heads-up/settings` opens the Overview.
+- Custom severities (more than the four) are not built (D-222).
 - Snooze and unsnooze as actions for automations: not in 1.1.0 (maintainer, 2026-11-18).
 - Push snooze uses only the first snooze option (D-142); more snooze buttons on a push are not planned.
-- A signal when a snooze runs out: decided (D-221).
+- Before the 1.1.0 release: the release steps in `docs/dev/RELEASE.md`, the version in the manifest and the CHANGELOG date.
