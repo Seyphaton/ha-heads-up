@@ -15,6 +15,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ### Added
 
+- Audiences page: a table with who is in each audience now and how many messages were sent to it and when last, kept across restarts. An audience's details list its policies and link to the Message Log filtered to the messages sent to it.
+- The Channels, Audiences and Severities pages show one row per item with the current settings, and open an item's fields under its row. The Configuration group starts with Channels.
 - Severities page in the panel: a label, an icon and a color for each severity, used by the card, the popup, mail and the panel, and the push level and popup style of each severity. YAML and events keep the names success, info, warning and critical.
 - Presence policy: hold or drop by where people are, for any zone. "Hold until the recipient leaves" and "drop while they are in the zone" for push, popup and mail; "nobody or somebody of an audience is in the zone" for speech; send or drop when the maximum wait ends.
 - A recipient profile can take "home" from an input boolean or binary sensor instead of the person's state. The presence audiences and the Away policy follow it.

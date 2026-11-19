@@ -202,52 +202,15 @@ export function toHex(rgb) {
   return `#${parts.slice(0, 3).map((n) => Math.round(Number(n)).toString(16).padStart(2, "0")).join("")}`;
 }
 
-// One row per severity; on a wide page the push level and popup are columns under a header, on a
-// phone they are a second line with their own small labels. Only one severity is open at a time.
+// The table layout is ui.TABLE_CSS; these are the Severities page's own parts.
 const PAGE_CSS = `
-.hu-page .sev-list { container-type: inline-size; padding: 4px 0; overflow: hidden; }
-.hu-page .sev-head, .hu-page .sev-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) 44px; gap: 12px; align-items: center; padding: 0 16px; }
-.hu-page .sev-head { min-height: 36px; color: var(--secondary-text-color); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
-.hu-page .sev-item { border-top: 1px solid var(--divider-color); }
-.hu-page .sev-row { width: 100%; min-height: 56px; border: 0; border-radius: 0; background: transparent; text-align: left; font: inherit; color: var(--primary-text-color); }
-.hu-page .sev-row:hover { background: var(--hu-fill); }
-.hu-page .sev-row:focus-visible { outline-offset: -3px; }
-.hu-page .sev-item.open .sev-row { background: var(--hu-fill); }
-.hu-page .sev-chip { display: flex; align-items: center; gap: 10px; min-width: 0; color: var(--sev); font-weight: 600; }
-.hu-page .sev-chip ha-icon { --mdc-icon-size: 22px; flex: none; }
-.hu-page .sev-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hu-page .sev-meta { display: contents; }
-.hu-page .sev-cell { min-width: 0; font-size: 14px; overflow-wrap: anywhere; }
-.hu-page .sev-k { display: none; }
-.hu-page .sev-end { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
-.hu-page .sev-mark { color: var(--primary-color); font-size: 12px; }
-.hu-page .sev-chev { width: 8px; height: 8px; border-right: 2px solid var(--secondary-text-color); border-bottom: 2px solid var(--secondary-text-color); transform: rotate(45deg); margin: 0 6px 4px 0; transition: transform .15s; }
-.hu-page .sev-item.open .sev-chev { transform: rotate(-135deg); margin-bottom: -4px; }
-.hu-page .sev-edit { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px 16px; padding: 12px 16px 16px; background: var(--hu-fill); }
-.hu-page .sev-edit label.field { margin: 0; gap: 6px; font-size: 14px; }
-.hu-page .sev-edit input[type=text], .hu-page .sev-edit select { width: 100%; max-width: none; }
-.hu-page .sev-wide { grid-column: 1 / -1; }
-.hu-page .sev-wide .tip { margin: 0; }
-.hu-page .sev-wide:not(:has(.tip.open)) { display: none; }
+.hu-page .sev-chip { color: var(--sev); }
+.hu-page .tl-wide .tip { margin: 0; }
+.hu-page .tl-wide:not(:has(.tip.open)) { display: none; }
 .hu-page .sev-with { display: flex; align-items: center; gap: 8px; }
 .hu-page .sev-with input[type=text] { flex: 1; min-width: 0; }
 .hu-page .sev-preview { --mdc-icon-size: 24px; flex: none; width: 44px; display: flex; justify-content: center; color: var(--secondary-text-color); }
 .hu-page .sev-pick { flex: none; width: 44px; height: 44px; padding: 2px; border: 1px solid var(--hu-line); border-radius: 8px; background: transparent; cursor: pointer; }
-.hu-page .sev-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 0; background: var(--primary-background-color); }
-.hu-page .sev-bar.dirty { position: sticky; bottom: 0; }
-.hu-page .sev-bar .hint { margin: 0; flex: 1; min-width: 160px; }
-@container (max-width: 520px) {
-  .hu-page .sev-head { display: none; }
-  .hu-page .sev-head + .sev-item { border-top: 0; }
-  .hu-page .sev-row { grid-template-columns: minmax(0, 1fr) 44px; row-gap: 2px; padding: 8px 16px; }
-  .hu-page .sev-meta { display: flex; flex-wrap: wrap; gap: 2px 16px; grid-column: 1; grid-row: 2; color: var(--secondary-text-color); }
-  .hu-page .sev-cell { font-size: 13px; }
-  .hu-page .sev-k { display: inline; margin-right: 4px; }
-  .hu-page .sev-k::after { content: ":"; }
-  .hu-page .sev-end { grid-column: 2; grid-row: 1 / span 2; }
-  .hu-page .sev-chip ha-icon { --mdc-icon-size: 20px; }
-  .hu-page .sev-edit { grid-template-columns: 1fr; padding: 12px 16px 16px; }
-}
 `;
 
 export function fill(template, params) {
@@ -309,54 +272,49 @@ export function mount(container, ctx) {
 
   function render() {
     ui.lockHeight(root);
-    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + PAGE_CSS }), el("h1", { textContent: t.title }));
+    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + ui.TABLE_CSS + PAGE_CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
     values.severity_display ||= {};
-    const list = el("section", { className: "sev-list" });
-    list.append(el("div", { className: "sev-head", ariaHidden: "true" }, [
-      el("span", { textContent: t.column_severity }),
-      el("span", { textContent: t.push_level }),
-      el("span", { textContent: t.popup_style }),
-    ]));
+    const list = el("section", { className: "tl-list" }, [ui.tableHead([t.column_severity, t.push_level, t.popup_style])]);
     const rows = {};
     for (const severity of SEVERITIES) {
       const shown = (values.severity_display[severity] ||= {});
       const editId = `hu-sev-${severity}`;
       const chipIcon = el("ha-icon");
-      const chipText = el("span", { className: "sev-name" });
-      const chip = el("span", { className: "sev-chip" }, [chipIcon, chipText]);
-      const push = el("span", { className: "sev-val" });
-      const popup = el("span", { className: "sev-val" });
-      const mark = el("span", { className: "sev-mark" });
-      const row = el("button", { type: "button", className: "sev-row" }, [
-        chip,
-        el("span", { className: "sev-meta" }, [
-          el("span", { className: "sev-cell" }, [el("span", { className: "sev-k", textContent: t.push_level }), push]),
-          el("span", { className: "sev-cell" }, [el("span", { className: "sev-k", textContent: t.popup_style }), popup]),
-        ]),
-        el("span", { className: "sev-end" }, [mark, el("span", { className: "sev-chev", ariaHidden: "true" })]),
-      ]);
-      row.setAttribute("aria-controls", editId);
-      row.setAttribute("aria-expanded", String(open === severity));
-      row.addEventListener("click", () => {
+      const chipText = el("span", { className: "tl-name" });
+      const push = el("span");
+      const popup = el("span");
+      const mark = el("span", { className: "tl-mark" });
+      const toggle = () => {
         open = open === severity ? null : severity;
         render();
         root.querySelector(`[aria-controls="${editId}"]`)?.focus();
+      };
+      const body = open === severity ? el("div") : null;
+      const { item, row } = ui.tableRow({
+        id: editId,
+        lead: [chipIcon, chipText],
+        cells: [{ label: t.push_level, node: push }, { label: t.popup_style, node: popup }],
+        end: [mark],
+        open: open === severity,
+        onToggle: toggle,
+        body,
       });
-      const item = el("div", { className: open === severity ? "sev-item open" : "sev-item" }, [row]);
+      const lead = row.querySelector(".tl-lead");
+      lead.classList.add("sev-chip");
+      if (body) body.append(editor(severity, shown, lead));
       rows[severity] = () => {
         const name = shown.label?.trim() || t.severities[severity];
         chipText.textContent = name;
         chipIcon.setAttribute("icon", ICON.test(shown.icon || "") ? shown.icon : DEFAULT_ICONS[severity]);
         const color = String(shown.color || "").trim();
-        chip.style.setProperty("--sev", color && COLOR.test(color) ? color : DEFAULT_COLORS[severity]);
+        lead.style.setProperty("--sev", color && COLOR.test(color) ? color : DEFAULT_COLORS[severity]);
         push.textContent = short(t.levels[values.push_levels[severity]] || values.push_levels[severity] || "");
         popup.textContent = t.styles[values.popup_styles[severity]] || values.popup_styles[severity] || "";
         const changed = rowChanged(severity, values, data.channels);
         mark.textContent = changed ? "●" : "";
         row.setAttribute("aria-label", `${fill(t.edit, { name })}: ${push.textContent}, ${popup.textContent}${changed ? `, ${t.changed}` : ""}`);
       };
-      if (open === severity) item.append(editor(severity, shown, editId, chip));
       list.append(item);
     }
     root.append(list);
@@ -365,7 +323,7 @@ export function mount(container, ctx) {
     status.setAttribute("aria-live", "polite");
     const save = el("button", { type: "button", className: "primary", textContent: t.save });
     save.addEventListener("click", saveIt);
-    const bar = el("div", { className: "sev-bar" }, [save, status]);
+    const bar = el("div", { className: "tl-bar" }, [save, status]);
     root.append(bar);
     paint = () => {
       for (const update of Object.values(rows)) update();
@@ -381,12 +339,12 @@ export function mount(container, ctx) {
   }
 
   // The fields of one severity, in a grid: two or three columns on a wide screen, one on a phone.
-  function editor(severity, shown, id, chip) {
+  function editor(severity, shown, chip) {
     const set = (key) => (v) => {
       shown[key] = v;
       paint();
     };
-    const box = el("div", { className: "sev-edit", id });
+    const box = el("div", { className: "tl-grid" });
     box.append(ui.field(t.label, ui.textInput(shown.label || "", set("label"), { placeholder: t.severities[severity], maxLength: 30 })));
     const iconPreview = el("ha-icon", { className: "sev-preview" });
     const showIcon = () => iconPreview.setAttribute("icon", ICON.test(shown.icon || "") ? shown.icon : DEFAULT_ICONS[severity]);
@@ -413,7 +371,7 @@ export function mount(container, ctx) {
       const tip = ui.helpTip(t.critical_help, t.critical_note);
       const label = el("label", { className: "field" }, [el("span", {}, [document.createTextNode(t.push_level), tip.button]), levels]);
       box.append(label);
-      note = el("div", { className: "sev-wide" }, [tip.note]);
+      note = el("div", { className: "tl-wide" }, [tip.note]);
     } else {
       box.append(ui.field(t.push_level, levels));
     }

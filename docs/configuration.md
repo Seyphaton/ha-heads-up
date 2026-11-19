@@ -2,9 +2,11 @@
 
 These are the hub objects and the channel settings. A call says what to send (see [Actions](actions.md)); this page says who is reached, how each channel behaves and which policies shape the delivery.
 
-Create and edit them in the panel (Configuration group: Audiences, Recipients, Policies, Channels) or under Settings > Devices & services > Heads Up (Add entry, pencil to edit). Both save to the same entries, so a change in one shows in the other. Each panel editor shows the stored data as YAML and a list of problems; Save is disabled while there are problems. An audience or speaker group that a policy uses cannot be deleted in the panel: the Delete button is disabled and the page names the policies. Home Assistant's own screen does not enforce this. If it is deleted there, the policy cannot run, the Message Log shows `audience_missing` or `group_missing`, and Needs attention on the Overview reports the policy.
+Create and edit them in the panel (Configuration group: Channels, Audiences, Recipients, Policies, Severities) or under Settings > Devices & services > Heads Up (Add entry, pencil to edit). Both save to the same entries, so a change in one shows in the other. Each panel editor shows the stored data as YAML and a list of problems; Save is disabled while there are problems. An audience or speaker group that a policy uses cannot be deleted in the panel: the Delete button is disabled and the page names the policies. Home Assistant's own screen does not enforce this. If it is deleted there, the policy cannot run, the Message Log shows `audience_missing` or `group_missing`, and Needs attention on the Overview reports the policy.
 
 ## Channels
+
+The panel's Channels page lists push, speech and mail with a summary of their settings; select a channel to change it.
 
 A call names its channels in `channels`. Push, popup and mail take `recipients` or `audience`, speech takes `speakers`. The banner takes `recipients` or `audience` too, or shows to everyone without them. The Persistent Notification takes no target.
 
@@ -225,9 +227,11 @@ An audience is a named group of people. Every audience is a sensor, and a call n
 | `Last to leave` | The person whose departure emptied the house. Nobody while anyone is home. |
 | `First home` | The first person home after the house was empty. Nobody while the house is empty. |
 
-The panel lists the six built-in audiences with who is in them right now. Each has a checkbox: one that is switched off is not offered and a call that names it fails with the list of valid names; one that a policy uses cannot be switched off.
+The Audiences page lists every audience in a table with who is in it right now and how many messages were sent to it. Select an audience to see its members, the policies that use it, when it was last used and its sensor. A built-in audience has an Enabled checkbox there: one that is switched off is not offered and a call that names it fails with the list of valid names; one that a policy uses cannot be switched off.
 
-You can add your own audience, either as a fixed list of persons or as a presence: at home, not home, last to leave, first home, in a zone, not in a zone (with a zone). A presence audience can be limited to chosen persons, for example At home for one person only. A limited Last to leave or First home names the person only when that person is also the last to leave or the first home of the whole house; it does not look for the last of the chosen persons. A custom name must differ, ignoring case, from the built-in names and from other audiences. The panel lists which policies use each audience.
+The count goes up once per message, from a call or from a policy, however often that message is escalated, reminded or replaced, and it is kept across restarts. Show in Message Log opens the Message Log with only the messages sent to that audience. The Message Log keeps only recent messages and starts empty after a restart, so it can list fewer messages than the count.
+
+You can add your own audience, either as a fixed list of persons or as a presence: at home, not home, last to leave, first home, in a zone, not in a zone (with a zone). A presence audience can be limited to chosen persons, for example At home for one person only. A limited Last to leave or First home names the person only when that person is also the last to leave or the first home of the whole house; it does not look for the last of the chosen persons. A custom name must differ, ignoring case, from the built-in names and from other audiences. The audience's details list which policies use it.
 
 A person whose state is `unknown`, `unavailable` or who has no usable tracker has unknown presence. Presence audiences include that person for `critical` messages and skip them for lower severities (`presence_unknown`). Last to leave and First home change only after a person has been home or away for the presence delay (option Presence delay, 60 seconds by default, 0 for no delay), so a flapping location fix does not move them. Both are kept across restarts.
 

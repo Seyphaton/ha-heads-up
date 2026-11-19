@@ -137,4 +137,5 @@
 - Custom severities (more than the four) are not built (D-222).
 - Snooze and unsnooze as actions for automations: not in 1.1.0 (maintainer, 2026-11-18).
 - Push snooze uses only the first snooze option (D-142); more snooze buttons on a push are not planned.
+- Audience usage (D-227) is stored while the Message Log is memory only; when the log is stored, the usage should be derived from it or kept consistent with it.
 - Before the 1.1.0 release: the release steps in `docs/dev/RELEASE.md`, the version in the manifest and the CHANGELOG date.

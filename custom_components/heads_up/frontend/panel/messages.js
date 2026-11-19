@@ -2,6 +2,9 @@
 
 export const STRINGS = {
   en: {
+    filter_audience: "Messages sent to {name}: {n} of {total} in the log.",
+    filter_none: "No message sent to {name} is in the log any more.",
+    show_all: "Show all",
     inactive: "inactive",
     tap_hint: "Select a message to see where it was delivered.",
     close: "Close",
@@ -40,6 +43,9 @@ export const STRINGS = {
     results: { sent: "sent", held: "held", skipped: "skipped", failed: "failed" },
   },
   de: {
+    filter_audience: "Meldungen an {name}: {n} von {total} im Protokoll.",
+    filter_none: "Keine Meldung an {name} ist mehr im Protokoll.",
+    show_all: "Alle zeigen",
     inactive: "inaktiv",
     tap_hint: "Wähle eine Meldung, um zu sehen, wohin sie zugestellt wurde.",
     close: "Schließen",
@@ -78,6 +84,9 @@ export const STRINGS = {
     results: { sent: "gesendet", held: "zurückgehalten", skipped: "übersprungen", failed: "fehlgeschlagen" },
   },
   fr: {
+    filter_audience: "Messages envoyés à {name} : {n} sur {total} dans le journal.",
+    filter_none: "Aucun message envoyé à {name} n'est encore dans le journal.",
+    show_all: "Tout afficher",
     inactive: "inactif",
     tap_hint: "Choisissez un message pour voir où il a été livré.",
     close: "Fermer",
@@ -116,6 +125,9 @@ export const STRINGS = {
     results: { sent: "envoyé", held: "retenu", skipped: "ignoré", failed: "échec" },
   },
   es: {
+    filter_audience: "Mensajes enviados a {name}: {n} de {total} en el registro.",
+    filter_none: "Ningún mensaje enviado a {name} sigue en el registro.",
+    show_all: "Mostrar todo",
     inactive: "inactivo",
     tap_hint: "Elige un mensaje para ver dónde se entregó.",
     close: "Cerrar",
@@ -221,6 +233,8 @@ function el(tag, props = {}, children = []) {
 const CSS = `
 .hu-messages section { background: var(--card-background-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
 .hu-messages h2 { font-size: 16px; margin: 0 0 8px; }
+.hu-messages .filter { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; margin: 10px 0 4px; padding: 8px 12px; border-radius: 8px; background: var(--secondary-background-color); font-size: 14px; }
+.hu-messages .filter button { min-height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--divider-color); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
 .hu-messages ul { list-style: none; margin: 0; padding: 0; }
 .hu-messages .msgs li { margin-top: 8px; }
 .hu-messages button.row { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; min-height: 56px; padding: 10px 12px; border: 1px solid var(--divider-color); border-radius: 10px; background: var(--secondary-background-color, transparent); color: var(--primary-text-color); font: inherit; cursor: pointer; }
@@ -256,6 +270,11 @@ export function timerName(row, t) {
   return text ? fill(text, { policy: row.policy }) : row.policy;
 }
 
+// The messages that were sent to an audience, by its key.
+export function byAudience(list, key) {
+  return list.filter((m) => (m.audiences || []).includes(key));
+}
+
 export function mount(container, ctx) {
   const { t, s, fmt, ui } = ctx;
   let hass = ctx.hass;
@@ -264,6 +283,9 @@ export function mount(container, ctx) {
   let trace = null;
   let choices = null;
   let timer = null;
+  // Opened from an audience's details: only the messages sent to it (D-227).
+  let audience = new URLSearchParams(globalThis.location?.search || "").get("audience");
+  let audienceNames = {};
   const root = el("div", { className: "hu-messages" });
   const listHost = el("div");
   // The sheet lives outside the list, so the 10-second refresh never closes it.
@@ -351,9 +373,21 @@ export function mount(container, ctx) {
 
   function renderList() {
     const box = el("section", {}, [el("h2", { textContent: t.recent }), el("div", { className: "sub", textContent: t.tap_hint }), el("div", { className: "sub", textContent: t.recent_hint })]);
+    const shown = audience ? byAudience(list, audience) : list;
+    if (audience) {
+      const name = audienceNames[audience] || audience;
+      const all = el("button", { type: "button", textContent: t.show_all });
+      all.addEventListener("click", () => {
+        audience = null;
+        history.replaceState(null, "", location.pathname);
+        renderList();
+      });
+      const text = shown.length ? fill(t.filter_audience, { name, n: shown.length, total: list.length }) : fill(t.filter_none, { name });
+      box.append(el("div", { className: "filter" }, [el("span", { textContent: text }), all]));
+    }
     const ul = el("ul", { className: "msgs" });
     if (list.length === 0) ul.append(el("li", { className: "sub", textContent: t.none }));
-    for (const message of list) {
+    for (const message of shown) {
       const row = el("button", { type: "button", className: "row" });
       row.setAttribute("aria-haspopup", "dialog");
       row.append(
@@ -412,6 +446,8 @@ export function mount(container, ctx) {
   // Names for the recipients; without them the log shows the ids.
   hass.callWS({ type: "heads_up/panel_config" }).then((data) => {
     choices = data.choices;
+    audienceNames = Object.fromEntries((data.audiences || []).map((x) => [x.key, x.name]));
+    if (audience && list) renderList();
     if (selected) renderSheet();
   }, () => {});
   load();

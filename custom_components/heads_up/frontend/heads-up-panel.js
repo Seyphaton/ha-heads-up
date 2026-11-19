@@ -4,7 +4,7 @@
 export const NAV = [
   { id: "overview", pages: ["status"] },
   { id: "notifications", pages: ["test", "rules", "messages"] },
-  { id: "configuration", pages: ["audiences", "recipients", "policies", "severities", "channels"] },
+  { id: "configuration", pages: ["channels", "audiences", "recipients", "policies", "severities"] },
   { id: "settings", pages: ["general"] },
   { id: "faq", pages: ["faq", "examples", "card"] },
 ];
@@ -390,7 +390,7 @@ class HeadsUpPanel extends Base {
         language: this._hass?.language,
         force,
         step,
-        navigate: (target) => this.navigate(target),
+        navigate: (target, query) => this.navigate(target, query),
         leave: (page, next) => {
           this._welcome?.close();
           this.navigate(page);
@@ -418,8 +418,10 @@ class HeadsUpPanel extends Base {
     bar.append(node("span", { textContent: t.tour_paused.replace("{n}", tour.next).replace("{total}", tour.total) }), resume, end);
   }
 
-  navigate(page) {
-    history.pushState(null, "", pageUrl(page));
+  // `query` filters the page it opens, such as { audience: key } for the Message Log.
+  navigate(page, query) {
+    const search = query ? `?${new URLSearchParams(query)}` : "";
+    history.pushState(null, "", `${pageUrl(page)}${search}`);
     window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
     this._open(page);
   }
@@ -464,7 +466,7 @@ class HeadsUpPanel extends Base {
         page,
         language: this._hass?.language,
         fmt: { timeAgo, inTime, stateText, logText, attentionText, reasonText, reasonHint, channelName, messageTitle },
-        navigate: (target) => this.navigate(target),
+        navigate: (target, query) => this.navigate(target, query),
         openWelcome: () => this.openWelcome(true),
       });
     } catch (err) {

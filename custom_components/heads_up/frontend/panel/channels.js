@@ -3,9 +3,18 @@
 export const STRINGS = {
   en: {
     title: "Channels",
+    col_channel: "Channel",
+    col_settings: "Settings",
+    sticky_on: "kept after a tap",
+    android: "Android channel {id}",
+    ha_language: "Home Assistant language",
+    mail_off: "Off",
+    global_to: "global address {a}",
+    edit: "Edit {name}",
+    changed: "changed",
     severities_note: "The push level and the popup style of each severity are set on the Severities page.",
     severities_link: "Severities",
-    intro: "How each channel looks and sounds, by severity. These settings apply to every message.",
+    intro: "How push, speech and mail work for every message. Select a channel to change it.",
     push: "Push",
     popup: "Popup",
     speech: "Speech",
@@ -43,9 +52,18 @@ export const STRINGS = {
   },
   de: {
     title: "Kanäle",
+    col_channel: "Kanal",
+    col_settings: "Einstellungen",
+    sticky_on: "bleibt nach Tippen",
+    android: "Android-Kanal {id}",
+    ha_language: "Sprache von Home Assistant",
+    mail_off: "Aus",
+    global_to: "globale Adresse {a}",
+    edit: "{name} bearbeiten",
+    changed: "geändert",
     severities_note: "Push-Stufe und Popup-Stil jedes Schweregrads stehen auf der Seite Schweregrade.",
     severities_link: "Schweregrade",
-    intro: "Wie jeder Kanal aussieht und klingt, nach Schweregrad. Diese Einstellungen gelten für alle Meldungen.",
+    intro: "Wie Push, Sprache und Mail für alle Meldungen arbeiten. Wähle einen Kanal, um ihn zu ändern.",
     push: "Push",
     popup: "Popup",
     speech: "Sprache",
@@ -83,9 +101,18 @@ export const STRINGS = {
   },
   fr: {
     title: "Canaux",
+    col_channel: "Canal",
+    col_settings: "Réglages",
+    sticky_on: "conservée après un appui",
+    android: "Canal Android {id}",
+    ha_language: "Langue de Home Assistant",
+    mail_off: "Désactivé",
+    global_to: "adresse globale {a}",
+    edit: "Modifier {name}",
+    changed: "modifié",
     severities_note: "Le niveau du push et le style du popup de chaque gravité se règlent sur la page Gravités.",
     severities_link: "Gravités",
-    intro: "L'apparence et le son de chaque canal, par gravité. Ces réglages s'appliquent à tous les messages.",
+    intro: "Le fonctionnement du push, de la voix et du courriel pour tous les messages. Choisissez un canal pour le modifier.",
     push: "Push",
     popup: "Fenêtre",
     speech: "Voix",
@@ -123,9 +150,18 @@ export const STRINGS = {
   },
   es: {
     title: "Canales",
+    col_channel: "Canal",
+    col_settings: "Ajustes",
+    sticky_on: "se mantiene tras tocar",
+    android: "Canal Android {id}",
+    ha_language: "Idioma de Home Assistant",
+    mail_off: "Desactivado",
+    global_to: "dirección global {a}",
+    edit: "Editar {name}",
+    changed: "cambiado",
     severities_note: "El nivel del push y el estilo de la ventana de cada gravedad se ajustan en la página Gravedades.",
     severities_link: "Gravedades",
-    intro: "Cómo se ve y suena cada canal, según la gravedad. Estos ajustes valen para todos los mensajes.",
+    intro: "Cómo funcionan el push, la voz y el correo para todos los mensajes. Elige un canal para cambiarlo.",
     push: "Push",
     popup: "Ventana",
     speech: "Voz",
@@ -167,6 +203,33 @@ const SEVERITIES = ["success", "info", "warning", "critical"];
 const LEVELS = ["passive", "normal", "time-sensitive", "critical"];
 const STYLES = ["card", "card_bottom_left", "card_top_right", "card_top_left", "modal", "off"];
 const LOCKSCREENS = ["full", "title_only", "generic"];
+
+// The channels the page lists, the settings each one owns and its icon.
+const CHANNELS = [
+  { key: "push", icon: "mdi:cellphone-message", keys: ["push_lockscreen", "push_channel_id", "push_sticky"] },
+  { key: "speech", icon: "mdi:account-voice", keys: ["speak_language"] },
+  { key: "mail", icon: "mdi:email-outline", keys: ["mail_service", "mail_global_address", "mail_subject", "mail_body"] },
+];
+
+// The overview line of a channel: what a reader needs to know without opening it.
+export function summaryText(key, values, t) {
+  if (key === "push") {
+    return [t.lockscreens[values.push_lockscreen] || values.push_lockscreen, fill(t.android, { id: values.push_channel_id || "" }), values.push_sticky ? t.sticky_on : ""].filter(Boolean).join(" · ");
+  }
+  if (key === "speech") return String(values.speak_language || "").trim() || t.ha_language;
+  if (!values.mail_service) return t.mail_off;
+  const address = String(values.mail_global_address || "").trim();
+  return [`notify.${values.mail_service}`, address ? fill(t.global_to, { a: address }) : ""].filter(Boolean).join(" · ");
+}
+
+const PAGE_CSS = `
+.hu-page .tl-list { --tl-cols: minmax(0, 1fr) minmax(0, 2.4fr); }
+.hu-page .tl-lead ha-icon { color: var(--secondary-text-color); }
+.hu-page .tl-body .tl-wide label.field { margin: 0; }
+.hu-page .tl-body .tl-wide label.inline { min-height: 44px; }
+.hu-page .ch-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 8px; }
+.hu-page .ch-note .hint { margin: 0; flex: 1; min-width: 200px; }
+`;
 
 export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value ?? ""), template);
@@ -210,52 +273,92 @@ export function mount(container, ctx) {
   let data = null;
   let values = null;
   let message = "";
+  let open = null;
+  let paint = () => {};
   const root = el("div", { className: "hu-page" });
   container.append(root);
 
+  // One row per channel with a summary of its settings; a row opens its fields underneath.
   function render() {
     ui.lockHeight(root);
-    root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
+    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + ui.TABLE_CSS + PAGE_CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
+    const list = el("section", { className: "tl-list" }, [ui.tableHead([t.col_channel, t.col_settings])]);
+    const rows = [];
+    for (const channel of CHANNELS) {
+      const id = `hu-ch-${channel.key}`;
+      const isOpen = open === channel.key;
+      const summary = el("span");
+      const mark = el("span", { className: "tl-mark" });
+      const body = isOpen ? el("div") : null;
+      const { item, row } = ui.tableRow({
+        id,
+        lead: [el("ha-icon", { icon: channel.icon }), el("span", { className: "tl-name", textContent: t[channel.key] })],
+        cells: [{ label: t.col_settings, node: summary }],
+        end: [mark],
+        open: isOpen,
+        onToggle: () => {
+          open = isOpen ? null : channel.key;
+          render();
+          root.querySelector(`[aria-controls="${id}"]`)?.focus();
+        },
+        body,
+      });
+      if (body) body.append(fields(channel.key));
+      rows.push(() => {
+        summary.textContent = summaryText(channel.key, values, t);
+        const changed = channel.keys.some((k) => JSON.stringify(values[k]) !== JSON.stringify(data.channels[k]));
+        mark.textContent = changed ? "●" : "";
+        row.setAttribute("aria-label", `${fill(t.edit, { name: t[channel.key] })}: ${summary.textContent}${changed ? `, ${t.changed}` : ""}`);
+      });
+      list.append(item);
+    }
+    root.append(list);
     // The push level and the popup style of each severity are on the Severities page (D-222).
     const toSeverities = el("button", { type: "button", textContent: t.severities_link });
     toSeverities.addEventListener("click", () => ctx.navigate("severities"));
-    root.append(el("div", { className: "hint", textContent: t.severities_note }), toSeverities);
-    const push = el("section", {}, [el("h2", { textContent: t.push })]);
-    push.append(ui.field(t.lockscreen, ui.selectInput(LOCKSCREENS.map((l) => ({ value: l, label: t.lockscreens[l] })), values.push_lockscreen, (v) => { values.push_lockscreen = v; paint(); })));
-    push.append(el("div", { className: "hint", textContent: t.buttons_note }));
-    push.append(ui.checkbox(t.sticky, values.push_sticky, (on) => { values.push_sticky = on; paint(); }));
-    push.append(ui.field(t.channel_id, ui.textInput(values.push_channel_id, (v) => { values.push_channel_id = v; paint(); }), t.channel_id_note));
-    const speech = el("section", {}, [el("h2", { textContent: t.speech })]);
-    speech.append(ui.field(t.language, ui.textInput(values.speak_language, (v) => { values.speak_language = v; paint(); })));
-    speech.append(el("div", { className: "hint", textContent: t.speech_note }));
-    const mail = el("section", {}, [el("h2", { textContent: t.mail }), el("div", { className: "hint", textContent: t.mail_intro })]);
-    const services = [...(data.choices?.notify_services || [])];
-    if (values.mail_service && !services.includes(values.mail_service)) services.push(values.mail_service);
-    mail.append(
-      ui.field(
-        t.mail_service,
-        ui.selectInput([{ value: "", label: t.mail_service_none }, ...services.map((n) => ({ value: n, label: `notify.${n}` }))], values.mail_service, (v) => { values.mail_service = v; paint(); }),
-      ),
-    );
-    mail.append(ui.field(t.mail_global_address, ui.textInput(values.mail_global_address, (v) => { values.mail_global_address = v; paint(); }), t.mail_global_note));
-    mail.append(ui.field(t.mail_subject, ui.textInput(values.mail_subject, (v) => { values.mail_subject = v; paint(); })));
-    mail.append(ui.field(t.mail_body, ui.textInput(values.mail_body, (v) => { values.mail_body = v; paint(); })));
-    mail.append(el("div", { className: "hint", textContent: t.mail_placeholders }));
+    root.append(el("div", { className: "ch-note" }, [el("span", { className: "hint", textContent: t.severities_note }), toSeverities]));
     const status = el("div", { className: "hint" });
     status.setAttribute("role", "status");
     status.setAttribute("aria-live", "polite");
     const save = el("button", { type: "button", className: "primary", textContent: t.save });
     save.addEventListener("click", saveIt);
-    root.append(push, speech, mail, save, status);
-    function paint() {
+    const bar = el("div", { className: "tl-bar" }, [save, status]);
+    root.append(bar);
+    paint = () => {
+      for (const update of rows) update();
       const found = problems(values);
       const dirty = Object.keys(changes(values, data.channels)).length > 0;
       save.disabled = found.length > 0 || !dirty;
+      bar.classList.toggle("dirty", dirty);
       status.className = found.length ? "hint problems" : "hint ok";
       status.textContent = found.length ? found.map((c) => t[c]).join(" ") : message || (dirty ? t.valid : "");
-    }
+    };
     paint();
+  }
+
+  function fields(key) {
+    const box = el("div", { className: "tl-grid" });
+    const hint = (text) => el("div", { className: "hint tl-wide", textContent: text });
+    if (key === "push") {
+      box.append(ui.field(t.lockscreen, ui.selectInput(LOCKSCREENS.map((l) => ({ value: l, label: t.lockscreens[l] })), values.push_lockscreen, (v) => { values.push_lockscreen = v; paint(); })));
+      box.append(ui.field(t.channel_id, ui.textInput(values.push_channel_id, (v) => { values.push_channel_id = v; paint(); }, { spellcheck: false, autocapitalize: "off" })));
+      box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.sticky, values.push_sticky, (on) => { values.push_sticky = on; paint(); })]));
+      box.append(hint(t.channel_id_note), hint(t.buttons_note));
+    } else if (key === "speech") {
+      box.append(ui.field(t.language, ui.textInput(values.speak_language, (v) => { values.speak_language = v; paint(); })));
+      box.append(hint(t.speech_note));
+    } else {
+      const services = [...(data.choices?.notify_services || [])];
+      if (values.mail_service && !services.includes(values.mail_service)) services.push(values.mail_service);
+      box.append(hint(t.mail_intro));
+      box.append(ui.field(t.mail_service, ui.selectInput([{ value: "", label: t.mail_service_none }, ...services.map((n) => ({ value: n, label: `notify.${n}` }))], values.mail_service, (v) => { values.mail_service = v; paint(); })));
+      box.append(ui.field(t.mail_global_address, ui.textInput(values.mail_global_address, (v) => { values.mail_global_address = v; paint(); }, { inputMode: "email", autocapitalize: "off", spellcheck: false }), t.mail_global_note));
+      box.append(el("div", { className: "tl-wide" }, [ui.field(t.mail_subject, ui.textInput(values.mail_subject, (v) => { values.mail_subject = v; paint(); }))]));
+      box.append(el("div", { className: "tl-wide" }, [ui.field(t.mail_body, ui.textInput(values.mail_body, (v) => { values.mail_body = v; paint(); }))]));
+      box.append(hint(t.mail_placeholders));
+    }
+    return box;
   }
 
   async function saveIt() {

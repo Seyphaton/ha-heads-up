@@ -50,7 +50,7 @@ describe("panel navigation", () => {
   });
 
   it("shows a second row only for a group with more than one page", () => {
-    expect(secondRow("audiences")).toEqual(["audiences", "recipients", "policies", "severities", "channels"]);
+    expect(secondRow("audiences")).toEqual(["channels", "audiences", "recipients", "policies", "severities"]);
     expect(secondRow("test")).toEqual(["test", "rules", "messages"]);
     expect(secondRow("general")).toEqual([]);
     expect(secondRow("status")).toEqual([]);
