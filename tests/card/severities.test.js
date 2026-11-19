@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { withLabels } from "../../custom_components/heads_up/frontend/heads-up-panel.js";
-import { changes, cleanDisplay, problems, STRINGS } from "../../custom_components/heads_up/frontend/panel/severities.js";
+import { changes, cleanDisplay, problems, rowChanged, short, STRINGS, toHex } from "../../custom_components/heads_up/frontend/panel/severities.js";
 
 const saved = { severity_display: {}, push_levels: { critical: "critical" }, popup_styles: { critical: "modal" } };
 
@@ -36,5 +36,19 @@ describe("Severities page (D-222, D-223)", () => {
     expect(out.severity_names.critical).toBe("Alarm");
     expect(t.severity.critical).toBe("Critical"); // the table itself is unchanged
     expect(withLabels(t, {})).toBe(t);
+  });
+
+  it("marks only the severities that differ from what is saved", () => {
+    const values = { ...structuredClone(saved), severity_display: { critical: { label: " " }, info: { color: "#00f" } } };
+    expect(rowChanged("critical", values, saved)).toBe(false);
+    expect(rowChanged("info", values, saved)).toBe(true);
+    expect(rowChanged("critical", { ...values, popup_styles: { critical: "card" } }, saved)).toBe(true);
+  });
+
+  it("shortens a level for the overview row and turns a computed color into hex", () => {
+    expect(short("Passive (no sound)")).toBe("Passive");
+    expect(short("Normal")).toBe("Normal");
+    expect(toHex("rgb(12, 34, 56)")).toBe("#0c2238");
+    expect(toHex("")).toBe("#000000");
   });
 });

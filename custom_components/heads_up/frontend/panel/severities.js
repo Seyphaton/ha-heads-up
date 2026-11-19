@@ -5,9 +5,15 @@ export const STRINGS = {
   "en": {
     "title": "Severities",
     "intro": "What each severity looks like everywhere (card, popup, panel, mail) and how it sounds on push and popup. YAML, events and automations keep the names success, info, warning and critical.",
-    "label": "Label (empty: {name})",
-    "icon": "Icon (empty: the default)",
-    "color": "Color (CSS color or theme variable, empty: the theme)",
+    "label": "Label",
+    "icon": "Icon",
+    "color": "Color",
+    "column_severity": "Severity",
+    "theme": "Theme",
+    "pick": "Pick a color",
+    "edit": "Edit {name}",
+    "changed": "changed",
+    "critical_help": "About the level critical",
     "push_level": "Push level",
     "popup_style": "Popup",
     "save": "Save",
@@ -41,9 +47,15 @@ export const STRINGS = {
   "de": {
     "title": "Schweregrade",
     "intro": "Wie jeder Schweregrad überall aussieht (Karte, Popup, Panel, Mail) und wie er bei Push und Popup klingt. YAML, Ereignisse und Automationen behalten die Namen success, info, warning und critical.",
-    "label": "Bezeichnung (leer: {name})",
-    "icon": "Symbol (leer: Standard)",
-    "color": "Farbe (CSS-Farbe oder Theme-Variable, leer: das Theme)",
+    "label": "Bezeichnung",
+    "icon": "Symbol",
+    "color": "Farbe",
+    "column_severity": "Schweregrad",
+    "theme": "Theme",
+    "pick": "Farbe wählen",
+    "edit": "{name} bearbeiten",
+    "changed": "geändert",
+    "critical_help": "Zur Stufe Kritisch",
     "push_level": "Push-Stufe",
     "popup_style": "Popup",
     "save": "Speichern",
@@ -77,9 +89,15 @@ export const STRINGS = {
   "fr": {
     "title": "Gravités",
     "intro": "L'apparence de chaque gravité partout (carte, popup, panneau, courriel) et son son sur le push et le popup. Le YAML, les événements et les automatisations gardent les noms success, info, warning et critical.",
-    "label": "Libellé (vide : {name})",
-    "icon": "Icône (vide : par défaut)",
-    "color": "Couleur (couleur CSS ou variable de thème, vide : le thème)",
+    "label": "Libellé",
+    "icon": "Icône",
+    "color": "Couleur",
+    "column_severity": "Gravité",
+    "theme": "Thème",
+    "pick": "Choisir une couleur",
+    "edit": "Modifier {name}",
+    "changed": "modifié",
+    "critical_help": "À propos du niveau critique",
     "push_level": "Niveau du push",
     "popup_style": "Popup",
     "save": "Enregistrer",
@@ -113,9 +131,15 @@ export const STRINGS = {
   "es": {
     "title": "Gravedades",
     "intro": "Cómo se ve cada gravedad en todas partes (tarjeta, ventana, panel, correo) y cómo suena en push y ventana. El YAML, los eventos y las automatizaciones mantienen los nombres success, info, warning y critical.",
-    "label": "Etiqueta (vacío: {name})",
-    "icon": "Icono (vacío: el predeterminado)",
-    "color": "Color (color CSS o variable del tema, vacío: el tema)",
+    "label": "Etiqueta",
+    "icon": "Icono",
+    "color": "Color",
+    "column_severity": "Gravedad",
+    "theme": "Tema",
+    "pick": "Elegir un color",
+    "edit": "Editar {name}",
+    "changed": "cambiado",
+    "critical_help": "Sobre el nivel crítico",
     "push_level": "Nivel del push",
     "popup_style": "Ventana",
     "save": "Guardar",
@@ -154,6 +178,77 @@ const STYLES = ["card", "card_bottom_left", "card_top_right", "card_top_left", "
 const DEFAULT_ICONS = { critical: "mdi:alert-octagon", warning: "mdi:alert", info: "mdi:information", success: "mdi:check-circle" };
 const ICON = /^mdi:[a-z0-9-]+$/;
 const COLOR = /^(#[0-9a-fA-F]{3,8}|var\(--[a-z0-9-]+\)|[a-z]+|rgba?\([0-9., %]+\))$/;
+
+const DEFAULT_COLORS = { critical: "var(--error-color)", warning: "var(--warning-color)", info: "var(--info-color)", success: "var(--success-color)" };
+
+// A push level without its explanation in brackets, for the overview row: "Passive (no sound)" is "Passive".
+export function short(text) {
+  return String(text).replace(/\s*\([^)]*\)\s*$/, "");
+}
+
+// Whether anything of one severity differs from what is saved (the dot in its overview row).
+export function rowChanged(severity, values, saved) {
+  const now = cleanDisplay(values.severity_display || {})[severity] || {};
+  const before = cleanDisplay(saved.severity_display || {})[severity] || {};
+  return JSON.stringify(now) !== JSON.stringify(before)
+    || (values.push_levels || {})[severity] !== (saved.push_levels || {})[severity]
+    || (values.popup_styles || {})[severity] !== (saved.popup_styles || {})[severity];
+}
+
+// "rgb(12, 34, 56)" as "#0c2238", for the color picker's start value.
+export function toHex(rgb) {
+  const parts = String(rgb).match(/\d+(\.\d+)?/g);
+  if (!parts || parts.length < 3) return "#000000";
+  return `#${parts.slice(0, 3).map((n) => Math.round(Number(n)).toString(16).padStart(2, "0")).join("")}`;
+}
+
+// One row per severity; on a wide page the push level and popup are columns under a header, on a
+// phone they are a second line with their own small labels. Only one severity is open at a time.
+const PAGE_CSS = `
+.hu-page .sev-list { container-type: inline-size; padding: 4px 0; overflow: hidden; }
+.hu-page .sev-head, .hu-page .sev-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) 44px; gap: 12px; align-items: center; padding: 0 16px; }
+.hu-page .sev-head { min-height: 36px; color: var(--secondary-text-color); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.hu-page .sev-item { border-top: 1px solid var(--divider-color); }
+.hu-page .sev-row { width: 100%; min-height: 56px; border: 0; border-radius: 0; background: transparent; text-align: left; font: inherit; color: var(--primary-text-color); }
+.hu-page .sev-row:hover { background: var(--hu-fill); }
+.hu-page .sev-row:focus-visible { outline-offset: -3px; }
+.hu-page .sev-item.open .sev-row { background: var(--hu-fill); }
+.hu-page .sev-chip { display: flex; align-items: center; gap: 10px; min-width: 0; color: var(--sev); font-weight: 600; }
+.hu-page .sev-chip ha-icon { --mdc-icon-size: 22px; flex: none; }
+.hu-page .sev-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hu-page .sev-meta { display: contents; }
+.hu-page .sev-cell { min-width: 0; font-size: 14px; overflow-wrap: anywhere; }
+.hu-page .sev-k { display: none; }
+.hu-page .sev-end { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.hu-page .sev-mark { color: var(--primary-color); font-size: 12px; }
+.hu-page .sev-chev { width: 8px; height: 8px; border-right: 2px solid var(--secondary-text-color); border-bottom: 2px solid var(--secondary-text-color); transform: rotate(45deg); margin: 0 6px 4px 0; transition: transform .15s; }
+.hu-page .sev-item.open .sev-chev { transform: rotate(-135deg); margin-bottom: -4px; }
+.hu-page .sev-edit { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px 16px; padding: 12px 16px 16px; background: var(--hu-fill); }
+.hu-page .sev-edit label.field { margin: 0; gap: 6px; font-size: 14px; }
+.hu-page .sev-edit input[type=text], .hu-page .sev-edit select { width: 100%; max-width: none; }
+.hu-page .sev-wide { grid-column: 1 / -1; }
+.hu-page .sev-wide .tip { margin: 0; }
+.hu-page .sev-wide:not(:has(.tip.open)) { display: none; }
+.hu-page .sev-with { display: flex; align-items: center; gap: 8px; }
+.hu-page .sev-with input[type=text] { flex: 1; min-width: 0; }
+.hu-page .sev-preview { --mdc-icon-size: 24px; flex: none; width: 44px; display: flex; justify-content: center; color: var(--secondary-text-color); }
+.hu-page .sev-pick { flex: none; width: 44px; height: 44px; padding: 2px; border: 1px solid var(--hu-line); border-radius: 8px; background: transparent; cursor: pointer; }
+.hu-page .sev-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 0; background: var(--primary-background-color); }
+.hu-page .sev-bar.dirty { position: sticky; bottom: 0; }
+.hu-page .sev-bar .hint { margin: 0; flex: 1; min-width: 160px; }
+@container (max-width: 520px) {
+  .hu-page .sev-head { display: none; }
+  .hu-page .sev-head + .sev-item { border-top: 0; }
+  .hu-page .sev-row { grid-template-columns: minmax(0, 1fr) 44px; row-gap: 2px; padding: 8px 16px; }
+  .hu-page .sev-meta { display: flex; flex-wrap: wrap; gap: 2px 16px; grid-column: 1; grid-row: 2; color: var(--secondary-text-color); }
+  .hu-page .sev-cell { font-size: 13px; }
+  .hu-page .sev-k { display: inline; margin-right: 4px; }
+  .hu-page .sev-k::after { content: ":"; }
+  .hu-page .sev-end { grid-column: 2; grid-row: 1 / span 2; }
+  .hu-page .sev-chip ha-icon { --mdc-icon-size: 20px; }
+  .hu-page .sev-edit { grid-template-columns: 1fr; padding: 12px 16px 16px; }
+}
+`;
 
 export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value), template);
@@ -207,44 +302,124 @@ export function mount(container, ctx) {
   let data = null;
   let values = null;
   let message = "";
+  let open = null;
+  let paint = () => {};
   const root = el("div", { className: "hu-page" });
   container.append(root);
 
   function render() {
     ui.lockHeight(root);
-    root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
+    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + PAGE_CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
     values.severity_display ||= {};
+    const list = el("section", { className: "sev-list" });
+    list.append(el("div", { className: "sev-head", ariaHidden: "true" }, [
+      el("span", { textContent: t.column_severity }),
+      el("span", { textContent: t.push_level }),
+      el("span", { textContent: t.popup_style }),
+    ]));
+    const rows = {};
     for (const severity of SEVERITIES) {
       const shown = (values.severity_display[severity] ||= {});
-      const set = (key) => (v) => {
-        shown[key] = v;
-        paint();
+      const editId = `hu-sev-${severity}`;
+      const chipIcon = el("ha-icon");
+      const chipText = el("span", { className: "sev-name" });
+      const chip = el("span", { className: "sev-chip" }, [chipIcon, chipText]);
+      const push = el("span", { className: "sev-val" });
+      const popup = el("span", { className: "sev-val" });
+      const mark = el("span", { className: "sev-mark" });
+      const row = el("button", { type: "button", className: "sev-row" }, [
+        chip,
+        el("span", { className: "sev-meta" }, [
+          el("span", { className: "sev-cell" }, [el("span", { className: "sev-k", textContent: t.push_level }), push]),
+          el("span", { className: "sev-cell" }, [el("span", { className: "sev-k", textContent: t.popup_style }), popup]),
+        ]),
+        el("span", { className: "sev-end" }, [mark, el("span", { className: "sev-chev", ariaHidden: "true" })]),
+      ]);
+      row.setAttribute("aria-controls", editId);
+      row.setAttribute("aria-expanded", String(open === severity));
+      row.addEventListener("click", () => {
+        open = open === severity ? null : severity;
+        render();
+        root.querySelector(`[aria-controls="${editId}"]`)?.focus();
+      });
+      const item = el("div", { className: open === severity ? "sev-item open" : "sev-item" }, [row]);
+      rows[severity] = () => {
+        const name = shown.label?.trim() || t.severities[severity];
+        chipText.textContent = name;
+        chipIcon.setAttribute("icon", ICON.test(shown.icon || "") ? shown.icon : DEFAULT_ICONS[severity]);
+        const color = String(shown.color || "").trim();
+        chip.style.setProperty("--sev", color && COLOR.test(color) ? color : DEFAULT_COLORS[severity]);
+        push.textContent = short(t.levels[values.push_levels[severity]] || values.push_levels[severity] || "");
+        popup.textContent = t.styles[values.popup_styles[severity]] || values.popup_styles[severity] || "";
+        const changed = rowChanged(severity, values, data.channels);
+        mark.textContent = changed ? "●" : "";
+        row.setAttribute("aria-label", `${fill(t.edit, { name })}: ${push.textContent}, ${popup.textContent}${changed ? `, ${t.changed}` : ""}`);
       };
-      const box = el("section", {}, [el("h2", { textContent: shown.label || t.severities[severity] })]);
-      box.append(ui.field(fill(t.label, { name: t.severities[severity] }), ui.textInput(shown.label || "", set("label"))));
-      box.append(ui.field(t.icon, ui.textInput(shown.icon || "", set("icon")), DEFAULT_ICONS[severity]));
-      box.append(ui.field(t.color, ui.textInput(shown.color || "", set("color"))));
-      box.append(ui.field(t.push_level, ui.selectInput(LEVELS.map((l) => ({ value: l, label: t.levels[l] })), values.push_levels[severity], (v) => { values.push_levels[severity] = v; paint(); })));
-      box.append(ui.field(t.popup_style, ui.selectInput(STYLES.map((x) => ({ value: x, label: t.styles[x] })), values.popup_styles[severity], (v) => { values.popup_styles[severity] = v; paint(); })));
-      if (severity === "critical") box.append(el("div", { className: "hint", textContent: t.critical_note }));
-      root.append(box);
+      if (open === severity) item.append(editor(severity, shown, editId, chip));
+      list.append(item);
     }
+    root.append(list);
     const status = el("div", { className: "hint" });
     status.setAttribute("role", "status");
     status.setAttribute("aria-live", "polite");
     const save = el("button", { type: "button", className: "primary", textContent: t.save });
     save.addEventListener("click", saveIt);
-    root.append(save, status);
-    function paint() {
+    const bar = el("div", { className: "sev-bar" }, [save, status]);
+    root.append(bar);
+    paint = () => {
+      for (const update of Object.values(rows)) update();
       const { errors, warnings } = problems(values);
       const dirty = Object.keys(changes(values, data.channels)).length > 0;
       save.disabled = errors.length > 0 || !dirty;
+      bar.classList.toggle("dirty", dirty);
       status.className = errors.length ? "hint problems" : "hint ok";
       const texts = [...errors, ...warnings].map((c) => t[c]);
       status.textContent = texts.length ? texts.join(" ") : message || (dirty ? t.valid : "");
-    }
+    };
     paint();
+  }
+
+  // The fields of one severity, in a grid: two or three columns on a wide screen, one on a phone.
+  function editor(severity, shown, id, chip) {
+    const set = (key) => (v) => {
+      shown[key] = v;
+      paint();
+    };
+    const box = el("div", { className: "sev-edit", id });
+    box.append(ui.field(t.label, ui.textInput(shown.label || "", set("label"), { placeholder: t.severities[severity], maxLength: 30 })));
+    const iconPreview = el("ha-icon", { className: "sev-preview" });
+    const showIcon = () => iconPreview.setAttribute("icon", ICON.test(shown.icon || "") ? shown.icon : DEFAULT_ICONS[severity]);
+    const iconInput = ui.textInput(shown.icon || "", (v) => { set("icon")(v); showIcon(); }, { placeholder: DEFAULT_ICONS[severity], spellcheck: false, autocapitalize: "off" });
+    showIcon();
+    box.append(ui.field(t.icon, el("span", { className: "sev-with" }, [iconPreview, iconInput])));
+    const colorText = ui.textInput(shown.color || "", (v) => { set("color")(v); syncPicker(); }, { placeholder: t.theme, spellcheck: false, autocapitalize: "off" });
+    const picker = el("input", { type: "color", className: "sev-pick", title: t.pick });
+    picker.setAttribute("aria-label", t.pick);
+    const syncPicker = () => {
+      const now = String(shown.color || "").trim();
+      picker.value = /^#[0-9a-fA-F]{6}$/.test(now) ? now.toLowerCase() : toHex(getComputedStyle(chip).color);
+    };
+    picker.addEventListener("input", () => {
+      shown.color = picker.value;
+      colorText.value = picker.value;
+      paint();
+    });
+    box.append(ui.field(t.color, el("span", { className: "sev-with" }, [picker, colorText])));
+    requestAnimationFrame(syncPicker);
+    let note = null;
+    const levels = ui.selectInput(LEVELS.map((l) => ({ value: l, label: t.levels[l] })), values.push_levels[severity], (v) => { values.push_levels[severity] = v; paint(); });
+    if (severity === "critical") {
+      const tip = ui.helpTip(t.critical_help, t.critical_note);
+      const label = el("label", { className: "field" }, [el("span", {}, [document.createTextNode(t.push_level), tip.button]), levels]);
+      box.append(label);
+      note = el("div", { className: "sev-wide" }, [tip.note]);
+    } else {
+      box.append(ui.field(t.push_level, levels));
+    }
+    box.append(ui.field(t.popup_style, ui.selectInput(STYLES.map((x) => ({ value: x, label: t.styles[x] })), values.popup_styles[severity], (v) => { values.popup_styles[severity] = v; paint(); })));
+    if (note) box.append(note);
+    return box;
   }
 
   async function saveIt() {

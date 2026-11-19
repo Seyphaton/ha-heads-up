@@ -203,11 +203,11 @@ Delivery is the notify service's job: Heads Up knows only whether the call retur
 
 ## Severities
 
-The four severities are `success`, `info`, `warning` and `critical`. Calls, watch rules, policies, events and entity attributes always use these names. The panel's Severities page sets, for each of them:
+The four severities are `success`, `info`, `warning` and `critical`. Calls, watch rules, policies, events and entity attributes always use these names. The panel's Severities page lists them in one table with their icon, label, color, push level and popup. Select a severity to change it:
 
 - Label: the word shown instead of the built-in name, in every language. It appears on the card (as the screen-reader label, and visibly with `show_severity`), in the popup, in the mail placeholder `{severity}` and everywhere in the panel. At most 30 characters. Empty: the translated name.
 - Icon: an `mdi:` icon used when a message has no `icon` of its own, on the card, the popup and in the panel. Empty: the built-in icon. The page warns when two severities share an icon, because the icon shape is what tells them apart without color.
-- Color: a CSS color or a theme variable, for example `#d00000` or `var(--error-color)`, used by every card and the popup. A card that has its own `colors` in its YAML keeps them. Empty: the theme color.
+- Color: picked with the color picker, or typed as a CSS color or a theme variable, for example `#d00000` or `var(--error-color)`, used by every card and the popup. A card that has its own `colors` in its YAML keeps them. Empty: the theme color.
 - Push level and popup style, the same options as listed under Channels.
 
 ## Audiences
