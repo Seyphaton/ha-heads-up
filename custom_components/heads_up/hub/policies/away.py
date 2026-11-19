@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
@@ -9,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
 from ...const import CHANNEL_BANNER, HOLD_AWAY
-from ..presence import is_unknown
+from ..presence import is_home
 from .chain import Hold, Skip, Step
 
 if TYPE_CHECKING:
@@ -28,9 +29,15 @@ class AwayStage:
 
     name = "away"
 
-    def __init__(self, hass: HomeAssistant, policies: PolicyBook) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        policies: PolicyBook,
+        home_entity: Callable[[str], str] = lambda person: "",
+    ) -> None:
         self._hass = hass
         self._policies = policies
+        self._home_entity = home_entity
 
     def apply(self, step: Step) -> Step | Skip | Hold:
         person = step.target.person
@@ -38,8 +45,8 @@ class AwayStage:
             return step
         if "audience" not in step.banner.targets.get(step.channel, {}):
             return step
-        state = self._hass.states.get(person)
-        if state is None or is_unknown(state) or state.state == "home":
+        # Unknown presence is sent at once; "home" may come from the person's home entity (D-220).
+        if is_home(self._hass, person, self._home_entity(person)) is not False:
             return step
         for policy in self._policies.for_message(step.banner):
             if policy.type == "away" and not (

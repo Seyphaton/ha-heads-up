@@ -29,7 +29,7 @@ from ..const import (
 )
 from .audiences import BUILTINS, Audience, parse_audience
 from .identity import AREA_PREFIX, GROUP_PREFIX, dangling_name
-from .presence import PresenceTracker, is_unknown
+from .presence import PresenceTracker, home_of, is_unknown
 from .recipients import (
     Group,
     Profile,
@@ -72,7 +72,9 @@ class HubResolver:
     def __init__(self, hass: HomeAssistant, options: Mapping[str, Any]) -> None:
         self._hass = hass
         self._options = options
-        self.presence = PresenceTracker(hass, lambda: int(options[OPT_PRESENCE_DEBOUNCE]))
+        self.presence = PresenceTracker(
+            hass, lambda: int(options[OPT_PRESENCE_DEBOUNCE]), self.home_entity
+        )
         self._audiences: dict[str, Audience] = {}
         self._groups: dict[str, Group] = {}
         self._profiles: dict[str, StoredProfile] = {}
@@ -96,6 +98,12 @@ class HubResolver:
         self._groups = {g.key: g for g in groups if g is not None}
         profiles = (parse_profile(s) for s in subentries.values())
         self._profiles = {p.person: p for p in profiles if p is not None}
+        self.presence.refresh()  # a changed home entity takes effect at once
+
+    def home_entity(self, person: str) -> str:
+        """The entity that says whether a person is home, or "" for the person state (D-220)."""
+        stored = self._profiles.get(person)
+        return stored.home_entity if stored is not None else ""
 
     # Names a call may use ---------------------------------------------------------------
 
@@ -315,7 +323,9 @@ class HubResolver:
         self, result: Resolution, person: str, kind: str, zone: str | None, severity: str
     ) -> None:
         state = self._hass.states.get(person)
-        if is_unknown(state):
+        home_entity = "" if kind in ZONE_KINDS else self.home_entity(person)
+        source = self._hass.states.get(home_entity) if home_entity else state
+        if is_unknown(source):
             # Unknown presence: critical notifies anyway, lower severities skip (D-080).
             if severity == "critical":
                 result.recipients.append(
@@ -330,11 +340,10 @@ class HubResolver:
             inside = bool(zone) and (zone in zones or state.state == str(zone).split(".", 1)[-1])
             match = inside if kind == "in_zone" else not inside
         else:
-            match = (state.state == "home") == (kind == "at_home")
+            match = home_of(source, bool(home_entity)) == (kind == "at_home")
         if match:
-            result.recipients.append(
-                Recipient(person, "person", person, reason=f"state:{state.state}")
-            )
+            shown = source.state if source is not None else state.state
+            result.recipients.append(Recipient(person, "person", person, reason=f"state:{shown}"))
 
     async def banner_people(self, name: str, severity: str) -> list[str]:
         """The `people` of a banner that names an audience, as of now (D-131). Everyone limits

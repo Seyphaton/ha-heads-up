@@ -75,6 +75,10 @@ def _names_taken(flow: ConfigSubentryFlow, subentry_type: str, own: str | None) 
     }
 
 
+# On/off entities that can say whether a person is home instead of the person state (D-220).
+HOME_ENTITY_DOMAINS = ("binary_sensor", "input_boolean")
+
+
 class _HubFlow(ConfigSubentryFlow):
     """Add and reconfigure share one form; subclasses give schema, checks and data."""
 
@@ -259,6 +263,9 @@ class RecipientProfileSubentryFlow(_HubFlow):
                     )
                 ),
                 vol.Optional("mail_address"): TextSelector(),
+                vol.Optional("home_entity"): EntitySelector(
+                    EntitySelectorConfig(domain=list(HOME_ENTITY_DOMAINS))
+                ),
             }
         )
         return vol.Schema(fields)
@@ -290,6 +297,9 @@ class RecipientProfileSubentryFlow(_HubFlow):
             errors["channels"] = "channels_required"
         if len(str(user_input.get("mail_address") or "").strip()) > MAX_MAIL_ADDRESS:
             errors["mail_address"] = "mail_address_too_long"
+        home = str(user_input.get("home_entity") or "")
+        if home and home.split(".", 1)[0] not in HOME_ENTITY_DOMAINS:
+            errors["home_entity"] = "home_entity_invalid"
         return errors
 
     def _title(self, user_input: dict[str, Any], subentry: ConfigSubentry | None) -> str:
@@ -312,6 +322,8 @@ class RecipientProfileSubentryFlow(_HubFlow):
             data["primary"] = user_input["primary"]
         if address := str(user_input.get("mail_address") or "").strip():
             data["mail_address"] = address
+        if home := str(user_input.get("home_entity") or ""):  # stored only when set (D-213)
+            data["home_entity"] = home
         return data
 
     def _reconfigure_id(self) -> str | None:

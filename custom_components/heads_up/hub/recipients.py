@@ -45,6 +45,7 @@ class StoredProfile:
     channels: tuple[str, ...] = DEFAULT_PROFILE_CHANNELS
     mail_address: str = ""
     enabled: bool = True
+    home_entity: str = ""  # "home" from this on/off entity instead of the person (D-220)
 
 
 @dataclass(slots=True)
@@ -56,6 +57,7 @@ class Profile:
     customized: bool = False
     mail_address: str = ""
     enabled: bool = True  # off: the person gets nothing on any channel (D-147)
+    home_entity: str = ""  # empty: home is the person state
 
     @property
     def usable(self) -> list[Device]:
@@ -138,6 +140,7 @@ def build_profile(
         customized=stored is not None,
         mail_address=stored.mail_address if stored else "",
         enabled=stored.enabled if stored else True,
+        home_entity=stored.home_entity if stored else "",
     )
 
 
@@ -156,6 +159,7 @@ def parse_profile(subentry: ConfigSubentry) -> StoredProfile | None:
         channels=channels,
         mail_address=str(data.get("mail_address") or "").strip(),
         enabled=bool(data.get("enabled", True)),
+        home_entity=str(data.get("home_entity") or ""),
     )
 
 

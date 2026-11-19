@@ -27,6 +27,9 @@ export const STRINGS = {
     channel_mail: "Mail",
     mail_address: "Mail address",
     mail_address_hint: "Where this person's mail goes. Mail also has to be switched on in the accepted channels. Without an address, mail to this person fails.",
+    home_entity: "Home from",
+    home_entity_hint: "Optional: an input boolean or binary sensor that says this person is home when it is on, instead of the person's own state. Used for At home, Not home, Last to leave, First home and Away. Zones keep the person state.",
+    home_entity_none: "Person state",
     person: "Person",
     ch_none: "no channel",
     ch_on: "accepted",
@@ -69,6 +72,9 @@ export const STRINGS = {
     channel_mail: "E-Mail",
     mail_address: "E-Mail-Adresse",
     mail_address_hint: "Wohin die Mail dieser Person geht. E-Mail muss auch bei den angenommenen Kanälen aktiviert sein. Ohne Adresse scheitert Mail an diese Person.",
+    home_entity: "Zu Hause laut",
+    home_entity_hint: "Optional: ein Eingabe-Schalter oder binärer Sensor, der sagt, dass diese Person zu Hause ist, wenn er an ist, statt des eigenen Zustands der Person. Gilt für At home, Not home, Last to leave, First home und Abwesend. Zonen nutzen weiter den Zustand der Person.",
+    home_entity_none: "Zustand der Person",
     person: "Person",
     ch_none: "kein Kanal",
     ch_on: "angenommen",
@@ -111,6 +117,9 @@ export const STRINGS = {
     channel_mail: "Courriel",
     mail_address: "Adresse de courriel",
     mail_address_hint: "Où va le courriel de cette personne. Courriel doit aussi être activé dans les canaux acceptés. Sans adresse, le courriel à cette personne échoue.",
+    home_entity: "À la maison selon",
+    home_entity_hint: "Facultatif : un interrupteur d'entrée ou un capteur binaire qui indique que cette personne est à la maison quand il est allumé, au lieu de l'état propre de la personne. Utilisé pour At home, Not home, Last to leave, First home et Absent. Les zones gardent l'état de la personne.",
+    home_entity_none: "État de la personne",
     person: "Personne",
     ch_none: "aucun canal",
     ch_on: "accepté",
@@ -153,6 +162,9 @@ export const STRINGS = {
     channel_mail: "Correo",
     mail_address: "Dirección de correo",
     mail_address_hint: "A dónde va el correo de esta persona. Correo también debe estar activado en los canales aceptados. Sin dirección, el correo a esta persona falla.",
+    home_entity: "En casa según",
+    home_entity_hint: "Opcional: un interruptor de entrada o un sensor binario que indica que esta persona está en casa cuando está encendido, en lugar del estado propio de la persona. Se usa para At home, Not home, Last to leave, First home y Ausente. Las zonas siguen usando el estado de la persona.",
+    home_entity_none: "Estado de la persona",
     person: "Persona",
     ch_none: "ningún canal",
     ch_on: "aceptado",
@@ -179,6 +191,13 @@ export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value ?? ""), template);
 }
 
+// On/off entities that can stand for "home" (D-220), plus the stored one when it is gone.
+export function homeEntities(hass, current) {
+  const ids = Object.keys(hass?.states || {}).filter((id) => ["binary_sensor", "input_boolean"].includes(id.split(".")[0])).sort();
+  if (current && !ids.includes(current)) ids.push(current);
+  return ids;
+}
+
 // The editable values of a profile: what is manual, what was removed, the primary and the channels.
 export function profileValues(profile) {
   return {
@@ -187,6 +206,7 @@ export function profileValues(profile) {
     primary: profile.primary || "",
     channels: [...profile.channels],
     mail_address: profile.mail_address || "",
+    home_entity: profile.home_entity || "",
     enabled: profile.enabled !== false,
   };
 }
@@ -199,6 +219,7 @@ export function isDefault(values) {
     values.removed.length === 0 &&
     !values.primary &&
     !values.mail_address &&
+    !values.home_entity &&
     PROFILE_CHANNELS.every((c) => values.channels.includes(c) === DEFAULT_CHANNELS.includes(c))
   );
 }
@@ -211,6 +232,7 @@ export function toProfileData(person, values, creating) {
   if (values.removed.length) data.removed_devices = [...values.removed];
   if (values.primary) data.primary = values.primary;
   if (String(values.mail_address || "").trim()) data.mail_address = String(values.mail_address).trim();
+  if (values.home_entity) data.home_entity = values.home_entity;
   return data;
 }
 
@@ -364,6 +386,8 @@ export function mount(container, ctx) {
     const options = [{ value: "", label: t.add_device_none }, ...data.choices.registrations.filter((r) => !present.has(r.id) || values.removed.includes(r.id)).map((r) => ({ value: r.id, label: r.name }))];
     box.append(ui.field(t.add_device, ui.selectInput(options, "", (v) => { profile.values = addDevice(values, v); render(); })));
     box.append(ui.field(t.mail_address, ui.textInput(values.mail_address || "", (v) => { values.mail_address = v; }), t.mail_address_hint));
+    const homeChoices = homeEntities(hass, values.home_entity).map((id) => ({ value: id, label: id }));
+    box.append(ui.field(t.home_entity, ui.selectInput([{ value: "", label: t.home_entity_none }, ...homeChoices], values.home_entity || "", (v) => { values.home_entity = v; }), t.home_entity_hint));
     box.append(ui.chips(t.channels, PROFILE_CHANNELS.map((c) => ({ value: c, label: t[`channel_${c}`] })), values.channels, (list) => { values.channels = list; }));
     const status = el("div", { className: "hint", textContent: message });
     const save = el("button", { type: "button", className: "primary", textContent: s.common.save });
@@ -378,7 +402,7 @@ export function mount(container, ctx) {
       row.append(reset);
     }
     box.append(status, row);
-    if (view.subentry_id) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ person: view.person, enabled: values.enabled !== false, channels: values.channels, devices: values.manual, removed_devices: values.removed, primary: values.primary || null, mail_address: values.mail_address || null }), s.common));
+    if (view.subentry_id) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ person: view.person, enabled: values.enabled !== false, channels: values.channels, devices: values.manual, removed_devices: values.removed, primary: values.primary || null, mail_address: values.mail_address || null, home_entity: values.home_entity || null }), s.common));
     return box;
   }
 

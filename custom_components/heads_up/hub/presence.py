@@ -1,6 +1,7 @@
 """Who is home, who left last, who came first (DESIGN §23.7, D-080, D-109).
 
-Built on the `person` states. A change must hold for the debounce before it counts, so a flapping
+Built on the `person` states, or for a person whose recipient profile names one, on an on/off
+entity: `on` means home (D-220). A change must hold for the debounce before it counts, so a flapping
 GPS fix does not move "Last to leave". `None`, `unknown` and `unavailable` (N-63) are no
 information: they change nothing. The result is stored so it is right after a restart.
 """
@@ -27,10 +28,29 @@ def is_unknown(state: State | None) -> bool:
     return state is None or state.state in UNKNOWN_STATES
 
 
+def home_of(state: State | None, from_entity: bool) -> bool | None:
+    """Whether a source state says home: a person state `home`, or an entity `on`. None: unknown."""
+    if is_unknown(state):
+        return None
+    assert state is not None
+    return state.state == "on" if from_entity else state.state == STATE_HOME
+
+
+def is_home(hass: HomeAssistant, person: str, home_entity: str = "") -> bool | None:
+    """Whether a person is home now, from their home entity if they have one (D-220)."""
+    return home_of(hass.states.get(home_entity or person), bool(home_entity))
+
+
 class PresenceTracker:
-    def __init__(self, hass: HomeAssistant, debounce: Callable[[], int]) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        debounce: Callable[[], int],
+        home_entity: Callable[[str], str] = lambda person: "",
+    ) -> None:
         self._hass = hass
         self._debounce = debounce
+        self._home_entity = home_entity
         self._store: Store[dict[str, Any]] = Store(hass, 1, PRESENCE_KEY)
         self.home: set[str] = set()
         self._last_to_leave: str | None = None
@@ -44,11 +64,24 @@ class PresenceTracker:
         self._first_home = data.get("first_home")
         # What happened while Home Assistant was stopped is unknown: take the states as they are.
         self.home = {
-            s.entity_id for s in self._hass.states.async_all("person") if s.state == STATE_HOME
+            s.entity_id
+            for s in self._hass.states.async_all("person")
+            if is_home(self._hass, s.entity_id, self._home_entity(s.entity_id))
         }
         self._unsub = self._hass.bus.async_listen(
-            "state_changed", self._on_change, event_filter=self._is_person
+            "state_changed", self._on_change, event_filter=self._is_source
         )
+
+    def refresh(self) -> None:
+        """Take who is home from the sources as they are now, for example after a recipient
+        profile changed its home entity. Last to leave and First home stay as they were."""
+        if self._unsub is None:
+            return  # not started yet: async_start reads them
+        self.home = {
+            s.entity_id
+            for s in self._hass.states.async_all("person")
+            if is_home(self._hass, s.entity_id, self._home_entity(s.entity_id))
+        }
 
     async def async_stop(self) -> None:
         if self._unsub:
@@ -69,29 +102,47 @@ class PresenceTracker:
         """The first person home after the house was empty; none while nobody is home."""
         return self._first_home if self.home else None
 
-    @staticmethod
+    def persons_of(self, entity_id: str) -> list[str]:
+        """The persons whose presence this entity gives: a person without a home entity, or
+        every person whose home entity it is."""
+        if entity_id.startswith("person.") and not self._home_entity(entity_id):
+            return [entity_id]
+        return [
+            s.entity_id
+            for s in self._hass.states.async_all("person")
+            if self._home_entity(s.entity_id) == entity_id
+        ]
+
     @callback
-    def _is_person(data: Any) -> bool:
-        return str(data["entity_id"]).startswith("person.")
+    def _is_source(self, data: Any) -> bool:  # HA requires a callback as an event filter
+        entity_id = str(data["entity_id"])
+        return entity_id.startswith("person.") or bool(self.persons_of(entity_id))
 
     @callback
     def _on_change(self, event: Event[Any]) -> None:
         entity_id: str = event.data["entity_id"]
-        new: State | None = event.data["new_state"]
-        if cancel := self._pending.pop(entity_id, None):
-            cancel()
-        if new is None:
+        if entity_id.startswith("person.") and event.data["new_state"] is None:
+            if cancel := self._pending.pop(entity_id, None):
+                cancel()
             if entity_id in self.home:  # the person was deleted
                 self._commit(entity_id, False)
             return
+        for person in self.persons_of(entity_id):
+            self._person_changed(person, event)
+
+    def _person_changed(self, entity_id: str, event: Event[Any]) -> None:
+        new: State | None = event.data["new_state"]
+        from_entity = bool(self._home_entity(entity_id))
+        if cancel := self._pending.pop(entity_id, None):
+            cancel()
         if event.data["old_state"] is None:
             # The entity just appeared (startup, a new person): not an arrival.
-            if new.state == STATE_HOME:
+            if home_of(new, from_entity):
                 self.home.add(entity_id)
             return
-        if new.state in UNKNOWN_STATES:
+        is_home = home_of(new, from_entity)
+        if is_home is None:
             return
-        is_home = new.state == STATE_HOME
         if is_home == (entity_id in self.home):
             return
         delay = self._debounce()

@@ -54,6 +54,7 @@ from .policies.away import AwayStage
 from .policies.chain import Chain, Hold, Skip, Step
 from .policies.models import Policy
 from .policies.quiet import QuietHoursStage
+from .presence import home_of
 from .resolver import HubResolver, Recipient
 from .trace import TraceBuffer, TraceEntry
 from .transitions import BannerTransition, Kind, Reason
@@ -124,7 +125,7 @@ class HubEngine:
         self.identity = IdentityMaps()
         self.chain = Chain()
         self.chain.replace(QuietHoursStage(self.policies, hass))
-        self.chain.replace(AwayStage(hass, self.policies))
+        self.chain.replace(AwayStage(hass, self.policies, self.resolver.home_entity))
         self._unsub_arrival: CALLBACK_TYPE | None = None
         self._unsub_quiet: CALLBACK_TYPE | None = None
         # Set by the manager: make a message (the summaries), and tell viewers a hold changed.
@@ -170,7 +171,7 @@ class HubEngine:
         self._restore_timers()
         # Arrival releases the deliveries held by Away.
         self._unsub_arrival = self.hass.bus.async_listen(
-            EVENT_STATE_CHANGED, self._on_state_change, event_filter=self._is_person
+            EVENT_STATE_CHANGED, self._on_state_change, event_filter=self._is_presence_source
         )
         # The end of a Quiet hours entity releases what it held (D-218, D-220).
         self._unsub_quiet = self.hass.bus.async_listen(
@@ -1035,18 +1036,26 @@ class HubEngine:
             self.hass, partial(self._timer_due, message_id, key[1]), row.due
         )
 
-    @staticmethod
     @callback
-    def _is_person(data: Any) -> bool:  # HA requires a callback as an event filter
-        return str(data["entity_id"]).startswith("person.")
+    def _is_presence_source(self, data: Any) -> bool:  # HA requires a callback as a filter
+        return bool(self.resolver.presence.persons_of(str(data["entity_id"])))
 
     @callback
     def _on_state_change(self, event: Event[Any]) -> None:
-        new, old = event.data["new_state"], event.data["old_state"]
-        if self._closed or new is None or new.state != "home" or (old and old.state == "home"):
+        """An arrival releases what Away holds for that person; "home" is the person state, or
+        the person's home entity turning on (D-220)."""
+        if self._closed:
             return
+        entity_id = str(event.data["entity_id"])
+        new, old = event.data["new_state"], event.data["old_state"]
+        for person in self.resolver.presence.persons_of(entity_id):
+            from_entity = bool(self.resolver.home_entity(person))
+            if home_of(new, from_entity) and not home_of(old, from_entity):
+                self._release_away(person)
+
+    def _release_away(self, person: str) -> None:
         for row in list(self.ledger.rows.values()):
-            if row.state is State.HELD and row.hold == HOLD_AWAY and row.person == new.entity_id:
+            if row.state is State.HELD and row.hold == HOLD_AWAY and row.person == person:
                 self._enqueue(
                     row.message_id,
                     partial(self._release, row.message_id, row.channel, row.recipient),

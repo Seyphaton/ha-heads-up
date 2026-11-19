@@ -130,7 +130,8 @@ describe("recipient editor", () => {
   };
 
   it("starts from what the profile changes", () => {
-    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "", enabled: true });
+    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "", home_entity: "", enabled: true });
+    expect(profileValues({ ...profile, home_entity: "binary_sensor.anna_home" }).home_entity).toBe("binary_sensor.anna_home");
   });
 
   it("needs no stored profile when nothing differs from the detected devices", () => {
@@ -140,6 +141,7 @@ describe("recipient editor", () => {
     expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push"] })).toBe(false);
     expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup", "mail"] })).toBe(false);
     expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "a@b.c" })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], home_entity: "input_boolean.x" })).toBe(false);
   });
 
   it("builds the flow data, with the person only when creating", () => {
