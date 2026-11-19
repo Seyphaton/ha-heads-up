@@ -1,4 +1,4 @@
-// Heads Up panel: Channels page (D-119): settings of push, popup and speech by severity.
+// Heads Up panel: Channels page (D-119): one row per channel with its settings.
 
 export const STRINGS = {
   en: {
@@ -52,6 +52,9 @@ export const STRINGS = {
     valid: "No problems.",
     bad_channel_id: "The channel name uses lower-case letters, digits and underscores, up to 40 characters.",
     mail: "Mail",
+    persistent: "Persistent Notification",
+    persistent_summary: "No settings",
+    persistent_none: "No configuration is available for this channel. It adds the message to Home Assistant's notification list, the bell in the sidebar, and needs no target.",
     mail_intro: "Mail calls a notify service once per recipient with a subject and a body. A person's address is set under Recipients, where Mail must be switched on for them.",
     mail_service: "Notify service",
     mail_service_none: "None (mail is off)",
@@ -115,6 +118,9 @@ export const STRINGS = {
     valid: "Keine Probleme.",
     bad_channel_id: "Der Kanalname besteht aus Kleinbuchstaben, Ziffern und Unterstrichen, höchstens 40 Zeichen.",
     mail: "E-Mail",
+    persistent: "Persistente Benachrichtigung",
+    persistent_summary: "Keine Einstellungen",
+    persistent_none: "Für diesen Kanal gibt es keine Einstellungen. Er legt die Nachricht in die Benachrichtigungsliste von Home Assistant, die Glocke in der Seitenleiste, und braucht kein Ziel.",
     mail_intro: "E-Mail ruft einen Benachrichtigungsdienst einmal pro Empfänger mit Betreff und Text auf. Die Adresse einer Person stellst du unter Empfänger ein; dort muss E-Mail für sie aktiviert sein.",
     mail_service: "Benachrichtigungsdienst",
     mail_service_none: "Keiner (E-Mail ist aus)",
@@ -178,6 +184,9 @@ export const STRINGS = {
     valid: "Aucun problème.",
     bad_channel_id: "Le nom du canal utilise des minuscules, des chiffres et des tirets bas, 40 caractères au plus.",
     mail: "Courriel",
+    persistent: "Notification persistante",
+    persistent_summary: "Aucun réglage",
+    persistent_none: "Ce canal n'a aucun réglage. Il ajoute le message à la liste des notifications de Home Assistant, la cloche dans la barre latérale, et n'a besoin d'aucun destinataire.",
     mail_intro: "Le courriel appelle un service de notification une fois par destinataire avec un objet et un corps. L'adresse d'une personne se règle sous Destinataires, où Courriel doit être activé pour elle.",
     mail_service: "Service de notification",
     mail_service_none: "Aucun (courriel désactivé)",
@@ -241,6 +250,9 @@ export const STRINGS = {
     valid: "Sin problemas.",
     bad_channel_id: "El nombre del canal usa minúsculas, dígitos y guiones bajos, hasta 40 caracteres.",
     mail: "Correo",
+    persistent: "Notificación persistente",
+    persistent_summary: "Sin ajustes",
+    persistent_none: "Este canal no tiene ajustes. Añade el mensaje a la lista de notificaciones de Home Assistant, la campana de la barra lateral, y no necesita destino.",
     mail_intro: "El correo llama a un servicio de notificación una vez por destinatario con asunto y cuerpo. La dirección de una persona se define en Destinatarios, donde Correo debe estar activado para ella.",
     mail_service: "Servicio de notificación",
     mail_service_none: "Ninguno (correo desactivado)",
@@ -266,6 +278,7 @@ const CHANNELS = [
   { key: "push", icon: "mdi:cellphone-message", keys: ["push_lockscreen", "push_channel_id", "push_sticky"], settings: ["quick_snooze_minutes"] },
   { key: "popup", icon: "mdi:dock-window", keys: [], settings: ["quick_snooze_minutes"] },
   { key: "speech", icon: "mdi:account-voice", keys: ["speak_language"], settings: [] },
+  { key: "persistent", icon: "mdi:bell-outline", keys: [], settings: [] },
   { key: "mail", icon: "mdi:email-outline", keys: ["mail_service", "mail_global_address", "mail_subject", "mail_body"], settings: [] },
 ];
 
@@ -334,6 +347,7 @@ export function summaryText(key, values, t, language, settings = {}) {
     const code = String(values.speak_language || "").trim();
     return code ? languageName(code, language) : t.ha_language;
   }
+  if (key === "persistent") return t.persistent_summary;
   if (!values.mail_service) return t.mail_off;
   const address = String(values.mail_global_address || "").trim();
   return [`notify.${values.mail_service}`, address ? fill(t.global_to, { a: address }) : ""].filter(Boolean).join(" · ");
@@ -478,6 +492,10 @@ export function mount(container, ctx) {
       const go = el("button", { type: "button", textContent: t.severities_link });
       go.addEventListener("click", () => ctx.navigate("severities"));
       box.append(el("div", { className: "tl-wide" }, [el("div", { className: "ch-sub", textContent: t.styles_label }), styles, el("div", { className: "ch-go" }, [el("span", { className: "hint", textContent: t.styles_hint }), go])]));
+      return box;
+    }
+    if (key === "persistent") {
+      box.append(hint(t.persistent_none));
       return box;
     }
     if (key === "push") {

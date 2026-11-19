@@ -6,7 +6,7 @@ Create and edit them in the panel (Configuration group: Channels, Audiences, Rec
 
 ## Channels
 
-The panel's Channels page lists banner, push, popup, speech and mail with a summary of their settings; select a channel to change it. The Persistent Notification has no settings.
+The panel's Channels page lists banner, push, popup, speech, Persistent Notification and mail with a summary of their settings; select a channel to change it. The Persistent Notification row only says that the channel has no settings.
 
 A call names its channels in `channels`. Push, popup and mail take `recipients` or `audience`, speech takes `speakers`. The banner takes `recipients` or `audience` too, or shows to everyone without them. The Persistent Notification takes no target.
 
