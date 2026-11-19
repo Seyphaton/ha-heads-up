@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime
 from typing import Any
@@ -112,8 +113,11 @@ class Banner:
             }
         )
 
-    def to_client(self, user_id: str) -> dict[str, Any]:
-        """Payload for one viewer. Never includes dismissals or targeting of other users."""
+    def to_client(
+        self, user_id: str, display: Mapping[str, Mapping[str, str]] | None = None
+    ) -> dict[str, Any]:
+        """Payload for one viewer. Never includes dismissals or targeting of other users.
+        `display` is the label, icon and color per severity from the Severities page."""
         data = self.to_dict()
         for key in (
             "dismissed_by",
@@ -138,7 +142,12 @@ class Banner:
         snoozed_until = self.snoozed_for(user_id)
         data["snoozed_until"] = snoozed_until.isoformat() if snoozed_until else None
         data["active"] = self.active
-        data["icon"] = self.icon or DEFAULT_ICONS[self.severity]
+        shown = (display or {}).get(self.severity) or {}
+        data["icon"] = self.icon or shown.get("icon") or DEFAULT_ICONS[self.severity]
+        if label := shown.get("label"):
+            data["severity_label"] = label
+        if color := shown.get("color"):
+            data["severity_color"] = color
         data["dismissed"] = user_id in self.dismissed_by or GLOBAL_SNOOZE_KEY in self.dismissed_by
         data["snoozed"] = snoozed_until is not None
         return data

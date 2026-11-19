@@ -7,6 +7,7 @@ no second copy of the validation.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from typing import Any
 
@@ -20,6 +21,7 @@ from ..const import (
     GROUP_SUBENTRY,
     GROUP_SUFFIX,
     MAX_MAIL_ADDRESS,
+    MAX_SEVERITY_LABEL,
     OPT_MAIL_ADDRESS,
     OPT_MAIL_BODY,
     OPT_MAIL_SERVICE,
@@ -29,6 +31,7 @@ from ..const import (
     OPT_PUSH_LEVELS,
     OPT_PUSH_LOCKSCREEN,
     OPT_PUSH_STICKY,
+    OPT_SEVERITY_DISPLAY,
     OPT_SPEAK_LANGUAGE,
     POLICY_SUBENTRY,
     POPUP_STYLES,
@@ -61,6 +64,7 @@ def area_choices(hass: HomeAssistant) -> list[dict[str, str]]:
 
 
 CHANNEL_KEYS = (
+    OPT_SEVERITY_DISPLAY,
     OPT_PUSH_LEVELS,
     OPT_POPUP_STYLES,
     OPT_PUSH_LOCKSCREEN,
@@ -88,6 +92,36 @@ def channel_settings(manager: BannerManager) -> dict[str, Any]:
     return out
 
 
+_COLOR = re.compile(r"^(#[0-9a-fA-F]{3,8}|var\(--[a-z0-9-]+\)|[a-z]+|rgba?\([0-9., %]+\))$")
+_ICON = re.compile(r"^mdi:[a-z0-9-]+$")
+
+
+def _display_valid(value: Any) -> bool:
+    """Label, icon and color per severity (D-222, D-223): a label of at most 30 characters, an
+    `mdi:` icon and a CSS color or theme variable; each may be empty."""
+    if not isinstance(value, dict) or set(value) - set(SEVERITIES):
+        return False
+    for shown in value.values():
+        if not isinstance(shown, dict) or set(shown) - {"label", "icon", "color"}:
+            return False
+        label, icon, color = (str(shown.get(k) or "") for k in ("label", "icon", "color"))
+        if len(label) > MAX_SEVERITY_LABEL or (icon and not _ICON.match(icon)):
+            return False
+        if color and not _COLOR.match(color):
+            return False
+    return True
+
+
+def clean_display(value: dict[str, Any]) -> dict[str, dict[str, str]]:
+    """Only what is set is stored, so an empty page stores nothing."""
+    out: dict[str, dict[str, str]] = {}
+    for severity, shown in value.items():
+        kept = {k: str(v).strip() for k, v in shown.items() if str(v or "").strip()}
+        if kept:
+            out[severity] = kept
+    return out
+
+
 def check_channels(changes: dict[str, Any], hass: HomeAssistant | None = None) -> dict[str, str]:
     """Problems of a channel settings change, as {field: code}."""
     errors: dict[str, str] = {}
@@ -100,6 +134,8 @@ def check_channels(changes: dict[str, Any], hass: HomeAssistant | None = None) -
     for key, check in ((OPT_MAIL_SUBJECT, mail.check_subject), (OPT_MAIL_BODY, mail.check_body)):
         if key in changes and (code := check(changes[key])) is not None:
             errors[key] = code
+    if OPT_SEVERITY_DISPLAY in changes and not _display_valid(changes[OPT_SEVERITY_DISPLAY]):
+        errors[OPT_SEVERITY_DISPLAY] = "severity_display_invalid"
     levels = changes.get(OPT_PUSH_LEVELS)
     if levels is not None and (
         set(levels) - set(SEVERITIES) or any(v not in PUSH_LEVELS for v in levels.values())

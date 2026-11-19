@@ -27,6 +27,7 @@ from ...const import (
     OPT_MAIL_BODY,
     OPT_MAIL_SERVICE,
     OPT_MAIL_SUBJECT,
+    OPT_SEVERITY_DISPLAY,
 )
 from ...models import Banner
 from .base import Capabilities, Outcome, Result, Target
@@ -93,8 +94,9 @@ class MailChannel:
         name = ""
         if person and (state := self._hass.states.get(person)):
             name = str(state.attributes.get("friendly_name") or person)
+        shown = (self._manager.options.get(OPT_SEVERITY_DISPLAY) or {}).get(message.severity) or {}
         return {
-            "severity": words.get(message.severity, message.severity),
+            "severity": shown.get("label") or words.get(message.severity, message.severity),
             "title": message.title or message.message,
             "message": message.message,
             "person": name,

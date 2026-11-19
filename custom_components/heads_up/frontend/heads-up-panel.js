@@ -4,7 +4,7 @@
 export const NAV = [
   { id: "overview", pages: ["status"] },
   { id: "notifications", pages: ["test", "rules", "messages"] },
-  { id: "configuration", pages: ["audiences", "recipients", "policies", "channels"] },
+  { id: "configuration", pages: ["audiences", "recipients", "policies", "severities", "channels"] },
   { id: "settings", pages: ["general"] },
   { id: "faq", pages: ["faq", "examples", "card"] },
 ];
@@ -18,6 +18,7 @@ export const MODULES = {
   audiences: "audiences.js",
   recipients: "recipients.js",
   policies: "policies.js",
+  severities: "severities.js",
   channels: "channels.js",
   faq: "help.js",
   examples: "help.js",
@@ -35,7 +36,7 @@ export const STRINGS = {
     tour_continue: "Continue the tour",
     tour_end: "End the tour",
     groups: { overview: "Overview", notifications: "Notifications and rules", configuration: "Configuration", settings: "Settings", faq: "Help" },
-    pages: { status: "Status", test: "Test send", rules: "Watch rules", messages: "Message Log", audiences: "Audiences", recipients: "Recipients", policies: "Policies", channels: "Channels", general: "General", faq: "FAQ", examples: "Notify examples", card: "Card examples" },
+    pages: { status: "Status", test: "Test send", rules: "Watch rules", messages: "Message Log", audiences: "Audiences", recipients: "Recipients", policies: "Policies", severities: "Severities", channels: "Channels", general: "General", faq: "FAQ", examples: "Notify examples", card: "Card examples" },
     not_built: "This page is not available.",
     loading: "Loading…",
     load_failed: "The page could not be loaded. Reload the browser page.",
@@ -49,7 +50,7 @@ export const STRINGS = {
     tour_continue: "Tour fortsetzen",
     tour_end: "Tour beenden",
     groups: { overview: "Übersicht", notifications: "Benachrichtigungen und Regeln", configuration: "Konfiguration", settings: "Einstellungen", faq: "Hilfe" },
-    pages: { status: "Status", test: "Testsenden", rules: "Überwachungsregeln", messages: "Meldungsprotokoll", audiences: "Zielgruppen", recipients: "Empfänger", policies: "Richtlinien", channels: "Kanäle", general: "Allgemein", faq: "FAQ", examples: "Notify-Beispiele", card: "Karten-Beispiele" },
+    pages: { status: "Status", test: "Testsenden", rules: "Überwachungsregeln", messages: "Meldungsprotokoll", audiences: "Zielgruppen", recipients: "Empfänger", policies: "Richtlinien", severities: "Schweregrade", channels: "Kanäle", general: "Allgemein", faq: "FAQ", examples: "Notify-Beispiele", card: "Karten-Beispiele" },
     not_built: "Diese Seite ist nicht verfügbar.",
     loading: "Lädt…",
     load_failed: "Die Seite konnte nicht geladen werden. Lade die Browserseite neu.",
@@ -63,7 +64,7 @@ export const STRINGS = {
     tour_continue: "Continuer la visite",
     tour_end: "Terminer la visite",
     groups: { overview: "Vue d'ensemble", notifications: "Notifications et règles", configuration: "Configuration", settings: "Réglages", faq: "Aide" },
-    pages: { status: "État", test: "Envoi de test", rules: "Règles de surveillance", messages: "Journal des messages", audiences: "Audiences", recipients: "Destinataires", policies: "Politiques", channels: "Canaux", general: "Général", faq: "FAQ", examples: "Exemples notify", card: "Exemples de carte" },
+    pages: { status: "État", test: "Envoi de test", rules: "Règles de surveillance", messages: "Journal des messages", audiences: "Audiences", recipients: "Destinataires", policies: "Politiques", severities: "Gravités", channels: "Canaux", general: "Général", faq: "FAQ", examples: "Exemples notify", card: "Exemples de carte" },
     not_built: "Cette page n'est pas disponible.",
     loading: "Chargement…",
     load_failed: "La page n'a pas pu être chargée. Rechargez la page du navigateur.",
@@ -77,7 +78,7 @@ export const STRINGS = {
     tour_continue: "Continuar el recorrido",
     tour_end: "Terminar el recorrido",
     groups: { overview: "Resumen", notifications: "Notificaciones y reglas", configuration: "Configuración", settings: "Ajustes", faq: "Ayuda" },
-    pages: { status: "Estado", test: "Envío de prueba", rules: "Reglas de vigilancia", messages: "Registro de mensajes", audiences: "Audiencias", recipients: "Destinatarios", policies: "Políticas", channels: "Canales", general: "General", faq: "Preguntas", examples: "Ejemplos de notify", card: "Ejemplos de tarjeta" },
+    pages: { status: "Estado", test: "Envío de prueba", rules: "Reglas de vigilancia", messages: "Registro de mensajes", audiences: "Audiencias", recipients: "Destinatarios", policies: "Políticas", severities: "Gravedades", channels: "Canales", general: "General", faq: "Preguntas", examples: "Ejemplos de notify", card: "Ejemplos de tarjeta" },
     not_built: "Esta página no está disponible.",
     loading: "Cargando…",
     load_failed: "No se pudo cargar la página. Recarga la página del navegador.",
@@ -267,6 +268,17 @@ function node(tag, props = {}, children = []) {
 // vitest runs without a DOM: the class only needs a base there.
 const Base = typeof HTMLElement !== "undefined" ? HTMLElement : class {};
 
+// A copy of a strings table whose severity words (`severity`, `severity_names`, `severities`) use
+// the labels of the Severities page; the Severities page itself keeps the built-in names.
+export function withLabels(table, labels) {
+  if (!labels || Object.keys(labels).length === 0) return table;
+  const out = { ...table };
+  for (const key of ["severity", "severity_names"]) {
+    if (out[key] && typeof out[key] === "object") out[key] = { ...out[key], ...labels };
+  }
+  return out;
+}
+
 class HeadsUpPanel extends Base {
   constructor() {
     super();
@@ -433,12 +445,21 @@ class HeadsUpPanel extends Base {
       // The helpers the editor pages share are loaded once, under the same versioned URL scheme.
       this._ui ||= await import(moduleUrl(base, version, "ui.js"));
       if (token !== this._token) return; // another page was opened meanwhile
+      // Labels of the Severities page replace the severity words of every page (D-223).
+      let labels = {};
+      try {
+        const display = await this._hass.callWS({ type: "heads_up/severity_display" });
+        labels = Object.fromEntries(Object.entries(display || {}).filter(([, v]) => v?.label).map(([k, v]) => [k, v.label]));
+      } catch (err) {
+        labels = {};
+      }
+      if (token !== this._token) return;
       const container = node("div");
       this._main.replaceChildren(container);
       this._mounted = mod.mount(container, {
         hass: this._hass,
-        t: table(mod.STRINGS, this._hass?.language),
-        s: this._t.shared,
+        t: withLabels(table(mod.STRINGS, this._hass?.language), labels),
+        s: withLabels(this._t.shared, labels),
         ui: this._ui,
         page,
         language: this._hass?.language,

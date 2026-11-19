@@ -17,11 +17,12 @@ A call names its channels in `channels`. Push, popup and mail take `recipients` 
 | `mail` | `audience` or `recipients` (persons, `Global address`) | none |
 | `persistent` | none | none |
 
-The panel's Channels page sets the options below. They are stored in the integration options; [Settings](settings.md) lists every option with its default.
+The panel's Channels page sets the options below, except the push level and the popup style of each severity, which are on the Severities page. They are stored in the integration options; [Settings](settings.md) lists every option with its default.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `push_levels` | success and info `passive`, warning `normal`, critical `time-sensitive` | Push level per severity. |
+| `severity_display` | none | Label, icon and color per severity, set on the Severities page. See Severities below. |
+| `push_levels` | success and info `passive`, warning `normal`, critical `time-sensitive` | Push level per severity, set on the Severities page. |
 | `push_lockscreen` | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
 | `push_channel_id` | `heads_up` | Prefix of the Android notification channel. |
 | `push_sticky` | off | Keeps the notification after a tap (Android). |
@@ -199,6 +200,15 @@ A single message can use its own subject and body with the `mail_subject` and `m
 A mail cannot be taken back: clearing, dismissing or ending the message sends nothing and removes nothing. An update does not send the mail again (`already_sent`). Speech cooldown and buttons do not apply; images and buttons are not sent. A failed call or a missing address fires `heads_up_delivery_failed` (see [Actions](actions.md#events)). A Quiet hours policy with the action Drop or Wait applies to mail.
 
 Delivery is the notify service's job: Heads Up knows only whether the call returned an error. After a mail went through the SMTP integration's notify service, the SMTP integration raises a repair that the service is deprecated and due to be removed in Home Assistant 2027.3. Mail was not tested with a real mail server.
+
+## Severities
+
+The four severities are `success`, `info`, `warning` and `critical`. Calls, watch rules, policies, events and entity attributes always use these names. The panel's Severities page sets, for each of them:
+
+- Label: the word shown instead of the built-in name, in every language. It appears on the card (as the screen-reader label, and visibly with `show_severity`), in the popup, in the mail placeholder `{severity}` and everywhere in the panel. At most 30 characters. Empty: the translated name.
+- Icon: an `mdi:` icon used when a message has no `icon` of its own, on the card, the popup and in the panel. Empty: the built-in icon. The page warns when two severities share an icon, because the icon shape is what tells them apart without color.
+- Color: a CSS color or a theme variable, for example `#d00000` or `var(--error-color)`, used by every card and the popup. A card that has its own `colors` in its YAML keeps them. Empty: the theme color.
+- Push level and popup style, the same options as listed under Channels.
 
 ## Audiences
 

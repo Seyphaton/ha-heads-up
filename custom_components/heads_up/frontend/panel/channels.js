@@ -3,6 +3,8 @@
 export const STRINGS = {
   en: {
     title: "Channels",
+    severities_note: "The push level and the popup style of each severity are set on the Severities page.",
+    severities_link: "Severities",
     intro: "How each channel looks and sounds, by severity. These settings apply to every message.",
     push: "Push",
     popup: "Popup",
@@ -41,6 +43,8 @@ export const STRINGS = {
   },
   de: {
     title: "Kanäle",
+    severities_note: "Push-Stufe und Popup-Stil jedes Schweregrads stehen auf der Seite Schweregrade.",
+    severities_link: "Schweregrade",
     intro: "Wie jeder Kanal aussieht und klingt, nach Schweregrad. Diese Einstellungen gelten für alle Meldungen.",
     push: "Push",
     popup: "Popup",
@@ -79,6 +83,8 @@ export const STRINGS = {
   },
   fr: {
     title: "Canaux",
+    severities_note: "Le niveau du push et le style du popup de chaque gravité se règlent sur la page Gravités.",
+    severities_link: "Gravités",
     intro: "L'apparence et le son de chaque canal, par gravité. Ces réglages s'appliquent à tous les messages.",
     push: "Push",
     popup: "Fenêtre",
@@ -117,6 +123,8 @@ export const STRINGS = {
   },
   es: {
     title: "Canales",
+    severities_note: "El nivel del push y el estilo de la ventana de cada gravedad se ajustan en la página Gravedades.",
+    severities_link: "Gravedades",
     intro: "Cómo se ve y suena cada canal, según la gravedad. Estos ajustes valen para todos los mensajes.",
     push: "Push",
     popup: "Ventana",
@@ -209,29 +217,15 @@ export function mount(container, ctx) {
     ui.lockHeight(root);
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
+    // The push level and the popup style of each severity are on the Severities page (D-222).
+    const toSeverities = el("button", { type: "button", textContent: t.severities_link });
+    toSeverities.addEventListener("click", () => ctx.navigate("severities"));
+    root.append(el("div", { className: "hint", textContent: t.severities_note }), toSeverities);
     const push = el("section", {}, [el("h2", { textContent: t.push })]);
-    for (const severity of SEVERITIES) {
-      push.append(
-        ui.field(
-          fill(t.push_level, { severity: t.severities[severity] }),
-          ui.selectInput(LEVELS.map((l) => ({ value: l, label: t.levels[l] })), values.push_levels[severity], (v) => { values.push_levels[severity] = v; paint(); }),
-        ),
-      );
-    }
-    push.append(el("div", { className: "hint", textContent: t.critical_note }));
     push.append(ui.field(t.lockscreen, ui.selectInput(LOCKSCREENS.map((l) => ({ value: l, label: t.lockscreens[l] })), values.push_lockscreen, (v) => { values.push_lockscreen = v; paint(); })));
     push.append(el("div", { className: "hint", textContent: t.buttons_note }));
     push.append(ui.checkbox(t.sticky, values.push_sticky, (on) => { values.push_sticky = on; paint(); }));
     push.append(ui.field(t.channel_id, ui.textInput(values.push_channel_id, (v) => { values.push_channel_id = v; paint(); }), t.channel_id_note));
-    const popup = el("section", {}, [el("h2", { textContent: t.popup })]);
-    for (const severity of SEVERITIES) {
-      popup.append(
-        ui.field(
-          fill(t.popup_style, { severity: t.severities[severity] }),
-          ui.selectInput(STYLES.map((x) => ({ value: x, label: t.styles[x] })), values.popup_styles[severity], (v) => { values.popup_styles[severity] = v; paint(); }),
-        ),
-      );
-    }
     const speech = el("section", {}, [el("h2", { textContent: t.speech })]);
     speech.append(ui.field(t.language, ui.textInput(values.speak_language, (v) => { values.speak_language = v; paint(); })));
     speech.append(el("div", { className: "hint", textContent: t.speech_note }));
@@ -253,7 +247,7 @@ export function mount(container, ctx) {
     status.setAttribute("aria-live", "polite");
     const save = el("button", { type: "button", className: "primary", textContent: t.save });
     save.addEventListener("click", saveIt);
-    root.append(push, popup, speech, mail, save, status);
+    root.append(push, speech, mail, save, status);
     function paint() {
       const found = problems(values);
       const dirty = Object.keys(changes(values, data.channels)).length > 0;

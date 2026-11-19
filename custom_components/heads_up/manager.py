@@ -57,6 +57,7 @@ from .const import (
     OPT_EVICT,
     OPT_MAX_BANNERS,
     OPT_QUICK_SNOOZE,
+    OPT_SEVERITY_DISPLAY,
     RULE_ID_PREFIX,
     RULE_SUBENTRY,
     RULE_TAG,
@@ -751,7 +752,7 @@ class BannerManager:
     # Internals -------------------------------------------------------------------------
 
     def _client(self, banner: Banner, user_id: str) -> dict[str, Any]:
-        data = banner.to_client(user_id)
+        data = banner.to_client(user_id, self.options.get(OPT_SEVERITY_DISPLAY))
         # Who acknowledged is shown as first names (D-116); a user without a person is counted only.
         data["acknowledged"] = bool(banner.acknowledged_by)
         data["acknowledged_by"] = [

@@ -712,7 +712,7 @@ The card shows a banner while it is active, not dismissed by you, and not remove
 | `show_time` | boolean | `false` | Show how long ago the banner was created or replaced ("just now", "50 min ago", "3 h ago", "1 day ago", "2 days ago"). |
 | `show_severity` | boolean | `false` | Show the text label ("Warning"). Without it, the icon and color show the severity. |
 | `colorize` | `all`, `background`, `icon`, `bar` | `all` | Which parts take the severity color: background, icon and left bar; background only; icon and label only; left bar only. |
-| `colors` | map of severity to color | theme colors | CSS color or theme variable per severity, for example `critical: "#c62828"` or `info: var(--primary-color)`. |
+| `colors` | map of severity to color | the colors of the Severities page, else the theme | CSS color or theme variable per severity, for example `critical: "#c62828"`. YAML only: the card editor no longer shows it, because the panel's Severities page sets the colors for every card. A card with `colors` keeps them. |
 | `clear_all` | boolean | `false` | Show a "Clear all" button in the header. |
 | `swipe_to_dismiss` | boolean | `false` | Swipe a banner sideways to dismiss it. |
 | `show_snoozed` | boolean | `true` | List your snoozed banners under the card with a Show now button. `false` hides the list. |
@@ -844,7 +844,7 @@ In the compact layout, a long title or message is cut with "…" and the full te
 
 ### Colors
 
-`colors` takes any CSS color (`#c62828`, `teal`, `rgb(…)`) or a theme variable (`var(--primary-color)`) for each of `critical`, `warning`, `info` and `success`. Severities you leave out use the theme colors `--error-color`, `--warning-color`, `--info-color` and `--success-color`. A value the browser does not accept as a color falls back to the theme color. The card does not check contrast: choose colors that stay readable in your light and dark themes.
+Set the colors for every card on the panel's Severities page ([Configuration](configuration.md#severities)). In YAML, `colors` takes any CSS color (`#c62828`, `teal`, `rgb(…)`) or a theme variable (`var(--primary-color)`) for each of `critical`, `warning`, `info` and `success`. Severities you leave out use the theme colors `--error-color`, `--warning-color`, `--info-color` and `--success-color`. A value the browser does not accept as a color falls back to the theme color. The card does not check contrast: choose colors that stay readable in your light and dark themes.
 
 With `colorize: background` the icon and label use the theme text colors; with `colorize: icon` the background is the theme's secondary background and the left bar is not drawn.
 

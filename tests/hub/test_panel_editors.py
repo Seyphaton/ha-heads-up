@@ -167,6 +167,7 @@ async def test_the_config_has_the_entry_id_and_the_channel_settings(
     result = await config(hass, client)
     assert result["entry_id"] == entry.entry_id and "hub" not in result
     assert result["channels"] == {
+        "severity_display": {},
         "push_levels": {
             "success": "passive",
             "info": "passive",

@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 
-from ...const import DEFAULT_POPUP_STYLES, OPT_POPUP_STYLES
+from ...const import DEFAULT_POPUP_STYLES, OPT_POPUP_STYLES, OPT_SEVERITY_DISPLAY
 from ...models import Banner
 from ..ledger import State
 from .base import Capabilities, Outcome, Result, Target
@@ -93,7 +93,7 @@ class PopupChannel:
             message = self._hub.lookup(row.message_id)
             if message is None or not message.active or message.id in found:
                 continue
-            payload = message.to_client(user_id)
+            payload = message.to_client(user_id, self._manager.options.get(OPT_SEVERITY_DISPLAY))
             quiet = row.ref == QUIET
             style = self.styles().get(message.severity, "card")
             # A quiet message is always a card: in its corner, or at the bottom right when the

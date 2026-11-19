@@ -525,6 +525,21 @@ export function emptyView(config) {
   return config.show_empty ? "blank" : "hidden";
 }
 
+// The color of a banner: the card's own `colors` (an older card), else the color of the
+// Severities page that the server sends, else the theme color of the severity (D-222).
+export function severityColor(banner, cardColors = {}) {
+  const usable = (value) => typeof value === "string" && value.trim() !== "" && validColor(value);
+  const own = cardColors?.[banner.severity];
+  if (usable(own)) return own;
+  if (usable(banner.severity_color)) return banner.severity_color;
+  return `var(${SEVERITY_COLOR[banner.severity] ?? "--info-color"})`;
+}
+
+// The severity word of a banner: the label of the Severities page, else the translation (D-223).
+export function severityLabel(banner) {
+  return banner.severity_label || (STRINGS.severity[banner.severity] ?? banner.severity);
+}
+
 export function resolveColors(config) {
   return Object.fromEntries(
     SEVERITIES.map((s) => [s, config.colors[s] ?? `var(${SEVERITY_COLOR[s]})`]),
@@ -1099,9 +1114,7 @@ class HeadsUpCard extends Base {
     if (parts.bar) classes.push("c-bar");
     if (controls.tap) classes.push("tap");
     const node = el("div", classes.join(" "));
-    const color = validColor(colors[banner.severity])
-      ? colors[banner.severity]
-      : `var(${SEVERITY_COLOR[banner.severity] ?? "--info-color"})`;
+    const color = severityColor(banner, cfg.colors);
     node.style.setProperty("--accent", color);
     if (cfg.layout === "compact") {
       node.title = banner.title ? `${banner.title}: ${banner.message}` : banner.message;
@@ -1114,7 +1127,7 @@ class HeadsUpCard extends Base {
 
     const text = el("div", "text");
     const meta = el("div", "meta");
-    const severity = STRINGS.severity[banner.severity] ?? banner.severity;
+    const severity = severityLabel(banner);
     // The label stays in the page for screen readers when it is not shown (D-048).
     meta.append(el("span", cfg.show_severity ? "label" : "sr-only", severity));
     if (cfg.show_time) {
@@ -1416,11 +1429,8 @@ class HeadsUpCardEditor extends Base {
       { name: "show_time", selector: { boolean: {} } },
       { name: "show_severity", selector: { boolean: {} } },
       select("colorize", COLORIZE.map((v) => ({ value: v, label: t[`colorize_${v}`] }))),
-      {
-        name: "colors",
-        type: "expandable",
-        schema: SEVERITIES.map((s) => ({ name: s, selector: { text: {} } })),
-      },
+      // Colors are set for every card on the Severities page of the panel (D-222). A card that
+      // already has `colors` in its YAML keeps them; the editor no longer offers the field.
       { name: "clear_all", selector: { boolean: {} } },
       { name: "swipe_to_dismiss", selector: { boolean: {} } },
       { name: "show_snoozed", selector: { boolean: {} } },

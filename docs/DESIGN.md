@@ -724,6 +724,7 @@ Status: design only, on `release/1.1` (D-207); nothing built. Binding for every 
 ### 24.6 Severities (D-222)
 - The four keys stay. A Severities page under Configuration holds per level a display label (overrides the translation), an icon, the color, and its channel implications (today's per-severity channel settings). The card editor drops `colors`; an existing card `colors` keeps working.
 - The label shows in the card, the popup, the mail placeholder `{severity}` and the panel; YAML, events, attributes and the action form keep the keys. The icon is used when a message has none of its own (D-223).
+- Built: option `severity_display` (`{severity: {label, icon, color}}`, only set values stored), saved through `heads_up/channels_set` with `push_levels` and `popup_styles`; read by the panel shell through `heads_up/severity_display`, which replaces the severity words of every page (`withLabels`). `Banner.to_client` adds `severity_label` and `severity_color` and uses the icon; the card prefers its own `colors`, then `severity_color`, then the theme. The panel page is `frontend/panel/severities.js`; the Channels page links to it instead of showing the per-severity rows.
 
 ### 24.7 Parity (rule 9)
 - `snooze_custom` and the snooze event: actions and watch rules. Presence, Quiet hours sources and severity settings are policy or global settings and apply to both sources by severity and tag. Speech volume: speech exists only for actions and policies (D-206).

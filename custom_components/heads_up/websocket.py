@@ -432,9 +432,24 @@ async def ws_panel_config(
     connection.send_result(msg["id"], await panel_config.editors(hass, entry.runtime_data, entry))
 
 
+@websocket_command({vol.Required("type"): "heads_up/severity_display"})
+@require_admin
+@callback
+def ws_severity_display(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Label, icon and color per severity, for the panel's own lists (D-223)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    connection.send_result(
+        msg["id"], dict(entry.runtime_data.options.get("severity_display") or {})
+    )
+
+
 @websocket_command(
     {
         vol.Required("type"): "heads_up/channels_set",
+        vol.Optional("severity_display"): {str: {str: str}},
         vol.Optional("push_levels"): {str: str},
         vol.Optional("popup_styles"): {str: str},
         vol.Optional("push_lockscreen"): str,
@@ -459,6 +474,8 @@ def ws_channels_set(hass: HomeAssistant, connection: ActiveConnection, msg: dict
             msg["id"], "invalid_format", ", ".join(f"{k}: {v}" for k, v in errors.items())
         )
         return
+    if "severity_display" in changes:
+        changes["severity_display"] = panel_config.clean_display(changes["severity_display"])
     hass.config_entries.async_update_entry(entry, options={**entry.options, **changes})
     connection.send_result(msg["id"], panel_config.channel_settings(entry.runtime_data))
 
@@ -821,6 +838,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_hub_test_send_yaml,
         ws_panel_config,
         ws_channels_set,
+        ws_severity_display,
         ws_panel_overview,
         ws_attention_dismiss,
         ws_attention_restore,

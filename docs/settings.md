@@ -19,8 +19,9 @@ Every block has a heading of its own. Save is enabled only when something change
 | Introduction | A button, Restart introduction, that opens the introduction again. Only in the panel. |
 | Sidebar panel | The sidebar switch (`show_panel`). |
 | Messages | Dismiss settings (default dismiss scope, default timeout in days, hours, minutes and seconds, the ended-buttons switch) and snooze settings (snoozable by default, default snooze scope, the snooze choices of the banner and the snooze time of push and popup). Each card says which channels it applies to. |
-| Presence | The presence delay for Last to leave and First home. |
+| Presence | The presence delay for Last to leave, First home and the Presence policy. |
 | Speech | Longest spoken text, repeat pause and the text-to-speech engine. |
+| Speech volume | Putting the volume back after speaking, a volume per severity and up to 4 time bands. |
 | Limits | Maximum number of stored messages, evicting when full, pushes per device per minute, deliveries per minute for all devices, seconds in which identical updates are ignored. |
 | History | Trace entries kept and recent messages kept. |
 | Identity | The install token, read only. Only in the panel; the options screen shows it at the top. |
@@ -75,7 +76,7 @@ These settings belong to the message, not to one channel. They apply to the bann
 
 | Setting | Default | Meaning |
 |---|---|---|
-| Presence delay (`presence_debounce_seconds`) | 60 seconds (0–600) | How long a person must stay home or away before the audiences Last to leave and First home change. 0 reacts at once. |
+| Presence delay (`presence_debounce_seconds`) | 60 seconds (0–600) | How long a person must stay home or away before the audiences Last to leave and First home change, and before a Presence policy releases what it holds. 0 reacts at once. |
 
 ## Push
 
@@ -87,6 +88,12 @@ These settings belong to the message, not to one channel. They apply to the bann
 | Keep after tap (`push_sticky`) | off | Keeps the notification after a tap (Android). |
 
 See [Push notifications](configuration.md#push).
+
+## Severities
+
+| Setting | Default | Meaning |
+|---|---|---|
+| Label, icon and color per severity (`severity_display`) | none | Set on the panel's Severities page. See [Severities](configuration.md#severities). |
 
 ## Popup
 
@@ -104,6 +111,9 @@ See [Popups](configuration.md#popup).
 | Spoken text: repeat pause (`speak_cooldown_seconds`) | 60 seconds (0–3600) | The same text at the same volume is not spoken again on the same speaker within this time. Critical messages and Test send ignore it. 0: always speak. |
 | Text-to-speech engine (`speak_tts_entity`) | automatic | The engine for media players. Automatic: the only text-to-speech entity, if there is exactly one. |
 | Spoken language (`speak_language`) | the Home Assistant language | The language of the speech. |
+| Put the volume back after speaking (`speak_restore_volume`) | on | A speaker whose volume Heads Up changed gets its earlier volume back when the message was said, unless someone changed it meanwhile. Sonos speakers keep their volume and say the message at the chosen level. Off: the speaker stays at the speech volume. |
+| Volume by severity (`speak_severity_volume`) | none | 0–100 per severity. The volume in a call comes first. |
+| Volume by time of day (`speak_volume_bands`) | none | Up to 4 bands, each a start, an end and a volume in percent; a band may run over midnight and bands must not overlap. Outside every band the volume is not changed. |
 
 See [Speech](configuration.md#speech).
 

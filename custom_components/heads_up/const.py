@@ -215,6 +215,9 @@ OPT_SPEAK_RESTORE_VOLUME: Final = "speak_restore_volume"
 OPT_SPEAK_VOLUME_BANDS: Final = "speak_volume_bands"  # [{from, to, volume (percent)}], at most 4
 OPT_SPEAK_SEVERITY_VOLUME: Final = "speak_severity_volume"  # {severity: percent}
 MAX_VOLUME_BANDS: Final = 4
+# Per severity: {label, icon, color} set on the Severities page (D-222, D-223). Empty: defaults.
+OPT_SEVERITY_DISPLAY: Final = "severity_display"
+MAX_SEVERITY_LABEL: Final = 30
 # Mail settings (D-129). Edited on the panel's Channels page.
 OPT_MAIL_SERVICE: Final = "mail_service"  # name of a notify service, empty: mail is off
 OPT_MAIL_ADDRESS: Final = "mail_global_address"  # the shared address, empty: none
@@ -253,6 +256,7 @@ DEFAULT_OPTIONS: Final = {
     OPT_SPEAK_RESTORE_VOLUME: True,  # D-215
     OPT_SPEAK_VOLUME_BANDS: [],  # none: the volume is not changed (1.0 behaviour, D-213)
     OPT_SPEAK_SEVERITY_VOLUME: {},
+    OPT_SEVERITY_DISPLAY: {},  # nothing set: everything looks as in 1.0 (D-213)
     OPT_MAIL_SERVICE: "",
     OPT_MAIL_ADDRESS: "",
     OPT_MAIL_SUBJECT: "{severity}: {title}",

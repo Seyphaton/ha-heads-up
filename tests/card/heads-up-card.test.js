@@ -7,6 +7,8 @@ import {
   acknowledgedLabel,
   controlsFor,
   customSnoozeSeconds,
+  severityColor,
+  severityLabel,
   emptyView,
   imageSource,
   needsSignature,
@@ -200,6 +202,21 @@ describe("controlsFor snooze and buttons", () => {
   it("passes the banner's buttons through", () => {
     const actions = [{ key: "ack", label: "Got it", dismiss: true }];
     expect(controlsFor(banner({ actions }), false).actions).toEqual(actions);
+  });
+});
+
+describe("severity label and color (D-222, D-223)", () => {
+  it("takes the card's own color first, then the Severities page, then the theme", () => {
+    const b = banner({ severity: "critical", severity_color: "#d00000" });
+    expect(severityColor(b, { critical: "purple" })).toBe("purple");
+    expect(severityColor(b, {})).toBe("#d00000");
+    expect(severityColor(banner({ severity: "critical" }), {})).toBe("var(--error-color)");
+  });
+
+  it("takes the label of the Severities page, else the translation", () => {
+    setLanguage("en");
+    expect(severityLabel(banner({ severity: "critical", severity_label: "Alarm" }))).toBe("Alarm");
+    expect(severityLabel(banner({ severity: "critical" }))).toBe("Critical");
   });
 });
 

@@ -147,13 +147,14 @@ function build(message, language) {
     role: style === "modal" ? "alertdialog" : "status",
     tabIndex: -1,
   });
-  box.style.setProperty("--c", COLOR[message.severity] || COLOR.info);
+  // The color and the word of the Severities page when set (D-222, D-223).
+  box.style.setProperty("--c", message.severity_color || COLOR[message.severity] || COLOR.info);
   if (style === "card") box.dataset.pos = cornerOf(message);
   if (style === "modal") box.setAttribute("aria-modal", "true");
   box.setAttribute("aria-label", message.title || message.message);
   const label = el("div", { className: "sev" });
   if (message.icon) label.append(el("ha-icon", { icon: message.icon }));
-  label.append(el("span", { textContent: t(message.severity) }));
+  label.append(el("span", { textContent: message.severity_label || t(message.severity) }));
   box.append(label);
   if (message.title) box.append(el("div", { className: "title", textContent: message.title }));
   box.append(el("div", { className: "msg", textContent: message.message }));
