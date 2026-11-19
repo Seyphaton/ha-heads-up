@@ -8,15 +8,6 @@ export const STRINGS = {
     welcome: "Introduction",
     welcome_button: "Restart introduction",
     welcome_hint: "The introduction is a short tour: what Heads Up does, then channels, recipients and policies. Its last step offers four default policies; switching one on adds only the policies that are missing and changes nothing you have.",
-    people: "People and devices",
-    people_none: "No persons found.",
-    person: "Person",
-    devices: "Devices",
-    no_device: "none: only banner and popup work",
-    devices_usable: "{n} of {total} usable",
-    no_user: "no user: no popup",
-    user_ok: "linked",
-    user: "User",
     save: "Save",
     saved: "Saved.",
     valid: "No problems.",
@@ -24,7 +15,6 @@ export const STRINGS = {
     failed: "Could not save. Try again.",
     loading: "Loading…",
     load_failed: "The settings could not be loaded.",
-    edit_recipients: "Recipients",
     names: {"sidebar": "Sidebar panel", "dismiss": "Messages › Dismiss settings", "snooze": "Messages › Snooze settings", "snooze_banner": "Messages › Snooze settings › Banners", "snooze_push": "Messages › Snooze settings › Push & Popup", "presence": "Presence", "speech": "Speech", "speech_volume": "Speech volume", "limits": "Limits", "history": "History", "identity": "Identity"},
     desc: {"dismiss": "These settings apply to the banner, the push and the popup of a message.", "snooze": "Whether a message can be snoozed and for whom. Applies to the banner, the push and the popup.", "snooze_banner": "The banner card offers a menu with these snooze times.", "snooze_push": "The push and the popup have one Snooze button with one snooze time."},
     label: {"max_banners": "Maximum number of stored messages", "evict": "Evict the oldest lowest-severity message when full", "default_dismiss_scope": "Default dismiss scope", "default_timeout": "Default timeout", "default_snoozable": "Messages can be snoozed by default", "default_snooze_scope": "Default snooze scope", "default_snooze_options": "Snooze choices on the banner", "quick_snooze_minutes": "Snooze time on push and popup (minutes)", "disable_ended_buttons": "Disable message buttons once the message has ended", "presence_debounce_seconds": "Presence delay (seconds)", "speak_max_length": "Spoken text: longest (characters)", "speak_cooldown_seconds": "Spoken text: repeat pause (seconds)", "speak_tts_entity": "Text-to-speech engine", "speak_restore_volume": "Put the volume back after speaking", "speak_severity_volume": "Volume by severity (percent)", "speak_volume_bands": "Volume by time of day", "show_panel": "Show Heads Up in the sidebar", "rate_per_device_per_minute": "Pushes per device per minute", "rate_total_per_minute": "Deliveries per minute, all devices", "dedupe_seconds": "Seconds in which identical updates are ignored", "trace_entries": "Trace entries kept", "recent_messages": "Recent messages kept", "install_token": "Install token"},
@@ -42,15 +32,6 @@ export const STRINGS = {
     welcome: "Einführung",
     welcome_button: "Einführung neu starten",
     welcome_hint: "Die Einführung ist eine kurze Tour: was Heads Up kann, dann Kanäle, Empfänger und Richtlinien. Der letzte Schritt bietet vier Standardrichtlinien an; wer eine einschaltet, fügt nur fehlende Richtlinien hinzu und ändert nichts, was du hast.",
-    people: "Personen und Geräte",
-    people_none: "Keine Personen gefunden.",
-    person: "Person",
-    devices: "Geräte",
-    no_device: "keine: nur Banner und Popup funktionieren",
-    devices_usable: "{n} von {total} nutzbar",
-    no_user: "kein Benutzer: kein Popup",
-    user_ok: "verknüpft",
-    user: "Benutzer",
     save: "Speichern",
     saved: "Gespeichert.",
     valid: "Keine Probleme.",
@@ -58,7 +39,6 @@ export const STRINGS = {
     failed: "Speichern fehlgeschlagen. Versuche es erneut.",
     loading: "Lädt…",
     load_failed: "Die Einstellungen konnten nicht geladen werden.",
-    edit_recipients: "Empfänger",
     names: {"sidebar": "Seitenleisten-Panel", "dismiss": "Meldungen › Einstellungen zum Schließen", "snooze": "Meldungen › Einstellungen zum Zurückstellen", "snooze_banner": "Meldungen › Einstellungen zum Zurückstellen › Banner", "snooze_push": "Meldungen › Einstellungen zum Zurückstellen › Push & Popup", "presence": "Anwesenheit", "speech": "Sprache", "speech_volume": "Lautstärke der Sprache", "limits": "Grenzen", "history": "Verlauf", "identity": "Kennung"},
     desc: {"dismiss": "Diese Einstellungen gelten für Banner, Push und Popup einer Meldung.", "snooze": "Ob eine Meldung zurückgestellt werden kann und für wen. Gilt für Banner, Push und Popup.", "snooze_banner": "Die Banner-Karte bietet ein Menü mit diesen Zeiten an.", "snooze_push": "Push und Popup haben eine Schaltfläche Zurückstellen mit einer Zeit."},
     label: {"max_banners": "Maximale Anzahl gespeicherter Meldungen", "evict": "Älteste Meldung mit der niedrigsten Dringlichkeit entfernen, wenn voll", "default_dismiss_scope": "Standard-Bereich beim Schließen", "default_timeout": "Standard-Zeitlimit", "default_snoozable": "Meldungen sind standardmäßig zurückstellbar", "default_snooze_scope": "Standard-Bereich beim Zurückstellen", "default_snooze_options": "Auswahl beim Zurückstellen im Banner", "quick_snooze_minutes": "Zurückstellzeit bei Push und Popup (Minuten)", "disable_ended_buttons": "Meldungs-Schaltflächen sperren, sobald die Meldung beendet ist", "presence_debounce_seconds": "Anwesenheitsverzögerung (Sekunden)", "speak_max_length": "Gesprochener Text: höchstens (Zeichen)", "speak_cooldown_seconds": "Gesprochener Text: Wiederholungspause (Sekunden)", "speak_tts_entity": "Text-zu-Sprache-Engine", "speak_restore_volume": "Lautstärke nach dem Sprechen zurücksetzen", "speak_severity_volume": "Lautstärke nach Schweregrad (Prozent)", "speak_volume_bands": "Lautstärke nach Uhrzeit", "show_panel": "Heads Up in der Seitenleiste anzeigen", "rate_per_device_per_minute": "Pushes pro Gerät und Minute", "rate_total_per_minute": "Zustellungen pro Minute, alle Geräte", "dedupe_seconds": "Sekunden, in denen gleiche Aktualisierungen ignoriert werden", "trace_entries": "Gespeicherte Protokolleinträge", "recent_messages": "Gespeicherte letzte Meldungen", "install_token": "Installations-Token"},
@@ -76,15 +56,6 @@ export const STRINGS = {
     welcome: "Introduction",
     welcome_button: "Relancer l'introduction",
     welcome_hint: "L'introduction est une courte visite : ce que fait Heads Up, puis les canaux, les destinataires et les politiques. Sa dernière étape propose quatre politiques par défaut ; en activer une n'ajoute que les politiques manquantes et ne change rien de ce que vous avez.",
-    people: "Personnes et appareils",
-    people_none: "Aucune personne trouvée.",
-    person: "Personne",
-    devices: "Appareils",
-    no_device: "aucun : seuls la bannière et la fenêtre contextuelle fonctionnent",
-    devices_usable: "{n} sur {total} utilisables",
-    no_user: "pas d'utilisateur : pas de fenêtre contextuelle",
-    user_ok: "lié",
-    user: "Utilisateur",
     save: "Enregistrer",
     saved: "Enregistré.",
     valid: "Aucun problème.",
@@ -92,7 +63,6 @@ export const STRINGS = {
     failed: "Enregistrement impossible. Réessayez.",
     loading: "Chargement…",
     load_failed: "Les réglages n'ont pas pu être chargés.",
-    edit_recipients: "Destinataires",
     names: {"sidebar": "Panneau de la barre latérale", "dismiss": "Messages › Réglages de fermeture", "snooze": "Messages › Réglages du report", "snooze_banner": "Messages › Réglages du report › Bannières", "snooze_push": "Messages › Réglages du report › Push et popup", "presence": "Présence", "speech": "Voix", "speech_volume": "Volume de la voix", "limits": "Limites", "history": "Historique", "identity": "Identité"},
     desc: {"dismiss": "Ces réglages valent pour la bannière, le push et le popup d'un message.", "snooze": "Si un message peut être reporté, et pour qui. Valable pour la bannière, le push et le popup.", "snooze_banner": "La carte bannière propose un menu avec ces durées.", "snooze_push": "Le push et le popup ont un bouton Reporter avec une seule durée."},
     label: {"max_banners": "Nombre maximal de messages conservés", "evict": "Supprimer le plus ancien message de moindre gravité quand la limite est atteinte", "default_dismiss_scope": "Portée de fermeture par défaut", "default_timeout": "Délai d'expiration par défaut", "default_snoozable": "Les messages peuvent être reportés par défaut", "default_snooze_scope": "Portée du report par défaut", "default_snooze_options": "Durées de report sur la bannière", "quick_snooze_minutes": "Durée de report sur le push et le popup (minutes)", "disable_ended_buttons": "Désactiver les boutons du message une fois celui-ci terminé", "presence_debounce_seconds": "Délai de présence (secondes)", "speak_max_length": "Texte parlé : longueur maximale (caractères)", "speak_cooldown_seconds": "Texte parlé : pause avant répétition (secondes)", "speak_tts_entity": "Moteur de synthèse vocale", "speak_restore_volume": "Remettre le volume après avoir parlé", "speak_severity_volume": "Volume par gravité (pour cent)", "speak_volume_bands": "Volume selon l'heure", "show_panel": "Afficher Heads Up dans la barre latérale", "rate_per_device_per_minute": "Push par appareil et par minute", "rate_total_per_minute": "Livraisons par minute, tous appareils", "dedupe_seconds": "Secondes pendant lesquelles les mises à jour identiques sont ignorées", "trace_entries": "Entrées de trace conservées", "recent_messages": "Messages récents conservés", "install_token": "Jeton d'installation"},
@@ -110,15 +80,6 @@ export const STRINGS = {
     welcome: "Introducción",
     welcome_button: "Reiniciar la introducción",
     welcome_hint: "La introducción es un recorrido corto: qué hace Heads Up, luego canales, destinatarios y políticas. Su último paso ofrece cuatro políticas por defecto; activar una solo añade las políticas que faltan y no cambia nada de lo que tienes.",
-    people: "Personas y dispositivos",
-    people_none: "No se encontraron personas.",
-    person: "Persona",
-    devices: "Dispositivos",
-    no_device: "ninguno: solo funcionan el aviso y la ventana emergente",
-    devices_usable: "{n} de {total} utilizables",
-    no_user: "sin usuario: sin ventana emergente",
-    user_ok: "vinculado",
-    user: "Usuario",
     save: "Guardar",
     saved: "Guardado.",
     valid: "Sin problemas.",
@@ -126,7 +87,6 @@ export const STRINGS = {
     failed: "No se pudo guardar. Inténtalo de nuevo.",
     loading: "Cargando…",
     load_failed: "No se pudieron cargar los ajustes.",
-    edit_recipients: "Destinatarios",
     names: {"sidebar": "Panel de la barra lateral", "dismiss": "Mensajes › Ajustes de cierre", "snooze": "Mensajes › Ajustes de posposición", "snooze_banner": "Mensajes › Ajustes de posposición › Avisos", "snooze_push": "Mensajes › Ajustes de posposición › Push y ventana emergente", "presence": "Presencia", "speech": "Voz", "speech_volume": "Volumen de la voz", "limits": "Límites", "history": "Historial", "identity": "Identidad"},
     desc: {"dismiss": "Estos ajustes valen para el aviso, el push y la ventana emergente de un mensaje.", "snooze": "Si un mensaje se puede posponer y para quién. Vale para el aviso, el push y la ventana emergente.", "snooze_banner": "La tarjeta de avisos ofrece un menú con estos tiempos.", "snooze_push": "El push y la ventana emergente tienen un botón Posponer con un solo tiempo."},
     label: {"max_banners": "Número máximo de mensajes guardados", "evict": "Eliminar el mensaje más antiguo de menor gravedad cuando se llena", "default_dismiss_scope": "Ámbito de cierre predeterminado", "default_timeout": "Tiempo de caducidad predeterminado", "default_snoozable": "Los mensajes se pueden posponer de forma predeterminada", "default_snooze_scope": "Ámbito de posposición predeterminado", "default_snooze_options": "Opciones de posposición en el aviso", "quick_snooze_minutes": "Tiempo de posposición en push y ventana emergente (minutos)", "disable_ended_buttons": "Desactivar los botones del mensaje cuando haya terminado", "presence_debounce_seconds": "Retraso de presencia (segundos)", "speak_max_length": "Texto hablado: longitud máxima (caracteres)", "speak_cooldown_seconds": "Texto hablado: pausa de repetición (segundos)", "speak_tts_entity": "Motor de texto a voz", "speak_restore_volume": "Devolver el volumen después de hablar", "speak_severity_volume": "Volumen por gravedad (por ciento)", "speak_volume_bands": "Volumen según la hora", "show_panel": "Mostrar Heads Up en la barra lateral", "rate_per_device_per_minute": "Pushes por dispositivo y minuto", "rate_total_per_minute": "Entregas por minuto, todos los dispositivos", "dedupe_seconds": "Segundos en que se ignoran las actualizaciones idénticas", "trace_entries": "Entradas de traza guardadas", "recent_messages": "Mensajes recientes guardados", "install_token": "Token de instalación"},
@@ -217,11 +177,6 @@ export function changes(values, saved) {
 
 export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value), template);
-}
-
-export function devicesLabel(person, t) {
-  if (person.devices_total === 0) return t.no_device;
-  return fill(t.devices_usable, { n: person.devices, total: person.devices_total });
 }
 
 // A duration in seconds as days, hours, minutes and seconds, and back (the form of the options screen).
@@ -463,25 +418,6 @@ export function mount(container, ctx) {
       el("label", { className: "num" }, [el("span", { textContent: t.label.install_token }), token]),
       el("div", { className: "hint", textContent: t.hint.install_token }),
     ]);
-
-    const people = data.people;
-    if (people.length === 0) {
-      group(t.people);
-      section(null, [el("div", { className: "hint", textContent: t.people_none })]);
-    } else {
-      const head = el("tr", {}, [t.person, t.devices, t.user].map((text) => el("th", { textContent: text })));
-      const rows = people.map((p) =>
-        el("tr", {}, [
-          el("td", { textContent: p.name }),
-          el("td", { textContent: devicesLabel(p, t) }),
-          el("td", { textContent: p.user ? t.user_ok : t.no_user }),
-        ]),
-      );
-      const link = el("button", { type: "button", textContent: t.edit_recipients });
-      link.addEventListener("click", () => ctx.navigate("recipients"));
-      group(t.people);
-      section(null, [el("table", {}, [el("thead", {}, [head]), el("tbody", {}, rows)]), link]);
-    }
 
     const save = el("button", { type: "button", className: "primary", textContent: t.save });
     save.addEventListener("click", saveSettings);

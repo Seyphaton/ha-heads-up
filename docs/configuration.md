@@ -237,7 +237,7 @@ A person whose state is `unknown`, `unavailable` or who has no usable tracker ha
 
 ## Recipients
 
-Every person has a recipient profile without any setup. Their Companion app devices are found through the person's trackers; trackers from other integrations are ignored. Add a profile entry only to change that:
+Every person has a recipient profile without any setup. Their Companion app devices are found through the person's trackers; trackers from other integrations are ignored. The Recipients page lists each person with the number of phones that can be reached ("1 of 2") and a mark per channel: a tick when the channel works, `!` when it is accepted but cannot work, such as push without a phone or popup without a Home Assistant user. Add a profile entry only to change what was found:
 
 - Receives notifications: on by default. Off, the person gets nothing on any channel: not in an audience, not when a call names them, not for critical messages (`recipient_disabled`). Devices, channels and address stay saved. A banner without a target stays visible on their dashboard; a banner or watch rule that names only switched-off persons is shown to nobody.
 - Added devices: a Companion device that was not found, added by name.

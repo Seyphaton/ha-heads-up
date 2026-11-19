@@ -17,7 +17,6 @@ import { audienceLabel, recipientLabel } from "../../custom_components/heads_up/
 import { isDefault, profileValues, toProfileData } from "../../custom_components/heads_up/frontend/panel/recipients.js";
 import {
   changes,
-  devicesLabel,
   entriesOf,
   headingOf,
   fill,
@@ -181,12 +180,6 @@ describe("settings page functions", () => {
       show_panel: true,
       trace_entries: 600,
     });
-  });
-
-  it("words the devices of a person", () => {
-    const t = SETTINGS_STRINGS.en;
-    expect(devicesLabel({ devices: 0, devices_total: 0 }, t)).toBe("none: only banner and popup work");
-    expect(devicesLabel({ devices: 1, devices_total: 2 }, t)).toBe("1 of 2 usable");
   });
 
   it("fills placeholders", () => {

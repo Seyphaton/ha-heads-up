@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 import probatio as vol
-from homeassistant.core import HomeAssistant
 
 from ..const import (
     DEFAULT_OPTIONS,
@@ -233,25 +232,3 @@ def read_options(manager: BannerManager) -> dict[str, Any]:
 
 def token(manager: BannerManager) -> str:
     return str(manager.options.get(OPT_INSTALL_TOKEN) or "")
-
-
-def people(hass: HomeAssistant, manager: BannerManager) -> list[dict[str, Any]]:
-    """Persons with their usable devices, for the summary table."""
-    hub = manager.hub
-    if hub is None:
-        return []
-    rows = []
-    for state in sorted(hass.states.async_all("person"), key=lambda s: s.entity_id):
-        profile = hub.resolver.profile(state.entity_id)
-        rows.append(
-            {
-                "person": state.entity_id,
-                "name": state.attributes.get("friendly_name") or state.entity_id,
-                "user": bool(state.attributes.get("user_id")),
-                "devices": len(profile.usable),
-                "devices_total": len(profile.devices),
-                "enabled": profile.enabled,
-                "channels": list(profile.channels),
-            }
-        )
-    return rows

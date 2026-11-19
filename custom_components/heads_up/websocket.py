@@ -173,7 +173,6 @@ def ws_settings_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict
             "options": settings.read_options(manager),
             "layout": settings.layout(),
             "install_token": settings.token(manager),
-            "people": settings.people(hass, manager),
             "welcome_seen": bool(entry.options.get(welcome.OPT_WELCOME_SEEN, False)),
         },
     )

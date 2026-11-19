@@ -3,6 +3,10 @@
 export const STRINGS = {
   en: {
     title: "Recipients",
+    phones: "Phones",
+    phones_none: "none",
+    phones_usable: "{n} of {total}",
+    phones_aria: "Phones: {text}",
     intro: "Who can receive what. A tick means the person accepts the channel and it can work. A mark means it is accepted but cannot work yet; point at it for the reason. Open a person to change devices, channels and the mail address.",
     profiles: "People",
     groups: "Speaker groups",
@@ -48,6 +52,10 @@ export const STRINGS = {
   },
   de: {
     title: "Empfänger",
+    phones: "Telefone",
+    phones_none: "keine",
+    phones_usable: "{n} von {total}",
+    phones_aria: "Telefone: {text}",
     intro: "Wer was erhalten kann. Ein Haken heißt: Die Person nimmt den Kanal an und er kann funktionieren. Ein Zeichen heißt: angenommen, aber noch nicht nutzbar; zeige darauf für den Grund. Öffne eine Person, um Geräte, Kanäle und die E-Mail-Adresse zu ändern.",
     profiles: "Personen",
     groups: "Lautsprechergruppen",
@@ -93,6 +101,10 @@ export const STRINGS = {
   },
   fr: {
     title: "Destinataires",
+    phones: "Téléphones",
+    phones_none: "aucun",
+    phones_usable: "{n} sur {total}",
+    phones_aria: "Téléphones : {text}",
     intro: "Qui peut recevoir quoi. Une coche signifie que la personne accepte le canal et qu'il peut fonctionner. Un signe signifie accepté mais pas encore utilisable ; survolez-le pour la raison. Ouvrez une personne pour changer appareils, canaux et adresse e-mail.",
     profiles: "Personnes",
     groups: "Groupes de haut-parleurs",
@@ -138,6 +150,10 @@ export const STRINGS = {
   },
   es: {
     title: "Destinatarios",
+    phones: "Teléfonos",
+    phones_none: "ninguno",
+    phones_usable: "{n} de {total}",
+    phones_aria: "Teléfonos: {text}",
     intro: "Quién puede recibir qué. Una marca de verificación significa que la persona acepta el canal y puede funcionar. Un signo significa aceptado pero aún sin poder funcionar; apunta a él para ver el motivo. Abre una persona para cambiar dispositivos, canales y la dirección de correo.",
     profiles: "Personas",
     groups: "Grupos de altavoces",
@@ -272,6 +288,13 @@ export function groupData(values) {
 // How one channel stands for one person: "off" (not accepted), "on", or "on" with a `warn` when it
 // is accepted but cannot work: push without a usable device, popup without a Home Assistant user,
 // mail without an address.
+// The Companion phones of a person: how many of them can be reached ("1 of 2"), or none.
+export function phonesLabel(profile, t) {
+  const devices = profile.devices || [];
+  if (devices.length === 0) return t.phones_none;
+  return fill(t.phones_usable, { n: devices.filter((d) => d.service_found).length, total: devices.length });
+}
+
 export function channelState(profile, channel) {
   if (!(profile.channels || []).includes(channel)) return { channel, state: "off", warn: null };
   let warn = null;
@@ -291,9 +314,12 @@ table.people td.ch.warn { color: var(--warning-color, #b26a00); font-weight: 700
 table.people td.ch.off { color: var(--secondary-text-color); }
 table.people .go { width: 1%; white-space: nowrap; text-align: right; }
 table.people tr.dim .who, table.people tr.dim td.ch { opacity: .55; }
+table.people .phones { white-space: nowrap; color: var(--secondary-text-color); }
+table.people td.phones.none { color: var(--warning-color, #b26a00); }
+table.people tr.dim td.phones { opacity: .55; }
 table.people .sub.narrow { display: none; }
 @media (max-width: 560px) {
-  table.people thead, table.people td.ch { display: none; }
+  table.people thead, table.people td.ch, table.people td.phones { display: none; }
   table.people .sub.narrow { display: block; }
 }
 `;
@@ -333,8 +359,12 @@ export function mount(container, ctx) {
       if (c.warn) cell.title = t[`ch_warn_${c.warn}`];
       return cell;
     });
+    const phones = phonesLabel(p, t);
+    const phonesCell = el("td", { className: `phones${(p.devices || []).some((d) => d.service_found) ? "" : " none"}`, textContent: phones });
+    phonesCell.setAttribute("aria-label", fill(t.phones_aria, { text: phones }));
     return el("tr", { className: off ? "dim" : "" }, [
-      el("td", { className: "who" }, [el("div", {}, name), el("div", { className: "sub narrow", textContent: sub })]),
+      el("td", { className: "who" }, [el("div", {}, name), el("div", { className: "sub narrow", textContent: `${sub} · ${t.phones}: ${phones}` })]),
+      phonesCell,
       ...cells,
       el("td", { className: "go" }, [edit]),
     ]);
@@ -343,6 +373,7 @@ export function mount(container, ctx) {
   function peopleTable() {
     const head = el("tr", {}, [
       el("th", { textContent: t.person }),
+      el("th", { className: "phones", textContent: t.phones }),
       ...PROFILE_CHANNELS.map((c) => el("th", { className: "ch", textContent: s.channel[c] })),
       el("th", { className: "go" }),
     ]);

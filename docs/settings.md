@@ -25,7 +25,6 @@ Every block has a heading of its own. Save is enabled only when something change
 | Limits | Maximum number of stored messages, evicting when full, pushes per device per minute, deliveries per minute for all devices, seconds in which identical updates are ignored. |
 | History | Trace entries kept and recent messages kept. |
 | Identity | The install token, read only. Only in the panel; the options screen shows it at the top. |
-| People and devices | Each person with the number of usable Companion devices and whether a Home Assistant user is linked. A person without a device gets only banner and popup; a person without a user gets no popup. Only in the panel. |
 
 ## Defaults at a glance
 

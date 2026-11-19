@@ -59,3 +59,15 @@ describe("Message Log filter", () => {
 
   it("has the same keys in every language", () => sameKeys(MSG));
 });
+
+import { phonesLabel, STRINGS as REC } from "../../custom_components/heads_up/frontend/panel/recipients.js";
+
+describe("Recipients phones", () => {
+  it("counts the phones that can be reached", () => {
+    const t = REC.en;
+    expect(phonesLabel({ devices: [] }, t)).toBe("none");
+    expect(phonesLabel({ devices: [{ service_found: true }, { service_found: false }] }, t)).toBe("1 of 2");
+  });
+
+  it("has the same keys in every language", () => sameKeys(REC));
+});

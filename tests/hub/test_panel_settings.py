@@ -6,9 +6,6 @@ from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
-from .conftest import AddDevice
-from .helpers import set_person
-
 
 async def ask(client: Any, command: str, **data: Any) -> dict[str, Any]:
     await client.send_json_auto_id({"type": f"heads_up/{command}", **data})
@@ -155,21 +152,6 @@ async def test_the_hub_cannot_be_switched_off_from_settings(
     assert not reply["success"] and reply["error"]["code"] == "invalid_format"
     await hass.async_block_till_done()
     assert entry.runtime_data.hub is not None
-
-
-async def test_the_people_summary_counts_usable_devices_and_users(
-    hass: HomeAssistant,
-    entry: MockConfigEntry,
-    hass_ws_client: WebSocketGenerator,
-    mobile_app_device: AddDevice,
-) -> None:
-    set_person(hass, "person.anna", "home", user_id="anna-id")
-    set_person(hass, "person.ben", "home")
-    await mobile_app_device("Anna's phone", user_id="anna-id", person_entity_id="person.anna")
-    client = await hass_ws_client(hass)
-    people = {p["person"]: p for p in (await ask(client, "settings_get"))["result"]["people"]}
-    assert people["person.anna"]["devices"] == 1 and people["person.anna"]["user"] is True
-    assert people["person.ben"]["devices_total"] == 0 and people["person.ben"]["user"] is False
 
 
 def test_strings_json_lists_the_sections_and_entries_of_the_layout_in_order() -> None:
