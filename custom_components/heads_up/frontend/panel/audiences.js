@@ -24,13 +24,9 @@ export const STRINGS = {
     policies_label: "Policies",
     no_policy: "No policy uses it",
     usage_label: "Messages sent to it",
-    usage_value: "{count}, last {when}",
     usage_hint: "Counted once per message, kept across restarts.",
     show_log: "Show in Message Log",
     sensor_label: "Sensor for calls",
-    about_label: "What it is",
-    kind_label: "Kind",
-    state_label: "State",
     intro: "An audience is a named group of people that calls and policies can address. The members are worked out when a delivery is made.",
     builtin: "Built in",
     custom: "Your audiences",
@@ -81,13 +77,9 @@ export const STRINGS = {
     policies_label: "Richtlinien",
     no_policy: "Keine Richtlinie nutzt sie",
     usage_label: "Meldungen an sie",
-    usage_value: "{count}, zuletzt {when}",
     usage_hint: "Einmal pro Meldung gezählt, bleibt über Neustarts erhalten.",
     show_log: "Im Meldungsprotokoll zeigen",
     sensor_label: "Sensor für Aufrufe",
-    about_label: "Was sie ist",
-    kind_label: "Art",
-    state_label: "Status",
     intro: "Eine Zielgruppe ist eine benannte Personengruppe, die Aufrufe und Richtlinien ansprechen können. Die Mitglieder werden bei der Zustellung bestimmt.",
     builtin: "Eingebaut",
     custom: "Deine Zielgruppen",
@@ -138,13 +130,9 @@ export const STRINGS = {
     policies_label: "Politiques",
     no_policy: "Aucune politique ne l'utilise",
     usage_label: "Messages envoyés",
-    usage_value: "{count}, dernier {when}",
     usage_hint: "Compté une fois par message, conservé après un redémarrage.",
     show_log: "Voir dans le journal des messages",
     sensor_label: "Capteur pour les appels",
-    about_label: "Ce que c'est",
-    kind_label: "Type",
-    state_label: "État",
     intro: "Une audience est un groupe nommé de personnes que les appels et les politiques peuvent viser. Les membres sont déterminés lors d'une livraison.",
     builtin: "Intégrées",
     custom: "Vos audiences",
@@ -195,13 +183,9 @@ export const STRINGS = {
     policies_label: "Políticas",
     no_policy: "Ninguna política la usa",
     usage_label: "Mensajes enviados",
-    usage_value: "{count}, último {when}",
     usage_hint: "Se cuenta una vez por mensaje y se conserva tras reiniciar.",
     show_log: "Ver en el registro de mensajes",
     sensor_label: "Sensor para llamadas",
-    about_label: "Qué es",
-    kind_label: "Tipo",
-    state_label: "Estado",
     intro: "Una audiencia es un grupo con nombre de personas al que pueden dirigirse las llamadas y las políticas. Los miembros se calculan al hacer una entrega.",
     builtin: "Integradas",
     custom: "Tus audiencias",
@@ -245,6 +229,11 @@ export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value ?? ""), template);
 }
 
+// Up to two initials of a name, for the member chips.
+export function initials(name) {
+  return String(name).trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("") || "?";
+}
+
 // How many people are in it now, for the overview row.
 export function peopleText(n, t) {
   return n === 1 ? t.people_1 : fill(t.people_n, { n });
@@ -267,6 +256,25 @@ const PAGE_CSS = `
 .hu-page .tl-list { margin-bottom: 16px; --tl-cols: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr); }
 .hu-page .tl-title { margin: 8px 16px 4px; }
 .hu-page .tl-list .tl-title + .tl-head + .tl-item { border-top: 1px solid var(--divider-color); }
+.hu-page .aud-about { margin: 0 0 14px; font-size: 14px; line-height: 1.45; max-width: 70ch; }
+.hu-page .aud-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.hu-page .aud-tile { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px 14px; border-radius: 10px; background: var(--card-background-color); border: 1px solid var(--divider-color); }
+.hu-page .aud-label { color: var(--secondary-text-color); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.hu-page .aud-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.hu-page .aud-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 3px 10px 3px 3px; border-radius: 16px; background: var(--hu-fill); border: 1px solid var(--divider-color); font-size: 13px; }
+.hu-page .aud-chip.plain { padding: 4px 10px; }
+.hu-page .aud-initial { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--primary-color); color: var(--text-primary-color, #fff); font-size: 11px; font-weight: 600; }
+.hu-page .aud-empty { color: var(--secondary-text-color); font-size: 14px; }
+.hu-page .aud-big { display: flex; align-items: baseline; gap: 6px; font-size: 14px; }
+.hu-page .aud-number { font-size: 26px; font-weight: 600; line-height: 1; }
+.hu-page .aud-sub { font-size: 13px; color: var(--secondary-text-color); }
+.hu-page .aud-note { margin-top: auto; font-size: 12px; color: var(--secondary-text-color); }
+.hu-page .aud-sensor { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 14px; }
+.hu-page .aud-pill { display: inline-flex; align-items: center; gap: 8px; min-width: 0; max-width: 100%; padding: 2px 2px 2px 12px; border-radius: 8px; background: var(--card-background-color); border: 1px solid var(--divider-color); }
+.hu-page .aud-pill code { font-size: 12px; overflow-wrap: anywhere; }
+.hu-page .aud-pill .aud-copy { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.hu-page .aud-details .tl-actions { margin-top: 14px; }
+.hu-page .aud-switch { min-height: 44px; }
 `;
 
 export function blankValues() {
@@ -380,18 +388,42 @@ export function mount(container, ctx) {
     return box;
   }
 
+  // The details of one audience: what it is, three tiles (members, messages, policies), the sensor
+  // with a copy button, then the actions.
   function detailsNode(a, key) {
-    const body = el("div");
-    const pairs = [];
-    if (a.builtin && t.tips[a.kind]) pairs.push([t.about_label, t.tips[a.kind]]);
-    if (!a.builtin) pairs.push([t.kind_label, describe(fromAudience(a), data.choices, t)]);
-    pairs.push([t.members_label, a.members.length ? names(a.members).join(", ") : t.nobody]);
-    pairs.push([t.policies_label, a.used_by.length ? a.used_by.join(", ") : t.no_policy]);
+    const body = el("div", { className: "aud-details" });
+    const about = a.builtin ? t.tips[a.kind] : describe(fromAudience(a), data.choices, t);
+    if (about) body.append(el("p", { className: "aud-about", textContent: about }));
     const count = a.usage?.count || 0;
-    const usage = el("div", {}, [el("div", { textContent: count ? fill(t.usage_value, { count: countText(count, t), when: ago(a.usage.last) }) : t.count_0 }), el("div", { className: "sub", textContent: t.usage_hint })]);
-    pairs.push([t.usage_label, usage]);
-    if (a.entity_id) pairs.push([t.sensor_label, el("code", { textContent: a.entity_id })]);
-    body.append(ui.facts(pairs));
+    const tile = (label, content, extra) => el("div", { className: "aud-tile" }, [el("div", { className: "aud-label", textContent: label }), ...content, ...(extra ? [extra] : [])]);
+    const members = a.members.length
+      ? el("div", { className: "aud-chips" }, names(a.members).map((name) => el("span", { className: "aud-chip" }, [el("span", { className: "aud-initial", textContent: initials(name) }), el("span", { textContent: name })])))
+      : el("div", { className: "aud-empty", textContent: t.nobody });
+    const policies = a.used_by.length
+      ? el("div", { className: "aud-chips" }, a.used_by.map((name) => el("span", { className: "aud-chip plain", textContent: name })))
+      : el("div", { className: "aud-empty", textContent: t.no_policy });
+    const usage = count
+      ? [el("div", { className: "aud-big" }, [el("span", { className: "aud-number", textContent: String(count) }), el("span", { textContent: count === 1 ? t.count_1.replace(/^1\s*/, "") : t.count_n.replace("{n}", "").trim() })]), el("div", { className: "aud-sub", textContent: fill(t.last_used, { when: ago(a.usage.last) }) })]
+      : [el("div", { className: "aud-empty", textContent: t.count_0 })];
+    body.append(
+      el("div", { className: "aud-tiles" }, [
+        tile(t.members_label, [members]),
+        tile(t.usage_label, usage, el("div", { className: "aud-note", textContent: t.usage_hint })),
+        tile(t.policies_label, [policies]),
+      ]),
+    );
+    if (a.entity_id) {
+      const copy = el("button", { type: "button", className: "aud-copy", textContent: s.common.copy });
+      copy.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(a.entity_id);
+          copy.textContent = s.common.copied;
+        } catch (err) {
+          copy.textContent = s.common.copy_failed;
+        }
+      });
+      body.append(el("div", { className: "aud-sensor" }, [el("span", { className: "aud-label", textContent: t.sensor_label }), el("span", { className: "aud-pill" }, [el("code", { textContent: a.entity_id }), copy])]));
+    }
     const actions = el("div", { className: "tl-actions" });
     if (count) {
       const log = el("button", { type: "button", textContent: t.show_log });
@@ -401,7 +433,7 @@ export function mount(container, ctx) {
     if (a.builtin) {
       const box2 = el("input", { type: "checkbox", checked: a.enabled !== false });
       box2.addEventListener("change", () => toggle(a, box2.checked));
-      actions.append(el("label", { className: "inline" }, [box2, el("span", { textContent: s.common.enabled })]));
+      actions.append(el("label", { className: "inline aud-switch" }, [box2, el("span", { textContent: s.common.enabled })]));
     } else {
       const edit = el("button", { type: "button", className: "primary", textContent: s.common.edit });
       edit.addEventListener("click", () => open(a));

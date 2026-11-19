@@ -134,8 +134,8 @@
               "recent_messages": "Messages récents conservés"
             },
             "data_description": {
-              "trace_entries": "50–5000.",
-              "recent_messages": "10–1000."
+              "trace_entries": "50–5000. La trace de distribution : pourquoi chaque message est arrivé ou non. Conservée après un redémarrage. Aussi la longueur des dernières actions de la vue d'ensemble, vides après un redémarrage.",
+              "recent_messages": "10–1000. Les messages listés dans le journal des messages. Après un redémarrage, la liste ne contient que les messages qui ne sont pas terminés."
             }
           }
         }

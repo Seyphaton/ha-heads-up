@@ -268,3 +268,19 @@ async def test_a_built_in_audience_can_be_switched_off_unless_a_policy_uses_it(
     assert (await ask(client, "audience_enable", name="Nope", enabled=False))["error"][
         "code"
     ] == "not_found"
+
+
+async def test_the_choices_name_the_engine_speech_uses(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    client = await hass_ws_client(hass)
+    assert (await config(hass, client))["choices"]["tts_engine"] is None  # none set up
+    hass.states.async_set("tts.only_engine", "unknown")
+    assert (await config(hass, client))["choices"]["tts_engine"] == "tts.only_engine"
+    hass.states.async_set("tts.second_engine", "unknown")
+    assert (await config(hass, client))["choices"]["tts_engine"] is None  # which one is unclear
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, "speak_tts_entity": "tts.second_engine"}
+    )
+    await hass.async_block_till_done()
+    assert (await config(hass, client))["choices"]["tts_engine"] == "tts.second_engine"

@@ -134,8 +134,8 @@
               "recent_messages": "Recent messages kept"
             },
             "data_description": {
-              "trace_entries": "50–5000.",
-              "recent_messages": "10–1000."
+              "trace_entries": "50–5000. The delivery trace: why each message did or did not arrive. Kept across restarts. Also the length of the last actions on the Overview, which start empty after a restart.",
+              "recent_messages": "10–1000. The messages listed in the Message Log. After a restart the list holds only the messages that have not ended."
             }
           }
         }

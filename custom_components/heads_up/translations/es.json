@@ -134,8 +134,8 @@
               "recent_messages": "Mensajes recientes guardados"
             },
             "data_description": {
-              "trace_entries": "50–5000.",
-              "recent_messages": "10–1000."
+              "trace_entries": "50–5000. La traza de entrega: por qué cada mensaje llegó o no. Se conserva tras reiniciar. También la longitud de las últimas acciones del resumen, que empiezan vacías tras reiniciar.",
+              "recent_messages": "10–1000. Los mensajes del registro de mensajes. Tras reiniciar, la lista solo contiene los mensajes que no han terminado."
             }
           }
         }

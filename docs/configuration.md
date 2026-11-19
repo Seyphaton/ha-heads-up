@@ -29,7 +29,7 @@ The panel's Channels page sets the options below, except the push level and the 
 | `push_channel_id` | `heads_up` | Prefix of the Android notification channel. |
 | `push_sticky` | off | Keeps the notification after a tap (Android). |
 | `popup_styles` | corner card (bottom right) for success, info and warning, centered window for critical | Per severity: `card` (bottom right), `card_bottom_left`, `card_top_right`, `card_top_left`, `modal` (centered window) or `off`. The Channels page words them as the corner or the centered window. |
-| `speak_language` | the Home Assistant language | Language of the spoken text. |
+| `speak_language` | the Home Assistant language | Language of the spoken text. The Channels page offers the languages of the text-to-speech engine that speech uses; without a chosen or single engine you type a code such as `en-US`. Assist satellites speak in the language of their own voice assistant. |
 | `mail_service`, `mail_global_address`, `mail_subject`, `mail_body` | none, none, `{severity}: {title}`, `{message}` | The mail channel, see Mail below. |
 
 ### Push

@@ -134,8 +134,8 @@
               "recent_messages": "Gespeicherte letzte Meldungen"
             },
             "data_description": {
-              "trace_entries": "50–5000.",
-              "recent_messages": "10–1000."
+              "trace_entries": "50–5000. Die Zustellspur: warum jede Meldung ankam oder nicht. Bleibt über Neustarts erhalten. Auch die Länge der letzten Aktionen in der Übersicht, die nach einem Neustart leer beginnen.",
+              "recent_messages": "10–1000. Die Meldungen im Meldungsprotokoll. Nach einem Neustart enthält die Liste nur Meldungen, die noch nicht beendet sind."
             }
           }
         }

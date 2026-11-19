@@ -33,6 +33,7 @@ from ..const import (
     OPT_PUSH_STICKY,
     OPT_SEVERITY_DISPLAY,
     OPT_SPEAK_LANGUAGE,
+    OPT_SPEAK_TTS_ENTITY,
     POLICY_SUBENTRY,
     POPUP_STYLES,
     PROFILE_SUBENTRY,
@@ -76,6 +77,14 @@ CHANNEL_KEYS = (
     OPT_MAIL_SUBJECT,
     OPT_MAIL_BODY,
 )
+
+
+def tts_engine(hass: HomeAssistant, options: dict[str, Any]) -> str | None:
+    """The engine the speak channel uses: the chosen one, else the only one there is."""
+    if configured := options.get(OPT_SPEAK_TTS_ENTITY):
+        return str(configured)
+    engines = [s.entity_id for s in hass.states.async_all("tts")]
+    return engines[0] if len(engines) == 1 else None
 
 
 def notify_services(hass: HomeAssistant) -> list[str]:
@@ -312,5 +321,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
             ),
             "recipients": known,
             "notify_services": notify_services(hass),
+            # The engine speech uses, so the Channels page can offer its languages (N-108).
+            "tts_engine": tts_engine(hass, manager.options),
         },
     }

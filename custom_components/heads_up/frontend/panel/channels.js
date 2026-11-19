@@ -24,14 +24,16 @@ export const STRINGS = {
     push_level: "Push level when the severity is {severity}",
     popup_style: "Popup when the severity is {severity}",
     critical_note: "The level critical is an alarm on both platforms. iOS: the critical alert; it needs the app's permission, plays a sound even in silent mode and cannot be replaced or grouped. Android: the alarm channel; it sounds even in vibrate and silent mode and is delivered at once. Do Not Disturb is only overridden if you allow it for that channel in the Android settings. Time sensitive is delivered at once on Android too.",
+    ha_language_named: "Home Assistant language ({name})",
+    no_engine_languages: "Choose a text-to-speech engine under Settings, Speech to pick from its languages. Until then, type a language code such as en-US, or leave it empty for the Home Assistant language.",
     lockscreen: "Lock-screen text",
     lockscreens: { full: "Title and text", title_only: "Title only", generic: "Generic text" },
     buttons_note: "Buttons: Snooze and Dismiss. Acknowledge is added when an escalation or reminder policy applies.",
     sticky: "Keep the notification after a tap (Android)",
     channel_id: "Android channel name",
     channel_id_note: "Android keeps the first importance of a channel, so each level has its own channel named <name>_<level>.",
-    language: "Spoken language (empty: the Home Assistant language)",
-    speech_note: "Speech uses announce when the player supports it and never changes or restores a volume.",
+    language: "Spoken language",
+    speech_note: "Speech uses announce when the player supports it. The volume is set under Settings, Speech volume. Assist satellites speak in the language of their own voice assistant.",
     save: "Save",
     saved: "Saved.",
     failed: "Could not save. Try again.",
@@ -73,14 +75,16 @@ export const STRINGS = {
     push_level: "Push-Stufe bei Schweregrad {severity}",
     popup_style: "Popup bei Schweregrad {severity}",
     critical_note: "Die Stufe kritisch ist auf beiden Plattformen ein Alarm. iOS: die kritische Mitteilung; sie braucht die Erlaubnis der App, spielt auch im Lautlosmodus einen Ton und kann nicht ersetzt oder gruppiert werden. Android: der Alarmkanal; er ertönt auch im Vibrations- und Lautlosmodus und wird sofort zugestellt. Nicht stören wird nur übergangen, wenn du es in den Android-Einstellungen für diesen Kanal erlaubst. Zeitkritisch wird auch auf Android sofort zugestellt.",
+    ha_language_named: "Sprache von Home Assistant ({name})",
+    no_engine_languages: "Wähle unter Einstellungen, Sprache eine Text-zu-Sprache-Engine, um aus ihren Sprachen zu wählen. Bis dahin gib einen Sprachcode wie de-DE ein oder lass das Feld leer für die Sprache von Home Assistant.",
     lockscreen: "Text auf dem Sperrbildschirm",
     lockscreens: { full: "Titel und Text", title_only: "Nur Titel", generic: "Allgemeiner Text" },
     buttons_note: "Schaltflächen: Später und Schließen. Bestätigen kommt hinzu, wenn eine Eskalations- oder Erinnerungsrichtlinie gilt.",
     sticky: "Benachrichtigung nach einem Tippen behalten (Android)",
     channel_id: "Android-Kanalname",
     channel_id_note: "Android behält die erste Wichtigkeit eines Kanals, darum hat jede Stufe einen eigenen Kanal namens <Name>_<Stufe>.",
-    language: "Sprache der Ansage (leer: die Sprache von Home Assistant)",
-    speech_note: "Die Sprachausgabe nutzt Announce, wenn der Player es kann, und ändert oder stellt nie eine Lautstärke wieder her.",
+    language: "Gesprochene Sprache",
+    speech_note: "Sprache nutzt announce, wenn der Player es unterstützt. Die Lautstärke steht unter Einstellungen, Lautstärke der Sprache. Assist-Satelliten sprechen in der Sprache ihres eigenen Sprachassistenten.",
     save: "Speichern",
     saved: "Gespeichert.",
     failed: "Speichern fehlgeschlagen. Versuche es erneut.",
@@ -122,14 +126,16 @@ export const STRINGS = {
     push_level: "Niveau du push quand la gravité est {severity}",
     popup_style: "Fenêtre quand la gravité est {severity}",
     critical_note: "Le niveau critique est une alarme sur les deux plateformes. iOS : l'alerte critique ; elle demande l'autorisation de l'app, joue un son même en mode silencieux et ne peut être ni remplacée ni groupée. Android : le canal d'alarme ; il sonne même en mode vibreur et silencieux et est livré tout de suite. Ne pas déranger n'est contourné que si vous l'autorisez pour ce canal dans les réglages d'Android. Urgent est aussi livré tout de suite sur Android.",
+    ha_language_named: "Langue de Home Assistant ({name})",
+    no_engine_languages: "Choisissez un moteur de synthèse vocale dans Réglages, Voix pour choisir parmi ses langues. En attendant, saisissez un code de langue comme fr-FR, ou laissez vide pour la langue de Home Assistant.",
     lockscreen: "Texte sur l'écran verrouillé",
     lockscreens: { full: "Titre et texte", title_only: "Titre seulement", generic: "Texte générique" },
     buttons_note: "Boutons : Reporter et Fermer. Confirmer s'ajoute quand une politique d'escalade ou de rappel s'applique.",
     sticky: "Garder la notification après un appui (Android)",
     channel_id: "Nom du canal Android",
     channel_id_note: "Android garde la première importance d'un canal, donc chaque niveau a son propre canal nommé <nom>_<niveau>.",
-    language: "Langue parlée (vide : la langue de Home Assistant)",
-    speech_note: "La voix utilise announce quand le lecteur le permet et ne change ni ne rétablit jamais un volume.",
+    language: "Langue parlée",
+    speech_note: "La voix utilise announce quand le lecteur le permet. Le volume se règle dans Réglages, Volume de la voix. Les satellites Assist parlent dans la langue de leur propre assistant vocal.",
     save: "Enregistrer",
     saved: "Enregistré.",
     failed: "Enregistrement impossible. Réessayez.",
@@ -171,14 +177,16 @@ export const STRINGS = {
     push_level: "Nivel del push cuando la gravedad es {severity}",
     popup_style: "Ventana cuando la gravedad es {severity}",
     critical_note: "El nivel crítico es una alarma en ambas plataformas. iOS: la alerta crítica; necesita el permiso de la app, suena incluso en modo silencio y no se puede reemplazar ni agrupar. Android: el canal de alarma; suena incluso en modo vibración y silencio y se entrega de inmediato. No molestar solo se anula si lo permites para ese canal en los ajustes de Android. Urgente también se entrega de inmediato en Android.",
+    ha_language_named: "Idioma de Home Assistant ({name})",
+    no_engine_languages: "Elige un motor de texto a voz en Ajustes, Voz para elegir entre sus idiomas. Mientras tanto, escribe un código de idioma como es-ES, o déjalo vacío para el idioma de Home Assistant.",
     lockscreen: "Texto en la pantalla de bloqueo",
     lockscreens: { full: "Título y texto", title_only: "Solo el título", generic: "Texto genérico" },
     buttons_note: "Botones: Posponer y Descartar. Confirmar se añade cuando se aplica una política de escalado o recordatorio.",
     sticky: "Mantener la notificación tras tocarla (Android)",
     channel_id: "Nombre del canal de Android",
     channel_id_note: "Android conserva la primera importancia de un canal, así que cada nivel tiene su propio canal llamado <nombre>_<nivel>.",
-    language: "Idioma hablado (vacío: el idioma de Home Assistant)",
-    speech_note: "La voz usa announce cuando el reproductor lo permite y nunca cambia ni restaura un volumen.",
+    language: "Idioma hablado",
+    speech_note: "La voz usa announce cuando el reproductor lo admite. El volumen se ajusta en Ajustes, Volumen de la voz. Los satélites Assist hablan en el idioma de su propio asistente de voz.",
     save: "Guardar",
     saved: "Guardado.",
     failed: "No se pudo guardar. Inténtalo de nuevo.",
@@ -211,12 +219,33 @@ const CHANNELS = [
   { key: "mail", icon: "mdi:email-outline", keys: ["mail_service", "mail_global_address", "mail_subject", "mail_body"] },
 ];
 
+// "German (Germany) · de-DE" in the panel's language; the code alone where the browser cannot name it.
+export function languageName(code, language) {
+  try {
+    const name = new Intl.DisplayNames([language || "en"], { type: "language" }).of(code);
+    return name && name !== code ? `${name} · ${code}` : code;
+  } catch (err) {
+    return code;
+  }
+}
+
+// The choices of the spoken language: the Home Assistant language first, then the engine's
+// languages by name. A saved value the engine does not list stays selectable.
+export function languageOptions(supported, current, haLanguage, language, t) {
+  const codes = [...new Set([...(supported || []), ...(current ? [current] : [])])];
+  const named = codes.map((code) => ({ value: code, label: languageName(code, language) })).sort((a, b) => a.label.localeCompare(b.label, language));
+  return [{ value: "", label: fill(t.ha_language_named, { name: languageName(haLanguage, language) }) }, ...named];
+}
+
 // The overview line of a channel: what a reader needs to know without opening it.
-export function summaryText(key, values, t) {
+export function summaryText(key, values, t, language) {
   if (key === "push") {
     return [t.lockscreens[values.push_lockscreen] || values.push_lockscreen, fill(t.android, { id: values.push_channel_id || "" }), values.push_sticky ? t.sticky_on : ""].filter(Boolean).join(" · ");
   }
-  if (key === "speech") return String(values.speak_language || "").trim() || t.ha_language;
+  if (key === "speech") {
+    const code = String(values.speak_language || "").trim();
+    return code ? languageName(code, language) : t.ha_language;
+  }
   if (!values.mail_service) return t.mail_off;
   const address = String(values.mail_global_address || "").trim();
   return [`notify.${values.mail_service}`, address ? fill(t.global_to, { a: address }) : ""].filter(Boolean).join(" · ");
@@ -227,6 +256,7 @@ const PAGE_CSS = `
 .hu-page .tl-lead ha-icon { color: var(--secondary-text-color); }
 .hu-page .tl-body .tl-wide label.field { margin: 0; }
 .hu-page .tl-body .tl-wide label.inline { min-height: 44px; }
+.hu-page .ch-lang { max-width: 460px; }
 .hu-page .ch-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 8px; }
 .hu-page .ch-note .hint { margin: 0; flex: 1; min-width: 200px; }
 `;
@@ -274,6 +304,7 @@ export function mount(container, ctx) {
   let values = null;
   let message = "";
   let open = null;
+  let languages = null;
   let paint = () => {};
   const root = el("div", { className: "hu-page" });
   container.append(root);
@@ -306,7 +337,7 @@ export function mount(container, ctx) {
       });
       if (body) body.append(fields(channel.key));
       rows.push(() => {
-        summary.textContent = summaryText(channel.key, values, t);
+        summary.textContent = summaryText(channel.key, values, t, ctx.language);
         const changed = channel.keys.some((k) => JSON.stringify(values[k]) !== JSON.stringify(data.channels[k]));
         mark.textContent = changed ? "●" : "";
         row.setAttribute("aria-label", `${fill(t.edit, { name: t[channel.key] })}: ${summary.textContent}${changed ? `, ${t.changed}` : ""}`);
@@ -346,7 +377,12 @@ export function mount(container, ctx) {
       box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.sticky, values.push_sticky, (on) => { values.push_sticky = on; paint(); })]));
       box.append(hint(t.channel_id_note), hint(t.buttons_note));
     } else if (key === "speech") {
-      box.append(ui.field(t.language, ui.textInput(values.speak_language, (v) => { values.speak_language = v; paint(); })));
+      if (languages?.length) {
+        const options = languageOptions(languages, values.speak_language, hass?.config?.language || "en", ctx.language, t);
+        box.append(el("div", { className: "tl-wide ch-lang" }, [ui.field(t.language, ui.selectInput(options, values.speak_language || "", (v) => { values.speak_language = v; paint(); }))]));
+      } else {
+        box.append(ui.field(t.language, ui.textInput(values.speak_language, (v) => { values.speak_language = v; paint(); }, { placeholder: hass?.config?.language || "", spellcheck: false, autocapitalize: "off" }), t.no_engine_languages));
+      }
       box.append(hint(t.speech_note));
     } else {
       const services = [...(data.choices?.notify_services || [])];
@@ -375,6 +411,15 @@ export function mount(container, ctx) {
 
   async function load() {
     data = await hass.callWS({ type: "heads_up/panel_config" });
+    // The languages of the engine speech uses (N-108); without one the field stays free text.
+    const engine = data.choices?.tts_engine;
+    if (engine) {
+      try {
+        languages = (await hass.callWS({ type: "tts/engine/get", engine_id: engine })).provider?.supported_languages || null;
+      } catch (err) {
+        languages = null;
+      }
+    }
     values = JSON.parse(JSON.stringify(data.channels));
     render();
   }

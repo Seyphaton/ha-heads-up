@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { countText, peopleText, STRINGS as AUD, usageText } from "../../custom_components/heads_up/frontend/panel/audiences.js";
-import { STRINGS as CH, summaryText } from "../../custom_components/heads_up/frontend/panel/channels.js";
+import { countText, initials, peopleText, STRINGS as AUD, usageText } from "../../custom_components/heads_up/frontend/panel/audiences.js";
+import { languageName, languageOptions, STRINGS as CH, summaryText } from "../../custom_components/heads_up/frontend/panel/channels.js";
 import { byAudience, STRINGS as MSG } from "../../custom_components/heads_up/frontend/panel/messages.js";
 
 const sameKeys = (strings) => {
@@ -19,6 +19,12 @@ describe("Audiences overview (D-227)", () => {
     expect(usageText(undefined, t, () => "")).toBe("None yet");
   });
 
+  it("shows up to two initials on a member chip", () => {
+    expect(initials("Dev Admin")).toBe("DA");
+    expect(initials("anna")).toBe("A");
+    expect(initials(" ")).toBe("?");
+  });
+
   it("has the same keys in every language", () => sameKeys(AUD));
 });
 
@@ -29,6 +35,17 @@ describe("Channels overview", () => {
     expect(summaryText("speech", { speak_language: "" }, t)).toBe("Home Assistant language");
     expect(summaryText("mail", { mail_service: "" }, t)).toBe("Off");
     expect(summaryText("mail", { mail_service: "smtp", mail_global_address: "a@example.org" }, t)).toBe("notify.smtp · global address a@example.org");
+  });
+
+  it("offers the Home Assistant language first, then the engine's languages by name", () => {
+    const options = languageOptions(["fr", "de-DE"], "", "en", "en", t);
+    expect(options[0]).toEqual({ value: "", label: "Home Assistant language (English · en)" });
+    expect(options.slice(1).map((o) => o.value)).toEqual(["fr", "de-DE"]);
+    expect(languageName("de-DE", "en")).toBe("German (Germany) · de-DE");
+  });
+
+  it("keeps a saved language that the engine does not list", () => {
+    expect(languageOptions(["fr"], "xx-YY", "en", "en", t).map((o) => o.value)).toContain("xx-YY");
   });
 
   it("has the same keys in every language", () => sameKeys(CH));

@@ -40,7 +40,7 @@ Every block has a heading of its own. Save is enabled only when something change
 | Message timeout | 24 hours unless you set `timeout`. `timeout: 0` keeps the message until it is cleared. |
 | Message count | 50 stored messages. When the limit is reached, the message with the lowest severity is removed, the oldest first. Critical messages are never removed this way, and creating a message fails when none can be. |
 | Snooze | Choices of 15 minutes, 1 hour and 4 hours when a message is snoozable. Messages are not snoozable by default. |
-| Memory | The trace keeps 500 entries and the panel lists the last 100 messages. Both start empty after a restart. |
+| History | The delivery trace keeps 500 entries and is kept across restarts. The Message Log lists the last 100 messages; after a restart it lists only the messages that have not ended. |
 
 ## Panel
 
@@ -132,10 +132,10 @@ See [Mail](configuration.md#mail).
 
 | Setting | Default | Meaning |
 |---|---|---|
-| Trace entries kept (`trace_entries`) | 500 (50–5000) | The size of the delivery trace. |
+| Trace entries kept (`trace_entries`) | 500 (50–5000) | The size of the delivery trace, which says why each message did or did not arrive, and of the last actions on the Overview. |
 | Recent messages kept (`recent_messages`) | 100 (10–1000) | The size of the list of recent messages in the Message Log. |
 
-The trace, the recent messages and the log of last actions are kept in memory and start empty after a restart.
+The delivery trace is stored and kept across restarts. The recent messages and the last actions are kept in memory: after a restart the Message Log lists only the messages that have not ended, and the last actions start empty. The audience usage counts are stored too.
 
 ## Install token
 
