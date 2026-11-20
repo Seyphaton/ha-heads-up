@@ -75,13 +75,16 @@ async def test_without_the_policy_the_person_away_is_sent_at_once(
     assert len(pushes(home.ben)) == 1
 
 
-async def test_explicit_recipients_are_not_held(
+async def test_a_named_recipient_is_held_like_an_audience_member(
     hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
 ) -> None:
     home = await make_household(hass, mobile_app_device)
     await add_policy(hass, entry, "Away", **AWAY)
     away(hass, "person.ben", "ben-id")
     await send(hass, entry, severity="warning", to={"push": {"recipients": ["person.ben"]}})
+    assert not pushes(home.ben)
+    away(hass, "person.ben", "ben-id", "home")
+    await settle(hass, entry)
     assert len(pushes(home.ben)) == 1
 
 

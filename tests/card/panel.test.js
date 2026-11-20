@@ -46,6 +46,9 @@ describe("panel navigation", () => {
     expect(pageFromPath("")).toBe(DEFAULT_PAGE);
     expect(pageFromPath("/unknown")).toBe(DEFAULT_PAGE);
     expect(pageFromPath(undefined)).toBe(DEFAULT_PAGE);
+    expect(pageFromPath("/settings")).toBe("general");
+    expect(pageFromPath("/configuration")).toBe("channels");
+    expect(pageFromPath("/faq")).toBe("faq");
   });
 
   it("shows a second row only for a group with more than one page", () => {

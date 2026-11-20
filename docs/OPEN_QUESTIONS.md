@@ -131,9 +131,7 @@
 ## 1.1.0 (branch `release/1.1`, built 2026-11-19)
 - Built and checked on the dev instance (D-225). Not verified on real hardware: the Sonos clip volume (`extra.volume`, N-105), volume restore and the speech estimate on other announce players, Presence with real GPS presence, push and popup with an overridden severity label and color on phones and a wall tablet.
 - "Only if" on policies and guests through it (D-209, D-216) are not in 1.1.0; they come with the policy redesign of 2.0.0. 1.1.0 keeps the 1.0 policy modes, so a speech Presence policy under "only the first" competes with other policies for the same message (D-210).
-- Presence holds push, popup and mail only for audience targets, as 1.0 Away did; whether named recipients should be held too is open.
 - The household audience of a speech Presence policy is a persons audience or everyone; presence audiences (At home and the others) are not offered there.
-- The Settings page sits at `/heads-up/general`; `/heads-up/settings` opens the Overview.
 - Custom severities (more than the four) are not built (D-222).
 - Snooze and unsnooze as actions for automations: not in 1.1.0 (maintainer, 2026-11-18).
 - Push snooze uses only the first snooze option (D-142); more snooze buttons on a push are not planned.

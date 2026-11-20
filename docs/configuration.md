@@ -390,7 +390,7 @@ Holds or drops a delivery depending on where people are. Push, popup and mail ar
 | When the wait ends | Send anyway | Or: Drop (`max_wait_exceeded`). |
 | Critical messages pass | on | Off: the policy holds or drops critical messages too. |
 
-- For push, popup and mail, Presence holds only deliveries to an audience. Recipients you list yourself are sent at once.
+- For push, popup and mail, Presence checks every recipient: members of an audience and persons the call lists by name.
 - Unknown presence is never held: the delivery goes out at once. For speech, people whose presence is unknown do not count.
 - A change of presence counts after the presence delay in Settings (60 seconds by default), so a short flip at the zone edge releases nothing. With the delay at 0 it counts at once.
 - A released delivery is sent once, and not if the message was cleared, expired or acknowledged meanwhile, or the person dismissed or snoozed it.

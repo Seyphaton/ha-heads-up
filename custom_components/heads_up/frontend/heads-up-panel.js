@@ -101,10 +101,13 @@ export function groupOf(page) {
   return NAV.find((group) => group.pages.includes(page)) || null;
 }
 
-// The page for a route path such as "/settings" or "/general"; unknown paths show the first page.
+// The page for a route path such as "/general" or a group such as "/settings" (its first page);
+// unknown paths show the first page.
 export function pageFromPath(path) {
   const id = String(path || "").split("/").filter(Boolean)[0];
-  return groupOf(id) ? id : DEFAULT_PAGE;
+  if (groupOf(id)) return id;
+  const group = NAV.find((g) => g.id === id);
+  return group ? group.pages[0] : DEFAULT_PAGE;
 }
 
 // The second row: the pages of the group, or nothing for a group with one page (D-103).

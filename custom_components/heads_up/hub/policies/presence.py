@@ -8,7 +8,8 @@ banner is never held and a reminder is never held. "Home" may come from a person
 without one, the person state counts.
 
 A 1.0 Away policy reads as Presence with its 1.0 behaviour: push, popup and mail, the recipient
-not in Home, hold, and the delivery dropped when the wait ends.
+not in Home, hold, and the delivery dropped when the wait ends. Unlike 1.0 Away, a recipient named
+in the call is held too (D-232).
 """
 
 from __future__ import annotations
@@ -86,8 +87,8 @@ class PresenceStage:
             return None
         if channel in PRESENCE_PEOPLE_CHANNELS:
             person = step.target.person
-            # Audience targets only, as Away in 1.0: a named person is meant to get it now.
-            if person is None or "audience" not in step.banner.targets.get(channel, {}):
+            # Named recipients count as audience members do (D-232; 1.0 Away skipped them).
+            if person is None:
                 return None
             inside = self._inside(person, policy.zone)
             if inside is None:
