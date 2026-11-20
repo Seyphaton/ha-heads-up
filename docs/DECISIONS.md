@@ -1529,3 +1529,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - A message released from a summary runs as a new message for every reason it is released (its Summarize policy switched off or deleted, or a band entry that now fits): Deliver and Fallback act and its clocks start then. 1.x ran only the delivery for a switched-off summary.
 - A Fallback steps in only when the call and every Deliver reached nobody; a Deliver result of sent or held on any channel other than the banner counts as reached.
 - Needs attention gains `escalation_quiet`, `escalation_presence` and `presence_conflict` (from the setup, before any message) and `escalation_held`, `escalation_unreached` (from the log of the last 24 hours, like `delivery_failed`). The setup check counts a Quiet hours policy as passed only by a band entry for everyone whose For covers the escalation's messages.
+
+## D-237 The dev instance runs the latest Home Assistant; the shared instance moves to 2.0 (2026-11-20, maintainer)
+- Decision (maintainer, "make sure dev runs the latest hass version"; "Upgrade the shared one"): `dev/docker-compose.yml` pins `homeassistant/home-assistant:2026.11.2`, the latest stable release (N-110). The one dev instance (`heads-up-dev`, port 8124) now runs the `release/2.0` code on the existing config folder, so its setup was converted to 3.1 (3 policies changed, the entry Critical added, 3 check-list items).
+- `HU_DEV_CONFIG` lets the compose file use another config folder; the instance was started from the `release/2.0` worktree with the config folder of the main checkout.
+- Tests and mypy stay on 2026.10.4: `pytest-homeassistant-custom-component` has no release for 2026.11 yet (N-110).
+- Consequence: 1.x code cannot load that config folder any more (N-109). A copy of it from before the conversion is kept outside the repository (`.claude/local/backups/`, gitignored).

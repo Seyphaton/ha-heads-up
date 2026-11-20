@@ -11,7 +11,7 @@
 
 ## Local Home Assistant (Docker)
 - Requires Docker (verified with Docker Desktop 29.9.2 on macOS arm64, 2026-10-25). The Docker Desktop CLI lives in `~/.docker/bin`; add it to `PATH` if `docker` is not found.
-- `make dev-up` starts `homeassistant/home-assistant:2026.10.4` as container `heads-up-dev`.
+- `make dev-up` starts `homeassistant/home-assistant:2026.11.2` (the latest stable release, D-237) as container `heads-up-dev`. `HU_DEV_CONFIG=<folder>` runs it on another config folder than `dev/ha-config`, for example the folder of another checkout of this repository.
 - URL: http://127.0.0.1:8124 (loopback only).
 - Config: `dev/ha-config/configuration.yaml` (committed). Runtime state (`.storage`, DB, logs) is gitignored.
 - The integration is mounted read-only from `custom_components/heads_up`. After a Python change: `docker restart heads-up-dev`. The card file is read from disk on each request; reload the dashboard after editing `heads-up-card.js`.

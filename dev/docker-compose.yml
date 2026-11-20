@@ -1,14 +1,15 @@
 # Throwaway local Home Assistant for development (D-003).
-# Image tag pinned to 2026.10.4 (D-019, D-123, HA_API_NOTES N-28, N-46).
+# Image tag pinned to the latest stable release, 2026.11.2 (D-019, D-237, HA_API_NOTES N-110).
+# HU_DEV_CONFIG points the instance at another config folder (default: ./ha-config).
 services:
   homeassistant:
-    image: homeassistant/home-assistant:2026.10.4
+    image: homeassistant/home-assistant:2026.11.2
     container_name: heads-up-dev
     ports:
       # Loopback only; host port 8124.
       - "127.0.0.1:8124:8123"
     volumes:
-      - ./ha-config:/config
+      - ${HU_DEV_CONFIG:-./ha-config}:/config
       - ../custom_components/heads_up:/config/custom_components/heads_up:ro
       # Dev-only stub services for the hub end-to-end checks (H0a); never part of the integration.
       - ./stub_components/hub_stub:/config/custom_components/hub_stub:ro

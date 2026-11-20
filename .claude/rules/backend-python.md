@@ -5,7 +5,7 @@ paths:
 
 # Backend (Home Assistant integration)
 
-- Develop on HA 2026.10.4 (dev venv, Docker image, mypy). Code must also run on the minimum tested version 2026.9.4 (CI).
+- The dev instance runs the latest stable HA (2026.11.2, D-237); the venv, pytest and mypy use 2026.10.4, the newest that `pytest-homeassistant-custom-component` pins. Code must also run on the minimum tested version 2026.9.4 (CI).
 - Everything async, in the event loop. No blocking I/O; use `hass.async_add_executor_job` if unavoidable.
 - Mutations of banner state are synchronous between read and write (no `await` in between), so parallel action calls cannot interleave.
 - Schemas: `import probatio as vol` + `homeassistant.helpers.config_validation as cv` (HA_API_NOTES N-1, N-91): probatio type-checks on 2026.10 and runs on 2026.9.4. Assert on error codes / translation keys in tests, never on message text.
