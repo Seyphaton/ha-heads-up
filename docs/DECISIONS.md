@@ -1462,3 +1462,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Alternatives: keep audience targets only (a named person is meant to get it now); a switch per policy. Rejected: one rule is easier to explain, and "Critical messages pass" already lets urgent messages through.
 - Consequences: converted 1.0 Away policies now also hold named recipients (CHANGELOG "Before you upgrade"); breaking changes are allowed on this branch (D-231). Test `test_a_named_recipient_is_held_like_an_audience_member`.
 - Blast radius: restart needed; a push to a named person who is away is held where it went out at once.
+
+## D-233 Pre-release 1.1.0-beta.3 (2026-11-20)
+- Decision (maintainer, "Yes, tag and push"): manifest version `1.1.0-beta.3`, tag `v1.1.0-beta.3`, push `release/1.1` and the tag. beta.1 and beta.2 stay as they are. `CHANGELOG.md` keeps `[Unreleased]`. The GitHub pre-release, not marked as the latest release, is created by the maintainer (notes in `.private/`). No merge to `main`.
+- In beta.3 beyond beta.2: location per zone from an on/off entity (D-229); default push levels for new setups (D-230); severity `success` renamed to `passive` with `success` as an alias (D-231); Presence holds named recipients (D-232); panel group paths open their first page; new documentation screenshots.
+- Blast radius: the manifest version is `1.1.0-beta.3`; HACS offers it only to users who show beta versions; restart needed. From beta.2 the entry is converted to 2.4 (push levels kept, `success` renamed).
