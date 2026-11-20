@@ -571,7 +571,7 @@ describe("recipients list channel states", () => {
 
   it("has the words for every warning in all four languages", () => {
     for (const lang of ["en", "de", "fr", "es"]) {
-      for (const key of ["ch_warn_device", "ch_warn_user", "ch_warn_address", "ch_none", "ch_on", "ch_off", "person"]) {
+      for (const key of ["ch_warn_device", "ch_warn_user", "ch_warn_address", "ch_on", "ch_off", "person", "col_group", "col_call", "col_speakers"]) {
         expect(RECIPIENT_STRINGS[lang][key], `${lang}.${key}`).toBeTruthy();
       }
       expect(RECIPIENT_STRINGS[lang].customized).toBeUndefined();
