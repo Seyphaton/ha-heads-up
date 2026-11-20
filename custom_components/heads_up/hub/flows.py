@@ -53,6 +53,7 @@ from ..const import (
     PROFILE_CHANNELS,
     PROFILE_SUBENTRY,
     QUIET_ACTIONS,
+    RULE_SUBENTRY,
     SEVERITIES,
     WEEKDAYS,
     ZONE_KINDS,
@@ -406,8 +407,8 @@ class PolicySubentryFlow(_HubFlow):
     """
 
     subentry_type = POLICY_SUBENTRY
-    # Written by the conversion (links) or the panel (Only if, Faster while), not by this form.
-    KEPT = ("links", "only_if", "faster_while")
+    # Written only by the conversion from 1.x (DESIGN §25.6), not by this form.
+    KEPT = ("links",)
 
     def _hub(self) -> Any:
         return getattr(getattr(self._get_entry(), "runtime_data", None), "hub", None)
@@ -452,6 +453,20 @@ class PolicySubentryFlow(_HubFlow):
             vol.Optional("not_tags"): SelectSelector(
                 SelectSelectorConfig(options=[], custom_value=True, multiple=True)
             ),
+            vol.Optional("rules"): SelectSelector(
+                SelectSelectorConfig(
+                    options=[
+                        SelectOptionDict(value=s.subentry_id, label=s.title)
+                        for s in self._get_entry().subentries.values()
+                        if s.subentry_type == RULE_SUBENTRY
+                    ],
+                    multiple=True,
+                )
+            ),
+            # The condition of `notify` (D-216): an entity with operator and state, or a template.
+            vol.Optional("only_if"): ObjectSelector(),
+            vol.Optional("faster_while"): ObjectSelector(),
+            vol.Optional("alongside", default=False): BooleanSelector(),
             vol.Optional("after_minutes", default=DEFAULT_AFTER_MINUTES): _MINUTES,
             vol.Optional("channels"): SelectSelector(
                 SelectSelectorConfig(
@@ -659,10 +674,12 @@ class PolicySubentryFlow(_HubFlow):
             "tags": [] if manual else list(user_input.get("tags") or []),
             "enabled": bool(user_input.get("enabled", True)),
         }
-        # Not for: stored only when set (DESIGN §25.4).
-        for key in ("not_severities", "not_tags"):
+        # Not for and From watch rule: stored only when set (DESIGN §25.4).
+        for key in ("not_severities", "not_tags", "rules"):
             if not manual and (values := list(user_input.get(key) or [])):
                 data[key] = values
+        if isinstance(user_input.get("only_if"), dict) and user_input["only_if"]:
+            data["only_if"] = dict(user_input["only_if"])
         kind = user_input["type"]
         channels_from = user_input.get("channels_from") or "policy"
         channels = list(user_input.get("channels") or []) if channels_from == "policy" else []
@@ -685,6 +702,11 @@ class PolicySubentryFlow(_HubFlow):
                 max_count=int(user_input["max_count"]),
                 channels=channels,
             )
+            faster = user_input.get("faster_while")
+            if isinstance(faster, dict) and faster.get("condition"):
+                data["faster_while"] = dict(faster)
+            if user_input.get("alongside"):
+                data["alongside"] = True
         elif kind == "quiet_hours":
             data.update(
                 from_time=str(user_input.get("from_time") or DEFAULT_QUIET_FROM),

@@ -48,6 +48,7 @@ from ..switch import policy_entity_id
 from .audiences import BUILTINS
 from .channels import mail
 from .identity import GROUP_PREFIX
+from .policies.convert import OPT_CONVERSION_ITEMS
 from .recipients import area_speakers, registrations, speaker_entities
 
 
@@ -298,6 +299,8 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
         "profiles": profiles,
         "policies": policies,
         "rules": rules,
+        # The check list after the 2.0 conversion (DESIGN §25.7).
+        "conversion_items": list(entry.options.get(OPT_CONVERSION_ITEMS) or []),
         "channels": channel_settings(manager),
         "choices": {
             "persons": [

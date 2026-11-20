@@ -1184,7 +1184,11 @@
             "holds_anyway": "Los retiene igualmente",
             "covers": "Afecta a",
             "covers_audiences": "Afecta a estas audiencias",
-            "covers_recipients": "Afecta a estas personas y altavoces"
+            "covers_recipients": "Afecta a estas personas y altavoces",
+            "rules": "Desde la regla de vigilancia",
+            "only_if": "Solo si",
+            "faster_while": "Más a menudo mientras (recordatorio)",
+            "alongside": "Funciona junto a otros recordatorios"
           },
           "data_description": {
             "enabled": "Una política desactivada nunca se usa, ni siquiera si una llamada la nombra.",
@@ -1224,7 +1228,11 @@
             "holds_anyway": "Horas de silencio y Resumir: ninguna entrada Dejar pasar deja pasar los mensajes.",
             "covers": "Dejar pasar: a quién deja pasar esta entrada en las horas de silencio. Un resumen nunca recoge un mensaje que ella afecta.",
             "covers_audiences": "Dejar pasar con Solo estos: las personas de estas audiencias.",
-            "covers_recipients": "Dejar pasar con Solo estos: estas personas y altavoces."
+            "covers_recipients": "Dejar pasar con Solo estos: estas personas y altavoces.",
+            "rules": "Solo los mensajes de estas reglas de vigilancia usan esta regla; vacío: cualquier origen.",
+            "only_if": "La regla actúa solo mientras se cumple esta condición, con la forma de la condición de notify: entity_id, operator, state, attribute y for opcionales, o template. Desconocido cuenta como lo que entrega más.",
+            "faster_while": "Recordatorio: condition y every_minutes. Mientras se cumple la condición, el recordatorio se repite a este ritmo más corto; un solo recuento y un solo límite para ambos.",
+            "alongside": "Recordatorio: mantiene su propio ritmo junto a otros recordatorios en lugar de compartir el más corto."
           }
         },
         "reconfigure": {
@@ -1272,7 +1280,11 @@
             "holds_anyway": "Los retiene igualmente",
             "covers": "Afecta a",
             "covers_audiences": "Afecta a estas audiencias",
-            "covers_recipients": "Afecta a estas personas y altavoces"
+            "covers_recipients": "Afecta a estas personas y altavoces",
+            "rules": "Desde la regla de vigilancia",
+            "only_if": "Solo si",
+            "faster_while": "Más a menudo mientras (recordatorio)",
+            "alongside": "Funciona junto a otros recordatorios"
           },
           "data_description": {
             "name": "Lo usa el campo policy de una llamada. Debe ser único y no puede ser \"none\".",
@@ -1310,7 +1322,11 @@
             "holds_anyway": "Horas de silencio y Resumir: ninguna entrada Dejar pasar deja pasar los mensajes.",
             "covers": "Dejar pasar: a quién deja pasar esta entrada en las horas de silencio. Un resumen nunca recoge un mensaje que ella afecta.",
             "covers_audiences": "Dejar pasar con Solo estos: las personas de estas audiencias.",
-            "covers_recipients": "Dejar pasar con Solo estos: estas personas y altavoces."
+            "covers_recipients": "Dejar pasar con Solo estos: estas personas y altavoces.",
+            "rules": "Solo los mensajes de estas reglas de vigilancia usan esta regla; vacío: cualquier origen.",
+            "only_if": "La regla actúa solo mientras se cumple esta condición, con la forma de la condición de notify: entity_id, operator, state, attribute y for opcionales, o template. Desconocido cuenta como lo que entrega más.",
+            "faster_while": "Recordatorio: condition y every_minutes. Mientras se cumple la condición, el recordatorio se repite a este ritmo más corto; un solo recuento y un solo límite para ambos.",
+            "alongside": "Recordatorio: mantiene su propio ritmo junto a otros recordatorios en lugar de compartir el más corto."
           }
         }
       },

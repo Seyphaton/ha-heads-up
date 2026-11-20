@@ -1184,7 +1184,11 @@
             "holds_anyway": "Holds these anyway",
             "covers": "Covers",
             "covers_audiences": "Covers these audiences",
-            "covers_recipients": "Covers these people and speakers"
+            "covers_recipients": "Covers these people and speakers",
+            "rules": "From watch rule",
+            "only_if": "Only if",
+            "faster_while": "Faster while (reminder)",
+            "alongside": "Runs alongside other reminders"
           },
           "data_description": {
             "enabled": "A disabled policy is never used, not even when a call names it.",
@@ -1224,7 +1228,11 @@
             "holds_anyway": "Quiet hours and Summarize: no Get through entry lets messages past this one.",
             "covers": "Get through: whom this entry lets past quiet hours. Summaries never collect a message it fits.",
             "covers_audiences": "Get through with Only these: the people of these audiences.",
-            "covers_recipients": "Get through with Only these: these people and speakers."
+            "covers_recipients": "Get through with Only these: these people and speakers.",
+            "rules": "Only messages of these watch rules use this policy; empty: any source.",
+            "only_if": "The policy acts only while this condition holds, in the shape of the notify condition: entity_id, operator, state, optional attribute and for, or template. Unknown counts as whatever delivers more.",
+            "faster_while": "Reminder: condition and every_minutes. While the condition holds, the reminder repeats at this shorter rhythm; one count and one limit cover both.",
+            "alongside": "Reminder: keeps its own rhythm next to other reminders instead of sharing the shortest one."
           }
         },
         "reconfigure": {
@@ -1272,7 +1280,11 @@
             "holds_anyway": "Holds these anyway",
             "covers": "Covers",
             "covers_audiences": "Covers these audiences",
-            "covers_recipients": "Covers these people and speakers"
+            "covers_recipients": "Covers these people and speakers",
+            "rules": "From watch rule",
+            "only_if": "Only if",
+            "faster_while": "Faster while (reminder)",
+            "alongside": "Runs alongside other reminders"
           },
           "data_description": {
             "name": "Used by the policy field of a call. Must be unique and cannot be \"none\".",
@@ -1310,7 +1322,11 @@
             "holds_anyway": "Quiet hours and Summarize: no Get through entry lets messages past this one.",
             "covers": "Get through: whom this entry lets past quiet hours. Summaries never collect a message it fits.",
             "covers_audiences": "Get through with Only these: the people of these audiences.",
-            "covers_recipients": "Get through with Only these: these people and speakers."
+            "covers_recipients": "Get through with Only these: these people and speakers.",
+            "rules": "Only messages of these watch rules use this policy; empty: any source.",
+            "only_if": "The policy acts only while this condition holds, in the shape of the notify condition: entity_id, operator, state, optional attribute and for, or template. Unknown counts as whatever delivers more.",
+            "faster_while": "Reminder: condition and every_minutes. While the condition holds, the reminder repeats at this shorter rhythm; one count and one limit cover both.",
+            "alongside": "Reminder: keeps its own rhythm next to other reminders instead of sharing the shortest one."
           }
         }
       },

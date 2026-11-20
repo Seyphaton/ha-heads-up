@@ -264,3 +264,41 @@ async def test_the_mode_and_order_commands_are_gone(
         await client.send_json_auto_id({"type": command, "mode": "all", "order": []})
         reply = await client.receive_json()
         assert reply["error"]["code"] == "unknown_command"
+
+
+async def test_the_check_list_keeps_or_lets_a_converted_policy_act(
+    hass: HomeAssistant, hass_ws_client: WebSocketGenerator
+) -> None:
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        version=2,
+        minor_version=4,
+        options={"policy_mode": "first", "policy_order": ["eve", "night"]},
+        subentries_data=[
+            {
+                "subentry_id": p.subentry_id,
+                "subentry_type": "policy",
+                "title": p.title,
+                "data": dict(p.data),
+                "unique_id": None,
+            }
+            for p in WELCOME[2:4]
+        ],
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "heads_up/panel_config"})
+    assert (await client.receive_json())["result"]["conversion_items"] == [
+        {"policy": "night", "kind": "links", "state": "open"}
+    ]
+    await client.send_json_auto_id(
+        {"type": "heads_up/conversion_item", "policy": "night", "kind": "links", "choice": "change"}
+    )
+    reply = await client.receive_json()
+    assert reply["result"]["items"][0]["state"] == "changed"
+    assert "links" not in entry.subentries["night"].data
+    await client.send_json_auto_id({"type": "heads_up/conversion_items_dismiss"})
+    await client.receive_json()
+    assert "conversion_items" not in entry.options

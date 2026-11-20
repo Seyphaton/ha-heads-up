@@ -34,6 +34,7 @@ from .const import (
 from .frontend import async_popup_url
 from .hub import checker, panel_config, panel_data, panel_test, settings, welcome
 from .hub.identity import GROUP_PREFIX
+from .hub.policies.convert import OPT_CONVERSION_ITEMS
 from .manager import BannerManager, HeadsUpError
 from .switch import policy_entity_id
 
@@ -522,6 +523,55 @@ async def ws_policy_check(
     connection.send_result(msg["id"], result)
 
 
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/conversion_item",
+        vol.Required("policy"): str,
+        vol.Required("kind"): vol.In(["links", "never_acts", "holds_anyway"]),
+        vol.Required("choice"): vol.In(["keep", "change"]),
+    }
+)
+@require_admin
+@callback
+def ws_conversion_item(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Answer one item of the check list after the update (DESIGN §25.7). "change" lets the
+    policy act (its links go) or lets Critical through a hold (Holds these anyway goes)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    items = [dict(i) for i in entry.options.get(OPT_CONVERSION_ITEMS) or []]
+    found = [i for i in items if i["policy"] == msg["policy"] and i["kind"] == msg["kind"]]
+    sub = entry.subentries.get(msg["policy"])
+    if not found or sub is None:
+        connection.send_error(msg["id"], "not_found", "No such item on the check list")
+        return
+    if msg["choice"] == "change":
+        data = dict(sub.data)
+        data.pop("links" if msg["kind"] != "holds_anyway" else "holds_anyway", None)
+        hass.config_entries.async_update_subentry(entry, sub, data=data)
+    for item in found:
+        item["state"] = "kept" if msg["choice"] == "keep" else "changed"
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, OPT_CONVERSION_ITEMS: items}
+    )
+    connection.send_result(msg["id"], {"items": items})
+
+
+@websocket_command({vol.Required("type"): "heads_up/conversion_items_dismiss"})
+@require_admin
+@callback
+def ws_conversion_items_dismiss(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Hide the check list; open items keep their 1.x behaviour."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    options = {k: v for k, v in entry.options.items() if k != OPT_CONVERSION_ITEMS}
+    hass.config_entries.async_update_entry(entry, options=options)
+    connection.send_result(msg["id"], {})
+
+
 @websocket_command({vol.Required("type"): "heads_up/hub_test_send", **_TEST_CALL})
 @require_admin
 @async_response
@@ -836,6 +886,8 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_audience_entity_id,
         ws_hub_plan,
         ws_policy_check,
+        ws_conversion_item,
+        ws_conversion_items_dismiss,
         ws_hub_test_send,
         ws_hub_plan_yaml,
         ws_hub_test_send_yaml,

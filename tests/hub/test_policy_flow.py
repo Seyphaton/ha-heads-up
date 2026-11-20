@@ -367,3 +367,37 @@ async def test_channels_from_the_call_need_a_people_or_a_speakers_target(
     set_person(hass, "person.ben", "home")
     result = await run(hass, entry, "policy", both)
     assert result["errors"]["people_audience"] == "target_exclusive"
+
+
+async def test_the_form_stores_only_if_faster_while_alongside_and_not_for(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    when = {"entity_id": "input_boolean.window", "state": "on"}
+    result = await run(
+        hass,
+        entry,
+        "policy",
+        {
+            "name": "Warnings",
+            "type": "reminder",
+            "severities": ["warning"],
+            "not_tags": ["digest"],
+            "only_if": when,
+            "faster_while": {"condition": when, "every_minutes": 15},
+            "alongside": True,
+        },
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    (sub,) = subentries(entry, "policy")
+    assert sub.data["not_tags"] == ["digest"] and sub.data["only_if"] == when
+    assert sub.data["faster_while"] == {"condition": when, "every_minutes": 15}
+    assert sub.data["alongside"] is True
+
+
+async def test_a_band_entry_that_covers_only_some_people_must_name_them(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    result = await run(
+        hass, entry, "policy", {"name": "Alarms", "type": "get_through", "covers": "only"}
+    )
+    assert result["errors"] == {"covers_recipients": "target_required"}

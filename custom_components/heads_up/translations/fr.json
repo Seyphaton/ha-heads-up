@@ -1184,7 +1184,11 @@
             "holds_anyway": "Les retient quand même",
             "covers": "Concerne",
             "covers_audiences": "Concerne ces audiences",
-            "covers_recipients": "Concerne ces personnes et haut-parleurs"
+            "covers_recipients": "Concerne ces personnes et haut-parleurs",
+            "rules": "Depuis la règle de surveillance",
+            "only_if": "Seulement si",
+            "faster_while": "Plus souvent tant que (rappel)",
+            "alongside": "Fonctionne à côté des autres rappels"
           },
           "data_description": {
             "enabled": "Une politique désactivée n'est jamais utilisée, même si un appel la nomme.",
@@ -1224,7 +1228,11 @@
             "holds_anyway": "Heures calmes et Résumer : aucune entrée Laisser passer ne fait passer les messages.",
             "covers": "Laisser passer : qui cette entrée fait passer les heures calmes. Un résumé ne collecte jamais un message qu'elle concerne.",
             "covers_audiences": "Laisser passer avec Seulement ceux-ci : les personnes de ces audiences.",
-            "covers_recipients": "Laisser passer avec Seulement ceux-ci : ces personnes et haut-parleurs."
+            "covers_recipients": "Laisser passer avec Seulement ceux-ci : ces personnes et haut-parleurs.",
+            "rules": "Seuls les messages de ces règles de surveillance utilisent cette règle ; vide : toute source.",
+            "only_if": "La règle n'agit que tant que cette condition est vraie, sous la forme de la condition de notify : entity_id, operator, state, attribute et for en option, ou template. Inconnu compte comme ce qui livre davantage.",
+            "faster_while": "Rappel : condition et every_minutes. Tant que la condition est vraie, le rappel se répète à ce rythme plus court ; un seul compte et une seule limite pour les deux.",
+            "alongside": "Rappel : garde son propre rythme à côté des autres rappels au lieu de partager le plus court."
           }
         },
         "reconfigure": {
@@ -1272,7 +1280,11 @@
             "holds_anyway": "Les retient quand même",
             "covers": "Concerne",
             "covers_audiences": "Concerne ces audiences",
-            "covers_recipients": "Concerne ces personnes et haut-parleurs"
+            "covers_recipients": "Concerne ces personnes et haut-parleurs",
+            "rules": "Depuis la règle de surveillance",
+            "only_if": "Seulement si",
+            "faster_while": "Plus souvent tant que (rappel)",
+            "alongside": "Fonctionne à côté des autres rappels"
           },
           "data_description": {
             "name": "Utilisé par le champ policy d'un appel. Doit être unique et ne peut pas être \"none\".",
@@ -1310,7 +1322,11 @@
             "holds_anyway": "Heures calmes et Résumer : aucune entrée Laisser passer ne fait passer les messages.",
             "covers": "Laisser passer : qui cette entrée fait passer les heures calmes. Un résumé ne collecte jamais un message qu'elle concerne.",
             "covers_audiences": "Laisser passer avec Seulement ceux-ci : les personnes de ces audiences.",
-            "covers_recipients": "Laisser passer avec Seulement ceux-ci : ces personnes et haut-parleurs."
+            "covers_recipients": "Laisser passer avec Seulement ceux-ci : ces personnes et haut-parleurs.",
+            "rules": "Seuls les messages de ces règles de surveillance utilisent cette règle ; vide : toute source.",
+            "only_if": "La règle n'agit que tant que cette condition est vraie, sous la forme de la condition de notify : entity_id, operator, state, attribute et for en option, ou template. Inconnu compte comme ce qui livre davantage.",
+            "faster_while": "Rappel : condition et every_minutes. Tant que la condition est vraie, le rappel se répète à ce rythme plus court ; un seul compte et une seule limite pour les deux.",
+            "alongside": "Rappel : garde son propre rythme à côté des autres rappels au lieu de partager le plus court."
           }
         }
       },

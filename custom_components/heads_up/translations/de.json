@@ -1184,7 +1184,11 @@
             "holds_anyway": "Hält sie trotzdem",
             "covers": "Gilt für",
             "covers_audiences": "Gilt für diese Zielgruppen",
-            "covers_recipients": "Gilt für diese Personen und Lautsprecher"
+            "covers_recipients": "Gilt für diese Personen und Lautsprecher",
+            "rules": "Von Überwachungsregel",
+            "only_if": "Nur wenn",
+            "faster_while": "Öfter, solange (Erinnerung)",
+            "alongside": "Läuft neben anderen Erinnerungen"
           },
           "data_description": {
             "enabled": "Eine deaktivierte Richtlinie wird nie genutzt, auch nicht, wenn ein Aufruf sie nennt.",
@@ -1224,7 +1228,11 @@
             "holds_anyway": "Ruhezeit und Zusammenfassen: kein Eintrag von Kommt durch lässt Meldungen an dieser vorbei.",
             "covers": "Kommt durch: wen dieser Eintrag an der Ruhezeit vorbeilässt. Zusammenfassungen sammeln keine Meldung, auf die er passt.",
             "covers_audiences": "Kommt durch mit Nur diese: die Personen dieser Zielgruppen.",
-            "covers_recipients": "Kommt durch mit Nur diese: diese Personen und Lautsprecher."
+            "covers_recipients": "Kommt durch mit Nur diese: diese Personen und Lautsprecher.",
+            "rules": "Nur Meldungen dieser Überwachungsregeln nutzen diese Richtlinie; leer: jede Quelle.",
+            "only_if": "Die Richtlinie wirkt nur, solange diese Bedingung gilt, in der Form der notify-Bedingung: entity_id, operator, state, optional attribute und for, oder template. Unbekannt zählt als das, was mehr zustellt.",
+            "faster_while": "Erinnerung: condition und every_minutes. Solange die Bedingung gilt, wiederholt die Erinnerung in diesem kürzeren Rhythmus; eine Zählung und ein Limit gelten für beide.",
+            "alongside": "Erinnerung: behält ihren eigenen Rhythmus neben anderen Erinnerungen, statt den kürzesten zu teilen."
           }
         },
         "reconfigure": {
@@ -1272,7 +1280,11 @@
             "holds_anyway": "Hält sie trotzdem",
             "covers": "Gilt für",
             "covers_audiences": "Gilt für diese Zielgruppen",
-            "covers_recipients": "Gilt für diese Personen und Lautsprecher"
+            "covers_recipients": "Gilt für diese Personen und Lautsprecher",
+            "rules": "Von Überwachungsregel",
+            "only_if": "Nur wenn",
+            "faster_while": "Öfter, solange (Erinnerung)",
+            "alongside": "Läuft neben anderen Erinnerungen"
           },
           "data_description": {
             "name": "Wird vom Feld policy eines Aufrufs verwendet. Muss eindeutig sein und darf nicht \"none\" heißen.",
@@ -1310,7 +1322,11 @@
             "holds_anyway": "Ruhezeit und Zusammenfassen: kein Eintrag von Kommt durch lässt Meldungen an dieser vorbei.",
             "covers": "Kommt durch: wen dieser Eintrag an der Ruhezeit vorbeilässt. Zusammenfassungen sammeln keine Meldung, auf die er passt.",
             "covers_audiences": "Kommt durch mit Nur diese: die Personen dieser Zielgruppen.",
-            "covers_recipients": "Kommt durch mit Nur diese: diese Personen und Lautsprecher."
+            "covers_recipients": "Kommt durch mit Nur diese: diese Personen und Lautsprecher.",
+            "rules": "Nur Meldungen dieser Überwachungsregeln nutzen diese Richtlinie; leer: jede Quelle.",
+            "only_if": "Die Richtlinie wirkt nur, solange diese Bedingung gilt, in der Form der notify-Bedingung: entity_id, operator, state, optional attribute und for, oder template. Unbekannt zählt als das, was mehr zustellt.",
+            "faster_while": "Erinnerung: condition und every_minutes. Solange die Bedingung gilt, wiederholt die Erinnerung in diesem kürzeren Rhythmus; eine Zählung und ein Limit gelten für beide.",
+            "alongside": "Erinnerung: behält ihren eigenen Rhythmus neben anderen Erinnerungen, statt den kürzesten zu teilen."
           }
         }
       },
