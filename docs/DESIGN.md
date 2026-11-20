@@ -803,7 +803,7 @@ A 1.x release refuses version 3 (Home Assistant does not load a config entry who
 
 ### 25.6 Conversion (version 2 minor 4 to version 3 minor 1)
 Runs in `async_migrate_entry` after the steps of `release/1.1` (2.2 Presence, 2.3 push levels, 2.4 `passive`), so a 1.0 setup goes 2.1 to 2.4, then 3.1, in one start. It reads the stored data before any rewrite. Steps, in this order:
-1. Links (only when `policy_mode` is `first` or missing). For each automatic policy P and each automatic policy Q above P in `policy_order` (policies missing from the order count as appended, in subentry order, as 1.x does), P gets a link to Q when their For can overlap: some severity in both (empty means all four) and some tag in both (empty means any). The link is checked live against Q's switch, so the 1.x "only the first" result is reproduced exactly for automatic matching; named policies ignore links, as they ignored the order.
+1. Links (only when `policy_mode` is `first` or missing). For each automatic policy P and each automatic policy Q above P in `policy_order` (policies missing from the order count as appended, in subentry order, as 1.x does), P gets a link to Q when their For can overlap: some severity in both (empty means all four) and some tag in both (empty means any). The link is checked live against Q's switch and against Q's For only (not Q's Not for, which the conversion adds to Presence), so the 1.x "only the first" result is reproduced exactly for automatic matching; named policies ignore links, as they ignored the order. Tested over every severity, tag and switch state (`tests/hub/test_policy_lanes.py`).
 2. Never acts: P never acts when, with today's switch states, every (severity, tag) it fits is fitted by an enabled linked policy. Exact test: for each severity of P, each tag of P must be fitted by a linked enabled Q (Q's tags empty or containing it); P with no tags needs a Q with no tags.
 3. Mode `all`: no links, and no `alongside`; these setups get the 2.0 rules (D-235). Overlapping reminders on one channel then keep one rhythm, the shortest, instead of running side by side; the CHANGELOG says so.
 4. Critical: if any Quiet hours policy had `critical_passes: true` or any Summarize policy had `include_critical: false`, add the entry "Critical" (`get_through`, severities `[critical]`, covers everyone). A Quiet hours policy with `critical_passes: false` that fits critical, and a Summarize policy with `include_critical: true`, get `holds_anyway: true`. A Presence policy with `critical_passes: true` gets `not_severities: [critical]`.
@@ -897,7 +897,7 @@ Order; each step one or more commits, `make check` green after each.
 11. Promise lines (§25.11), then the maintainer's ship-or-defer decision.
 
 ### 25.16 To verify before building
-- Home Assistant refuses a config entry with a higher major version in an older release, and how it shows that (needed for the "no way back" text); §23.16 states it for version 2, the HA_API_NOTES row is to be checked against the current source.
+- Verified (N-109): Home Assistant refuses a config entry with a higher major version; the entry shows as a migration error and is not loaded.
 - The condition selector for Only if and Faster while in the panel's own forms (D-216 left it open).
 - Listeners for Only if on a held delivery across a restart.
 - Cost of the checker's 24-hour plan and of promise lines on a setup with 30 policies and 20 tags on a small host.

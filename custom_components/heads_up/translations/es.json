@@ -244,7 +244,8 @@
         "presence": "Presencia",
         "fallback": "Alternativa",
         "summarize": "Resumir",
-        "deliver": "Entregar"
+        "deliver": "Entregar",
+        "get_through": "Dejar pasar"
       }
     },
     "weekday": {
@@ -326,6 +327,12 @@
       "options": {
         "send": "Enviar igualmente",
         "drop": "Descartar"
+      }
+    },
+    "covers": {
+      "options": {
+        "everyone": "Todos a quienes llega",
+        "only": "Solo estos"
       }
     }
   },
@@ -1162,7 +1169,6 @@
             "days": "Días",
             "quiet_entity": "O silencio mientras esto esté encendido",
             "action": "Durante las horas de silencio",
-            "critical_passes": "Los mensajes críticos pasan",
             "zone": "Zona",
             "presence_when": "Push, ventana, correo: cuando el destinatario",
             "household_who": "Voz: cuando",
@@ -1173,7 +1179,12 @@
             "when": "Usar cuando",
             "summary_every": "Resumen cada (minutos)",
             "summary_at": "Resumen a (hora)",
-            "include_critical": "Incluir mensajes críticos"
+            "not_severities": "Excepto niveles",
+            "not_tags": "Excepto etiquetas",
+            "holds_anyway": "Los retiene igualmente",
+            "covers": "Afecta a",
+            "covers_audiences": "Afecta a estas audiencias",
+            "covers_recipients": "Afecta a estas personas y altavoces"
           },
           "data_description": {
             "enabled": "Una política desactivada nunca se usa, ni siquiera si una llamada la nombra.",
@@ -1196,7 +1207,6 @@
             "days": "Horas de silencio: los días en que empieza una franja. Vacío: todos los días.",
             "quiet_entity": "Horas de silencio: en lugar de las horas, silencio mientras este horario, este interruptor de entrada o este sensor binario esté encendido. Los mensajes retenidos salen cuando se apaga. Una entidad ausente o no disponible no cuenta como silencio.",
             "action": "Horas de silencio: enviar en silencio (push sin sonido, sin voz), retener hasta el final o descartar el envío.",
-            "critical_passes": "Horas de silencio y Presencia: los mensajes críticos ignoran esta política.",
             "zone": "Presencia: la zona que se comprueba. Casa usa la entidad de presencia de una persona si su perfil de destinatario nombra una.",
             "presence_when": "Presencia: se comprueba para cada destinatario de push, ventana y correo.",
             "household_who": "Presencia: la voz se comprueba para el hogar, nadie o alguien de la audiencia de abajo.",
@@ -1207,9 +1217,14 @@
             "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló.",
             "summary_every": "Resumir: envía un resumen este número de minutos después del primer mensaje retenido.",
             "summary_at": "Resumir: envía un resumen cada día a esta hora en lugar de por intervalo.",
-            "include_critical": "Resumir: retiene también los mensajes críticos. Desactivado: los mensajes críticos se entregan de inmediato.",
             "mail_audience": "Da una audiencia o destinatarios por canal, nunca ambos. El correo llega a las personas cuyo perfil tiene Correo activado y una dirección; sin dirección falla con no_mail_address. El destinatario Global address usa la dirección común de la página Canales.",
-            "apply": "Automáticamente: cada mensaje cuya gravedad y etiqueta coinciden recibe la política. Manualmente: solo una llamada que nombra esta política en su campo policy la recibe. Una llamada también puede desactivar todas las políticas con la política none."
+            "apply": "Automáticamente: cada mensaje cuya gravedad y etiqueta coinciden recibe la política. Manualmente: solo una llamada que nombra esta política en su campo policy la recibe. Una llamada también puede desactivar todas las políticas con la política none.",
+            "not_severities": "Los mensajes de estos niveles nunca usan esta regla, aunque Para coincida.",
+            "not_tags": "Los mensajes con una de estas etiquetas nunca usan esta regla.",
+            "holds_anyway": "Horas de silencio y Resumir: ninguna entrada Dejar pasar deja pasar los mensajes.",
+            "covers": "Dejar pasar: a quién deja pasar esta entrada en las horas de silencio. Un resumen nunca recoge un mensaje que ella afecta.",
+            "covers_audiences": "Dejar pasar con Solo estos: las personas de estas audiencias.",
+            "covers_recipients": "Dejar pasar con Solo estos: estas personas y altavoces."
           }
         },
         "reconfigure": {
@@ -1242,7 +1257,6 @@
             "days": "Días",
             "quiet_entity": "O silencio mientras esto esté encendido",
             "action": "Durante las horas de silencio",
-            "critical_passes": "Los mensajes críticos pasan",
             "zone": "Zona",
             "presence_when": "Push, ventana, correo: cuando el destinatario",
             "household_who": "Voz: cuando",
@@ -1253,7 +1267,12 @@
             "when": "Usar cuando",
             "summary_every": "Resumen cada (minutos)",
             "summary_at": "Resumen a (hora)",
-            "include_critical": "Incluir mensajes críticos"
+            "not_severities": "Excepto niveles",
+            "not_tags": "Excepto etiquetas",
+            "holds_anyway": "Los retiene igualmente",
+            "covers": "Afecta a",
+            "covers_audiences": "Afecta a estas audiencias",
+            "covers_recipients": "Afecta a estas personas y altavoces"
           },
           "data_description": {
             "name": "Lo usa el campo policy de una llamada. Debe ser único y no puede ser \"none\".",
@@ -1275,7 +1294,6 @@
             "days": "Horas de silencio: los días en que empieza una franja. Vacío: todos los días.",
             "quiet_entity": "Horas de silencio: en lugar de las horas, silencio mientras este horario, este interruptor de entrada o este sensor binario esté encendido. Los mensajes retenidos salen cuando se apaga. Una entidad ausente o no disponible no cuenta como silencio.",
             "action": "Horas de silencio: enviar en silencio (push sin sonido, sin voz), retener hasta el final o descartar el envío.",
-            "critical_passes": "Horas de silencio y Presencia: los mensajes críticos ignoran esta política.",
             "zone": "Presencia: la zona que se comprueba. Casa usa la entidad de presencia de una persona si su perfil de destinatario nombra una.",
             "presence_when": "Presencia: se comprueba para cada destinatario de push, ventana y correo.",
             "household_who": "Presencia: la voz se comprueba para el hogar, nadie o alguien de la audiencia de abajo.",
@@ -1286,8 +1304,13 @@
             "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló.",
             "summary_every": "Resumir: envía un resumen este número de minutos después del primer mensaje retenido.",
             "summary_at": "Resumir: envía un resumen cada día a esta hora en lugar de por intervalo.",
-            "include_critical": "Resumir: retiene también los mensajes críticos. Desactivado: los mensajes críticos se entregan de inmediato.",
-            "mail_audience": "Da una audiencia o destinatarios por canal, nunca ambos. El correo llega a las personas cuyo perfil tiene Correo activado y una dirección; sin dirección falla con no_mail_address. El destinatario Global address usa la dirección común de la página Canales."
+            "mail_audience": "Da una audiencia o destinatarios por canal, nunca ambos. El correo llega a las personas cuyo perfil tiene Correo activado y una dirección; sin dirección falla con no_mail_address. El destinatario Global address usa la dirección común de la página Canales.",
+            "not_severities": "Los mensajes de estos niveles nunca usan esta regla, aunque Para coincida.",
+            "not_tags": "Los mensajes con una de estas etiquetas nunca usan esta regla.",
+            "holds_anyway": "Horas de silencio y Resumir: ninguna entrada Dejar pasar deja pasar los mensajes.",
+            "covers": "Dejar pasar: a quién deja pasar esta entrada en las horas de silencio. Un resumen nunca recoge un mensaje que ella afecta.",
+            "covers_audiences": "Dejar pasar con Solo estos: las personas de estas audiencias.",
+            "covers_recipients": "Dejar pasar con Solo estos: estas personas y altavoces."
           }
         }
       },

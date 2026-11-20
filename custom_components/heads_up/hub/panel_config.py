@@ -297,7 +297,6 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
         "groups": groups,
         "profiles": profiles,
         "policies": policies,
-        "policy_mode": hub.policies.mode if hub else "first",
         "rules": rules,
         "channels": channel_settings(manager),
         "choices": {

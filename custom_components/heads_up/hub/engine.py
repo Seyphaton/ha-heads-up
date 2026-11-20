@@ -124,6 +124,7 @@ class HubEngine:
         self.audiences: AudienceResolver = self.resolver
         self.recipients: RecipientResolver = self.resolver
         self.policies = PolicyBook(options)
+        self.policies.household = self.resolver.household
         # The objects that exist now, to turn a name stored by an earlier version into a key.
         self.identity = IdentityMaps()
         self.chain = Chain()
@@ -424,7 +425,7 @@ class HubEngine:
             "presence": ("max_wait",),
             "fallback": ("when", "channels"),
             "deliver": ("channels",),
-            "summarize": ("summary_every", "summary_at", "include_critical"),
+            "summarize": ("summary_every", "summary_at", "holds_anyway"),
         }
         out: dict[str, Any] = {"type": policy.type, "policy": policy.name}
         for key in fields.get(policy.type, ()):
@@ -1263,12 +1264,20 @@ class HubEngine:
     def _summary_policy(self, banner: Banner) -> Policy | None:
         if banner.source == SOURCE_SUMMARY:
             return None  # a summary is never held itself
+        passes = self.policies.passes(banner)
         found = [
             p
             for p in self.policies.for_message(banner)
-            if p.type == "summarize" and summarize.holds(p, banner.severity)
+            if p.type == "summarize" and summarize.holds(p, passes)
         ]
-        return min(found, key=lambda p: p.name) if found else None
+        # Two summaries fit: the one due next collects the message, never both (D-235, O5).
+        return min(found, key=lambda p: (self._summary_due(p), p.name)) if found else None
+
+    def _summary_due(self, policy: Policy) -> datetime:
+        row = self.ledger.rows.get((SUMMARY_PREFIX + policy.key, TIMER_CHANNEL, policy.key))
+        if row is not None and row.state is State.PLANNED and row.due is not None:
+            return row.due
+        return summarize.next_due(policy, dt_util.utcnow())
 
     def _try_hold(self, banner: Banner) -> None:
         """Hold a message that appears while a Summarize policy applies. Decided once, when the
@@ -1285,7 +1294,11 @@ class HubEngine:
         if held is None or held.resolved:
             return
         policy = self.policies.by_key(held.policy)
-        if policy is None or not policy.enabled or not summarize.holds(policy, banner.severity):
+        if (
+            policy is None
+            or not policy.enabled
+            or not summarize.holds(policy, self.policies.passes(banner))
+        ):
             # For example a message that became critical: it must not stay hidden.
             self.ledger.drop_held(banner.id)
             self._released.add(banner.id)

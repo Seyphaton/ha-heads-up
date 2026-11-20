@@ -134,6 +134,8 @@ class _HubFlow(ConfigSubentryFlow):
     def _suggested(self, subentry: ConfigSubentry) -> dict[str, Any]:
         return {"name": subentry.title, **subentry.data}
 
+    KEPT: tuple[str, ...] = ()
+
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> SubentryFlowResult:
         return self._step("user", user_input, None)
 
@@ -152,6 +154,10 @@ class _HubFlow(ConfigSubentryFlow):
             if not errors:
                 title = self._title(user_input, subentry)
                 data = self._data(user_input)
+                if subentry is not None:
+                    # Fields this form does not show stay as they are.
+                    kept = {k: subentry.data[k] for k in self.KEPT if k in subentry.data}
+                    data = {**kept, **data}
                 if subentry is None:
                     return self.async_create_entry(title=title, data=data)
                 return self.async_update_and_abort(
@@ -400,6 +406,8 @@ class PolicySubentryFlow(_HubFlow):
     """
 
     subentry_type = POLICY_SUBENTRY
+    # Written by the conversion (links) or the panel (Only if, Faster while), not by this form.
+    KEPT = ("links", "only_if", "faster_while")
 
     def _hub(self) -> Any:
         return getattr(getattr(self._get_entry(), "runtime_data", None), "hub", None)
@@ -436,6 +444,14 @@ class PolicySubentryFlow(_HubFlow):
             vol.Optional("tags"): SelectSelector(
                 SelectSelectorConfig(options=[], custom_value=True, multiple=True)
             ),
+            vol.Optional("not_severities"): SelectSelector(
+                SelectSelectorConfig(
+                    options=list(SEVERITIES), multiple=True, translation_key="severity"
+                )
+            ),
+            vol.Optional("not_tags"): SelectSelector(
+                SelectSelectorConfig(options=[], custom_value=True, multiple=True)
+            ),
             vol.Optional("after_minutes", default=DEFAULT_AFTER_MINUTES): _MINUTES,
             vol.Optional("channels"): SelectSelector(
                 SelectSelectorConfig(
@@ -470,7 +486,7 @@ class PolicySubentryFlow(_HubFlow):
             vol.Optional("action", default=QUIET_ACTIONS[0]): SelectSelector(
                 SelectSelectorConfig(options=list(QUIET_ACTIONS), translation_key="quiet_action")
             ),
-            vol.Optional("critical_passes", default=True): BooleanSelector(),
+            vol.Optional("holds_anyway", default=False): BooleanSelector(),
             vol.Optional("zone", default="zone.home"): EntitySelector(
                 EntitySelectorConfig(domain="zone")
             ),
@@ -497,7 +513,19 @@ class PolicySubentryFlow(_HubFlow):
             ),
             vol.Optional("summary_every", default=DEFAULT_SUMMARY_EVERY): _MINUTES,
             vol.Optional("summary_at"): TimeSelector(),
-            vol.Optional("include_critical", default=False): BooleanSelector(),
+            vol.Optional("covers", default="everyone"): SelectSelector(
+                SelectSelectorConfig(options=["everyone", "only"], translation_key="covers")
+            ),
+            vol.Optional("covers_audiences"): SelectSelector(
+                SelectSelectorConfig(
+                    options=[SelectOptionDict(value=k, label=n) for k, n in audiences],
+                    custom_value=True,
+                    multiple=True,
+                )
+            ),
+            vol.Optional("covers_recipients"): SelectSelector(
+                self._options(self._covers_choices(hub))
+            ),
             vol.Optional("when", default=FALLBACK_WHEN[0]): SelectSelector(
                 SelectSelectorConfig(options=list(FALLBACK_WHEN), translation_key="fallback_when")
             ),
@@ -519,6 +547,13 @@ class PolicySubentryFlow(_HubFlow):
                 known = hub.recipients.known("popup" if channel == "people" else channel)
             fields[vol.Optional(f"{channel}_recipients")] = SelectSelector(self._options(known))
         return vol.Schema(fields)
+
+    @staticmethod
+    def _covers_choices(hub: Any) -> list[Any]:
+        """People and speakers a band entry can cover."""
+        if hub is None:
+            return []
+        return [*hub.recipients.known("popup"), *hub.resolver.speak_choices()]
 
     def _targets(self, user_input: dict[str, Any]) -> dict[str, dict[str, Any]]:
         targets: dict[str, dict[str, Any]] = {}
@@ -568,6 +603,11 @@ class PolicySubentryFlow(_HubFlow):
         elif kind == "deliver":
             errors.update(deliver.check(user_input))
             errors.update(self._check_targets(user_input))
+        elif kind == "get_through":
+            if user_input.get("covers") == "only" and not (
+                user_input.get("covers_audiences") or user_input.get("covers_recipients")
+            ):
+                errors["covers_recipients"] = "target_required"
         else:
             errors.update(fallback.check(user_input))
             errors.update(self._check_targets(user_input))
@@ -619,6 +659,10 @@ class PolicySubentryFlow(_HubFlow):
             "tags": [] if manual else list(user_input.get("tags") or []),
             "enabled": bool(user_input.get("enabled", True)),
         }
+        # Not for: stored only when set (DESIGN §25.4).
+        for key in ("not_severities", "not_tags"):
+            if not manual and (values := list(user_input.get(key) or [])):
+                data[key] = values
         kind = user_input["type"]
         channels_from = user_input.get("channels_from") or "policy"
         channels = list(user_input.get("channels") or []) if channels_from == "policy" else []
@@ -647,13 +691,13 @@ class PolicySubentryFlow(_HubFlow):
                 to_time=str(user_input.get("to_time") or DEFAULT_QUIET_TO),
                 days=list(user_input.get("days") or []),
                 action=user_input.get("action", QUIET_ACTIONS[0]),
-                critical_passes=bool(user_input.get("critical_passes", True)),
             )
+            if user_input.get("holds_anyway"):
+                data["holds_anyway"] = True
             if user_input.get("quiet_entity"):  # stored only when set (D-213)
                 data["quiet_entity"] = str(user_input["quiet_entity"])
         elif kind == "presence":
             data["max_wait"] = int(user_input.get("max_wait") or 0)
-            data["critical_passes"] = bool(user_input.get("critical_passes", True))
             # Only what differs from the defaults is stored (the 1.0 Away behaviour, D-213).
             if channels and set(channels) != set(PRESENCE_PEOPLE_CHANNELS):
                 data["channels"] = [c for c in PRESENCE_CHANNELS if c in channels]
@@ -668,13 +712,23 @@ class PolicySubentryFlow(_HubFlow):
                     data[key] = value
             data["after_wait"] = str(user_input.get("after_wait") or "send")
         elif kind == "summarize":
-            data["include_critical"] = bool(user_input.get("include_critical", False))
+            if user_input.get("holds_anyway"):
+                data["holds_anyway"] = True
             if user_input.get("summary_at"):
                 data["summary_at"] = str(user_input["summary_at"])
             else:
                 data["summary_every"] = int(user_input["summary_every"])
         elif kind == "deliver":
             data.update(channels=channels, targets=self._targets(user_input))
+        elif kind == "get_through":
+            data["covers"] = "only" if user_input.get("covers") == "only" else "everyone"
+            if data["covers"] == "only":
+                hub = self._hub()
+                data["covers_audiences"] = [
+                    hub.resolver.stored_audience(a) if hub else a
+                    for a in user_input.get("covers_audiences") or []
+                ]
+                data["covers_recipients"] = list(user_input.get("covers_recipients") or [])
         else:
             data.update(
                 when=user_input.get("when", FALLBACK_WHEN[0]),

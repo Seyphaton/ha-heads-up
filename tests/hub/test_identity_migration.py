@@ -144,7 +144,7 @@ async def test_the_entry_and_the_stores_get_keys_instead_of_names(
     hass: HomeAssistant, hass_storage: dict[str, Any], mobile_app_device: AddDevice
 ) -> None:
     entry, _, _home = await start(hass, hass_storage, mobile_app_device)
-    assert entry.state is ConfigEntryState.LOADED and entry.version == 2
+    assert entry.state is ConfigEntryState.LOADED and entry.version == 3
     data = {s.title: dict(s.data) for s in entry.subentries.values()}
     assert data["Water"]["targets"] == {"push": {"audience": "AUD1"}}
     assert data["Spoken"]["targets"] == {"speak": {"recipients": ["group:GRP1"]}}
@@ -209,7 +209,7 @@ async def test_a_second_start_changes_nothing(
         hass_storage[BANNERS]["data"],
         hass_storage[LEDGER]["data"],
     )
-    assert entry.version == 2
+    assert entry.version == 3
 
 
 async def test_a_name_that_matches_nothing_is_kept_and_reported_not_dropped(
@@ -248,7 +248,7 @@ async def test_the_options_hold_kinds_and_a_hidden_warning_remembers_the_person(
 async def test_an_entry_of_a_newer_version_is_not_set_up(
     hass: HomeAssistant, hass_storage: dict[str, Any]
 ) -> None:
-    entry = MockConfigEntry(domain=DOMAIN, version=3)
+    entry = MockConfigEntry(domain=DOMAIN, version=4)
     entry.add_to_hass(hass)
     assert not await hass.config_entries.async_setup(entry.entry_id)
     assert entry.state is ConfigEntryState.MIGRATION_ERROR

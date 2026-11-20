@@ -13,6 +13,7 @@ from .conftest import AddDevice
 from .helpers import settle
 from .policy_support import (
     AWAY,
+    CRITICAL_THROUGH,
     add_audience,
     add_policy,
     make_household,
@@ -177,12 +178,12 @@ async def test_a_held_delivery_survives_a_restart(
     assert len(pushes(home.anna)) == 1  # nothing is sent twice after the restart
 
 
-async def test_critical_passes_away_by_default(
+async def test_not_for_critical_lets_critical_pass_presence(
     hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
 ) -> None:
     home = await make_household(hass, mobile_app_device)
     await family(hass, entry)
-    await add_policy(hass, entry, "Away", **AWAY)
+    await add_policy(hass, entry, "Away", **{**AWAY, "not_severities": ["critical"]})
     away(hass, "person.ben", "ben-id")
     await send(hass, entry, severity="critical", to={"push": {"audience": "Family"}})
     assert len(pushes(home.ben)) == 1
@@ -195,7 +196,9 @@ async def test_critical_waits_for_arrival_when_the_policy_says_so(
 ) -> None:
     home = await make_household(hass, mobile_app_device)
     await family(hass, entry)
-    await add_policy(hass, entry, "Away", **{**AWAY, "critical_passes": False})
+    # No band entry passes Presence (D-224): without Not for critical it waits too.
+    await add_policy(hass, entry, "Critical", **CRITICAL_THROUGH)
+    await add_policy(hass, entry, "Away", **AWAY)
     away(hass, "person.ben", "ben-id")
     await send(hass, entry, severity="critical", to={"push": {"audience": "Family"}})
     assert not pushes(home.ben)

@@ -44,9 +44,9 @@ def _text(key: str, language: str) -> str:
     return table.get(language, table["en"])
 
 
-def holds(policy: Policy, severity: str) -> bool:
-    """Critical messages are held only when the policy says so (D-097)."""
-    return policy.include_critical or severity != "critical"
+def holds(policy: Policy, passes: bool) -> bool:
+    """A message a band entry fits is not collected, unless the policy holds it anyway (D-235)."""
+    return policy.holds_anyway or not passes
 
 
 def next_due(policy: Policy, now: datetime) -> datetime:

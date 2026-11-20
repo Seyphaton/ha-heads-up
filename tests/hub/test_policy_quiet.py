@@ -15,6 +15,7 @@ from ..test_restart import restart
 from .conftest import AddDevice
 from .helpers import settle
 from .policy_support import (
+    CRITICAL_THROUGH,
     ESCALATION,
     QUIET,
     REMINDER,
@@ -137,7 +138,7 @@ async def test_outside_the_window_a_push_is_normal(
     assert pushes(home.anna)[0].data["data"]["importance"] == "default"
 
 
-async def test_critical_passes_by_default_and_not_when_the_policy_says_so(
+async def test_critical_passes_by_a_band_entry_and_not_when_the_hold_holds_anyway(
     hass: HomeAssistant,
     entry: MockConfigEntry,
     mobile_app_device: AddDevice,
@@ -146,14 +147,17 @@ async def test_critical_passes_by_default_and_not_when_the_policy_says_so(
     home = await make_household(hass, mobile_app_device)
     await add_policy(hass, entry, "Night", **QUIET)
     freezer.move_to("2026-11-02 23:00:00+01:00")
+    await send(hass, entry, id="none")
+    assert pushes(home.anna)[0].data["data"]["importance"] == "low"  # no band entry
+    await add_policy(hass, entry, "Critical", **CRITICAL_THROUGH)
     await send(hass, entry)
-    assert pushes(home.anna)[0].data["data"]["importance"] == "high"
-    quiet_critical = {**QUIET, "critical_passes": False}
+    assert pushes(home.anna)[1].data["data"]["importance"] == "high"
+    quiet_critical = {**QUIET, "holds_anyway": True}
     (sub,) = [s for s in entry.subentries.values() if s.title == "Night"]
     hass.config_entries.async_update_subentry(entry, sub, data=quiet_critical)
     await hass.async_block_till_done()
     await send(hass, entry, id="n")
-    assert pushes(home.anna)[1].data["data"]["importance"] == "low"
+    assert pushes(home.anna)[2].data["data"]["importance"] == "low"
 
 
 async def test_wait_holds_the_push_until_the_end_of_the_window_then_sends_it_once(

@@ -15,7 +15,6 @@ from .binary_sensor import audience_entity_ids, notify_audiences_changed
 from .const import (
     DOMAIN,
     OPT_INSTALL_TOKEN,
-    OPT_POLICY_ORDER,
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
     SIGNAL_POLICIES,
@@ -70,13 +69,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> b
     manager.sync_rules(entry.subentries, silent=True)
     if manager.hub is not None:
         await manager.hub.async_start(set(manager.banners) | set(manager.rules))
-    if manager.hub is not None and OPT_POLICY_ORDER not in entry.options:
-        # The starting order of an installation that has none (D-149); stored before the update
-        # listener exists, so it does not run for it.
-        manager.options[OPT_POLICY_ORDER] = manager.hub.policies.initial_order()
-        hass.config_entries.async_update_entry(
-            entry, options={**entry.options, OPT_POLICY_ORDER: manager.options[OPT_POLICY_ORDER]}
-        )
     entry.runtime_data = manager
     follow_renames(hass, entry)
     entry.async_on_unload(entry.add_update_listener(_async_entry_updated))

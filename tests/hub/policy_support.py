@@ -104,6 +104,8 @@ def move(hass: HomeAssistant, person: str, state: str) -> None:
 
 
 SUMMARIZE: dict[str, Any] = {"type": "summarize", "summary_every": 60}
+# The band entry "Critical" (D-224): critical messages pass Quiet hours and Summarize.
+CRITICAL_THROUGH: dict[str, Any] = {"type": "get_through", "severities": ["critical"]}
 
 
 def summaries(entry: MockConfigEntry) -> list[Any]:

@@ -12,6 +12,7 @@ from ..test_rules import WINDOW, add_rule
 from .conftest import AddDevice
 from .helpers import settle
 from .policy_support import (
+    CRITICAL_THROUGH,
     ESCALATION,
     QUIET,
     SUMMARIZE,
@@ -165,20 +166,19 @@ async def test_the_interval_counts_from_the_first_message_held_after_a_summary(
     assert "Message c" in later.message and "Message a" not in later.message
 
 
-async def test_critical_messages_are_delivered_at_once_unless_the_policy_includes_them(
+async def test_a_band_entry_keeps_messages_out_unless_the_summary_holds_anyway(
     hass: HomeAssistant,
     entry: MockConfigEntry,
     mobile_app_device: AddDevice,
     freezer: FrozenDateTimeFactory,
 ) -> None:
     home = await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Critical", **CRITICAL_THROUGH)
     await add_policy(hass, entry, "Digest", **SUMMARIZE)
     await send(hass, entry, id="crit")
     assert len(pushes(home.anna)) == 1 and shown(entry) == ["crit"]
     (sub,) = [s for s in entry.subentries.values() if s.title == "Digest"]
-    hass.config_entries.async_update_subentry(
-        entry, sub, data={**SUMMARIZE, "include_critical": True}
-    )
+    hass.config_entries.async_update_subentry(entry, sub, data={**SUMMARIZE, "holds_anyway": True})
     await hass.async_block_till_done()
     await send(hass, entry, id="crit2")
     assert len(pushes(home.anna)) == 1 and "crit2" not in shown(entry)
@@ -188,6 +188,7 @@ async def test_a_held_message_that_becomes_critical_is_released(
     hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
 ) -> None:
     home = await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Critical", **CRITICAL_THROUGH)
     await add_policy(hass, entry, "Digest", **SUMMARIZE)
     await hold(hass, entry, "a")
     assert shown(entry) == []

@@ -244,7 +244,8 @@
         "presence": "Anwesenheit",
         "fallback": "Ersatz",
         "summarize": "Zusammenfassen",
-        "deliver": "Zustellen"
+        "deliver": "Zustellen",
+        "get_through": "Kommt durch"
       }
     },
     "weekday": {
@@ -326,6 +327,12 @@
       "options": {
         "send": "Trotzdem senden",
         "drop": "Verwerfen"
+      }
+    },
+    "covers": {
+      "options": {
+        "everyone": "Alle, die sie erreicht",
+        "only": "Nur diese"
       }
     }
   },
@@ -1162,7 +1169,6 @@
             "days": "Tage",
             "quiet_entity": "Oder ruhig, solange dies an ist",
             "action": "Während der Ruhezeit",
-            "critical_passes": "Kritische Meldungen kommen durch",
             "zone": "Zone",
             "presence_when": "Push, Popup, Mail: wenn der Empfänger",
             "household_who": "Sprache: wenn",
@@ -1173,7 +1179,12 @@
             "when": "Verwenden, wenn",
             "summary_every": "Zusammenfassung alle (Minuten)",
             "summary_at": "Zusammenfassung um (Uhrzeit)",
-            "include_critical": "Kritische Meldungen einschließen"
+            "not_severities": "Nicht für Stufen",
+            "not_tags": "Nicht für Tags",
+            "holds_anyway": "Hält sie trotzdem",
+            "covers": "Gilt für",
+            "covers_audiences": "Gilt für diese Zielgruppen",
+            "covers_recipients": "Gilt für diese Personen und Lautsprecher"
           },
           "data_description": {
             "enabled": "Eine deaktivierte Richtlinie wird nie genutzt, auch nicht, wenn ein Aufruf sie nennt.",
@@ -1196,7 +1207,6 @@
             "days": "Ruhezeit: die Tage, an denen ein Fenster beginnt. Leer: jeden Tag.",
             "quiet_entity": "Ruhezeit: statt der Uhrzeiten ruhig, solange dieser Zeitplan, dieser Eingabe-Schalter oder dieser binäre Sensor an ist. Zurückgehaltene Meldungen gehen raus, wenn er aus geht. Eine fehlende oder nicht verfügbare Entität ist nicht ruhig.",
             "action": "Ruhezeit: leise senden (Push ohne Ton, keine Sprachausgabe), bis zum Ende zurückhalten oder die Zustellung verwerfen.",
-            "critical_passes": "Ruhezeit und Anwesenheit: kritische Meldungen ignorieren diese Richtlinie.",
             "zone": "Anwesenheit: die geprüfte Zone. Zuhause nutzt die Zuhause-Entität einer Person, wenn ihr Empfängerprofil eine nennt.",
             "presence_when": "Anwesenheit: geprüft für jeden Empfänger von Push, Popup und Mail.",
             "household_who": "Anwesenheit: Sprache wird für den Haushalt geprüft, niemand oder jemand der Zielgruppe darunter.",
@@ -1207,9 +1217,14 @@
             "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl.",
             "summary_every": "Zusammenfassen: eine Zusammenfassung so viele Minuten nach der ersten zurückgehaltenen Meldung senden.",
             "summary_at": "Zusammenfassen: eine Zusammenfassung täglich zu dieser Uhrzeit statt im Intervall senden.",
-            "include_critical": "Zusammenfassen: auch kritische Meldungen zurückhalten. Aus: kritische Meldungen werden sofort zugestellt.",
             "mail_audience": "Gib pro Kanal entweder eine Zielgruppe oder Empfänger an, nie beides. E-Mail erreicht Personen, deren Profil E-Mail aktiviert und eine Adresse hat; ohne Adresse scheitert es mit no_mail_address. Der Empfänger Global address nutzt die gemeinsame Adresse der Kanäle-Seite.",
-            "apply": "Automatisch: Jede Meldung, deren Schweregrad und Tag passen, bekommt die Richtlinie. Manuell: Nur ein Aufruf, der diese Richtlinie im Feld policy nennt, bekommt sie. Ein Aufruf kann auch alle Richtlinien mit der Richtlinie none abschalten."
+            "apply": "Automatisch: Jede Meldung, deren Schweregrad und Tag passen, bekommt die Richtlinie. Manuell: Nur ein Aufruf, der diese Richtlinie im Feld policy nennt, bekommt sie. Ein Aufruf kann auch alle Richtlinien mit der Richtlinie none abschalten.",
+            "not_severities": "Meldungen dieser Stufen nutzen diese Richtlinie nie, auch wenn Für passt.",
+            "not_tags": "Meldungen mit einem dieser Tags nutzen diese Richtlinie nie.",
+            "holds_anyway": "Ruhezeit und Zusammenfassen: kein Eintrag von Kommt durch lässt Meldungen an dieser vorbei.",
+            "covers": "Kommt durch: wen dieser Eintrag an der Ruhezeit vorbeilässt. Zusammenfassungen sammeln keine Meldung, auf die er passt.",
+            "covers_audiences": "Kommt durch mit Nur diese: die Personen dieser Zielgruppen.",
+            "covers_recipients": "Kommt durch mit Nur diese: diese Personen und Lautsprecher."
           }
         },
         "reconfigure": {
@@ -1242,7 +1257,6 @@
             "days": "Tage",
             "quiet_entity": "Oder ruhig, solange dies an ist",
             "action": "Während der Ruhezeit",
-            "critical_passes": "Kritische Meldungen kommen durch",
             "zone": "Zone",
             "presence_when": "Push, Popup, Mail: wenn der Empfänger",
             "household_who": "Sprache: wenn",
@@ -1253,7 +1267,12 @@
             "when": "Verwenden, wenn",
             "summary_every": "Zusammenfassung alle (Minuten)",
             "summary_at": "Zusammenfassung um (Uhrzeit)",
-            "include_critical": "Kritische Meldungen einschließen"
+            "not_severities": "Nicht für Stufen",
+            "not_tags": "Nicht für Tags",
+            "holds_anyway": "Hält sie trotzdem",
+            "covers": "Gilt für",
+            "covers_audiences": "Gilt für diese Zielgruppen",
+            "covers_recipients": "Gilt für diese Personen und Lautsprecher"
           },
           "data_description": {
             "name": "Wird vom Feld policy eines Aufrufs verwendet. Muss eindeutig sein und darf nicht \"none\" heißen.",
@@ -1275,7 +1294,6 @@
             "days": "Ruhezeit: die Tage, an denen ein Fenster beginnt. Leer: jeden Tag.",
             "quiet_entity": "Ruhezeit: statt der Uhrzeiten ruhig, solange dieser Zeitplan, dieser Eingabe-Schalter oder dieser binäre Sensor an ist. Zurückgehaltene Meldungen gehen raus, wenn er aus geht. Eine fehlende oder nicht verfügbare Entität ist nicht ruhig.",
             "action": "Ruhezeit: leise senden (Push ohne Ton, keine Sprachausgabe), bis zum Ende zurückhalten oder die Zustellung verwerfen.",
-            "critical_passes": "Ruhezeit und Anwesenheit: kritische Meldungen ignorieren diese Richtlinie.",
             "zone": "Anwesenheit: die geprüfte Zone. Zuhause nutzt die Zuhause-Entität einer Person, wenn ihr Empfängerprofil eine nennt.",
             "presence_when": "Anwesenheit: geprüft für jeden Empfänger von Push, Popup und Mail.",
             "household_who": "Anwesenheit: Sprache wird für den Haushalt geprüft, niemand oder jemand der Zielgruppe darunter.",
@@ -1286,8 +1304,13 @@
             "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl.",
             "summary_every": "Zusammenfassen: eine Zusammenfassung so viele Minuten nach der ersten zurückgehaltenen Meldung senden.",
             "summary_at": "Zusammenfassen: eine Zusammenfassung täglich zu dieser Uhrzeit statt im Intervall senden.",
-            "include_critical": "Zusammenfassen: auch kritische Meldungen zurückhalten. Aus: kritische Meldungen werden sofort zugestellt.",
-            "mail_audience": "Gib pro Kanal entweder eine Zielgruppe oder Empfänger an, nie beides. E-Mail erreicht Personen, deren Profil E-Mail aktiviert und eine Adresse hat; ohne Adresse scheitert es mit no_mail_address. Der Empfänger Global address nutzt die gemeinsame Adresse der Kanäle-Seite."
+            "mail_audience": "Gib pro Kanal entweder eine Zielgruppe oder Empfänger an, nie beides. E-Mail erreicht Personen, deren Profil E-Mail aktiviert und eine Adresse hat; ohne Adresse scheitert es mit no_mail_address. Der Empfänger Global address nutzt die gemeinsame Adresse der Kanäle-Seite.",
+            "not_severities": "Meldungen dieser Stufen nutzen diese Richtlinie nie, auch wenn Für passt.",
+            "not_tags": "Meldungen mit einem dieser Tags nutzen diese Richtlinie nie.",
+            "holds_anyway": "Ruhezeit und Zusammenfassen: kein Eintrag von Kommt durch lässt Meldungen an dieser vorbei.",
+            "covers": "Kommt durch: wen dieser Eintrag an der Ruhezeit vorbeilässt. Zusammenfassungen sammeln keine Meldung, auf die er passt.",
+            "covers_audiences": "Kommt durch mit Nur diese: die Personen dieser Zielgruppen.",
+            "covers_recipients": "Kommt durch mit Nur diese: diese Personen und Lautsprecher."
           }
         }
       },

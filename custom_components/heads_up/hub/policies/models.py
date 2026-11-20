@@ -33,7 +33,7 @@ DEFAULT_QUIET_TO = "07:00:00"
 DESCRIBED = {
     "escalation": ("after_minutes", "channels"),
     "reminder": ("every_minutes", "max_count", "channels"),
-    "quiet_hours": ("from_time", "to_time", "days", "quiet_entity", "action", "critical_passes"),
+    "quiet_hours": ("from_time", "to_time", "days", "quiet_entity", "action", "holds_anyway"),
     "presence": (
         "channels",
         "zone",
@@ -43,11 +43,11 @@ DESCRIBED = {
         "presence_then",
         "max_wait",
         "after_wait",
-        "critical_passes",
     ),
     "fallback": ("when", "channels"),
     "deliver": ("channels",),
-    "summarize": ("summary_every", "summary_at", "include_critical"),
+    "summarize": ("summary_every", "summary_at", "holds_anyway"),
+    "get_through": ("covers", "covers_audiences", "covers_recipients"),
 }
 
 
@@ -60,6 +60,13 @@ class Policy:
     tags: frozenset[str] = frozenset()  # empty means any
     enabled: bool = True
     apply: str = "auto"  # auto: by severity and tag; manual: only when a call names the policy
+    # Which messages, 2.0 (DESIGN §25.3): Not for wins over For; `rules` are watch-rule subentry
+    # IDs (empty: any source); `links` are written only by the conversion from 1.x (§25.6).
+    not_severities: frozenset[str] = frozenset()
+    not_tags: frozenset[str] = frozenset()
+    rules: frozenset[str] = frozenset()
+    links: tuple[str, ...] = ()
+    only_if: dict[str, Any] | None = None  # D-216: the notify condition shape
     # Escalation and Fallback
     after_minutes: int = 0
     channels: tuple[str, ...] = ()  # a reminder may limit itself to these; empty means all
@@ -80,7 +87,8 @@ class Policy:
     # Quiet while this on/off entity is on, instead of the times (D-218, D-220); empty: times.
     quiet_entity: str = ""
     action: str = "quiet"
-    critical_passes: bool = True
+    # Quiet hours and Summarize: no band entry passes this hold (D-224)
+    holds_anyway: bool = False
     # Presence (was Away, D-212): minutes to wait; 0 means as long as the message lives
     max_wait: int = 0
     zone: str = "zone.home"
@@ -92,7 +100,13 @@ class Policy:
     # Summarize: every N minutes, or daily at a time of day when `summary_at` is set
     summary_every: int = 0
     summary_at: str = ""
-    include_critical: bool = False
+    # Reminder (D-234, D-235)
+    faster_while: dict[str, Any] | None = None  # {"condition": ..., "every_minutes": n}
+    alongside: bool = False
+    # Get through (band entry): everyone the delivery reaches, or only these
+    covers: str = "everyone"
+    covers_audiences: tuple[str, ...] = ()
+    covers_recipients: tuple[str, ...] = ()
 
     @property
     def trigger(self) -> tuple[Any, ...]:
@@ -110,6 +124,8 @@ class Policy:
             return ("when", self.when)
         if self.type == "summarize":
             return ("summary", self.summary_every, self.summary_at)
+        if self.type == "get_through":
+            return ("through", self.covers, self.covers_audiences, self.covers_recipients)
         if self.type == "deliver":
             return ("deliver", tuple(sorted(self.channels)), self.channels_from, self.targets_from)
         if self.type == "presence":
@@ -144,6 +160,9 @@ class Policy:
             "apply": self.apply,
             "severities": sorted(self.severities),
             "tags": sorted(self.tags),
+            "not_severities": sorted(self.not_severities),
+            "not_tags": sorted(self.not_tags),
+            "rules": sorted(self.rules),
         }
         for name in DESCRIBED.get(self.type, ()):
             value = getattr(self, name)
@@ -171,6 +190,11 @@ def policy_from_data(name: str, subentry_id: str, data: Mapping[str, Any]) -> Po
         tags=frozenset(data.get("tags") or ()),
         enabled=bool(data.get("enabled", True)),
         apply="manual" if data.get("apply") == "manual" else "auto",
+        not_severities=frozenset(data.get("not_severities") or ()),
+        not_tags=frozenset(data.get("not_tags") or ()),
+        rules=frozenset(data.get("rules") or ()),
+        links=tuple(data.get("links") or ()),
+        only_if=dict(data["only_if"]) if isinstance(data.get("only_if"), Mapping) else None,
         after_minutes=int(data.get("after_minutes", 0)),
         channels=tuple(data.get("channels") or ()),
         channels_from=str(data.get("channels_from") or "policy"),
@@ -185,7 +209,7 @@ def policy_from_data(name: str, subentry_id: str, data: Mapping[str, Any]) -> Po
         days=tuple(data.get("days") or ()),
         quiet_entity=str(data.get("quiet_entity") or ""),
         action=str(data.get("action", "quiet")),
-        critical_passes=bool(data.get("critical_passes", True)),
+        holds_anyway=bool(data.get("holds_anyway", False)),
         max_wait=int(data.get("max_wait", 0)),
         zone=str(data.get("zone") or "zone.home"),
         presence_when=str(data.get("presence_when") or "not_in"),
@@ -196,7 +220,13 @@ def policy_from_data(name: str, subentry_id: str, data: Mapping[str, Any]) -> Po
         after_wait=str(data.get("after_wait") or ("drop" if old_away else "send")),
         summary_every=int(data.get("summary_every", 0)),
         summary_at=str(data.get("summary_at", "")),
-        include_critical=bool(data.get("include_critical", False)),
+        faster_while=dict(data["faster_while"])
+        if isinstance(data.get("faster_while"), Mapping)
+        else None,
+        alongside=bool(data.get("alongside", False)),
+        covers="only" if data.get("covers") == "only" else "everyone",
+        covers_audiences=tuple(data.get("covers_audiences") or ()),
+        covers_recipients=tuple(data.get("covers_recipients") or ()),
     )
 
 

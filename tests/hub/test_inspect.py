@@ -70,7 +70,7 @@ async def test_a_policy_switch_shows_what_the_policy_does(
     hass: HomeAssistant, entry: MockConfigEntry
 ) -> None:
     await add_policy(
-        hass, entry, "Night", **QUIET, severities=["info"], tags=["digest"], critical_passes=True
+        hass, entry, "Night", **QUIET, severities=["info"], tags=["digest"], not_tags=["x"]
     )
     await add_policy(hass, entry, "Nag", **REMINDER, severities=["warning"])
     registry = er.async_get(hass)
@@ -87,10 +87,11 @@ async def test_a_policy_switch_shows_what_the_policy_does(
     night = states["night"]
     assert night["type"] == "quiet_hours" and night["severities"] == ["info"]
     assert night["tags"] == ["digest"] and night["from_time"] == "22:00:00"
-    assert night["action"] == "quiet" and night["critical_passes"] is True
+    assert night["action"] == "quiet" and night["holds_anyway"] is False
+    assert night["not_tags"] == ["x"] and night["not_severities"] == []
     nag = states["nag"]
     assert nag["every_minutes"] == 10 and nag["max_count"] == 2
-    assert {night["order"], nag["order"]} == {1, 2}
+    assert "order" not in night  # no list order in 2.0 (D-224)
 
 
 async def test_diagnostics_hide_addresses_and_message_texts(

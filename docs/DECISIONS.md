@@ -378,6 +378,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - 2026-10-25: `v0.2.0` published by the maintainer; `0.2.1` prepared (D-062).
 - 2026-10-26: Phase 10 (condition `for`, template conditions, D-066, D-067) requested and approved by the maintainer; delivered; not committed at the time of writing.
 - 2026-10-27: Phase 12 (banner buttons and snooze, D-069, D-070) requested and approved by the maintainer; delivered and committed; not pushed.
+- 2026-11-20: Phase 17 (2.0.0 policies in two lanes, DESIGN §25, build checklist §25.15) approved by the maintainer ("Start build") on `release/2.0`, after the merge of `release/1.1`.
 
 ## D-068 `empty` and `not_empty` operators; State is not prefilled
 - Date: 2026-10-27. Phase 11 requested and approved by the maintainer.
@@ -1517,3 +1518,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - O10: reminders keep repeating a Fallback's sends (1.x).
   - O11: a policy switched on, or freed by a link target switched off, acts only on messages that appear afterwards (1.x). O11b: Only if is different: a policy that fitted by For, Not for, switch and links when the message appeared plans its timers then, and its Only if is checked at each step (scenario 5 with two reminders works).
   - O12: when automatic matching is off for a message (`match_policies_automatically: false`, `policy: none`, or a watch rule with its own policy, D-145), no automatic policy acts, holds and band entries included (1.x). O12b: a band entry may be "Only when named"; a call names it like any policy.
+
+## D-236 2.0.0 build: choices made while building (2026-11-20)
+- Context: Phase 17 build on `release/2.0` (DESIGN §25). Choices made without a separate question; each is also in §25.
+- A link looks at the linked policy's For only, not its Not for. The conversion adds Not for critical to a Presence policy that let critical pass; if links read Not for, a policy below that Presence (for example Critical delivery) would start to act on critical messages where 1.x kept it silent. This fixes the migration error named in `03-reviewer-scores.md`.
+- The conversion is a pure function (`hub/policies/convert.py`, `convert_v3`) run once by the entry version; it is not idempotent on its own (a second run would add a second band entry), the version 3 guard prevents that.
+- Band entries that cover only some people store `covers_audiences` (audience keys) and `covers_recipients` (person and speaker IDs); an audience is resolved through the household of the resolver, as Presence does.
+- The policy form of Home Assistant keeps `links`, `only_if` and `faster_while` when a policy is reconfigured (the form does not show them).
+- Policy switch attributes lose `order` and gain `not_severities`, `not_tags`, `rules`; diagnostics list `policies` instead of `policy_order`.

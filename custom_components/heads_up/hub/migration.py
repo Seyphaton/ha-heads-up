@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, ConfigSubentry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
 
@@ -34,12 +34,16 @@ from ..const import (
     canonical_severity,
 )
 from .identity import IdentityMaps, count_changes, maps_for
+from .policies.convert import StoredPolicy, convert_v3
 
 _LOGGER = logging.getLogger(__name__)
 
-ENTRY_VERSION = 2
+# 3.1: policies in two lanes, no order and no mode (D-224, DESIGN §25.6). A 1.x release refuses
+# version 3 (HA_API_NOTES N-109); there is no way back but a backup (D-234).
+ENTRY_VERSION = 3
+ENTRY_MINOR_VERSION = 1
 # 2.2: Away became Presence (D-214); 2.3: push levels kept (D-230); 2.4: success is passive (D-231)
-ENTRY_MINOR_VERSION = 4
+V2_LAST_MINOR_VERSION = 4
 PUSH_LEVELS_MINOR_VERSION = 3
 PRESENCE_MINOR_VERSION = 2
 BACKUP_KEY = "heads_up.migration_v2"
@@ -168,9 +172,16 @@ def migrate_push_levels(hass: HomeAssistant, entry: ConfigEntry) -> None:
 async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if entry.version > ENTRY_VERSION:
         return False  # Home Assistant refuses this before it gets here; kept for clarity
-    if entry.version == ENTRY_VERSION:
+    if entry.version == 1:
+        await _migrate_names(hass, entry)
+    if entry.version == 2:
         await _migrate_minor(hass, entry)
-        return True
+        migrate_lanes(hass, entry)
+    return True
+
+
+async def _migrate_names(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """1 to 2.1: stored names become keys (D-200)."""
     await write_backup(hass, entry)
     maps = maps_for(hass, entry.subentries.values())
     changed = 0
@@ -190,10 +201,8 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
     options = migrate_options(dict(entry.options), maps, person_names)
     changed += count_changes(dict(entry.options), options)
-    hass.config_entries.async_update_entry(entry, options=options, version=ENTRY_VERSION)
+    hass.config_entries.async_update_entry(entry, options=options, version=2, minor_version=1)
     _LOGGER.info("%s: stored names became keys (%d values in the entry)", DOMAIN, changed)
-    await _migrate_minor(hass, entry)
-    return True
 
 
 async def _migrate_minor(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -201,8 +210,37 @@ async def _migrate_minor(hass: HomeAssistant, entry: ConfigEntry) -> None:
         await migrate_presence(hass, entry)
     if entry.minor_version < PUSH_LEVELS_MINOR_VERSION:
         migrate_push_levels(hass, entry)
-    if entry.minor_version < ENTRY_MINOR_VERSION:
+    if entry.minor_version < V2_LAST_MINOR_VERSION:
         migrate_severity_names(hass, entry)
+
+
+def migrate_lanes(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """2.4 to 3.1: the list order and the modes become links, the band entry Critical and the
+    check list (`convert_v3`, DESIGN §25.6)."""
+    stored = [
+        StoredPolicy(s.subentry_id, s.title, dict(s.data))
+        for s in entry.subentries.values()
+        if s.subentry_type == POLICY_SUBENTRY
+    ]
+    result = convert_v3(stored, dict(entry.options))
+    for sub in list(entry.subentries.values()):
+        if (data := result.updates.get(sub.subentry_id)) is not None:
+            hass.config_entries.async_update_subentry(entry, sub, data=data)
+    for title, data in result.added:
+        hass.config_entries.async_add_subentry(
+            entry,
+            ConfigSubentry(data=data, subentry_type=POLICY_SUBENTRY, title=title, unique_id=None),  # type: ignore[arg-type]
+        )
+    hass.config_entries.async_update_entry(
+        entry, options=result.options, version=ENTRY_VERSION, minor_version=ENTRY_MINOR_VERSION
+    )
+    _LOGGER.info(
+        "%s: policies moved to the lanes (%d changed, %d added, %d to check)",
+        DOMAIN,
+        len(result.updates),
+        len(result.added),
+        len(result.items),
+    )
 
 
 # Options that hold one value per severity.
@@ -250,5 +288,5 @@ def migrate_severity_names(hass: HomeAssistant, entry: ConfigEntry) -> None:
             values["passive"] = values.pop("success")
             options[key] = values
     hass.config_entries.async_update_entry(
-        entry, options=options, minor_version=ENTRY_MINOR_VERSION
+        entry, options=options, minor_version=V2_LAST_MINOR_VERSION
     )

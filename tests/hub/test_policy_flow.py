@@ -157,7 +157,6 @@ async def test_add_quiet_hours_with_the_confirmed_defaults(
         "to_time": "07:00:00",
         "days": [],
         "action": "quiet",
-        "critical_passes": True,
     }
 
 
@@ -234,7 +233,7 @@ async def test_add_a_summarize_policy_with_the_confirmed_defaults(
     result = await run(hass, entry, "policy", {"name": "Digest", "type": "summarize"})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     (sub,) = subentries(entry, "policy")
-    assert sub.data["summary_every"] == 60 and sub.data["include_critical"] is False
+    assert sub.data["summary_every"] == 60 and "holds_anyway" not in sub.data
     assert "summary_at" not in sub.data
 
 

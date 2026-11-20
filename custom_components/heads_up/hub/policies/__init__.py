@@ -7,23 +7,25 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigSubentry
 
-from ...const import OPT_POLICY_MODE, OPT_POLICY_ORDER, POLICY_MODES, POLICY_TYPES
+from ...const import POLICY_TYPES
 from ...models import Banner
+from ..channels.base import Target
 from ..identity import NAME_PREFIX
 from .matching import select
 from .models import Policy, parse_policy
 
 ACKNOWLEDGING = ("escalation", "reminder")  # types that make an Acknowledge button useful
-# The starting order of policies that have none yet: what limits a message first, then what adds
-# deliveries (D-149). Within a type, by name.
+# The page order: the lane "Keep it calm", the band, the lane "Make sure it arrives" (DESIGN
+# §25.2). Only for display; which policies act does not depend on it.
 TYPE_RANK = {
     "summarize": 0,
     "quiet_hours": 1,
     "presence": 2,
-    "escalation": 3,
-    "reminder": 4,
-    "fallback": 5,
-    "deliver": 6,
+    "get_through": 3,
+    "deliver": 4,
+    "escalation": 5,
+    "reminder": 6,
+    "fallback": 7,
 }
 
 
@@ -32,33 +34,19 @@ class PolicyBook:
 
     def __init__(self, options: Mapping[str, Any] | None = None) -> None:
         self._policies: dict[str, Policy] = {}  # by subentry id
-        # The live options of the entry: the mode and the order are read when they are used.
         self._options: Mapping[str, Any] = options if options is not None else {}
+        # Set by the engine: the persons of an audience key, for band entries that cover
+        # only some people.
+        self.household: Callable[[str], list[str]] = lambda audience: []
         # Set by the integration: the policy a switch of its own stands for (D-186).
         # Every policy name with the entity ID of its switch; a call names a policy by it (D-198).
         self.policy_entities: Callable[[], dict[str, str]] = lambda: {}
 
-    @property
-    def mode(self) -> str:
-        mode = self._options.get(OPT_POLICY_MODE)
-        return str(mode) if mode in POLICY_MODES else "first"
-
-    def initial_order(self) -> list[str]:
-        """Subentry ids in the starting order, for an installation that has none stored."""
-        ranked = sorted(
+    def ordered(self) -> list[Policy]:
+        """The policies in page order: by lane and type, then by name."""
+        return sorted(
             self._policies.values(), key=lambda p: (TYPE_RANK.get(p.type, 9), p.name.casefold())
         )
-        return [p.subentry_id for p in ranked]
-
-    def ordered(self) -> list[Policy]:
-        """The policies in the order of the list: the stored order, then new ones in the order
-        they were created. Without a stored order, the starting order."""
-        stored = self._options.get(OPT_POLICY_ORDER)
-        if not isinstance(stored, list):
-            return [self._policies[i] for i in self.initial_order()]
-        listed = [self._policies[i] for i in stored if i in self._policies]
-        known = set(stored)
-        return listed + [p for i, p in self._policies.items() if i not in known]
 
     def sync(self, subentries: Mapping[str, ConfigSubentry]) -> None:
         parsed = (parse_policy(s) for s in subentries.values())
@@ -93,7 +81,30 @@ class PolicyBook:
         )
 
     def for_message(self, message: Banner) -> list[Policy]:
-        return select(self.ordered(), message, first_only=self.mode == "first")
+        return select(self.ordered(), message, self._policies)
+
+    def band_for(self, message: Banner) -> list[Policy]:
+        return [p for p in self.for_message(message) if p.type == "get_through"]
+
+    def covers(self, entry: Policy, target: Target) -> bool:
+        if entry.covers != "only":
+            return True
+        if target.key in entry.covers_recipients or (
+            target.person is not None and target.person in entry.covers_recipients
+        ):
+            return True
+        return target.person is not None and any(
+            target.person in self.household(a) for a in entry.covers_audiences
+        )
+
+    def passes(self, message: Banner, target: Target | None = None) -> bool:
+        """Whether a band entry lets this message past a hold (DESIGN §25.3 rule 3): Summarize
+        asks without a target (the whole message), Quiet hours per recipient. The caller checks
+        `holds_anyway` on its own policy."""
+        entries = self.band_for(message)
+        if target is None:
+            return bool(entries)
+        return any(self.covers(e, target) for e in entries)
 
     def timed_for(self, message: Banner) -> list[Policy]:
         return [p for p in self.for_message(message) if p.type in ACKNOWLEDGING]

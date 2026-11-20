@@ -112,8 +112,6 @@ class PresenceStage:
         for policy in self._policies.for_message(step.banner):
             if policy.type != "presence":
                 continue
-            if policy.critical_passes and step.banner.severity == "critical":
-                continue
             if not self.applies(policy, step):
                 continue
             if policy.presence_then == "drop":

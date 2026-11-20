@@ -82,9 +82,6 @@ POLICY_AUTOMATIC: Final = "automatic"
 POLICY_APPLY: Final = ("auto", "manual")
 # How the automatic policies interact (D-148, D-149): only the first that applies runs, in the order
 # of the policy list, or every policy that applies runs.
-OPT_POLICY_MODE: Final = "policy_mode"
-OPT_POLICY_ORDER: Final = "policy_order"  # subentry ids, first to last
-POLICY_MODES: Final = ("first", "all")
 DELIVERIES_KEY: Final = "heads_up.deliveries"
 DELIVERIES_VERSION: Final = 2  # 2: timer and held rows hold policy keys (D-200)
 DELIVERIES_MINOR_VERSION: Final = 1
@@ -100,6 +97,7 @@ POLICY_TYPES: Final = (
     "fallback",
     "summarize",
     "deliver",
+    "get_through",  # the band "Always gets through" (D-224)
 )
 WEEKDAYS: Final = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 QUIET_ACTIONS: Final = ("quiet", "wait", "drop")
@@ -252,7 +250,6 @@ DEFAULT_OPTIONS: Final = {
     OPT_DEFAULT_SNOOZE_SCOPE: "user",
     OPT_DEFAULT_SNOOZE_OPTIONS: list(DEFAULT_SNOOZE_SECONDS),
     OPT_QUICK_SNOOZE: 15,
-    OPT_POLICY_MODE: "first",
     OPT_DISABLE_ENDED_BUTTONS: True,
     OPT_PRESENCE_DEBOUNCE: 60,
     OPT_PUSH_LEVELS: DEFAULT_PUSH_LEVELS,

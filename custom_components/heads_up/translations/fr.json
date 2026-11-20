@@ -244,7 +244,8 @@
         "presence": "Présence",
         "fallback": "Repli",
         "summarize": "Résumer",
-        "deliver": "Livrer"
+        "deliver": "Livrer",
+        "get_through": "Laisser passer"
       }
     },
     "weekday": {
@@ -326,6 +327,12 @@
       "options": {
         "send": "Envoyer quand même",
         "drop": "Abandonner"
+      }
+    },
+    "covers": {
+      "options": {
+        "everyone": "Tous ceux qu'il atteint",
+        "only": "Seulement ceux-ci"
       }
     }
   },
@@ -1162,7 +1169,6 @@
             "days": "Jours",
             "quiet_entity": "Ou calme tant que ceci est allumé",
             "action": "Pendant les heures calmes",
-            "critical_passes": "Les messages critiques passent",
             "zone": "Zone",
             "presence_when": "Push, popup, courriel : quand le destinataire",
             "household_who": "Voix : quand",
@@ -1173,7 +1179,12 @@
             "when": "Utiliser quand",
             "summary_every": "Résumé toutes les (minutes)",
             "summary_at": "Résumé à (heure)",
-            "include_critical": "Inclure les messages critiques"
+            "not_severities": "Sauf pour les niveaux",
+            "not_tags": "Sauf pour les étiquettes",
+            "holds_anyway": "Les retient quand même",
+            "covers": "Concerne",
+            "covers_audiences": "Concerne ces audiences",
+            "covers_recipients": "Concerne ces personnes et haut-parleurs"
           },
           "data_description": {
             "enabled": "Une politique désactivée n'est jamais utilisée, même si un appel la nomme.",
@@ -1196,7 +1207,6 @@
             "days": "Heures calmes : les jours où une plage commence. Vide : tous les jours.",
             "quiet_entity": "Heures calmes : au lieu des heures, calme tant que ce planning, cet interrupteur d'entrée ou ce capteur binaire est allumé. Les messages retenus partent quand il s'éteint. Une entité absente ou indisponible n'est pas calme.",
             "action": "Heures calmes : envoyer discrètement (push sans son, pas de voix), retenir jusqu'à la fin ou abandonner l'envoi.",
-            "critical_passes": "Heures calmes et Présence : les messages critiques ignorent cette politique.",
             "zone": "Présence : la zone vérifiée. Maison utilise l'entité de présence d'une personne si son profil de destinataire en nomme une.",
             "presence_when": "Présence : vérifié pour chaque destinataire du push, du popup et du courriel.",
             "household_who": "Présence : la voix est vérifiée pour le foyer, personne ou quelqu'un de l'audience ci-dessous.",
@@ -1207,9 +1217,14 @@
             "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué.",
             "summary_every": "Résumer : envoie un résumé ce nombre de minutes après le premier message retenu.",
             "summary_at": "Résumer : envoie un résumé chaque jour à cette heure plutôt qu'à intervalle.",
-            "include_critical": "Résumer : retient aussi les messages critiques. Désactivé : les messages critiques sont livrés tout de suite.",
             "mail_audience": "Donnez une audience ou des destinataires par canal, jamais les deux. Le courriel atteint les personnes dont le profil a Courriel activé et une adresse ; sans adresse il échoue avec no_mail_address. Le destinataire Global address utilise l'adresse commune de la page Canaux.",
-            "apply": "Automatiquement : chaque message dont la gravité et l'étiquette correspondent reçoit la politique. Manuellement : seul un appel qui nomme cette politique dans son champ policy la reçoit. Un appel peut aussi désactiver toutes les politiques avec la politique none."
+            "apply": "Automatiquement : chaque message dont la gravité et l'étiquette correspondent reçoit la politique. Manuellement : seul un appel qui nomme cette politique dans son champ policy la reçoit. Un appel peut aussi désactiver toutes les politiques avec la politique none.",
+            "not_severities": "Les messages de ces niveaux n'utilisent jamais cette règle, même si Pour correspond.",
+            "not_tags": "Les messages avec une de ces étiquettes n'utilisent jamais cette règle.",
+            "holds_anyway": "Heures calmes et Résumer : aucune entrée Laisser passer ne fait passer les messages.",
+            "covers": "Laisser passer : qui cette entrée fait passer les heures calmes. Un résumé ne collecte jamais un message qu'elle concerne.",
+            "covers_audiences": "Laisser passer avec Seulement ceux-ci : les personnes de ces audiences.",
+            "covers_recipients": "Laisser passer avec Seulement ceux-ci : ces personnes et haut-parleurs."
           }
         },
         "reconfigure": {
@@ -1242,7 +1257,6 @@
             "days": "Jours",
             "quiet_entity": "Ou calme tant que ceci est allumé",
             "action": "Pendant les heures calmes",
-            "critical_passes": "Les messages critiques passent",
             "zone": "Zone",
             "presence_when": "Push, popup, courriel : quand le destinataire",
             "household_who": "Voix : quand",
@@ -1253,7 +1267,12 @@
             "when": "Utiliser quand",
             "summary_every": "Résumé toutes les (minutes)",
             "summary_at": "Résumé à (heure)",
-            "include_critical": "Inclure les messages critiques"
+            "not_severities": "Sauf pour les niveaux",
+            "not_tags": "Sauf pour les étiquettes",
+            "holds_anyway": "Les retient quand même",
+            "covers": "Concerne",
+            "covers_audiences": "Concerne ces audiences",
+            "covers_recipients": "Concerne ces personnes et haut-parleurs"
           },
           "data_description": {
             "name": "Utilisé par le champ policy d'un appel. Doit être unique et ne peut pas être \"none\".",
@@ -1275,7 +1294,6 @@
             "days": "Heures calmes : les jours où une plage commence. Vide : tous les jours.",
             "quiet_entity": "Heures calmes : au lieu des heures, calme tant que ce planning, cet interrupteur d'entrée ou ce capteur binaire est allumé. Les messages retenus partent quand il s'éteint. Une entité absente ou indisponible n'est pas calme.",
             "action": "Heures calmes : envoyer discrètement (push sans son, pas de voix), retenir jusqu'à la fin ou abandonner l'envoi.",
-            "critical_passes": "Heures calmes et Présence : les messages critiques ignorent cette politique.",
             "zone": "Présence : la zone vérifiée. Maison utilise l'entité de présence d'une personne si son profil de destinataire en nomme une.",
             "presence_when": "Présence : vérifié pour chaque destinataire du push, du popup et du courriel.",
             "household_who": "Présence : la voix est vérifiée pour le foyer, personne ou quelqu'un de l'audience ci-dessous.",
@@ -1286,8 +1304,13 @@
             "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué.",
             "summary_every": "Résumer : envoie un résumé ce nombre de minutes après le premier message retenu.",
             "summary_at": "Résumer : envoie un résumé chaque jour à cette heure plutôt qu'à intervalle.",
-            "include_critical": "Résumer : retient aussi les messages critiques. Désactivé : les messages critiques sont livrés tout de suite.",
-            "mail_audience": "Donnez une audience ou des destinataires par canal, jamais les deux. Le courriel atteint les personnes dont le profil a Courriel activé et une adresse ; sans adresse il échoue avec no_mail_address. Le destinataire Global address utilise l'adresse commune de la page Canaux."
+            "mail_audience": "Donnez une audience ou des destinataires par canal, jamais les deux. Le courriel atteint les personnes dont le profil a Courriel activé et une adresse ; sans adresse il échoue avec no_mail_address. Le destinataire Global address utilise l'adresse commune de la page Canaux.",
+            "not_severities": "Les messages de ces niveaux n'utilisent jamais cette règle, même si Pour correspond.",
+            "not_tags": "Les messages avec une de ces étiquettes n'utilisent jamais cette règle.",
+            "holds_anyway": "Heures calmes et Résumer : aucune entrée Laisser passer ne fait passer les messages.",
+            "covers": "Laisser passer : qui cette entrée fait passer les heures calmes. Un résumé ne collecte jamais un message qu'elle concerne.",
+            "covers_audiences": "Laisser passer avec Seulement ceux-ci : les personnes de ces audiences.",
+            "covers_recipients": "Laisser passer avec Seulement ceux-ci : ces personnes et haut-parleurs."
           }
         }
       },

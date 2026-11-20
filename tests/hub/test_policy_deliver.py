@@ -9,6 +9,7 @@ from ..test_rules import WINDOW, add_rule
 from .conftest import AddDevice
 from .helpers import settle
 from .policy_support import (
+    CRITICAL_THROUGH,
     QUIET,
     SUMMARIZE,
     add_policy,
@@ -111,6 +112,7 @@ async def test_it_passes_quiet_hours_like_any_delivery(
     freezer.move_to("2026-11-02 23:00:00+01:00")
     home = await make_household(hass, mobile_app_device)
     await add_policy(hass, entry, "Night", **QUIET)
+    await add_policy(hass, entry, "Critical", **CRITICAL_THROUGH)
     await add_policy(hass, entry, "Warning delivery", **{**DELIVER, "severities": ["warning"]})
     await add_policy(hass, entry, "Critical delivery", **DELIVER)
     await banner_only(hass, entry, id="c")
@@ -124,7 +126,7 @@ async def test_a_message_held_for_a_summary_is_not_delivered(
     hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
 ) -> None:
     home = await make_household(hass, mobile_app_device)
-    await add_policy(hass, entry, "Digest", **{**SUMMARIZE, "include_critical": True})
+    await add_policy(hass, entry, "Digest", **SUMMARIZE)
     await add_policy(hass, entry, "Critical delivery", **DELIVER)
     await banner_only(hass, entry)
     assert not pushes(home.anna)

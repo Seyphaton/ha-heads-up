@@ -105,7 +105,8 @@ class QuietHoursStage:
         for policy in self._policies.for_message(message):
             if policy.type != "quiet_hours":
                 continue
-            if policy.critical_passes and message.severity == "critical":
+            # A band entry lets the message through for the people it covers (D-224).
+            if not policy.holds_anyway and self._policies.passes(message, step.target):
                 continue
             if policy.quiet_entity:
                 if self._hass is None:

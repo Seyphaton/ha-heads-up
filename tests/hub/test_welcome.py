@@ -56,6 +56,7 @@ async def test_the_items_name_their_policies_and_what_is_missing(
     assert items["quiet"] == {"id": "quiet", "policies": ["Night quiet"], "missing": []}
     assert items["digest"]["missing"] == ["Evening summary"]
     assert items["critical"]["policies"] == [
+        "Critical",
         "Critical delivery",
         "Critical reminder",
         "Critical escalation",
@@ -74,7 +75,9 @@ async def test_the_quiet_item_creates_night_quiet_as_decided(
         "22:00:00",
         "07:00:00",
     )
-    assert data["action"] == "quiet" and data["critical_passes"] is True and data["days"] == []
+    assert data["action"] == "quiet" and data["days"] == []
+    # Digest messages are left to the summary by Not for, not by an order (DESIGN §25.9).
+    assert data["not_tags"] == ["digest"]
 
 
 async def test_the_digest_item_summarizes_tagged_messages_at_eight_in_the_evening(
@@ -84,7 +87,7 @@ async def test_the_digest_item_summarizes_tagged_messages_at_eight_in_the_evenin
     await ask(client, "welcome_apply", items=["digest"])
     data = policies(entry)["Evening summary"]
     assert data["type"] == "summarize" and data["tags"] == ["digest"] and data["severities"] == []
-    assert data["summary_at"] == "20:00:00" and data["include_critical"] is False
+    assert data["summary_at"] == "20:00:00" and "holds_anyway" not in data
 
 
 async def test_the_warning_item_creates_the_reminder(
@@ -112,11 +115,19 @@ async def test_the_critical_item_creates_delivery_reminder_and_escalation(
         speakers=[fake_speakers.satellite],
     )
     assert reply["result"]["added"] == [
+        "Critical",
         "Critical delivery",
         "Critical reminder",
         "Critical escalation",
     ]
     made = policies(entry)
+    assert made["Critical"] == {
+        "type": "get_through",
+        "severities": ["critical"],
+        "tags": [],
+        "enabled": True,
+        "covers": "everyone",
+    }
     assert made["Critical delivery"]["type"] == "deliver"
     assert made["Critical delivery"]["targets"] == {"push": {"audience": "everyone"}}
     assert (
@@ -145,7 +156,7 @@ async def test_without_speakers_there_is_no_speech_escalation_and_the_default_au
 ) -> None:
     client = await hass_ws_client(hass)
     reply = await ask(client, "welcome_apply", items=["critical"])
-    assert reply["result"]["added"] == ["Critical delivery", "Critical reminder"]
+    assert reply["result"]["added"] == ["Critical", "Critical delivery", "Critical reminder"]
     assert policies(entry)["Critical delivery"]["targets"] == {"push": {"audience": "admins"}}
 
 
@@ -197,6 +208,7 @@ async def test_a_policy_that_does_the_same_under_another_name_is_skipped(
         entry,
         "My nights",
         type="quiet_hours",
+        not_tags=["digest"],
         from_time="22:00:00",
         to_time="07:00:00",
         days=[],
