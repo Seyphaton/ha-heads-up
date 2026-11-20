@@ -57,7 +57,7 @@ async def test_an_away_policy_holds_the_fallback_to_an_audience_until_arrival(
     assert not pushes(home.anna) and not pushes(home.ben)
 
 
-async def test_the_fallback_with_named_recipients_is_not_held_by_away(
+async def test_the_fallback_with_named_recipients_is_held_by_away_too(
     hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
 ) -> None:
     home = await make_household(hass, mobile_app_device)
@@ -70,7 +70,8 @@ async def test_the_fallback_with_named_recipients_is_not_held_by_away(
         **{**EVERYONE_PUSH, "targets": {"push": {"recipients": ["person.anna", "person.ben"]}}},
     )
     await send(hass, entry, severity="warning", to=AT_HOME)
-    assert len(pushes(home.anna)) == 1 and len(pushes(home.ben)) == 1
+    # Named recipients are held like audience members (D-232).
+    assert not pushes(home.anna) and not pushes(home.ben)
 
 
 async def test_the_fallback_uses_its_own_channels_not_those_of_the_message(
