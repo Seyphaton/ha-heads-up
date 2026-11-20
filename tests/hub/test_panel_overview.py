@@ -472,8 +472,8 @@ def test_the_hourly_history_counts_created_messages_by_severity() -> None:
     log.add(created(3599, "info"))  # still the last hour
     log.add(created(3600, "info"))  # the hour before
     log.add(created(5 * 3600 + 5, "warning"))
-    log.add(created(24 * 3600 - 1, "success"))  # the oldest hour
-    log.add(created(24 * 3600, "success"))  # out of range
+    log.add(created(24 * 3600 - 1, "passive"))  # the oldest hour
+    log.add(created(24 * 3600, "passive"))  # out of range
     log.add(created(60, "warning", kind="acknowledged"))  # not a creation
 
     history = log.created_histogram(now)
@@ -482,7 +482,7 @@ def test_the_hourly_history_counts_created_messages_by_severity() -> None:
     assert buckets[23] == {"total": 2, "by": {"critical": 1, "info": 1}}
     assert buckets[22] == {"total": 1, "by": {"info": 1}}
     assert buckets[18] == {"total": 1, "by": {"warning": 1}}
-    assert buckets[0] == {"total": 1, "by": {"success": 1}}
+    assert buckets[0] == {"total": 1, "by": {"passive": 1}}
     assert history["total"] == 5
     assert history["peak"] == 2
 

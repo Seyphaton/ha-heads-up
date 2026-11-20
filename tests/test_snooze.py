@@ -4,11 +4,13 @@ from datetime import timedelta
 from typing import Any
 
 import pytest
+import voluptuous as vol
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.auth.models import User
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.exceptions import ServiceValidationError
+from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     async_capture_events,
@@ -17,9 +19,11 @@ from pytest_homeassistant_custom_component.common import (
 from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
 from custom_components.heads_up.const import DOMAIN
+from custom_components.heads_up.models import Banner
 
 from .conftest import CreateBanner, banners, options_input
 from .test_restart import restart
+from .test_rules import USER, add_rule, rule_id, set_state
 from .test_websocket import subscribe
 
 
@@ -222,10 +226,36 @@ async def test_snooze_that_ended_during_downtime_is_dropped_on_load(
     assert (await snooze(client, "a", 900))["success"]
     await hass.async_block_till_done()
     assert await hass.config_entries.async_unload(entry.entry_id)
+    events = async_capture_events(hass, f"{DOMAIN}_banner_unsnoozed")
     freezer.tick(timedelta(hours=1))
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
     assert banners(entry)["a"].snoozed_until == {}
+    # It ran out while Home Assistant was down: the end fires once at start (D-221).
+    assert [(e.data["id"], e.data["reason"]) for e in events] == [("a", "ended")]
+
+
+async def test_a_snooze_that_runs_out_fires_unsnoozed_with_reason_ended(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    create: CreateBanner,
+    hass_ws_client: WebSocketGenerator,
+    hass_admin_user: User,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    await create(id="a", message="x", snoozable=True)
+    await create(id="b", message="y", snoozable=True, snooze_scope="global")
+    events = async_capture_events(hass, f"{DOMAIN}_banner_unsnoozed")
+    client = await hass_ws_client(hass)
+    assert (await snooze(client, "a", 900))["success"]
+    assert (await snooze(client, "b", 900))["success"]
+    assert events == []
+
+    await tick(hass, freezer, 901)
+    data = {e.data["id"]: e.data for e in events}
+    assert data["a"]["reason"] == "ended" and data["a"]["user_id"] == hass_admin_user.id
+    assert data["b"]["reason"] == "ended" and data["b"]["user_id"] is None  # global: nobody
+    assert len(events) == 2
 
 
 async def test_snoozed_banner_is_flagged_for_show_all(
@@ -318,6 +348,7 @@ async def test_unsnooze_brings_the_banner_back_and_fires_an_event(
     assert (await client.receive_json())["success"]
     assert banners(entry)["a"].snoozed_until == {}
     assert events[0].data["id"] == "a" and events[0].data["user_id"]
+    assert events[0].data["reason"] == "user"  # D-221
 
     # The cancelled timer must not fire a second change later.
     await tick(hass, freezer, 901)
@@ -353,3 +384,83 @@ async def test_unsnooze_needs_a_snooze(
     assert (await client.receive_json())["error"]["code"] == "not_snoozed"
     await client.send_json_auto_id({"type": "heads_up/unsnooze", "banner_id": "nope"})
     assert (await client.receive_json())["error"]["code"] == "not_found"
+
+
+# Viewer-chosen durations (D-219) -------------------------------------------------------------
+
+
+async def test_a_viewer_may_choose_the_duration_when_the_message_allows_it(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    create: CreateBanner,
+    hass_ws_client: WebSocketGenerator,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    await create(id="a", message="x", snoozable=True, snooze_custom=True, timeout=0)
+    await create(id="b", message="y", snoozable=True)
+    client = await hass_ws_client(hass)
+    assert (await snooze(client, "a", 2700))["success"]  # 45 min, not among the choices
+    assert banners(entry)["a"].snooze_custom is True
+    assert (await snooze(client, "b", 2700))["error"]["code"] == "invalid_snooze"
+
+    await tick(hass, freezer, 2701)
+    assert banners(entry)["a"].snoozed_until == {}
+
+
+async def test_a_chosen_duration_is_limited_to_a_day_and_the_end_of_the_message(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    create: CreateBanner,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    await create(id="a", message="x", snoozable=True, snooze_custom=True, timeout=0)
+    await create(id="b", message="y", snoozable=True, snooze_custom=True, timeout=3600)
+    client = await hass_ws_client(hass)
+    assert (await snooze(client, "a", 30))["error"]["code"] == "invalid_snooze"
+    assert (await snooze(client, "a", 86401))["error"]["code"] == "invalid_snooze"
+    assert (await snooze(client, "a", 86400))["success"]
+    assert (await snooze(client, "b", 3700))["error"]["code"] == "invalid_snooze"
+    assert (await snooze(client, "b", 3000))["success"]
+
+
+async def test_snooze_custom_needs_a_snoozable_message(
+    hass: HomeAssistant, entry: MockConfigEntry, create: CreateBanner
+) -> None:
+    with pytest.raises(vol.Invalid, match="snooze_custom"):
+        await create(id="a", message="x", snoozable=False, snooze_custom=True)
+
+
+async def test_snooze_custom_is_stored_only_when_set(
+    hass: HomeAssistant, entry: MockConfigEntry, create: CreateBanner
+) -> None:
+    """A banner without it keeps the 1.0 storage shape, so a downgrade still reads it."""
+    await create(id="a", message="x", snoozable=True)
+    await create(id="b", message="y", snoozable=True, snooze_custom=True)
+    assert "snooze_custom" not in banners(entry)["a"].to_dict()
+    assert banners(entry)["b"].to_dict()["snooze_custom"] is True
+
+
+def test_a_stored_banner_with_an_unknown_field_still_loads() -> None:
+    data = Banner(
+        id="a",
+        message="x",
+        severity="info",
+        dismissible=True,
+        dismiss_scope="user",
+        created_at=dt_util.utcnow(),
+        updated_at=dt_util.utcnow(),
+    ).to_dict()
+    data["field_of_a_later_version"] = 1
+    assert Banner.from_dict(data).id == "a"
+
+
+async def test_a_rule_can_let_the_viewer_choose_the_duration(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    await set_state(hass, "on")
+    subentry = add_rule(hass, entry, dismissible=True, snoozable=True, snooze_custom=True)
+    await hass.async_block_till_done()
+    manager = entry.runtime_data
+    assert manager.rules[rule_id(subentry)].snooze_custom is True
+    manager.snooze(rule_id(subentry), USER, 2700)
+    assert manager.rules[rule_id(subentry)].snoozed_until

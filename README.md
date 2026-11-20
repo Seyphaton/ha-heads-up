@@ -9,7 +9,7 @@ The channel it adds to Home Assistant is the banner. A banner sits in a dashboar
 
 ![Your automation makes one call, and Heads Up delivers it by the channels, audiences and policies you set: where the message shows up (banner, push, popup, speech, mail, Persistent Notification), who gets it (everyone, admins, whoever is home, the last one to leave, one person) and when (quiet at night, repeat until acknowledged, escalate, evening summary, send on arrival).](https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/where-who-when.svg)
 
-<p><img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/card-banners.png" width="300" alt="The Heads Up card with four banners: a critical Water leak and a warning Garage door open, each with an Acknowledge link, an info and a success banner"> <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/push-critical.png" width="420" alt="An iPhone push for the critical message Water leak, expanded to show its buttons Mute alarm and Dismiss"></p>
+<p><img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/card-banners.png" width="300" alt="The Heads Up card with four banners: a critical Water leak and a warning Garage door open, each with an Acknowledge link, an info and a passive banner"> <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/push-critical.png" width="420" alt="An iPhone push for the critical message Water leak, expanded to show its buttons Mute alarm and Dismiss"></p>
 
 One `heads_up.notify` call, on the dashboard card and on a phone.
 
@@ -19,15 +19,21 @@ One `heads_up.notify` call, on the dashboard card and on a phone.
 
 A message lists its channels: `channels: [banner, push, popup]`. Send it again with the same `id` and it is replaced on each of them, so a phone keeps a single notification for it. `heads_up.clear_notifications` removes the banner, the pushes, the popup and the Persistent Notification in one step. Speech and mail cannot be taken back.
 
+Each message has one of four severities: critical, warning, info or passive. The panel's Severities page sets the label, icon, color, push level and popup style of each one for every card, popup and phone.
+
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/severities.png" width="480" alt="The Severities page with Critical opened: label, icon, color, push level and popup style">
+
 ### Audiences
 
 A call names people. Heads Up finds each person's phones through their trackers, so a new phone needs no change in any automation.
 
 The built-in audiences are Everyone, Admins, At home, Not home, Last to leave and First home. They are worked out when the message goes out. Last to leave is the person whose departure emptied the house: the push about the open back door goes to whoever just walked out of it, and nobody else. You can add your own, such as one person while at home, or everyone in a zone.
 
+Where a person is comes from Home Assistant. For any zone you can choose an input boolean or binary sensor instead, for example a template sensor that also checks the alarm.
+
 ### Policies
 
-A policy describes behaviour once and applies to every message with a matching severity and tag. Escalate to more people when nobody reacts. Repeat until someone acknowledges. Keep pushes quiet from 22:00 to 07:00. Hold a push until the person arrives home, or collect messages tagged `digest` into one summary at 20:00.
+A policy describes behaviour once and applies to every message with a matching severity and tag. Escalate to more people when nobody reacts. Repeat until someone acknowledges. Keep pushes quiet from 22:00 to 07:00, or while a schedule is on. Hold a push until the person arrives home or leaves a zone, or collect messages tagged `digest` into one summary at 20:00.
 
 The leak automation then only says "critical, tag `water`". If nobody acknowledges within five minutes, an escalation policy has the speakers say it and pushes it to the administrators. The automation itself has no loop, no wait and no presence check. The [leak example](https://github.com/Seyphaton/ha-heads-up/blob/main/docs/examples.md#a-leak-that-escalates) lists the policies.
 

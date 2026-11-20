@@ -4,6 +4,29 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Before you upgrade
+
+- The severity `success` is now called `passive`. Calls and card YAML with `success` keep working: it is read as `passive`. Events, entity attributes, the message log and the panel say `passive`, so an automation or template that checks for `success` must check for `passive`. Stored messages, policies, watch rules and severity settings are converted on the first start.
+- The card editor no longer shows Severity colors. A card that has `colors` in its YAML keeps them; set colors for every card on the panel's new Severities page instead.
+- The Away policy is now called Presence. Your Away policies are converted on the first start and keep what they did: push, popup and mail, held until the person comes home, and dropped when the maximum wait ends. One difference: a person the call lists by name (`recipients`) is held too, where Away sent to them at once. A backup of the policies is written to `.storage/heads_up.migration_v2_2`. The policy switch attribute `type` reads `presence`.
+- A held message is released 60 seconds after the person arrives (the presence delay in Settings), not at once, so a short GPS flip releases nothing. Set the presence delay to 0 for the old timing; it also changes Last to leave and First home.
+- Going back to 1.0.0 after the update ignores the converted policies. Restore the backup first, as described in [Upgrading](docs/setup.md#upgrading).
+- After speaking, Heads Up puts a speaker's volume back to where it was, if the message set a volume. Sonos speakers keep their volume and say the message at the chosen level. For the 1.0 behaviour, switch off "Put the volume back after speaking" under Settings, Speech volume.
+- `heads_up_banner_unsnoozed` also fires when a snooze runs out, not only when someone ends it in the card. The event has a new field `reason`: `ended` or `user`. An automation that should react only to the card, as before, needs a condition on `reason: user`.
+
+### Added
+
+- New setups get other default push levels: critical `critical` (an alarm that sounds in silent mode), warning `time-sensitive`, info `normal`, passive `passive`. An existing setup keeps the levels it had; change them on the Severities page.
+- Audiences page: a table with who is in each audience now and how many messages were sent to it and when last, kept across restarts. An audience's details list its policies and link to the Message Log filtered to the messages sent to it.
+- The Channels, Audiences, Recipients and Severities pages show one row per item with the current settings, and open an item's fields under its row. The Configuration group starts with Channels.
+- Severities page in the panel: a label, an icon and a color for each severity, used by the card, the popup, mail and the panel, and the push level and popup style of each severity. YAML and events keep the names passive, info, warning and critical.
+- Presence policy: hold or drop by where people are, for any zone. "Hold until the recipient leaves" and "drop while they are in the zone" for push, popup and mail; "nobody or somebody of an audience is in the zone" for speech; send or drop when the maximum wait ends.
+- A recipient profile can say where the person is from an input boolean or binary sensor, per zone, instead of Home Assistant's location. Zones without one keep the person's state. The presence audiences and the Presence policy follow it.
+- Quiet hours can follow a schedule, input boolean or binary sensor instead of fixed times: quiet while it is on. Held messages go out when it turns off.
+- Speech volume by time of day (up to 4 bands) and by severity, under Settings, Speech volume. Without bands or a severity volume the volume is not changed.
+- `snooze_custom` on `heads_up.notify`, `heads_up.create_banner` and watch rules: the card's snooze row offers **Other…**, so the viewer can snooze for any number of minutes or until a time of day, up to 24 hours.
+- `heads_up_banner_unsnoozed` has the field `reason` and fires when a snooze ends by itself, including a snooze that ran out while Home Assistant was stopped. A global snooze has no `user_id`.
+
 ## [1.0.0] - 2026-11-16
 
 Heads Up turns from a dashboard banner into a notification hub. One `heads_up.notify` call delivers a message on up to six channels, to audiences that follow who is home, with policies for escalation, reminders, quiet hours and summaries. Banners, the card and watch rules from 0.4.0 keep working.

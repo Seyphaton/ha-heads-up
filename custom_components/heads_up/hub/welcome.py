@@ -36,7 +36,7 @@ _COMMON = {"severities": [], "tags": [], "enabled": True}
 
 def _alone(item: str, audience: str) -> dict[str, dict[str, Any]]:
     """The policies of an item under the mode "first": one policy for one kind of message."""
-    quiet_severities = ["info", "success"]
+    quiet_severities = ["info", "passive"]
     if item == "quiet":
         return {
             "Night quiet": {

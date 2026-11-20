@@ -177,6 +177,93 @@ export const BASE_CSS = `
 .hu-page .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 `;
 
+// A table-like list (Severities, Audiences, Channels): column headers and one grid row per item on a
+// wide page; on a phone the header hides and each row shows its lead line with the cells below,
+// each with its own small label. A row is a button that opens its details underneath. The page sets
+// the columns with --tl-cols on the list.
+export const TABLE_CSS = `
+.hu-page .tl-list { container-type: inline-size; padding: 4px 0; overflow: hidden; --tl-cols: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); }
+.hu-page .tl-head, .hu-page .tl-row { display: grid; grid-template-columns: var(--tl-cols) 52px; gap: 12px; align-items: center; padding: 0 16px; }
+.hu-page .tl-head { min-height: 36px; color: var(--secondary-text-color); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.hu-page .tl-item { border-top: 1px solid var(--divider-color); }
+.hu-page .tl-item.dim .tl-row > :not(.tl-end) { opacity: .55; }
+.hu-page .tl-row { width: 100%; min-height: 56px; border: 0; border-radius: 0; background: transparent; text-align: left; font: inherit; color: var(--primary-text-color); }
+.hu-page .tl-row:hover, .hu-page .tl-item.open .tl-row { background: var(--hu-fill); }
+.hu-page .tl-row:focus-visible { outline-offset: -3px; }
+.hu-page .tl-lead { display: flex; align-items: center; gap: 10px; min-width: 0; font-weight: 600; }
+.hu-page .tl-lead ha-icon { --mdc-icon-size: 22px; flex: none; }
+.hu-page .tl-lead .tl-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hu-page .tl-lead .badge { font-weight: 400; }
+.hu-page .tl-meta { display: contents; }
+.hu-page .tl-cell { min-width: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hu-page .tl-cell.muted { color: var(--secondary-text-color); }
+.hu-page .tl-k { display: none; }
+.hu-page .tl-end { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.hu-page .tl-mark { color: var(--primary-color); font-size: 12px; }
+.hu-page .tl-chev { width: 8px; height: 8px; border-right: 2px solid var(--secondary-text-color); border-bottom: 2px solid var(--secondary-text-color); transform: rotate(45deg); margin: 0 6px 4px 0; transition: transform .15s; }
+.hu-page .tl-item.open .tl-chev { transform: rotate(-135deg); margin-bottom: -4px; }
+.hu-page .tl-body { padding: 12px 16px 16px; background: var(--hu-fill); }
+.hu-page .tl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px 16px; }
+.hu-page .tl-grid label.field, .hu-page .tl-body label.field { margin: 0; gap: 6px; font-size: 14px; }
+.hu-page .tl-grid input[type=text], .hu-page .tl-grid input[type=number], .hu-page .tl-grid select, .hu-page .tl-grid textarea { width: 100%; max-width: none; }
+.hu-page .tl-wide { grid-column: 1 / -1; }
+.hu-page .tl-facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 16px; margin: 0 0 12px; font-size: 14px; }
+.hu-page .tl-facts dt { color: var(--secondary-text-color); }
+.hu-page .tl-facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.hu-page .tl-facts code { font-size: 12px; }
+.hu-page .tl-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.hu-page .tl-empty { padding: 12px 16px; color: var(--secondary-text-color); font-size: 14px; }
+.hu-page .tl-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 0; background: var(--primary-background-color); }
+.hu-page .tl-bar.dirty { position: sticky; bottom: 0; z-index: 1; }
+.hu-page .tl-bar .hint { margin: 0; flex: 1; min-width: 160px; }
+@container (max-width: 520px) {
+  .hu-page .tl-head { display: none; }
+  .hu-page .tl-head + .tl-item, .hu-page .tl-list > .tl-item:first-child { border-top: 0; }
+  .hu-page .tl-row { grid-template-columns: minmax(0, 1fr) 52px; row-gap: 2px; padding: 8px 16px; }
+  .hu-page .tl-meta { display: flex; flex-wrap: wrap; gap: 2px 16px; grid-column: 1; grid-row: 2; color: var(--secondary-text-color); }
+  .hu-page .tl-cell { font-size: 13px; white-space: normal; overflow-wrap: anywhere; }
+  .hu-page .tl-k { display: inline; margin-right: 4px; }
+  .hu-page .tl-k::after { content: ":"; }
+  .hu-page .tl-end { grid-column: 2; grid-row: 1 / span 2; }
+  .hu-page .tl-grid { grid-template-columns: 1fr; }
+  .hu-page .tl-facts { grid-template-columns: 1fr; gap: 2px; }
+  .hu-page .tl-facts dd { margin-bottom: 8px; }
+}
+`;
+
+// The header row of a table-like list; hidden from screen readers, which hear each row's label.
+export function tableHead(labels) {
+  const head = el("div", { className: "tl-head" }, labels.map((text) => el("span", { textContent: text })));
+  head.setAttribute("aria-hidden", "true");
+  return head;
+}
+
+// One row: `lead` is the first column, `cells` the others ({ label, node }), `end` sits before the
+// chevron. The row toggles its details; `body` is shown under it while open.
+export function tableRow({ id, lead, cells = [], end = [], open = false, dim = false, label, onToggle, body }) {
+  const row = el("button", { type: "button", className: "tl-row" }, [
+    el("span", { className: "tl-lead" }, lead),
+    el("span", { className: "tl-meta" }, cells.map((c) => el("span", { className: `tl-cell ${c.muted ? "muted" : ""}` }, [...(c.label ? [el("span", { className: "tl-k", textContent: c.label })] : []), c.node]))),
+    el("span", { className: "tl-end" }, [...end, el("span", { className: "tl-chev" })]),
+  ]);
+  row.setAttribute("aria-expanded", String(open));
+  row.setAttribute("aria-controls", id);
+  if (label) row.setAttribute("aria-label", label);
+  row.addEventListener("click", onToggle);
+  const item = el("div", { className: `tl-item${open ? " open" : ""}${dim ? " dim" : ""}` }, [row]);
+  if (open && body) {
+    body.id = id;
+    body.classList.add("tl-body");
+    item.append(body);
+  }
+  return { item, row };
+}
+
+// A list of facts as label and value pairs, two columns on a wide page.
+export function facts(pairs) {
+  return el("dl", { className: "tl-facts" }, pairs.flatMap(([label, value]) => [el("dt", { textContent: label }), el("dd", {}, [typeof value === "string" ? document.createTextNode(value) : value])]));
+}
+
 // YAML of stored data, shown under every editor so nothing is hidden (UX_SPEC).
 export function toYaml(value, indent = 0) {
   const pad = " ".repeat(indent);
@@ -245,6 +332,7 @@ export const ERRORS = {
     every_required: "Enter a time of at least one minute.",
     max_required: "Enter at least one reminder.",
     window_empty: "The window must start and end at different times.",
+    quiet_entity_invalid: "Choose a schedule, an input boolean or a binary sensor.",
     time_invalid: "Enter a valid time.",
     wait_invalid: "Enter 0 or more minutes.",
     when_required: "Choose when to use this fallback.",
@@ -276,6 +364,7 @@ export const ERRORS = {
     every_required: "Gib eine Zeit von mindestens einer Minute ein.",
     max_required: "Gib mindestens eine Erinnerung an.",
     window_empty: "Das Zeitfenster muss zu verschiedenen Zeiten beginnen und enden.",
+    quiet_entity_invalid: "Wähle einen Zeitplan, einen Eingabe-Schalter oder einen binären Sensor.",
     time_invalid: "Gib eine gültige Uhrzeit ein.",
     wait_invalid: "Gib 0 oder mehr Minuten ein.",
     when_required: "Wähle, wann dieser Ersatz verwendet wird.",
@@ -307,6 +396,7 @@ export const ERRORS = {
     every_required: "Saisissez une durée d'au moins une minute.",
     max_required: "Saisissez au moins un rappel.",
     window_empty: "La plage doit commencer et finir à des heures différentes.",
+    quiet_entity_invalid: "Choisissez un planning, un interrupteur d'entrée ou un capteur binaire.",
     time_invalid: "Saisissez une heure valide.",
     wait_invalid: "Saisissez 0 minute ou plus.",
     when_required: "Choisissez quand utiliser ce repli.",
@@ -338,6 +428,7 @@ export const ERRORS = {
     every_required: "Introduce un tiempo de al menos un minuto.",
     max_required: "Introduce al menos un recordatorio.",
     window_empty: "La franja debe empezar y acabar a horas distintas.",
+    quiet_entity_invalid: "Elige un horario, un interruptor de entrada o un sensor binario.",
     time_invalid: "Introduce una hora válida.",
     wait_invalid: "Introduce 0 o más minutos.",
     when_required: "Elige cuándo usar esta alternativa.",

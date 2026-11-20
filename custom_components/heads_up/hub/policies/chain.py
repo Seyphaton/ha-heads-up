@@ -15,7 +15,7 @@ from typing import Protocol
 from ...models import Banner
 from ..channels import Target
 
-STAGE_ORDER = ("summarize", "quiet_hours", "away", "fallback")
+STAGE_ORDER = ("summarize", "quiet_hours", "presence", "fallback")
 
 
 @dataclass(slots=True)
@@ -64,8 +64,10 @@ class Chain:
             raise ValueError(stage.name)
         self.stages[stage.name] = stage
 
-    def run(self, step: Step) -> Step | Skip | Hold:
+    def run(self, step: Step, skip: tuple[str, ...] = ()) -> Step | Skip | Hold:
         for name in STAGE_ORDER:
+            if name in skip:
+                continue
             result = self.stages[name].apply(step)
             if isinstance(result, Skip | Hold):
                 return result

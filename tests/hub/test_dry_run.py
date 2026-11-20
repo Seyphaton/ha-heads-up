@@ -39,7 +39,7 @@ async def test_a_dry_run_reports_the_plan_and_sends_nothing(
 @pytest.mark.parametrize(
     ("severity", "level"),
     [
-        ("success", "passive"),
+        ("passive", "passive"),
         ("info", "passive"),
         ("warning", "normal"),
         ("critical", "time-sensitive"),

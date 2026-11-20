@@ -16,12 +16,12 @@ data:
   id: pv_status
   title: PV Information
   message: Autarky today at almost 100%.
-  severity: success
+  severity: passive
   channels: [banner]
 ```
 
 - The `id` makes a second call replace the banner instead of adding another one.
-- `severity` is required in `heads_up.notify`. It is one of `success`, `info`, `warning` and `critical`. It sets the color, the icon and the sort order. `critical` sorts first and is never removed to make room for new messages.
+- `severity` is required in `heads_up.notify`. It is one of `passive`, `info`, `warning` and `critical`. It sets the color, the icon and the sort order. `critical` sorts first and is never removed to make room for new messages.
 - `timeout` takes seconds or a duration. `timeout: {minutes: 30}` ends the message after 30 minutes, `timeout: 0` keeps it until someone closes or clears it.
 
 ### A push to everyone at home
@@ -258,7 +258,7 @@ Any program that can call the Home Assistant API can use the actions. Create a l
 curl -X POST "http://homeassistant.local:8123/api/services/heads_up/create_banner?return_response" \
   -H "Authorization: Bearer $HA_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"id": "backup_done", "message": "Backup finished", "severity": "success", "timeout": 3600}'
+  -d '{"id": "backup_done", "message": "Backup finished", "severity": "passive", "timeout": 3600}'
 ```
 
 Response:
@@ -301,7 +301,7 @@ Any user with a valid token can call the actions; Heads Up does not check for ad
 - A leak at 03:00: a critical message reaches every phone and the dashboard, quiet hours let it pass, and speakers say it. Ben acknowledges on his phone, so the escalation stops. The banner stays until the sensor is dry.
 - A window left open in an empty house: the audience Last to leave gets a push. Nobody else is disturbed. The push is taken back when the window closes.
 - The doorbell: a short message on the wall tablet and a spoken line. With a timeout of 60 seconds everything clears itself.
-- The washing machine: a push to the person who started it. Quiet hours turn it into a banner at night. An Away policy sends it when they arrive.
+- The washing machine: a push to the person who started it. Quiet hours turn it into a banner at night. A Presence policy sends it when they arrive.
 - Nobody reacts to a critical message: after five minutes an escalation notifies a backup person and the speakers. A reminder repeats it. An acknowledgement stops both.
 - A phone is replaced: edit the person's recipient profile once. No automation changes.
 - Why you did not get a message: Test send previews a call, who is reached now and why anyone is skipped, held or dropped. The Message Log shows what happened, for example "push to Anna skipped: quiet hours".
@@ -334,7 +334,7 @@ An audience is a set of people, and speech goes to a speaker in a place. Heads U
 
 ### What does severity do?
 
-A message has one of four severities: success, info, warning and critical. On the banner it sets the color, the icon and the order, critical first. On a push it sets the level: success and info are passive, warning is normal, critical is time-sensitive until you set the level critical. The popup style is set per severity, and policies can match on it.
+A message has one of four severities: passive, info, warning and critical. On the banner it sets the color, the icon and the order, critical first. On a push it sets the level: passive is quiet, info normal, warning time-sensitive and critical an alarm. The popup style is set per severity, and policies can match on it.
 
 ### What are tags for?
 
@@ -357,11 +357,11 @@ Add a Quiet hours policy. During the window it can send quietly, hold the messag
 
 ### What if someone is not home?
 
-An Away policy sends the message when the person arrives, as long as it is still there. A Fallback policy sends it to someone else when the first delivery reached nobody.
+A Presence policy sends the message when the person arrives, as long as it is still there. A Fallback policy sends it to someone else when the first delivery reached nobody.
 
 ### Do critical messages get special treatment?
 
-Yes, in four places. Quiet hours let them pass unless you switch that off. Summarize does not hold them unless you include them. The rate limits never hold them back. Presence audiences include a person whose presence is unknown. Away has no exception, so limit its severities if critical messages must go out at once.
+Yes, in five places. Quiet hours let them pass unless you switch that off. Summarize does not hold them unless you include them. The rate limits never hold them back. Presence audiences include a person whose presence is unknown. Presence policies let them pass unless you switch that off.
 
 ### What stops a flood of pushes?
 
@@ -377,7 +377,7 @@ A policy is looked up when a message appears. A policy you add later starts when
 
 ### What happens after a restart?
 
-Pending escalations keep their due time, and a step that came due during the restart runs once if the message is still active and not acknowledged. Messages held for quiet hours, away or a summary stay held. Pushes of messages that no longer exist are removed. The record of recent messages and last actions starts empty.
+Pending escalations keep their due time, and a step that came due during the restart runs once if the message is still active and not acknowledged. Messages held for quiet hours, a Presence policy or a summary stay held. Pushes of messages that no longer exist are removed. The record of recent messages and last actions starts empty.
 
 ## Troubleshooting
 
@@ -448,7 +448,7 @@ Open the message in the Message Log.
 
 - `held` with `quiet_hours`: a Quiet hours policy with the action `wait` holds it until the window ends.
 - `skipped` with `quiet_hours`: the action is `drop`, or the delivery was a reminder.
-- `held` with `away`: the person was not home. It is sent when their person state becomes `home`. `skipped` with `max_wait_exceeded`: they did not arrive in time.
+- `held` with `away`: a Presence policy holds it until the person is in the zone, or out of it, as the person's state or the entity on their recipient profile says. `skipped` with `presence`: the policy drops it. `skipped` with `max_wait_exceeded`: the wait ended first.
 - Critical messages ignore Quiet hours unless the policy has Critical messages pass turned off.
 - The window uses the Home Assistant time zone (Settings > System > General).
 

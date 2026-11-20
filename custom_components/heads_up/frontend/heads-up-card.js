@@ -2,13 +2,15 @@
 // Plain ES module, no build step (D-021). Banner text is caller-supplied and is only
 // ever written with textContent.
 
-export const SEVERITIES = ["critical", "warning", "info", "success"];
+export const SEVERITIES = ["critical", "warning", "info", "passive"];
+// Earlier severity names a card's YAML may still use: `success` is now `passive`.
+export const SEVERITY_ALIASES = { success: "passive" };
 const SEVERITY_RANK = Object.fromEntries(SEVERITIES.map((s, i) => [s, i]));
 const SEVERITY_COLOR = {
   critical: "--error-color",
   warning: "--warning-color",
   info: "--info-color",
-  success: "--success-color",
+  passive: "--success-color",
 };
 // Read by scripts/docs_check.py to keep docs/actions.md in step with the card.
 export const CONFIG_KEYS = [
@@ -53,7 +55,7 @@ export const STRINGS = {
     critical: "Critical",
     warning: "Warning",
     info: "Info",
-    success: "Success",
+    passive: "Passive",
   },
   dismiss: "Dismiss",
   snooze: "Snooze",
@@ -63,6 +65,11 @@ export const STRINGS = {
   acknowledged_one_other: "Acknowledged by {name} and 1 other",
   acknowledged_others: "Acknowledged by {name} and {n} others",
   snooze_choices: "Snooze for",
+  snooze_other: "Other…",
+  snooze_minutes: "Minutes",
+  snooze_until: "or until",
+  snooze_apply: "Snooze",
+  snooze_invalid: "Choose 1 minute to 24 hours.",
   duration: { minute: "{n} min", hour: "{n} h", day: "{n} d" },
   clear: "Clear for everyone",
   clear_all: "Clear all",
@@ -117,7 +124,7 @@ export const TRANSLATIONS = {
       "critical": "Kritisch",
       "warning": "Warnung",
       "info": "Info",
-      "success": "Erfolg"
+      "passive": "Passiv"
     },
     "dismiss": "Schließen",
     "snooze": "Zurückstellen",
@@ -127,6 +134,11 @@ export const TRANSLATIONS = {
     "acknowledged_one_other": "Bestätigt von {name} und 1 weiterer Person",
     "acknowledged_others": "Bestätigt von {name} und {n} weiteren",
     "snooze_choices": "Zurückstellen für",
+    "snooze_other": "Andere…",
+    "snooze_minutes": "Minuten",
+    "snooze_until": "oder bis",
+    "snooze_apply": "Zurückstellen",
+    "snooze_invalid": "Wähle 1 Minute bis 24 Stunden.",
     "duration": {
       "minute": "{n} Min.",
       "hour": "{n} Std.",
@@ -182,7 +194,7 @@ export const TRANSLATIONS = {
       "critical": "Critique",
       "warning": "Avertissement",
       "info": "Info",
-      "success": "Succès"
+      "passive": "Passif"
     },
     "dismiss": "Fermer",
     "snooze": "Reporter",
@@ -192,6 +204,11 @@ export const TRANSLATIONS = {
     "acknowledged_one_other": "Confirmé par {name} et 1 autre",
     "acknowledged_others": "Confirmé par {name} et {n} autres",
     "snooze_choices": "Reporter de",
+    "snooze_other": "Autre…",
+    "snooze_minutes": "Minutes",
+    "snooze_until": "ou jusqu'à",
+    "snooze_apply": "Reporter",
+    "snooze_invalid": "Choisissez de 1 minute à 24 heures.",
     "duration": {
       "minute": "{n} min",
       "hour": "{n} h",
@@ -247,7 +264,7 @@ export const TRANSLATIONS = {
       "critical": "Crítico",
       "warning": "Advertencia",
       "info": "Información",
-      "success": "Éxito"
+      "passive": "Pasivo"
     },
     "dismiss": "Cerrar",
     "snooze": "Posponer",
@@ -257,6 +274,11 @@ export const TRANSLATIONS = {
     "acknowledged_one_other": "Confirmado por {name} y 1 más",
     "acknowledged_others": "Confirmado por {name} y {n} más",
     "snooze_choices": "Posponer",
+    "snooze_other": "Otro…",
+    "snooze_minutes": "Minutos",
+    "snooze_until": "o hasta",
+    "snooze_apply": "Posponer",
+    "snooze_invalid": "Elige de 1 minuto a 24 horas.",
     "duration": {
       "minute": "{n} min",
       "hour": "{n} h",
@@ -353,7 +375,8 @@ function toColors(value) {
     throw new Error("colors must map severities to colors");
   }
   const colors = {};
-  for (const [severity, color] of Object.entries(value)) {
+  for (const [key, color] of Object.entries(value)) {
+    const severity = SEVERITY_ALIASES[key] || key;
     if (!SEVERITIES.includes(severity)) {
       throw new Error(`colors: ${severity} is not one of ${SEVERITIES.join(", ")}`);
     }
@@ -369,7 +392,7 @@ function toColors(value) {
 // Validates a card config and fills defaults. Throws Error with a readable message.
 export function normalizeConfig(config) {
   if (!config || typeof config !== "object") throw new Error("Invalid configuration");
-  const severity = toList(config.severity, "severity");
+  const severity = toList(config.severity, "severity").map((s) => SEVERITY_ALIASES[s] || s);
   for (const s of severity) {
     if (!SEVERITIES.includes(s)) {
       throw new Error(`severity must be one of ${SEVERITIES.join(", ")}`);
@@ -505,6 +528,21 @@ export function emptyView(config) {
   return config.show_empty ? "blank" : "hidden";
 }
 
+// The color of a banner: the card's own `colors` (an older card), else the color of the
+// Severities page that the server sends, else the theme color of the severity (D-222).
+export function severityColor(banner, cardColors = {}) {
+  const usable = (value) => typeof value === "string" && value.trim() !== "" && validColor(value);
+  const own = cardColors?.[banner.severity];
+  if (usable(own)) return own;
+  if (usable(banner.severity_color)) return banner.severity_color;
+  return `var(${SEVERITY_COLOR[banner.severity] ?? "--info-color"})`;
+}
+
+// The severity word of a banner: the label of the Severities page, else the translation (D-223).
+export function severityLabel(banner) {
+  return banner.severity_label || (STRINGS.severity[banner.severity] ?? banner.severity);
+}
+
 export function resolveColors(config) {
   return Object.fromEntries(
     SEVERITIES.map((s) => [s, config.colors[s] ?? `var(${SEVERITY_COLOR[s]})`]),
@@ -536,6 +574,27 @@ export function snoozeLabel(seconds) {
   return d.minute.replace("{n}", Math.round(seconds / 60));
 }
 
+// Seconds of a duration the viewer typed (D-219): a number of minutes, or a time of day "HH:MM"
+// (the next time it occurs). Null when it is not between 1 minute and 24 hours. The backend also
+// caps it at the end of the message.
+export function customSnoozeSeconds({ minutes, until } = {}, now = new Date()) {
+  let seconds = null;
+  if (until) {
+    const match = /^(\d{1,2}):(\d{2})$/.exec(String(until).trim());
+    if (!match) return null;
+    const target = new Date(now);
+    target.setHours(Number(match[1]), Number(match[2]), 0, 0);
+    if (target <= now) target.setDate(target.getDate() + 1);
+    seconds = Math.round((target - now) / 1000);
+  } else if (minutes !== undefined && minutes !== null && String(minutes).trim() !== "") {
+    const value = Number(minutes);
+    if (!Number.isFinite(value)) return null;
+    seconds = Math.round(value * 60);
+  }
+  if (seconds === null || seconds < 60 || seconds > 86400) return null;
+  return seconds;
+}
+
 // IDs the "Clear all" button dismisses: every dismissible banner of the list.
 export function clearableIds(banners) {
   return banners.filter((b) => b.dismissible !== false).map((b) => b.id);
@@ -558,8 +617,8 @@ export function controlsFor(banner, isAdmin) {
     snooze:
       banner.snoozable === true &&
       banner.dismissible !== false &&
-      Array.isArray(banner.snooze_options) &&
-      banner.snooze_options.length > 0,
+      ((Array.isArray(banner.snooze_options) && banner.snooze_options.length > 0) ||
+        banner.snooze_custom === true),
     actions: Array.isArray(banner.actions) ? banner.actions : [],
     // The server says when an escalation or reminder policy applies and nobody acknowledged yet.
     acknowledge: banner.can_acknowledge === true,
@@ -656,6 +715,13 @@ const STYLE = `
     padding-inline-start: 32px; color: var(--secondary-text-color);
   }
   .banner.menu-open { flex-wrap: wrap; }
+  .snooze-input {
+    min-height: 40px; max-width: 7.5em; padding: 0 8px; border: 1px solid var(--divider-color);
+    border-radius: 8px; background: var(--card-background-color); color: var(--primary-text-color);
+    font: inherit;
+  }
+  .snooze-error { flex: 1 0 100%; color: var(--error-color); }
+  .snooze-error:empty { display: none; }
   .action-space { flex: none; width: 48px; }
   .compact .action-space { margin: -4px 0; height: 48px; }
   button.action {
@@ -877,8 +943,55 @@ class HeadsUpCard extends Base {
     this._hass.callWS({ type: "heads_up/unsnooze", banner_id: banner.id }).catch(() => {});
   }
 
+  // "Other…" in the snooze row, then a minutes field, a time field and a Snooze button (D-219).
+  _customSnoozeNodes(banner) {
+    if (this._customFor !== banner.id) {
+      const other = el("button", "text-button", STRINGS.snooze_other);
+      other.type = "button";
+      other.dataset.choice = banner.id;
+      other.addEventListener("click", () => {
+        this._customFor = banner.id;
+        this._focusAfter = { id: banner.id, target: "custom" };
+        this._render();
+      });
+      return [other];
+    }
+    const minutes = el("input", "snooze-input");
+    minutes.type = "number";
+    minutes.min = "1";
+    minutes.max = "1440";
+    minutes.inputMode = "numeric";
+    minutes.setAttribute("aria-label", STRINGS.snooze_minutes);
+    minutes.placeholder = STRINGS.snooze_minutes;
+    minutes.dataset.custom = banner.id;
+    const until = el("input", "snooze-input");
+    until.type = "time";
+    until.setAttribute("aria-label", STRINGS.snooze_until);
+    const error = el("span", "snooze-error");
+    error.setAttribute("role", "alert");
+    const apply = el("button", "text-button", STRINGS.snooze_apply);
+    apply.type = "button";
+    const submit = () => {
+      const seconds = customSnoozeSeconds({ minutes: minutes.value, until: until.value });
+      if (seconds === null) {
+        error.textContent = STRINGS.snooze_invalid;
+        return;
+      }
+      this._customFor = null;
+      this._snooze(banner, seconds);
+    };
+    apply.addEventListener("click", submit);
+    for (const input of [minutes, until]) {
+      input.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter") submit();
+      });
+    }
+    return [minutes, el("span", "", STRINGS.snooze_until), until, apply, error];
+  }
+
   _toggleMenu(banner, open) {
     this._menuFor = (open ?? this._menuFor !== banner.id) ? banner.id : null;
+    if (!this._menuFor) this._customFor = null;
     // The render below rebuilds every node, so keyboard focus is put back by hand: into the
     // choices when they open, onto the snooze button when they close.
     this._focusAfter = { id: banner.id, target: this._menuFor ? "choice" : "snooze" };
@@ -1004,9 +1117,7 @@ class HeadsUpCard extends Base {
     if (parts.bar) classes.push("c-bar");
     if (controls.tap) classes.push("tap");
     const node = el("div", classes.join(" "));
-    const color = validColor(colors[banner.severity])
-      ? colors[banner.severity]
-      : `var(${SEVERITY_COLOR[banner.severity] ?? "--info-color"})`;
+    const color = severityColor(banner, cfg.colors);
     node.style.setProperty("--accent", color);
     if (cfg.layout === "compact") {
       node.title = banner.title ? `${banner.title}: ${banner.message}` : banner.message;
@@ -1019,7 +1130,7 @@ class HeadsUpCard extends Base {
 
     const text = el("div", "text");
     const meta = el("div", "meta");
-    const severity = STRINGS.severity[banner.severity] ?? banner.severity;
+    const severity = severityLabel(banner);
     // The label stays in the page for screen readers when it is not shown (D-048).
     meta.append(el("span", cfg.show_severity ? "label" : "sr-only", severity));
     if (cfg.show_time) {
@@ -1117,13 +1228,14 @@ class HeadsUpCard extends Base {
         if (ev.key === "Escape") this._toggleMenu(banner, false);
       });
       menu.append(el("span", "", STRINGS.snooze_choices));
-      for (const seconds of banner.snooze_options) {
+      for (const seconds of banner.snooze_options || []) {
         const b = el("button", "text-button", snoozeLabel(seconds));
         b.type = "button";
         b.dataset.choice = banner.id;
         b.addEventListener("click", () => this._snooze(banner, seconds));
         menu.append(b);
       }
+      if (banner.snooze_custom === true) menu.append(...this._customSnoozeNodes(banner));
       node.append(menu);
     }
     return node;
@@ -1262,13 +1374,14 @@ class HeadsUpCard extends Base {
     const wanted = this._focusAfter;
     this._focusAfter = null;
     if (!wanted) return;
-    const key = wanted.target === "choice" ? "choice" : "snooze";
     // ha-card is created anew on every render and builds its slot a moment later; slotted
     // buttons cannot take focus before that, so wait for the next frame.
     // The ID sits in a quoted attribute value; banner IDs hold no quote or backslash.
-    requestAnimationFrame(() =>
-      this.shadowRoot.querySelector(`button[data-${key}="${wanted.id}"]`)?.focus(),
-    );
+    const selector =
+      wanted.target === "custom"
+        ? `input[data-custom="${wanted.id}"]`
+        : `button[data-${wanted.target === "choice" ? "choice" : "snooze"}="${wanted.id}"]`;
+    requestAnimationFrame(() => this.shadowRoot.querySelector(selector)?.focus());
   }
 }
 
@@ -1319,11 +1432,8 @@ class HeadsUpCardEditor extends Base {
       { name: "show_time", selector: { boolean: {} } },
       { name: "show_severity", selector: { boolean: {} } },
       select("colorize", COLORIZE.map((v) => ({ value: v, label: t[`colorize_${v}`] }))),
-      {
-        name: "colors",
-        type: "expandable",
-        schema: SEVERITIES.map((s) => ({ name: s, selector: { text: {} } })),
-      },
+      // Colors are set for every card on the Severities page of the panel (D-222). A card that
+      // already has `colors` in its YAML keeps them; the editor no longer offers the field.
       { name: "clear_all", selector: { boolean: {} } },
       { name: "swipe_to_dismiss", selector: { boolean: {} } },
       { name: "show_snoozed", selector: { boolean: {} } },

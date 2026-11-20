@@ -56,6 +56,8 @@ from .const import (
     OPT_DEFAULT_TIMEOUT,
     OPT_INSTALL_TOKEN,
     OPT_SHOW_PANEL,
+    OPT_SPEAK_SEVERITY_VOLUME,
+    OPT_SPEAK_VOLUME_BANDS,
     POLICY_AUTOMATIC,
     POLICY_NONE,
     POLICY_SUBENTRY,
@@ -80,6 +82,7 @@ class HeadsUpConfigFlow(ConfigFlow, domain=DOMAIN):
     """Create the single Heads Up entry."""
 
     VERSION = 2  # 2: stored references are keys, not names (D-200)
+    MINOR_VERSION = 4  # 2.2 Presence (D-214), 2.3 push levels (D-230), 2.4 passive (D-231)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         # Duplicate entries are prevented by "single_config_entry" in manifest.json.
@@ -141,6 +144,17 @@ class HeadsUpOptionsFlow(OptionsFlow):
             )
             if flat[OPT_DEFAULT_TIMEOUT] > settings.MAX_TIMEOUT_SECONDS:
                 return self._show(errors={OPT_DEFAULT_TIMEOUT: "timeout_too_long"})
+            # Volume bands and severity volumes come as YAML objects (D-217).
+            for key, check in (
+                (OPT_SPEAK_VOLUME_BANDS, settings.check_bands),
+                (OPT_SPEAK_SEVERITY_VOLUME, settings.check_severity_volume),
+            ):
+                try:
+                    flat[key] = check(
+                        flat.get(key) or ([] if key == OPT_SPEAK_VOLUME_BANDS else {})
+                    )
+                except vol.Invalid as err:
+                    return self._show(errors={key: str(err.msg)})
             flat[OPT_DEFAULT_SNOOZE_OPTIONS] = settings.snooze_seconds(
                 flat.get(OPT_DEFAULT_SNOOZE_OPTIONS)
             )
@@ -222,6 +236,8 @@ def _option_field(key: str, kind: str, current: dict[str, Any]) -> tuple[Any, An
         if current[key]
         else vol.Optional(key)
     )
+    if kind in ("bands", "severity_percent"):
+        return field, ObjectSelector()
     return field, EntitySelector(EntitySelectorConfig(domain="tts"))
 
 
@@ -271,6 +287,7 @@ _RULE_SCHEMA = vol.Schema(
                 translation_key="snooze_minutes",
             )
         ),
+        vol.Optional("snooze_custom"): BooleanSelector(),
         vol.Optional("actions"): ObjectSelector(),
         vol.Optional("tap_action"): ObjectSelector(),
         vol.Optional("image"): TextSelector(),

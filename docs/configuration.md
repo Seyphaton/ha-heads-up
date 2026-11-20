@@ -2,9 +2,13 @@
 
 These are the hub objects and the channel settings. A call says what to send (see [Actions](actions.md)); this page says who is reached, how each channel behaves and which policies shape the delivery.
 
-Create and edit them in the panel (Configuration group: Audiences, Recipients, Policies, Channels) or under Settings > Devices & services > Heads Up (Add entry, pencil to edit). Both save to the same entries, so a change in one shows in the other. Each panel editor shows the stored data as YAML and a list of problems; Save is disabled while there are problems. An audience or speaker group that a policy uses cannot be deleted in the panel: the Delete button is disabled and the page names the policies. Home Assistant's own screen does not enforce this. If it is deleted there, the policy cannot run, the Message Log shows `audience_missing` or `group_missing`, and Needs attention on the Overview reports the policy.
+Create and edit them in the panel (Configuration group: Channels, Audiences, Recipients, Policies, Severities) or under Settings > Devices & services > Heads Up (Add entry, pencil to edit). Both save to the same entries, so a change in one shows in the other. Each panel editor shows the stored data as YAML and a list of problems; Save is disabled while there are problems. An audience or speaker group that a policy uses cannot be deleted in the panel: the Delete button is disabled and the page names the policies. Home Assistant's own screen does not enforce this. If it is deleted there, the policy cannot run, the Message Log shows `audience_missing` or `group_missing`, and Needs attention on the Overview reports the policy.
 
 ## Channels
+
+The panel's Channels page lists banner, push, popup, speech, Persistent Notification and mail with a summary of their settings; select a channel to change it. The Persistent Notification row only says that the channel has no settings.
+
+<img src="images/channels.png" width="600" alt="The Channels page: one row per channel with a summary of its settings, and a button to the Severities page">
 
 A call names its channels in `channels`. Push, popup and mail take `recipients` or `audience`, speech takes `speakers`. The banner takes `recipients` or `audience` too, or shows to everyone without them. The Persistent Notification takes no target.
 
@@ -17,16 +21,17 @@ A call names its channels in `channels`. Push, popup and mail take `recipients` 
 | `mail` | `audience` or `recipients` (persons, `Global address`) | none |
 | `persistent` | none | none |
 
-The panel's Channels page sets the options below. They are stored in the integration options; [Settings](settings.md) lists every option with its default.
+The panel's Channels page sets the options below, except the push level and the popup style of each severity, which are on the Severities page. They are stored in the integration options; [Settings](settings.md) lists every option with its default.
 
 | Option | Default | Meaning |
 |---|---|---|
-| `push_levels` | success and info `passive`, warning `normal`, critical `time-sensitive` | Push level per severity. |
+| `severity_display` | none | Label, icon and color per severity, set on the Severities page. See Severities below. |
+| `push_levels` | passive `passive`, info `normal`, warning `time-sensitive`, critical `critical` | Push level per severity, set on the Severities page. |
 | `push_lockscreen` | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
 | `push_channel_id` | `heads_up` | Prefix of the Android notification channel. |
 | `push_sticky` | off | Keeps the notification after a tap (Android). |
-| `popup_styles` | corner card (bottom right) for success, info and warning, centered window for critical | Per severity: `card` (bottom right), `card_bottom_left`, `card_top_right`, `card_top_left`, `modal` (centered window) or `off`. The Channels page words them as the corner or the centered window. |
-| `speak_language` | the Home Assistant language | Language of the spoken text. |
+| `popup_styles` | corner card (bottom right) for passive, info and warning, centered window for critical | Per severity: `card` (bottom right), `card_bottom_left`, `card_top_right`, `card_top_left`, `modal` (centered window) or `off`. The Channels page words them as the corner or the centered window. |
+| `speak_language` | the Home Assistant language | Language of the spoken text. The Channels page offers the languages of the text-to-speech engine that speech uses; without a chosen or single engine you type a code such as `en-US`. Assist satellites speak in the language of their own voice assistant. |
 | `mail_service`, `mail_global_address`, `mail_subject`, `mail_body` | none, none, `{severity}: {title}`, `{message}` | The mail channel, see Mail below. |
 
 ### Push
@@ -51,7 +56,7 @@ Every device of a person gets the notification. A person with no usable device, 
 | Title and text | The message's `title` and `message`. |
 | `tag` | `hu-<install token>-<message id>`. A new notification with the same tag replaces the old one on the device. |
 | `group` | `hu-<install token>`. |
-| Level | By severity: `success` and `info` passive, `warning` normal, `critical` time-sensitive until you set the level critical. Passive is `importance: low`, normal `default`, time-sensitive `high`, critical `max`. |
+| Level | By severity: `passive` passive, `info` normal, `warning` time-sensitive, `critical` critical; change them on the Severities page. Passive is `importance: low`, normal `default`, time-sensitive `high`, critical `max`. |
 | Android delivery | For time-sensitive and critical: `priority: high` and `ttl: 0`, so an idle phone shows the notification at once. |
 | Android channel | `heads_up_<level>`; the level critical uses the channel `alarm_stream`, which plays from the alarm stream. Android keeps the importance a channel had when it was first used. |
 | Tap | A `navigate` tap action opens its `navigation_path`, a `url` tap action its `url_path`. |
@@ -83,7 +88,7 @@ data:
 
 A popup goes to persons, by audience or by `recipients`. A person needs a linked Home Assistant user; a person without one is skipped (`no_user`). The popup appears on every dashboard and device where that user has Home Assistant open. Areas are not supported.
 
-- Each severity is shown as a card in one of the four corners (bottom right by default for success, info and warning), as a centered window over a dimmed page (the default for critical) or not at all. At phone width a card spans the screen and sits at the top or the bottom, as chosen; left and right make no difference there. A quiet message (Quiet hours with the action Send quietly) is always a card.
+- Each severity is shown as a card in one of the four corners (bottom right by default for passive, info and warning), as a centered window over a dimmed page (the default for critical) or not at all. At phone width a card spans the screen and sits at the top or the bottom, as chosen; left and right make no difference there. A quiet message (Quiet hours with the action Send quietly) is always a card.
 - An `image` shows under the text, up to 200 px high; a picture that does not load is left out.
 - Buttons are at least 48 px high: the message's own, Acknowledge when an escalation or reminder policy applies, Snooze when the message is snoozable, Dismiss when it can be dismissed. A button's `action` is not run by the popup; only `heads_up_banner_action` is fired.
 - One popup is shown at a time, highest severity first, then the oldest. The close button and Escape hide the popup on that page only and the popup returns after a reload. Dismiss hides it for you on every device and keeps the message for others. Acknowledge stops escalation and reminders.
@@ -200,6 +205,17 @@ A mail cannot be taken back: clearing, dismissing or ending the message sends no
 
 Delivery is the notify service's job: Heads Up knows only whether the call returned an error. After a mail went through the SMTP integration's notify service, the SMTP integration raises a repair that the service is deprecated and due to be removed in Home Assistant 2027.3. Mail was not tested with a real mail server.
 
+## Severities
+
+The four severities are `passive`, `info`, `warning` and `critical`. Calls, watch rules, policies, events and entity attributes always use these names. A call or a card's YAML may still say `success`, an earlier name: it is read as `passive`. The panel's Severities page lists them in one table with their icon, label, color, push level and popup. Select a severity to change it:
+
+- Label: the word shown instead of the built-in name, in every language. It appears on the card (as the screen-reader label, and visibly with `show_severity`), in the popup, in the mail placeholder `{severity}` and everywhere in the panel. At most 30 characters. Empty: the translated name.
+- Icon: an `mdi:` icon used when a message has no `icon` of its own, on the card, the popup and in the panel. Empty: the built-in icon. The page warns when two severities share an icon, because the icon shape is what tells them apart without color.
+- Color: picked with the color picker, or typed as a CSS color or a theme variable, for example `#d00000` or `var(--error-color)`, used by every card and the popup. A card that has its own `colors` in its YAML keeps them. Empty: the theme color.
+- Push level and popup style, the same options as listed under Channels.
+
+<img src="images/severities.png" width="600" alt="The Severities page with Critical opened: label, icon, color, push level Critical (alarm) and popup Centered window; Warning, Info and Passive below with their push level and popup">
+
 ## Audiences
 
 These objects say who a call is for. An audience applies to push, popup, mail and, for who sees it, the banner. Speech takes recipients instead; the Persistent Notification takes no target.
@@ -215,15 +231,17 @@ An audience is a named group of people. Every audience is a sensor, and a call n
 | `Last to leave` | The person whose departure emptied the house. Nobody while anyone is home. |
 | `First home` | The first person home after the house was empty. Nobody while the house is empty. |
 
-The panel lists the six built-in audiences with who is in them right now. Each has a checkbox: one that is switched off is not offered and a call that names it fails with the list of valid names; one that a policy uses cannot be switched off.
+The Audiences page lists every audience in a table with who is in it right now and how many messages were sent to it. Select an audience to see its members, the policies that use it, when it was last used and its sensor. A built-in audience has an Enabled checkbox there: one that is switched off is not offered and a call that names it fails with the list of valid names; one that a policy uses cannot be switched off.
 
-You can add your own audience, either as a fixed list of persons or as a presence: at home, not home, last to leave, first home, in a zone, not in a zone (with a zone). A presence audience can be limited to chosen persons, for example At home for one person only. A limited Last to leave or First home names the person only when that person is also the last to leave or the first home of the whole house; it does not look for the last of the chosen persons. A custom name must differ, ignoring case, from the built-in names and from other audiences. The panel lists which policies use each audience.
+The count goes up once per message, from a call or from a policy, however often that message is escalated, reminded or replaced, and it is kept across restarts. Show in Message Log opens the Message Log with only the messages sent to that audience. The Message Log keeps only recent messages and starts empty after a restart, so it can list fewer messages than the count.
+
+You can add your own audience, either as a fixed list of persons or as a presence: at home, not home, last to leave, first home, in a zone, not in a zone (with a zone). A presence audience can be limited to chosen persons, for example At home for one person only. A limited Last to leave or First home names the person only when that person is also the last to leave or the first home of the whole house; it does not look for the last of the chosen persons. A custom name must differ, ignoring case, from the built-in names and from other audiences. The audience's details list which policies use it.
 
 A person whose state is `unknown`, `unavailable` or who has no usable tracker has unknown presence. Presence audiences include that person for `critical` messages and skip them for lower severities (`presence_unknown`). Last to leave and First home change only after a person has been home or away for the presence delay (option Presence delay, 60 seconds by default, 0 for no delay), so a flapping location fix does not move them. Both are kept across restarts.
 
 ## Recipients
 
-Every person has a recipient profile without any setup. Their Companion app devices are found through the person's trackers; trackers from other integrations are ignored. Add a profile entry only to change that:
+Every person has a recipient profile without any setup. Their Companion app devices are found through the person's trackers; trackers from other integrations are ignored. The Recipients page lists each person with the number of phones that can be reached ("1 of 2") and a mark per channel: a tick when the channel works, `!` when it is accepted but cannot work, such as push without a phone or popup without a Home Assistant user. Add a profile entry only to change what was found:
 
 - Receives notifications: on by default. Off, the person gets nothing on any channel: not in an audience, not when a call names them, not for critical messages (`recipient_disabled`). Devices, channels and address stay saved. A banner without a target stays visible on their dashboard; a banner or watch rule that names only switched-off persons is shown to nobody.
 - Added devices: a Companion device that was not found, added by name.
@@ -231,10 +249,13 @@ Every person has a recipient profile without any setup. Their Companion app devi
 - Primary device: listed first. A push still goes to every device of the person.
 - Accepted channels: banner, push and popup by default. A channel you remove is skipped for that person. Mail is off until you add it.
 - Mail address: where mail to this person goes.
+- Where this person is: by default, where Home Assistant says the person is. For Home that is the person's state `home`; for another zone, the zone the person entity is in. For any zone you can choose an input boolean or binary sensor instead: the person counts as in that zone while it is `on`. Use it when the location comes from a rule of your own, for example a template binary sensor that also checks the alarm. Zones without a choice keep Home Assistant's location. It applies to At home, Not home, Last to leave, First home, audiences by zone and the Presence policy. An unavailable entity counts as unknown presence. In Home Assistant's own form the entity for Home is "Home from" and the others are "Other zones from", one `zone.work: binary_sensor.anna_at_work` per line.
 
-The panel lists each person with a column per channel (Banner, Push, Popup, Mail): a tick when the person accepts the channel and it can work, a dash when the profile does not accept it, and a warning mark when it is accepted but cannot work (push without a usable device, popup without a Home Assistant user, mail without an address). Point at the mark for the reason. On a narrow screen the channels are written under the name, for example "Banner, Push (no device), Popup". A person who receives nothing is greyed out with a "disabled" badge. Devices, added and removed devices, the primary device, a missing notify service and the missing Home Assistant user are shown when you open a person. A profile that equals the detected devices is not stored. A person with no usable device is skipped on push (`no_usable_device`). A renamed device keeps working: the service is worked out from the device's current name each time.
+<img src="images/recipient-location.png" width="600" alt="Where this person is: Home follows Home Assistant and is in the zone now; Work follows input_boolean.admin_at_work, which is off now">
 
-Speaker groups are named sets of speakers, Assist satellites and areas for speech. Every group is a sensor, and a call names the group by the entity ID of that sensor, for example `sensor.heads_up_group_ground_floor`. The sensor shows how many speakers reach the group now. The panel shows the ID. An area stands for the speakers and satellites assigned to it in Home Assistant, and a call names an area by its area ID.
+The panel lists each person with a column per channel (Banner, Push, Popup, Mail): a tick when the person accepts the channel and it can work, a dash when the profile does not accept it, and a warning mark when it is accepted but cannot work (push without a usable device, popup without a Home Assistant user, mail without an address). Point at the mark for the reason. On a narrow screen the phones and channels are written under the name, for example "Push: !". A person who receives nothing is greyed out with a "disabled" badge. Select a person to open their settings under the row: devices, added and removed devices, the primary device, a missing notify service, the missing Home Assistant user, the mail address, where the person is and the accepted channels. A profile that equals the detected devices is not stored. A person with no usable device is skipped on push (`no_usable_device`). A renamed device keeps working: the service is worked out from the device's current name each time.
+
+Speaker groups are named sets of speakers, Assist satellites and areas for speech. Every group is a sensor, and a call names the group by the entity ID of that sensor, for example `sensor.heads_up_group_ground_floor`. The sensor shows how many speakers reach the group now. The panel lists each group with that ID and the number of speakers; select a group to change it, and Add opens a new group under the list. An area stands for the speakers and satellites assigned to it in Home Assistant, and a call names an area by its area ID.
 
 ## Renaming
 
@@ -247,7 +268,7 @@ You can rename a policy, an audience, a speaker group, a watch rule or a person 
 
 ## Policies
 
-A policy adds behaviour to messages without changing the automation that sends them. The types are Escalation, Reminder, Quiet hours, Away, Fallback, Deliver and Summarize. Add one in the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy. Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, the fields of its type (for example `from_time`, `to_time`, `action` and `critical_passes` for Quiet hours) and `order`, its place in the list. The policy editor shows the entity ID of the switch. A new policy shows the ID it gets when you save.
+A policy adds behaviour to messages without changing the automation that sends them. The types are Escalation, Reminder, Quiet hours, Presence, Fallback, Deliver and Summarize. Add one in the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy. Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, the fields of its type (for example `from_time`, `to_time`, `action` and `critical_passes` for Quiet hours) and `order`, its place in the list. The policy editor shows the entity ID of the switch. A new policy shows the ID it gets when you save.
 
 Renaming a policy changes only its name. Its entity ID, the watch rules that use it, the messages that are running and their escalations, reminders and held summaries stay as they were. Deleting a policy ends its timers; a new policy with the same name is a different policy, and a rule or message that used the deleted one is listed under Needs attention until you choose another.
 
@@ -258,13 +279,13 @@ A setting on the Policies page, and the first question of the policies step of t
 - Only the first policy that applies runs (the default). The Policies page is one ordered list, and a message gets the first enabled automatic policy of the list that matches its severity and tag. Drag a policy or use the arrows to change the order. A policy you add later goes to the bottom. When a policy above it matches every message it matches, the list marks it "Never runs by itself"; a call that names it still uses it.
 - Every policy that applies runs. A message can get several policies at once, for example quiet hours and a reminder. The order does not matter. Policies can interfere with each other: check a call with Test send.
 
-A call or a watch rule that names a policy uses only that policy under both settings. `none` uses no policy. Policies that have no stored order start in this order: Summarize, Quiet hours, Away, Escalation, Reminder, Fallback, Deliver, each type by name.
+A call or a watch rule that names a policy uses only that policy under both settings. `none` uses no policy. Policies that have no stored order start in this order: Summarize, Quiet hours, Presence, Escalation, Reminder, Fallback, Deliver, each type by name.
 
 "Critical delivery" from the introduction matches every critical message, so under the first setting it comes first and hides later policies for critical messages. Put a policy for a narrower critical case, such as severity `critical` with tag `water`, above it.
 
 ### The defaults of the introduction
 
-Under "only the first policy that applies runs" the introduction offers four policies that do not overlap, in this order: Critical delivery (critical messages are pushed at once to the audience you choose, Admins by default, and the push level of critical becomes critical; no reminder follows), Warning reminders (every 30 minutes, at most 3 times), Evening summary (info and success messages tagged `digest` are held and sent at 20:00) and Night quiet (info and success messages without that tag are sent quietly from 22:00 to 07:00).
+Under "only the first policy that applies runs" the introduction offers four policies that do not overlap, in this order: Critical delivery (critical messages are pushed at once to the audience you choose, Admins by default, and the push level of critical becomes critical; no reminder follows), Warning reminders (every 30 minutes, at most 3 times), Evening summary (info and passive messages tagged `digest` are held and sent at 20:00) and Night quiet (info and passive messages without that tag are sent quietly from 22:00 to 07:00).
 
 Under "every policy that applies runs" it offers: Night quiet (22:00 to 07:00, send quietly, critical passes), Evening summary (messages tagged `digest`, critical never held), Critical messages (Critical delivery as a Deliver policy, Critical reminder every 10 minutes at most 3 times and, if you choose speakers, Critical escalation after 10 minutes on those speakers; dismissing counts as acknowledging) and Warning reminders. Before you switch on Critical messages in this mode:
 
@@ -344,33 +365,46 @@ Only people who still have the notification are reminded. Someone who dismissed 
 
 ### Quiet hours
 
-Between two times of day, deliveries outside the dashboard are held, sent quietly or dropped. The banner on the dashboard is never affected.
+Between two times of day, or while an entity of your choice is on, deliveries outside the dashboard are held, sent quietly or dropped. The banner on the dashboard is never affected.
 
 | Field | Default | Meaning |
 |---|---|---|
 | Quiet from, Quiet until | 22:00 to 07:00 | The window, on the clock of the Home Assistant time zone. A window may cross midnight. The two times must differ. |
 | Days | every day | The days a window starts on. A window that starts on Friday ends on Saturday morning. |
+| Or quiet while this is on | none | A schedule, input boolean or binary sensor. While it is `on`, quiet hours apply and the times and days are not used. A missing or unavailable entity counts as not quiet, so messages go out, and the Overview shows a warning. |
 | During quiet hours | Send quietly | Send quietly: a push is passive and without sound, speech is skipped, a popup is a corner card. Wait: hold the delivery until the window ends, then send it once. Drop: do not deliver. |
 | Critical messages pass | on | Critical messages ignore the policy. |
 
 - The window follows the wall clock. On the day the clocks change it is one hour shorter or longer. A time that does not exist or occurs twice uses its first occurrence.
 - Reminders during the window are skipped, not held, whatever the action.
 - A held delivery is stored and released once at the end of the window, also after a restart. If the message was cleared, expired or acknowledged meanwhile, or the person dismissed it, nothing is sent and the Message Log says why.
+- With an entity, Wait holds the delivery until the entity turns off. A schedule also releases it at its next change (`next_event`). If the entity turned off while Home Assistant was stopped, the held delivery goes out at the next start.
 - If several quiet hours policies are in their window, the strictest action applies: Drop, then Wait, then Send quietly.
 
-### Away
+### Presence
 
-A person who is not home when a message is sent gets it when they arrive, if the message is still there.
+Holds or drops a delivery depending on where people are. Push, popup and mail are checked for each recipient. Speech is checked for the household.
 
 | Field | Default | Meaning |
 |---|---|---|
-| Wait for arrival (minutes) | 0 | How long to wait. 0 means as long as the message lives. After that time the delivery is skipped (`max_wait_exceeded`). |
-| Critical messages pass | on | On: critical messages are sent at once to people who are away. Off: they wait for the arrival like other messages. |
+| Channels it covers | push, popup, mail | Add Speak for speakers. The banner is never held. |
+| Zone | Home | The zone that is checked. If a person's recipient profile names an entity for this zone, that entity counts instead of Home Assistant's location. |
+| Push, popup, mail: when the recipient | is not in the zone | Or: is in the zone. |
+| Speech: when … of this audience is in the zone | nobody, everyone | Nobody or somebody, of everyone or of a list of persons. |
+| Then | Hold until that changes | Or: Drop. |
+| Wait at most (minutes) | 0 | For Hold. 0 means as long as the message lives. |
+| When the wait ends | Send anyway | Or: Drop (`max_wait_exceeded`). |
+| Critical messages pass | on | Off: the policy holds or drops critical messages too. |
 
-- Away holds only deliveries to an audience, and only for people whose state is known and not `home`. Recipients you list yourself, and people whose presence is unknown, are sent at once.
-- Arrival is the person's state changing to `home`. The delivery is sent once, and not if the message was cleared, expired or acknowledged meanwhile, or that person dismissed or snoozed it.
-- With Critical messages pass off, Away holds critical messages too.
+- For push, popup and mail, Presence checks every recipient: members of an audience and persons the call lists by name.
+- Unknown presence is never held: the delivery goes out at once. For speech, people whose presence is unknown do not count.
+- A change of presence counts after the presence delay in Settings (60 seconds by default), so a short flip at the zone edge releases nothing. With the delay at 0 it counts at once.
+- A released delivery is sent once, and not if the message was cleared, expired or acknowledged meanwhile, or the person dismissed or snoozed it.
 - Held deliveries are stored and survive a restart.
+
+<img src="images/presence-policy.png" width="500" alt="The Presence policy form: channels it covers, zone, when the recipient is not in the zone, then hold until that changes, wait at most 0 minutes">
+
+Examples: "the recipient is not in Home, hold" sends a message when the person comes home. "The recipient is in Home, hold" sends a shopping list when the person leaves. "Speech, nobody of everyone is in Home, drop" keeps speakers silent in an empty house.
 
 ### Fallback
 
@@ -383,7 +417,7 @@ If the first delivery of a message reached nobody on a channel, the policy deliv
 
 - A fallback is judged once, after the first delivery of the message. It is not judged again on updates, and escalations, reminders and fallbacks never start a fallback.
 - A channel with a delivery that was sent or held counts as reached. The banner does not count.
-- Messages from watch rules only have the banner channel, so they have no first delivery to fall back from. Their escalations still pass quiet hours and away.
+- Messages from watch rules only have the banner channel, so they have no first delivery to fall back from. Their escalations still pass quiet hours and Presence.
 
 ### Deliver
 
@@ -391,7 +425,7 @@ A call names the channels of its first delivery. A Deliver policy adds channels 
 
 - It fires once per message, at its first delivery. An update replaces what it sent, like the call's own deliveries.
 - Someone who already has the message on that channel from the call is not notified a second time.
-- It passes quiet hours, away and fallback like any delivery. It does not fire for a message held for a summary, and not for a message that became visible while Home Assistant was starting.
+- It passes quiet hours, Presence and fallback like any delivery. It does not fire for a message held for a summary, and not for a message that became visible while Home Assistant was starting.
 - A watch rule message gets it when the policy applies to the tag `rule`. With `match_policies_automatically: false` in the call it is switched off for that call.
 
 ### Summarize
@@ -407,7 +441,7 @@ A Summarize policy holds the messages it applies to on every channel, including 
 - A held message is not shown on the dashboard, not counted by the active banners sensor and not sent. Administrators with `show_all` still see it.
 - The summary is one message for each recipient and channel: a person's phone gets a push that lists the messages meant for that person; the dashboard gets one banner. It has a count in the title and one line per message, at most ten, then "and N more". Its severity is the highest of the messages.
 - A message that was cleared before the summary is listed once, marked resolved. Nothing is sent when nothing was held.
-- The summary stays for 24 hours or until it is dismissed. It passes through quiet hours, away and fallback like any delivery, and is never held, escalated, reminded or summarized itself.
+- The summary stays for 24 hours or until it is dismissed. It passes through quiet hours, Presence and fallback like any delivery, and is never held, escalated, reminded or summarized itself.
 - The messages stay hidden after their summary. A held message that changes its text or severity is listed again in the next summary. A held message that becomes critical is released at once, unless the policy includes critical.
 - The hold is decided when the message appears. A policy added later does not hold messages that are already there, and a policy added after a message was sent only starts when that message is next updated. Deleting or disabling the policy releases its held messages.
 - Held messages and the timer are stored and survive a restart. A summary that came due while Home Assistant was stopped is sent once.

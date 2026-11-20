@@ -134,10 +134,10 @@ The last step first asks how policies interact: Only the first policy that appli
 
 | Item | What it creates |
 |---|---|
-| Critical messages | Critical delivery: critical messages are pushed at once to the audience you choose (Admins by default). It also sets the push level of critical messages to critical: the alert on iOS and the alarm channel on Android. A critical message gets this and no reminder. |
+| Critical messages | Critical delivery: critical messages are pushed at once to the audience you choose (Admins by default). It also sets the push level of critical messages back to critical, the alert on iOS and the alarm channel on Android, if it was changed. A critical message gets this and no reminder. |
 | Warning reminders | Warning reminders: a warning nobody acknowledges is repeated every 30 minutes, at most 3 times. |
-| Evening summary | Evening summary: info and success messages tagged `digest` are held and sent as one summary at 20:00. |
-| Quiet hours | Night quiet: info and success messages without that tag are sent quietly from 22:00 to 07:00. |
+| Evening summary | Evening summary: info and passive messages tagged `digest` are held and sent as one summary at 20:00. |
+| Quiet hours | Night quiet: info and passive messages without that tag are sent quietly from 22:00 to 07:00. |
 
 Create adds only what is missing. A policy with the same name, or one that does the same as a policy you have, is skipped, and nothing you have is changed or deleted. Edit the policies afterwards on the Policies page.
 
@@ -159,7 +159,9 @@ From 0.4.0 or earlier to 1.0.0: the field `wait_for_condition` and the response 
 
 From an earlier 1.0.0 pre-release to 1.0.0: Heads Up stores policies, audiences and groups by an ID instead of by name, so a rename changes nothing that runs. The first start after the update converts the watch rules, the policy targets, the stored messages and the timers, keeps every due time, and writes a backup of the old data to `.storage/heads_up.migration_v2` first. The backup is written once and never overwritten. A group or an area written as text in a call fails now: name a group by the entity ID of its sensor (`sensor.heads_up_group_ground_floor`) and an area by its area ID. The speakers field of the action offers the group sensors.
 
-To go back to an earlier release, stop Home Assistant, run `python scripts/restore_identity_backup.py <config folder>` from the repository, then install the earlier release. Without the restore, Home Assistant refuses to set up the converted data in an older release instead of reading it wrongly.
+From 1.0.0 to 1.1.0: Away policies become Presence policies. They behave as before, except that a person the call names in `recipients` is held too. The first start after the update writes a backup of the policies to `.storage/heads_up.migration_v2_2` first. The severity `success` is renamed to `passive` in the settings, policies, watch rules and stored messages; calls that send `success` keep working. Your push levels stay as they were.
+
+To go back to an earlier release, stop Home Assistant, run `python scripts/restore_identity_backup.py <config folder>` from the repository, then install the earlier release. To go back from 1.1.0 to 1.0.0, run `python scripts/restore_presence_backup.py <config folder>` instead. It puts the Away policies back and renames `passive` to `success` again, because 1.0.0 knows neither Presence nor `passive`. Without the restore, Home Assistant refuses to set up the converted data in an older release instead of reading it wrongly.
 
 Heads Up uses [semantic versioning](https://semver.org/). Action names, field names, defaults, response keys, event types, event data keys, the card type and the card options are the public interface. A minor version adds to it. A removal or a change of meaning needs a major version, and the minor version before it logs a warning when you use the old form. The stored data has version 2.
 

@@ -29,7 +29,7 @@ from ..const import (
 from ..manager import BannerManager
 from .activity import ActivityLog
 from .ledger import State
-from .policies import away, deliver, escalation, fallback, quiet, reminder, summarize
+from .policies import deliver, escalation, fallback, presence, quiet, reminder, summarize
 from .policies.matching import applies
 from .policies.models import Policy, parse_policy
 from .presence import UNKNOWN_STATES
@@ -39,7 +39,8 @@ CHECKS = {
     "escalation": escalation.check,
     "reminder": reminder.check,
     "quiet_hours": quiet.check,
-    "away": away.check,
+    "presence": presence.check,
+    "away": presence.check,  # a 1.0 type key that was not converted yet
     "fallback": fallback.check,
     "summarize": summarize.check,
     "deliver": deliver.check,
@@ -144,6 +145,25 @@ def check_policies(
         elif (problem := policy["problem"]) is not None:
             found.append(Attention("policy_target", "error", policy["name"], problem, "policies"))
     return found
+
+
+def check_quiet_entities(policies: list[Any], states: dict[str, str]) -> list[Attention]:
+    """A Quiet hours policy whose entity is missing or unavailable is never quiet (warning)."""
+    return [
+        Attention(
+            "quiet_entity_missing",
+            "warning",
+            p.name,
+            p.quiet_entity,
+            "policies",
+            ref=p.key,
+        )
+        for p in policies
+        if p.type == "quiet_hours"
+        and p.enabled
+        and p.quiet_entity
+        and states.get(p.quiet_entity) in (None, "unavailable", "unknown")
+    ]
 
 
 FAILURE_WINDOW = timedelta(hours=24)
@@ -276,6 +296,7 @@ def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[d
         service = str(manager.options.get(OPT_MAIL_SERVICE) or "")
         found += check_mail_service(service, hass.services.has_service("notify", service))
         found += check_critical_escalation(hub.policies.all())
+        found += check_quiet_entities(hub.policies.all(), states)
         found += check_failures(hub.log.latest(), dt_util.utcnow())
     return [item.as_dict() for item in found]
 

@@ -28,11 +28,6 @@ DISPLAY_SEVERITY = "warning"
 
 
 @callback
-def _is_person(data: Any) -> bool:
-    return str(data.get("entity_id", "")).startswith("person.")
-
-
-@callback
 def notify_audiences_changed(hass: HomeAssistant) -> None:
     """Tell the entities that audiences, options or presence changed."""
     async_dispatcher_send(hass, SIGNAL_AUDIENCES)
@@ -118,6 +113,15 @@ class AudienceSensor(BinarySensorEntity):
             self._attr_name = f"Heads Up audience {name}"
 
     @callback
+    def _is_location_source(self, data: Any) -> bool:  # HA requires a callback as a filter
+        """A person, or an entity a recipient profile uses for a zone (D-229)."""
+        entity_id = str(data.get("entity_id", ""))
+        hub = self._entry.runtime_data.hub
+        if hub is None:
+            return entity_id.startswith("person.")
+        return bool(hub.resolver.location_persons(entity_id))
+
+    @callback
     def _schedule(self, *_: Any) -> None:
         self._entry.async_create_background_task(
             self.hass, self._refresh_and_write(), f"{DOMAIN}_audience_{self._key}"
@@ -134,7 +138,7 @@ class AudienceSensor(BinarySensorEntity):
             self.hass.bus.async_listen(
                 EVENT_STATE_CHANGED,
                 self._schedule,
-                event_filter=_is_person,
+                event_filter=self._is_location_source,
             )
         )
 

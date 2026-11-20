@@ -21,17 +21,29 @@ from ..const import (
     DOMAIN,
     OPT_ATTENTION_DISMISSED,
     OPT_AUDIENCES_DISABLED,
+    OPT_POPUP_STYLES,
+    OPT_PUSH_LEVELS,
+    OPT_SEVERITY_DISPLAY,
+    OPT_SPEAK_SEVERITY_VOLUME,
     POLICY_SUBENTRY,
+    PUSH_LEVELS_1_0,
     RULE_SUBENTRY,
     STORAGE_KEY,
     TRACE_KEY,
+    TYPE_AWAY_OLD,
+    canonical_severity,
 )
 from .identity import IdentityMaps, count_changes, maps_for
 
 _LOGGER = logging.getLogger(__name__)
 
 ENTRY_VERSION = 2
+# 2.2: Away became Presence (D-214); 2.3: push levels kept (D-230); 2.4: success is passive (D-231)
+ENTRY_MINOR_VERSION = 4
+PUSH_LEVELS_MINOR_VERSION = 3
+PRESENCE_MINOR_VERSION = 2
 BACKUP_KEY = "heads_up.migration_v2"
+PRESENCE_BACKUP_KEY = "heads_up.migration_v2_2"
 OLD_STORE_VERSIONS = {STORAGE_KEY: 1, DELIVERIES_KEY: 1, TRACE_KEY: 1}
 
 
@@ -93,10 +105,71 @@ def _dismissed_key(key: str, person_names: dict[str, str]) -> str:
     return key
 
 
+def presence_from_away(data: dict[str, Any]) -> dict[str, Any]:
+    """A 1.0 Away policy as Presence with its 1.0 behaviour: push, popup and mail, the
+    recipient not in Home, hold, and the delivery dropped when the wait ends (D-213, D-214)."""
+    if data.get("type") != TYPE_AWAY_OLD:
+        return data
+    return {**data, "type": "presence", "after_wait": data.get("after_wait") or "drop"}
+
+
+async def _write_presence_backup(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    store: Store[dict[str, Any]] = Store(hass, 1, PRESENCE_BACKUP_KEY)
+    if await store.async_load() is not None:
+        return
+    await store.async_save(
+        {
+            "entry": {
+                "version": entry.version,
+                "minor_version": entry.minor_version,
+                "subentries": [
+                    {
+                        "subentry_id": s.subentry_id,
+                        "subentry_type": s.subentry_type,
+                        "title": s.title,
+                        "unique_id": s.unique_id,
+                        "data": dict(s.data),
+                    }
+                    for s in entry.subentries.values()
+                    if s.subentry_type == POLICY_SUBENTRY
+                ],
+            }
+        }
+    )
+
+
+async def migrate_presence(hass: HomeAssistant, entry: ConfigEntry) -> int:
+    """2.1 to 2.2: every Away policy becomes Presence; the policy subentries are backed up
+    first. Returns how many policies changed."""
+    await _write_presence_backup(hass, entry)
+    changed = 0
+    for sub in list(entry.subentries.values()):
+        if sub.subentry_type != POLICY_SUBENTRY:
+            continue
+        new = presence_from_away(dict(sub.data))
+        if new != dict(sub.data):
+            hass.config_entries.async_update_subentry(entry, sub, data=new)
+            changed += 1
+    hass.config_entries.async_update_entry(entry, minor_version=PRESENCE_MINOR_VERSION)
+    _LOGGER.info("%s: %d Away policies became Presence", DOMAIN, changed)
+    return changed
+
+
+def migrate_push_levels(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """2.2 to 2.3: new setups get other default push levels (D-230). An existing setup keeps the
+    levels it had: the old defaults, with what it saved on top, are written into its options."""
+    stored = entry.options.get(OPT_PUSH_LEVELS) or {}
+    options = {**entry.options, OPT_PUSH_LEVELS: {**PUSH_LEVELS_1_0, **stored}}
+    hass.config_entries.async_update_entry(
+        entry, options=options, minor_version=PUSH_LEVELS_MINOR_VERSION
+    )
+
+
 async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if entry.version > ENTRY_VERSION:
         return False  # Home Assistant refuses this before it gets here; kept for clarity
     if entry.version == ENTRY_VERSION:
+        await _migrate_minor(hass, entry)
         return True
     await write_backup(hass, entry)
     maps = maps_for(hass, entry.subentries.values())
@@ -119,4 +192,63 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     changed += count_changes(dict(entry.options), options)
     hass.config_entries.async_update_entry(entry, options=options, version=ENTRY_VERSION)
     _LOGGER.info("%s: stored names became keys (%d values in the entry)", DOMAIN, changed)
+    await _migrate_minor(hass, entry)
     return True
+
+
+async def _migrate_minor(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    if entry.minor_version < PRESENCE_MINOR_VERSION:
+        await migrate_presence(hass, entry)
+    if entry.minor_version < PUSH_LEVELS_MINOR_VERSION:
+        migrate_push_levels(hass, entry)
+    if entry.minor_version < ENTRY_MINOR_VERSION:
+        migrate_severity_names(hass, entry)
+
+
+# Options that hold one value per severity.
+SEVERITY_KEYED_OPTIONS = (
+    OPT_PUSH_LEVELS,
+    OPT_POPUP_STYLES,
+    OPT_SEVERITY_DISPLAY,
+    OPT_SPEAK_SEVERITY_VOLUME,
+)
+
+
+def severity_names(data: Any) -> Any:
+    """`data` with every stored severity by its current name: a `severity` value and the
+    entries of a `severities` list (policies, watch rules)."""
+    if isinstance(data, dict):
+        out = {}
+        for key, value in data.items():
+            if key == "severity":
+                out[key] = canonical_severity(value)
+            elif key == "severities" and isinstance(value, list):
+                out[key] = list(dict.fromkeys(canonical_severity(v) for v in value))
+            else:
+                out[key] = severity_names(value)
+        return out
+    if isinstance(data, list):
+        return [severity_names(v) for v in data]
+    return data
+
+
+def migrate_severity_names(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """2.3 to 2.4: the severity `success` is called `passive` (D-231), in the options keyed by
+    severity and in policy and watch rule subentries. Stored messages are read with the new
+    name when they load (`Banner.from_dict`)."""
+    for sub in list(entry.subentries.values()):
+        if sub.subentry_type not in (POLICY_SUBENTRY, RULE_SUBENTRY):
+            continue
+        new = severity_names(dict(sub.data))
+        if new != dict(sub.data):
+            hass.config_entries.async_update_subentry(entry, sub, data=new)
+    options = dict(entry.options)
+    for key in SEVERITY_KEYED_OPTIONS:
+        values = options.get(key)
+        if isinstance(values, dict) and "success" in values:
+            values = dict(values)
+            values["passive"] = values.pop("success")
+            options[key] = values
+    hass.config_entries.async_update_entry(
+        entry, options=options, minor_version=ENTRY_MINOR_VERSION
+    )

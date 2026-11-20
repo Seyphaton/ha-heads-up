@@ -37,7 +37,7 @@ The banner is on the dashboard for the people who are home, and each of them get
 |---|---|---|---|
 | `message` | text | required | The text, 1–1000 characters. |
 | `title` | text | none | A heading above the message, up to 100 characters. |
-| `severity` | `success`, `info`, `warning`, `critical` | required | How important the message is. It sets the color, the default icon and the sort order of the banner; the push level (`success` and `info` are passive, `warning` normal, `critical` time-sensitive, shown at once on an idle phone); the popup style; and whether quiet hours let the message pass (`critical` does unless you change it). |
+| `severity` | `passive`, `info`, `warning`, `critical` | required | How important the message is. `success`, an earlier name, is accepted and read as `passive`. It sets the color, the default icon and the sort order of the banner; the push level (by default `passive` is quiet, `info` normal, `warning` time-sensitive and `critical` an alarm; set on the Severities page); the popup style; and whether quiet hours let the message pass (`critical` does unless you change it). |
 | `icon` | icon, for example `mdi:water-alert` | the icon of the severity | Replaces the default icon on the banner and in the popup. A push, speech, mail and the notification bell do not show it. |
 | `image` | text | none | A picture shown under the message on the card, in the popup and on the push: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/local/door.jpg`, `/media/local/door.jpg`). Up to 2048 characters. Heads Up does not fetch or check it; a wrong path shows no picture. A picture from another host is loaded by the card, the popup and the phone, so that host learns the viewer's address and when the picture is shown. A path on this Home Assistant avoids that. Paths under `/api/` and `/media/` are signed for the card and the popup. The phone loads the picture itself, so it must reach the URL; camera proxy paths (`/api/camera_proxy/...`) work on Android only. The compact card layout shows no picture. With a lock screen setting other than `full`, the push has no picture (`image_hidden` in the trace). |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel, when it should differ from the written message. |
@@ -81,7 +81,7 @@ Replacing a message with the same `id`:
 - The timeout starts again.
 - Users who closed the message see it again.
 
-The setting Maximum number of stored messages (default 50) limits how many messages can exist. When it is reached, Heads Up removes the oldest message with the lowest severity: `success` first, then `info`, then `warning`. It never removes a `critical` message. If none can be removed, the call fails with "Heads Up already holds 50 banners and none can be evicted."
+The setting Maximum number of stored messages (default 50) limits how many messages can exist. When it is reached, Heads Up removes the oldest message with the lowest severity: `passive` first, then `info`, then `warning`. It never removes a `critical` message. If none can be removed, the call fails with "Heads Up already holds 50 banners and none can be evicted."
 
 ### What people can do with it
 
@@ -90,6 +90,7 @@ The setting Maximum number of stored messages (default 50) limits how many messa
 | `dismiss` | `off`, `user`, `everyone` | dismissible, scope from the setting Default dismiss scope (shipped as `user`) | To whom a dismissal applies. `user`: only the person who dismisses it; closing hides the message for that person and takes back only their push. `everyone`: one dismissal ends the message for all. `off`: nobody can dismiss it, so dismiss buttons and `snooze` are rejected; it still ends by itself (condition false, timeout) or by an admin clear. A dismissal removes the message from all channels except speak and mail. Write `"off"` in quotes in YAML: an unquoted `off` is read as false (Heads Up accepts that too). |
 | `snooze` | `off`, `user`, `everyone` | setting Messages can be snoozed by default, shipped as off; scope from the setting Default snooze scope | To whom a snooze applies. `user`: the banner, the push and the popup offer Snooze and a snooze hides the message only for the person who snoozes it. `everyone`: a snooze hides it for all. `off`: nobody can snooze it. The message returns after the chosen time. Rejected together with `dismiss: off`. |
 | `snooze_options` | list of durations, 1 minute to 7 days, at most 6 | setting Snooze choices on the banner, shipped as 15 minutes, 1 hour, 4 hours | The choices the banner offers. The push and the popup have one Snooze time, the setting Snooze time on push and popup. The timeout and the condition keep running while a message is snoozed. Creating the message again with the same `id`, or a recurring condition turning false and true again, ends all snoozes. |
+| `snooze_custom` | boolean | `false` | The card's snooze row also offers **Other…**: the viewer types a number of minutes or a time of day. Allowed from 1 minute to 24 hours and not past the end of the message. Needs a message that can be snoozed. |
 | `actions` | list of up to 3 buttons | none | Your own buttons. See [Buttons and snooze](#buttons-and-snooze). |
 
 ### Mail text of this message
@@ -317,7 +318,7 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `message` | text | required | As in [`notify`](#what-the-message-says). |
 | `id` | text | generated | As in [`notify`](#how-long-it-lives). |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `warning` | As in `notify`, but the default is `warning`. |
+| `severity` | `passive`, `info`, `warning`, `critical` | `warning` | As in `notify`, but the default is `warning`. |
 | `icon` | icon | the icon of the severity | As in `notify`. |
 | `image` | text | none | As in `notify`. |
 | `tap_action` | object with `action` | none | As in `notify`. |
@@ -330,6 +331,7 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `snoozable` | boolean | setting Messages can be snoozed by default | `true` is `snooze: user` of `notify`; rejected with `dismissible: false`. |
 | `snooze_scope` | `user`, `global` | setting Default snooze scope | `user` and `global` are `snooze: user` and `snooze: everyone` of `notify`. |
 | `snooze_options` | list of durations | setting Snooze choices on the banner | As in `notify`. |
+| `snooze_custom` | boolean | `false` | As in `notify`. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. See [Buttons and snooze](#buttons-and-snooze). |
 | `audience` | audience sensor | everyone | Show the banner only to the members of the audience as of the call, like `audience` in `notify`. Give only one of `audience`, `recipients` and `people`. |
 | `recipients` | list of person entities | everyone | Show the banner only to the users linked to these persons. |
@@ -391,7 +393,7 @@ Shortcut for `notify` with `channels: [push]` and no policies. It needs `audienc
 | `message` | text | required | As in `notify`. |
 | `id` | text | none | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, the message is sent once and cannot be cleared. |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `info` | As in `notify`. |
+| `severity` | `passive`, `info`, `warning`, `critical` | `info` | As in `notify`. |
 | `icon` | icon | none | A push does not show an icon, so the field has no effect. |
 | `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. |
@@ -419,7 +421,7 @@ Shortcut for `notify` with `channels: [popup]` and no policies. It needs `audien
 | `message` | text | required | As in `notify`. |
 | `id` | text | none | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, the message is sent once and cannot be cleared. |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `info` | As in `notify`. |
+| `severity` | `passive`, `info`, `warning`, `critical` | `info` | As in `notify`. |
 | `icon` | icon | the icon of the severity | Replaces the default icon in the popup. |
 | `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. |
@@ -446,7 +448,7 @@ Shortcut for `notify` with `channels: [speak]` and no policies. It needs `recipi
 | `message` | text | required | As in `notify`. |
 | `id` | text | none | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, the message is sent once and cannot be cleared. |
 | `title` | text | none | As in `notify`. |
-| `severity` | `success`, `info`, `warning`, `critical` | `info` | As in `notify`. |
+| `severity` | `passive`, `info`, `warning`, `critical` | `info` | As in `notify`. |
 | `icon` | icon | none | Speech has no icon, so the field has no effect. |
 | `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. |
@@ -472,7 +474,7 @@ Removes messages from every channel: the banner, the push on the phones, the pop
 |---|---|---|---|
 | `id` | text | none | The `id` of the message to remove. |
 | `tag` | text | none | Removes messages with this tag. |
-| `severity` | list of `success`, `info`, `warning`, `critical` | none | Removes messages with one of these severities. |
+| `severity` | list of `passive`, `info`, `warning`, `critical` | none | Removes messages with one of these severities. |
 | `channels` | list of `banner`, `push`, `popup`, `speak`, `persistent`, `mail` | none | Removes messages whose call named at least one of these channels. A channel a policy added is not counted. |
 | `all` | boolean | `false` | `true` removes every message. It cannot be combined with another field. |
 
@@ -572,13 +574,15 @@ Each change fires an event. Use them as automation triggers.
 | `heads_up_banner_updated` | `id`, `severity`, `tag` |
 | `heads_up_banner_dismissed` | `id`, `tag`, `scope` (`user` or `global`), `user_id` |
 | `heads_up_banner_snoozed` | `id`, `tag`, `scope` (`user` or `global`), `user_id`, `until` |
-| `heads_up_banner_unsnoozed` | `id`, `tag`, `user_id` |
+| `heads_up_banner_unsnoozed` | `id`, `tag`, `user_id`, `reason` (`user` or `ended`) |
 | `heads_up_banner_action` | `id`, `tag`, `key`, `user_id`, `person`, `channel` (`banner`, `popup` or `push`) |
 | `heads_up_banner_expired` | `id`, `tag` |
 | `heads_up_banner_cleared` | `id`, `tag`, `reason` (`action`, `clear_all`, `condition`, `evicted`, `admin`, `rule`) |
 | `heads_up_delivery_failed` | `id`, `tag`, `channel`, `origin`, `reached`, `failed` |
 
 The event names say "banner" for every message, whatever its channels.
+
+`heads_up_banner_unsnoozed` fires when someone ends a snooze in the card (`reason: user`) and when the snooze time runs out (`reason: ended`). A snooze that ran out while Home Assistant was stopped fires once at the next start. For a global snooze that ran out, `user_id` is empty.
 
 Banners from [watch rules](#watch-rules) fire `created` when the entity enters the state and `cleared` with `reason: rule` when it leaves, or when the rule is disabled or deleted. Their `id` starts with `rule_` and their `tag` is `rule`.
 
@@ -642,7 +646,7 @@ To change or delete a rule, open it from the same page. Changes apply at once; n
 
 The panel's Watch rules page lists every rule with a badge for its state (showing now, not showing, off) and its severity. Its form has four sections: When (an entity in a state, or a template, and an optional hold time), What to show (message, title, severity, icon, image), Who sees it (the people; none means everyone) and Behaviour (dismissible, dismiss scope, snooze, the policy, enabled). A sentence under the form says in words what the rule does. The page does not edit the buttons and the tap action; change them in the form under Settings > Devices & services > Heads Up.
 
-<img src="images/watch-rule.png" width="500" alt="The Add watch rule form: rule name, entity, condition, state">
+<img src="images/watch-rule.png" width="500" alt="The New watch rule form on the Watch rules page: name, When an entity is in a state, entity, condition equals, value on, attribute and hold time">
 
 ### Examples
 
@@ -680,7 +684,7 @@ Notes:
 - `heads_up.clear_banner` and `heads_up.clear_all` do not remove them, and administrators cannot clear them in the card. Disable or delete the rule instead.
 - Events: see [actions](#events).
 - "Policy" is empty (every automatic policy that applies to a rule message), `none` (no policy) or the name of one policy, which may be a manual policy. A named policy is the only one used for the rule.
-- "Snoozable" needs "Dismissible". It adds a snooze button to the banner. "Snooze scope" and "Snooze choices" are optional; when empty, the integration options apply (per user; 15 minutes, 1 hour, 4 hours). A snooze ends when the time passes or when the entity leaves the state, and a restart ends it too. Buttons are set in the Buttons field.
+- "Snoozable" needs "Dismissible". It adds a snooze button to the banner. "Snooze scope" and "Snooze choices" are optional; when empty, the integration options apply (per user; 15 minutes, 1 hour, 4 hours). "Viewer may choose the duration" adds **Other…** to the choices, as `snooze_custom` does. A snooze ends when the time passes or when the entity leaves the state, and a restart ends it too. Buttons are set in the Buttons field.
 
 ## The card
 
@@ -698,17 +702,17 @@ The card shows a banner while it is active, not dismissed by you, and not remove
 
 | Option | Type | Default | Meaning |
 |---|---|---|---|
-| `severity` | list of `critical`, `warning`, `info`, `success` | all | Show only these severities. A single string is accepted. |
+| `severity` | list of `critical`, `warning`, `info`, `passive` | all | Show only these severities. A single string is accepted. |
 | `tag` | list of strings | all | Show only banners with one of these tags. A single string is accepted. |
 | `max_items` | integer, 1 or more | no limit | Show at most this many banners, after sorting. Banners beyond the limit are never shown. |
 | `collapsed_items` | integer, 1 or more | off | Show this many banners and a "Show N more" button for the rest. The button then reads "Show less". |
-| `sort` | `severity` or `time` | `severity` | `severity`: critical first, then warning, info, success; newest first within a severity. `time`: newest first. |
+| `sort` | `severity` or `time` | `severity` | `severity`: critical first, then warning, info, passive; newest first within a severity. `time`: newest first. |
 | `layout` | `comfortable` or `compact` | `comfortable` | `compact` puts each banner on one line. |
 | `title` | text | none | A header above the banners. |
 | `show_time` | boolean | `false` | Show how long ago the banner was created or replaced ("just now", "50 min ago", "3 h ago", "1 day ago", "2 days ago"). |
 | `show_severity` | boolean | `false` | Show the text label ("Warning"). Without it, the icon and color show the severity. |
 | `colorize` | `all`, `background`, `icon`, `bar` | `all` | Which parts take the severity color: background, icon and left bar; background only; icon and label only; left bar only. |
-| `colors` | map of severity to color | theme colors | CSS color or theme variable per severity, for example `critical: "#c62828"` or `info: var(--primary-color)`. |
+| `colors` | map of severity to color | the colors of the Severities page, else the theme | CSS color or theme variable per severity, for example `critical: "#c62828"`. YAML only: the card editor no longer shows it, because the panel's Severities page sets the colors for every card. A card with `colors` keeps them. |
 | `clear_all` | boolean | `false` | Show a "Clear all" button in the header. |
 | `swipe_to_dismiss` | boolean | `false` | Swipe a banner sideways to dismiss it. |
 | `show_snoozed` | boolean | `true` | List your snoozed banners under the card with a Show now button. `false` hides the list. |
@@ -735,7 +739,7 @@ empty_message: All clear
 
 ### Looks
 
-![Card with four banners: critical, warning, info and success, each with a severity label and the time since it was created](images/card-default.png)
+![Card with four banners: critical, warning, info and passive, each with a severity label and the time since it was created](images/card-default.png)
 
 The card above uses `show_time: true` and `show_severity: true`. The variants below change one thing each.
 
@@ -759,10 +763,10 @@ type: custom:heads-up-card
 title: House Information (custom colors)
 colorize: background
 colors:
-  critical: "#2d1f33"
-  warning: "#1d2d33"
-  info: "#1c2b2b"
-  success: "#243021"
+  critical: "#8e24aa"
+  warning: "#00897b"
+  info: "#3949ab"
+  passive: "#7cb342"
 ```
 
 ![Card with custom background colors](images/card-custom-colors.png)
@@ -840,7 +844,7 @@ In the compact layout, a long title or message is cut with "…" and the full te
 
 ### Colors
 
-`colors` takes any CSS color (`#c62828`, `teal`, `rgb(…)`) or a theme variable (`var(--primary-color)`) for each of `critical`, `warning`, `info` and `success`. Severities you leave out use the theme colors `--error-color`, `--warning-color`, `--info-color` and `--success-color`. A value the browser does not accept as a color falls back to the theme color. The card does not check contrast: choose colors that stay readable in your light and dark themes.
+Set the colors for every card on the panel's Severities page ([Configuration](configuration.md#severities)). In YAML, `colors` takes any CSS color (`#c62828`, `teal`, `rgb(…)`) or a theme variable (`var(--primary-color)`) for each of `critical`, `warning`, `info` and `passive`. Severities you leave out use the theme colors `--error-color`, `--warning-color`, `--info-color` and `--success-color`. A value the browser does not accept as a color falls back to the theme color. The card does not check contrast: choose colors that stay readable in your light and dark themes.
 
 With `colorize: background` the icon and label use the theme text colors; with `colorize: icon` the background is the theme's secondary background and the left bar is not drawn.
 
@@ -858,7 +862,7 @@ On touch screens the card tells the browser to keep vertical scrolling for itsel
 
 ### Snooze and buttons
 
-A banner created with `snoozable: true` shows a snooze button (an alarm icon) next to the X. Pressing it opens a row of choices under the banner, for example "15 min", "1 h", "4 h". Pick one and the banner disappears for that time and then comes back. Escape closes the row. With `snooze_scope: user` (the default) it disappears only for you; with `global` for everyone. A banner that is not dismissible is never snoozable.
+A banner created with `snoozable: true` shows a snooze button (an alarm icon) next to the X. Pressing it opens a row of choices under the banner, for example "15 min", "1 h", "4 h". Pick one and the banner disappears for that time and then comes back. Escape closes the row. If the message was created with `snooze_custom: true`, the row ends with **Other…**: type a number of minutes or pick a time of day, then press **Snooze**. A time that has passed today means tomorrow. Anything under 1 minute or over 24 hours shows an error, and the backend also refuses a time after the end of the message. With `snooze_scope: user` (the default) it disappears only for you; with `global` for everyone. A banner that is not dismissible is never snoozable.
 
 With `swipe_to_dismiss: true`, swiping a snoozable banner to the right opens the same row of choices; swiping left dismisses it. On other banners both directions dismiss.
 

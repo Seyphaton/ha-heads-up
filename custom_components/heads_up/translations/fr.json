@@ -81,7 +81,7 @@
               "presence_debounce_seconds": "Délai de présence (secondes)"
             },
             "data_description": {
-              "presence_debounce_seconds": "Une personne doit rester à la maison ou absente ce temps avant que « Last to leave » et « First home » changent. 0 réagit tout de suite."
+              "presence_debounce_seconds": "Une personne doit rester dans ou hors d'une zone ce temps avant que « Last to leave » et « First home » changent et qu'une politique de présence libère ce qu'elle retient. 0 réagit tout de suite."
             }
           },
           "speech": {
@@ -95,6 +95,19 @@
               "speak_max_length": "Les textes plus longs sont coupés à la fin d'un mot et se terminent par des points de suspension.",
               "speak_cooldown_seconds": "Le même texte n'est pas redit sur le même haut-parleur pendant ce délai. 0 : toujours dire.",
               "speak_tts_entity": "Le moteur qui parle sur les lecteurs multimédia. Vide : la seule entité de synthèse vocale, s'il n'y en a qu'une."
+            }
+          },
+          "speech_volume": {
+            "name": "Volume de la voix",
+            "data": {
+              "speak_restore_volume": "Remettre le volume après avoir parlé",
+              "speak_severity_volume": "Volume par gravité (pour cent)",
+              "speak_volume_bands": "Volume selon l'heure"
+            },
+            "data_description": {
+              "speak_restore_volume": "Un haut-parleur dont Heads Up a changé le volume retrouve son volume précédent une fois le message dit, sauf si quelqu'un a changé le volume entre-temps. Les haut-parleurs Sonos gardent leur volume et disent le message au niveau choisi. Désactivé : le haut-parleur reste au volume de la voix.",
+              "speak_severity_volume": "0–100 par gravité. Vide : l'heure décide. Un volume dans l'appel d'action passe en premier.",
+              "speak_volume_bands": "Jusqu'à 4 plages, chacune avec un début, une fin et un volume en pour cent. Une plage de 22:00 à 07:00 passe minuit. Les plages ne doivent pas se chevaucher. En dehors de toute plage, le volume ne change pas."
             }
           },
           "limits": {
@@ -121,21 +134,26 @@
               "recent_messages": "Messages récents conservés"
             },
             "data_description": {
-              "trace_entries": "50–5000.",
-              "recent_messages": "10–1000."
+              "trace_entries": "50–5000. La trace de distribution : pourquoi chaque message est arrivé ou non. Conservée après un redémarrage. Aussi la longueur des dernières actions de la vue d'ensemble, vides après un redémarrage.",
+              "recent_messages": "10–1000. Les messages listés dans le journal des messages. Après un redémarrage, la liste ne contient que les messages qui ne sont pas terminés."
             }
           }
         }
       }
     },
     "error": {
-      "timeout_too_long": "Le délai par défaut est d'au plus 365 jours."
+      "timeout_too_long": "Le délai par défaut est d'au plus 365 jours.",
+      "bands_invalid": "Chaque plage a besoin d'un début et d'une fin (HH:MM) et d'un volume de 0 à 100.",
+      "bands_too_many": "4 plages au plus.",
+      "bands_empty": "Le début et la fin d'une plage doivent être différents.",
+      "bands_overlap": "Les plages ne doivent pas se chevaucher.",
+      "severity_volume_invalid": "Indiquez un volume de 0 à 100 pour passive, info, warning ou critical."
     }
   },
   "selector": {
     "severity": {
       "options": {
-        "success": "Succès",
+        "passive": "Passif",
         "info": "Info",
         "warning": "Avertissement",
         "critical": "Critique"
@@ -223,7 +241,7 @@
         "escalation": "Escalade",
         "reminder": "Rappel",
         "quiet_hours": "Heures calmes",
-        "away": "Absent",
+        "presence": "Présence",
         "fallback": "Repli",
         "summarize": "Résumer",
         "deliver": "Livrer"
@@ -284,6 +302,30 @@
       "options": {
         "automatic": "Automatique",
         "none": "Aucune"
+      }
+    },
+    "presence_when": {
+      "options": {
+        "not_in": "n'est pas dans la zone",
+        "in": "est dans la zone"
+      }
+    },
+    "household_who": {
+      "options": {
+        "nobody": "personne",
+        "somebody": "quelqu'un"
+      }
+    },
+    "presence_then": {
+      "options": {
+        "hold": "Retenir jusqu'à ce que cela change",
+        "drop": "Abandonner"
+      }
+    },
+    "after_wait": {
+      "options": {
+        "send": "Envoyer quand même",
+        "drop": "Abandonner"
       }
     }
   },
@@ -396,6 +438,10 @@
         "snooze_options": {
           "name": "Durées de report",
           "description": "Jusqu'à 6 durées de report, de 1 minute à 7 jours.\n\nExemple :\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "snooze_custom": {
+          "name": "Le spectateur choisit la durée",
+          "description": "Propose aussi « Autre… » dans la carte : reporter d'un nombre de minutes au choix ou jusqu'à une heure, 24 heures au plus et pas au-delà de la fin du message. Le message doit pouvoir être reporté."
         },
         "actions": {
           "name": "Boutons",
@@ -529,7 +575,7 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (par défaut passif est discret, info normal, avertissement urgent et critique une alarme), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",
@@ -579,6 +625,10 @@
           "name": "Durées de report",
           "description": "Jusqu'à 6 durées de report, de 1 minute à 7 jours.\n\nExemple :\n```yaml\n- minutes: 15\n- hours: 4\n```"
         },
+        "snooze_custom": {
+          "name": "Le spectateur choisit la durée",
+          "description": "Propose aussi « Autre… » dans la carte : reporter d'un nombre de minutes au choix ou jusqu'à une heure, 24 heures au plus et pas au-delà de la fin du message. Le message doit pouvoir être reporté."
+        },
         "mail_subject": {
           "name": "Objet du mail",
           "description": "Objet du mail de ce message, à la place du modèle de la page Canaux. Variables : {severity}, {title}, {message}, {person}, {person_id}, {id}, {tag}. {person} est le nom du destinataire, et chaque destinataire reçoit son propre mail. Seulement avec le canal mail. Laissez la case décochée pour utiliser le modèle de la page Canaux."
@@ -607,7 +657,7 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (par défaut passif est discret, info normal, avertissement urgent et critique une alarme), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",
@@ -665,7 +715,7 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (par défaut passif est discret, info normal, avertissement urgent et critique une alarme), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",
@@ -723,7 +773,7 @@
         },
         "severity": {
           "name": "Gravité",
-          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (succès et info sont discrets, avertissement est normal, critique est urgent et affiché aussitôt sur un téléphone au repos), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
+          "description": "L'importance du message. Elle fixe la couleur, l'icône par défaut et l'ordre de la bannière, le niveau du push (par défaut passif est discret, info normal, avertissement urgent et critique une alarme), le style de la fenêtre contextuelle et si les heures calmes laissent passer le message (critique passe sauf changement). Par défaut : Info."
         },
         "icon": {
           "name": "Icône",
@@ -803,6 +853,7 @@
             "snoozable": "Reportable",
             "snooze_scope": "Portée du report",
             "snooze_options": "Durées de report",
+            "snooze_custom": "Le spectateur peut choisir la durée",
             "actions": "Boutons",
             "tap_action": "Action au toucher",
             "image": "Image",
@@ -824,6 +875,7 @@
             "snoozable": "Activé : les utilisateurs peuvent masquer la bannière un moment ; elle revient ensuite. Nécessite « Fermable ». Vide : le réglage des options de l'intégration.",
             "snooze_scope": "Par utilisateur ou tout le monde. Vide : le réglage des options de l'intégration.",
             "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration.",
+            "snooze_custom": "La carte propose aussi « Autre… » : un nombre de minutes au choix ou jusqu'à une heure, 24 heures au plus.",
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
@@ -852,6 +904,7 @@
             "snoozable": "Reportable",
             "snooze_scope": "Portée du report",
             "snooze_options": "Durées de report",
+            "snooze_custom": "Le spectateur peut choisir la durée",
             "actions": "Boutons",
             "tap_action": "Action au toucher",
             "image": "Image"
@@ -872,6 +925,7 @@
             "snoozable": "Activé : les utilisateurs peuvent masquer la bannière un moment ; elle revient ensuite. Nécessite « Fermable ». Vide : le réglage des options de l'intégration.",
             "snooze_scope": "Par utilisateur ou tout le monde. Vide : le réglage des options de l'intégration.",
             "snooze_options": "Durées proposées à l'utilisateur. Vide : le réglage des options de l'intégration.",
+            "snooze_custom": "La carte propose aussi « Autre… » : un nombre de minutes au choix ou jusqu'à une heure, 24 heures au plus.",
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
@@ -1017,7 +1071,9 @@
             "removed_devices": "Appareils retirés",
             "primary": "Appareil principal",
             "channels": "Canaux acceptés",
-            "mail_address": "Adresse de courriel"
+            "mail_address": "Adresse de courriel",
+            "home_entity": "À la maison selon",
+            "zone_entities": "Autres zones selon"
           },
           "data_description": {
             "enabled": "Désactivé : cette personne ne reçoit rien sur aucun canal, pas même les messages critiques ni quand elle est nommée directement. Les bannières sans cible restent visibles sur son tableau de bord.",
@@ -1025,7 +1081,9 @@
             "removed_devices": "Appareils détectés à ignorer.",
             "primary": "Listé en premier. Les push vont toujours à tous les appareils de la personne. Vide : le premier appareil détecté.",
             "channels": "Canaux pouvant atteindre cette personne. Un canal omis est ignoré pour elle.",
-            "mail_address": "Où va le courriel de cette personne : l'adresse transmise comme cible du service de notification choisi sur la page Canaux. Activez Courriel dans les canaux ci-dessus. Vide : le courriel à cette personne échoue avec no_mail_address."
+            "mail_address": "Où va le courriel de cette personne : l'adresse transmise comme cible du service de notification choisi sur la page Canaux. Activez Courriel dans les canaux ci-dessus. Vide : le courriel à cette personne échoue avec no_mail_address.",
+            "home_entity": "Facultatif : un interrupteur d'entrée ou un capteur binaire qui indique que cette personne est à la maison tant qu'il est allumé. Vide : l'état propre de la personne, tel que Home Assistant le donne. Utilisé pour At home, Not home, Last to leave, First home, les audiences par la zone Home et la politique Présence.",
+            "zone_entities": "Facultatif, pour les zones autres que Home : par zone un interrupteur d'entrée ou un capteur binaire qui indique que cette personne est dans la zone tant qu'il est allumé, une ligne par zone, par exemple zone.work: binary_sensor.anna_at_work. Une zone non listée utilise l'état propre de la personne, tel que Home Assistant le donne : la zone où se trouve la personne."
           }
         },
         "reconfigure": {
@@ -1037,7 +1095,9 @@
             "removed_devices": "Appareils retirés",
             "primary": "Appareil principal",
             "channels": "Canaux acceptés",
-            "mail_address": "Adresse de courriel"
+            "mail_address": "Adresse de courriel",
+            "home_entity": "À la maison selon",
+            "zone_entities": "Autres zones selon"
           },
           "data_description": {
             "enabled": "Désactivé : cette personne ne reçoit rien sur aucun canal, pas même les messages critiques ni quand elle est nommée directement. Les bannières sans cible restent visibles sur son tableau de bord.",
@@ -1045,7 +1105,9 @@
             "removed_devices": "Appareils détectés à ignorer.",
             "primary": "Listé en premier. Les push vont toujours à tous les appareils de la personne. Vide : le premier appareil détecté.",
             "channels": "Canaux pouvant atteindre cette personne. Un canal omis est ignoré pour elle.",
-            "mail_address": "Où va le courriel de cette personne : l'adresse transmise comme cible du service de notification choisi sur la page Canaux. Activez Courriel dans les canaux ci-dessus. Vide : le courriel à cette personne échoue avec no_mail_address."
+            "mail_address": "Où va le courriel de cette personne : l'adresse transmise comme cible du service de notification choisi sur la page Canaux. Activez Courriel dans les canaux ci-dessus. Vide : le courriel à cette personne échoue avec no_mail_address.",
+            "home_entity": "Facultatif : un interrupteur d'entrée ou un capteur binaire qui indique que cette personne est à la maison tant qu'il est allumé. Vide : l'état propre de la personne, tel que Home Assistant le donne. Utilisé pour At home, Not home, Last to leave, First home, les audiences par la zone Home et la politique Présence.",
+            "zone_entities": "Facultatif, pour les zones autres que Home : par zone un interrupteur d'entrée ou un capteur binaire qui indique que cette personne est dans la zone tant qu'il est allumé, une ligne par zone, par exemple zone.work: binary_sensor.anna_at_work. Une zone non listée utilise l'état propre de la personne, tel que Home Assistant le donne : la zone où se trouve la personne."
           }
         }
       },
@@ -1055,7 +1117,9 @@
         "device_unknown": "Un appareil choisi n'est pas un enregistrement de l'application Companion.",
         "device_added_and_removed": "Un appareil ne peut pas être à la fois ajouté et retiré.",
         "channels_required": "Choisissez au moins un canal.",
-        "mail_address_too_long": "L'adresse ne peut pas dépasser 254 caractères."
+        "mail_address_too_long": "L'adresse ne peut pas dépasser 254 caractères.",
+        "home_entity_invalid": "Choisissez un interrupteur d'entrée ou un capteur binaire.",
+        "zone_entities_invalid": "Chaque ligne demande une zone (zone.…) et un interrupteur d'entrée ou un capteur binaire."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."
@@ -1069,7 +1133,7 @@
       "step": {
         "user": {
           "title": "Ajouter une politique",
-          "description": "Ce que fait la politique (le type) et quand elle s'applique :\n\n- Escalade : si personne ne confirme dans le délai, remettre sur d'autres canaux.\n- Rappel : répéter la notification tant que personne ne confirme.\n- Heures calmes : retenir, envoyer discrètement ou abandonner les remises dans une plage horaire.\n- Absence : envoyer aux personnes absentes quand elles arrivent.\n- Repli : livrer ailleurs quand personne n'a pu être prévenu : d'autres canaux, ou d'autres personnes sur les mêmes canaux.\n- Résumé : retenir les messages sur chaque canal, bannière comprise, et envoyer un résumé par destinataire.\n- Remise : envoyer tout de suite les messages correspondants à une audience choisie sur des canaux choisis, en plus de ce que l'appel demandait.\n\nUne politique s'applique automatiquement aux messages dont la gravité et l'étiquette correspondent (une liste vide correspond à tout ; les messages de règles ont l'étiquette \"rule\"), ou manuellement, seulement quand un appel la nomme dans son champ policy.",
+          "description": "Ce que fait la politique (le type) et quand elle s'applique :\n\n- Escalade : si personne ne confirme dans le délai, remettre sur d'autres canaux.\n- Rappel : répéter la notification tant que personne ne confirme.\n- Heures calmes : retenir, envoyer discrètement ou abandonner les remises dans une plage horaire.\n- Présence : retenir ou abandonner les envois selon où sont les personnes, par exemple envoyer quand la personne arrive.\n- Repli : livrer ailleurs quand personne n'a pu être prévenu : d'autres canaux, ou d'autres personnes sur les mêmes canaux.\n- Résumé : retenir les messages sur chaque canal, bannière comprise, et envoyer un résumé par destinataire.\n- Remise : envoyer tout de suite les messages correspondants à une audience choisie sur des canaux choisis, en plus de ce que l'appel demandait.\n\nUne politique s'applique automatiquement aux messages dont la gravité et l'étiquette correspondent (une liste vide correspond à tout ; les messages de règles ont l'étiquette \"rule\"), ou manuellement, seulement quand un appel la nomme dans son champ policy.",
           "data": {
             "enabled": "Activée",
             "name": "Nom",
@@ -1096,8 +1160,15 @@
             "from_time": "Calme de",
             "to_time": "Calme jusqu'à",
             "days": "Jours",
+            "quiet_entity": "Ou calme tant que ceci est allumé",
             "action": "Pendant les heures calmes",
             "critical_passes": "Les messages critiques passent",
+            "zone": "Zone",
+            "presence_when": "Push, popup, courriel : quand le destinataire",
+            "household_who": "Voix : quand",
+            "household_audience": "de cette audience est dans la zone",
+            "presence_then": "Ensuite",
+            "after_wait": "À la fin de l'attente",
             "max_wait": "Attendre l'arrivée (minutes)",
             "when": "Utiliser quand",
             "summary_every": "Résumé toutes les (minutes)",
@@ -1123,9 +1194,16 @@
             "from_time": "Heures calmes : début de la plage, dans le fuseau horaire de Home Assistant.",
             "to_time": "Heures calmes : fin de la plage. Une plage peut passer minuit.",
             "days": "Heures calmes : les jours où une plage commence. Vide : tous les jours.",
+            "quiet_entity": "Heures calmes : au lieu des heures, calme tant que ce planning, cet interrupteur d'entrée ou ce capteur binaire est allumé. Les messages retenus partent quand il s'éteint. Une entité absente ou indisponible n'est pas calme.",
             "action": "Heures calmes : envoyer discrètement (push sans son, pas de voix), retenir jusqu'à la fin ou abandonner l'envoi.",
-            "critical_passes": "Heures calmes : les messages critiques ignorent cette politique.",
-            "max_wait": "Absent : minutes d'attente de l'arrivée de la personne. 0 : tant que le message existe.",
+            "critical_passes": "Heures calmes et Présence : les messages critiques ignorent cette politique.",
+            "zone": "Présence : la zone vérifiée. Maison utilise l'entité de présence d'une personne si son profil de destinataire en nomme une.",
+            "presence_when": "Présence : vérifié pour chaque destinataire du push, du popup et du courriel.",
+            "household_who": "Présence : la voix est vérifiée pour le foyer, personne ou quelqu'un de l'audience ci-dessous.",
+            "household_audience": "Présence : une liste de personnes. Vide : tout le monde.",
+            "presence_then": "Présence : retenir la livraison jusqu'à ce que cela change, ou l'abandonner.",
+            "after_wait": "Présence : ce qui arrive à une livraison retenue quand l'attente maximale est passée.",
+            "max_wait": "Présence : minutes d'attente au plus. 0 : tant que le message existe.",
             "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué.",
             "summary_every": "Résumer : envoie un résumé ce nombre de minutes après le premier message retenu.",
             "summary_at": "Résumer : envoie un résumé chaque jour à cette heure plutôt qu'à intervalle.",
@@ -1136,7 +1214,7 @@
         },
         "reconfigure": {
           "title": "Modifier la politique",
-          "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\". Heures calmes : retenir, envoyer discrètement ou abandonner les envois dans une plage horaire. Absent : envoyer aux personnes qui ne sont pas à la maison à leur arrivée. Repli : livrer ailleurs quand personne n'a pu être notifié : d'autres canaux, ou d'autres personnes sur les mêmes canaux. Résumer : retenir les messages sur tous les canaux, bannière comprise, et envoyer un résumé par destinataire. Livrer : envoyer tout de suite les messages concernés à une audience choisie sur des canaux choisis, en plus de ce que l'appel nomme.",
+          "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\". Heures calmes : retenir, envoyer discrètement ou abandonner les envois dans une plage horaire. Présence : retenir ou abandonner les envois selon où sont les personnes, par exemple envoyer quand la personne arrive. Repli : livrer ailleurs quand personne n'a pu être notifié : d'autres canaux, ou d'autres personnes sur les mêmes canaux. Résumer : retenir les messages sur tous les canaux, bannière comprise, et envoyer un résumé par destinataire. Livrer : envoyer tout de suite les messages concernés à une audience choisie sur des canaux choisis, en plus de ce que l'appel nomme.",
           "data": {
             "name": "Nom",
             "type": "Type",
@@ -1162,8 +1240,15 @@
             "from_time": "Calme de",
             "to_time": "Calme jusqu'à",
             "days": "Jours",
+            "quiet_entity": "Ou calme tant que ceci est allumé",
             "action": "Pendant les heures calmes",
             "critical_passes": "Les messages critiques passent",
+            "zone": "Zone",
+            "presence_when": "Push, popup, courriel : quand le destinataire",
+            "household_who": "Voix : quand",
+            "household_audience": "de cette audience est dans la zone",
+            "presence_then": "Ensuite",
+            "after_wait": "À la fin de l'attente",
             "max_wait": "Attendre l'arrivée (minutes)",
             "when": "Utiliser quand",
             "summary_every": "Résumé toutes les (minutes)",
@@ -1188,9 +1273,16 @@
             "from_time": "Heures calmes : début de la plage, dans le fuseau horaire de Home Assistant.",
             "to_time": "Heures calmes : fin de la plage. Une plage peut passer minuit.",
             "days": "Heures calmes : les jours où une plage commence. Vide : tous les jours.",
+            "quiet_entity": "Heures calmes : au lieu des heures, calme tant que ce planning, cet interrupteur d'entrée ou ce capteur binaire est allumé. Les messages retenus partent quand il s'éteint. Une entité absente ou indisponible n'est pas calme.",
             "action": "Heures calmes : envoyer discrètement (push sans son, pas de voix), retenir jusqu'à la fin ou abandonner l'envoi.",
-            "critical_passes": "Heures calmes : les messages critiques ignorent cette politique.",
-            "max_wait": "Absent : minutes d'attente de l'arrivée de la personne. 0 : tant que le message existe.",
+            "critical_passes": "Heures calmes et Présence : les messages critiques ignorent cette politique.",
+            "zone": "Présence : la zone vérifiée. Maison utilise l'entité de présence d'une personne si son profil de destinataire en nomme une.",
+            "presence_when": "Présence : vérifié pour chaque destinataire du push, du popup et du courriel.",
+            "household_who": "Présence : la voix est vérifiée pour le foyer, personne ou quelqu'un de l'audience ci-dessous.",
+            "household_audience": "Présence : une liste de personnes. Vide : tout le monde.",
+            "presence_then": "Présence : retenir la livraison jusqu'à ce que cela change, ou l'abandonner.",
+            "after_wait": "Présence : ce qui arrive à une livraison retenue quand l'attente maximale est passée.",
+            "max_wait": "Présence : minutes d'attente au plus. 0 : tant que le message existe.",
             "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué.",
             "summary_every": "Résumer : envoie un résumé ce nombre de minutes après le premier message retenu.",
             "summary_at": "Résumer : envoie un résumé chaque jour à cette heure plutôt qu'à intervalle.",
@@ -1218,7 +1310,10 @@
         "channels_from_unknown": "Seule une politique de repli peut utiliser les canaux qui n'ont atteint personne.",
         "targets_from_unknown": "Choisissez d'où viennent les destinataires.",
         "nothing_new": "Prenez soit les canaux, soit les destinataires de l'appel, pas les deux : la politique n'ajouterait rien.",
-        "target_required": "Indiquez les personnes ou les haut-parleurs qui doivent le recevoir."
+        "target_required": "Indiquez les personnes ou les haut-parleurs qui doivent le recevoir.",
+        "quiet_entity_invalid": "Choisissez un planning, un interrupteur d'entrée ou un capteur binaire.",
+        "zone_invalid": "Choisissez une zone.",
+        "choice_invalid": "Choisissez une des options."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."

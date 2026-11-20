@@ -19,7 +19,13 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import slugify
 
-from ..const import DEFAULT_PROFILE_CHANNELS, GROUP_SUBENTRY, PROFILE_CHANNELS, PROFILE_SUBENTRY
+from ..const import (
+    DEFAULT_PROFILE_CHANNELS,
+    GROUP_SUBENTRY,
+    HOME_ZONE,
+    PROFILE_CHANNELS,
+    PROFILE_SUBENTRY,
+)
 
 MOBILE_APP = "mobile_app"
 SPEAKER_DOMAINS = ("media_player", "assist_satellite")
@@ -45,6 +51,9 @@ class StoredProfile:
     channels: tuple[str, ...] = DEFAULT_PROFILE_CHANNELS
     mail_address: str = ""
     enabled: bool = True
+    home_entity: str = ""  # "home" from this on/off entity instead of the person (D-220)
+    # Other zones from an on/off entity each (D-229); a zone not named here uses the person.
+    zone_entities: Mapping[str, str] = field(default_factory=dict)
 
 
 @dataclass(slots=True)
@@ -56,6 +65,12 @@ class Profile:
     customized: bool = False
     mail_address: str = ""
     enabled: bool = True  # off: the person gets nothing on any channel (D-147)
+    home_entity: str = ""  # empty: home is the person state
+    zone_entities: Mapping[str, str] = field(default_factory=dict)  # zone to entity, not Home
+
+    def zone_entity(self, zone: str) -> str:
+        """The entity that says whether the person is in a zone, or "" for the person state."""
+        return self.home_entity if zone == HOME_ZONE else self.zone_entities.get(zone, "")
 
     @property
     def usable(self) -> list[Device]:
@@ -138,6 +153,8 @@ def build_profile(
         customized=stored is not None,
         mail_address=stored.mail_address if stored else "",
         enabled=stored.enabled if stored else True,
+        home_entity=stored.home_entity if stored else "",
+        zone_entities=dict(stored.zone_entities) if stored else {},
     )
 
 
@@ -156,6 +173,12 @@ def parse_profile(subentry: ConfigSubentry) -> StoredProfile | None:
         channels=channels,
         mail_address=str(data.get("mail_address") or "").strip(),
         enabled=bool(data.get("enabled", True)),
+        home_entity=str(data.get("home_entity") or ""),
+        zone_entities={
+            str(zone): str(entity)
+            for zone, entity in (data.get("zone_entities") or {}).items()
+            if entity and zone != HOME_ZONE
+        },
     )
 
 

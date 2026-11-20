@@ -103,6 +103,11 @@ class RecentMessages:
         self._items[message_id] = {**known, **info, "ended": None, "reason": None}
         self._trim()
 
+    def audiences(self, message_id: str, keys: list[str]) -> None:
+        """The audiences a message was sent to, for the Message Log filter (D-227)."""
+        if (item := self._items.get(message_id)) is not None:
+            item["audiences"] = list(dict.fromkeys([*item.get("audiences", []), *keys]))
+
     def ended(self, message_id: str, when: str, reason: str | None) -> None:
         if (item := self._items.get(message_id)) is not None:
             item["ended"], item["reason"] = when, reason

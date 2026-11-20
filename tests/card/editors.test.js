@@ -12,6 +12,8 @@ import {
   channelState,
   PROFILE_CHANNELS,
   groupData,
+  haInZone,
+  homeEntities,
   isDefault,
   profileValues,
   removeDevice,
@@ -19,6 +21,7 @@ import {
   STRINGS as RECIPIENT_STRINGS,
   toProfileData,
   validateGroup,
+  zoneOrder,
 } from "../../custom_components/heads_up/frontend/panel/recipients.js";
 import {
   appliesText,
@@ -130,7 +133,8 @@ describe("recipient editor", () => {
   };
 
   it("starts from what the profile changes", () => {
-    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "", enabled: true });
+    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "", home_entity: "", zone_entities: {}, enabled: true });
+    expect(profileValues({ ...profile, home_entity: "binary_sensor.anna_home" }).home_entity).toBe("binary_sensor.anna_home");
   });
 
   it("needs no stored profile when nothing differs from the detected devices", () => {
@@ -140,6 +144,33 @@ describe("recipient editor", () => {
     expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push"] })).toBe(false);
     expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup", "mail"] })).toBe(false);
     expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "a@b.c" })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], home_entity: "input_boolean.x" })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], zone_entities: { "zone.work": "" } })).toBe(true);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], zone_entities: { "zone.work": "binary_sensor.w" } })).toBe(false);
+  });
+
+  it("stores only the zones that have an entity", () => {
+    const values = { manual: [], removed: [], primary: "", channels: ["push"], home_entity: "input_boolean.h", zone_entities: { "zone.work": "binary_sensor.w", "zone.gym": "" } };
+    expect(toProfileData("person.anna", values, false)).toEqual({ channels: ["push"], home_entity: "input_boolean.h", zone_entities: { "zone.work": "binary_sensor.w" } });
+  });
+
+  it("offers on/off entities for a zone, without Heads Up's own audience sensors", () => {
+    const hass = {
+      states: { "input_boolean.b": {}, "binary_sensor.a": {}, "binary_sensor.heads_up_audience_admins": {}, "sensor.t": {} },
+      entities: { "binary_sensor.heads_up_audience_admins": { platform: "heads_up" } },
+    };
+    expect(homeEntities(hass, "")).toEqual(["binary_sensor.a", "input_boolean.b"]);
+    expect(homeEntities(hass, "binary_sensor.gone")).toEqual(["binary_sensor.a", "input_boolean.b", "binary_sensor.gone"]);
+  });
+
+  it("reads Home Assistant's zone of a person as the integration does", () => {
+    expect(haInZone({ state: "home", attributes: {} }, "zone.home")).toBe(true);
+    expect(haInZone({ state: "not_home", attributes: {} }, "zone.home")).toBe(false);
+    expect(haInZone({ state: "not_home", attributes: { in_zones: ["zone.work"] } }, "zone.work")).toBe(true);
+    expect(haInZone({ state: "work", attributes: {} }, "zone.work")).toBe(true);
+    expect(haInZone({ state: "unavailable", attributes: {} }, "zone.work")).toBe(null);
+    expect(haInZone(undefined, "zone.home")).toBe(null);
+    expect(zoneOrder([{ id: "zone.work", name: "Work" }, { id: "zone.home", name: "Home" }, { id: "zone.gym", name: "Gym" }]).map((z) => z.id)).toEqual(["zone.home", "zone.gym", "zone.work"]);
   });
 
   it("builds the flow data, with the person only when creating", () => {
@@ -204,9 +235,15 @@ describe("policy editor", () => {
 
   it("sends the fields of each other type", () => {
     expect(policyData({ ...blankPolicy("reminder"), name: "Nag", channels: [] })).toMatchObject({ every_minutes: 30, max_count: 3, channels: [] });
-    expect(policyData({ ...blankPolicy("away"), name: "Back" })).toMatchObject({ max_wait: 0, critical_passes: true });
+    expect(policyData({ ...blankPolicy("presence"), name: "Back" })).toMatchObject({ max_wait: 0, critical_passes: true });
     expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).toMatchObject({ from_time: "22:00:00", to_time: "07:00:00", days: [], action: "quiet", critical_passes: true });
-    expect(policyData({ ...blankPolicy("away"), name: "Back", max_wait: 0 })).toMatchObject({ max_wait: 0 });
+    expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).not.toHaveProperty("quiet_entity");
+    expect(policyData({ ...blankPolicy("quiet_hours"), name: "Nap", quiet_entity: "input_boolean.nap" }).quiet_entity).toBe("input_boolean.nap");
+    expect(fromPolicy({ name: "Nap", data: { type: "quiet_hours", quiet_entity: "input_boolean.nap" } }).quiet_entity).toBe("input_boolean.nap");
+    expect(policyData({ ...blankPolicy("presence"), name: "Back", max_wait: 0 })).toMatchObject({ max_wait: 0, after_wait: "send" });
+    expect(policyData({ ...blankPolicy("presence"), name: "Back" })).not.toHaveProperty("zone");
+    expect(policyData({ ...blankPolicy("presence"), name: "Say", channels: ["speak"], household_who: "somebody" })).toMatchObject({ channels: ["speak"], household_who: "somebody" });
+    expect(fromPolicy({ name: "Old", data: { type: "away", max_wait: 30 } })).toMatchObject({ type: "presence", after_wait: "drop", max_wait: 30 });
     expect(policyData({ ...blankPolicy("fallback"), name: "Backup", channels: ["speak"], speak_recipients: ["media_player.k"] })).toMatchObject({ when: "no_audience", channels: ["speak"], speak_recipients: ["media_player.k"] });
     expect(policyData({ ...blankPolicy("deliver"), name: "Crit", severities: ["critical"], channels: ["push"], push_audience: "Admins" })).toEqual({
       name: "Crit", type: "deliver", apply: "auto", severities: ["critical"], tags: [], enabled: true, channels: ["push"], push_audience: "Admins",
@@ -230,15 +267,17 @@ describe("policy editor", () => {
     expect(validatePolicy({ ...base, name: "X", channels: ["persistent"] }, [])).toEqual({});
     expect(validatePolicy({ ...blankPolicy("reminder"), name: "R", every_minutes: 0, max_count: 0 }, [])).toEqual({ every_minutes: "every_required", max_count: "max_required" });
     expect(validatePolicy({ ...blankPolicy("quiet_hours"), name: "Q", from_time: "08:00:00", to_time: "08:00:00" }, [])).toEqual({ to_time: "window_empty" });
+    expect(validatePolicy({ ...blankPolicy("quiet_hours"), name: "Q", quiet_entity: "schedule.night", from_time: "08:00:00", to_time: "08:00:00" }, [])).toEqual({});
+    expect(validatePolicy({ ...blankPolicy("quiet_hours"), name: "Q", quiet_entity: "sensor.t" }, [])).toEqual({ quiet_entity: "quiet_entity_invalid" });
     expect(validatePolicy({ ...blankPolicy("summarize"), name: "S", summary_every: 0 }, [])).toEqual({ summary_every: "every_required" });
     expect(validatePolicy({ ...blankPolicy("summarize"), name: "S", summary_mode: "at", summary_at: "" }, [])).toEqual({ summary_at: "time_invalid" });
     expect(validatePolicy({ ...blankPolicy("fallback"), name: "F", channels: [] }, [])).toEqual({ channels: "channels_required" });
     expect(validatePolicy({ ...blankPolicy("deliver"), name: "D", channels: [] }, [])).toEqual({ channels: "channels_required" });
     expect(validatePolicy({ ...blankPolicy("deliver"), name: "D", channels: ["push"] }, [])).toEqual({ push_target: "target_exclusive" });
     expect(validatePolicy({ ...blankPolicy("deliver"), name: "D", channels: ["push"], push_audience: "Admins" }, [])).toEqual({});
-    expect(validatePolicy({ ...blankPolicy("away"), name: "A", max_wait: -1 }, [])).toEqual({ max_wait: "wait_invalid" });
-    expect(validatePolicy({ ...blankPolicy("away"), name: "water" }, ["Water"], "Water")).toEqual({});
-    expect(validatePolicy({ ...blankPolicy("away"), name: "water" }, ["Water"])).toEqual({ name: "name_exists" });
+    expect(validatePolicy({ ...blankPolicy("presence"), name: "A", max_wait: -1 }, [])).toEqual({ max_wait: "wait_invalid" });
+    expect(validatePolicy({ ...blankPolicy("presence"), name: "water" }, ["Water"], "Water")).toEqual({});
+    expect(validatePolicy({ ...blankPolicy("presence"), name: "water" }, ["Water"])).toEqual({ name: "name_exists" });
   });
 
   it("reads a stored policy back into the form", () => {
@@ -253,15 +292,17 @@ describe("policy editor", () => {
 
   it("describes a policy in plain words", () => {
     const t = POLICY_STRINGS.en;
-    expect(appliesText(blankPolicy("away"), t)).toBe("Every message");
-    expect(appliesText({ ...blankPolicy("away"), severities: ["critical", "warning"], tags: "water" }, t)).toBe("Messages with severity Critical, Warning and tag water");
-    expect(appliesText({ ...blankPolicy("away"), tags: "smoke_never" }, t)).toBe("Messages with tag smoke_never");
-    expect(appliesText({ ...blankPolicy("away"), severities: ["info"] }, t)).toBe("Messages with severity Info");
+    expect(appliesText(blankPolicy("presence"), t)).toBe("Every message");
+    expect(appliesText({ ...blankPolicy("presence"), severities: ["critical", "warning"], tags: "water" }, t)).toBe("Messages with severity Critical, Warning and tag water");
+    expect(appliesText({ ...blankPolicy("presence"), tags: "smoke_never" }, t)).toBe("Messages with tag smoke_never");
+    expect(appliesText({ ...blankPolicy("presence"), severities: ["info"] }, t)).toBe("Messages with severity Info");
     expect(sentence(water, t)).toBe("Messages with severity Critical and tag water: if nobody acknowledges within 5 min, it is also sent on Push, Persistent Notification.");
     expect(sentence({ ...blankPolicy("quiet_hours"), days: ["sat", "sun"] }, t)).toBe("Every message: between 22:00 and 07:00 on Saturday, Sunday, deliveries outside the dashboard are sent quietly, critical messages pass.");
+    expect(sentence({ ...blankPolicy("quiet_hours"), quiet_entity: "schedule.night", action: "wait" }, t)).toBe("Every message: while schedule.night is on, deliveries outside the dashboard are held until the end, critical messages pass.");
     expect(sentence({ ...blankPolicy("reminder"), channels: ["push"] }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times, only on Push.");
-    expect(sentence({ ...blankPolicy("away"), max_wait: 30 }, t)).toBe("Every message: a person who is not home gets it when they arrive, for at most 30 min, critical messages pass.");
-    expect(sentence({ ...blankPolicy("away"), critical_passes: false }, t)).toBe("Every message: a person who is not home gets it when they arrive.");
+    expect(sentence({ ...blankPolicy("presence"), max_wait: 30 }, t)).toBe("Every message: a recipient who is not in Home: push, popup and mail are held until that changes, for at most 30 min, then sent anyway, critical messages pass.");
+    expect(sentence({ ...blankPolicy("presence"), channels: ["speak"], presence_then: "drop", critical_passes: false }, t)).toBe("Every message: speech while nobody of everyone is in Home is dropped.");
+    expect(sentence({ ...blankPolicy("presence"), critical_passes: false }, t)).toBe("Every message: a recipient who is not in Home: push, popup and mail are held until that changes.");
     expect(sentence({ ...blankPolicy("fallback"), when: "both", channels: ["persistent"] }, t)).toBe("Every message: if the audience is empty or delivery fails, it is sent on Persistent Notification instead.");
     expect(sentence({ ...blankPolicy("deliver"), severities: ["critical"], channels: ["push"] }, t)).toBe("Messages with severity Critical: it is also sent at once on Push.");
     expect(sentence({ ...blankPolicy("summarize"), include_critical: true }, t)).toBe("Every message: held, and one summary is sent 60 min after the first held message, critical messages included.");
@@ -436,7 +477,7 @@ describe("the policy list order and the overlap note", () => {
   it("says two policies overlap when some message can match both, an empty list matching any", () => {
     expect(overlaps({ severities: [], tags: [] }, { severities: ["critical"], tags: ["water"] })).toBe(true);
     expect(overlaps({ severities: ["info"], tags: [] }, { severities: ["critical"], tags: [] })).toBe(false);
-    expect(overlaps({ severities: ["info"], tags: ["digest"] }, { severities: ["info", "success"], tags: [] })).toBe(true);
+    expect(overlaps({ severities: ["info"], tags: ["digest"] }, { severities: ["info", "passive"], tags: [] })).toBe(true);
     expect(overlaps({ severities: ["info"], tags: ["digest"] }, { severities: ["info"], tags: ["door"] })).toBe(false);
   });
 
@@ -530,7 +571,7 @@ describe("recipients list channel states", () => {
 
   it("has the words for every warning in all four languages", () => {
     for (const lang of ["en", "de", "fr", "es"]) {
-      for (const key of ["ch_warn_device", "ch_warn_user", "ch_warn_address", "ch_none", "ch_on", "ch_off", "person"]) {
+      for (const key of ["ch_warn_device", "ch_warn_user", "ch_warn_address", "ch_on", "ch_off", "person", "col_group", "col_call", "col_speakers"]) {
         expect(RECIPIENT_STRINGS[lang][key], `${lang}.${key}`).toBeTruthy();
       }
       expect(RECIPIENT_STRINGS[lang].customized).toBeUndefined();

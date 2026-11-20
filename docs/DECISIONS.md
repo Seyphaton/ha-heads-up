@@ -1301,6 +1301,107 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Parity (rule 9): speech exists only for actions and policies, so there is no watch-rule counterpart.
 - Blast radius: new optional field in two action schemas, `services.yaml`, `strings.json` and four translations, Test send; no restart beyond the usual.
 
+## D-207 1.1.0 on its own branch; scope of the first design session (2026-11-17)
+- Context: 1.0.0 is released from `main`. The maintainer wants the next feature release on a dedicated branch so `main` stays open for 1.0.x fixes.
+- Decision (maintainer): 1.1.0 is built on `release/1.1`, cut from `main` at `c5af204`. 1.0.x fixes go to `main` and are merged into `release/1.1`. Scope chosen for 1.1.0: speech that fits the house (presence, volume by time of day, volume restore), policy "only if" conditions, snooze polish, and step 1 of custom severities (display, custom severities mapped to a base level, page in Configuration). The first design session covers policies and speech; severity naming in YAML and the action form is the first item of a later severity session.
+- Not chosen now: persistent message log, notification presets, per-channel targets, conditions on several entities, popup area recipients.
+
+## D-208 Speech volume by time of day and severity; restore (2026-11-17, design)
+- Decision (maintainer): Speech settings get a short list of time bands (from, to, volume) and an optional volume per severity. Precedence: the call's `volume`, then the severity volume, then the band, else no change (as today).
+- Restore (maintainer): a player without announce gets its earlier `volume_level` back when playback ends. A player with announce gets the volume as the clip volume through `media_player.play_media` with `announce: true` and `extra: {volume}` (Sonos honours it, N-104, N-105) instead of a change of the main volume. Any other announce player is set and restored after an estimated speech length.
+- Supersedes for these cases: "nothing is restored" of D-091 and D-206.
+- Open: how the clip-volume path is chosen per player (integration platform of the entity), the estimate formula, and a check on a real Sonos device.
+
+## D-209 Guests through "only if", not a field of the presence rule (2026-11-17, design)
+- Decision (maintainer): who counts as home for the speech rule is an audience. Guests are handled with an "only if" condition on the policy (for example guest mode off), so the policy steps aside; no extra entity field. Depends on the "only if" design (reopens D-099).
+
+## D-210 Policy modes get their own design session (2026-11-17)
+- Context: under "only the first" (D-148) a hold-back policy (Summarize, Quiet hours, Away or Presence) competes with an adding policy (Deliver, Escalation, Reminder, Fallback) for the one slot of a message. Proposed: hold-back policies always run as stages; "only the first" chooses among adding policies.
+- Decision (maintainer): not decided here; a separate design session on how to improve the modes. Listed in `docs/OPEN_QUESTIONS.md`.
+
+## D-211 "Critical messages pass" belongs to Which messages (2026-11-17, design)
+- Decision (maintainer): on every policy that holds back (Quiet hours, Presence, Summarize) the switch "Critical messages pass" sits in the Which messages block next to the severities, not under What it does. It is hidden when the chosen severities exclude critical.
+- Proposed with it, not yet confirmed: Summarize's `include_critical` (default false) is shown as the same switch with the opposite meaning, so all three read alike; the stored field stays.
+- Applies to the 1.1.0 panel build; the mockup `docs/dev/mockups/presence-policy-mockup.html` shows it.
+
+## D-212 Away becomes Presence (2026-11-17, design, approved by the maintainer)
+- Context: the maintainer asked for presence by zone instead of only Away, with hold until in, hold until leave, drop when in and drop when out; reviewed and shown in `docs/dev/mockups/presence-policy-mockup.html`.
+- Decision (maintainer, "adopt it"): the policy type Presence replaces Away.
+  - Fields: channels it covers (push, popup, mail, speak; default push, popup, mail); one zone (default Home); for push, popup and mail "the recipient is in / is not in the zone", checked per recipient; for speech "nobody of / somebody of <audience> is in the zone"; then hold until that changes, or drop; for hold a maximum wait (0: while the message lives) and what happens when it ends (send anyway, default, or drop); critical messages pass (D-211); only if (D-209).
+  - A change of presence counts after the presence delay (option `presence_debounce_seconds`). Unknown presence delivers at once. The banner channel is never held.
+  - The form warns about unusual combinations (speech held while somebody is home, speech on a zone other than Home, critical messages that can be dropped).
+  - Stored Away policies convert to Presence (push, popup, mail; recipient not in Home; hold; same maximum wait and critical setting). Type key `presence`; `away` is still read and converted on load.
+  - Summarize shows `include_critical` as "Critical messages pass" with the opposite meaning (D-211); the stored field stays.
+- Open: precedence of Presence against the other policies under "only the first" (D-210).
+
+## D-213 1.1.0 migrates every 1.0 setup without a breaking change (2026-11-17, maintainer)
+- Decision (maintainer, "make sure for existing users everything is migrated without breaking changes"): rule for the whole 1.1.0 release.
+  - Every new field, option and policy setting defaults to the 1.0 behaviour: no time bands means no volume change; no "only if" means the policy always applies; a converted Away policy behaves as before.
+  - Every call, watch rule and stored message that works on 1.0.0 works unchanged on 1.1.0, including the old spellings (`type: away` in YAML pasted into the panel, hold kind `away` in stored deliveries).
+  - Stored data is converted once, atomically, with a backup first, through the existing machinery (`hub/migration.py`, D-200).
+  - Tests load a 1.0.0 config entry and 1.0.0 stores (fixtures taken from a 1.0.0 dev instance) and check that policies, held deliveries, timers and switches behave as before.
+  - Each intended behaviour change is listed in `CHANGELOG.md` under "Before you upgrade" with how to get the 1.0 behaviour back.
+
+## D-214 Away is converted to the type key `presence` (2026-11-17, maintainer)
+- Options: keep the stored key `away` with only the display name changed (no migration, downgrade-safe), or convert to `presence`.
+- Decision (maintainer): convert. The config entry goes to version 2, minor version 2: every policy subentry with `type: away` gets `type: presence` and the 1.0 defaults of D-212 (channels push, popup, mail; zone Home; recipient not in; then hold; maximum wait kept; after the wait send; critical passes kept). Held deliveries with hold kind `away` become `presence` when the deliveries store loads (its minor version is raised). `away` stays accepted on read everywhere (subentry data, stores, the policy flow, pasted YAML).
+- Visible change: the policy switch attribute `type` reads `presence`; listed in the CHANGELOG.
+- Downgrade: Home Assistant accepts a higher minor version (N-98), so 1.0.0 would load the entry and ignore a policy of type `presence`. A downgrade therefore needs the backup: `scripts/restore_identity_backup.py` is extended (or a sibling script added) and the upgrade notes say so.
+- Supersedes the "Type key" line of D-212.
+
+## D-215 Volume restore is on by default (2026-11-17, maintainer)
+- Decision (maintainer): restore (D-208) is on for every installation. A setting "Restore volume after speech" turns it off and gives the 1.0 behaviour. The CHANGELOG lists it under "Before you upgrade": calls with `volume` no longer leave the speaker at that volume, and Sonos keeps its music volume.
+
+## D-216 "Only if" on policies: shape, timing, unknown values (2026-11-17, design, maintainer)
+- Reopens D-099.
+- Shape (maintainer): the same condition as the `condition` of `notify`: one entity with operator, value, optional attribute and "for at least", or a template; same editor and code (`conditions.py`). Several entities through a template.
+- Timing (maintainer): checked whenever the policy would act (each delivery through a hold-back stage, each escalation or reminder firing). A held delivery is released when the condition of the policy that holds it turns false. A false check skips that firing only.
+- Unknown or unavailable (maintainer): whatever delivers more. A hold-back policy steps aside, an adding policy still acts; a trace line gives the reason.
+- Open: how a false condition meets "only the first policy runs". The maintainer found that a condition checked at every step makes the choice of policy change during a message's life (two reminders, 15 min only if X and 1 h). Analysis and proposal ("one policy per type, chosen at every step") in `.private/only-if-and-modes-analysis-2026-11-17.md`; this merges the modes session of D-210 into this one.
+
+## D-217 Speech volume details (2026-11-18, design, maintainer)
+- Bands (maintainer): Speech settings hold up to 4 time bands, each from, to and volume in percent. Outside every band the volume is not changed. Overlapping bands are refused when saving. Bands apply to all speech: calls, escalations, reminders and summaries. Precedence stays as in D-208 (call, severity, band).
+- Clip volume (maintainer): chosen by the entity's integration in the entity registry. `sonos` takes the volume as clip volume (`play_media` with `announce: true` and `extra: {volume}`, N-104, N-105); every other player is set and restored. The list grows only when another integration is verified in source.
+- Announce players other than Sonos (maintainer): restored after an estimate from the text length, about 15 characters per second plus 2 seconds, at least 4 and at most 60 seconds.
+- Proposed with it (design, not asked): restore is skipped when the player's volume differs from the value the hub set (someone changed it meanwhile); with several messages queued on one speaker, the volume is restored once after the last one (the speaker lock exists).
+- Per-speaker volume (maintainer): no, D-206 stays.
+- Not verified: the entity registry `platform` field as the integration name (to check in source at build time).
+
+## D-218 Quiet hours from a schedule helper (2026-11-18, design, maintainer)
+- Decision (maintainer): a Quiet hours policy chooses its window source: own times (from, to, days; the default and the 1.0 behaviour) or a `schedule` entity. With a schedule, quiet hours are in effect while the schedule is `on`, and a held delivery is released at its `next_event` (N-103) or when the state turns `off`, whichever comes first.
+- A missing or unavailable schedule counts as outside quiet hours (the message is delivered, as unknown values deliver more, D-216) and shows a warning on the Overview.
+- Migration (D-213): stored Quiet hours policies keep own times; nothing converts.
+
+## D-219 Snooze: a viewer may choose the duration when the producer allows it (2026-11-18, design, maintainer)
+- Decision (maintainer): new field `snooze_custom` (default off) on `notify`, `create_banner` and watch rules (rule 9). When on, the card's snooze row adds "Other…" with a number of minutes or "until" a time of day. The backend accepts any duration up to the message's remaining lifetime and at most 24 hours; without `snooze_custom` it keeps refusing durations outside `snooze_options` (D-069).
+- Migration (D-213): existing messages and rules have `snooze_custom` off; nothing changes.
+- Not in 1.1.0 (maintainer): snooze and unsnooze as actions for automations.
+
+## D-220 Quiet hours from any on/off entity; home from an entity per person (2026-11-18, design, maintainer)
+- Quiet hours (maintainer): widens D-218. The window source is own times (default) or any on/off entity: `schedule`, `input_boolean`, `binary_sensor` (including template binary sensors). `on` means quiet. A held delivery is released when the entity turns off, or at a schedule's `next_event` if that comes first. Missing or unavailable counts as not quiet (delivers) with an Overview warning.
+- Presence source (maintainer): per person on the Recipients page: "Home from" the person state (default) or an entity (`on` means home), for presence derived from a more complex rule. It is used wherever "home" is evaluated: the Presence policy (zone Home), the audiences At home, Not home, Last to leave and First home, and speech "somebody of an audience is home". Other zones keep using the person state. Unknown or unavailable counts as unknown presence (delivers, D-080).
+- Not chosen: a single entity on the Presence policy, because it cannot say which recipient is home and would duplicate Quiet hours with an entity and "only if".
+- Migration (D-213): every person keeps the person state as the source; nothing converts.
+- Note for the policy redesign session: Quiet hours with an entity, "only if" and Presence now overlap for household-level conditions.
+
+## D-221 A snooze that runs out fires heads_up_banner_unsnoozed (2026-11-18, design, maintainer)
+- Decision (maintainer): `heads_up_banner_unsnoozed` also fires when a snooze ends by itself, and gets a field `reason`: `ended` (the time is over) or `user` (ended in the card, D-074).
+- Behaviour change (D-213): an automation that listens to the event now also runs when a snooze runs out. CHANGELOG, "Before you upgrade": add a condition on `reason: user` for the 1.0 behaviour.
+- After a restart, a snooze that ended while Home Assistant was down fires once at start with `reason: ended` (the manager already drops ended snoozes there).
+
+## D-222 Severities: the four stay; their settings move to Configuration (2026-11-18, design, maintainer)
+- Decision (maintainer): no custom severities in 1.1.0; `success`, `info`, `warning` and `critical` stay the only keys in YAML, calls, rules and policies. Custom severities may come later.
+- A Severities page under Configuration holds, per level: a display label that overrides the translated name (one text for every language; empty means the translation), the color, and what the level implies on the channels (today's per-severity channel settings: push level loud, quiet, time-sensitive or critical alert, lock-screen privacy, sticky, Android channel, buttons, popup style).
+- Colors (maintainer: "Configuration only"): the card no longer offers its own `colors` option in the editor. To stay without a breaking change (D-213), a card that already has `colors` in its configuration keeps using them; the docs mark the option as replaced by the Severities page.
+- Open: whether the icon per level is also configurable; where the label shows (card, panel, popup, push, Message Log).
+- Supersedes the custom-severity parts of D-207 (step 1: custom severities mapped to a base level).
+
+## D-223 Severity icon and where the label shows (2026-11-18, design, maintainer)
+- Icon (maintainer): configurable per level on the Severities page, next to label and color; the default is today's icon. Used wherever a message has no `icon` of its own: card, popup, panel lists. Icon shape and the screen-reader label keep severity from being shown by color alone; the same icon on two levels gets a warning, not a block.
+- Label (maintainer): an overridden label shows wherever users read the severity: the card (screen-reader label, and visible with `show_severity`), the popup, the mail placeholder `{severity}`, and every panel place (lists, Message Log, Test send, policy form). YAML, events, entity attributes and the action form keep the keys (`success`, `info`, `warning`, `critical`), so automations do not change.
+- Migration (D-213): no label or icon is set after the update, so everything looks as in 1.0.
+- Closes the open item of D-222.
+
 ## D-224 Policy redesign AB for 2.0.0 on its own branch (2026-11-18, design, maintainer)
 - Context: policy redesign session of 2026-11-18 (`docs/dev/policy-redesign/`, comparison in `02-comparison.md`, reviewer scores in `03-reviewer-scores.md`). Four designs: AB (two lanes and one band), C (plans and house rules), D (message types), E (keep the list). Closes the open items of D-210 and the "only the first" part of D-216.
 - Decision (maintainer, "A-B is the way to go"): design AB (`design-ab-v2.md`, mockup `docs/dev/mockups/policy-redesign-a.html`).
@@ -1316,6 +1417,73 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - "Only if" (D-216) moves to 2.0.0 with AB (maintainer); 1.1.0 ships without it. Guests through "only if" (D-209) follow it to 2.0.0.
 - Not chosen: C (strength per plan, scenario 1 needs new merge logic), D (one type per message, shared behaviour copied per type, highest migration risk), E (keep the list, strength spread over the holds); the conversion that keeps the old modes until the user switches.
 - Open: the 2.0 section in `docs/DESIGN.md`; AB's migration error named in `03-reviewer-scores.md` (links after the rewrite) is fixed by the rule above; translations of "Always gets through" and the lane names in four languages.
+
+## D-225 1.1.0 build: choices made while building (2026-11-19)
+- Context: the 1.1.0 features of DESIGN §24 were built on `release/1.1` (Phase 16 build, approved by the maintainer: "start implementation"). These choices were made during the build, without a separate question, and are recorded here; each is also in §24.
+- Presence conversion: 1.0 Away dropped a held delivery when its maximum wait ended (`max_wait_exceeded`); the design assumed it sent it. Converted policies therefore get `after_wait: drop`, new Presence policies default to `send`. A stored `away` is read as Presence with the same default.
+- Hold kind: held deliveries keep the stored hold kind `away`; D-214 planned to convert it to `presence`. It is internal, and keeping it leaves the deliveries store unchanged. Supersedes that line of D-214.
+- Release after the presence delay: a delivery held by Presence goes through the chain again `presence_debounce_seconds` after a presence change (60 s), not at once as 1.0 Away did. Listed under "Before you upgrade"; the delay 0 gives the old timing. A delivery held again keeps its first deadline.
+- Presence scope, as in 1.0 Away: push, popup and mail are held only for audience targets; the household audience of speech is a persons audience or everyone.
+- Migration test data: the 1.0.0 setup was captured by running the 1.0.0 code in a test (`tests/fixtures/setup_1_0_0.json`, capture script beside it) instead of from a dev instance. It holds every policy type and a push held by Away.
+- Downgrade: `scripts/restore_presence_backup.py` puts the policies of `.storage/heads_up.migration_v2_2` back and sets the entry's minor version to 1.
+- Quiet hours from an entity: a schedule whose `next_event` lies in the past waits for `off` instead of releasing at once (it would release and hold again in a loop).
+- Home from an entity: `binary_sensor` and `input_boolean` only; a schedule is not offered.
+- Severities: `severity_display` is saved through `heads_up/channels_set` (same command as push levels and popup styles) and read by the panel through `heads_up/severity_display`. The Channels page links to the Severities page instead of showing the per-severity rows.
+- Stored banners: `snooze_custom` is written only when true, and `Banner.from_dict` ignores keys it does not know, so a downgrade keeps banners of a later version.
+- Verified on the dev instance (2026-11-19): the conversion at start, `make dev-smoke`, `make hassfest`, and in the browser pane the Severities page (label and color on Test send and on a card), a volume band saved from Settings, the Presence editor and the Home from field. Not verified on real phones or speakers.
+
+## D-226 Pre-release 1.1.0-beta.1 (2026-11-19)
+- Context: 1.1.0 is built on `release/1.1` (D-225); real-device checks are open.
+- Decision (maintainer, explicit): push `release/1.1`, set the manifest version to `1.1.0-beta.1`, tag `v1.1.0-beta.1` and push the tag. `CHANGELOG.md` keeps `[Unreleased]` (only releases are listed). The GitHub pre-release, not marked as the latest release, is created by the maintainer. No merge to `main`.
+- Blast radius: the manifest version is `1.1.0-beta.1`; HACS offers it only to users who show beta versions. Updating converts Away policies (D-214, backup `.storage/heads_up.migration_v2_2`); restart needed.
+
+## D-227 Audience usage and the compact Configuration pages (2026-11-19, maintainer)
+- Context: the Audiences page crammed members, policies and the sensor into three lines per row; there was no overview of how often an audience is used. The Channels page was a long form like the old Severities page.
+- Decision (maintainer): per audience a count and the last-used time, stored in `.storage/heads_up.audience_usage` so they survive a restart. A message counts once per audience, from a call target or a policy target (escalation, reminder, deliver, fallback), however often it is sent again; the newest 50 message ids per audience tell a repeat from a new message. The Message Log records the audiences each message went to and can be opened filtered by one (`/heads-up/messages?audience=<key>`); it stays memory only (D-118), so it can list fewer messages than the count.
+- Decision (maintainer): Configuration pages in the order Channels, Audiences, Recipients, Policies, Severities. Severities, Audiences and Channels share one table layout (`ui.TABLE_CSS`, `tableRow`): a header and one row per item on a wide page, two lines per row on a phone, the item's fields or details open under its row.
+- Follow-up: when the Message Log is stored (Phase 13 candidate), derive the usage from it or keep both consistent (maintainer note).
+- Blast radius: one new storage file; a downgrade to 1.0 ignores it. The panel shows other pages first in Configuration. No change to calls, events or entities.
+
+## D-228 Pre-release 1.1.0-beta.2 (2026-11-19)
+- Context: `v1.1.0-beta.1` (D-226) was tagged and pushed before the Configuration page redesign (D-227). Moving a pushed tag would give users who installed beta.1 different code under the same version.
+- Decision (maintainer, explicit): a new pre-release instead of moving the tag. Push `release/1.1`, set the manifest version to `1.1.0-beta.2`, tag `v1.1.0-beta.2` and push the tag. beta.1 stays as it is. `CHANGELOG.md` keeps `[Unreleased]`. The GitHub pre-release, not marked as the latest release, is created by the maintainer. No merge to `main`.
+- In beta.2 beyond beta.1: the Severities, Channels and Audiences pages as compact tables; Channels rows for banner, popup and Persistent Notification; audience usage count with a Message Log filter (`.storage/heads_up.audience_usage`); People and devices moved from Settings to the Recipients table; spoken language as a list from the TTS engine.
+- Blast radius: the manifest version is `1.1.0-beta.2`; HACS offers it only to users who show beta versions; restart needed. From 1.0.x, updating converts Away policies as in beta.1 (D-214).
+
+## D-229 Per-zone location entities on the recipient profile (2026-11-19, maintainer)
+- Context: D-220 let a profile take "home" from an on/off entity; every other zone kept the person state. The maintainer asked to override individual zones, with the default (Home Assistant's location) staying clear without any override.
+- Decision (maintainer): per person and per zone an optional input boolean or binary sensor; `on` means in the zone. Home stays stored as `home_entity` (1.1.0-beta.1 reads it); other zones as `zone_entities` (zone entity ID to entity), written only when set. A zone without an entity uses Home Assistant's location: Home the person state `home`, another zone `in_zones` or the state's name.
+- The override counts everywhere a zone is read: audiences by zone (now also Home with `home_entity`), At home, Not home, Last to leave, First home, the Presence policy and the release of held deliveries. An override entity's change triggers the release after the presence delay and refreshes the audience sensors. Last to leave and First home follow Home only.
+- Panel: the person editor on Recipients has "Where this person is": one row per zone, Home first, the default option names Home Assistant's location with what it says now. Home Assistant's own form keeps "Home from" and adds "Other zones from" (object selector, `zone.work: binary_sensor.x`).
+- A renamed zone or entity is rewritten in `zone_entities`, keys included.
+- Blast radius: restart needed; audiences by the zone Home now follow a person's home entity (was the person state, D-220); no change without an override. A downgrade to 1.0 ignores both fields.
+
+## D-230 Default push levels for new setups (2026-11-19, maintainer)
+- Context: the defaults were success and info `passive`, warning `normal`, critical `time-sensitive`; critical as an alarm was an opt-in (D-155), set by the introduction's Critical messages item.
+- Decision (maintainer): new setups default to critical `critical`, warning `time-sensitive`, info `normal`, success `passive` (`DEFAULT_PUSH_LEVELS`). Supersedes the opt-in part of D-155 for new setups.
+- Existing setups keep their levels (D-213, maintainer: "new setups only"): config entry minor version 2.3 writes the old defaults (`PUSH_LEVELS_1_0`), with any saved levels on top, into the options at the upgrade. New entries are created at 2.3 and store no levels until the user saves them.
+- Blast radius: restart needed; no change for existing setups; on a new setup critical pushes sound in silent mode and info pushes make a sound. The introduction's Critical messages item still sets critical (no-op unless changed).
+- Follow-up: `success` became `passive` (D-231).
+
+## D-231 1.1.0 becomes part of 2.0.0; the severity success is called passive (2026-11-19, maintainer)
+- Context: D-230 left open the maintainer's choice to rename the severity `success` to `passive`. The rename changes what events and attributes report, which D-213 rules out for 1.1.0.
+- Decision (maintainer): "1.1.0 will not be released to the public - it will be part of 2.0.0", so breaking changes on `release/1.1` are allowed and D-213 no longer binds this branch. The pre-releases `v1.1.0-beta.1` and `v1.1.0-beta.2` stay as they are.
+- Decision (maintainer): the severity key is `passive` everywhere (`SEVERITIES = passive, info, warning, critical`). `success` stays accepted as an alias (`SEVERITY_ALIASES`, `canonical_severity`) in every call (`notify`, the shortcuts, `create_banner`, `clear_notifications`, Test send, audience preview), in stored messages (`Banner.from_dict`) and in the card's `colors` and `severity` options. Events, entity attributes, the message log, mail placeholders and the panel report `passive`.
+- Conversion: config entry 2.4 renames `success` in the options keyed by severity (push levels, popup styles, severity display, speech volume per severity) and in `severity` / `severities` of policy and watch rule subentries. The default icon (`mdi:check-circle`) and color (`--success-color`) stay; labels: Passive, Passiv, Passif, Pasivo.
+- Blast radius: restart needed; automations and templates that compare a severity with `success` must use `passive` (CHANGELOG "Before you upgrade"). The README and docs screenshots still show the label Success.
+
+## D-232 Presence holds named recipients too (2026-11-20, behaviour, maintainer)
+- Context: 1.0 Away, and Presence after it (D-212), held push, popup and mail only for audience targets; a person listed in `recipients` was sent at once. Open item in `docs/OPEN_QUESTIONS.md`.
+- Decision (maintainer, "YES"): Presence checks every recipient of push, popup and mail, whether from an audience or named in the call. Escalation, fallback and deliver steps to named persons are checked the same way. Speech is unchanged (household check).
+- Alternatives: keep audience targets only (a named person is meant to get it now); a switch per policy. Rejected: one rule is easier to explain, and "Critical messages pass" already lets urgent messages through.
+- Consequences: converted 1.0 Away policies now also hold named recipients (CHANGELOG "Before you upgrade"); breaking changes are allowed on this branch (D-231). Test `test_a_named_recipient_is_held_like_an_audience_member`.
+- Blast radius: restart needed; a push to a named person who is away is held where it went out at once.
+
+## D-233 Pre-release 1.1.0-beta.3 (2026-11-20)
+- Decision (maintainer, "Yes, tag and push"): manifest version `1.1.0-beta.3`, tag `v1.1.0-beta.3`, push `release/1.1` and the tag. beta.1 and beta.2 stay as they are. `CHANGELOG.md` keeps `[Unreleased]`. The GitHub pre-release, not marked as the latest release, is created by the maintainer (notes in `.private/`). No merge to `main`.
+- In beta.3 beyond beta.2: location per zone from an on/off entity (D-229); default push levels for new setups (D-230); severity `success` renamed to `passive` with `success` as an alias (D-231); Presence holds named recipients (D-232); panel group paths open their first page; new documentation screenshots.
+- Blast radius: the manifest version is `1.1.0-beta.3`; HACS offers it only to users who show beta versions; restart needed. From beta.2 the entry is converted to 2.4 (push levels kept, `success` renamed).
+- Retag (maintainer, "retag beta.3", 2026-11-20): the tag `v1.1.0-beta.3` was moved and force-pushed, unlike D-228, to also hold the Recipients table rows, the docs and help texts for Presence and `passive`, and `restore_presence_backup.py` renaming `passive` back to `success` for 1.0.0. Whoever installed the first beta.3 has other code under the same version; the maintainer accepted that.
 
 ## D-234 Scope and shape of the 2.0.0 build (2026-11-19, design, maintainer)
 - Context: design of 2.0.0 after D-224, on `release/2.0`. Numbers D-225 to D-233 are taken on `release/1.1`. D-231 (1.1 is part of 2.0.0) replaces D-224's "merge when 1.1.0 is released": `release/1.1` is merged in as the first build step.

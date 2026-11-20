@@ -2,13 +2,20 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from collections.abc import Mapping
+from dataclasses import asdict, dataclass, field, fields
 from datetime import datetime
 from typing import Any
 
 from homeassistant.util import dt as dt_util
 
-from .const import CHANNEL_BANNER, DEFAULT_ICONS, GLOBAL_SNOOZE_KEY, SOURCE_ACTION
+from .const import (
+    CHANNEL_BANNER,
+    DEFAULT_ICONS,
+    GLOBAL_SNOOZE_KEY,
+    SOURCE_ACTION,
+    canonical_severity,
+)
 
 
 def _parse(value: str | None) -> datetime | None:
@@ -43,6 +50,8 @@ class Banner:
     # Buttons: {key, label, dismiss, action?}; `action` is run by the card (DESIGN §21).
     actions: list[dict[str, Any]] = field(default_factory=list)
     snooze_options: list[int] = field(default_factory=list)
+    # The viewer may also choose another duration (D-219).
+    snooze_custom: bool = False
     # Snooze end by user ID, or GLOBAL_SNOOZE_KEY for everyone (D-069).
     snoozed_until: dict[str, datetime] = field(default_factory=dict)
     # Hub fields (DESIGN §23). The defaults are what `create_banner` produces, so stored banners
@@ -87,13 +96,19 @@ class Banner:
         for key in ("created_at", "updated_at", "expires_at"):
             data[key] = data[key].isoformat() if data[key] else None
         data["snoozed_until"] = {k: v.isoformat() for k, v in self.snoozed_until.items()}
+        # Written only when set, so a banner without it still loads in 1.0 (D-213).
+        if not data["snooze_custom"]:
+            del data["snooze_custom"]
         return data
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Banner:
+        # A key of a later version is ignored, so a downgrade keeps the banner.
+        known = {f.name for f in fields(cls)}
         return cls(
             **{
-                **data,
+                **{k: v for k, v in data.items() if k in known},
+                "severity": canonical_severity(data.get("severity")),
                 "created_at": _parse(data["created_at"]),
                 "updated_at": _parse(data["updated_at"]),
                 "expires_at": _parse(data.get("expires_at")),
@@ -105,8 +120,11 @@ class Banner:
             }
         )
 
-    def to_client(self, user_id: str) -> dict[str, Any]:
-        """Payload for one viewer. Never includes dismissals or targeting of other users."""
+    def to_client(
+        self, user_id: str, display: Mapping[str, Mapping[str, str]] | None = None
+    ) -> dict[str, Any]:
+        """Payload for one viewer. Never includes dismissals or targeting of other users.
+        `display` is the label, icon and color per severity from the Severities page."""
         data = self.to_dict()
         for key in (
             "dismissed_by",
@@ -131,7 +149,12 @@ class Banner:
         snoozed_until = self.snoozed_for(user_id)
         data["snoozed_until"] = snoozed_until.isoformat() if snoozed_until else None
         data["active"] = self.active
-        data["icon"] = self.icon or DEFAULT_ICONS[self.severity]
+        shown = (display or {}).get(self.severity) or {}
+        data["icon"] = self.icon or shown.get("icon") or DEFAULT_ICONS[self.severity]
+        if label := shown.get("label"):
+            data["severity_label"] = label
+        if color := shown.get("color"):
+            data["severity_color"] = color
         data["dismissed"] = user_id in self.dismissed_by or GLOBAL_SNOOZE_KEY in self.dismissed_by
         data["snoozed"] = snoozed_until is not None
         return data

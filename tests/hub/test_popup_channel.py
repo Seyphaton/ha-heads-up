@@ -78,16 +78,16 @@ async def test_a_severity_can_be_shown_in_any_corner_or_the_middle(
 ) -> None:
     set_person(hass, "person.anna", "home", user_id="anna-id")
     entry.runtime_data.options["popup_styles"] = {
-        "success": "card_top_left",
+        "passive": "card_top_left",
         "info": "card_top_right",
         "warning": "card_bottom_left",
         "critical": "modal",
     }
-    for severity in ("success", "info", "warning", "critical"):
+    for severity in ("passive", "info", "warning", "critical"):
         await pop(hass, entry, id=severity, severity=severity)
     styles = {p["id"]: p["style"] for p in popups(entry)}
     assert styles == {
-        "success": "card_top_left",
+        "passive": "card_top_left",
         "info": "card_top_right",
         "warning": "card_bottom_left",
         "critical": "modal",

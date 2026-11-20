@@ -3,7 +3,14 @@
 export const STRINGS = {
   en: {
     title: "Recipients",
-    intro: "Who can receive what. A tick means the person accepts the channel and it can work. A mark means it is accepted but cannot work yet; point at it for the reason. Open a person to change devices, channels and the mail address.",
+    phones: "Phones",
+    col_group: "Group",
+    col_call: "In calls",
+    col_speakers: "Speakers now",
+    phones_none: "none",
+    phones_usable: "{n} of {total}",
+    phones_aria: "Phones: {text}",
+    intro: "Who can receive what. A tick means the person accepts the channel and it can work. A mark means it is accepted but cannot work yet; point at it for the reason. Select a person to change devices, channels, the mail address and where the person is.",
     profiles: "People",
     groups: "Speaker groups",
     group_intro: "A group stands for its speakers. In calls it is written as the group name followed by (group).",
@@ -27,8 +34,15 @@ export const STRINGS = {
     channel_mail: "Mail",
     mail_address: "Mail address",
     mail_address_hint: "Where this person's mail goes. Mail also has to be switched on in the accepted channels. Without an address, mail to this person fails.",
+    zone_home: "Home",
+    location: "Where this person is",
+    location_hint: "Without a choice below, Heads Up uses where Home Assistant says the person is: the zone of {person}. Choose an input boolean or binary sensor only for a zone where that is not reliable; the person counts as in the zone while it is on. Used by At home, Not home, Last to leave, First home, audiences by zone and the Presence policy.",
+    location_ha: "Home Assistant: {state}",
+    now_in: "in the zone now",
+    now_out: "not in the zone now",
+    now_unknown: "unknown now",
+    entity_now: "{entity} is {state} now.",
     person: "Person",
-    ch_none: "no channel",
     ch_on: "accepted",
     ch_off: "not accepted",
     ch_warn_device: "no device",
@@ -37,7 +51,6 @@ export const STRINGS = {
     members: "Speakers",
     areas: "Areas",
     new_group: "New group",
-    edit_group: "Edit group",
     call_name: "In calls: {name}",
     speakers_now: "{n} speakers reach it now",
     none_groups: "You have no speaker groups yet.",
@@ -45,7 +58,14 @@ export const STRINGS = {
   },
   de: {
     title: "Empfänger",
-    intro: "Wer was erhalten kann. Ein Haken heißt: Die Person nimmt den Kanal an und er kann funktionieren. Ein Zeichen heißt: angenommen, aber noch nicht nutzbar; zeige darauf für den Grund. Öffne eine Person, um Geräte, Kanäle und die E-Mail-Adresse zu ändern.",
+    phones: "Telefone",
+    col_group: "Gruppe",
+    col_call: "In Aufrufen",
+    col_speakers: "Lautsprecher jetzt",
+    phones_none: "keine",
+    phones_usable: "{n} von {total}",
+    phones_aria: "Telefone: {text}",
+    intro: "Wer was erhalten kann. Ein Haken heißt: Die Person nimmt den Kanal an und er kann funktionieren. Ein Zeichen heißt: angenommen, aber noch nicht nutzbar; zeige darauf für den Grund. Wähle eine Person, um Geräte, Kanäle, die E-Mail-Adresse und den Aufenthaltsort zu ändern.",
     profiles: "Personen",
     groups: "Lautsprechergruppen",
     group_intro: "Eine Gruppe steht für ihre Lautsprecher. In Aufrufen wird sie als Gruppenname gefolgt von (group) geschrieben.",
@@ -69,8 +89,15 @@ export const STRINGS = {
     channel_mail: "E-Mail",
     mail_address: "E-Mail-Adresse",
     mail_address_hint: "Wohin die Mail dieser Person geht. E-Mail muss auch bei den angenommenen Kanälen aktiviert sein. Ohne Adresse scheitert Mail an diese Person.",
+    zone_home: "Zuhause",
+    location: "Wo diese Person ist",
+    location_hint: "Ohne Auswahl unten nutzt Heads Up, wo die Person laut Home Assistant ist: die Zone von {person}. Wähle einen Eingabe-Schalter oder binären Sensor nur für eine Zone, in der das nicht zuverlässig ist; die Person gilt als in der Zone, solange er an ist. Gilt für At home, Not home, Last to leave, First home, Zielgruppen nach Zone und die Richtlinie Anwesenheit.",
+    location_ha: "Home Assistant: {state}",
+    now_in: "gerade in der Zone",
+    now_out: "gerade nicht in der Zone",
+    now_unknown: "gerade unbekannt",
+    entity_now: "{entity} ist gerade {state}.",
     person: "Person",
-    ch_none: "kein Kanal",
     ch_on: "angenommen",
     ch_off: "nicht angenommen",
     ch_warn_device: "kein Gerät",
@@ -79,7 +106,6 @@ export const STRINGS = {
     members: "Lautsprecher",
     areas: "Bereiche",
     new_group: "Neue Gruppe",
-    edit_group: "Gruppe bearbeiten",
     call_name: "In Aufrufen: {name}",
     speakers_now: "{n} Lautsprecher erreichen sie jetzt",
     none_groups: "Du hast noch keine Lautsprechergruppen.",
@@ -87,7 +113,14 @@ export const STRINGS = {
   },
   fr: {
     title: "Destinataires",
-    intro: "Qui peut recevoir quoi. Une coche signifie que la personne accepte le canal et qu'il peut fonctionner. Un signe signifie accepté mais pas encore utilisable ; survolez-le pour la raison. Ouvrez une personne pour changer appareils, canaux et adresse e-mail.",
+    phones: "Téléphones",
+    col_group: "Groupe",
+    col_call: "Dans les appels",
+    col_speakers: "Haut-parleurs maintenant",
+    phones_none: "aucun",
+    phones_usable: "{n} sur {total}",
+    phones_aria: "Téléphones : {text}",
+    intro: "Qui peut recevoir quoi. Une coche signifie que la personne accepte le canal et qu'il peut fonctionner. Un signe signifie accepté mais pas encore utilisable ; survolez-le pour la raison. Sélectionnez une personne pour changer appareils, canaux, adresse e-mail et lieu.",
     profiles: "Personnes",
     groups: "Groupes de haut-parleurs",
     group_intro: "Un groupe représente ses haut-parleurs. Dans les appels, il s'écrit avec le nom du groupe suivi de (group).",
@@ -111,8 +144,15 @@ export const STRINGS = {
     channel_mail: "Courriel",
     mail_address: "Adresse de courriel",
     mail_address_hint: "Où va le courriel de cette personne. Courriel doit aussi être activé dans les canaux acceptés. Sans adresse, le courriel à cette personne échoue.",
+    zone_home: "Maison",
+    location: "Où est cette personne",
+    location_hint: "Sans choix ci-dessous, Heads Up utilise l'endroit où Home Assistant situe la personne : la zone de {person}. Choisissez un interrupteur d'entrée ou un capteur binaire seulement pour une zone où ce n'est pas fiable ; la personne compte comme dans la zone tant qu'il est allumé. Utilisé pour At home, Not home, Last to leave, First home, les audiences par zone et la politique Présence.",
+    location_ha: "Home Assistant : {state}",
+    now_in: "dans la zone en ce moment",
+    now_out: "hors de la zone en ce moment",
+    now_unknown: "inconnu en ce moment",
+    entity_now: "{entity} est {state} en ce moment.",
     person: "Personne",
-    ch_none: "aucun canal",
     ch_on: "accepté",
     ch_off: "non accepté",
     ch_warn_device: "aucun appareil",
@@ -121,7 +161,6 @@ export const STRINGS = {
     members: "Haut-parleurs",
     areas: "Zones",
     new_group: "Nouveau groupe",
-    edit_group: "Modifier le groupe",
     call_name: "Dans les appels : {name}",
     speakers_now: "{n} haut-parleurs l'atteignent maintenant",
     none_groups: "Vous n'avez pas encore de groupe de haut-parleurs.",
@@ -129,7 +168,14 @@ export const STRINGS = {
   },
   es: {
     title: "Destinatarios",
-    intro: "Quién puede recibir qué. Una marca de verificación significa que la persona acepta el canal y puede funcionar. Un signo significa aceptado pero aún sin poder funcionar; apunta a él para ver el motivo. Abre una persona para cambiar dispositivos, canales y la dirección de correo.",
+    phones: "Teléfonos",
+    col_group: "Grupo",
+    col_call: "En llamadas",
+    col_speakers: "Altavoces ahora",
+    phones_none: "ninguno",
+    phones_usable: "{n} de {total}",
+    phones_aria: "Teléfonos: {text}",
+    intro: "Quién puede recibir qué. Una marca de verificación significa que la persona acepta el canal y puede funcionar. Un signo significa aceptado pero aún sin poder funcionar; apunta a él para ver el motivo. Selecciona una persona para cambiar dispositivos, canales, la dirección de correo y dónde está.",
     profiles: "Personas",
     groups: "Grupos de altavoces",
     group_intro: "Un grupo representa a sus altavoces. En las llamadas se escribe con el nombre del grupo seguido de (group).",
@@ -153,8 +199,15 @@ export const STRINGS = {
     channel_mail: "Correo",
     mail_address: "Dirección de correo",
     mail_address_hint: "A dónde va el correo de esta persona. Correo también debe estar activado en los canales aceptados. Sin dirección, el correo a esta persona falla.",
+    zone_home: "Casa",
+    location: "Dónde está esta persona",
+    location_hint: "Sin elegir nada abajo, Heads Up usa dónde dice Home Assistant que está la persona: la zona de {person}. Elige un interruptor de entrada o un sensor binario solo para una zona en la que eso no sea fiable; la persona cuenta como en la zona mientras está encendido. Se usa para At home, Not home, Last to leave, First home, las audiencias por zona y la política Presencia.",
+    location_ha: "Home Assistant: {state}",
+    now_in: "en la zona ahora",
+    now_out: "fuera de la zona ahora",
+    now_unknown: "desconocido ahora",
+    entity_now: "{entity} está {state} ahora.",
     person: "Persona",
-    ch_none: "ningún canal",
     ch_on: "aceptado",
     ch_off: "no aceptado",
     ch_warn_device: "sin dispositivo",
@@ -163,7 +216,6 @@ export const STRINGS = {
     members: "Altavoces",
     areas: "Áreas",
     new_group: "Nuevo grupo",
-    edit_group: "Editar grupo",
     call_name: "En las llamadas: {name}",
     speakers_now: "{n} altavoces lo alcanzan ahora",
     none_groups: "Aún no tienes grupos de altavoces.",
@@ -179,6 +231,14 @@ export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value ?? ""), template);
 }
 
+// On/off entities that can stand for a zone (D-220, D-229), plus the stored one when it is gone.
+export function homeEntities(hass, current) {
+  // Heads Up's own audience sensors are left out: a zone from an audience would go in circles.
+  const ids = Object.keys(hass?.states || {}).filter((id) => ["binary_sensor", "input_boolean"].includes(id.split(".")[0]) && hass?.entities?.[id]?.platform !== "heads_up").sort();
+  if (current && !ids.includes(current)) ids.push(current);
+  return ids;
+}
+
 // The editable values of a profile: what is manual, what was removed, the primary and the channels.
 export function profileValues(profile) {
   return {
@@ -187,6 +247,8 @@ export function profileValues(profile) {
     primary: profile.primary || "",
     channels: [...profile.channels],
     mail_address: profile.mail_address || "",
+    home_entity: profile.home_entity || "",
+    zone_entities: { ...(profile.zone_entities || {}) },
     enabled: profile.enabled !== false,
   };
 }
@@ -199,6 +261,8 @@ export function isDefault(values) {
     values.removed.length === 0 &&
     !values.primary &&
     !values.mail_address &&
+    !values.home_entity &&
+    !Object.values(values.zone_entities || {}).some(Boolean) &&
     PROFILE_CHANNELS.every((c) => values.channels.includes(c) === DEFAULT_CHANNELS.includes(c))
   );
 }
@@ -211,7 +275,23 @@ export function toProfileData(person, values, creating) {
   if (values.removed.length) data.removed_devices = [...values.removed];
   if (values.primary) data.primary = values.primary;
   if (String(values.mail_address || "").trim()) data.mail_address = String(values.mail_address).trim();
+  if (values.home_entity) data.home_entity = values.home_entity;
+  const zones = Object.fromEntries(Object.entries(values.zone_entities || {}).filter(([, e]) => e).sort());
+  if (Object.keys(zones).length) data.zone_entities = zones;
   return data;
+}
+
+// Whether Home Assistant puts the person in a zone, as the integration reads it without an
+// override: Home is the state `home`; another zone is in `in_zones` or is the state's name.
+export function haInZone(state, zone) {
+  if (!state || ["unknown", "unavailable"].includes(state.state)) return null;
+  if (zone === "zone.home") return state.state === "home";
+  return (state.attributes?.in_zones || []).includes(zone) || state.state === zone.split(".")[1];
+}
+
+// Zones in the order of the editor: Home first, then by name.
+export function zoneOrder(zones) {
+  return [...(zones || [])].sort((a, b) => (a.id === "zone.home" ? -1 : b.id === "zone.home" ? 1 : a.name.localeCompare(b.name)));
 }
 
 // A device can be removed (detected ones) or dropped again (added ones); the primary must stay in use.
@@ -250,6 +330,13 @@ export function groupData(values) {
 // How one channel stands for one person: "off" (not accepted), "on", or "on" with a `warn` when it
 // is accepted but cannot work: push without a usable device, popup without a Home Assistant user,
 // mail without an address.
+// The Companion phones of a person: how many of them can be reached ("1 of 2"), or none.
+export function phonesLabel(profile, t) {
+  const devices = profile.devices || [];
+  if (devices.length === 0) return t.phones_none;
+  return fill(t.phones_usable, { n: devices.filter((d) => d.service_found).length, total: devices.length });
+}
+
 export function channelState(profile, channel) {
   if (!(profile.channels || []).includes(channel)) return { channel, state: "off", warn: null };
   let warn = null;
@@ -259,21 +346,25 @@ export function channelState(profile, channel) {
   return { channel, state: "on", warn };
 }
 
+// The table layout is ui.TABLE_CSS (as Audiences, Severities, Channels); these are this page's parts.
 const PEOPLE_CSS = `
-table.people { width: 100%; border-collapse: collapse; }
-table.people th, table.people td { text-align: left; padding: 8px; border-top: 1px solid var(--divider-color); vertical-align: middle; }
-table.people thead th { border-top: 0; font-weight: 500; color: var(--secondary-text-color); }
-table.people .ch { text-align: center; width: 72px; }
-table.people td.ch.on { color: var(--success-color, #2e7d32); }
-table.people td.ch.warn { color: var(--warning-color, #b26a00); font-weight: 700; }
-table.people td.ch.off { color: var(--secondary-text-color); }
-table.people .go { width: 1%; white-space: nowrap; text-align: right; }
-table.people tr.dim .who, table.people tr.dim td.ch { opacity: .55; }
-table.people .sub.narrow { display: none; }
-@media (max-width: 560px) {
-  table.people thead, table.people td.ch { display: none; }
-  table.people .sub.narrow { display: block; }
-}
+.hu-page .tl-list { margin-bottom: 16px; }
+.hu-page .tl-list.people { --tl-cols: minmax(0, 1.4fr) minmax(0, 1fr) repeat(4, 64px); }
+.hu-page .tl-list.groups { --tl-cols: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
+.hu-page .tl-title { margin: 8px 16px 4px; }
+.hu-page .tl-list > .hint { margin: 0 16px 8px; }
+.hu-page .tl-list .tl-title + .tl-head + .tl-item, .hu-page .tl-list .hint + .tl-head + .tl-item { border-top: 1px solid var(--divider-color); }
+.hu-page .people .tl-head span:nth-child(n+3), .hu-page .people .tl-cell.ch { text-align: center; }
+.hu-page .tl-cell.ch.on .mark { color: var(--success-color, #2e7d32); }
+.hu-page .tl-cell.ch.warn .mark { color: var(--warning-color, #b26a00); font-weight: 700; }
+.hu-page .tl-cell.ch.off .mark { color: var(--secondary-text-color); }
+.hu-page .tl-cell.phones.none { color: var(--warning-color, #b26a00); }
+.hu-page .tl-body > section { margin: 0; }
+.hu-page .tl-list > .row { padding: 8px 16px 12px; }
+fieldset.loc { border: 1px solid var(--divider-color); border-radius: 8px; margin: 12px 0; padding: 8px 12px 12px; min-width: 0; }
+fieldset.loc legend { padding: 0 4px; font-weight: 500; }
+.loc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 4px 16px; margin-top: 8px; }
+.loc-grid label.field { margin: 0; }
 `;
 
 export function mount(container, ctx) {
@@ -281,56 +372,67 @@ export function mount(container, ctx) {
   const { el } = ui;
   let hass = ctx.hass;
   let data = null;
-  let profile = null; // { person, values, view }
-  let group = null; // { own, values }
+  let profile = null; // the open person's row: { person, values, view }
+  let group = null; // the open group's row: { key, own, values }; key "new" for a new group
   let message = "";
   const root = el("div", { className: "hu-page" });
   container.append(root);
   const regName = (id) => data.choices.registrations.find((r) => r.id === id)?.name ?? id;
 
+  const rowId = (prefix, key) => `hu-${prefix}-${String(key).replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+  const focusRow = (id) => root.querySelector(`[aria-controls="${id}"]`)?.focus();
+
+  // One row per person: name, phones, a mark per channel. The row opens the person's settings
+  // underneath, as on the Audiences and Severities pages.
   function profileRow(p) {
-    const edit = el("button", { type: "button", textContent: s.common.edit });
-    edit.addEventListener("click", () => {
-      message = "";
-      profile = { person: p.person, view: p, values: profileValues(p) };
-      render();
-    });
+    const id = rowId("person", p.person);
+    const isOpen = profile?.person === p.person;
     const off = p.enabled === false;
     const states = PROFILE_CHANNELS.map((channel) => channelState(p, channel));
-    // Narrow screens: the accepted channels under the name, a problem written after its channel.
-    const words = states
-      .filter((c) => c.state !== "off")
-      .map((c) => `${s.channel[c.channel]}${c.warn ? ` (${t[`ch_warn_${c.warn}`]})` : ""}`);
-    const sub = words.join(", ") || t.ch_none;
-    const name = [el("strong", { textContent: p.name })];
-    if (off) name.push(el("span", { className: "badge", textContent: t.disabled }));
-    const cells = states.map((c) => {
-      const mark = c.state === "off" ? "–" : c.warn ? "!" : "✓";
-      const cell = el("td", { className: `ch ${c.state === "off" ? "off" : c.warn ? "warn" : "on"}`, textContent: mark });
-      cell.setAttribute("aria-label", `${s.channel[c.channel]}: ${c.state === "off" ? t.ch_off : c.warn ? t[`ch_warn_${c.warn}`] : t.ch_on}`);
-      if (c.warn) cell.title = t[`ch_warn_${c.warn}`];
-      return cell;
+    const lead = [el("span", { className: "tl-name", textContent: p.name })];
+    if (off) lead.push(el("span", { className: "badge", textContent: t.disabled }));
+    const phones = phonesLabel(p, t);
+    const said = (c) => (c.state === "off" ? t.ch_off : c.warn ? t[`ch_warn_${c.warn}`] : t.ch_on);
+    const cells = [
+      { label: t.phones, node: el("span", { textContent: phones, title: fill(t.phones_aria, { text: phones }) }), muted: true },
+      ...states.map((c) => {
+        const mark = el("span", { className: "mark", textContent: c.state === "off" ? "–" : c.warn ? "!" : "✓", title: `${s.channel[c.channel]}: ${said(c)}` });
+        return { label: s.channel[c.channel], node: mark };
+      }),
+    ];
+    const { item, row } = ui.tableRow({
+      id,
+      lead,
+      cells,
+      open: isOpen,
+      dim: off,
+      label: `${p.name}${off ? `, ${t.disabled}` : ""}. ${fill(t.phones_aria, { text: phones })}. ${states.map((c) => `${s.channel[c.channel]}: ${said(c)}`).join(", ")}`,
+      onToggle: () => {
+        message = "";
+        profile = isOpen ? null : { person: p.person, view: p, values: profileValues(p) };
+        render();
+        focusRow(id);
+      },
+      body: isOpen ? profileEditor() : null,
     });
-    return el("tr", { className: off ? "dim" : "" }, [
-      el("td", { className: "who" }, [el("div", {}, name), el("div", { className: "sub narrow", textContent: sub })]),
-      ...cells,
-      el("td", { className: "go" }, [edit]),
-    ]);
+    // The channel cells carry their state as a class for the colour of the mark.
+    const meta = row.querySelectorAll(".tl-cell");
+    meta[0]?.classList.add("phones", ...((p.devices || []).some((d) => d.service_found) ? [] : ["none"]));
+    states.forEach((c, n) => meta[n + 1]?.classList.add("ch", c.state === "off" ? "off" : c.warn ? "warn" : "on"));
+    return item;
   }
 
   function peopleTable() {
-    const head = el("tr", {}, [
-      el("th", { textContent: t.person }),
-      ...PROFILE_CHANNELS.map((c) => el("th", { className: "ch", textContent: s.channel[c] })),
-      el("th", { className: "go" }),
-    ]);
-    return el("table", { className: "people" }, [el("thead", {}, [head]), el("tbody", {}, data.profiles.map(profileRow))]);
+    const box = el("section", { className: "tl-list people" }, [el("h2", { className: "tl-title", textContent: t.profiles })]);
+    box.append(ui.tableHead([t.person, t.phones, ...PROFILE_CHANNELS.map((c) => s.channel[c])]));
+    for (const p of data.profiles) box.append(profileRow(p));
+    return box;
   }
 
   function profileEditor() {
     const { view } = profile;
     const values = profile.values;
-    const box = el("section", {}, [el("h2", { textContent: view.name })]);
+    const box = el("div");
     box.append(ui.checkbox(t.enabled, values.enabled !== false, (on) => { values.enabled = on; render(); }));
     box.append(el("div", { className: "hint", textContent: t.enabled_hint }));
     if (!view.user) box.append(el("div", { className: "hint problems", textContent: t.no_user }));
@@ -364,13 +466,14 @@ export function mount(container, ctx) {
     const options = [{ value: "", label: t.add_device_none }, ...data.choices.registrations.filter((r) => !present.has(r.id) || values.removed.includes(r.id)).map((r) => ({ value: r.id, label: r.name }))];
     box.append(ui.field(t.add_device, ui.selectInput(options, "", (v) => { profile.values = addDevice(values, v); render(); })));
     box.append(ui.field(t.mail_address, ui.textInput(values.mail_address || "", (v) => { values.mail_address = v; }), t.mail_address_hint));
+    box.append(locationSection(view, values));
     box.append(ui.chips(t.channels, PROFILE_CHANNELS.map((c) => ({ value: c, label: t[`channel_${c}`] })), values.channels, (list) => { values.channels = list; }));
     const status = el("div", { className: "hint", textContent: message });
     const save = el("button", { type: "button", className: "primary", textContent: s.common.save });
     save.disabled = values.channels.length === 0;
     save.addEventListener("click", saveProfile);
     const cancel = el("button", { type: "button", textContent: s.common.cancel });
-    cancel.addEventListener("click", () => { profile = null; render(); });
+    cancel.addEventListener("click", () => { const id = rowId("person", profile.person); profile = null; render(); focusRow(id); });
     const row = el("div", { className: "row" }, [save, cancel]);
     if (view.subentry_id) {
       const reset = el("button", { type: "button", className: "danger", textContent: t.reset });
@@ -378,20 +481,98 @@ export function mount(container, ctx) {
       row.append(reset);
     }
     box.append(status, row);
-    if (view.subentry_id) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ person: view.person, enabled: values.enabled !== false, channels: values.channels, devices: values.manual, removed_devices: values.removed, primary: values.primary || null, mail_address: values.mail_address || null }), s.common));
+    if (view.subentry_id) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ person: view.person, enabled: values.enabled !== false, channels: values.channels, devices: values.manual, removed_devices: values.removed, primary: values.primary || null, mail_address: values.mail_address || null, home_entity: values.home_entity || null, zone_entities: toProfileData(view.person, values, false).zone_entities || null }), s.common));
     return box;
   }
 
+  // Per zone: Home Assistant's location of the person (the default, with what it says now) or
+  // an on/off entity that overrides it for that zone (D-229).
+  function locationSection(view, values) {
+    const state = hass?.states?.[view.person];
+    const grid = el("div", { className: "loc-grid" });
+    for (const zone of zoneOrder(data.choices.zones)) {
+      const isHome = zone.id === "zone.home";
+      const current = (isHome ? values.home_entity : values.zone_entities[zone.id]) || "";
+      const now = haInZone(state, zone.id);
+      const ha = fill(t.location_ha, { state: now === null ? t.now_unknown : now ? t.now_in : t.now_out });
+      const note = el("span", { className: "hint" });
+      const showNote = (id) => {
+        const found = id ? hass?.states?.[id] : null;
+        note.textContent = id ? fill(t.entity_now, { entity: id, state: found ? found.state : "—" }) : "";
+      };
+      const choices = homeEntities(hass, current).map((id) => ({ value: id, label: id }));
+      const select = ui.selectInput([{ value: "", label: ha }, ...choices], current, (v) => {
+        if (isHome) values.home_entity = v;
+        else values.zone_entities[zone.id] = v;
+        showNote(v);
+      });
+      showNote(current);
+      const item = ui.field(isHome ? t.zone_home : zone.name, select);
+      item.append(note);
+      grid.append(item);
+    }
+    return el("fieldset", { className: "loc" }, [el("legend", { textContent: t.location }), el("div", { className: "hint", textContent: fill(t.location_hint, { person: view.person }) }), grid]);
+  }
+
+  // One row per speaker group: name, how calls name it, how many speakers reach it now.
   function groupRow(g) {
-    const edit = el("button", { type: "button", textContent: s.common.edit });
-    edit.addEventListener("click", () => { message = ""; group = { own: g, values: { name: g.name, members: [...(g.data.members || [])], areas: [...(g.data.areas || [])] } }; render(); });
-    const used = g.used_by.length ? ` · ${g.used_by.join(", ")}` : "";
-    return el("li", {}, [el("div", {}, [el("strong", { textContent: g.name }), el("div", { className: "sub", textContent: `${fill(t.call_name, { name: g.call_name })} · ${fill(t.speakers_now, { n: g.speakers.length })}${used}` })]), edit]);
+    const key = g.subentry_id || g.name;
+    const id = rowId("group", key);
+    const isOpen = group?.key === key;
+    const lead = [el("span", { className: "tl-name", textContent: g.name })];
+    if (g.used_by.length) lead.push(el("span", { className: "badge", textContent: g.used_by.join(", ") }));
+    const { item } = ui.tableRow({
+      id,
+      lead,
+      cells: [
+        { label: t.col_call, node: el("code", { textContent: g.call_name, title: g.call_name }) },
+        { label: t.col_speakers, node: el("span", { textContent: String(g.speakers.length) }), muted: !g.speakers.length },
+      ],
+      open: isOpen,
+      label: `${g.name}. ${fill(t.call_name, { name: g.call_name })}. ${fill(t.speakers_now, { n: g.speakers.length })}`,
+      onToggle: () => {
+        message = "";
+        group = isOpen ? null : { key, own: g, values: { name: g.name, members: [...(g.data.members || [])], areas: [...(g.data.areas || [])] } };
+        render();
+        focusRow(id);
+      },
+      body: isOpen ? groupEditor() : null,
+    });
+    return item;
+  }
+
+  // A new group opens as its own row at the end of the list.
+  function newGroupRow() {
+    const id = rowId("group", "new");
+    const { item } = ui.tableRow({
+      id,
+      lead: [el("span", { className: "tl-name", textContent: t.new_group })],
+      // Empty cells keep the chevron in the last column.
+      cells: [{ node: el("span") }, { node: el("span") }],
+      open: true,
+      onToggle: () => { group = null; render(); },
+      body: groupEditor(),
+    });
+    return item;
+  }
+
+  function groupsTable() {
+    const box = el("section", { className: "tl-list groups" }, [el("h2", { className: "tl-title", textContent: t.groups }), el("div", { className: "hint", textContent: t.group_intro })]);
+    if (data.groups.length) box.append(ui.tableHead([t.col_group, t.col_call, t.col_speakers]));
+    for (const g of data.groups) box.append(groupRow(g));
+    if (group?.key === "new") box.append(newGroupRow());
+    else if (!data.groups.length) box.append(el("div", { className: "tl-empty", textContent: t.none_groups }));
+    if (group?.key !== "new") {
+      const add = el("button", { type: "button", className: "primary", textContent: s.common.add });
+      add.addEventListener("click", () => { message = ""; profile = null; group = { key: "new", own: null, values: { name: "", members: [], areas: [] } }; render(); focusRow(rowId("group", "new")); });
+      box.append(el("div", { className: "row" }, [add]));
+    }
+    return box;
   }
 
   function groupEditor() {
     const { own, values } = group;
-    const box = el("section", {}, [el("h2", { textContent: own ? t.edit_group : t.new_group })]);
+    const box = el("div");
     box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; paint(); })));
     box.append(ui.chips(t.members, data.choices.speakers.map((id) => ({ value: id, label: ui.recipientLabel(id, data.choices) })), values.members, (list) => { values.members = list; paint(); }, true));
     box.append(ui.chips(t.areas, data.choices.areas.map((a) => ({ value: a.id, label: a.name })), values.areas, (list) => { values.areas = list; paint(); }, true));
@@ -401,7 +582,7 @@ export function mount(container, ctx) {
     const save = el("button", { type: "button", className: "primary", textContent: s.common.save });
     save.addEventListener("click", saveGroup);
     const cancel = el("button", { type: "button", textContent: s.common.cancel });
-    cancel.addEventListener("click", () => { group = null; render(); });
+    cancel.addEventListener("click", () => { const id = rowId("group", group.key); group = null; render(); focusRow(id); });
     const row = el("div", { className: "row" }, [save, cancel]);
     if (own) {
       const blocked = own.used_by.length > 0;
@@ -427,15 +608,9 @@ export function mount(container, ctx) {
 
   function render() {
     ui.lockHeight(root);
-    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + PEOPLE_CSS }), el("h1", { textContent: t.title }));
-    if (profile) return void root.append(profileEditor());
-    if (group) return void root.append(groupEditor());
+    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + ui.TABLE_CSS + PEOPLE_CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
-    root.append(el("section", {}, [el("h2", { textContent: t.profiles }), peopleTable()]));
-    const groups = el("ul", { className: "list" }, data.groups.length ? data.groups.map(groupRow) : [el("li", { className: "sub", textContent: t.none_groups })]);
-    const add = el("button", { type: "button", className: "primary", textContent: s.common.add });
-    add.addEventListener("click", () => { message = ""; group = { own: null, values: { name: "", members: [], areas: [] } }; render(); });
-    root.append(el("section", {}, [el("h2", { textContent: t.groups }), el("div", { className: "hint", textContent: t.group_intro }), groups, add]));
+    root.append(peopleTable(), groupsTable());
   }
 
   async function saveProfile() {

@@ -18,13 +18,13 @@ Every block has a heading of its own. Save is enabled only when something change
 |---|---|
 | Introduction | A button, Restart introduction, that opens the introduction again. Only in the panel. |
 | Sidebar panel | The sidebar switch (`show_panel`). |
-| Messages | Dismiss settings (default dismiss scope, default timeout in days, hours, minutes and seconds, the ended-buttons switch) and snooze settings (snoozable by default, default snooze scope, the snooze choices of the banner and the snooze time of push and popup). Each card says which channels it applies to. |
-| Presence | The presence delay for Last to leave and First home. |
+| Messages | Dismiss settings (default dismiss scope, default timeout in days, hours, minutes and seconds, the ended-buttons switch) and snooze settings (snoozable by default, default snooze scope). Each card says which channels it applies to. The snooze choices of the banner and the snooze time of push and popup are on the Channels page, in the Banner, Push and Popup rows. |
+| Presence | The presence delay for Last to leave, First home and the Presence policy. |
 | Speech | Longest spoken text, repeat pause and the text-to-speech engine. |
+| Speech volume | Putting the volume back after speaking, a volume per severity and up to 4 time bands. |
 | Limits | Maximum number of stored messages, evicting when full, pushes per device per minute, deliveries per minute for all devices, seconds in which identical updates are ignored. |
 | History | Trace entries kept and recent messages kept. |
 | Identity | The install token, read only. Only in the panel; the options screen shows it at the top. |
-| People and devices | Each person with the number of usable Companion devices and whether a Home Assistant user is linked. A person without a device gets only banner and popup; a person without a user gets no popup. Only in the panel. |
 
 ## Defaults at a glance
 
@@ -39,7 +39,7 @@ Every block has a heading of its own. Save is enabled only when something change
 | Message timeout | 24 hours unless you set `timeout`. `timeout: 0` keeps the message until it is cleared. |
 | Message count | 50 stored messages. When the limit is reached, the message with the lowest severity is removed, the oldest first. Critical messages are never removed this way, and creating a message fails when none can be. |
 | Snooze | Choices of 15 minutes, 1 hour and 4 hours when a message is snoozable. Messages are not snoozable by default. |
-| Memory | The trace keeps 500 entries and the panel lists the last 100 messages. Both start empty after a restart. |
+| History | The delivery trace keeps 500 entries and is kept across restarts. The Message Log lists the last 100 messages; after a restart it lists only the messages that have not ended. |
 
 ## Panel
 
@@ -58,8 +58,8 @@ These settings belong to the message, not to one channel. They apply to the bann
 | Disable message buttons once the message has ended (`disable_ended_buttons`) | on | none | A press on the message's own buttons, on the banner, the push or the popup, is refused with `message_ended` after the message was dismissed (by that person or for everyone), acknowledged by anyone, or its condition turned false. A snooze does not end it. Dismiss, Snooze and Acknowledge are not affected. Off: presses are accepted until the message is removed. |
 | Messages can be snoozed by default (`default_snoozable`) | off | `snoozable` | Adds Snooze to the banner, the push and the popup. Messages that are not dismissible are never snoozable. |
 | Default snooze scope (`default_snooze_scope`) | `user` | `snooze_scope` | `user`: a snooze hides the message only for that person. `global`: for everyone. |
-| Snooze choices on the banner (`default_snooze_options`) | 15 minutes, 1 hour, 4 hours | `snooze_options` | The choices the banner offers, from 5 minutes to 24 hours. |
-| Snooze time on push and popup (`quick_snooze_minutes`) | 15 (1–1440) | none | The Snooze button of the push and of the popup snoozes for this many minutes, whatever `snooze_options` says. |
+| Snooze choices on the banner (`default_snooze_options`) | 15 minutes, 1 hour, 4 hours | `snooze_options` | The choices the banner offers, from 5 minutes to 24 hours. In the panel: Channels, Banner. |
+| Snooze time on push and popup (`quick_snooze_minutes`) | 15 (1–1440) | none | The Snooze button of the push and of the popup snoozes for this many minutes, whatever `snooze_options` says. In the panel: Channels, Push or Popup. |
 
 ## Limits
 
@@ -75,24 +75,30 @@ These settings belong to the message, not to one channel. They apply to the bann
 
 | Setting | Default | Meaning |
 |---|---|---|
-| Presence delay (`presence_debounce_seconds`) | 60 seconds (0–600) | How long a person must stay home or away before the audiences Last to leave and First home change. 0 reacts at once. |
+| Presence delay (`presence_debounce_seconds`) | 60 seconds (0–600) | How long a person must stay home or away before the audiences Last to leave and First home change, and before a Presence policy releases what it holds. 0 reacts at once. |
 
 ## Push
 
 | Setting | Default | Meaning |
 |---|---|---|
-| Push level per severity (`push_levels`) | success and info `passive`, warning `normal`, critical `time-sensitive` | The level of the notification. `critical` is an alarm on both platforms: the critical alert on iOS (needs the app's permission, plays in silent mode) and the alarm channel on Android (sounds in vibrate and silent mode; Do Not Disturb is overridden only if you allow it for that channel in the Android settings). |
+| Push level per severity (`push_levels`) | passive `passive`, info `normal`, warning `time-sensitive`, critical `critical` | The level of the notification. `critical` is an alarm on both platforms: the critical alert on iOS (needs the app's permission, plays in silent mode) and the alarm channel on Android (sounds in vibrate and silent mode; Do Not Disturb is overridden only if you allow it for that channel in the Android settings). |
 | Lock screen text (`push_lockscreen`) | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
 | Android channel name (`push_channel_id`) | `heads_up` | Prefix of the Android notification channel. |
 | Keep after tap (`push_sticky`) | off | Keeps the notification after a tap (Android). |
 
 See [Push notifications](configuration.md#push).
 
+## Severities
+
+| Setting | Default | Meaning |
+|---|---|---|
+| Label, icon and color per severity (`severity_display`) | none | Set on the panel's Severities page. See [Severities](configuration.md#severities). |
+
 ## Popup
 
 | Setting | Default | Meaning |
 |---|---|---|
-| Popup style per severity (`popup_styles`) | success, info and warning `card`; critical `modal` | `card` is a card in the bottom right corner, `card_bottom_left`, `card_top_right` and `card_top_left` are cards in the other corners, `modal` a centered window over a dimmed page, `off` shows nothing. |
+| Popup style per severity (`popup_styles`) | passive, info and warning `card`; critical `modal` | `card` is a card in the bottom right corner, `card_bottom_left`, `card_top_right` and `card_top_left` are cards in the other corners, `modal` a centered window over a dimmed page, `off` shows nothing. |
 
 See [Popups](configuration.md#popup).
 
@@ -104,6 +110,9 @@ See [Popups](configuration.md#popup).
 | Spoken text: repeat pause (`speak_cooldown_seconds`) | 60 seconds (0–3600) | The same text at the same volume is not spoken again on the same speaker within this time. Critical messages and Test send ignore it. 0: always speak. |
 | Text-to-speech engine (`speak_tts_entity`) | automatic | The engine for media players. Automatic: the only text-to-speech entity, if there is exactly one. |
 | Spoken language (`speak_language`) | the Home Assistant language | The language of the speech. |
+| Put the volume back after speaking (`speak_restore_volume`) | on | A speaker whose volume Heads Up changed gets its earlier volume back when the message was said, unless someone changed it meanwhile. Sonos speakers keep their volume and say the message at the chosen level. Off: the speaker stays at the speech volume. |
+| Volume by severity (`speak_severity_volume`) | none | 0–100 per severity. The volume in a call comes first. |
+| Volume by time of day (`speak_volume_bands`) | none | Up to 4 bands, each a start, an end and a volume in percent; a band may run over midnight and bands must not overlap. Outside every band the volume is not changed. |
 
 See [Speech](configuration.md#speech).
 
@@ -122,10 +131,10 @@ See [Mail](configuration.md#mail).
 
 | Setting | Default | Meaning |
 |---|---|---|
-| Trace entries kept (`trace_entries`) | 500 (50–5000) | The size of the delivery trace. |
+| Trace entries kept (`trace_entries`) | 500 (50–5000) | The size of the delivery trace, which says why each message did or did not arrive, and of the last actions on the Overview. |
 | Recent messages kept (`recent_messages`) | 100 (10–1000) | The size of the list of recent messages in the Message Log. |
 
-The trace, the recent messages and the log of last actions are kept in memory and start empty after a restart.
+The delivery trace is stored and kept across restarts. The recent messages and the last actions are kept in memory: after a restart the Message Log lists only the messages that have not ended, and the last actions start empty. The audience usage counts are stored too.
 
 ## Install token
 

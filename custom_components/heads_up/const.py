@@ -1,7 +1,7 @@
 """Constants for Heads Up."""
 
 import re
-from typing import Final
+from typing import Any, Final
 
 DOMAIN: Final = "heads_up"
 
@@ -10,10 +10,12 @@ STORAGE_VERSION: Final = 2  # 2: policy and target references are keys (D-200)
 SAVE_DELAY: Final = 1  # seconds; batches parallel callers (D-023)
 
 # Ordered lowest to highest: eviction picks from the front, the card sorts from the back.
-SEVERITIES: Final = ("success", "info", "warning", "critical")
+SEVERITIES: Final = ("passive", "info", "warning", "critical")
+# Earlier names still accepted in calls and card options (D-231): `success` is now `passive`.
+SEVERITY_ALIASES: Final = {"success": "passive"}
 DEFAULT_SEVERITY: Final = "warning"
 DEFAULT_ICONS: Final = {
-    "success": "mdi:check-circle",
+    "passive": "mdi:check-circle",
     "info": "mdi:information",
     "warning": "mdi:alert",
     "critical": "mdi:alert-octagon",
@@ -26,6 +28,8 @@ MAX_ACTIONS: Final = 3
 MAX_ACTION_LABEL: Final = 40
 MIN_SNOOZE_SECONDS: Final = 60
 MAX_SNOOZE_SECONDS: Final = 7 * 86400
+# A duration the viewer chooses (`snooze_custom`, D-219) is at most this long.
+MAX_CUSTOM_SNOOZE_SECONDS: Final = 86400
 MAX_SNOOZE_OPTIONS: Final = 6
 # Choices of the options flow, in minutes (D-069).
 DEFAULT_SNOOZE_SECONDS: Final = (900, 3600, 14400)  # 15 min, 1 h, 4 h
@@ -92,7 +96,7 @@ POLICY_TYPES: Final = (
     "escalation",
     "reminder",
     "quiet_hours",
-    "away",
+    "presence",
     "fallback",
     "summarize",
     "deliver",
@@ -101,7 +105,15 @@ WEEKDAYS: Final = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 QUIET_ACTIONS: Final = ("quiet", "wait", "drop")
 FALLBACK_WHEN: Final = ("no_audience", "failed", "both")
 HOLD_QUIET: Final = "quiet_hours"
+# Kept as "away" in stored deliveries, so 1.0 holds stay valid (D-214); Presence uses it too.
 HOLD_AWAY: Final = "away"
+TYPE_AWAY_OLD: Final = "away"  # the 1.0 type key, converted to "presence" (D-212, D-214)
+PRESENCE_WHEN: Final = ("not_in", "in")
+PRESENCE_WHO: Final = ("nobody", "somebody")
+PRESENCE_THEN: Final = ("hold", "drop")
+AFTER_WAIT: Final = ("send", "drop")
+PRESENCE_PEOPLE_CHANNELS: Final = ("push", "popup", "mail")
+PRESENCE_CHANNELS: Final = ("push", "popup", "mail", "speak")
 POLICY_CHANNELS: Final = (
     "push",
     "popup",
@@ -113,6 +125,7 @@ TIMER_CHANNEL: Final = "timer"  # ledger rows of this channel hold escalation an
 GROUP_SUFFIX: Final = " (group)"  # how a recipient group is named in calls
 PRESENCE_KEY: Final = "heads_up.presence"
 TRACE_VERSION: Final = 2  # raised with the other stores so older code refuses it (D-200)
+AUDIENCE_USAGE_KEY: Final = "heads_up.audience_usage"  # count and last use (D-227)
 TRACE_KEY: Final = "heads_up.trace"  # the delivery trace survives a restart (D-194)
 # Built in, not stored (D-080). Names are the ones calls use.
 # A banner whose audience is empty when it is created is aimed at this person, who does not exist:
@@ -144,6 +157,7 @@ PRESENCE_KINDS: Final = (
     "not_in_zone",
 )
 ZONE_KINDS: Final = ("in_zone", "not_in_zone")
+HOME_ZONE: Final = "zone.home"
 PROFILE_CHANNELS: Final = (
     "banner",
     "push",
@@ -166,10 +180,18 @@ OPT_PUSH_STICKY: Final = "push_sticky"
 PUSH_LEVELS: Final = ("passive", "normal", "time-sensitive", "critical")
 PUSH_LOCKSCREEN: Final = ("full", "title_only", "generic")
 DEFAULT_PUSH_LEVELS: Final = {
-    "success": "passive",
+    "passive": "passive",
+    "info": "normal",
+    "warning": "time-sensitive",
+    "critical": "critical",  # an alarm on iOS and Android (D-155); default for new setups (D-230)
+}
+# The defaults up to 1.1.0-beta.2: written into the options of an existing setup at the upgrade,
+# so its phones behave as before (D-230, D-213).
+PUSH_LEVELS_1_0: Final = {
+    "passive": "passive",
     "info": "passive",
     "warning": "normal",
-    "critical": "time-sensitive",  # "critical" (alarm on iOS and Android) is an opt-in (D-155)
+    "critical": "time-sensitive",
 }
 # The admin panel (D-107, D-117). Off until the user switches it on in the setup step or Settings.
 OPT_SHOW_PANEL: Final = "show_panel"
@@ -189,7 +211,7 @@ POPUP_STYLES: Final = (
     "off",
 )
 DEFAULT_POPUP_STYLES: Final[dict[str, str]] = {
-    "success": "card",
+    "passive": "card",
     "info": "card",
     "warning": "card",
     "critical": "modal",
@@ -200,6 +222,14 @@ TEST_ID_PREFIX: Final = "hu_test_"  # ids of the messages sent from Test send
 OPT_SPEAK_COOLDOWN: Final = "speak_cooldown_seconds"  # 0 for none
 OPT_SPEAK_TTS_ENTITY: Final = "speak_tts_entity"  # empty: the only tts entity
 OPT_SPEAK_LANGUAGE: Final = "speak_language"  # empty: the Home Assistant language
+# Speech volume (D-208, D-215, D-217): put back after speaking, time bands, per severity.
+OPT_SPEAK_RESTORE_VOLUME: Final = "speak_restore_volume"
+OPT_SPEAK_VOLUME_BANDS: Final = "speak_volume_bands"  # [{from, to, volume (percent)}], at most 4
+OPT_SPEAK_SEVERITY_VOLUME: Final = "speak_severity_volume"  # {severity: percent}
+MAX_VOLUME_BANDS: Final = 4
+# Per severity: {label, icon, color} set on the Severities page (D-222, D-223). Empty: defaults.
+OPT_SEVERITY_DISPLAY: Final = "severity_display"
+MAX_SEVERITY_LABEL: Final = 30
 # Mail settings (D-129). Edited on the panel's Channels page.
 OPT_MAIL_SERVICE: Final = "mail_service"  # name of a notify service, empty: mail is off
 OPT_MAIL_ADDRESS: Final = "mail_global_address"  # the shared address, empty: none
@@ -235,6 +265,10 @@ DEFAULT_OPTIONS: Final = {
     OPT_SPEAK_COOLDOWN: 60,
     OPT_SPEAK_TTS_ENTITY: "",
     OPT_SPEAK_LANGUAGE: "",
+    OPT_SPEAK_RESTORE_VOLUME: True,  # D-215
+    OPT_SPEAK_VOLUME_BANDS: [],  # none: the volume is not changed (1.0 behaviour, D-213)
+    OPT_SPEAK_SEVERITY_VOLUME: {},
+    OPT_SEVERITY_DISPLAY: {},  # nothing set: everything looks as in 1.0 (D-213)
     OPT_MAIL_SERVICE: "",
     OPT_MAIL_ADDRESS: "",
     OPT_MAIL_SUBJECT: "{severity}: {title}",
@@ -254,4 +288,12 @@ EVENT_CLEARED: Final = f"{DOMAIN}_banner_cleared"
 EVENT_ACTION: Final = f"{DOMAIN}_banner_action"
 EVENT_SNOOZED: Final = f"{DOMAIN}_banner_snoozed"
 EVENT_UNSNOOZED: Final = f"{DOMAIN}_banner_unsnoozed"
+# `reason` of the unsnoozed event (D-221): ended by the viewer, or the time ran out.
+UNSNOOZE_USER: Final = "user"
+UNSNOOZE_ENDED: Final = "ended"
 EVENT_DELIVERY_FAILED: Final = f"{DOMAIN}_delivery_failed"  # D-128
+
+
+def canonical_severity(value: Any) -> Any:
+    """A severity by its current name: `success` is read as `passive` (D-231)."""
+    return SEVERITY_ALIASES.get(value, value) if isinstance(value, str) else value

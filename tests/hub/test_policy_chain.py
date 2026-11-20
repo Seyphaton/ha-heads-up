@@ -23,8 +23,8 @@ def step() -> Step:
     return Step(message(), "push", Target("person.anna"), "message")
 
 
-def test_the_order_is_summarize_quiet_hours_away_fallback() -> None:
-    assert STAGE_ORDER == ("summarize", "quiet_hours", "away", "fallback")
+def test_the_order_is_summarize_quiet_hours_presence_fallback() -> None:
+    assert STAGE_ORDER == ("summarize", "quiet_hours", "presence", "fallback")
 
 
 def test_stubs_that_are_not_built_yet_let_a_step_pass_unchanged() -> None:
@@ -35,7 +35,7 @@ def test_stubs_that_are_not_built_yet_let_a_step_pass_unchanged() -> None:
 def test_stages_run_in_order_whatever_the_order_they_were_replaced_in() -> None:
     log: list[str] = []
     chain = Chain()
-    for name in ("fallback", "summarize", "away", "quiet_hours"):
+    for name in ("fallback", "summarize", "presence", "quiet_hours"):
         chain.replace(Recorder(name, log))
     chain.run(step())
     assert log == list(STAGE_ORDER)
@@ -45,7 +45,7 @@ def test_a_stage_that_skips_stops_the_later_ones_and_gives_its_reason() -> None:
     log: list[str] = []
     chain = Chain()
     chain.replace(Recorder("quiet_hours", log, Skip("quiet_hours")))
-    chain.replace(Recorder("away", log))
+    chain.replace(Recorder("presence", log))
     result = chain.run(step())
     assert result == Skip("quiet_hours")
     assert log == ["quiet_hours"]

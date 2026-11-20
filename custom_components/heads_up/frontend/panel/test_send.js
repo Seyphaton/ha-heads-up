@@ -44,7 +44,7 @@ export const STRINGS = {
     none_later: "No later step.",
     later_escalation: "Escalation {policy}: after {n} min unless someone acknowledges, also on {channels}.",
     later_reminder: "Reminder {policy}: every {n} min, at most {m} times{channels}.",
-    later_away: "Away {policy}: people who are not home get it when they arrive{wait}.",
+    later_away: "Presence {policy}: held until the people it waits for are where it expects them{wait}.",
     later_fallback: "Fallback {policy}: if {when}, it is sent on {channels} instead.",
     later_summarize_every: "Summary {policy}: one summary {n} min after the first held message.",
     later_summarize_at: "Summary {policy}: one summary every day at {time}.",
@@ -137,7 +137,7 @@ export const STRINGS = {
     none_later: "Kein späterer Schritt.",
     later_escalation: "Eskalation {policy}: nach {n} Min., wenn niemand bestätigt, auch auf {channels}.",
     later_reminder: "Erinnerung {policy}: alle {n} Min., höchstens {m} Mal{channels}.",
-    later_away: "Abwesend {policy}: wer nicht zu Hause ist, bekommt sie bei der Ankunft{wait}.",
+    later_away: "Anwesenheit {policy}: zurückgehalten, bis die Personen dort sind, wo sie es erwartet{wait}.",
     later_fallback: "Ersatz {policy}: wenn {when}, wird stattdessen auf {channels} gesendet.",
     later_summarize_every: "Zusammenfassung {policy}: eine Zusammenfassung {n} Min. nach der ersten zurückgehaltenen Meldung.",
     later_summarize_at: "Zusammenfassung {policy}: eine Zusammenfassung jeden Tag um {time}.",
@@ -230,7 +230,7 @@ export const STRINGS = {
     none_later: "Aucune étape suivante.",
     later_escalation: "Escalade {policy} : après {n} min si personne ne confirme, aussi sur {channels}.",
     later_reminder: "Rappel {policy} : toutes les {n} min, au plus {m} fois{channels}.",
-    later_away: "Absent {policy} : les personnes qui ne sont pas à la maison le reçoivent à leur arrivée{wait}.",
+    later_away: "Présence {policy} : retenu jusqu'à ce que les personnes soient là où elle les attend{wait}.",
     later_fallback: "Repli {policy} : si {when}, il est envoyé sur {channels} à la place.",
     later_summarize_every: "Résumé {policy} : un résumé {n} min après le premier message retenu.",
     later_summarize_at: "Résumé {policy} : un résumé chaque jour à {time}.",
@@ -323,7 +323,7 @@ export const STRINGS = {
     none_later: "Ningún paso posterior.",
     later_escalation: "Escalado {policy}: tras {n} min si nadie confirma, también por {channels}.",
     later_reminder: "Recordatorio {policy}: cada {n} min, como máximo {m} veces{channels}.",
-    later_away: "Ausente {policy}: quien no está en casa lo recibe al llegar{wait}.",
+    later_away: "Presencia {policy}: retenido hasta que las personas estén donde espera{wait}.",
     later_fallback: "Alternativa {policy}: si {when}, se envía por {channels} en su lugar.",
     later_summarize_every: "Resumen {policy}: un resumen {n} min después del primer mensaje retenido.",
     later_summarize_at: "Resumen {policy}: un resumen cada día a las {time}.",
@@ -375,7 +375,7 @@ export const STRINGS = {
   },
 };
 
-const SEVERITIES = ["success", "info", "warning", "critical"];
+const SEVERITIES = ["passive", "info", "warning", "critical"];
 const CHANNELS = ["banner", "push", "popup", "speak", "persistent", "mail"];
 const NEEDS_TARGET = ["push", "popup", "speak", "mail"];
 
@@ -516,6 +516,7 @@ export function laterText(step, t, s) {
       return fill(t.later_escalation, { policy: step.policy, n: step.after_minutes, channels });
     case "reminder":
       return fill(t.later_reminder, { policy: step.policy, n: step.every_minutes, m: step.max_count, channels: only });
+    case "presence":
     case "away":
       return fill(t.later_away, { policy: step.policy, wait: step.max_wait > 0 ? fill(t.later_wait, { n: step.max_wait }) : "" });
     case "fallback":

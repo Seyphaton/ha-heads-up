@@ -6,6 +6,9 @@ import {
   CONFIG_KEYS,
   acknowledgedLabel,
   controlsFor,
+  customSnoozeSeconds,
+  severityColor,
+  severityLabel,
   emptyView,
   imageSource,
   needsSignature,
@@ -191,9 +194,55 @@ describe("controlsFor snooze and buttons", () => {
     expect(controlsFor(b, false).snooze).toBe(false);
   });
 
+  it("offers snooze when the viewer may choose the duration, even without choices", () => {
+    const b = banner({ snoozable: true, snooze_options: [], snooze_custom: true });
+    expect(controlsFor(b, false).snooze).toBe(true);
+  });
+
   it("passes the banner's buttons through", () => {
     const actions = [{ key: "ack", label: "Got it", dismiss: true }];
     expect(controlsFor(banner({ actions }), false).actions).toEqual(actions);
+  });
+});
+
+describe("severity label and color (D-222, D-223)", () => {
+  it("takes the card's own color first, then the Severities page, then the theme", () => {
+    const b = banner({ severity: "critical", severity_color: "#d00000" });
+    expect(severityColor(b, { critical: "purple" })).toBe("purple");
+    expect(severityColor(b, {})).toBe("#d00000");
+    expect(severityColor(banner({ severity: "critical" }), {})).toBe("var(--error-color)");
+  });
+
+  it("takes the label of the Severities page, else the translation", () => {
+    setLanguage("en");
+    expect(severityLabel(banner({ severity: "critical", severity_label: "Alarm" }))).toBe("Alarm");
+    expect(severityLabel(banner({ severity: "critical" }))).toBe("Critical");
+  });
+});
+
+describe("customSnoozeSeconds", () => {
+  const now = new Date(2026, 10, 18, 14, 30, 0);
+
+  it("takes minutes", () => {
+    expect(customSnoozeSeconds({ minutes: "45" }, now)).toBe(2700);
+    expect(customSnoozeSeconds({ minutes: 1.5 }, now)).toBe(90);
+  });
+
+  it("takes a time of day: later today, or tomorrow when it has passed", () => {
+    expect(customSnoozeSeconds({ until: "16:00" }, now)).toBe(5400);
+    expect(customSnoozeSeconds({ until: "14:00" }, now)).toBe(23.5 * 3600);
+  });
+
+  it("prefers the time when both are given", () => {
+    expect(customSnoozeSeconds({ minutes: "5", until: "15:00" }, now)).toBe(1800);
+  });
+
+  it("refuses less than a minute, more than 24 hours, and text", () => {
+    expect(customSnoozeSeconds({ minutes: "0.5" }, now)).toBeNull();
+    expect(customSnoozeSeconds({ minutes: "1441" }, now)).toBeNull();
+    expect(customSnoozeSeconds({ minutes: "abc" }, now)).toBeNull();
+    expect(customSnoozeSeconds({ until: "25:99x" }, now)).toBeNull();
+    expect(customSnoozeSeconds({}, now)).toBeNull();
   });
 });
 
@@ -343,7 +392,7 @@ describe("resolveColors and colorParts", () => {
       critical: "var(--error-color)",
       warning: "var(--warning-color)",
       info: "var(--info-color)",
-      success: "var(--success-color)",
+      passive: "var(--success-color)",
     });
   });
   it("overrides single severities", () => {
@@ -601,5 +650,12 @@ describe("images", () => {
     expect(await imageSource(hass, "/media/local/a.jpg", 1000 + 51 * 60 * 1000)).toBe(
       "/media/local/a.jpg?authSig=2",
     );
+  });
+});
+
+describe("severity names", () => {
+  it("reads success in a card's colors as passive", () => {
+    expect(normalizeConfig({ colors: { success: "#00ff00" } }).colors).toEqual({ passive: "#00ff00" });
+    expect(normalizeConfig({ severity: ["success", "info"] }).severity).toEqual(["passive", "info"]);
   });
 });

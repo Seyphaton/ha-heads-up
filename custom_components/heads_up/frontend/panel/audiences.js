@@ -10,17 +10,30 @@ const KINDS = {
 export const STRINGS = {
   en: {
     title: "Audiences",
+    col_audience: "Audience",
+    col_now: "Right now",
+    col_used: "Messages",
+    nobody: "Nobody",
+    people_n: "{n} people",
+    people_1: "1 person",
+    count_n: "{n} messages",
+    count_1: "1 message",
+    count_0: "None yet",
+    last_used: "last {when}",
+    members_label: "Members right now",
+    policies_label: "Policies",
+    no_policy: "No policy uses it",
+    usage_label: "Messages sent to it",
+    usage_hint: "Counted once per message, kept across restarts.",
+    show_log: "Show in Message Log",
+    sensor_label: "Sensor for calls",
     intro: "An audience is a named group of people that calls and policies can address. The members are worked out when a delivery is made.",
     builtin: "Built in",
     custom: "Your audiences",
     none_custom: "You have no audiences yet.",
-    members_now: "Right now: {names}",
     entity_id: "Entity ID of the sensor",
     entity_id_new: "Home Assistant gives the audience this sensor when you save. Name the audience in a call by this ID: it keeps working when you rename the audience.",
     entity_id_own: "A rename does not change this ID. A call that names the audience by its text name is refused; a call that uses this ID is not.",
-    nobody_now: "Right now: nobody",
-    used_by: "Used by {names}",
-    unused: "Not used by any policy",
     new: "New audience",
     editing: "Edit audience",
     kind: "Kind",
@@ -39,7 +52,6 @@ export const STRINGS = {
     off: "Off",
     off_hint: "Switched off: calls and policies cannot use it.",
     kinds: KINDS.en,
-    tip_label: "What is {name}?",
     tips: {
       everyone: "Every person in Home Assistant, wherever they are. Use it for messages the whole household should get.",
       admins: "People whose Home Assistant user is an administrator. Use it for technical messages, such as a failed backup.",
@@ -51,17 +63,30 @@ export const STRINGS = {
   },
   de: {
     title: "Zielgruppen",
+    col_audience: "Zielgruppe",
+    col_now: "Jetzt",
+    col_used: "Meldungen",
+    nobody: "Niemand",
+    people_n: "{n} Personen",
+    people_1: "1 Person",
+    count_n: "{n} Meldungen",
+    count_1: "1 Meldung",
+    count_0: "Noch keine",
+    last_used: "zuletzt {when}",
+    members_label: "Mitglieder jetzt",
+    policies_label: "Richtlinien",
+    no_policy: "Keine Richtlinie nutzt sie",
+    usage_label: "Meldungen an sie",
+    usage_hint: "Einmal pro Meldung gezählt, bleibt über Neustarts erhalten.",
+    show_log: "Im Meldungsprotokoll zeigen",
+    sensor_label: "Sensor für Aufrufe",
     intro: "Eine Zielgruppe ist eine benannte Personengruppe, die Aufrufe und Richtlinien ansprechen können. Die Mitglieder werden bei der Zustellung bestimmt.",
     builtin: "Eingebaut",
     custom: "Deine Zielgruppen",
     none_custom: "Du hast noch keine Zielgruppen.",
-    members_now: "Jetzt: {names}",
     entity_id: "Entitäts-ID des Sensors",
     entity_id_new: "Home Assistant legt beim Speichern diesen Sensor für die Zielgruppe an. Nenne die Zielgruppe in einem Aufruf mit dieser ID: Sie gilt weiter, wenn du die Zielgruppe umbenennst.",
     entity_id_own: "Eine Umbenennung ändert diese ID nicht. Ein Aufruf, der die Zielgruppe mit ihrem Namen nennt, wird abgelehnt; ein Aufruf mit dieser ID nicht.",
-    nobody_now: "Jetzt: niemand",
-    used_by: "Verwendet von {names}",
-    unused: "Von keiner Richtlinie verwendet",
     new: "Neue Zielgruppe",
     editing: "Zielgruppe bearbeiten",
     kind: "Art",
@@ -80,7 +105,6 @@ export const STRINGS = {
     off: "Aus",
     off_hint: "Ausgeschaltet: Aufrufe und Richtlinien können sie nicht nutzen.",
     kinds: KINDS.de,
-    tip_label: "Was ist {name}?",
     tips: {
       everyone: "Alle Personen in Home Assistant, wo auch immer sie sind. Für Meldungen, die der ganze Haushalt bekommen soll.",
       admins: "Personen, deren Home-Assistant-Benutzer Administrator ist. Für technische Meldungen, etwa ein fehlgeschlagenes Backup.",
@@ -92,17 +116,30 @@ export const STRINGS = {
   },
   fr: {
     title: "Audiences",
+    col_audience: "Audience",
+    col_now: "En ce moment",
+    col_used: "Messages",
+    nobody: "Personne",
+    people_n: "{n} personnes",
+    people_1: "1 personne",
+    count_n: "{n} messages",
+    count_1: "1 message",
+    count_0: "Aucun pour l'instant",
+    last_used: "dernier {when}",
+    members_label: "Membres en ce moment",
+    policies_label: "Politiques",
+    no_policy: "Aucune politique ne l'utilise",
+    usage_label: "Messages envoyés",
+    usage_hint: "Compté une fois par message, conservé après un redémarrage.",
+    show_log: "Voir dans le journal des messages",
+    sensor_label: "Capteur pour les appels",
     intro: "Une audience est un groupe nommé de personnes que les appels et les politiques peuvent viser. Les membres sont déterminés lors d'une livraison.",
     builtin: "Intégrées",
     custom: "Vos audiences",
     none_custom: "Vous n'avez pas encore d'audience.",
-    members_now: "En ce moment : {names}",
     entity_id: "ID d'entité du capteur",
     entity_id_new: "Home Assistant crée ce capteur pour l'audience à l'enregistrement. Nommez l'audience dans un appel par cet ID : il reste valable si vous renommez l'audience.",
     entity_id_own: "Renommer ne change pas cet ID. Un appel qui désigne l'audience par son nom est refusé ; un appel qui utilise cet ID ne l'est pas.",
-    nobody_now: "En ce moment : personne",
-    used_by: "Utilisée par {names}",
-    unused: "Utilisée par aucune politique",
     new: "Nouvelle audience",
     editing: "Modifier l'audience",
     kind: "Type",
@@ -121,7 +158,6 @@ export const STRINGS = {
     off: "Désactivée",
     off_hint: "Désactivée : les appels et les politiques ne peuvent pas l'utiliser.",
     kinds: KINDS.fr,
-    tip_label: "Qu'est-ce que {name} ?",
     tips: {
       everyone: "Toutes les personnes de Home Assistant, où qu'elles soient. Pour les messages que tout le foyer doit recevoir.",
       admins: "Les personnes dont l'utilisateur Home Assistant est administrateur. Pour les messages techniques, comme une sauvegarde échouée.",
@@ -133,17 +169,30 @@ export const STRINGS = {
   },
   es: {
     title: "Audiencias",
+    col_audience: "Audiencia",
+    col_now: "Ahora",
+    col_used: "Mensajes",
+    nobody: "Nadie",
+    people_n: "{n} personas",
+    people_1: "1 persona",
+    count_n: "{n} mensajes",
+    count_1: "1 mensaje",
+    count_0: "Ninguno aún",
+    last_used: "último {when}",
+    members_label: "Miembros ahora",
+    policies_label: "Políticas",
+    no_policy: "Ninguna política la usa",
+    usage_label: "Mensajes enviados",
+    usage_hint: "Se cuenta una vez por mensaje y se conserva tras reiniciar.",
+    show_log: "Ver en el registro de mensajes",
+    sensor_label: "Sensor para llamadas",
     intro: "Una audiencia es un grupo con nombre de personas al que pueden dirigirse las llamadas y las políticas. Los miembros se calculan al hacer una entrega.",
     builtin: "Integradas",
     custom: "Tus audiencias",
     none_custom: "Aún no tienes audiencias.",
-    members_now: "Ahora: {names}",
     entity_id: "ID de entidad del sensor",
     entity_id_new: "Home Assistant crea este sensor para la audiencia al guardar. Nombra la audiencia en una llamada con este ID: sigue valiendo si renombras la audiencia.",
     entity_id_own: "Renombrar no cambia este ID. Una llamada que nombra la audiencia por su texto se rechaza; una que usa este ID no.",
-    nobody_now: "Ahora: nadie",
-    used_by: "Usada por {names}",
-    unused: "No la usa ninguna política",
     new: "Nueva audiencia",
     editing: "Editar audiencia",
     kind: "Tipo",
@@ -162,7 +211,6 @@ export const STRINGS = {
     off: "Desactivada",
     off_hint: "Desactivada: las llamadas y las políticas no pueden usarla.",
     kinds: KINDS.es,
-    tip_label: "¿Qué es {name}?",
     tips: {
       everyone: "Todas las personas de Home Assistant, estén donde estén. Para mensajes que debe recibir todo el hogar.",
       admins: "Personas cuyo usuario de Home Assistant es administrador. Para mensajes técnicos, como una copia de seguridad fallida.",
@@ -180,6 +228,54 @@ const ZONE_KINDS = ["in_zone", "not_in_zone"];
 export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value ?? ""), template);
 }
+
+// Up to two initials of a name, for the member chips.
+export function initials(name) {
+  return String(name).trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("") || "?";
+}
+
+// How many people are in it now, for the overview row.
+export function peopleText(n, t) {
+  return n === 1 ? t.people_1 : fill(t.people_n, { n });
+}
+
+export function countText(n, t) {
+  if (!n) return t.count_0;
+  return n === 1 ? t.count_1 : fill(t.count_n, { n });
+}
+
+// "12 messages, last 2 h ago" from the stored usage; "None yet" when it was never used.
+export function usageText(usage, t, ago) {
+  const n = usage?.count || 0;
+  if (!n) return t.count_0;
+  const when = usage.last ? ago(usage.last) : "";
+  return when ? `${countText(n, t)} · ${fill(t.last_used, { when })}` : countText(n, t);
+}
+
+const PAGE_CSS = `
+.hu-page .tl-list { margin-bottom: 16px; --tl-cols: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr); }
+.hu-page .tl-title { margin: 8px 16px 4px; }
+.hu-page .tl-list .tl-title + .tl-head + .tl-item { border-top: 1px solid var(--divider-color); }
+.hu-page .aud-about { margin: 0 0 14px; font-size: 14px; line-height: 1.45; max-width: 70ch; }
+.hu-page .aud-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+.hu-page .aud-tile { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px 14px; border-radius: 10px; background: var(--card-background-color); border: 1px solid var(--divider-color); }
+.hu-page .aud-label { color: var(--secondary-text-color); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.hu-page .aud-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.hu-page .aud-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 3px 10px 3px 3px; border-radius: 16px; background: var(--hu-fill); border: 1px solid var(--divider-color); font-size: 13px; }
+.hu-page .aud-chip.plain { padding: 4px 10px; }
+.hu-page .aud-initial { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 22px; height: 22px; border-radius: 50%; background: var(--primary-color); color: var(--text-primary-color, #fff); font-size: 11px; font-weight: 600; }
+.hu-page .aud-empty { color: var(--secondary-text-color); font-size: 14px; }
+.hu-page .aud-big { display: flex; align-items: baseline; gap: 6px; font-size: 14px; }
+.hu-page .aud-number { font-size: 26px; font-weight: 600; line-height: 1; }
+.hu-page .aud-sub { font-size: 13px; color: var(--secondary-text-color); }
+.hu-page .aud-note { margin-top: auto; font-size: 12px; color: var(--secondary-text-color); }
+.hu-page .aud-sensor { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 14px; }
+.hu-page .aud-pill { display: inline-flex; align-items: center; gap: 8px; min-width: 0; max-width: 100%; padding: 2px 2px 2px 12px; border-radius: 8px; background: var(--card-background-color); border: 1px solid var(--divider-color); }
+.hu-page .aud-pill code { font-size: 12px; overflow-wrap: anywhere; }
+.hu-page .aud-pill .aud-copy { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.hu-page .aud-details .tl-actions { margin-top: 14px; }
+.hu-page .aud-switch { min-height: 44px; }
+`;
 
 export function blankValues() {
   return { name: "", kind: "persons", persons: [], presence: "at_home", zone: "", limit: [] };
@@ -238,11 +334,9 @@ export function mount(container, ctx) {
   const root = el("div", { className: "hu-page" });
   container.append(root);
 
+  let openKey = null; // the audience whose details are shown
   const names = (keys) => keys.map((k) => data.choices.persons.find((p) => p.id === k)?.name ?? k);
-  const memberLine = (audience) =>
-    audience.members.length ? fill(t.members_now, { names: names(audience.members).join(", ") }) : t.nobody_now;
-  const usedLine = (audience) =>
-    audience.used_by.length ? fill(t.used_by, { names: audience.used_by.join(", ") }) : t.unused;
+  const ago = (iso) => (iso ? ctx.fmt.timeAgo(iso, Date.now(), s) : "");
 
   async function toggle(audience, enabled) {
     try {
@@ -254,37 +348,111 @@ export function mount(container, ctx) {
     await load();
   }
 
-  function listNode() {
-    const box = el("section", {}, [el("h2", { textContent: t.builtin })]);
-    if (message) box.append(el("div", { className: "hint problems", textContent: message, role: "alert" }));
-    const builtin = el("ul", { className: "list" });
-    for (const a of data.audiences.filter((x) => x.builtin)) {
-      const tip = t.tips[a.kind] ? ui.helpTip(fill(t.tip_label, { name: a.name }), t.tips[a.kind]) : null;
+  // One table per section: name, who is in it now, how often it was used. A row opens the details:
+  // members, policies, usage with a link to the Message Log, the sensor, and the switch or Edit.
+  function tableNode(audiences, heading) {
+    const box = el("section", { className: "tl-list" });
+    box.append(el("h2", { className: "tl-title", textContent: heading }));
+    box.append(ui.tableHead([t.col_audience, t.col_now, t.col_used]));
+    for (const a of audiences) {
+      const key = a.key || a.subentry_id || a.name;
+      const id = `hu-aud-${String(key).replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+      const off = a.enabled === false;
+      const isOpen = openKey === key;
+      const now = off ? t.off : peopleText(a.members.length, t);
+      const nowNames = a.members.length ? names(a.members).join(", ") : t.nobody;
+      const used = usageText(a.usage, t, ago);
+      const lead = [el("span", { className: "tl-name", textContent: a.name })];
+      if (!a.builtin) lead.push(el("span", { className: "badge", textContent: t.kinds[a.kind] || a.kind }));
+      if (off) lead.push(el("span", { className: "badge", textContent: t.off }));
+      const { item } = ui.tableRow({
+        id,
+        lead,
+        cells: [
+          { label: t.col_now, node: el("span", { textContent: off ? t.off : a.members.length ? `${now}: ${nowNames}` : t.nobody, title: nowNames }), muted: off || !a.members.length },
+          { label: t.col_used, node: el("span", { textContent: used }), muted: !a.usage?.count },
+        ],
+        open: isOpen,
+        dim: off,
+        label: `${a.name}: ${off ? t.off : nowNames}. ${used}`,
+        onToggle: () => {
+          openKey = isOpen ? null : key;
+          render();
+          root.querySelector(`[aria-controls="${id}"]`)?.focus();
+        },
+        body: isOpen ? detailsNode(a, key) : null,
+      });
+      box.append(item);
+    }
+    if (audiences.length === 0) box.append(el("div", { className: "tl-empty", textContent: t.none_custom }));
+    return box;
+  }
+
+  // The details of one audience: what it is, three tiles (members, messages, policies), the sensor
+  // with a copy button, then the actions.
+  function detailsNode(a, key) {
+    const body = el("div", { className: "aud-details" });
+    const about = a.builtin ? t.tips[a.kind] : describe(fromAudience(a), data.choices, t);
+    if (about) body.append(el("p", { className: "aud-about", textContent: about }));
+    const count = a.usage?.count || 0;
+    const tile = (label, content, extra) => el("div", { className: "aud-tile" }, [el("div", { className: "aud-label", textContent: label }), ...content, ...(extra ? [extra] : [])]);
+    const members = a.members.length
+      ? el("div", { className: "aud-chips" }, names(a.members).map((name) => el("span", { className: "aud-chip" }, [el("span", { className: "aud-initial", textContent: initials(name) }), el("span", { textContent: name })])))
+      : el("div", { className: "aud-empty", textContent: t.nobody });
+    const policies = a.used_by.length
+      ? el("div", { className: "aud-chips" }, a.used_by.map((name) => el("span", { className: "aud-chip plain", textContent: name })))
+      : el("div", { className: "aud-empty", textContent: t.no_policy });
+    const usage = count
+      ? [el("div", { className: "aud-big" }, [el("span", { className: "aud-number", textContent: String(count) }), el("span", { textContent: count === 1 ? t.count_1.replace(/^1\s*/, "") : t.count_n.replace("{n}", "").trim() })]), el("div", { className: "aud-sub", textContent: fill(t.last_used, { when: ago(a.usage.last) }) })]
+      : [el("div", { className: "aud-empty", textContent: t.count_0 })];
+    body.append(
+      el("div", { className: "aud-tiles" }, [
+        tile(t.members_label, [members]),
+        tile(t.usage_label, usage, el("div", { className: "aud-note", textContent: t.usage_hint })),
+        tile(t.policies_label, [policies]),
+      ]),
+    );
+    if (a.entity_id) {
+      const copy = el("button", { type: "button", className: "aud-copy", textContent: s.common.copy });
+      copy.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(a.entity_id);
+          copy.textContent = s.common.copied;
+        } catch (err) {
+          copy.textContent = s.common.copy_failed;
+        }
+      });
+      body.append(el("div", { className: "aud-sensor" }, [el("span", { className: "aud-label", textContent: t.sensor_label }), el("span", { className: "aud-pill" }, [el("code", { textContent: a.entity_id }), copy])]));
+    }
+    const actions = el("div", { className: "tl-actions" });
+    if (count) {
+      const log = el("button", { type: "button", textContent: t.show_log });
+      log.addEventListener("click", () => ctx.navigate("messages", { audience: key }));
+      actions.append(log);
+    }
+    if (a.builtin) {
       const box2 = el("input", { type: "checkbox", checked: a.enabled !== false });
-      box2.setAttribute("aria-label", `${s.common.enabled}: ${a.name}`);
       box2.addEventListener("change", () => toggle(a, box2.checked));
-      const lines = a.enabled === false ? t.off_hint : `${memberLine(a)} · ${usedLine(a)}`;
-      builtin.append(
-        el("li", { className: a.enabled === false ? "dim" : "" }, [
-          el("div", {}, [el("strong", { textContent: a.name }), ...(tip ? [tip.button] : []), ...(a.enabled === false ? [el("span", { className: "badge", textContent: t.off })] : []), ...(tip ? [tip.note] : []), el("div", { className: "sub", textContent: lines }), ...(a.entity_id ? [el("code", { className: "entity", textContent: a.entity_id })] : [])]),
-          el("label", { className: "inline" }, [box2]),
-        ]),
-      );
-    }
-    box.append(builtin);
-    const mine = el("section", {}, [el("h2", { textContent: t.custom })]);
-    const custom = data.audiences.filter((x) => !x.builtin);
-    const list = el("ul", { className: "list" });
-    if (custom.length === 0) list.append(el("li", { className: "sub", textContent: t.none_custom }));
-    for (const a of custom) {
-      const edit = el("button", { type: "button", textContent: s.common.edit });
+      actions.append(el("label", { className: "inline aud-switch" }, [box2, el("span", { textContent: s.common.enabled })]));
+    } else {
+      const edit = el("button", { type: "button", className: "primary", textContent: s.common.edit });
       edit.addEventListener("click", () => open(a));
-      list.append(el("li", {}, [el("div", {}, [el("strong", { textContent: a.name }), el("span", { className: "badge", textContent: t.kinds[a.kind] || a.kind }), el("div", { className: "sub", textContent: `${memberLine(a)} · ${usedLine(a)}` })]), edit]));
+      actions.append(edit);
     }
-    const add = el("button", { type: "button", className: "primary", textContent: s.common.add });
+    body.append(actions);
+    if (a.enabled === false) body.append(el("div", { className: "hint", textContent: t.off_hint }));
+    return body;
+  }
+
+  function listNode() {
+    const out = [];
+    if (message) out.push(el("div", { className: "hint problems", textContent: message, role: "alert" }));
+    out.push(tableNode(data.audiences.filter((x) => x.builtin), t.builtin));
+    out.push(tableNode(data.audiences.filter((x) => !x.builtin), t.custom));
+    const add = el("button", { type: "button", className: "primary", textContent: t.new });
     add.addEventListener("click", () => open(null));
-    mine.append(list, add);
-    return [box, mine];
+    out.push(el("div", { className: "tl-actions" }, [add]));
+    return out;
   }
 
   function editorNode() {
@@ -363,7 +531,7 @@ export function mount(container, ctx) {
 
   function render() {
     ui.lockHeight(root);
-    root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
+    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + ui.TABLE_CSS + PAGE_CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint", textContent: t.intro }));
     if (editing) root.append(editorNode());
     else root.append(...listNode());

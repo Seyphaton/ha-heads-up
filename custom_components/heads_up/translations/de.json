@@ -81,7 +81,7 @@
               "presence_debounce_seconds": "Anwesenheitsverzögerung (Sekunden)"
             },
             "data_description": {
-              "presence_debounce_seconds": "Eine Person muss so lange zu Hause oder weg bleiben, bevor sich \"Last to leave\" und \"First home\" ändern. 0 reagiert sofort."
+              "presence_debounce_seconds": "Eine Person muss so lange in oder außerhalb einer Zone bleiben, bevor sich \"Last to leave\" und \"First home\" ändern und eine Anwesenheitsrichtlinie freigibt, was sie zurückhält. 0 reagiert sofort."
             }
           },
           "speech": {
@@ -95,6 +95,19 @@
               "speak_max_length": "Längere Texte werden an einem Wortende gekürzt und enden mit Auslassungspunkten.",
               "speak_cooldown_seconds": "Derselbe Text wird auf demselben Lautsprecher innerhalb dieser Zeit nicht noch einmal gesprochen. 0: immer sprechen.",
               "speak_tts_entity": "Die Engine, die auf Mediaplayern spricht. Leer: die einzige Text-zu-Sprache-Entität, wenn es genau eine gibt."
+            }
+          },
+          "speech_volume": {
+            "name": "Lautstärke der Sprache",
+            "data": {
+              "speak_restore_volume": "Lautstärke nach dem Sprechen zurücksetzen",
+              "speak_severity_volume": "Lautstärke nach Schweregrad (Prozent)",
+              "speak_volume_bands": "Lautstärke nach Uhrzeit"
+            },
+            "data_description": {
+              "speak_restore_volume": "Ein Lautsprecher, dessen Lautstärke Heads Up geändert hat, bekommt seine vorherige Lautstärke zurück, sobald die Meldung gesagt ist, außer jemand hat die Lautstärke inzwischen geändert. Sonos-Lautsprecher behalten ihre Lautstärke und sagen die Meldung in der gewählten Lautstärke. Aus: der Lautsprecher bleibt auf der Sprachlautstärke.",
+              "speak_severity_volume": "0–100 pro Schweregrad. Leer: die Uhrzeit entscheidet. Eine Lautstärke im Aktionsaufruf hat Vorrang.",
+              "speak_volume_bands": "Bis zu 4 Zeiträume, jeder mit Beginn, Ende und Lautstärke in Prozent. Ein Zeitraum von 22:00 bis 07:00 geht über Mitternacht. Zeiträume dürfen sich nicht überschneiden. Außerhalb aller Zeiträume bleibt die Lautstärke unverändert."
             }
           },
           "limits": {
@@ -121,21 +134,26 @@
               "recent_messages": "Gespeicherte letzte Meldungen"
             },
             "data_description": {
-              "trace_entries": "50–5000.",
-              "recent_messages": "10–1000."
+              "trace_entries": "50–5000. Die Zustellspur: warum jede Meldung ankam oder nicht. Bleibt über Neustarts erhalten. Auch die Länge der letzten Aktionen in der Übersicht, die nach einem Neustart leer beginnen.",
+              "recent_messages": "10–1000. Die Meldungen im Meldungsprotokoll. Nach einem Neustart enthält die Liste nur Meldungen, die noch nicht beendet sind."
             }
           }
         }
       }
     },
     "error": {
-      "timeout_too_long": "Das Standard-Zeitlimit beträgt höchstens 365 Tage."
+      "timeout_too_long": "Das Standard-Zeitlimit beträgt höchstens 365 Tage.",
+      "bands_invalid": "Jeder Zeitraum braucht Beginn und Ende (HH:MM) und eine Lautstärke von 0 bis 100.",
+      "bands_too_many": "Höchstens 4 Zeiträume.",
+      "bands_empty": "Beginn und Ende eines Zeitraums müssen verschieden sein.",
+      "bands_overlap": "Zeiträume dürfen sich nicht überschneiden.",
+      "severity_volume_invalid": "Gib eine Lautstärke von 0 bis 100 für passive, info, warning oder critical an."
     }
   },
   "selector": {
     "severity": {
       "options": {
-        "success": "Erfolg",
+        "passive": "Passiv",
         "info": "Info",
         "warning": "Warnung",
         "critical": "Kritisch"
@@ -223,7 +241,7 @@
         "escalation": "Eskalation",
         "reminder": "Erinnerung",
         "quiet_hours": "Ruhezeit",
-        "away": "Abwesend",
+        "presence": "Anwesenheit",
         "fallback": "Ersatz",
         "summarize": "Zusammenfassen",
         "deliver": "Zustellen"
@@ -284,6 +302,30 @@
       "options": {
         "automatic": "Automatisch",
         "none": "Keine"
+      }
+    },
+    "presence_when": {
+      "options": {
+        "not_in": "nicht in der Zone ist",
+        "in": "in der Zone ist"
+      }
+    },
+    "household_who": {
+      "options": {
+        "nobody": "niemand",
+        "somebody": "jemand"
+      }
+    },
+    "presence_then": {
+      "options": {
+        "hold": "Zurückhalten, bis sich das ändert",
+        "drop": "Verwerfen"
+      }
+    },
+    "after_wait": {
+      "options": {
+        "send": "Trotzdem senden",
+        "drop": "Verwerfen"
       }
     }
   },
@@ -396,6 +438,10 @@
         "snooze_options": {
           "name": "Auswahl beim Zurückstellen",
           "description": "Bis zu 6 Zeitspannen zum Zurückstellen, 1 Minute bis 7 Tage.\n\nBeispiel:\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "snooze_custom": {
+          "name": "Betrachter wählt die Dauer",
+          "description": "Bietet in der Karte zusätzlich „Andere…“ an: zurückstellen um beliebige Minuten oder bis zu einer Uhrzeit, höchstens 24 Stunden und nicht über das Ende der Meldung hinaus. Die Meldung muss zurückgestellt werden können."
         },
         "actions": {
           "name": "Schaltflächen",
@@ -529,7 +575,7 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (standardmäßig ist Passiv leise, Info normal, Warnung zeitkritisch und Kritisch ein Alarm), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",
@@ -579,6 +625,10 @@
           "name": "Auswahl beim Zurückstellen",
           "description": "Bis zu 6 Zeitspannen zum Zurückstellen, 1 Minute bis 7 Tage.\n\nBeispiel:\n```yaml\n- minutes: 15\n- hours: 4\n```"
         },
+        "snooze_custom": {
+          "name": "Betrachter wählt die Dauer",
+          "description": "Bietet in der Karte zusätzlich „Andere…“ an: zurückstellen um beliebige Minuten oder bis zu einer Uhrzeit, höchstens 24 Stunden und nicht über das Ende der Meldung hinaus. Die Meldung muss zurückgestellt werden können."
+        },
         "mail_subject": {
           "name": "Mail-Betreff",
           "description": "Betreff der Mail dieser Nachricht, statt der Vorlage auf der Seite Kanäle. Platzhalter: {severity}, {title}, {message}, {person}, {person_id}, {id}, {tag}. {person} ist der Name des Empfängers, und jeder Empfänger bekommt eine eigene Mail. Nur mit dem Kanal Mail. Lass das Häkchen aus, um die Vorlage der Seite Kanäle zu nutzen."
@@ -607,7 +657,7 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (standardmäßig ist Passiv leise, Info normal, Warnung zeitkritisch und Kritisch ein Alarm), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",
@@ -665,7 +715,7 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (standardmäßig ist Passiv leise, Info normal, Warnung zeitkritisch und Kritisch ein Alarm), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",
@@ -723,7 +773,7 @@
         },
         "severity": {
           "name": "Dringlichkeit",
-          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (Erfolg und Info sind leise, Warnung ist normal, Kritisch ist zeitkritisch und erscheint sofort auch auf einem ruhenden Handy), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
+          "description": "Wie wichtig die Meldung ist. Sie bestimmt Farbe, Standard-Symbol und Sortierung des Banners, die Push-Stufe (standardmäßig ist Passiv leise, Info normal, Warnung zeitkritisch und Kritisch ein Alarm), den Popup-Stil und ob Ruhezeiten die Meldung durchlassen (Kritisch tut das, solange du es nicht änderst). Standard: Info."
         },
         "icon": {
           "name": "Symbol",
@@ -803,6 +853,7 @@
             "snoozable": "Zurückstellbar",
             "snooze_scope": "Bereich beim Zurückstellen",
             "snooze_options": "Auswahl beim Zurückstellen",
+            "snooze_custom": "Betrachter darf die Dauer wählen",
             "actions": "Schaltflächen",
             "tap_action": "Tipp-Aktion",
             "image": "Bild",
@@ -824,6 +875,7 @@
             "snoozable": "An: Betrachter können das Banner eine Weile ausblenden; danach kehrt es zurück. Benötigt „Schließbar“. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_scope": "Pro Benutzer oder alle. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen.",
+            "snooze_custom": "Die Karte bietet zusätzlich „Andere…“ an: beliebige Minuten oder bis zu einer Uhrzeit, höchstens 24 Stunden.",
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
@@ -852,6 +904,7 @@
             "snoozable": "Zurückstellbar",
             "snooze_scope": "Bereich beim Zurückstellen",
             "snooze_options": "Auswahl beim Zurückstellen",
+            "snooze_custom": "Betrachter darf die Dauer wählen",
             "actions": "Schaltflächen",
             "tap_action": "Tipp-Aktion",
             "image": "Bild"
@@ -872,6 +925,7 @@
             "snoozable": "An: Betrachter können das Banner eine Weile ausblenden; danach kehrt es zurück. Benötigt „Schließbar“. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_scope": "Pro Benutzer oder alle. Leer: die Einstellung aus den Integrationsoptionen.",
             "snooze_options": "Zeitspannen, die dem Betrachter angeboten werden. Leer: die Einstellung aus den Integrationsoptionen.",
+            "snooze_custom": "Die Karte bietet zusätzlich „Andere…“ an: beliebige Minuten oder bis zu einer Uhrzeit, höchstens 24 Stunden.",
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
@@ -1017,7 +1071,9 @@
             "removed_devices": "Entfernte Geräte",
             "primary": "Hauptgerät",
             "channels": "Akzeptierte Kanäle",
-            "mail_address": "E-Mail-Adresse"
+            "mail_address": "E-Mail-Adresse",
+            "home_entity": "Zu Hause laut",
+            "zone_entities": "Andere Zonen laut"
           },
           "data_description": {
             "enabled": "Aus: Diese Person erhält auf keinem Kanal etwas, auch keine kritischen Meldungen und auch nicht, wenn sie direkt genannt wird. Banner ohne Ziel bleiben auf ihrem Dashboard sichtbar.",
@@ -1025,7 +1081,9 @@
             "removed_devices": "Erkannte Geräte, die ausgelassen werden.",
             "primary": "Wird zuerst gelistet. Pushes gehen weiterhin an alle Geräte der Person. Leer: das erste erkannte Gerät.",
             "channels": "Kanäle, die diese Person erreichen dürfen. Ein ausgelassener Kanal wird für sie übersprungen.",
-            "mail_address": "Wohin die Mail dieser Person geht: die Adresse, die als Ziel des Benachrichtigungsdienstes von der Kanäle-Seite übergeben wird. Aktiviere oben E-Mail bei den Kanälen. Leer: Mail an diese Person scheitert mit no_mail_address."
+            "mail_address": "Wohin die Mail dieser Person geht: die Adresse, die als Ziel des Benachrichtigungsdienstes von der Kanäle-Seite übergeben wird. Aktiviere oben E-Mail bei den Kanälen. Leer: Mail an diese Person scheitert mit no_mail_address.",
+            "home_entity": "Optional: ein Eingabe-Schalter oder binärer Sensor, der sagt, dass diese Person zu Hause ist, solange er an ist. Leer: der eigene Zustand der Person, wie Home Assistant ihn meldet. Gilt für At home, Not home, Last to leave, First home, Zielgruppen nach der Zone Home und die Richtlinie Anwesenheit.",
+            "zone_entities": "Optional, für andere Zonen als Home: je Zone ein Eingabe-Schalter oder binärer Sensor, der sagt, dass diese Person in der Zone ist, solange er an ist, eine Zeile je Zone, zum Beispiel zone.work: binary_sensor.anna_at_work. Eine nicht genannte Zone nutzt den eigenen Zustand der Person, wie Home Assistant ihn meldet: die Zone, in der die Person ist."
           }
         },
         "reconfigure": {
@@ -1037,7 +1095,9 @@
             "removed_devices": "Entfernte Geräte",
             "primary": "Hauptgerät",
             "channels": "Akzeptierte Kanäle",
-            "mail_address": "E-Mail-Adresse"
+            "mail_address": "E-Mail-Adresse",
+            "home_entity": "Zu Hause laut",
+            "zone_entities": "Andere Zonen laut"
           },
           "data_description": {
             "enabled": "Aus: Diese Person erhält auf keinem Kanal etwas, auch keine kritischen Meldungen und auch nicht, wenn sie direkt genannt wird. Banner ohne Ziel bleiben auf ihrem Dashboard sichtbar.",
@@ -1045,7 +1105,9 @@
             "removed_devices": "Erkannte Geräte, die ausgelassen werden.",
             "primary": "Wird zuerst gelistet. Pushes gehen weiterhin an alle Geräte der Person. Leer: das erste erkannte Gerät.",
             "channels": "Kanäle, die diese Person erreichen dürfen. Ein ausgelassener Kanal wird für sie übersprungen.",
-            "mail_address": "Wohin die Mail dieser Person geht: die Adresse, die als Ziel des Benachrichtigungsdienstes von der Kanäle-Seite übergeben wird. Aktiviere oben E-Mail bei den Kanälen. Leer: Mail an diese Person scheitert mit no_mail_address."
+            "mail_address": "Wohin die Mail dieser Person geht: die Adresse, die als Ziel des Benachrichtigungsdienstes von der Kanäle-Seite übergeben wird. Aktiviere oben E-Mail bei den Kanälen. Leer: Mail an diese Person scheitert mit no_mail_address.",
+            "home_entity": "Optional: ein Eingabe-Schalter oder binärer Sensor, der sagt, dass diese Person zu Hause ist, solange er an ist. Leer: der eigene Zustand der Person, wie Home Assistant ihn meldet. Gilt für At home, Not home, Last to leave, First home, Zielgruppen nach der Zone Home und die Richtlinie Anwesenheit.",
+            "zone_entities": "Optional, für andere Zonen als Home: je Zone ein Eingabe-Schalter oder binärer Sensor, der sagt, dass diese Person in der Zone ist, solange er an ist, eine Zeile je Zone, zum Beispiel zone.work: binary_sensor.anna_at_work. Eine nicht genannte Zone nutzt den eigenen Zustand der Person, wie Home Assistant ihn meldet: die Zone, in der die Person ist."
           }
         }
       },
@@ -1055,7 +1117,9 @@
         "device_unknown": "Ein gewähltes Gerät ist keine Companion-App-Registrierung.",
         "device_added_and_removed": "Ein Gerät kann nicht gleichzeitig hinzugefügt und entfernt werden.",
         "channels_required": "Mindestens einen Kanal wählen.",
-        "mail_address_too_long": "Die Adresse darf höchstens 254 Zeichen lang sein."
+        "mail_address_too_long": "Die Adresse darf höchstens 254 Zeichen lang sein.",
+        "home_entity_invalid": "Wähle einen Eingabe-Schalter oder einen binären Sensor.",
+        "zone_entities_invalid": "Jede Zeile braucht eine Zone (zone.…) und einen Eingabe-Schalter oder binären Sensor."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
@@ -1069,7 +1133,7 @@
       "step": {
         "user": {
           "title": "Richtlinie hinzufügen",
-          "description": "Was die Richtlinie tut (der Typ) und wann sie gilt:\n\n- Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt.\n- Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt.\n- Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen.\n- Abwesenheit: sendet an Personen, die nicht zu Hause sind, wenn sie ankommen.\n- Ersatz: stellt anderswo zu, wenn niemand benachrichtigt werden konnte: andere Kanäle oder andere Personen auf denselben Kanälen.\n- Zusammenfassen: hält Meldungen auf jedem Kanal zurück, auch den Banner, und sendet eine Zusammenfassung pro Empfänger.\n- Zustellen: sendet passende Meldungen sofort an eine gewählte Zielgruppe auf gewählten Kanälen, zusätzlich zu dem, was der Aufruf verlangt hat.\n\nEine Richtlinie gilt automatisch für Meldungen, deren Schweregrad und Tag passen (leere Listen passen auf alles; Regelmeldungen haben den Tag \"rule\"), oder manuell, nur wenn ein Aufruf sie im Feld policy nennt.",
+          "description": "Was die Richtlinie tut (der Typ) und wann sie gilt:\n\n- Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt.\n- Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt.\n- Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen.\n- Anwesenheit: Zustellungen je nach Aufenthaltsort zurückhalten oder verwerfen, zum Beispiel senden, wenn die Person ankommt.\n- Ersatz: stellt anderswo zu, wenn niemand benachrichtigt werden konnte: andere Kanäle oder andere Personen auf denselben Kanälen.\n- Zusammenfassen: hält Meldungen auf jedem Kanal zurück, auch den Banner, und sendet eine Zusammenfassung pro Empfänger.\n- Zustellen: sendet passende Meldungen sofort an eine gewählte Zielgruppe auf gewählten Kanälen, zusätzlich zu dem, was der Aufruf verlangt hat.\n\nEine Richtlinie gilt automatisch für Meldungen, deren Schweregrad und Tag passen (leere Listen passen auf alles; Regelmeldungen haben den Tag \"rule\"), oder manuell, nur wenn ein Aufruf sie im Feld policy nennt.",
           "data": {
             "enabled": "Aktiv",
             "name": "Name",
@@ -1096,8 +1160,15 @@
             "from_time": "Ruhe ab",
             "to_time": "Ruhe bis",
             "days": "Tage",
+            "quiet_entity": "Oder ruhig, solange dies an ist",
             "action": "Während der Ruhezeit",
             "critical_passes": "Kritische Meldungen kommen durch",
+            "zone": "Zone",
+            "presence_when": "Push, Popup, Mail: wenn der Empfänger",
+            "household_who": "Sprache: wenn",
+            "household_audience": "dieser Zielgruppe in der Zone ist",
+            "presence_then": "Dann",
+            "after_wait": "Wenn die Wartezeit endet",
             "max_wait": "Auf Ankunft warten (Minuten)",
             "when": "Verwenden, wenn",
             "summary_every": "Zusammenfassung alle (Minuten)",
@@ -1123,9 +1194,16 @@
             "from_time": "Ruhezeit: Beginn des Zeitfensters, in der Zeitzone von Home Assistant.",
             "to_time": "Ruhezeit: Ende des Zeitfensters. Ein Fenster darf über Mitternacht gehen.",
             "days": "Ruhezeit: die Tage, an denen ein Fenster beginnt. Leer: jeden Tag.",
+            "quiet_entity": "Ruhezeit: statt der Uhrzeiten ruhig, solange dieser Zeitplan, dieser Eingabe-Schalter oder dieser binäre Sensor an ist. Zurückgehaltene Meldungen gehen raus, wenn er aus geht. Eine fehlende oder nicht verfügbare Entität ist nicht ruhig.",
             "action": "Ruhezeit: leise senden (Push ohne Ton, keine Sprachausgabe), bis zum Ende zurückhalten oder die Zustellung verwerfen.",
-            "critical_passes": "Ruhezeit: kritische Meldungen ignorieren diese Richtlinie.",
-            "max_wait": "Abwesend: Minuten, die auf die Ankunft der Person gewartet wird. 0: solange die Meldung besteht.",
+            "critical_passes": "Ruhezeit und Anwesenheit: kritische Meldungen ignorieren diese Richtlinie.",
+            "zone": "Anwesenheit: die geprüfte Zone. Zuhause nutzt die Zuhause-Entität einer Person, wenn ihr Empfängerprofil eine nennt.",
+            "presence_when": "Anwesenheit: geprüft für jeden Empfänger von Push, Popup und Mail.",
+            "household_who": "Anwesenheit: Sprache wird für den Haushalt geprüft, niemand oder jemand der Zielgruppe darunter.",
+            "household_audience": "Anwesenheit: eine Liste von Personen. Leer: alle.",
+            "presence_then": "Anwesenheit: die Zustellung zurückhalten, bis sich das ändert, oder verwerfen.",
+            "after_wait": "Anwesenheit: was mit einer zurückgehaltenen Zustellung passiert, wenn die maximale Wartezeit vorbei ist.",
+            "max_wait": "Anwesenheit: Minuten, die höchstens gewartet wird. 0: solange die Meldung besteht.",
             "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl.",
             "summary_every": "Zusammenfassen: eine Zusammenfassung so viele Minuten nach der ersten zurückgehaltenen Meldung senden.",
             "summary_at": "Zusammenfassen: eine Zusammenfassung täglich zu dieser Uhrzeit statt im Intervall senden.",
@@ -1136,7 +1214,7 @@
         },
         "reconfigure": {
           "title": "Richtlinie ändern",
-          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Abwesend: an Personen, die nicht zu Hause sind, bei ihrer Ankunft senden. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte. Zusammenfassen: Meldungen auf allen Kanälen, auch dem Banner, zurückhalten und eine Zusammenfassung je Empfänger senden. Zustellen: passende Meldungen sofort an eine gewählte Zielgruppe auf gewählten Kanälen senden, zusätzlich zu dem, was der Aufruf nennt.",
+          "description": "Eskalation: Bestätigt niemand innerhalb der Zeit, wird über weitere Kanäle zugestellt. Erinnerung: wiederholt die Benachrichtigung, solange niemand bestätigt. Leere Schweregrade oder Tags bedeuten alle. Regelmeldungen haben den Tag \"rule\". Ruhezeit: Zustellungen in einem Zeitfenster zurückhalten, leise senden oder verwerfen. Anwesenheit: Zustellungen je nach Aufenthaltsort zurückhalten oder verwerfen, zum Beispiel senden, wenn die Person ankommt. Ersatz: andere Kanäle nutzen, wenn niemand benachrichtigt werden konnte. Zusammenfassen: Meldungen auf allen Kanälen, auch dem Banner, zurückhalten und eine Zusammenfassung je Empfänger senden. Zustellen: passende Meldungen sofort an eine gewählte Zielgruppe auf gewählten Kanälen senden, zusätzlich zu dem, was der Aufruf nennt.",
           "data": {
             "name": "Name",
             "type": "Art",
@@ -1162,8 +1240,15 @@
             "from_time": "Ruhe ab",
             "to_time": "Ruhe bis",
             "days": "Tage",
+            "quiet_entity": "Oder ruhig, solange dies an ist",
             "action": "Während der Ruhezeit",
             "critical_passes": "Kritische Meldungen kommen durch",
+            "zone": "Zone",
+            "presence_when": "Push, Popup, Mail: wenn der Empfänger",
+            "household_who": "Sprache: wenn",
+            "household_audience": "dieser Zielgruppe in der Zone ist",
+            "presence_then": "Dann",
+            "after_wait": "Wenn die Wartezeit endet",
             "max_wait": "Auf Ankunft warten (Minuten)",
             "when": "Verwenden, wenn",
             "summary_every": "Zusammenfassung alle (Minuten)",
@@ -1188,9 +1273,16 @@
             "from_time": "Ruhezeit: Beginn des Zeitfensters, in der Zeitzone von Home Assistant.",
             "to_time": "Ruhezeit: Ende des Zeitfensters. Ein Fenster darf über Mitternacht gehen.",
             "days": "Ruhezeit: die Tage, an denen ein Fenster beginnt. Leer: jeden Tag.",
+            "quiet_entity": "Ruhezeit: statt der Uhrzeiten ruhig, solange dieser Zeitplan, dieser Eingabe-Schalter oder dieser binäre Sensor an ist. Zurückgehaltene Meldungen gehen raus, wenn er aus geht. Eine fehlende oder nicht verfügbare Entität ist nicht ruhig.",
             "action": "Ruhezeit: leise senden (Push ohne Ton, keine Sprachausgabe), bis zum Ende zurückhalten oder die Zustellung verwerfen.",
-            "critical_passes": "Ruhezeit: kritische Meldungen ignorieren diese Richtlinie.",
-            "max_wait": "Abwesend: Minuten, die auf die Ankunft der Person gewartet wird. 0: solange die Meldung besteht.",
+            "critical_passes": "Ruhezeit und Anwesenheit: kritische Meldungen ignorieren diese Richtlinie.",
+            "zone": "Anwesenheit: die geprüfte Zone. Zuhause nutzt die Zuhause-Entität einer Person, wenn ihr Empfängerprofil eine nennt.",
+            "presence_when": "Anwesenheit: geprüft für jeden Empfänger von Push, Popup und Mail.",
+            "household_who": "Anwesenheit: Sprache wird für den Haushalt geprüft, niemand oder jemand der Zielgruppe darunter.",
+            "household_audience": "Anwesenheit: eine Liste von Personen. Leer: alle.",
+            "presence_then": "Anwesenheit: die Zustellung zurückhalten, bis sich das ändert, oder verwerfen.",
+            "after_wait": "Anwesenheit: was mit einer zurückgehaltenen Zustellung passiert, wenn die maximale Wartezeit vorbei ist.",
+            "max_wait": "Anwesenheit: Minuten, die höchstens gewartet wird. 0: solange die Meldung besteht.",
             "when": "Ersatz: wann die Kanäle und Ziele oben verwendet werden. Niemand zu benachrichtigen: die Zielgruppe war leer. Zustellung fehlgeschlagen: die Person hat kein nutzbares Gerät oder das Senden schlug fehl.",
             "summary_every": "Zusammenfassen: eine Zusammenfassung so viele Minuten nach der ersten zurückgehaltenen Meldung senden.",
             "summary_at": "Zusammenfassen: eine Zusammenfassung täglich zu dieser Uhrzeit statt im Intervall senden.",
@@ -1218,7 +1310,10 @@
         "channels_from_unknown": "Nur eine Ersatz-Richtlinie kann die Kanäle nutzen, die niemanden erreicht haben.",
         "targets_from_unknown": "Wähle, woher die Empfänger stammen.",
         "nothing_new": "Nimm entweder die Kanäle oder die Empfänger aus dem Aufruf, nicht beides: Die Richtlinie würde nichts hinzufügen.",
-        "target_required": "Gib die Personen oder Lautsprecher an, die es erhalten sollen."
+        "target_required": "Gib die Personen oder Lautsprecher an, die es erhalten sollen.",
+        "quiet_entity_invalid": "Wähle einen Zeitplan, einen Eingabe-Schalter oder einen binären Sensor.",
+        "zone_invalid": "Wähle eine Zone.",
+        "choice_invalid": "Wähle eine der Möglichkeiten."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."

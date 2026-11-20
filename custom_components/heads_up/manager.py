@@ -46,6 +46,8 @@ from .const import (
     EVENT_UNSNOOZED,
     EVENT_UPDATED,
     GLOBAL_SNOOZE_KEY,
+    MAX_CUSTOM_SNOOZE_SECONDS,
+    MIN_SNOOZE_SECONDS,
     OPT_DEFAULT_DISMISS_SCOPE,
     OPT_DEFAULT_SNOOZABLE,
     OPT_DEFAULT_SNOOZE_OPTIONS,
@@ -55,6 +57,7 @@ from .const import (
     OPT_EVICT,
     OPT_MAX_BANNERS,
     OPT_QUICK_SNOOZE,
+    OPT_SEVERITY_DISPLAY,
     RULE_ID_PREFIX,
     RULE_SUBENTRY,
     RULE_TAG,
@@ -62,6 +65,8 @@ from .const import (
     SEVERITIES,
     SOURCE_ACTION,
     SOURCE_RULE,
+    UNSNOOZE_ENDED,
+    UNSNOOZE_USER,
 )
 from .hub.engine import HubEngine
 from .hub.rename import rewrite
@@ -250,6 +255,7 @@ class BannerManager:
             snooze_options=list(
                 data.get("snooze_options") or self.options[OPT_DEFAULT_SNOOZE_OPTIONS]
             ),
+            snooze_custom=bool(data.get("snooze_custom")),
             tag=data.get("tag"),
             tap_action=data.get("tap_action"),
             image=data.get("image"),
@@ -420,7 +426,11 @@ class BannerManager:
         self._require_target(banner, user_id)
         if not banner.snoozable:
             raise HeadsUpError("not_snoozable", f"Banner {banner_id} cannot be snoozed")
-        if seconds not in banner.snooze_options and seconds != self.quick_snooze_seconds:
+        if (
+            seconds not in banner.snooze_options
+            and seconds != self.quick_snooze_seconds
+            and not self._custom_snooze_allowed(banner, seconds)
+        ):
             raise HeadsUpError(
                 "invalid_snooze", f"{seconds} s is not a choice of banner {banner_id}"
             )
@@ -437,6 +447,18 @@ class BannerManager:
         )
         self._emit(Kind.SNOOZED, banner, user_id=user_id)
         self._changed()
+
+    @staticmethod
+    def _custom_snooze_allowed(banner: Banner, seconds: int) -> bool:
+        """A duration the viewer chose: at least a minute, at most 24 hours and not past the
+        end of the message (D-219)."""
+        if not banner.snooze_custom or seconds < MIN_SNOOZE_SECONDS:
+            return False
+        limit = MAX_CUSTOM_SNOOZE_SECONDS
+        if banner.expires_at is not None:
+            left = (banner.expires_at - dt_util.utcnow()).total_seconds()
+            limit = min(limit, max(int(left), MIN_SNOOZE_SECONDS))
+        return seconds <= limit
 
     @callback
     def acknowledge(self, banner_id: str, user_id: str, *, any_message: bool = False) -> None:
@@ -466,7 +488,7 @@ class BannerManager:
                 cancel := self._snooze_timers.pop((banner.id, key), None)
             ):
                 cancel()
-        self._fire(EVENT_UNSNOOZED, banner, user_id=user_id)
+        self._fire(EVENT_UNSNOOZED, banner, user_id=user_id, reason=UNSNOOZE_USER)
         self._emit(Kind.UNSNOOZED, banner, user_id=user_id)
         self._changed()
 
@@ -664,6 +686,7 @@ class BannerManager:
             snooze_options=list(
                 source.get("snooze_options") or self.options[OPT_DEFAULT_SNOOZE_OPTIONS]
             ),
+            snooze_custom=bool(source.get("snooze_custom")),
             tag=RULE_TAG,
             policy=(source.get("policy") or None),
             source=SOURCE_RULE,
@@ -729,7 +752,7 @@ class BannerManager:
     # Internals -------------------------------------------------------------------------
 
     def _client(self, banner: Banner, user_id: str) -> dict[str, Any]:
-        data = banner.to_client(user_id)
+        data = banner.to_client(user_id, self.options.get(OPT_SEVERITY_DISPLAY))
         # Who acknowledged is shown as first names (D-116); a user without a person is counted only.
         data["acknowledged"] = bool(banner.acknowledged_by)
         data["acknowledged_by"] = [
@@ -1018,7 +1041,7 @@ class BannerManager:
         self._snooze_timers.pop((banner_id, key), None)
         banner = self.banners.get(banner_id) or self.rules.get(banner_id)
         if banner is not None and banner.snoozed_until.pop(key, None) is not None:
-            # No bus event fires for an ended snooze; the engine still needs to know (D-078).
+            self._fire_snooze_ended(banner, key)
             self._emit(
                 Kind.UNSNOOZED,
                 banner,
@@ -1039,6 +1062,7 @@ class BannerManager:
         ended = [key for key, until in banner.snoozed_until.items() if until <= now]
         for key in ended:
             del banner.snoozed_until[key]
+            self._fire_snooze_ended(banner, key)  # ran out while Home Assistant was down
         for key, until in banner.snoozed_until.items():
             self._schedule_snooze(banner.id, key, until)
         return bool(ended)
@@ -1058,6 +1082,11 @@ class BannerManager:
         )
         for listener in list(self._transition_listeners):
             listener(transition)
+
+    def _fire_snooze_ended(self, banner: Banner, key: str) -> None:
+        """A snooze ran out by itself (D-221); a global one has no user."""
+        user_id = None if key == GLOBAL_SNOOZE_KEY else key
+        self._fire(EVENT_UNSNOOZED, banner, user_id=user_id, reason=UNSNOOZE_ENDED)
 
     def _fire(self, event: str, banner: Banner, **extra: Any) -> None:
         self.hass.bus.async_fire(event, {"id": banner.id, "tag": banner.tag, **extra})

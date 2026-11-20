@@ -81,7 +81,7 @@
               "presence_debounce_seconds": "Presence delay (seconds)"
             },
             "data_description": {
-              "presence_debounce_seconds": "A person must stay home or away this long before \"Last to leave\" and \"First home\" change. 0 reacts at once."
+              "presence_debounce_seconds": "A person must stay in or out of a zone this long before \"Last to leave\" and \"First home\" change and a Presence policy releases what it holds. 0 reacts at once."
             }
           },
           "speech": {
@@ -95,6 +95,19 @@
               "speak_max_length": "Longer texts are cut at a word and end with an ellipsis.",
               "speak_cooldown_seconds": "The same text is not spoken again on the same speaker within this time. 0: always speak.",
               "speak_tts_entity": "The engine that speaks on media players. Empty: the only text-to-speech entity, if there is exactly one."
+            }
+          },
+          "speech_volume": {
+            "name": "Speech volume",
+            "data": {
+              "speak_restore_volume": "Put the volume back after speaking",
+              "speak_severity_volume": "Volume by severity (percent)",
+              "speak_volume_bands": "Volume by time of day"
+            },
+            "data_description": {
+              "speak_restore_volume": "A speaker whose volume Heads Up changed gets its earlier volume back once the message was said, unless someone changed the volume meanwhile. Sonos speakers keep their volume and say the message at the chosen level. Off: the speaker stays at the speech volume.",
+              "speak_severity_volume": "0–100 per severity. Empty: the time of day decides. A volume in the action call comes first.",
+              "speak_volume_bands": "Up to 4 bands, each with a start, an end and a volume in percent. A band from 22:00 to 07:00 runs over midnight. Bands must not overlap. Outside every band the volume is not changed."
             }
           },
           "limits": {
@@ -121,21 +134,26 @@
               "recent_messages": "Recent messages kept"
             },
             "data_description": {
-              "trace_entries": "50–5000.",
-              "recent_messages": "10–1000."
+              "trace_entries": "50–5000. The delivery trace: why each message did or did not arrive. Kept across restarts. Also the length of the last actions on the Overview, which start empty after a restart.",
+              "recent_messages": "10–1000. The messages listed in the Message Log. After a restart the list holds only the messages that have not ended."
             }
           }
         }
       }
     },
     "error": {
-      "timeout_too_long": "The default timeout is at most 365 days."
+      "timeout_too_long": "The default timeout is at most 365 days.",
+      "bands_invalid": "Each band needs a start and an end (HH:MM) and a volume from 0 to 100.",
+      "bands_too_many": "At most 4 bands.",
+      "bands_empty": "A band needs a start different from its end.",
+      "bands_overlap": "Bands must not overlap.",
+      "severity_volume_invalid": "Give a volume from 0 to 100 for passive, info, warning or critical."
     }
   },
   "selector": {
     "severity": {
       "options": {
-        "success": "Success",
+        "passive": "Passive",
         "info": "Info",
         "warning": "Warning",
         "critical": "Critical"
@@ -223,7 +241,7 @@
         "escalation": "Escalation",
         "reminder": "Reminder",
         "quiet_hours": "Quiet hours",
-        "away": "Away",
+        "presence": "Presence",
         "fallback": "Fallback",
         "summarize": "Summarize",
         "deliver": "Deliver"
@@ -284,6 +302,30 @@
       "options": {
         "automatic": "Automatic",
         "none": "None"
+      }
+    },
+    "presence_when": {
+      "options": {
+        "not_in": "is not in the zone",
+        "in": "is in the zone"
+      }
+    },
+    "household_who": {
+      "options": {
+        "nobody": "nobody",
+        "somebody": "somebody"
+      }
+    },
+    "presence_then": {
+      "options": {
+        "hold": "Hold until that changes",
+        "drop": "Drop"
+      }
+    },
+    "after_wait": {
+      "options": {
+        "send": "Send anyway",
+        "drop": "Drop"
       }
     }
   },
@@ -396,6 +438,10 @@
         "snooze_options": {
           "name": "Snooze choices",
           "description": "Up to 6 snooze durations, 1 minute to 7 days.\n\nExample:\n```yaml\n- minutes: 15\n- hours: 4\n```"
+        },
+        "snooze_custom": {
+          "name": "Viewer chooses the duration",
+          "description": "Also offer \"Other…\" in the card, so the viewer can snooze for any number of minutes or until a time of day, at most 24 hours and not past the end of the message. Needs a message that can be snoozed."
         },
         "actions": {
           "name": "Buttons",
@@ -529,7 +575,7 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (by default passive is quiet, info normal, warning time-sensitive and critical an alarm), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",
@@ -579,6 +625,10 @@
           "name": "Snooze choices",
           "description": "Up to 6 snooze durations, 1 minute to 7 days.\n\nExample:\n```yaml\n- minutes: 15\n- hours: 4\n```"
         },
+        "snooze_custom": {
+          "name": "Viewer chooses the duration",
+          "description": "Also offer \"Other…\" in the card, so the viewer can snooze for any number of minutes or until a time of day, at most 24 hours and not past the end of the message. Needs a message that can be snoozed."
+        },
         "mail_subject": {
           "name": "Mail subject",
           "description": "Subject of this message's mail, instead of the template on the Channels page. Placeholders: {severity}, {title}, {message}, {person}, {person_id}, {id}, {tag}. {person} is the name of the recipient, and each recipient gets their own mail. Only used with the mail channel. Leave the checkbox unchecked to use the template from the Channels page."
@@ -607,7 +657,7 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (by default passive is quiet, info normal, warning time-sensitive and critical an alarm), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",
@@ -665,7 +715,7 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (by default passive is quiet, info normal, warning time-sensitive and critical an alarm), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",
@@ -723,7 +773,7 @@
         },
         "severity": {
           "name": "Severity",
-          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (success and info are quiet, warning is normal, critical is time-sensitive and shown at once on an idle phone), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
+          "description": "How important the message is. It sets the color, the default icon and the sort order of the banner, the push level (by default passive is quiet, info normal, warning time-sensitive and critical an alarm), the popup style, and whether quiet hours let the message pass (critical does unless you change it). Default: Info."
         },
         "icon": {
           "name": "Icon",
@@ -803,6 +853,7 @@
             "snoozable": "Snoozable",
             "snooze_scope": "Snooze scope",
             "snooze_options": "Snooze choices",
+            "snooze_custom": "Viewer may choose the duration",
             "actions": "Buttons",
             "tap_action": "Tap action",
             "image": "Image",
@@ -824,6 +875,7 @@
             "snoozable": "On: viewers can hide the banner for a while; it returns afterwards. Needs Dismissible. Empty: the setting from the integration options.",
             "snooze_scope": "Per user or everyone. Empty: the setting from the integration options.",
             "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options.",
+            "snooze_custom": "The card also offers \"Other…\": any number of minutes or until a time, at most 24 hours.",
             "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
@@ -852,6 +904,7 @@
             "snoozable": "Snoozable",
             "snooze_scope": "Snooze scope",
             "snooze_options": "Snooze choices",
+            "snooze_custom": "Viewer may choose the duration",
             "actions": "Buttons",
             "tap_action": "Tap action",
             "image": "Image"
@@ -872,6 +925,7 @@
             "snoozable": "On: viewers can hide the banner for a while; it returns afterwards. Needs Dismissible. Empty: the setting from the integration options.",
             "snooze_scope": "Per user or everyone. Empty: the setting from the integration options.",
             "snooze_options": "Durations offered to the viewer. Empty: the setting from the integration options.",
+            "snooze_custom": "The card also offers \"Other…\": any number of minutes or until a time, at most 24 hours.",
             "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
@@ -1017,7 +1071,9 @@
             "removed_devices": "Removed devices",
             "primary": "Primary device",
             "channels": "Accepted channels",
-            "mail_address": "Mail address"
+            "mail_address": "Mail address",
+            "home_entity": "Home from",
+            "zone_entities": "Other zones from"
           },
           "data_description": {
             "enabled": "Off: this person gets nothing on any channel, not even critical messages or messages that name them directly. Banners without a target stay visible on their dashboard.",
@@ -1025,7 +1081,9 @@
             "removed_devices": "Detected devices to leave out.",
             "primary": "Listed first. Pushes still go to every device of the person. Empty: the first detected device.",
             "channels": "Channels that may reach this person. A channel left out is skipped for them.",
-            "mail_address": "Where mail for this person goes: the address passed as the target of the notify service chosen on the Channels page. Turn on Mail in Channels above. Empty: mail to this person fails with no_mail_address."
+            "mail_address": "Where mail for this person goes: the address passed as the target of the notify service chosen on the Channels page. Turn on Mail in Channels above. Empty: mail to this person fails with no_mail_address.",
+            "home_entity": "Optional: an input boolean or binary sensor that says this person is home while it is on. Empty: the person's own state, as Home Assistant reports it. Used for At home, Not home, Last to leave, First home, audiences by the zone Home and the Presence policy.",
+            "zone_entities": "Optional, for zones other than Home: per zone an input boolean or binary sensor that says this person is in the zone while it is on, one per line, for example zone.work: binary_sensor.anna_at_work. A zone not listed uses the person's own state, as Home Assistant reports it: the zone the person is in."
           }
         },
         "reconfigure": {
@@ -1037,7 +1095,9 @@
             "removed_devices": "Removed devices",
             "primary": "Primary device",
             "channels": "Accepted channels",
-            "mail_address": "Mail address"
+            "mail_address": "Mail address",
+            "home_entity": "Home from",
+            "zone_entities": "Other zones from"
           },
           "data_description": {
             "enabled": "Off: this person gets nothing on any channel, not even critical messages or messages that name them directly. Banners without a target stay visible on their dashboard.",
@@ -1045,7 +1105,9 @@
             "removed_devices": "Detected devices to leave out.",
             "primary": "Listed first. Pushes still go to every device of the person. Empty: the first detected device.",
             "channels": "Channels that may reach this person. A channel left out is skipped for them.",
-            "mail_address": "Where mail for this person goes: the address passed as the target of the notify service chosen on the Channels page. Turn on Mail in Channels above. Empty: mail to this person fails with no_mail_address."
+            "mail_address": "Where mail for this person goes: the address passed as the target of the notify service chosen on the Channels page. Turn on Mail in Channels above. Empty: mail to this person fails with no_mail_address.",
+            "home_entity": "Optional: an input boolean or binary sensor that says this person is home while it is on. Empty: the person's own state, as Home Assistant reports it. Used for At home, Not home, Last to leave, First home, audiences by the zone Home and the Presence policy.",
+            "zone_entities": "Optional, for zones other than Home: per zone an input boolean or binary sensor that says this person is in the zone while it is on, one per line, for example zone.work: binary_sensor.anna_at_work. A zone not listed uses the person's own state, as Home Assistant reports it: the zone the person is in."
           }
         }
       },
@@ -1055,7 +1117,9 @@
         "device_unknown": "A chosen device is not a Companion app registration.",
         "device_added_and_removed": "A device cannot be both added and removed.",
         "channels_required": "Choose at least one channel.",
-        "mail_address_too_long": "The address can be at most 254 characters."
+        "mail_address_too_long": "The address can be at most 254 characters.",
+        "home_entity_invalid": "Choose an input boolean or a binary sensor.",
+        "zone_entities_invalid": "Each line needs a zone (zone.…) and an input boolean or binary sensor."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."
@@ -1069,7 +1133,7 @@
       "step": {
         "user": {
           "title": "Add policy",
-          "description": "What the policy does (the type) and when it applies:\n\n- Escalation: if nobody acknowledges within the time, deliver on more channels.\n- Reminder: repeat the notification while nobody acknowledges.\n- Quiet hours: hold, quiet or drop deliveries in a time window.\n- Away: send to people who are not home when they arrive.\n- Fallback: deliver somewhere else when nobody could be notified: other channels, or other people on the same channels.\n- Summarize: hold messages on every channel, including the banner, and send one summary per recipient.\n- Deliver: send matching messages to a chosen audience on chosen channels at once, in addition to what the call asked for.\n\nA policy applies automatically to messages whose severity and tag match (empty lists mean any; rule messages have the tag \"rule\"), or manually, only when a call names it in its policy field.",
+          "description": "What the policy does (the type) and when it applies:\n\n- Escalation: if nobody acknowledges within the time, deliver on more channels.\n- Reminder: repeat the notification while nobody acknowledges.\n- Quiet hours: hold, quiet or drop deliveries in a time window.\n- Presence: hold or drop deliveries by where people are, for example send when the person arrives.\n- Fallback: deliver somewhere else when nobody could be notified: other channels, or other people on the same channels.\n- Summarize: hold messages on every channel, including the banner, and send one summary per recipient.\n- Deliver: send matching messages to a chosen audience on chosen channels at once, in addition to what the call asked for.\n\nA policy applies automatically to messages whose severity and tag match (empty lists mean any; rule messages have the tag \"rule\"), or manually, only when a call names it in its policy field.",
           "data": {
             "enabled": "Enabled",
             "name": "Name",
@@ -1096,8 +1160,15 @@
             "from_time": "Quiet from",
             "to_time": "Quiet until",
             "days": "Days",
+            "quiet_entity": "Or quiet while this is on",
             "action": "During quiet hours",
             "critical_passes": "Critical messages pass",
+            "zone": "Zone",
+            "presence_when": "Push, popup, mail: when the recipient",
+            "household_who": "Speech: when",
+            "household_audience": "of this audience is in the zone",
+            "presence_then": "Then",
+            "after_wait": "When the wait ends",
             "max_wait": "Wait for arrival (minutes)",
             "when": "Use when",
             "summary_every": "Summary every (minutes)",
@@ -1123,9 +1194,16 @@
             "from_time": "Quiet hours: start of the window, in the Home Assistant time zone.",
             "to_time": "Quiet hours: end of the window. A window may cross midnight.",
             "days": "Quiet hours: the days a window starts on. Empty: every day.",
+            "quiet_entity": "Quiet hours: instead of the times, quiet while this schedule, input boolean or binary sensor is on. Held messages go out when it turns off. A missing or unavailable entity is not quiet.",
             "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
-            "critical_passes": "Quiet hours and Away: critical messages ignore this policy.",
-            "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
+            "critical_passes": "Quiet hours and Presence: critical messages ignore this policy.",
+            "zone": "Presence: the zone that is checked. Home uses each person's home entity if the recipient profile names one.",
+            "presence_when": "Presence: checked for each recipient of push, popup and mail.",
+            "household_who": "Presence: speech is checked for the household, nobody or somebody of the audience below.",
+            "household_audience": "Presence: a list of persons. Empty: everyone.",
+            "presence_then": "Presence: hold the delivery until that changes, or drop it.",
+            "after_wait": "Presence: what happens to a held delivery when the maximum wait is over.",
+            "max_wait": "Presence: minutes to wait at most. 0: as long as the message lives.",
             "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed.",
             "summary_every": "Summarize: send one summary this many minutes after the first message was held.",
             "summary_at": "Summarize: send one summary at this time every day instead of by the interval.",
@@ -1136,7 +1214,7 @@
         },
         "reconfigure": {
           "title": "Change policy",
-          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Away: send to people who are not home when they arrive. Fallback: deliver somewhere else when nobody could be notified: other channels, or other people on the same channels. Summarize: hold messages on every channel, including the banner, and send one summary per recipient. Deliver: send matching messages to a chosen audience on chosen channels at once, in addition to what the call names.",
+          "description": "Escalation: if nobody acknowledges within the time, deliver on more channels. Reminder: repeat the notification while nobody acknowledges. Empty severities or tags mean any. Rule messages have the tag \"rule\". Quiet hours: hold, quiet or drop deliveries in a time window. Presence: hold or drop deliveries by where people are, for example send when the person arrives. Fallback: deliver somewhere else when nobody could be notified: other channels, or other people on the same channels. Summarize: hold messages on every channel, including the banner, and send one summary per recipient. Deliver: send matching messages to a chosen audience on chosen channels at once, in addition to what the call names.",
           "data": {
             "name": "Name",
             "type": "Type",
@@ -1162,8 +1240,15 @@
             "from_time": "Quiet from",
             "to_time": "Quiet until",
             "days": "Days",
+            "quiet_entity": "Or quiet while this is on",
             "action": "During quiet hours",
             "critical_passes": "Critical messages pass",
+            "zone": "Zone",
+            "presence_when": "Push, popup, mail: when the recipient",
+            "household_who": "Speech: when",
+            "household_audience": "of this audience is in the zone",
+            "presence_then": "Then",
+            "after_wait": "When the wait ends",
             "max_wait": "Wait for arrival (minutes)",
             "when": "Use when",
             "summary_every": "Summary every (minutes)",
@@ -1188,9 +1273,16 @@
             "from_time": "Quiet hours: start of the window, in the Home Assistant time zone.",
             "to_time": "Quiet hours: end of the window. A window may cross midnight.",
             "days": "Quiet hours: the days a window starts on. Empty: every day.",
+            "quiet_entity": "Quiet hours: instead of the times, quiet while this schedule, input boolean or binary sensor is on. Held messages go out when it turns off. A missing or unavailable entity is not quiet.",
             "action": "Quiet hours: send quietly (push without sound, no speech), hold until the end, or drop the delivery.",
-            "critical_passes": "Quiet hours and Away: critical messages ignore this policy.",
-            "max_wait": "Away: minutes to wait for the person to arrive. 0: as long as the message lives.",
+            "critical_passes": "Quiet hours and Presence: critical messages ignore this policy.",
+            "zone": "Presence: the zone that is checked. Home uses each person's home entity if the recipient profile names one.",
+            "presence_when": "Presence: checked for each recipient of push, popup and mail.",
+            "household_who": "Presence: speech is checked for the household, nobody or somebody of the audience below.",
+            "household_audience": "Presence: a list of persons. Empty: everyone.",
+            "presence_then": "Presence: hold the delivery until that changes, or drop it.",
+            "after_wait": "Presence: what happens to a held delivery when the maximum wait is over.",
+            "max_wait": "Presence: minutes to wait at most. 0: as long as the message lives.",
             "when": "Fallback: when to use the channels and targets above. Nobody to notify: the audience resolved to nobody. Delivery failed: the person has no usable device or sending failed.",
             "summary_every": "Summarize: send one summary this many minutes after the first message was held.",
             "summary_at": "Summarize: send one summary at this time every day instead of by the interval.",
@@ -1218,7 +1310,10 @@
         "channels_from_unknown": "Only a Fallback policy can use the channels that reached nobody.",
         "targets_from_unknown": "Choose where the recipients come from.",
         "nothing_new": "Take either the channels or the recipients from the call, not both: the policy would add nothing.",
-        "target_required": "Give the people or the speakers who should receive it."
+        "target_required": "Give the people or the speakers who should receive it.",
+        "quiet_entity_invalid": "Choose a schedule, an input boolean or a binary sensor.",
+        "zone_invalid": "Choose a zone.",
+        "choice_invalid": "Choose one of the options."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

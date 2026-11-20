@@ -4,7 +4,7 @@
 - Policy redesign AB decided (D-224); design set in `docs/dev/policy-redesign/` (fact sheet, stories, designs, reviews, comparison, reviewer scores), mockup `docs/dev/mockups/policy-redesign-a.html`.
 - Designed 2026-11-19: `docs/DESIGN.md` §25 (model, rules, stored shape, conversion and check list, checker and history, panel, wording, build checklist); scope, promise lines, downgrade and build plan in D-234.
 - Open before building (§25.16): Home Assistant's behaviour for a config entry with a higher major version; the condition selector for Only if and Faster while; Only if listeners on held deliveries across a restart; cost of the checker and promise lines on a large setup; the "watch rule" terms of the wording table against the 1.1 strings.
-- Open: the merge of `release/1.1` into `release/2.0`, first step of the build (D-231: 1.1 is not released on its own; D-207 to D-233 live on `release/1.1` until then).
+- Done 2026-11-20: `release/1.1` merged into `release/2.0` (D-231); the section "1.1.0" below now belongs to 2.0.0.
 - Decided 2026-11-20: the cells O1 to O12 of `docs/dev/policy-redesign/04-interaction-matrix.md` (D-235); each row of the matrix becomes a test in the build phase.
 - Open: the interactive policy help (`docs/dev/mockups/policy-help.html`) as a panel page behind a help button, part of the 2.0.0 panel step.
 - Not in 2.0.0 (D-234): editable notify presets, per-channel targets in `notify`.
@@ -136,3 +136,13 @@
 - A notify service renamed in another integration (`mail_service`) can only be reported, not repaired.
 - A hand-written call that names an area by name works until the area is renamed in Home Assistant; the stored form is the area ID.
 - Whether the property-style rename test should also run against the dev instance (real entity registry) and not only unit fixtures.
+
+## 1.1.0 (branch `release/1.1`, built 2026-11-19)
+- Built and checked on the dev instance (D-225). Not verified on real hardware: the Sonos clip volume (`extra.volume`, N-105), volume restore and the speech estimate on other announce players, Presence with real GPS presence, push and popup with an overridden severity label and color on phones and a wall tablet.
+- "Only if" on policies and guests through it (D-209, D-216) are not in 1.1.0; they come with the policy redesign of 2.0.0. 1.1.0 keeps the 1.0 policy modes, so a speech Presence policy under "only the first" competes with other policies for the same message (D-210).
+- The household audience of a speech Presence policy is a persons audience or everyone; presence audiences (At home and the others) are not offered there.
+- Custom severities (more than the four) are not built (D-222).
+- Snooze and unsnooze as actions for automations: not in 1.1.0 (maintainer, 2026-11-18).
+- Push snooze uses only the first snooze option (D-142); more snooze buttons on a push are not planned.
+- Audience usage (D-227) is stored while the Message Log is memory only; when the log is stored, the usage should be derived from it or kept consistent with it.
+- Before the 1.1.0 release: the release steps in `docs/dev/RELEASE.md`, the version in the manifest and the CHANGELOG date.

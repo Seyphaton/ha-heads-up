@@ -1,19 +1,19 @@
 // Heads Up popup (docs/configuration.md#popup). Imported by the loader when the first popup is due.
 // Plain ES module, no build step (D-021, D-115). Message text only via textContent.
 
-const SEVERITY_RANK = { critical: 3, warning: 2, info: 1, success: 0 };
+const SEVERITY_RANK = { critical: 3, warning: 2, info: 1, passive: 0 };
 const COLOR = {
   critical: "var(--error-color, #db4437)",
   warning: "var(--warning-color, #ffa600)",
   info: "var(--info-color, #4285f4)",
-  success: "var(--success-color, #43a047)",
+  passive: "var(--success-color, #43a047)",
 };
 
 export const STRINGS = {
-  en: { dismiss: "Dismiss", snooze: "Snooze", ack: "Acknowledge", close: "Close", critical: "Critical", warning: "Warning", info: "Info", success: "Success" },
-  de: { dismiss: "Schließen", snooze: "Später", ack: "Bestätigen", close: "Ausblenden", critical: "Kritisch", warning: "Warnung", info: "Info", success: "Erfolg" },
-  fr: { dismiss: "Fermer", snooze: "Reporter", ack: "Confirmer", close: "Masquer", critical: "Critique", warning: "Avertissement", info: "Info", success: "Succès" },
-  es: { dismiss: "Descartar", snooze: "Posponer", ack: "Confirmar", close: "Ocultar", critical: "Crítico", warning: "Aviso", info: "Info", success: "Éxito" },
+  en: { dismiss: "Dismiss", snooze: "Snooze", ack: "Acknowledge", close: "Close", critical: "Critical", warning: "Warning", info: "Info", passive: "Passive" },
+  de: { dismiss: "Schließen", snooze: "Später", ack: "Bestätigen", close: "Ausblenden", critical: "Kritisch", warning: "Warnung", info: "Info", passive: "Passiv" },
+  fr: { dismiss: "Fermer", snooze: "Reporter", ack: "Confirmer", close: "Masquer", critical: "Critique", warning: "Avertissement", info: "Info", passive: "Passif" },
+  es: { dismiss: "Descartar", snooze: "Posponer", ack: "Confirmar", close: "Ocultar", critical: "Crítico", warning: "Aviso", info: "Info", passive: "Pasivo" },
 };
 
 export function text(language, key) {
@@ -147,13 +147,14 @@ function build(message, language) {
     role: style === "modal" ? "alertdialog" : "status",
     tabIndex: -1,
   });
-  box.style.setProperty("--c", COLOR[message.severity] || COLOR.info);
+  // The color and the word of the Severities page when set (D-222, D-223).
+  box.style.setProperty("--c", message.severity_color || COLOR[message.severity] || COLOR.info);
   if (style === "card") box.dataset.pos = cornerOf(message);
   if (style === "modal") box.setAttribute("aria-modal", "true");
   box.setAttribute("aria-label", message.title || message.message);
   const label = el("div", { className: "sev" });
   if (message.icon) label.append(el("ha-icon", { icon: message.icon }));
-  label.append(el("span", { textContent: t(message.severity) }));
+  label.append(el("span", { textContent: message.severity_label || t(message.severity) }));
   box.append(label);
   if (message.title) box.append(el("div", { className: "title", textContent: message.title }));
   box.append(el("div", { className: "msg", textContent: message.message }));

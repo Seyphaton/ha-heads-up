@@ -1,0 +1,315 @@
+{
+  "entry": {
+    "data": {},
+    "minor_version": 1,
+    "options": {
+      "install_token": "4c35fc",
+      "policy_mode": "all",
+      "policy_order": []
+    },
+    "subentries": [
+      {
+        "data": {
+          "kind": "persons",
+          "persons": [
+            "person.anna",
+            "person.ben"
+          ]
+        },
+        "subentry_id": "01M7SW6VFMWJ23DRD6EXAGSZE0",
+        "subentry_type": "audience",
+        "title": "Family",
+        "unique_id": null
+      },
+      {
+        "data": {
+          "after_minutes": 5,
+          "channels": [
+            "push"
+          ],
+          "severities": [
+            "critical"
+          ],
+          "targets": {
+            "push": {
+              "recipients": [
+                "person.ben"
+              ]
+            }
+          },
+          "type": "escalation"
+        },
+        "subentry_id": "01M7SW6VFPC2NVMBCT463Q90XJ",
+        "subentry_type": "policy",
+        "title": "Escalate",
+        "unique_id": null
+      },
+      {
+        "data": {
+          "every_minutes": 10,
+          "max_count": 2,
+          "severities": [
+            "warning"
+          ],
+          "type": "reminder"
+        },
+        "subentry_id": "01M7SW6VFR80VCSQNTPK78ZNCF",
+        "subentry_type": "policy",
+        "title": "Remind",
+        "unique_id": null
+      },
+      {
+        "data": {
+          "action": "quiet",
+          "from_time": "22:00:00",
+          "severities": [
+            "info"
+          ],
+          "to_time": "07:00:00",
+          "type": "quiet_hours"
+        },
+        "subentry_id": "01M7SW6VFSKP4KG8FNFA7ETWAY",
+        "subentry_type": "policy",
+        "title": "Night",
+        "unique_id": null
+      },
+      {
+        "data": {
+          "type": "away"
+        },
+        "subentry_id": "01M7SW6VFTBJRYTV3TBK9VEDA7",
+        "subentry_type": "policy",
+        "title": "Away",
+        "unique_id": null
+      },
+      {
+        "data": {
+          "critical_passes": false,
+          "max_wait": 30,
+          "severities": [
+            "warning"
+          ],
+          "type": "away"
+        },
+        "subentry_id": "01M7SW6VFWC4VBM8YB2XN4MR0F",
+        "subentry_type": "policy",
+        "title": "Away short",
+        "unique_id": null
+      },
+      {
+        "data": {
+          "channels": [
+            "push"
+          ],
+          "severities": [
+            "critical"
+          ],
+          "targets": {
+            "push": {
+              "recipients": [
+                "person.ben"
+              ]
+            }
+          },
+          "type": "fallback",
+          "when": "no_audience"
+        },
+        "subentry_id": "01M7SW6VFXC262CRCEVN2X955X",
+        "subentry_type": "policy",
+        "title": "Backup",
+        "unique_id": null
+      },
+      {
+        "data": {
+          "summary_every": 60,
+          "tags": [
+            "digest"
+          ],
+          "type": "summarize"
+        },
+        "subentry_id": "01M7SW6VFZJZEW8EJ8B3NPEDNY",
+        "subentry_type": "policy",
+        "title": "Digest",
+        "unique_id": null
+      }
+    ],
+    "version": 2
+  },
+  "stores": {
+    "heads_up.banners": {
+      "data": {
+        "banners": [
+          {
+            "acknowledged_by": [],
+            "actions": [],
+            "channels": [
+              "banner",
+              "push"
+            ],
+            "condition": null,
+            "condition_met": null,
+            "created_at": "2026-11-19T12:23:53.602014+00:00",
+            "dismiss_scope": "user",
+            "dismissed_by": [],
+            "dismissible": true,
+            "ever_met": false,
+            "expires_at": "2026-11-20T12:23:53.602014+00:00",
+            "icon": null,
+            "id": "held",
+            "image": null,
+            "mail_body": null,
+            "mail_subject": null,
+            "message": "Water leak",
+            "mode": "once",
+            "people": [],
+            "policy": null,
+            "severity": "warning",
+            "snoozable": false,
+            "snooze_options": [
+              900,
+              3600,
+              14400
+            ],
+            "snooze_scope": "user",
+            "snoozed_until": {},
+            "source": "action",
+            "tag": null,
+            "tap_action": null,
+            "targets": {
+              "push": {
+                "audience": "01M7SW6VFMWJ23DRD6EXAGSZE0"
+              }
+            },
+            "title": null,
+            "tts_message": null,
+            "updated_at": "2026-11-19T12:23:53.602014+00:00",
+            "volume": null
+          }
+        ]
+      },
+      "key": "heads_up.banners",
+      "minor_version": 1,
+      "version": 2
+    },
+    "heads_up.deliveries": {
+      "data": {
+        "deliveries": [
+          {
+            "channel": "banner",
+            "count": 0,
+            "due": null,
+            "hold": null,
+            "message_id": "held",
+            "person": null,
+            "recipient": "",
+            "ref": null,
+            "state": "sent",
+            "updated_at": "2026-11-19T12:23:53.602520+00:00"
+          },
+          {
+            "channel": "push",
+            "count": 0,
+            "due": null,
+            "hold": null,
+            "message_id": "held",
+            "person": "person.anna",
+            "recipient": "device:dev_anna_s_phone",
+            "ref": "hu-4c35fc-held",
+            "state": "sent",
+            "updated_at": "2026-11-19T12:23:53.602668+00:00"
+          },
+          {
+            "channel": "push",
+            "count": 0,
+            "due": null,
+            "hold": "away",
+            "message_id": "held",
+            "person": "person.ben",
+            "recipient": "device:dev_ben_s_phone",
+            "ref": null,
+            "state": "held",
+            "updated_at": "2026-11-19T12:23:53.602696+00:00"
+          },
+          {
+            "channel": "timer",
+            "count": 0,
+            "due": "2026-11-19T12:33:53.602725+00:00",
+            "hold": null,
+            "message_id": "held",
+            "person": null,
+            "recipient": "01M7SW6VFR80VCSQNTPK78ZNCF",
+            "ref": null,
+            "state": "planned",
+            "updated_at": "2026-11-19T12:23:53.602725+00:00"
+          }
+        ],
+        "held": []
+      },
+      "key": "heads_up.deliveries",
+      "minor_version": 1,
+      "version": 2
+    },
+    "heads_up.migration_v2": {
+      "data": {
+        "entry": {
+          "options": {
+            "policy_mode": "all"
+          },
+          "subentries": [],
+          "version": 1
+        },
+        "stores": {
+          "heads_up.banners": null,
+          "heads_up.deliveries": null,
+          "heads_up.trace": null
+        }
+      },
+      "key": "heads_up.migration_v2",
+      "minor_version": 1,
+      "version": 1
+    },
+    "heads_up.presence": {
+      "data": {
+        "first_home": null,
+        "last_to_leave": null
+      },
+      "key": "heads_up.presence",
+      "minor_version": 1,
+      "version": 1
+    },
+    "heads_up.trace": {
+      "data": {
+        "entries": [
+          {
+            "channel": "banner",
+            "message_id": "held",
+            "reason": null,
+            "recipient": null,
+            "result": "sent",
+            "time": "2026-11-19T12:23:53.602565+00:00"
+          },
+          {
+            "channel": "push",
+            "message_id": "held",
+            "reason": null,
+            "recipient": "device:dev_anna_s_phone",
+            "result": "sent",
+            "time": "2026-11-19T12:23:53.602672+00:00"
+          },
+          {
+            "channel": "push",
+            "message_id": "held",
+            "reason": "away",
+            "recipient": "device:dev_ben_s_phone",
+            "result": "held",
+            "time": "2026-11-19T12:23:53.602698+00:00"
+          }
+        ]
+      },
+      "key": "heads_up.trace",
+      "minor_version": 1,
+      "version": 2
+    }
+  },
+  "version": "1.0.0"
+}

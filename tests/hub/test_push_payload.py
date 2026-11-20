@@ -62,7 +62,7 @@ async def test_a_message_without_a_title_sends_none(
 @pytest.mark.parametrize(
     ("severity", "level", "importance"),
     [
-        ("success", "passive", "low"),
+        ("passive", "passive", "low"),
         ("info", "passive", "low"),
         ("warning", "normal", "default"),
         ("critical", "time-sensitive", "high"),
@@ -94,7 +94,7 @@ async def android(hass: HomeAssistant, mobile_app_device: AddDevice) -> FakeDevi
     return phone
 
 
-CRITICAL_ON = {"success": "passive", "info": "passive", "warning": "normal", "critical": "critical"}
+CRITICAL_ON = {"passive": "passive", "info": "passive", "warning": "normal", "critical": "critical"}
 
 
 async def test_critical_is_an_alert_on_ios_and_an_alarm_on_android(

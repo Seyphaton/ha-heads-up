@@ -27,6 +27,7 @@ from ...const import (
     OPT_MAIL_BODY,
     OPT_MAIL_SERVICE,
     OPT_MAIL_SUBJECT,
+    OPT_SEVERITY_DISPLAY,
 )
 from ...models import Banner
 from .base import Capabilities, Outcome, Result, Target
@@ -41,10 +42,10 @@ _PLACEHOLDER = re.compile(r"\{(\w*)\}")
 
 # The severity as a word, in the languages of the integration.
 SEVERITY_WORDS = {
-    "en": {"success": "Success", "info": "Info", "warning": "Warning", "critical": "Critical"},
-    "de": {"success": "Erfolg", "info": "Info", "warning": "Warnung", "critical": "Kritisch"},
-    "fr": {"success": "Succès", "info": "Info", "warning": "Avertissement", "critical": "Critique"},
-    "es": {"success": "Éxito", "info": "Info", "warning": "Aviso", "critical": "Crítico"},
+    "en": {"passive": "Passive", "info": "Info", "warning": "Warning", "critical": "Critical"},
+    "de": {"passive": "Passiv", "info": "Info", "warning": "Warnung", "critical": "Kritisch"},
+    "fr": {"passive": "Passif", "info": "Info", "warning": "Avertissement", "critical": "Critique"},
+    "es": {"passive": "Pasivo", "info": "Info", "warning": "Aviso", "critical": "Crítico"},
 }
 
 
@@ -93,8 +94,9 @@ class MailChannel:
         name = ""
         if person and (state := self._hass.states.get(person)):
             name = str(state.attributes.get("friendly_name") or person)
+        shown = (self._manager.options.get(OPT_SEVERITY_DISPLAY) or {}).get(message.severity) or {}
         return {
-            "severity": words.get(message.severity, message.severity),
+            "severity": shown.get("label") or words.get(message.severity, message.severity),
             "title": message.title or message.message,
             "message": message.message,
             "person": name,

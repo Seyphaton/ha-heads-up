@@ -30,6 +30,14 @@ const rule = {
 };
 
 describe("watch rule form", () => {
+  it("passes snooze_custom only when it is on", () => {
+    expect(fromRule(rule).snooze_custom).toBe(false);
+    expect(toFlowData(fromRule(rule), rule)).not.toHaveProperty("snooze_custom");
+    const on = { ...rule, data: { ...rule.data, snooze_custom: true } };
+    expect(fromRule(on).snooze_custom).toBe(true);
+    expect(toFlowData(fromRule(on), on).snooze_custom).toBe(true);
+  });
+
   it("keeps the policy a rule names, sends none as a name and leaves an empty choice out", () => {
     expect(fromRule(rule).policy).toBe("");
     expect(fromRule({ ...rule, data: { ...rule.data, policy: "By hand" } }).policy).toBe("By hand");

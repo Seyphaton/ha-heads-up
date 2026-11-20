@@ -19,6 +19,7 @@ from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
+    ObjectSelector,
     SelectOptionDict,
     SelectSelector,
     SelectSelectorConfig,
@@ -28,12 +29,14 @@ from homeassistant.helpers.selector import (
 )
 
 from ..const import (
+    AFTER_WAIT,
     AUDIENCE_KINDS,
     AUDIENCE_SUBENTRY,
     DEFAULT_PROFILE_CHANNELS,
     FALLBACK_WHEN,
     GROUP_SUBENTRY,
     GROUP_SUFFIX,
+    HOME_ZONE,
     MAX_MAIL_ADDRESS,
     POLICY_APPLY,
     POLICY_AUTOMATIC,
@@ -41,7 +44,12 @@ from ..const import (
     POLICY_NONE,
     POLICY_SUBENTRY,
     POLICY_TYPES,
+    PRESENCE_CHANNELS,
     PRESENCE_KINDS,
+    PRESENCE_PEOPLE_CHANNELS,
+    PRESENCE_THEN,
+    PRESENCE_WHEN,
+    PRESENCE_WHO,
     PROFILE_CHANNELS,
     PROFILE_SUBENTRY,
     QUIET_ACTIONS,
@@ -50,7 +58,16 @@ from ..const import (
     ZONE_KINDS,
 )
 from .audiences import BUILTINS
-from .policies import away, deliver, escalation, fallback, quiet, reminder, sources, summarize
+from .policies import (
+    deliver,
+    escalation,
+    fallback,
+    presence,
+    quiet,
+    reminder,
+    sources,
+    summarize,
+)
 from .policies.matching import duplicate_of
 from .policies.models import (
     DEFAULT_AFTER_MINUTES,
@@ -73,6 +90,28 @@ def _names_taken(flow: ConfigSubentryFlow, subentry_type: str, own: str | None) 
         for s in flow._get_entry().subentries.values()
         if s.subentry_type == subentry_type and s.subentry_id != own
     }
+
+
+# On/off entities that can say whether a person is home instead of the person state (D-220).
+HOME_ENTITY_DOMAINS = ("binary_sensor", "input_boolean")
+
+
+def zone_entities_valid(value: Any) -> bool:
+    """A mapping of zone entity IDs to input booleans or binary sensors; empty values are
+    ignored (they mean: the person state)."""
+    if value in (None, ""):
+        return True
+    if not isinstance(value, dict):
+        return False
+    return all(
+        isinstance(zone, str)
+        and zone.startswith("zone.")
+        and (
+            not entity
+            or (isinstance(entity, str) and entity.split(".", 1)[0] in HOME_ENTITY_DOMAINS)
+        )
+        for zone, entity in value.items()
+    )
 
 
 class _HubFlow(ConfigSubentryFlow):
@@ -259,6 +298,11 @@ class RecipientProfileSubentryFlow(_HubFlow):
                     )
                 ),
                 vol.Optional("mail_address"): TextSelector(),
+                vol.Optional("home_entity"): EntitySelector(
+                    EntitySelectorConfig(domain=list(HOME_ENTITY_DOMAINS))
+                ),
+                # Other zones: zone entity ID to an on/off entity (D-229).
+                vol.Optional("zone_entities"): ObjectSelector(),
             }
         )
         return vol.Schema(fields)
@@ -290,6 +334,11 @@ class RecipientProfileSubentryFlow(_HubFlow):
             errors["channels"] = "channels_required"
         if len(str(user_input.get("mail_address") or "").strip()) > MAX_MAIL_ADDRESS:
             errors["mail_address"] = "mail_address_too_long"
+        home = str(user_input.get("home_entity") or "")
+        if home and home.split(".", 1)[0] not in HOME_ENTITY_DOMAINS:
+            errors["home_entity"] = "home_entity_invalid"
+        if not zone_entities_valid(user_input.get("zone_entities")):
+            errors["zone_entities"] = "zone_entities_invalid"
         return errors
 
     def _title(self, user_input: dict[str, Any], subentry: ConfigSubentry | None) -> str:
@@ -312,6 +361,13 @@ class RecipientProfileSubentryFlow(_HubFlow):
             data["primary"] = user_input["primary"]
         if address := str(user_input.get("mail_address") or "").strip():
             data["mail_address"] = address
+        zones = {str(z): str(e) for z, e in (user_input.get("zone_entities") or {}).items() if e}
+        # Home is kept under its own key, which 1.1.0-beta.1 reads too.
+        home = zones.pop(HOME_ZONE, "") or str(user_input.get("home_entity") or "")
+        if home:  # stored only when set (D-213)
+            data["home_entity"] = home
+        if zones:
+            data["zone_entities"] = dict(sorted(zones.items()))
         return data
 
     def _reconfigure_id(self) -> str | None:
@@ -408,10 +464,34 @@ class PolicySubentryFlow(_HubFlow):
                     options=list(WEEKDAYS), multiple=True, translation_key="weekday"
                 )
             ),
+            vol.Optional("quiet_entity"): EntitySelector(
+                EntitySelectorConfig(domain=list(quiet.QUIET_ENTITY_DOMAINS))
+            ),
             vol.Optional("action", default=QUIET_ACTIONS[0]): SelectSelector(
                 SelectSelectorConfig(options=list(QUIET_ACTIONS), translation_key="quiet_action")
             ),
             vol.Optional("critical_passes", default=True): BooleanSelector(),
+            vol.Optional("zone", default="zone.home"): EntitySelector(
+                EntitySelectorConfig(domain="zone")
+            ),
+            vol.Optional("presence_when", default="not_in"): SelectSelector(
+                SelectSelectorConfig(options=list(PRESENCE_WHEN), translation_key="presence_when")
+            ),
+            vol.Optional("household_who", default="nobody"): SelectSelector(
+                SelectSelectorConfig(options=list(PRESENCE_WHO), translation_key="household_who")
+            ),
+            vol.Optional("household_audience"): SelectSelector(
+                SelectSelectorConfig(
+                    options=[SelectOptionDict(value=k, label=n) for k, n in audiences],
+                    custom_value=True,
+                )
+            ),
+            vol.Optional("presence_then", default="hold"): SelectSelector(
+                SelectSelectorConfig(options=list(PRESENCE_THEN), translation_key="presence_then")
+            ),
+            vol.Optional("after_wait", default="send"): SelectSelector(
+                SelectSelectorConfig(options=list(AFTER_WAIT), translation_key="after_wait")
+            ),
             vol.Optional("max_wait", default=0): NumberSelector(
                 NumberSelectorConfig(min=0, max=10080, step=1, mode=NumberSelectorMode.BOX)
             ),
@@ -481,8 +561,8 @@ class PolicySubentryFlow(_HubFlow):
             errors.update(reminder.check(user_input))
         elif kind == "quiet_hours":
             errors.update(quiet.check(user_input))
-        elif kind == "away":
-            errors.update(away.check(user_input))
+        elif kind == "presence":
+            errors.update(presence.check(user_input))
         elif kind == "summarize":
             errors.update(summarize.check(user_input))
         elif kind == "deliver":
@@ -569,9 +649,24 @@ class PolicySubentryFlow(_HubFlow):
                 action=user_input.get("action", QUIET_ACTIONS[0]),
                 critical_passes=bool(user_input.get("critical_passes", True)),
             )
-        elif kind == "away":
+            if user_input.get("quiet_entity"):  # stored only when set (D-213)
+                data["quiet_entity"] = str(user_input["quiet_entity"])
+        elif kind == "presence":
             data["max_wait"] = int(user_input.get("max_wait") or 0)
             data["critical_passes"] = bool(user_input.get("critical_passes", True))
+            # Only what differs from the defaults is stored (the 1.0 Away behaviour, D-213).
+            if channels and set(channels) != set(PRESENCE_PEOPLE_CHANNELS):
+                data["channels"] = [c for c in PRESENCE_CHANNELS if c in channels]
+            for key, default in (
+                ("zone", "zone.home"),
+                ("presence_when", "not_in"),
+                ("household_who", "nobody"),
+                ("household_audience", ""),
+                ("presence_then", "hold"),
+            ):
+                if (value := str(user_input.get(key) or default)) != default:
+                    data[key] = value
+            data["after_wait"] = str(user_input.get("after_wait") or "send")
         elif kind == "summarize":
             data["include_critical"] = bool(user_input.get("include_critical", False))
             if user_input.get("summary_at"):

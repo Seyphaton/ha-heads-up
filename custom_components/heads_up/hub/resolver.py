@@ -20,6 +20,7 @@ from ..const import (
     BUILTIN_AUDIENCES,
     CHANNEL_MAIL,
     GROUP_SUFFIX,
+    HOME_ZONE,
     MAIL_GLOBAL,
     MAIL_GLOBAL_KEY,
     OPT_AUDIENCES_DISABLED,
@@ -29,7 +30,7 @@ from ..const import (
 )
 from .audiences import BUILTINS, Audience, parse_audience
 from .identity import AREA_PREFIX, GROUP_PREFIX, dangling_name
-from .presence import PresenceTracker, is_unknown
+from .presence import PresenceTracker, in_zone, is_unknown
 from .recipients import (
     Group,
     Profile,
@@ -72,7 +73,9 @@ class HubResolver:
     def __init__(self, hass: HomeAssistant, options: Mapping[str, Any]) -> None:
         self._hass = hass
         self._options = options
-        self.presence = PresenceTracker(hass, lambda: int(options[OPT_PRESENCE_DEBOUNCE]))
+        self.presence = PresenceTracker(
+            hass, lambda: int(options[OPT_PRESENCE_DEBOUNCE]), self.home_entity
+        )
         self._audiences: dict[str, Audience] = {}
         self._groups: dict[str, Group] = {}
         self._profiles: dict[str, StoredProfile] = {}
@@ -96,6 +99,39 @@ class HubResolver:
         self._groups = {g.key: g for g in groups if g is not None}
         profiles = (parse_profile(s) for s in subentries.values())
         self._profiles = {p.person: p for p in profiles if p is not None}
+        self.presence.refresh()  # a changed home entity takes effect at once
+
+    def household(self, audience_key: str) -> list[str]:
+        """The persons whose presence a speech rule of Presence checks: a persons audience by
+        its key, else every person (D-212)."""
+        audience = self._audiences.get(audience_key) if audience_key else None
+        if audience is not None and audience.kind == "persons":
+            return list(audience.persons)
+        return sorted(s.entity_id for s in self._hass.states.async_all("person"))
+
+    def home_entity(self, person: str) -> str:
+        """The entity that says whether a person is home, or "" for the person state (D-220)."""
+        return self.zone_entity(person, HOME_ZONE)
+
+    def zone_entity(self, person: str, zone: str) -> str:
+        """The entity that says whether a person is in a zone, or "" for the person state as
+        Home Assistant gives it (D-229)."""
+        stored = self._profiles.get(person)
+        if stored is None:
+            return ""
+        return stored.home_entity if zone == HOME_ZONE else stored.zone_entities.get(zone, "")
+
+    def location_persons(self, entity_id: str) -> list[str]:
+        """The persons whose place in some zone this entity gives: the person itself (for the
+        zones it has no entity for), and every person with this entity for a zone."""
+        found = [entity_id] if entity_id.startswith("person.") else []
+        for stored in self._profiles.values():
+            if stored.person not in found and entity_id in (
+                stored.home_entity,
+                *stored.zone_entities.values(),
+            ):
+                found.append(stored.person)
+        return found
 
     # Names a call may use ---------------------------------------------------------------
 
@@ -314,8 +350,14 @@ class HubResolver:
     def _presence_member(
         self, result: Resolution, person: str, kind: str, zone: str | None, severity: str
     ) -> None:
-        state = self._hass.states.get(person)
-        if is_unknown(state):
+        zone = (zone or "") if kind in ZONE_KINDS else HOME_ZONE
+        entity = self.zone_entity(person, zone)
+        source = self._hass.states.get(entity or person)
+        if zone:
+            inside = in_zone(self._hass, person, zone, entity)
+        else:  # an audience by zone without a zone: in none
+            inside = None if is_unknown(source) else False
+        if inside is None:
             # Unknown presence: critical notifies anyway, lower severities skip (D-080).
             if severity == "critical":
                 result.recipients.append(
@@ -324,17 +366,10 @@ class HubResolver:
             else:
                 result.skipped.append(Skipped(person, "presence_unknown"))
             return
-        assert state is not None
-        if kind in ZONE_KINDS:
-            zones = state.attributes.get("in_zones") or []
-            inside = bool(zone) and (zone in zones or state.state == str(zone).split(".", 1)[-1])
-            match = inside if kind == "in_zone" else not inside
-        else:
-            match = (state.state == "home") == (kind == "at_home")
+        match = inside if kind in ("in_zone", "at_home") else not inside
         if match:
-            result.recipients.append(
-                Recipient(person, "person", person, reason=f"state:{state.state}")
-            )
+            shown = source.state if source is not None else ""
+            result.recipients.append(Recipient(person, "person", person, reason=f"state:{shown}"))
 
     async def banner_people(self, name: str, severity: str) -> list[str]:
         """The `people` of a banner that names an audience, as of now (D-131). Everyone limits

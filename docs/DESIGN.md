@@ -2,7 +2,7 @@
 
 Living design document: requirements and architecture. Decisions are referenced as D-nnn (`docs/DECISIONS.md`), API facts as N-nn (row in `docs/dev/HA_API_NOTES.md`), risks as R-n (§14). Where code and this document disagree, fix one of them in the same commit.
 
-## 0. Implementation status (2026-11-05)
+## 0. Implementation status (2026-11-19)
 
 | Part | Status |
 |---|---|
@@ -14,6 +14,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §21 banner buttons and snooze | implemented and tested (Phase 12); card checked on the dev HA with a mouse |
 | §22 parity of banner sources, rule buttons, tap action, dismiss scope and template conditions | implemented and tested (Phase 12 follow-up) |
 | §23 notification hub | built (Phase 15, H0 to H10 and the later maintainer changes) on the branch `hub/h9e-wizard`; pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.8 are tagged and pushed (D-133, D-154, D-175, D-190, D-196); not merged to `main`, no 1.0.0 |
+| §24 1.1.0: speech volume, Presence, quiet hours and home from an entity, snooze, severities | built and tested on `release/1.1` (Phase 16, D-225); checked on the dev HA; not on real devices; "only if" moved to 2.0.0 |
 | §25 2.0.0 policies in two lanes | designed on `release/2.0` (D-224, D-234); not built |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
@@ -77,7 +78,7 @@ Non-functional
 | `id` | string | generated `hu_` + 10 hex chars, returned in response | `^[a-z0-9_-]{1,64}$` |
 | `message` | string | required | 1–1000 chars |
 | `title` | string | none | ≤ 100 chars |
-| `severity` | `info` \| `success` \| `warning` \| `critical` | `warning` | enum |
+| `severity` | `info` \| `passive` \| `warning` \| `critical` | `warning` | enum; `success` accepted as `passive` (D-231) |
 | `icon` | mdi string | per severity: `mdi:information`, `mdi:check-circle`, `mdi:alert`, `mdi:alert-octagon` | `cv.icon` (N-2) |
 | `timeout` | seconds or duration; `0` = no timeout | option `default_timeout` (shipped: 24 h, D-031) | `cv.time_period`, 0 or 1 s – 365 days |
 | `condition` | object `{entity_id, state, attribute}` | none | `entity_id` must exist at creation (`entity_not_found`); `state` string or list of strings, default `"on"`; `attribute` optional string |
@@ -108,7 +109,7 @@ All input fields after defaults, plus:
 
 ### 4.4 Limits and overflow (D-016)
 - `max_banners` option, default 50, range 1–200.
-- New ID when full and `evict` on: remove the banner with the lowest severity (`success` < `info` < `warning`), oldest `updated_at` first; `critical` is never evicted. Fires `heads_up_banner_cleared` with `reason: evicted`.
+- New ID when full and `evict` on: remove the banner with the lowest severity (`passive` < `info` < `warning`), oldest `updated_at` first; `critical` is never evicted. Fires `heads_up_banner_cleared` with `reason: evicted`.
 - No candidate or `evict` off: fails with `too_many_banners`. Upserts of existing IDs never evict.
 
 ## 5. Lifecycle
@@ -482,11 +483,11 @@ Status: implemented 2026-10-27 (`tests/test_snooze.py`, `tests/test_actions.py`,
 A viewer could only close a banner for good, and a banner could not lead to anything an automation could react to. "Remind me later" and "I did it" had no form.
 
 ### 21.2 Design
-- **Snooze fields:** `snoozable` (bool), `snooze_scope` (`user` or `global`), `snooze_options` (1 to 6 durations, 1 minute to 7 days, stored as seconds). Defaults come from the integration options `default_snoozable` (off), `default_snooze_scope` (`user`) and `default_snooze_options` (15 min, 1 h, 4 h). A banner that is not dismissible is never snoozable: an explicit `snoozable: true` with `dismissible: false` is a validation error, and the option default is ignored for it.
+- **Snooze fields:** `snoozable` (bool), `snooze_scope` (`user` or `global`), `snooze_options` (1 to 6 durations, 1 minute to 7 days, stored as seconds). Defaults come from the integration options `default_snoozable` (off), `default_snooze_scope` (`user`) and `default_snooze_options` (15 min, 1 h, 4 h). A banner that is not dismissible is never snoozable: an explicit `snoozable: true` with `dismissible: false` is a validation error, and the option default is ignored for it. `snooze_custom` (bool, default false, D-219) also accepts a duration the viewer types, 1 minute to 24 hours and not past `expires_at`; stored only when true; `snooze_custom: true` with `snoozable: false` is a validation error. The card adds **Other…** (minutes or a time of day, `customSnoozeSeconds`).
 - **Snooze state:** `snoozed_until` maps a user ID, or `*` for a global snooze, to an end time. It is stored with the banner. `Banner.snoozed_for(user_id)` gives the end that hides the banner from that user. `visible()` leaves a snoozed banner out (not with `show_all`, which flags it with `snoozed`). One `async_track_point_in_utc_time` timer per entry removes it and updates the cards; setup drops ended entries and re-arms the rest.
 - **What ends a snooze:** its end time; an upsert (the new banner has none, like `dismissed_by`, D-010); a recurring condition turning false and true again; removal of the banner. For a rule, the condition turning false. The timeout and the condition keep running while a banner is snoozed.
 - **WebSocket `heads_up/snooze`** (`banner_id`, `seconds`): `seconds` must be one of the banner's options (`invalid_snooze`), the banner must be snoozable (`not_snoozable`). Only a person the banner is addressed to can call it (`not_targeted` otherwise, D-156). Fires `heads_up_banner_snoozed` with `id`, `tag`, `scope`, `user_id`, `until`.
-- **Ending a snooze early (D-074):** WebSocket `heads_up/unsnooze` (`banner_id`) removes the snooze that hides the banner from the caller, and a global one for everyone (`not_snoozed` when there is none, `not_targeted` for a user the banner is not addressed to, D-156). It cancels the timer and fires `heads_up_banner_unsnoozed` with `id`, `tag`, `user_id`. `heads_up/subscribe` takes `show_snoozed` (default false): the list then also holds the viewer's snoozed banners, flagged `snoozed` with `snoozed_until`. Card key `show_snoozed` (off) adds a "Snoozed (n)" list with the time left and a Show now button; the same for action and rule banners (D-073).
+- **Ending a snooze early (D-074):** WebSocket `heads_up/unsnooze` (`banner_id`) removes the snooze that hides the banner from the caller, and a global one for everyone (`not_snoozed` when there is none, `not_targeted` for a user the banner is not addressed to, D-156). It cancels the timer and fires `heads_up_banner_unsnoozed` with `id`, `tag`, `user_id` and `reason: user`; a snooze that runs out fires it with `reason: ended` (`user_id` empty for a global one), once at start for one that ran out while stopped (D-221). `heads_up/subscribe` takes `show_snoozed` (default false): the list then also holds the viewer's snoozed banners, flagged `snoozed` with `snoozed_until`. Card key `show_snoozed` (off) adds a "Snoozed (n)" list with the time left and a Show now button; the same for action and rule banners (D-073).
 - **Buttons:** field `actions`, up to 3 entries `{key, label, dismiss?, action?}`. `key` follows the ID pattern and is unique in the banner, `label` has 1 to 40 characters, `action` is a mapping with an `action` key (as `tap_action`), `dismiss` defaults to false and is rejected with `dismissible: false`. The card receives the whole list.
 - **WebSocket `heads_up/action`** (`banner_id`, `key`): fires `heads_up_banner_action` with `id`, `tag`, `key`, `user_id`; with `dismiss` it then dismisses for that user. Errors: `unknown_action`, `not_found` (also for a banner targeted at other people), `message_ended` (D-125). The backend never runs `action`; the card does, after the call succeeds, with the same `hass-action` event as the tap action, so HA handles confirmation and the viewer's permissions (N-38).
 - **Watch rules:** the rule form has Snoozable, Snooze scope and Snooze choices (minutes in the form, seconds in the subentry); unset fields use the option defaults; Snoozable needs Dismissible (`snoozable_needs_dismissible`). Rules got buttons and a tap action in §22. A rule's snoozes are not stored, like its dismissals.
@@ -554,6 +555,8 @@ How both sources stay equal:
 | Policy field: name one policy or `none` (D-146, D-202) | yes (`policy`, by the entity ID of its switch, D-198) | yes (Policy dropdown of the rule form: Automatic, None or a policy by key; `tests/test_rules_flow.py`) |
 | references survive a rename (D-199) | yes (stored as keys) | yes (stored as keys; `tests/hub/test_identity_rename.py`, `tests/hub/test_identity_property.py`) |
 | a switched-off recipient gets nothing (D-147) | yes (named persons are dropped from the banner's people; all dropped means nobody) | yes (the rule's `people` are filtered when the rule is built and again when a profile changes, D-161; `tests/hub/test_recipient_disabled.py`) |
+| viewer-chosen snooze duration `snooze_custom` (D-219) | yes (`notify`, `create_banner`; `tests/test_snooze.py`) | yes (rule form field; `tests/test_snooze.py`) |
+| `heads_up_banner_unsnoozed` with `reason`, also when a snooze runs out (D-221) | yes | yes (one `BannerManager._snooze_elapsed`; a rule's snoozes are not kept over a restart, D-069) |
 
 Audit for the hub (H10, 2026-11-02), extended 2026-11-05: every banner feature above is in both columns or carries an exception with a decision number.
 
@@ -661,7 +664,7 @@ Presence audiences read the person state (`None`, `unknown` and `unavailable` co
 A second store holds deliveries and due times; the manager emits a typed transition for every moment a message appears or disappears (today some are silent, such as a snooze ending or a condition turning true). Existing event payloads do not change. On startup the hub clears pushes of messages that no longer exist, never re-sends anything already sent, and fires overdue escalations and reminders once.
 
 ### 23.10 Admin panel (D-093)
-Admin-only sidebar panel, in two levels (D-103): Overview; Notifications and Rules (Test send, Watch rules, Message Log); Configuration (Audiences, Recipients, Policies, Channels); Settings (one page with every setting, D-122, and a button that opens the introduction); Help (FAQ, Notify examples, Card examples, D-137). Own forms (`ha-form`) and pages that save through the subentry flow APIs, so storage stays in config subentries (D-119). The Overview holds counts of active notifications with their states, shortcut cards, an activity chart of the last 24 hours, needs-attention warnings that can be hidden, and the last actions (D-118, D-135, D-138). Watch rules are listed, added, edited and deleted on their own page (D-134). Test send previews who would be notified now and can send a real test message (D-120). The Message Log shows recent messages with the per-message delivery trace. The introduction is a four-step tour that creates the default policies (D-121, D-131). Panel registration without a build step is verified (N-88).
+Admin-only sidebar panel, in two levels (D-103): Overview; Notifications and Rules (Test send, Watch rules, Message Log); Configuration (Channels, Audiences, Recipients, Policies, Severities); Settings (one page with every setting, D-122, and a button that opens the introduction); Help (FAQ, Notify examples, Card examples, D-137). Own forms (`ha-form`) and pages that save through the subentry flow APIs, so storage stays in config subentries (D-119). The Overview holds counts of active notifications with their states, shortcut cards, an activity chart of the last 24 hours, needs-attention warnings that can be hidden, and the last actions (D-118, D-135, D-138). Watch rules are listed, added, edited and deleted on their own page (D-134). Test send previews who would be notified now and can send a real test message (D-120). The Message Log shows recent messages with the per-message delivery trace. The introduction is a four-step tour that creates the default policies (D-121, D-131). Panel registration without a build step is verified (N-88).
 
 ### 23.11 Blast radius
 Restart: the usual one after a code update. Notification path: touched for the first time (calls to notify, tts, media player and persistent notification services of other integrations; nothing of theirs is modified). Dashboard: nothing changes until a policy or channels are used. Storage: new subentry types and a deliveries store; a downgrade must be checked for unknown subentry types. Manifest: optional integrations as `after_dependencies` (N-68).
@@ -694,6 +697,44 @@ Calls: an audience and a policy by entity ID (D-198), a group by the entity ID o
 
 Not covered: another integration's names (the notify service of mail: reported as `mail_service_missing`), history in the trace and log (names of their time), `{name}` in a rule message without an entity (the rule's name, by design), a name of an area in hand-written YAML after the area is renamed (the stored form is the ID).
 
+
+## 24. 1.1.0 (Phase 16)
+
+Status: built on `release/1.1` (D-207, build choices D-225), checked on the dev instance on 2026-11-19, not released. Binding for every part: a 1.0.0 setup converts without a breaking change, and each intended behaviour change has a CHANGELOG line with the way back (D-213).
+
+### 24.1 Speech volume (D-206, D-208, D-215, D-217)
+- Speech settings: up to 4 time bands (from, to, volume in percent), no overlap; an optional volume per severity. Precedence: the call's `volume`, then the severity volume, then the band, else no change.
+- Restore, on by default (setting "Restore volume after speech"): a player without announce gets its earlier `volume_level` (N-106) back when playback ends; a `sonos` player (entity registry integration) gets the volume as clip volume through `play_media` with `announce: true` and `extra: {volume}` (N-104, N-105) and its main volume is not touched; other announce players are set and restored after about 15 characters per second plus 2 s (4 to 60 s). No restore when the volume was changed by someone else meanwhile; one restore after the last queued message on a speaker. No per-speaker volume.
+
+### 24.2 Presence replaces Away (D-211, D-212, D-214, D-220)
+- Fields: channels it covers (push, popup, mail, speak; default the first three); one zone (default Home); push, popup and mail: "the recipient is in / is not in the zone", per recipient; speech: "nobody of / somebody of <audience> is in the zone"; then hold until that changes, or drop; for hold a maximum wait and its end (send, default, or drop); "Critical messages pass" in the Which messages block (D-211).
+- A presence change counts after `presence_debounce_seconds` (60 s; 1.0 Away released at once, listed in the CHANGELOG). A released delivery goes through the chain again, so it is held again if the policy still holds it; the first deadline stays. Unknown presence delivers; for speech, people of unknown presence do not count. The banner and reminders are never held. Push, popup and mail are checked for every recipient, from an audience or named in the call (D-232; 1.0 Away checked audience targets only). The household audience of speech is a persons audience or everyone.
+- Where a person is comes, per zone, from Home Assistant (Home: the person state `home`; another zone: `in_zones` or the state's name) or, if set on the Recipients page, an entity for that zone (`on` means in the zone; Home stored as `home_entity`, other zones as `zone_entities`, D-229); used by Presence, the presence audiences and speech.
+- Conversion (built): config entry version 2, minor 2 (`hub/migration.py`, `migrate_presence`); `type: away` becomes `type: presence` with `after_wait: drop`, because 1.0 Away dropped a delivery when its wait ended (the design assumed it sent it). A stored `away` is still read as Presence with that default. The policy subentries are backed up to `.storage/heads_up.migration_v2_2` first; `scripts/restore_presence_backup.py` puts them back for a downgrade. Held deliveries keep the hold kind `away` (not converted, unlike the plan of D-214): it is internal, and keeping it leaves the deliveries store unchanged. Tested against a 1.0.0 setup captured by running the 1.0.0 code (`tests/fixtures/setup_1_0_0.json`, script beside it). Visible change: the switch attribute `type`.
+- Mockup: `docs/dev/mockups/presence-policy-mockup.html`.
+
+### 24.3 Quiet hours source (D-218, D-220)
+- Own times (default, 1.0 behaviour) or any on/off entity (`schedule`, `input_boolean`, `binary_sensor`); `on` means quiet. Release when it turns off, or at a schedule's `next_event` (N-103) if earlier. Missing or unavailable: not quiet, Overview warning.
+
+### 24.4 "Only if" on policies: moved to 2.0.0
+- "Only if" (D-216) and guests through it (D-209) ship with the policy redesign in 2.0.0 (D-224). 1.1.0 keeps the policy modes "only the first" and "all" and D-211 unchanged.
+
+### 24.5 Snooze (D-219, D-221)
+- `snooze_custom` (default off) on `notify`, `create_banner` and watch rules: the card adds "Other…" (minutes or until a time); the backend accepts up to the remaining lifetime, at most 24 h.
+- `heads_up_banner_unsnoozed` also fires when a snooze runs out, with `reason: ended` or `user`; an ended snooze found at start fires once.
+
+### 24.6 Severities (D-222)
+- The four keys stay. A Severities page under Configuration holds per level a display label (overrides the translation), an icon, the color, and its channel implications (today's per-severity channel settings). The card editor drops `colors`; an existing card `colors` keeps working.
+- The label shows in the card, the popup, the mail placeholder `{severity}` and the panel; YAML, events, attributes and the action form keep the keys. The icon is used when a message has none of its own (D-223).
+- Built: option `severity_display` (`{severity: {label, icon, color}}`, only set values stored), saved through `heads_up/channels_set` with `push_levels` and `popup_styles`; read by the panel shell through `heads_up/severity_display`, which replaces the severity words of every page (`withLabels`). `Banner.to_client` adds `severity_label` and `severity_color` and uses the icon; the card prefers its own `colors`, then `severity_color`, then the theme. The panel page is `frontend/panel/severities.js`; the Channels page links to it instead of showing the per-severity rows.
+
+### 24.7 Parity (rule 9)
+- `snooze_custom` and the snooze event: actions and watch rules. Presence, Quiet hours sources and severity settings are policy or global settings and apply to both sources by severity and tag. Speech volume: speech exists only for actions and policies (D-206).
+
+### 24.8 Blast radius
+- Restart: the usual one after an update; the config entry and the deliveries store are converted once (backup first).
+- Notification path: speech volume calls (`volume_set`, `play_media` with `extra`) and restore; holds and releases of Presence and Quiet hours.
+- Dashboard: the card editor loses `colors`; labels may change if a label is overridden.
 
 ## 25. 2.0.0: policies in two lanes (D-224, D-234)
 Design only; nothing is built. The design set behind it is `docs/dev/policy-redesign/` (choice and reasons in `02-comparison.md`, the model in `design-ab-v2.md`, mockup `docs/dev/mockups/policy-redesign-a.html`). §24 is the 1.1 work on `release/1.1`, which is not released on its own and becomes part of 2.0.0 (D-231); this section assumes it merged into `release/2.0` first (Presence holding every recipient, D-232; quiet hours and home from an entity; per-zone location entities, D-229; the severity `passive`, D-231). Pairwise behaviour of every policy kind: `docs/dev/policy-redesign/04-interaction-matrix.md`.
