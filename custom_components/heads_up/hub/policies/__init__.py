@@ -15,6 +15,9 @@ from .matching import select
 from .models import Policy, parse_policy
 
 ACKNOWLEDGING = ("escalation", "reminder")  # types that make an Acknowledge button useful
+# Types that add deliveries or let them through: with an unknown Only if they still act;
+# hold-back types step aside (D-216, "whatever delivers more").
+DELIVERS_MORE = ("deliver", "escalation", "reminder", "fallback", "get_through")
 # The page order: the lane "Keep it calm", the band, the lane "Make sure it arrives" (DESIGN
 # §25.2). Only for display; which policies act does not depend on it.
 TYPE_RANK = {
@@ -38,6 +41,8 @@ class PolicyBook:
         # Set by the engine: the persons of an audience key, for band entries that cover
         # only some people.
         self.household: Callable[[str], list[str]] = lambda audience: []
+        # Set by the engine: the result of a condition now (True, False, or None for unknown).
+        self.condition: Callable[[Mapping[str, Any]], bool | None] = lambda condition: True
         # Set by the integration: the policy a switch of its own stands for (D-186).
         # Every policy name with the entity ID of its switch; a call names a policy by it (D-198).
         self.policy_entities: Callable[[], dict[str, str]] = lambda: {}
@@ -80,8 +85,29 @@ class PolicyBook:
             (p for p in self._policies.values() if p.name.casefold() == name.casefold()), None
         )
 
-    def for_message(self, message: Banner) -> list[Policy]:
-        return select(self.ordered(), message, self._policies)
+    def only_if_ok(self, policy: Policy) -> bool:
+        """Whether the policy may act now by its Only if (D-216)."""
+        if policy.only_if is None:
+            return True
+        result = self.condition(policy.only_if)
+        return result if result is not None else policy.type in DELIVERS_MORE
+
+    def faster(self, policy: Policy) -> bool:
+        """Whether a reminder uses its Faster while rhythm now; unknown counts as faster."""
+        if not policy.faster_while or not policy.faster_while.get("condition"):
+            return False
+        return self.condition(policy.faster_while["condition"]) is not False
+
+    def every_minutes(self, policy: Policy) -> int:
+        if self.faster(policy) and policy.faster_while:
+            return int(policy.faster_while.get("every_minutes") or policy.every_minutes)
+        return policy.every_minutes
+
+    def for_message(self, message: Banner, only_if: bool = True) -> list[Policy]:
+        """The policies that act on a message now. `only_if=False`: also those whose Only if is
+        false at the moment, for planning timers (D-235 O11b)."""
+        found = select(self.ordered(), message, self._policies)
+        return [p for p in found if self.only_if_ok(p)] if only_if else found
 
     def band_for(self, message: Banner) -> list[Policy]:
         return [p for p in self.for_message(message) if p.type == "get_through"]
@@ -107,7 +133,19 @@ class PolicyBook:
         return any(self.covers(e, target) for e in entries)
 
     def timed_for(self, message: Banner) -> list[Policy]:
-        return [p for p in self.for_message(message) if p.type in ACKNOWLEDGING]
+        return [p for p in self.for_message(message, only_if=False) if p.type in ACKNOWLEDGING]
+
+    def watched(self) -> list[Mapping[str, Any]]:
+        """Every Only if and Faster while condition of an enabled policy."""
+        found: list[Mapping[str, Any]] = []
+        for policy in self._policies.values():
+            if not policy.enabled:
+                continue
+            if policy.only_if:
+                found.append(policy.only_if)
+            if policy.faster_while and policy.faster_while.get("condition"):
+                found.append(policy.faster_while["condition"])
+        return found
 
     def usage(self, *refs: str) -> list[str]:
         """Policies whose targets name this audience or recipient group, given every way it is

@@ -50,7 +50,7 @@ from .identity import IdentityMaps, maps_for
 from .interfaces import AudienceResolver, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, HeldMessage, State
 from .limits import DUPLICATE, RATE_LIMITED, Limiter
-from .policies import PolicyBook, escalation, fallback, reminder, summarize
+from .policies import PolicyBook, escalation, fallback, only_if, reminder, summarize
 from .policies.chain import Chain, Hold, Skip, Step
 from .policies.models import Policy
 from .policies.presence import PresenceStage
@@ -125,6 +125,9 @@ class HubEngine:
         self.recipients: RecipientResolver = self.resolver
         self.policies = PolicyBook(options)
         self.policies.household = self.resolver.household
+        self.policies.condition = lambda condition: only_if.evaluate(hass, condition)
+        self._unsub_conditions: CALLBACK_TYPE | None = None
+        self._condition_waits: list[CALLBACK_TYPE] = []
         # The objects that exist now, to turn a name stored by an earlier version into a key.
         self.identity = IdentityMaps()
         self.chain = Chain()
@@ -185,6 +188,11 @@ class HubEngine:
         self._unsub_quiet = self.hass.bus.async_listen(
             EVENT_STATE_CHANGED, self._on_quiet_entity, event_filter=self._is_quiet_entity
         )
+        # Only if and Faster while: a change releases holds and re-plans timers (D-216).
+        self._unsub_conditions = self.hass.bus.async_listen(
+            EVENT_STATE_CHANGED, self._on_condition_entity, event_filter=self._is_condition_entity
+        )
+        self._plan_condition_waits()
         self._ready.set()
 
     async def _restore_bell(self) -> None:
@@ -212,6 +220,12 @@ class HubEngine:
         if self._unsub_quiet is not None:
             self._unsub_quiet()
             self._unsub_quiet = None
+        if self._unsub_conditions is not None:
+            self._unsub_conditions()
+            self._unsub_conditions = None
+        for cancel in self._condition_waits:
+            cancel()
+        self._condition_waits.clear()
         for cancel in self._presence_waits.values():
             cancel()
         self._presence_waits.clear()
@@ -868,7 +882,7 @@ class HubEngine:
                 due = (
                     escalation.due(policy, now)
                     if policy.type == "escalation"
-                    else reminder.next_due(policy, now)
+                    else now + timedelta(minutes=self.policies.every_minutes(policy))
                 )
                 row = Delivery(banner.id, TIMER_CHANNEL, policy.key, State.PLANNED, now, due=due)
                 self.ledger.put(row)
@@ -943,6 +957,74 @@ class HubEngine:
                     name,
                 )
 
+    def _condition_entities(self) -> set[str]:
+        found: set[str] = set()
+        for condition in self.policies.watched():
+            found |= only_if.entities(self.hass, condition)
+        return found
+
+    @callback
+    def _is_condition_entity(self, data: Any) -> bool:  # HA requires a callback as a filter
+        return str(data["entity_id"]) in self._condition_entities()
+
+    @callback
+    def _on_condition_entity(self, event: Event[Any]) -> None:
+        if not self._closed:
+            self.conditions_changed()
+
+    def _plan_condition_waits(self) -> None:
+        """A condition with "for at least" turns true later without a state change: check
+        again then (HA_API_NOTES N-7)."""
+        for cancel in self._condition_waits:
+            cancel()
+        self._condition_waits.clear()
+        now = dt_util.utcnow()
+        for condition in self.policies.watched():
+            if (due := only_if.due_after_wait(self.hass, condition)) is not None and due > now:
+                self._condition_waits.append(
+                    async_track_point_in_utc_time(
+                        self.hass, lambda _now: self.conditions_changed(), due
+                    )
+                )
+
+    def conditions_changed(self) -> None:
+        """An Only if or Faster while may have changed (D-216): summaries and holds of
+        policies that no longer apply let go, a band entry that now fits releases what it
+        covers, Presence holds go through the chain again, and timers are planned again."""
+        self.on_policies_changed()
+        self._release_quiet(lambda row: True, "heads_up condition changed")
+        for row in list(self.ledger.rows.values()):
+            if row.state is State.HELD and row.hold == HOLD_AWAY:
+                self._enqueue(
+                    row.message_id,
+                    partial(self._release, row.message_id, row.channel, row.recipient),
+                    "heads_up condition changed",
+                )
+        now = dt_util.utcnow()
+        for row in self.ledger.timers():
+            if row.state is not State.PLANNED or row.message_id.startswith(SUMMARY_PREFIX):
+                continue
+            policy = self.policies.by_key(row.recipient)
+            if policy is None:
+                continue
+            if policy.type == "reminder":
+                # Faster while: the next repeat follows the rhythm in force now.
+                banner = self.lookup(row.message_id)
+                if banner is None:
+                    continue
+                start = row.updated_at if row.count else banner.created_at
+                due = start + timedelta(minutes=self.policies.every_minutes(policy))
+                row.due = max(due, now)
+                self.ledger.put(row)
+                self._schedule(row)
+            elif (
+                row.due is not None
+                and row.due <= now
+                and (row.message_id, row.recipient) not in self._timers
+            ):
+                self._schedule(row)  # an escalation that waited for its Only if
+        self._plan_condition_waits()
+
     def _cancel_timer_callbacks(self, message_id: str) -> None:
         for key in [k for k in self._timers if k[0] == message_id]:
             self._timers.pop(key)()
@@ -1001,6 +1083,15 @@ class HubEngine:
             self._finish(row, State.CLEARED, "policy_deleted")
         elif not policy.enabled:
             self._finish(row, State.CLEARED, "policy_disabled")
+        elif not self.policies.only_if_ok(policy):
+            # A false Only if skips this firing only (D-216). An escalation waits for the
+            # condition (a change of it schedules the row again); a reminder tries again
+            # after its rhythm.
+            self._trace(message_id, TIMER_CHANNEL, key, "skipped", "only_if")
+            if policy.type == "reminder":
+                row.due = dt_util.utcnow() + timedelta(minutes=self.policies.every_minutes(policy))
+                self.ledger.put(row)
+                self._schedule(row)
         elif policy.type == "escalation":
             await self._escalate(banner, policy, row)
         else:
@@ -1030,6 +1121,51 @@ class HubEngine:
         if not any(o.result is Result.SENT for i, o in results if i.channel != CHANNEL_BANNER):
             self._log("escalation_unreached", banner.id, policy.name)
 
+    def _repeat_delay(self, banner: Banner, policy: Policy) -> datetime | None:
+        """One repeat rhythm per channel (D-234, DESIGN §25.3 rule 2): a reminder that runs
+        alongside keeps its own. Otherwise a reminder waits while another fitting reminder on
+        a shared channel has a shorter rhythm now, and repeats no sooner than its own rhythm
+        after the last repeat on those channels. Returns when to try again, or None to repeat."""
+        if policy.alongside:
+            return None
+        now = dt_util.utcnow()
+        every = timedelta(minutes=self.policies.every_minutes(policy))
+        mine = set(policy.channels)
+
+        def sharing(candidates: list[Policy]) -> list[Policy]:
+            return [
+                o
+                for o in candidates
+                if o.type == "reminder"
+                and o.key != policy.key
+                and not o.alongside
+                and not (mine and o.channels and not mine & set(o.channels))
+            ]
+
+        # Competitors are the reminders that act now; the last repeat counts whoever made it,
+        # also a reminder whose Only if has turned false since.
+        others = sharing(self.policies.for_message(banner))
+        sharers = sharing(self.policies.for_message(banner, only_if=False))
+        rows = {r.recipient: r for r in self.ledger.timers(banner.id)}
+        for other in others:
+            other_row = rows.get(other.key)
+            if other_row is None or other_row.state is not State.PLANNED:
+                continue  # finished or not planned: it does not set the rhythm
+            other_every = self.policies.every_minutes(other)
+            shorter = other_every < self.policies.every_minutes(policy)
+            # Same rhythm: the reminder created first counts (subentry IDs sort by time).
+            tie = other_every == self.policies.every_minutes(policy) and other.key < policy.key
+            if shorter or tie:
+                return now + every
+        repeated = [
+            rows[k].updated_at
+            for k in [policy.key, *(o.key for o in sharers)]
+            if k in rows and rows[k].count > 0
+        ]
+        if repeated and (last := max(repeated)) + every > now + timedelta(seconds=1):
+            return last + every
+        return None
+
     async def _remind(self, banner: Banner, policy: Policy, row: Delivery) -> None:
         # Cleared rows (dismissed or snoozed) are left out: a snooze pauses the person's
         # reminders and the notification after it brings them back (D-078).
@@ -1042,6 +1178,11 @@ class HubEngine:
         ]
         if not sent:
             self._finish(row, State.CLEARED, "nobody_left")
+            return
+        if (later := self._repeat_delay(banner, policy)) is not None:
+            row.due = later
+            self.ledger.put(row)
+            self._schedule(row)
             return
         report: list[tuple[str, str, str | None, Outcome]] = []
         for target_row in sent:
@@ -1071,10 +1212,11 @@ class HubEngine:
         self._report(banner, "reminder", report)
         self._log("reminder_sent", banner.id, policy.name)
         row.count += 1
+        row.updated_at = dt_util.utcnow()  # the last repeat: other reminders keep the rhythm
         if reminder.finished(policy, row.count):
             self._finish(row, State.SENT, "reminders_done")
             return
-        row.due = reminder.next_due(policy, dt_util.utcnow())
+        row.due = row.updated_at + timedelta(minutes=self.policies.every_minutes(policy))
         self.ledger.put(row)
         self._schedule(row)
 
