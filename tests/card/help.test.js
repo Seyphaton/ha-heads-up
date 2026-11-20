@@ -10,10 +10,11 @@ import {
 } from "../../custom_components/heads_up/frontend/panel/help.js";
 
 describe("help pages", () => {
-  it("are three pills of the help group, all rendered by the help module", () => {
-    expect(NAV.find((g) => g.id === "faq").pages).toEqual(["faq", "examples", "card"]);
+  it("are four pills of the help group: three of the help module and the policy help", () => {
+    expect(NAV.find((g) => g.id === "faq").pages).toEqual(["faq", "examples", "card", "policy-help"]);
     expect(PAGES).toEqual(["faq", "examples", "card"]);
     for (const page of PAGES) expect(MODULES[page]).toBe("help.js");
+    expect(MODULES["policy-help"]).toBe("policy_help.js");
   });
 
   it("have six notify examples, six card examples and 27 questions", () => {

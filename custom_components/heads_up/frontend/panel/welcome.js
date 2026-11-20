@@ -45,23 +45,13 @@ export const STRINGS = {
     policies_title: "Policies: when to be loud or quiet",
     policies_lead: "A policy changes how messages are delivered without touching your automations. Here are four to start from. Each one can be edited or deleted on the Policies page. Switch off what you do not want; nothing is created until you press Create.",
     item_quiet: "Quiet hours",
-    desc_quiet: "From 22:00 to 07:00 pushes of messages that are not critical go out without sound and speech is skipped. Critical messages are not affected.",
+    desc_quiet: "From 22:00 to 07:00 pushes go out without sound and speech is skipped. Messages tagged digest are left to the evening summary. Critical messages get through only when Critical messages is switched on.",
     item_digest: "Evening summary",
-    desc_digest: "Messages that your automations tag digest are held and sent as one summary at 20:00. Critical messages are never held. Messages without that tag are not affected.",
+    desc_digest: "Messages that your automations tag digest are held and sent as one summary at 20:00. With Critical messages switched on, critical ones are never held. Messages without that tag are not affected.",
     item_critical: "Critical messages",
-    desc_critical: "Every critical message, also from your existing automations, gets an Acknowledge button and is pushed at once to the audience below as an alarm (iPhone: the critical alert, which the Companion app must be allowed to show; Android: the alarm channel). Both sound even in silent mode. Without an acknowledgement it is pushed again every 10 minutes, 3 times, and after 10 minutes it is said on the speakers below. Dismissing counts as acknowledging.",
+    desc_critical: "Critical messages get through quiet hours and summaries for everyone (the entry Critical under Always gets through). Every critical message, also from your existing automations, gets an Acknowledge button and is pushed at once to the audience below as an alarm (iPhone: the critical alert, which the Companion app must be allowed to show; Android: the alarm channel). Both sound even in silent mode. Without an acknowledgement it is pushed again every 10 minutes, 3 times, and after 10 minutes it is said on the speakers below. Dismissing counts as acknowledging.",
     item_warnings: "Warning reminders",
     desc_warnings: "A warning that nobody acknowledges is repeated every 30 minutes, at most 3 times.",
-    mode_title: "How should policies interact?",
-    mode_first: "Only the first policy that applies runs",
-    mode_first_hint: "The simplest: each message gets one policy, the first one in your list that fits. You can change this later on the Policies page.",
-    mode_all: "Every policy that applies runs",
-    mode_all_hint: "A message can get several policies at once, for example quiet hours and a reminder. They can interfere, so check them with Test send.",
-    policies_lead_first: "Each message gets one policy: the first in this list that fits. These four do not overlap, and you can reorder them later.",
-    desc_first_critical: "Critical messages are pushed at once to the audience below. Nothing else runs for them, so there is no reminder.",
-    desc_first_warnings: "A warning that nobody acknowledges is repeated every 30 minutes, at most 3 times.",
-    desc_first_digest: "Info and passive messages that your automations tag digest are held and sent as one summary at 20:00.",
-    desc_first_quiet: "The other info and passive messages go out without sound from 22:00 to 07:00.",
     audience: "Push critical messages to",
     speakers: "Speak after 10 minutes on (none: no speech)",
     tts_engine: "Text-to-speech engine for speakers",
@@ -117,23 +107,13 @@ export const STRINGS = {
     policies_title: "Richtlinien: wann laut, wann leise",
     policies_lead: "Eine Richtlinie ändert, wie Meldungen zugestellt werden, ohne deine Automationen anzufassen. Hier sind vier zum Start. Jede kannst du auf der Seite Richtlinien ändern oder löschen. Schalte aus, was du nicht willst; nichts wird erstellt, bis du Erstellen drückst.",
     item_quiet: "Ruhezeit",
-    desc_quiet: "Von 22:00 bis 07:00 werden Pushs nicht kritischer Meldungen ohne Ton gesendet und die Sprachausgabe entfällt. Kritische Meldungen sind nicht betroffen.",
+    desc_quiet: "Von 22:00 bis 07:00 gehen Pushes ohne Ton raus und Sprachausgabe entfällt. Meldungen mit dem Tag digest bleiben der Abendzusammenfassung überlassen. Kritische Meldungen kommen nur durch, wenn Kritische Meldungen eingeschaltet ist.",
     item_digest: "Abendzusammenfassung",
-    desc_digest: "Meldungen, die deine Automationen mit digest markieren, werden zurückgehalten und um 20:00 als eine Zusammenfassung gesendet. Kritische Meldungen werden nie zurückgehalten. Meldungen ohne diesen Tag sind nicht betroffen.",
+    desc_digest: "Meldungen, die deine Automationen mit digest markieren, werden gesammelt und um 20:00 als eine Zusammenfassung gesendet. Mit eingeschalteten Kritischen Meldungen werden kritische nie gesammelt. Meldungen ohne diesen Tag sind nicht betroffen.",
     item_critical: "Kritische Meldungen",
-    desc_critical: "Jede kritische Meldung, auch aus deinen bestehenden Automationen, bekommt eine Schaltfläche Bestätigen und wird sofort als Alarm an die Zielgruppe unten gepusht (iPhone: die kritische Mitteilung, die die Companion-App anzeigen dürfen muss; Android: der Alarmkanal). Beide ertönen auch im Lautlosmodus. Ohne Bestätigung wird sie alle 10 Minuten erneut gepusht, 3 Mal, und nach 10 Minuten auf den Lautsprechern unten gesprochen. Ausblenden zählt als Bestätigung.",
+    desc_critical: "Kritische Meldungen kommen für alle durch Ruhezeit und Zusammenfassung (der Eintrag Kritisch unter Kommt immer durch). Jede kritische Meldung, auch aus deinen bestehenden Automationen, bekommt eine Schaltfläche Bestätigen und wird sofort als Alarm an die Zielgruppe unten gepusht (iPhone: die kritische Mitteilung, die die Companion-App anzeigen dürfen muss; Android: der Alarmkanal). Beide ertönen auch im Lautlosmodus. Ohne Bestätigung wird sie alle 10 Minuten erneut gepusht, 3 Mal, und nach 10 Minuten auf den Lautsprechern unten gesprochen. Ausblenden zählt als Bestätigung.",
     item_warnings: "Warnungs-Erinnerungen",
     desc_warnings: "Eine Warnung, die niemand bestätigt, wird alle 30 Minuten wiederholt, höchstens 3 Mal.",
-    mode_title: "Wie sollen Richtlinien zusammenwirken?",
-    mode_first: "Nur die erste passende Richtlinie läuft",
-    mode_first_hint: "Am einfachsten: Jede Meldung bekommt eine Richtlinie, die erste deiner Liste, die passt. Das kannst du später auf der Seite Richtlinien ändern.",
-    mode_all: "Jede passende Richtlinie läuft",
-    mode_all_hint: "Eine Meldung kann mehrere Richtlinien gleichzeitig bekommen, zum Beispiel Ruhezeit und eine Erinnerung. Sie können sich stören, prüfe sie daher mit Testsenden.",
-    policies_lead_first: "Jede Meldung bekommt eine Richtlinie: die erste in dieser Liste, die passt. Diese vier überschneiden sich nicht, und du kannst sie später umsortieren.",
-    desc_first_critical: "Kritische Meldungen werden sofort an die Zielgruppe unten gepusht. Sonst läuft nichts für sie, es gibt also keine Erinnerung.",
-    desc_first_warnings: "Eine Warnung, die niemand bestätigt, wird alle 30 Minuten wiederholt, höchstens 3 Mal.",
-    desc_first_digest: "Info- und passive Meldungen, die deine Automationen mit digest markieren, werden zurückgehalten und um 20:00 als eine Zusammenfassung gesendet.",
-    desc_first_quiet: "Die übrigen Info- und passive Meldungen gehen von 22:00 bis 07:00 ohne Ton raus.",
     audience: "Kritische Meldungen pushen an",
     speakers: "Nach 10 Minuten sprechen auf (keiner: keine Sprachausgabe)",
     tts_engine: "Text-zu-Sprache-Engine für Lautsprecher",
@@ -189,23 +169,13 @@ export const STRINGS = {
     policies_title: "Politiques : quand être fort ou discret",
     policies_lead: "Une politique change la façon dont les messages sont livrés sans toucher vos automatisations. Voici quatre points de départ. Chacune se modifie ou se supprime sur la page Politiques. Désactivez ce que vous ne voulez pas ; rien n'est créé avant d'appuyer sur Créer.",
     item_quiet: "Heures calmes",
-    desc_quiet: "De 22:00 à 07:00, les push des messages non critiques partent sans son et la voix est ignorée. Les messages critiques ne sont pas concernés.",
+    desc_quiet: "De 22:00 à 07:00, les push partent sans son et la voix est ignorée. Les messages étiquetés digest sont laissés au résumé du soir. Les messages critiques ne passent que si Messages critiques est activé.",
     item_digest: "Résumé du soir",
-    desc_digest: "Les messages que vos automatisations marquent digest sont retenus et envoyés en un résumé à 20:00. Les messages critiques ne sont jamais retenus. Les messages sans cette étiquette ne sont pas concernés.",
+    desc_digest: "Les messages que vos automatisations étiquettent digest sont retenus et envoyés en un résumé à 20:00. Avec Messages critiques activé, les critiques ne sont jamais retenus. Les messages sans cette étiquette ne sont pas concernés.",
     item_critical: "Messages critiques",
-    desc_critical: "Chaque message critique, aussi ceux de vos automatisations existantes, reçoit un bouton Confirmer et est envoyé tout de suite comme alarme à l'audience ci-dessous (iPhone : l'alerte critique, que l'app Companion doit avoir le droit d'afficher ; Android : le canal d'alarme). Les deux sonnent même en mode silencieux. Sans confirmation, il est renvoyé toutes les 10 minutes, 3 fois, et après 10 minutes il est dit sur les haut-parleurs ci-dessous. Masquer vaut confirmer.",
+    desc_critical: "Les messages critiques passent les heures calmes et les résumés pour tout le monde (l'entrée Critique sous Passe toujours). Chaque message critique, aussi ceux de vos automatisations existantes, reçoit un bouton Confirmer et est envoyé tout de suite comme alarme à l'audience ci-dessous (iPhone : l'alerte critique, que l'app Companion doit avoir le droit d'afficher ; Android : le canal d'alarme). Les deux sonnent même en mode silencieux. Sans confirmation, il est renvoyé toutes les 10 minutes, 3 fois, et après 10 minutes il est dit sur les haut-parleurs ci-dessous. Masquer vaut confirmer.",
     item_warnings: "Rappels d'avertissement",
     desc_warnings: "Un avertissement que personne ne confirme est répété toutes les 30 minutes, au plus 3 fois.",
-    mode_title: "Comment les politiques doivent-elles interagir ?",
-    mode_first: "Seule la première politique qui s'applique agit",
-    mode_first_hint: "Le plus simple : chaque message reçoit une politique, la première de votre liste qui convient. Vous pourrez le changer plus tard sur la page Politiques.",
-    mode_all: "Chaque politique qui s'applique agit",
-    mode_all_hint: "Un message peut recevoir plusieurs politiques à la fois, par exemple des heures calmes et un rappel. Elles peuvent se gêner : vérifiez-les avec Envoi de test.",
-    policies_lead_first: "Chaque message reçoit une politique : la première de cette liste qui convient. Ces quatre ne se recouvrent pas, et vous pourrez les réordonner plus tard.",
-    desc_first_critical: "Les messages critiques sont envoyés tout de suite à l'audience ci-dessous. Rien d'autre n'agit pour eux, donc pas de rappel.",
-    desc_first_warnings: "Un avertissement que personne ne confirme est répété toutes les 30 minutes, au plus 3 fois.",
-    desc_first_digest: "Les messages d'info et passifs que vos automatisations marquent digest sont retenus et envoyés en un résumé à 20:00.",
-    desc_first_quiet: "Les autres messages d'info et passifs partent sans son de 22:00 à 07:00.",
     audience: "Envoyer les messages critiques à",
     speakers: "Dire après 10 minutes sur (aucun : pas de voix)",
     tts_engine: "Moteur de synthèse vocale pour les haut-parleurs",
@@ -261,23 +231,13 @@ export const STRINGS = {
     policies_title: "Políticas: cuándo ser fuerte o discreto",
     policies_lead: "Una política cambia cómo se entregan los mensajes sin tocar tus automatizaciones. Aquí hay cuatro para empezar. Cada una se edita o se borra en la página Políticas. Desactiva lo que no quieras; no se crea nada hasta que pulses Crear.",
     item_quiet: "Horas de silencio",
-    desc_quiet: "De 22:00 a 07:00 los push de mensajes no críticos salen sin sonido y se omite la voz. Los mensajes críticos no se ven afectados.",
+    desc_quiet: "De 22:00 a 07:00 los push salen sin sonido y se omite la voz. Los mensajes con la etiqueta digest se dejan al resumen de la tarde. Los mensajes críticos solo pasan si Mensajes críticos está activado.",
     item_digest: "Resumen de la tarde",
-    desc_digest: "Los mensajes que tus automatizaciones marcan con digest se retienen y se envían como un resumen a las 20:00. Los mensajes críticos nunca se retienen. Los mensajes sin esa etiqueta no se ven afectados.",
+    desc_digest: "Los mensajes que tus automatizaciones etiquetan digest se retienen y se envían como un resumen a las 20:00. Con Mensajes críticos activado, los críticos nunca se retienen. Los mensajes sin esa etiqueta no se ven afectados.",
     item_critical: "Mensajes críticos",
-    desc_critical: "Cada mensaje crítico, también los de tus automatizaciones existentes, recibe un botón Confirmar y se envía de inmediato como alarma a la audiencia de abajo (iPhone: la alerta crítica, que la app Companion debe poder mostrar; Android: el canal de alarma). Ambos suenan incluso en modo silencio. Sin confirmación se vuelve a enviar cada 10 minutos, 3 veces, y a los 10 minutos se dice en los altavoces de abajo. Descartar cuenta como confirmar.",
+    desc_critical: "Los mensajes críticos pasan las horas de silencio y los resúmenes para todos (la entrada Crítico en Siempre pasa). Cada mensaje crítico, también los de tus automatizaciones existentes, recibe un botón Confirmar y se envía de inmediato como alarma a la audiencia de abajo (iPhone: la alerta crítica, que la app Companion debe poder mostrar; Android: el canal de alarma). Ambos suenan incluso en modo silencio. Sin confirmación se vuelve a enviar cada 10 minutos, 3 veces, y a los 10 minutos se dice en los altavoces de abajo. Descartar cuenta como confirmar.",
     item_warnings: "Recordatorios de avisos",
     desc_warnings: "Un aviso que nadie confirma se repite cada 30 minutos, como máximo 3 veces.",
-    mode_title: "¿Cómo deben interactuar las políticas?",
-    mode_first: "Solo actúa la primera política que se aplica",
-    mode_first_hint: "Lo más simple: cada mensaje recibe una política, la primera de tu lista que encaja. Puedes cambiarlo después en la página Políticas.",
-    mode_all: "Actúa cada política que se aplica",
-    mode_all_hint: "Un mensaje puede recibir varias políticas a la vez, por ejemplo horas de silencio y un recordatorio. Pueden estorbarse: compruébalas con Envío de prueba.",
-    policies_lead_first: "Cada mensaje recibe una política: la primera de esta lista que encaja. Estas cuatro no se solapan, y puedes reordenarlas después.",
-    desc_first_critical: "Los mensajes críticos se envían de inmediato a la audiencia de abajo. No actúa nada más para ellos, así que no hay recordatorio.",
-    desc_first_warnings: "Un aviso que nadie confirma se repite cada 30 minutos, como máximo 3 veces.",
-    desc_first_digest: "Los mensajes de info y pasivos que tus automatizaciones marcan con digest se retienen y se envían como un resumen a las 20:00.",
-    desc_first_quiet: "Los demás mensajes de info y pasivos salen sin sonido de 22:00 a 07:00.",
     audience: "Enviar los mensajes críticos a",
     speakers: "Decir a los 10 minutos en (ninguno: sin voz)",
     tts_engine: "Motor de texto a voz para los altavoces",
@@ -293,17 +253,8 @@ export const STRINGS = {
   },
 };
 
-export const ITEMS = ["quiet", "digest", "critical", "warnings"];
-// The items offered per mode, in the order their policies are created (D-150).
-export const ITEMS_BY_MODE = {
-  first: ["critical", "warnings", "digest", "quiet"],
-  all: ["quiet", "digest", "critical", "warnings"],
-};
-export const MODES = ["first", "all"];
-
-export function itemsFor(mode) {
-  return ITEMS_BY_MODE[mode === "all" ? "all" : "first"];
-}
+// The items, in the order their policies are created; every policy that fits acts (DESIGN §25.9).
+export const ITEMS = ["critical", "warnings", "digest", "quiet"];
 export const STEPS = ["intro", "channels", "recipients", "policies"];
 const CHANNEL_ORDER = ["banner", "push", "popup", "speak", "persistent", "mail"];
 
@@ -313,13 +264,11 @@ export function fill(template, params) {
 
 // The call to heads_up/welcome_apply for the state of the dialog: only the switched-on items.
 export function payloadFor(state) {
-  const mode = state.mode === "all" ? "all" : "first";
-  const items = itemsFor(mode).filter((id) => state.on[id]);
-  const payload = { type: "heads_up/welcome_apply", items, mode };
+  const items = ITEMS.filter((id) => state.on[id]);
+  const payload = { type: "heads_up/welcome_apply", items };
   if (items.includes("critical")) {
     payload.audience = state.audience;
-    // Only the mode "all" creates the escalation that says the message on speakers.
-    payload.speakers = mode === "all" ? [...state.speakers] : [];
+    payload.speakers = [...state.speakers];
   }
   if (state.ttsEngine) payload.tts_engine = state.ttsEngine;
   return payload;
@@ -397,7 +346,6 @@ const CSS = `
 .hu-dialog label.inline { display: flex; align-items: center; gap: 10px; min-height: 48px; font-weight: 600; }
 .hu-dialog input[type=checkbox] { width: 22px; height: 22px; }
 .hu-dialog label.inline .hint { font-weight: 400; }
-.hu-dialog fieldset.modes { max-height: none; overflow: visible; padding: 4px 12px; }
 .hu-dialog select { min-height: 40px; max-width: 100%; padding: 0 8px; border-radius: 6px; border: 1px solid var(--divider-color); background: var(--secondary-background-color); color: var(--primary-text-color); font: inherit; }
 .hu-dialog fieldset { border: 1px solid var(--divider-color); border-radius: 8px; max-height: 160px; overflow: auto; margin: 8px 0; }
 .hu-dialog legend { color: var(--secondary-text-color); font-size: 13px; }
@@ -417,7 +365,7 @@ export async function open(host, ctx) {
   const data = await hass.callWS({ type: "heads_up/welcome_get" });
   if (!ctx.force && !data.show) return null;
   const summary = setupSummary(await hass.callWS({ type: "heads_up/panel_config" }).catch(() => null));
-  const state = { mode: data.policy_mode === "all" ? "all" : "first", on: Object.fromEntries(ITEMS.map((id) => [id, true])), audience: data.default_audience, speakers: [], ttsEngine: data.tts_engine || "", step: Math.min(Math.max(ctx.step || 0, 0), STEPS.length - 1) };
+  const state = { on: Object.fromEntries(ITEMS.map((id) => [id, true])), audience: data.default_audience, speakers: [], ttsEngine: data.tts_engine || "", step: Math.min(Math.max(ctx.step || 0, 0), STEPS.length - 1) };
   const scrim = el("div", { className: "hu-scrim" });
   const dialog = el("div", { className: "hu-dialog", role: "dialog" });
   dialog.setAttribute("aria-modal", "true");
@@ -509,30 +457,19 @@ export async function open(host, ctx) {
   }
 
   function stepPolicies(message) {
-    const out = [el("p", { textContent: state.mode === "first" ? t.policies_lead_first : t.policies_lead })];
-    // First the choice of how policies interact: it decides which policies are offered.
-    const choice = el("fieldset", { className: "modes" }, [el("legend", { textContent: t.mode_title })]);
-    for (const mode of MODES) {
-      const input = el("input", { type: "radio", name: "mode", checked: state.mode === mode });
-      input.addEventListener("change", () => {
-        state.mode = mode;
-        render();
-      });
-      choice.append(el("label", { className: "inline" }, [input, el("span", {}, [el("span", { textContent: t[`mode_${mode}`] }), el("div", { className: "hint", textContent: t[`mode_${mode}_hint`] })])]));
-    }
-    out.push(choice);
-    itemsFor(state.mode).forEach((id, index) => {
+    const out = [el("p", { textContent: t.policies_lead })];
+    ITEMS.forEach((id) => {
       const box = el("input", { type: "checkbox", checked: state.on[id] });
       box.addEventListener("change", () => {
         state.on[id] = box.checked;
         render();
       });
-      const name = state.mode === "first" ? `${index + 1}. ${t[`item_${id}`]}` : t[`item_${id}`];
-      const text = state.mode === "first" ? t[`desc_first_${id}`] : t[`desc_${id}`];
+      const name = t[`item_${id}`];
+      const text = t[`desc_${id}`];
       const item = el("div", { className: "item" }, [el("label", { className: "inline" }, [box, el("span", { textContent: name })]), el("div", { className: "hint", textContent: text })]);
       if (id === "critical" && state.on.critical) {
         item.append(ui.field(t.audience, ui.selectInput(data.audiences.map((n) => ({ value: n, label: n })), state.audience, (v) => { state.audience = v; })));
-        if (state.mode === "all" && data.speakers.length) {
+        if (data.speakers.length) {
           item.append(ui.chips(t.speakers, data.speakers.map((id2) => ({ value: id2, label: ui.recipientLabel(id2, data) })), state.speakers, (list) => { state.speakers = list; }, true));
           const engines = data.tts_engines || [];
           if (state.speakers.length && engines.length === 0) item.append(el("div", { className: "hint", textContent: t.tts_none }));

@@ -209,7 +209,7 @@ export function groupEntries(entries, label, t, windowMs = 60000) {
   for (const entry of entries) {
     const reason = entry.reason || "";
     const group = groups.find(
-      (g) => g.channel === entry.channel && g.result === entry.result && g.reason === reason && (g.timer?.policy ?? "") === (entry.timer?.policy ?? "") && Math.abs(Date.parse(g.time) - Date.parse(entry.time)) <= windowMs,
+      (g) => g.channel === entry.channel && g.result === entry.result && g.reason === reason && (g.by ?? "") === (entry.by ?? "") && (g.timer?.policy ?? "") === (entry.timer?.policy ?? "") && Math.abs(Date.parse(g.time) - Date.parse(entry.time)) <= windowMs,
     );
     // Only a delivery channel has recipients worth naming; the other rows (acknowledged, timer)
     // carry internal ids.
@@ -217,7 +217,8 @@ export function groupEntries(entries, label, t, windowMs = 60000) {
     if (group) {
       if (who && !group.recipients.includes(who)) group.recipients.push(who);
     } else {
-      groups.push({ channel: entry.channel, result: entry.result, reason, time: entry.time, recipients: who ? [who] : [], timer: entry.timer || null });
+      // `by`: the policy that held, dropped or quieted it (DESIGN §25.8).
+      groups.push({ channel: entry.channel, result: entry.result, reason, time: entry.time, recipients: who ? [who] : [], timer: entry.timer || null, by: entry.by || null });
     }
   }
   return groups;
@@ -332,7 +333,8 @@ export function mount(container, ctx) {
       // A reason code with no text (a timer's "escalated") says nothing a reader can use.
       const known = deliveryChannel(group.channel) || Boolean(s.reason[group.reason]);
       const reason = group.reason === "ok" || !known ? "" : fmt.reasonText(group.reason, s);
-      const outcome = [s.result[group.result] || group.result, reason].filter(Boolean).join(": ");
+      const by = group.by ? ` (${(s.by_policy || "{policy}").replace("{policy}", group.by)})` : "";
+      const outcome = [s.result[group.result] || group.result, reason].filter(Boolean).join(": ") + by;
       const heading = group.timer ? timerName(group.timer, t) : deliveryChannel(group.channel) ? fmt.channelName(group.channel, s) : "";
       body.append(
         el("div", { className: "group" }, [

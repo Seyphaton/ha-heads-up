@@ -56,8 +56,8 @@ describe("panel navigation", () => {
     expect(secondRow("test")).toEqual(["test", "rules", "messages"]);
     expect(secondRow("general")).toEqual([]);
     expect(secondRow("status")).toEqual([]);
-    expect(secondRow("faq")).toEqual(["faq", "examples", "card"]);
-    expect(secondRow("card")).toEqual(["faq", "examples", "card"]);
+    expect(secondRow("faq")).toEqual(["faq", "examples", "card", "policy-help"]);
+    expect(secondRow("card")).toEqual(["faq", "examples", "card", "policy-help"]);
   });
 
   it("builds page and module URLs", () => {

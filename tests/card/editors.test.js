@@ -26,10 +26,9 @@ import {
 import {
   appliesText,
   blankValues as blankPolicy,
-  dropItem,
-  moveItem,
+  checkLine,
+  laneOf,
   overlapNames,
-  shadowedBy,
   overlaps,
   fromPolicy,
   sentence,
@@ -235,8 +234,9 @@ describe("policy editor", () => {
 
   it("sends the fields of each other type", () => {
     expect(policyData({ ...blankPolicy("reminder"), name: "Nag", channels: [] })).toMatchObject({ every_minutes: 30, max_count: 3, channels: [] });
-    expect(policyData({ ...blankPolicy("presence"), name: "Back" })).toMatchObject({ max_wait: 0, critical_passes: true });
-    expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).toMatchObject({ from_time: "22:00:00", to_time: "07:00:00", days: [], action: "quiet", critical_passes: true });
+    expect(policyData({ ...blankPolicy("presence"), name: "Back" })).toMatchObject({ max_wait: 0 });
+    expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).toMatchObject({ from_time: "22:00:00", to_time: "07:00:00", days: [], action: "quiet" });
+    expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).not.toHaveProperty("holds_anyway");
     expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).not.toHaveProperty("quiet_entity");
     expect(policyData({ ...blankPolicy("quiet_hours"), name: "Nap", quiet_entity: "input_boolean.nap" }).quiet_entity).toBe("input_boolean.nap");
     expect(fromPolicy({ name: "Nap", data: { type: "quiet_hours", quiet_entity: "input_boolean.nap" } }).quiet_entity).toBe("input_boolean.nap");
@@ -249,7 +249,8 @@ describe("policy editor", () => {
       name: "Crit", type: "deliver", apply: "auto", severities: ["critical"], tags: [], enabled: true, channels: ["push"], push_audience: "Admins",
     });
     const every = policyData({ ...blankPolicy("summarize"), name: "Digest" });
-    expect(every).toMatchObject({ summary_every: 60, include_critical: false });
+    expect(every).toMatchObject({ summary_every: 60 });
+    expect(every).not.toHaveProperty("holds_anyway");
     expect(every.summary_at).toBeUndefined();
     const at = policyData({ ...blankPolicy("summarize"), name: "Evening", summary_mode: "at" });
     expect(at.summary_at).toBe("20:00:00");
@@ -286,8 +287,8 @@ describe("policy editor", () => {
       name: "Water", type: "escalation", severities: ["critical"], tags: "water, leak", enabled: false, after_minutes: 9, dismiss_acks: true,
       push_audience: "Admins", speak_recipients: ["media_player.k"],
     });
-    const digest = fromPolicy({ name: "D", data: { type: "summarize", summary_at: "19:30:00", include_critical: true } });
-    expect(digest).toMatchObject({ summary_mode: "at", summary_at: "19:30:00", include_critical: true });
+    const digest = fromPolicy({ name: "D", data: { type: "summarize", summary_at: "19:30:00", holds_anyway: true } });
+    expect(digest).toMatchObject({ summary_mode: "at", summary_at: "19:30:00", holds_anyway: true });
   });
 
   it("describes a policy in plain words", () => {
@@ -297,15 +298,14 @@ describe("policy editor", () => {
     expect(appliesText({ ...blankPolicy("presence"), tags: "smoke_never" }, t)).toBe("Messages with tag smoke_never");
     expect(appliesText({ ...blankPolicy("presence"), severities: ["info"] }, t)).toBe("Messages with severity Info");
     expect(sentence(water, t)).toBe("Messages with severity Critical and tag water: if nobody acknowledges within 5 min, it is also sent on Push, Persistent Notification.");
-    expect(sentence({ ...blankPolicy("quiet_hours"), days: ["sat", "sun"] }, t)).toBe("Every message: between 22:00 and 07:00 on Saturday, Sunday, deliveries outside the dashboard are sent quietly, critical messages pass.");
-    expect(sentence({ ...blankPolicy("quiet_hours"), quiet_entity: "schedule.night", action: "wait" }, t)).toBe("Every message: while schedule.night is on, deliveries outside the dashboard are held until the end, critical messages pass.");
+    expect(sentence({ ...blankPolicy("quiet_hours"), days: ["sat", "sun"] }, t)).toBe("Every message: between 22:00 and 07:00 on Saturday, Sunday, deliveries outside the dashboard are sent quietly.");
+    expect(sentence({ ...blankPolicy("quiet_hours"), quiet_entity: "schedule.night", action: "wait" }, t)).toBe("Every message: while schedule.night is on, deliveries outside the dashboard are held until the end.");
     expect(sentence({ ...blankPolicy("reminder"), channels: ["push"] }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times, only on Push.");
-    expect(sentence({ ...blankPolicy("presence"), max_wait: 30 }, t)).toBe("Every message: a recipient who is not in Home: push, popup and mail are held until that changes, for at most 30 min, then sent anyway, critical messages pass.");
-    expect(sentence({ ...blankPolicy("presence"), channels: ["speak"], presence_then: "drop", critical_passes: false }, t)).toBe("Every message: speech while nobody of everyone is in Home is dropped.");
-    expect(sentence({ ...blankPolicy("presence"), critical_passes: false }, t)).toBe("Every message: a recipient who is not in Home: push, popup and mail are held until that changes.");
+    expect(sentence({ ...blankPolicy("presence"), max_wait: 30 }, t)).toBe("Every message: a recipient who is not in Home: push, popup and mail are held until that changes, for at most 30 min, then sent anyway.");
+    expect(sentence({ ...blankPolicy("presence"), channels: ["speak"], presence_then: "drop" }, t)).toBe("Every message: speech while nobody of everyone is in Home is dropped.");
     expect(sentence({ ...blankPolicy("fallback"), when: "both", channels: ["persistent"] }, t)).toBe("Every message: if the audience is empty or delivery fails, it is sent on Persistent Notification instead.");
     expect(sentence({ ...blankPolicy("deliver"), severities: ["critical"], channels: ["push"] }, t)).toBe("Messages with severity Critical: it is also sent at once on Push.");
-    expect(sentence({ ...blankPolicy("summarize"), include_critical: true }, t)).toBe("Every message: held, and one summary is sent 60 min after the first held message, critical messages included.");
+    expect(sentence({ ...blankPolicy("summarize") }, t)).toBe("Every message: held, and one summary is sent 60 min after the first held message.");
     expect(sentence({ ...blankPolicy("summarize"), summary_mode: "at" }, t)).toBe("Every message: held, and one summary is sent every day at 20:00.");
   });
 });
@@ -455,30 +455,20 @@ describe("manual and automatic policies", () => {
   });
 });
 
-describe("the policy list order and the overlap note", () => {
-  it("moves a policy up or down and leaves the ends alone", () => {
-    expect(moveItem(["a", "b", "c"], "b", -1)).toEqual(["b", "a", "c"]);
-    expect(moveItem(["a", "b", "c"], "b", 1)).toEqual(["a", "c", "b"]);
-    expect(moveItem(["a", "b", "c"], "a", -1)).toEqual(["a", "b", "c"]);
-    expect(moveItem(["a", "b", "c"], "c", 1)).toEqual(["a", "b", "c"]);
-    expect(moveItem(["a", "b"], "x", 1)).toEqual(["a", "b"]);
-  });
-
-  it("drops a policy in front of another or at the end, and does not change the input", () => {
-    const ids = ["a", "b", "c", "d"];
-    expect(dropItem(ids, "d", "b")).toEqual(["a", "d", "b", "c"]);
-    expect(dropItem(ids, "a", "d")).toEqual(["b", "c", "a", "d"]);
-    expect(dropItem(ids, "a", null)).toEqual(["b", "c", "d", "a"]);
-    expect(dropItem(ids, "b", "b")).toEqual(ids);
-    expect(dropItem(ids, "x", "b")).toEqual(ids);
-    expect(ids).toEqual(["a", "b", "c", "d"]);
-  });
-
+describe("the lanes and the overlap note", () => {
   it("says two policies overlap when some message can match both, an empty list matching any", () => {
     expect(overlaps({ severities: [], tags: [] }, { severities: ["critical"], tags: ["water"] })).toBe(true);
     expect(overlaps({ severities: ["info"], tags: [] }, { severities: ["critical"], tags: [] })).toBe(false);
     expect(overlaps({ severities: ["info"], tags: ["digest"] }, { severities: ["info", "passive"], tags: [] })).toBe(true);
     expect(overlaps({ severities: ["info"], tags: ["digest"] }, { severities: ["info"], tags: ["door"] })).toBe(false);
+  });
+
+  it("puts each policy in its lane, manual ones apart", () => {
+    expect(laneOf({ data: { type: "quiet_hours" } })).toBe("calm");
+    expect(laneOf({ data: { type: "away" } })).toBe("calm");
+    expect(laneOf({ data: { type: "get_through" } })).toBe("band");
+    expect(laneOf({ data: { type: "fallback" } })).toBe("arrive");
+    expect(laneOf({ data: { type: "deliver", apply: "manual" } })).toBe("named");
   });
 
   const list = [
@@ -487,62 +477,71 @@ describe("the policy list order and the overlap note", () => {
     { name: "By hand", subentry_id: "3", data: { type: "quiet_hours", severities: [], tags: [], apply: "manual", enabled: true } },
     { name: "Off", subentry_id: "4", data: { type: "quiet_hours", severities: [], tags: [], enabled: false } },
     { name: "Quiet", subentry_id: "5", data: { type: "quiet_hours", severities: ["info"], tags: [], enabled: true } },
+    { name: "Away", subentry_id: "6", data: { type: "presence", severities: [], tags: [], enabled: true } },
   ];
   const mine = (extra) => ({ ...blankPolicy("quiet_hours"), severities: ["info"], tags: "", ...extra });
 
-  it("lists in the mode first the policies above that match some of the same messages", () => {
-    const names = overlapNames({ values: mine(), own: list[4], policies: list, mode: "first" });
-    expect(names).toEqual(["Everything"]); // not the manual, the disabled or the critical-only one
-    expect(overlapNames({ values: mine(), own: null, policies: list, mode: "first" })).toEqual(["Everything", "Quiet"]);
+  it("names the other calming policies that fit some of the same messages", () => {
+    expect(overlapNames({ values: mine(), own: list[4], policies: list })).toEqual(["Everything", "Away"]);
+    expect(overlapNames({ values: mine(), own: null, policies: list })).toEqual(["Everything", "Quiet", "Away"]);
   });
 
-  it("lists in the mode all the other policies of the same type that match", () => {
-    const names = overlapNames({ values: mine(), own: list[4], policies: list, mode: "all" });
-    expect(names).toEqual(["Everything"]);
+  it("names for a sending policy only others of its type", () => {
     const escalation = { ...blankPolicy("escalation"), severities: ["critical"] };
-    expect(overlapNames({ values: escalation, own: null, policies: list, mode: "all" })).toEqual([]);
+    expect(overlapNames({ values: escalation, own: null, policies: list })).toEqual([]);
+    const deliver = { ...blankPolicy("deliver"), severities: [] };
+    expect(overlapNames({ values: deliver, own: null, policies: list })).toEqual(["Critical delivery"]);
   });
 
-  it("names the policy above that matches every message of a policy, so it never runs by itself", () => {
-    const row = (name, id, severities, tags, extra = {}) => ({ name, subentry_id: id, data: { type: "deliver", severities, tags, enabled: true, ...extra } });
-    const policies = [
-      row("Critical delivery", "1", ["critical"], []),
-      row("Water escalation", "2", ["critical"], ["water"]),
-      row("Water reminder", "3", ["critical"], ["water"]),
-      row("Warnings", "4", ["warning"], []),
-      row("Any", "5", [], []),
-    ];
-    expect(shadowedBy(policies[0], policies)).toBeNull();
-    expect(shadowedBy(policies[1], policies)).toBe("Critical delivery"); // narrower than the one above
-    expect(shadowedBy(policies[2], policies)).toBe("Critical delivery");
-    expect(shadowedBy(policies[3], policies)).toBeNull(); // another severity
-    expect(shadowedBy(policies[4], policies)).toBeNull(); // wider than the ones above: partial overlap only
-    const reordered = [policies[1], policies[0]];
-    expect(shadowedBy(reordered[0], reordered)).toBeNull();
-    expect(shadowedBy(reordered[1], reordered)).toBeNull(); // critical, any tag is wider than critical + water
-  });
-
-  it("ignores manual and disabled policies on both sides", () => {
-    const base = { type: "deliver", severities: ["critical"], tags: [], enabled: true };
-    const above = (extra) => ({ name: "Above", subentry_id: "1", data: { ...base, ...extra } });
-    const below = (extra) => ({ name: "Below", subentry_id: "2", data: { ...base, ...extra } });
-    expect(shadowedBy(below(), [above(), below()])).toBe("Above");
-    expect(shadowedBy(below(), [above({ enabled: false }), below()])).toBeNull();
-    expect(shadowedBy(below(), [above({ apply: "manual" }), below()])).toBeNull();
-    expect(shadowedBy(below({ apply: "manual" }), [above(), below({ apply: "manual" })])).toBeNull();
-    expect(shadowedBy(below({ enabled: false }), [above(), below({ enabled: false })])).toBeNull();
-  });
-
-  it("lists nothing for a manual policy", () => {
-    expect(overlapNames({ values: mine({ apply: "manual" }), own: null, policies: list, mode: "first" })).toEqual([]);
-  });
-
-  it("has the texts of the mode choice and the order in every language", () => {
+  it("has the texts of the lanes, the check list and the checker in every language", () => {
+    const keys = ["lane_calm", "lane_calm_hint", "band", "band_hint", "lane_arrive", "lane_arrive_hint", "lane_named", "cl_title", "cl_keep", "cl_act", "cl_through", "ck_title", "ck_run", "r_quiet", "r_by", "help_button", "s_through", "holds_anyway", "only_if", "faster", "alongside", "not_tags"];
     for (const [code, language] of Object.entries(POLICY_STRINGS)) {
-      for (const key of ["mode_title", "mode_first", "mode_first_hint", "mode_all", "mode_all_hint", "order_first", "order_all", "move_up", "move_down", "handle", "position", "overlap_first", "overlap_all", "order_failed"]) {
-        expect(language[key], `${code} ${key}`).toBeTruthy();
-      }
+      for (const key of keys) expect(language[key], `${code} ${key}`).toBeTruthy();
+      expect(language.mode_title, code).toBeUndefined();
+      expect(language.types.get_through, code).toBeTruthy();
     }
+  });
+});
+
+describe("2.0 policy fields", () => {
+  it("sends Not for, From watch rule and Only if, and reads them back", () => {
+    const values = { ...blankPolicy("quiet_hours"), name: "Night", not_severities: ["critical"], not_tags: "digest", rules: ["r1"], oi_entity: "input_boolean.guests", oi_state: "off", holds_anyway: true };
+    const data = policyData(values);
+    expect(data).toMatchObject({ not_severities: ["critical"], not_tags: ["digest"], rules: ["r1"], only_if: { entity_id: "input_boolean.guests", state: "off" }, holds_anyway: true });
+    expect(fromPolicy({ name: "Night", data })).toMatchObject({ not_severities: ["critical"], not_tags: "digest", rules: ["r1"], oi_entity: "input_boolean.guests", oi_state: "off", holds_anyway: true });
+  });
+
+  it("keeps an Only if it cannot edit as it is", () => {
+    const template = { template: "{{ is_state('input_boolean.x', 'on') }}" };
+    const values = fromPolicy({ name: "T", data: { type: "deliver", channels: ["push"], only_if: template } });
+    expect(values.only_if_raw).toEqual(template);
+    expect(policyData({ ...values, push_audience: "Admins" }).only_if).toEqual(template);
+  });
+
+  it("sends Faster while and Runs alongside for a reminder", () => {
+    const data = policyData({ ...blankPolicy("reminder"), name: "Nag", fw_entity: "binary_sensor.window", fw_state: "on", fw_every: 15, alongside: true });
+    expect(data).toMatchObject({ faster_while: { condition: { entity_id: "binary_sensor.window", state: "on" }, every_minutes: 15 }, alongside: true });
+  });
+
+  it("sends a band entry with whom it covers", () => {
+    expect(policyData({ ...blankPolicy("get_through"), name: "Critical", severities: ["critical"] })).toMatchObject({ type: "get_through", covers: "everyone" });
+    const only = policyData({ ...blankPolicy("get_through"), name: "Alarms", covers: "only", covers_recipients: ["person.ben"] });
+    expect(only).toMatchObject({ covers: "only", covers_recipients: ["person.ben"] });
+    expect(validatePolicy({ ...blankPolicy("get_through"), name: "A", covers: "only" }, [])).toEqual({ covers_recipients: "target_required" });
+  });
+
+  it("says a band entry and the 2.0 extras in words", () => {
+    const t = POLICY_STRINGS.en;
+    expect(sentence({ ...blankPolicy("get_through"), tags: "alarm", covers: "only", covers_recipients: ["person.ben"] }, t, { recipient: () => "Ben" })).toBe("Messages with tag alarm: may wake Ben despite quiet hours and summaries.");
+    expect(sentence({ ...blankPolicy("quiet_hours"), not_tags: "digest", holds_anyway: true }, t)).toBe("Every message: between 22:00 and 07:00, deliveries outside the dashboard are sent quietly. Not for #digest. No Always gets through entry passes it.");
+    expect(sentence({ ...blankPolicy("reminder"), fw_entity: "binary_sensor.window", fw_state: "on", fw_every: 15, alongside: true }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times. While binary_sensor.window is on: every 15 min. Runs alongside other reminders.");
+  });
+
+  it("words one line of the checker", () => {
+    const t = POLICY_STRINGS.en;
+    expect(checkLine({ channel: "push", result: "sent", note: "quiet", by: "Night quiet" }, t, "Anna")).toBe("Anna · Push: sent quietly (by Night quiet)");
+    expect(checkLine({ channel: "push", result: "sent", through: ["Alarms wake Admins"], via: "Alarms to Admins" }, t, "Ben")).toBe("Ben · Push: sent (let through by Alarms wake Admins; added by Alarms to Admins)");
+    expect(checkLine({ channel: "push", result: "held", until: "x", untilText: "07:00", by: "Away" }, t, "Chris")).toBe("Chris · Push: held until 07:00 (by Away)");
   });
 });
 
