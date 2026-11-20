@@ -361,7 +361,7 @@ A Presence policy sends the message when the person arrives, as long as it is st
 
 ### Do critical messages get special treatment?
 
-Yes, in four places. Quiet hours let them pass unless you switch that off. Summarize does not hold them unless you include them. The rate limits never hold them back. Presence audiences include a person whose presence is unknown. Away has no exception, so limit its severities if critical messages must go out at once.
+Yes, in five places. Quiet hours let them pass unless you switch that off. Summarize does not hold them unless you include them. The rate limits never hold them back. Presence audiences include a person whose presence is unknown. Presence policies let them pass unless you switch that off.
 
 ### What stops a flood of pushes?
 
@@ -377,7 +377,7 @@ A policy is looked up when a message appears. A policy you add later starts when
 
 ### What happens after a restart?
 
-Pending escalations keep their due time, and a step that came due during the restart runs once if the message is still active and not acknowledged. Messages held for quiet hours, away or a summary stay held. Pushes of messages that no longer exist are removed. The record of recent messages and last actions starts empty.
+Pending escalations keep their due time, and a step that came due during the restart runs once if the message is still active and not acknowledged. Messages held for quiet hours, a Presence policy or a summary stay held. Pushes of messages that no longer exist are removed. The record of recent messages and last actions starts empty.
 
 ## Troubleshooting
 
@@ -448,7 +448,7 @@ Open the message in the Message Log.
 
 - `held` with `quiet_hours`: a Quiet hours policy with the action `wait` holds it until the window ends.
 - `skipped` with `quiet_hours`: the action is `drop`, or the delivery was a reminder.
-- `held` with `away`: the person was not home. It is sent when their person state becomes `home`. `skipped` with `max_wait_exceeded`: they did not arrive in time.
+- `held` with `away`: a Presence policy holds it until the person is in the zone, or out of it, as the person's state or the entity on their recipient profile says. `skipped` with `presence`: the policy drops it. `skipped` with `max_wait_exceeded`: the wait ended first.
 - Critical messages ignore Quiet hours unless the policy has Critical messages pass turned off.
 - The window uses the Home Assistant time zone (Settings > System > General).
 

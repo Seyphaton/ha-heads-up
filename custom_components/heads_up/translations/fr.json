@@ -1133,7 +1133,7 @@
       "step": {
         "user": {
           "title": "Ajouter une politique",
-          "description": "Ce que fait la politique (le type) et quand elle s'applique :\n\n- Escalade : si personne ne confirme dans le délai, remettre sur d'autres canaux.\n- Rappel : répéter la notification tant que personne ne confirme.\n- Heures calmes : retenir, envoyer discrètement ou abandonner les remises dans une plage horaire.\n- Absence : envoyer aux personnes absentes quand elles arrivent.\n- Repli : livrer ailleurs quand personne n'a pu être prévenu : d'autres canaux, ou d'autres personnes sur les mêmes canaux.\n- Résumé : retenir les messages sur chaque canal, bannière comprise, et envoyer un résumé par destinataire.\n- Remise : envoyer tout de suite les messages correspondants à une audience choisie sur des canaux choisis, en plus de ce que l'appel demandait.\n\nUne politique s'applique automatiquement aux messages dont la gravité et l'étiquette correspondent (une liste vide correspond à tout ; les messages de règles ont l'étiquette \"rule\"), ou manuellement, seulement quand un appel la nomme dans son champ policy.",
+          "description": "Ce que fait la politique (le type) et quand elle s'applique :\n\n- Escalade : si personne ne confirme dans le délai, remettre sur d'autres canaux.\n- Rappel : répéter la notification tant que personne ne confirme.\n- Heures calmes : retenir, envoyer discrètement ou abandonner les remises dans une plage horaire.\n- Présence : retenir ou abandonner les envois selon où sont les personnes, par exemple envoyer quand la personne arrive.\n- Repli : livrer ailleurs quand personne n'a pu être prévenu : d'autres canaux, ou d'autres personnes sur les mêmes canaux.\n- Résumé : retenir les messages sur chaque canal, bannière comprise, et envoyer un résumé par destinataire.\n- Remise : envoyer tout de suite les messages correspondants à une audience choisie sur des canaux choisis, en plus de ce que l'appel demandait.\n\nUne politique s'applique automatiquement aux messages dont la gravité et l'étiquette correspondent (une liste vide correspond à tout ; les messages de règles ont l'étiquette \"rule\"), ou manuellement, seulement quand un appel la nomme dans son champ policy.",
           "data": {
             "enabled": "Activée",
             "name": "Nom",
@@ -1203,7 +1203,7 @@
             "household_audience": "Présence : une liste de personnes. Vide : tout le monde.",
             "presence_then": "Présence : retenir la livraison jusqu'à ce que cela change, ou l'abandonner.",
             "after_wait": "Présence : ce qui arrive à une livraison retenue quand l'attente maximale est passée.",
-            "max_wait": "Absent : minutes d'attente de l'arrivée de la personne. 0 : tant que le message existe.",
+            "max_wait": "Présence : minutes d'attente au plus. 0 : tant que le message existe.",
             "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué.",
             "summary_every": "Résumer : envoie un résumé ce nombre de minutes après le premier message retenu.",
             "summary_at": "Résumer : envoie un résumé chaque jour à cette heure plutôt qu'à intervalle.",
@@ -1214,7 +1214,7 @@
         },
         "reconfigure": {
           "title": "Modifier la politique",
-          "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\". Heures calmes : retenir, envoyer discrètement ou abandonner les envois dans une plage horaire. Absent : envoyer aux personnes qui ne sont pas à la maison à leur arrivée. Repli : livrer ailleurs quand personne n'a pu être notifié : d'autres canaux, ou d'autres personnes sur les mêmes canaux. Résumer : retenir les messages sur tous les canaux, bannière comprise, et envoyer un résumé par destinataire. Livrer : envoyer tout de suite les messages concernés à une audience choisie sur des canaux choisis, en plus de ce que l'appel nomme.",
+          "description": "Escalade : si personne n'acquitte dans le délai, envoie sur d'autres canaux. Rappel : répète la notification tant que personne n'acquitte. Des gravités ou étiquettes vides signifient toutes. Les messages de règle ont l'étiquette \"rule\". Heures calmes : retenir, envoyer discrètement ou abandonner les envois dans une plage horaire. Présence : retenir ou abandonner les envois selon où sont les personnes, par exemple envoyer quand la personne arrive. Repli : livrer ailleurs quand personne n'a pu être notifié : d'autres canaux, ou d'autres personnes sur les mêmes canaux. Résumer : retenir les messages sur tous les canaux, bannière comprise, et envoyer un résumé par destinataire. Livrer : envoyer tout de suite les messages concernés à une audience choisie sur des canaux choisis, en plus de ce que l'appel nomme.",
           "data": {
             "name": "Nom",
             "type": "Type",
@@ -1282,7 +1282,7 @@
             "household_audience": "Présence : une liste de personnes. Vide : tout le monde.",
             "presence_then": "Présence : retenir la livraison jusqu'à ce que cela change, ou l'abandonner.",
             "after_wait": "Présence : ce qui arrive à une livraison retenue quand l'attente maximale est passée.",
-            "max_wait": "Absent : minutes d'attente de l'arrivée de la personne. 0 : tant que le message existe.",
+            "max_wait": "Présence : minutes d'attente au plus. 0 : tant que le message existe.",
             "when": "Repli : quand utiliser les canaux et destinataires ci-dessus. Personne à notifier : l'audience était vide. Échec de l'envoi : la personne n'a pas d'appareil utilisable ou l'envoi a échoué.",
             "summary_every": "Résumer : envoie un résumé ce nombre de minutes après le premier message retenu.",
             "summary_at": "Résumer : envoie un résumé chaque jour à cette heure plutôt qu'à intervalle.",

@@ -417,7 +417,7 @@ If the first delivery of a message reached nobody on a channel, the policy deliv
 
 - A fallback is judged once, after the first delivery of the message. It is not judged again on updates, and escalations, reminders and fallbacks never start a fallback.
 - A channel with a delivery that was sent or held counts as reached. The banner does not count.
-- Messages from watch rules only have the banner channel, so they have no first delivery to fall back from. Their escalations still pass quiet hours and away.
+- Messages from watch rules only have the banner channel, so they have no first delivery to fall back from. Their escalations still pass quiet hours and Presence.
 
 ### Deliver
 
@@ -425,7 +425,7 @@ A call names the channels of its first delivery. A Deliver policy adds channels 
 
 - It fires once per message, at its first delivery. An update replaces what it sent, like the call's own deliveries.
 - Someone who already has the message on that channel from the call is not notified a second time.
-- It passes quiet hours, away and fallback like any delivery. It does not fire for a message held for a summary, and not for a message that became visible while Home Assistant was starting.
+- It passes quiet hours, Presence and fallback like any delivery. It does not fire for a message held for a summary, and not for a message that became visible while Home Assistant was starting.
 - A watch rule message gets it when the policy applies to the tag `rule`. With `match_policies_automatically: false` in the call it is switched off for that call.
 
 ### Summarize
@@ -441,7 +441,7 @@ A Summarize policy holds the messages it applies to on every channel, including 
 - A held message is not shown on the dashboard, not counted by the active banners sensor and not sent. Administrators with `show_all` still see it.
 - The summary is one message for each recipient and channel: a person's phone gets a push that lists the messages meant for that person; the dashboard gets one banner. It has a count in the title and one line per message, at most ten, then "and N more". Its severity is the highest of the messages.
 - A message that was cleared before the summary is listed once, marked resolved. Nothing is sent when nothing was held.
-- The summary stays for 24 hours or until it is dismissed. It passes through quiet hours, away and fallback like any delivery, and is never held, escalated, reminded or summarized itself.
+- The summary stays for 24 hours or until it is dismissed. It passes through quiet hours, Presence and fallback like any delivery, and is never held, escalated, reminded or summarized itself.
 - The messages stay hidden after their summary. A held message that changes its text or severity is listed again in the next summary. A held message that becomes critical is released at once, unless the policy includes critical.
 - The hold is decided when the message appears. A policy added later does not hold messages that are already there, and a policy added after a message was sent only starts when that message is next updated. Deleting or disabling the policy releases its held messages.
 - Held messages and the timer are stored and survive a restart. A summary that came due while Home Assistant was stopped is sent once.

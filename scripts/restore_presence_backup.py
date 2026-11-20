@@ -3,7 +3,9 @@
 Run it with Home Assistant stopped, on the configuration directory, before installing 1.0.0
 again. It reads `.storage/heads_up.migration_v2_2` (written once, before the conversion) and
 puts back the data of the policy subentries it holds, and the minor version 1 of the Heads Up
-config entry. Other subentries, the options and every other config entry stay as they are.
+config entry. It also names the severity `passive` `success` again (D-231), in the options, the
+subentries and the stored messages, because 1.0.0 does not know `passive`. Every other config
+entry stays as it is.
 
     python scripts/restore_presence_backup.py /path/to/config [--dry-run]
 """
@@ -18,6 +20,10 @@ from typing import Any
 
 DOMAIN = "heads_up"
 BACKUP = "heads_up.migration_v2_2"
+# The stores that hold a message's severity; 1.0.0 reads all three.
+STORES = ("heads_up.banners", "heads_up.deliveries", "heads_up.trace")
+# Options keyed by severity (hub/migration.py SEVERITY_KEYED_OPTIONS).
+SEVERITY_KEYED = ("push_levels", "popup_styles", "severity_display", "speak_severity_volume")
 
 
 def _read(path: Path) -> Any:
@@ -26,6 +32,27 @@ def _read(path: Path) -> Any:
 
 def _write(path: Path, data: Any) -> None:
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def severity_back(value: Any) -> Any:
+    """`passive` back to `success` where it is a severity: the value of `severity`, an item of
+    `severities`, and a key of the options keyed by severity. A push level `passive` stays."""
+    if isinstance(value, list):
+        return [severity_back(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+    out: dict[str, Any] = {}
+    for key, item in value.items():
+        if key == "severity" and item == "passive":
+            item = "success"
+        elif key == "severities" and isinstance(item, list):
+            item = ["success" if s == "passive" else s for s in item]
+        elif key in SEVERITY_KEYED and isinstance(item, dict):
+            item = {("success" if k == "passive" else k): v for k, v in item.items()}
+        else:
+            item = severity_back(item)
+        out[key] = item
+    return out
 
 
 def restore(config_dir: Path, dry_run: bool = False) -> list[str]:
@@ -46,8 +73,25 @@ def restore(config_dir: Path, dry_run: bool = False) -> list[str]:
             done.append(f"policy {sub['title']}: put back")
     entry["minor_version"] = backup.get("minor_version", 1)
     done.append(f"config entry: minor version {entry['minor_version']}")
+    if (options := severity_back(entry.get("options", {}))) != entry.get("options", {}):
+        entry["options"] = options
+        done.append("options: passive named success again")
+    for sub in entry.get("subentries", []):
+        if (data := severity_back(sub["data"])) != sub["data"]:
+            sub["data"] = data
+            kind = sub.get("subentry_type", "subentry")
+            done.append(f"{kind} {sub['title']}: passive named success again")
+    stores = {}
+    for key in STORES:
+        if (path := storage / key).exists():
+            stored = _read(path)
+            if (renamed := severity_back(stored)) != stored:
+                stores[path] = renamed
+                done.append(f"{key}: passive named success again")
     if not dry_run:
         _write(storage / "core.config_entries", entries)
+        for path, data in stores.items():
+            _write(path, data)
     return done
 
 

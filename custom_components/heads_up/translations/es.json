@@ -1133,7 +1133,7 @@
       "step": {
         "user": {
           "title": "Añadir política",
-          "description": "Qué hace la política (el tipo) y cuándo se aplica:\n\n- Escalado: si nadie confirma en el tiempo, entrega por más canales.\n- Recordatorio: repite la notificación mientras nadie confirma.\n- Horas de silencio: retiene, envía en silencio o descarta entregas en una franja horaria.\n- Ausencia: envía a las personas que no están en casa cuando llegan.\n- Alternativa: entrega en otro sitio cuando no se pudo avisar a nadie: otros canales u otras personas por los mismos canales.\n- Resumen: retiene mensajes en todos los canales, el aviso incluido, y envía un resumen por destinatario.\n- Entrega: envía al instante los mensajes que coinciden a una audiencia elegida por canales elegidos, además de lo que pidió la llamada.\n\nUna política se aplica automáticamente a los mensajes cuya gravedad y etiqueta coinciden (una lista vacía coincide con todo; los mensajes de reglas tienen la etiqueta \"rule\"), o manualmente, solo cuando una llamada la nombra en su campo policy.",
+          "description": "Qué hace la política (el tipo) y cuándo se aplica:\n\n- Escalado: si nadie confirma en el tiempo, entrega por más canales.\n- Recordatorio: repite la notificación mientras nadie confirma.\n- Horas de silencio: retiene, envía en silencio o descarta entregas en una franja horaria.\n- Presencia: retener o descartar envíos según dónde estén las personas, por ejemplo enviar cuando la persona llega.\n- Alternativa: entrega en otro sitio cuando no se pudo avisar a nadie: otros canales u otras personas por los mismos canales.\n- Resumen: retiene mensajes en todos los canales, el aviso incluido, y envía un resumen por destinatario.\n- Entrega: envía al instante los mensajes que coinciden a una audiencia elegida por canales elegidos, además de lo que pidió la llamada.\n\nUna política se aplica automáticamente a los mensajes cuya gravedad y etiqueta coinciden (una lista vacía coincide con todo; los mensajes de reglas tienen la etiqueta \"rule\"), o manualmente, solo cuando una llamada la nombra en su campo policy.",
           "data": {
             "enabled": "Activa",
             "name": "Nombre",
@@ -1203,7 +1203,7 @@
             "household_audience": "Presencia: una lista de personas. Vacío: todos.",
             "presence_then": "Presencia: retener la entrega hasta que eso cambie, o descartarla.",
             "after_wait": "Presencia: qué pasa con una entrega retenida cuando termina la espera máxima.",
-            "max_wait": "Ausente: minutos de espera a que llegue la persona. 0: mientras exista el mensaje.",
+            "max_wait": "Presencia: minutos de espera como máximo. 0: mientras exista el mensaje.",
             "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló.",
             "summary_every": "Resumir: envía un resumen este número de minutos después del primer mensaje retenido.",
             "summary_at": "Resumir: envía un resumen cada día a esta hora en lugar de por intervalo.",
@@ -1214,7 +1214,7 @@
         },
         "reconfigure": {
           "title": "Cambiar política",
-          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\". Horas de silencio: retener, enviar en silencio o descartar envíos en una franja horaria. Ausente: enviar a las personas que no están en casa cuando lleguen. Alternativa: entregar en otro sitio cuando no se pudo avisar a nadie: otros canales u otras personas por los mismos canales. Resumir: retener mensajes en todos los canales, incluido el banner, y enviar un resumen por destinatario. Entregar: enviar de inmediato los mensajes que coincidan a una audiencia elegida por canales elegidos, además de lo que nombra la llamada.",
+          "description": "Escalado: si nadie confirma dentro del tiempo, entrega por más canales. Recordatorio: repite la notificación mientras nadie confirme. Gravedades o etiquetas vacías significan todas. Los mensajes de regla tienen la etiqueta \"rule\". Horas de silencio: retener, enviar en silencio o descartar envíos en una franja horaria. Presencia: retener o descartar envíos según dónde estén las personas, por ejemplo enviar cuando la persona llega. Alternativa: entregar en otro sitio cuando no se pudo avisar a nadie: otros canales u otras personas por los mismos canales. Resumir: retener mensajes en todos los canales, incluido el banner, y enviar un resumen por destinatario. Entregar: enviar de inmediato los mensajes que coincidan a una audiencia elegida por canales elegidos, además de lo que nombra la llamada.",
           "data": {
             "name": "Nombre",
             "type": "Tipo",
@@ -1282,7 +1282,7 @@
             "household_audience": "Presencia: una lista de personas. Vacío: todos.",
             "presence_then": "Presencia: retener la entrega hasta que eso cambie, o descartarla.",
             "after_wait": "Presencia: qué pasa con una entrega retenida cuando termina la espera máxima.",
-            "max_wait": "Ausente: minutos de espera a que llegue la persona. 0: mientras exista el mensaje.",
+            "max_wait": "Presencia: minutos de espera como máximo. 0: mientras exista el mensaje.",
             "when": "Alternativa: cuándo usar los canales y destinatarios de arriba. Nadie a quien avisar: la audiencia estaba vacía. Falló el envío: la persona no tiene dispositivo utilizable o el envío falló.",
             "summary_every": "Resumir: envía un resumen este número de minutos después del primer mensaje retenido.",
             "summary_at": "Resumir: envía un resumen cada día a esta hora en lugar de por intervalo.",
