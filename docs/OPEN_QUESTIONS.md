@@ -2,8 +2,12 @@
 
 ## 2.0.0 design (branch `release/2.0`, 2026-11-18)
 - Policy redesign AB decided (D-224); design set in `docs/dev/policy-redesign/` (fact sheet, stories, designs, reviews, comparison, reviewer scores), mockup `docs/dev/mockups/policy-redesign-a.html`.
-- Open: a 2.0 section in `docs/DESIGN.md`; the conversion check list in detail (wording per kind of change, fixtures for both positions of a later policy in `policy_order`, "all" setups); translations of the lane names and "Always gets through" in four languages; the dry run behind "What happens to a message?" and the message history; promise lines later, short form only.
-- Open: when 2.0 takes the 1.1 features (Presence, quiet hours from an entity) from `release/1.1` (D-224: when 1.1.0 is released; the 1.1.0 decisions D-207 to D-223 live on `release/1.1` until then); whether 2.0.0 also takes the editable notify presets or per-channel targets.
+- Designed 2026-11-19: `docs/DESIGN.md` §25 (model, rules, stored shape, conversion and check list, checker and history, panel, wording, build checklist); scope, promise lines, downgrade and build plan in D-234.
+- Open before building (§25.16): Home Assistant's behaviour for a config entry with a higher major version; the condition selector for Only if and Faster while; Only if listeners on held deliveries across a restart; cost of the checker and promise lines on a large setup; the "watch rule" terms of the wording table against the 1.1 strings.
+- Open: the merge of `release/1.1` into `release/2.0`, first step of the build (D-231: 1.1 is not released on its own; D-207 to D-233 live on `release/1.1` until then).
+- Decided 2026-11-20: the cells O1 to O12 of `docs/dev/policy-redesign/04-interaction-matrix.md` (D-235); each row of the matrix becomes a test in the build phase.
+- Open: the interactive policy help (`docs/dev/mockups/policy-help.html`) as a panel page behind a help button, part of the 2.0.0 panel step.
+- Not in 2.0.0 (D-234): editable notify presets, per-channel targets in `notify`.
 
 ## Card follow-ups (found in Phase 4)
 - Checked 2026-10-27 in the browser pane (admin, dev HA 2026.9.4, 375×812 emulation): both layouts at phone width, Enter on a tappable banner, keyboard use of the snooze button and its choices (Enter, Escape, focus), right swipe with a mouse and with synthetic touch pointer events. Banner buttons wrap to a second line at 375 px; text buttons are 40 px high, the icon buttons 48 px.

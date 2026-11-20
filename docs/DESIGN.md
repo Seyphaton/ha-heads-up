@@ -14,6 +14,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §21 banner buttons and snooze | implemented and tested (Phase 12); card checked on the dev HA with a mouse |
 | §22 parity of banner sources, rule buttons, tap action, dismiss scope and template conditions | implemented and tested (Phase 12 follow-up) |
 | §23 notification hub | built (Phase 15, H0 to H10 and the later maintainer changes) on the branch `hub/h9e-wizard`; pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.8 are tagged and pushed (D-133, D-154, D-175, D-190, D-196); not merged to `main`, no 1.0.0 |
+| §25 2.0.0 policies in two lanes | designed on `release/2.0` (D-224, D-234); not built |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -693,3 +694,169 @@ Calls: an audience and a policy by entity ID (D-198), a group by the entity ID o
 
 Not covered: another integration's names (the notify service of mail: reported as `mail_service_missing`), history in the trace and log (names of their time), `{name}` in a rule message without an entity (the rule's name, by design), a name of an area in hand-written YAML after the area is renamed (the stored form is the ID).
 
+
+## 25. 2.0.0: policies in two lanes (D-224, D-234)
+Design only; nothing is built. The design set behind it is `docs/dev/policy-redesign/` (choice and reasons in `02-comparison.md`, the model in `design-ab-v2.md`, mockup `docs/dev/mockups/policy-redesign-a.html`). §24 is the 1.1 work on `release/1.1`, which is not released on its own and becomes part of 2.0.0 (D-231); this section assumes it merged into `release/2.0` first (Presence holding every recipient, D-232; quiet hours and home from an entity; per-zone location entities, D-229; the severity `passive`, D-231). Pairwise behaviour of every policy kind: `docs/dev/policy-redesign/04-interaction-matrix.md`.
+
+### 25.1 Problem
+1.0 and 1.1 decide which policies act by one shared list order and a mode (`first` or `all`, D-148). The order means "more specific" and "stronger" at once, hold-back and sending policies look alike, severity `critical` is the only way through a hold, and tags cannot be excluded (pain points 1 to 7 in `00-fact-sheet.md`). 2.0.0 replaces the order and the modes with rules that need no order.
+
+### 25.2 Model
+"Calming policies decide when a message may reach people, sending policies decide who else gets it and how often, and the Always gets through list says which messages may wake whom anyway."
+- Lane "Keep it calm": Summarize, Quiet hours, Presence.
+- Band "Always gets through": the new type `get_through`.
+- Lane "Make sure it arrives": Deliver, Escalation, Reminder, Fallback.
+- Only when named: every policy with `apply: manual`.
+- The seven type keys of 1.1 stay; there is no list order and no mode.
+
+### 25.3 Rules
+1. Every enabled automatic policy that fits a message acts, and so does every named one (D-184, D-189, D-145). On one delivery the calmest hold counts: summary, then drop, then wait, then quiet. A released delivery passes every hold again. A repeat is skipped where it would wait; Presence does not check repeats (1.0).
+2. On each channel a message keeps one repeat rhythm, the shortest among the reminders that fit at that moment, except a reminder with Runs alongside, which keeps its own. Each reminder counts its own repeats. Escalation and Reminder clocks start when the message is created, as in 1.x; there is no other choice (D-235).
+3. A `get_through` entry that fits a message lets it pass Summarize as a whole (every channel, the banner too) and Quiet hours for the recipients it covers, except on a hold marked "Holds these anyway". Presence is never passed. An entry sends nothing.
+
+Definitions:
+- A policy fits a message when For (severities, tags, watch rules), Not for (severities, tags), its links and Only if all match. An unknown Only if counts as whatever delivers more (D-216).
+- For and Not for: a list that is empty does not restrict. A message has one severity and at most one tag (`matching.applies`). Not for wins over For.
+- "From watch rule": a list of rule subentry IDs; it fits a message whose ID is `rule_<subentry id>` (`RULE_ID_PREFIX`). Messages of every rule still carry the tag `rule` (D-100), so a policy for all rules uses that tag.
+- A second policy of the same type with the same For, Not for, From watch rule and trigger is refused by the form, as in 1.x (`matching.duplicate_of`, D-235).
+- A held delivery is not a failure and never triggers a Fallback (1.0).
+- A Fallback delivery passes the same holds as its message; it is never louder (D-235). A band entry covering a speaker lets it speak at night.
+- Two reminders with the same rhythm on one channel: the one created first counts the repeat.
+
+### 25.4 Stored shape (config entry version 3, minor 1)
+New fields on every policy subentry:
+
+| Field | Type | Default | Effect |
+|---|---|---|---|
+| `not_severities` | list | `[]` | Not for these severities |
+| `not_tags` | list | `[]` | Not for these tags |
+| `rules` | list | `[]` | For messages of these watch rules (subentry IDs); empty: no restriction |
+| `links` | list | `[]` | Written only by the conversion: subentry IDs; the policy does not fit a message that a linked policy fits while that policy is enabled |
+| `only_if` | object | none | D-216 condition, same shape as `notify` `condition` |
+| `faster_while` | object | none | Reminder: `{condition, every_minutes}`; while the condition is true the reminder uses the shorter rhythm, one count and one limit for both |
+| `alongside` | bool | false | Reminder: keeps its own rhythm next to other reminders |
+| `holds_anyway` | bool | false | Quiet hours and Summarize: no band entry passes this hold |
+
+New subentry type `get_through` (same subentry kind `policy`, own switch entity): `name`, `enabled`, `severities`, `tags`, `rules`, `not_severities`, `not_tags`, `only_if`, `covers` (`everyone` or `only`), `targets` (audiences, recipients and speakers when `covers: only`).
+
+Removed: `critical_passes` (Quiet hours, Presence), `include_critical` (Summarize), the entry options `policy_order` and `policy_mode`. Summarize holds every severity it fits; a band entry passes it.
+
+A 1.x release refuses version 3 (Home Assistant does not load a config entry whose major version is above the handler's, as for version 2 in §23.16). There is no restore script (D-234); the way back is a backup made before the upgrade.
+
+### 25.5 Engine
+- `matching.select`: every fitting policy; `first_only` is removed. `fits(policy, message, book)` checks For, Not for, `rules`, `links` (against the linked policies' enabled state at that moment) and `only_if`.
+- Chain (`chain.py`): unchanged order Summarize, Quiet hours, Presence, Fallback. Summarize asks `book.passes(message)` once when the message appears (it decides the hold then, 1.x): true when an enabled `get_through` entry fits the message, whatever it covers, and the Summarize policy is not `holds_anyway`; the message is then not collected on any channel. Quiet hours asks `book.passes(message, recipient)` per delivery: true when a fitting enabled entry covers the recipient and the hold is not `holds_anyway`. Covers `everyone`: every recipient and speaker of that delivery. The Quiet hours check is per recipient, so one push can ring for the Admins and stay quiet for Anna (scenario 1).
+- Calmest hold: several holds of one stage already resolve strictest first (drop, wait, quiet, `quiet.py`); Summarize runs first and holds every channel (D-105), so "summary first" is the 1.0 order.
+- Clocks: `_arm` plans Escalation and Reminder rows when the message is created (1.x, unchanged). An escalation delivery that a hold catches is a setup mistake (D-235): the engine writes an attention item `escalation_held` (policy, hold, message) to the Overview, the message history says "Escalation Nobody looked was held by Night quiet", and the escalation form warns before Save when a hold without a covering band entry fits its messages.
+- Reminders: one rhythm per channel, the shortest among fitting reminders without `alongside`; each reminder keeps its own count in its timer row. `faster_while` and `only_if` changes re-plan the next row (state listeners from D-216).
+- Only if (D-216): checked whenever the policy would act; a held delivery is released when its policy's condition turns false; guests (D-209) are an Only if on a Presence policy. A band entry that starts to fit (its switch turns on or its Only if turns true) releases at once the Quiet hours deliveries it now covers and takes the messages it fits out of every pending summary; they are delivered as if they had just been sent (D-235). Summarize needs a new release path for this: remove the message from the collection and run its first delivery through the chain.
+- Interactions decided from the matrix (D-235, `04-interaction-matrix.md`):
+  - A summary goes to everyone the held messages would have reached, Deliver's recipients included; a summary that reaches nobody triggers a fitting Fallback. Two Summarize policies: the one due next collects the message.
+  - A message taken out of a summary by a band entry runs as a new message (Deliver, Fallback); its clocks count from the release.
+  - An escalation sends again to recipients who already have the message (no `resume` for escalations). An escalation that a hold catches (held, dropped, quiet) or that reaches nobody gets an attention item and no Fallback; the Policies page warns as soon as the setup allows either.
+  - A Fallback fires only when the call's own delivery and every Deliver policy reached nobody. Reminders repeat a Fallback's sends (1.x).
+  - Several band entries add up. Two Presence policies that contradict both act, with a warning on the page and in the form.
+  - A policy switched on, or freed by a link target switched off, acts only on messages that appear afterwards; timers are planned at appearance for every policy that fits by For, Not for, switch and links, and Only if is checked at each step.
+  - Automatic matching off for a message (`match_policies_automatically: false`, `policy: none`, a watch rule's own policy): no automatic policy acts, holds and band entries included (1.x). A band entry may be "Only when named".
+- Fits is cached per message and recomputed on a severity change, a switch change, a link target's switch change and an Only if change; `_drop_inapplicable_timers` keeps working on the result.
+
+### 25.6 Conversion (version 2 minor 4 to version 3 minor 1)
+Runs in `async_migrate_entry` after the steps of `release/1.1` (2.2 Presence, 2.3 push levels, 2.4 `passive`), so a 1.0 setup goes 2.1 to 2.4, then 3.1, in one start. It reads the stored data before any rewrite. Steps, in this order:
+1. Links (only when `policy_mode` is `first` or missing). For each automatic policy P and each automatic policy Q above P in `policy_order` (policies missing from the order count as appended, in subentry order, as 1.x does), P gets a link to Q when their For can overlap: some severity in both (empty means all four) and some tag in both (empty means any). The link is checked live against Q's switch, so the 1.x "only the first" result is reproduced exactly for automatic matching; named policies ignore links, as they ignored the order.
+2. Never acts: P never acts when, with today's switch states, every (severity, tag) it fits is fitted by an enabled linked policy. Exact test: for each severity of P, each tag of P must be fitted by a linked enabled Q (Q's tags empty or containing it); P with no tags needs a Q with no tags.
+3. Mode `all`: no links, and no `alongside`; these setups get the 2.0 rules (D-235). Overlapping reminders on one channel then keep one rhythm, the shortest, instead of running side by side; the CHANGELOG says so.
+4. Critical: if any Quiet hours policy had `critical_passes: true` or any Summarize policy had `include_critical: false`, add the entry "Critical" (`get_through`, severities `[critical]`, covers everyone). A Quiet hours policy with `critical_passes: false` that fits critical, and a Summarize policy with `include_critical: true`, get `holds_anyway: true`. A Presence policy with `critical_passes: true` gets `not_severities: [critical]`.
+5. Remove `critical_passes`, `include_critical`, `policy_order`, `policy_mode`; set version 3, minor 1.
+6. Write one check-list item per change that the user may want to undo (§25.7).
+
+The step is a pure function `convert_v3(entry_data, options, subentries) -> (subentries, options, items)` in `hub/migration.py`, atomic like the earlier steps.
+
+Equivalence test: for each fixture, run the 1.1 selection and chain over a grid (four severities × each named tag and no tag × a source `notify` and `rule` × 168 hours × home and away) and the 2.0 selection and chain over the converted setup; the deliveries must match except the differences listed in the CHANGELOG. For mode `all` fixtures the test lists the differences instead of failing on them, and that list is the CHANGELOG text. Fixtures: `setup_1_0_0.json` (exists on `release/1.1`); the welcome list with a later Away at the end; the same with Away first; mode `all` with two overlapping reminders; Quiet hours with `critical_passes: false`; Summarize with `include_critical: true`; a manual policy named by a watch rule; a disabled policy above another.
+
+### 25.7 Check list after the update
+- Stored as the entry option `conversion_items`: `{policy, kind, state}`, `kind` one of `links`, `never_acts`, `holds_anyway` (D-235); `state` `open`, `kept` or `changed`.
+- Shown at the top of the Policies page until every item is answered or the list is dismissed. Each item: one sentence and two buttons.
+  - `links`: "Acts only on messages that Critical delivery and Warning reminder do not take, as before." Keep as before / Let it act (removes the links).
+  - `never_acts`: "Never acts: Critical delivery, Warning reminder, Evening summary and Night quiet take all its messages first." Keep as before / Let it act.
+  - `holds_anyway`: "Holds critical messages too, as before." Keep as before / Let Critical through.
+- The added entry Critical and Not for critical on Presence get no item; the CHANGELOG lists them once, with the mode `all` differences.
+- A user who never opens the list keeps 1.x behaviour, except the listed differences.
+
+### 25.8 Checker and message history
+Checker "What happens to a message?" at the top of the Policies page, admin WebSocket command `heads_up/policy_check`:
+- Input: severity, tag, source (`notify`, or a watch rule), channels and recipients as in a call (default: push to everyone), time (default now), who is home (default as now, each person switchable), acknowledged after (never, or N minutes).
+- Work: the same `fits` and chain stages as the engine, with a fixed clock and the given presence; no ledger, store or trace writes. It plans escalations and reminders for 24 hours, or until the limits end them.
+- Output: one line per recipient and channel and per planned step: time, outcome (sent, sent quietly, held until, dropped, skipped), the policy that caused it and why ("tagged alarm", "22:00 to 07:00", "nobody home"), and "would have let it through" where a fitting band entry is switched off.
+
+History: every delivery, hold, release, skip and drop row in the ledger gets `policy` (subentry ID) and `reason` (code, as in the checker). The Messages page shows them as a timeline with the checker's sentences. Retention follows the existing history limit.
+
+### 25.9 Panel
+- Policies page: checker, check list, lane "Keep it calm", band, lane "Make sure it arrives", Only when named. Each lane and the band have one top line (wording in §25.10). The order list, Move up and Move down and the mode setting are removed.
+- Card: type in text, the "In words" sentence, switch (aria label names the policy), a links note for converted policies. Show details: type key, entity ID, stored fields, YAML.
+- Form (ha-form fields, one plain label each): name, enabled; Which messages (Automatically or Manually, For, Not for, From watch rule, links when present, Only if); What it does (the type's fields; Reminder adds Faster while and Runs alongside; Get through has Covers). At the top, read-only and live: the sentence. Below Save: Where it overlaps (1.0 note, now per pair: "Where both fit, the calmer counts") and a warning when a change takes waking away ("Messages tagged alarm will no longer wake the Admins at night"). Nothing blocks Save (D-151).
+- Add a policy offers outcomes as starting points: Wake the Admins for leaks (Get through plus Deliver, two cards), Quiet nights for small things, Speak only when someone is home, Summarize digest at 20:00.
+- Welcome (D-121, D-150): Critical delivery, the band entry Critical, Warning reminder, Evening summary, Night quiet. Night quiet gets Not for tag `digest` instead of relying on the order.
+
+### 25.10 Wording
+Lane, band and new labels in the four languages; type names and existing labels keep their 1.1 texts.
+
+| Key | English | German | French | Spanish |
+|---|---|---|---|---|
+| lane calm | Keep it calm | Für Ruhe sorgen | Garder le calme | Mantener la calma |
+| lane arrive | Make sure it arrives | Damit es ankommt | S'assurer qu'il arrive | Asegurar que llegue |
+| band | Always gets through | Kommt immer durch | Passe toujours | Siempre pasa |
+| type `get_through` | Get through | Kommt durch | Laisser passer | Dejar pasar |
+| only named | Only when named | Nur wenn genannt | Seulement si nommée | Solo si se nombra |
+| covers | Covers | Gilt für | Concerne | Afecta a |
+| covers everyone | Everyone it reaches | Alle, die sie erreicht | Tous ceux qu'il atteint | Todos a quienes llega |
+| covers only | Only these | Nur diese | Seulement ceux-ci | Solo estos |
+| holds anyway | Holds these anyway | Hält sie trotzdem | Les retient quand même | Los retiene igualmente |
+| not for | Not for | Nicht für | Sauf pour | Excepto para |
+| from rule | From watch rule | Von Überwachungsregel | Depuis la règle de surveillance | Desde la regla de vigilancia |
+| faster while | Faster while | Öfter, solange | Plus souvent tant que | Más a menudo mientras |
+| alongside | Runs alongside other reminders | Läuft neben anderen Erinnerungen | Fonctionne à côté des autres rappels | Funciona junto a otros recordatorios |
+| checker | What happens to a message? | Was passiert mit einer Meldung? | Que devient un message ? | ¿Qué pasa con un mensaje? |
+| check list | Check after the update | Nach dem Update prüfen | À vérifier après la mise à jour | Revisar tras la actualización |
+| keep | Keep as before | Wie bisher lassen | Garder comme avant | Dejar como antes |
+| let act | Let it act | Wirken lassen | La laisser agir | Dejar que actúe |
+
+The German and French terms for "watch rule" follow the existing rule strings of 1.1; the table is checked against them when the strings are written. Top lines: calm "These act on every delivery, also on what the other lane adds. Where two disagree, the calmer counts. Repeats never wait: they are skipped." Band "These messages are never summarized, and quiet hours do not apply to the people covered. Presence still decides by where people are." Arrive "Every sending policy that fits runs. Escalations and reminders count from when the message was created."
+
+### 25.11 Promise lines (last step, D-234)
+A line on every card ("Kept", "Bent for tag alarm by Alarms wake Admins: let through for the Admins", "Never acts: …"), computed by the checker's work over four severities × each named tag and no tag × 168 hours, short form "Bent for 3 kinds of message: see What happens" when more than two cases apply. Built last; when the rest of the phase is done, the maintainer decides whether it ships in 2.0.0 or moves to 2.1. A test per scenario of `01-users-and-stories.md` covers each line; the line must fit one row at 380 px in all four languages.
+
+### 25.12 Parity (rule 9)
+Watch-rule messages fit policies by severity, tag `rule` and From watch rule, reach the band and Deliver, and show in the checker (source watch rule) and the history. Frozen rules (D-100) and a rule's named policy (D-145) are unchanged. No exception is added to §22.
+
+### 25.13 Blast radius
+- Restart needed; the config entry moves to version 3 and 1.x cannot load it. A backup before the upgrade is the only way back.
+- Notification path touched: matching, the chain, timers and Fallback.
+- What the panel shows changes: Policies page rebuilt, Messages page timeline, welcome list.
+- Calls: switch entity IDs (D-198), `policy` names and lists (D-184, D-189), `match_policies_automatically` and `policy: none` unchanged. Entity attributes of policy switches gain `not_severities`, `not_tags`, `rules`; `critical_passes` and `include_critical` disappear.
+
+### 25.14 Tests
+- Conversion: `convert_v3` per fixture; the equivalence test (§25.6); `never_acts` exact on hand-made cases; idempotent on a second start.
+- Rules: one test per rule and per definition in §25.3; the twelve scenarios of `01-users-and-stories.md` as engine tests (scenario 11 is the equivalence test).
+- Checker: same result as the engine for each scenario; no writes.
+- Panel: vitest for the sentence, the wording keys and the overlap sentence; dev instance: Policies page at 380 px, keyboard, screen-reader labels, the check list after converting `setup_1_0_0.json`.
+- `make dev-smoke` gets a `lanes` phase: band entry passes Quiet hours for one recipient only.
+
+### 25.15 Build checklist (one phase, D-234)
+Order; each step one or more commits, `make check` green after each.
+1. Merge `release/1.1` into `release/2.0` (D-231: 1.1 is not released on its own).
+2. Stored shape and `convert_v3` with fixtures and the equivalence test.
+3. Matching without order: For, Not for, From watch rule, links, `select` without `first_only`.
+4. `get_through` type, switch entity, `passes` in Quiet hours and Summarize, `holds_anyway`.
+5. Escalation-held warning; reminder rhythm per channel, own counts, `faster_while`, `alongside`.
+6. Only if and guests (D-216, D-209) on every type.
+7. Ledger `policy` and `reason`; checker command.
+8. Panel: lanes, band, cards, forms, Add outcomes, check list, checker, Messages timeline, welcome list; strings in four languages.
+9. Docs: `configuration.md` policies section, `setup.md` upgrading, `examples.md`, CHANGELOG "Before you upgrade" (backup first, then each difference), §0 status, HA_API_NOTES rows.
+10. `make hassfest`, `make dev-smoke`, browser-pane checks.
+11. Promise lines (§25.11), then the maintainer's ship-or-defer decision.
+
+### 25.16 To verify before building
+- Home Assistant refuses a config entry with a higher major version in an older release, and how it shows that (needed for the "no way back" text); §23.16 states it for version 2, the HA_API_NOTES row is to be checked against the current source.
+- The condition selector for Only if and Faster while in the panel's own forms (D-216 left it open).
+- Listeners for Only if on a held delivery across a restart.
+- Cost of the checker's 24-hour plan and of promise lines on a setup with 30 policies and 20 tags on a small host.

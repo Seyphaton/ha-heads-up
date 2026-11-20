@@ -1316,3 +1316,36 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - "Only if" (D-216) moves to 2.0.0 with AB (maintainer); 1.1.0 ships without it. Guests through "only if" (D-209) follow it to 2.0.0.
 - Not chosen: C (strength per plan, scenario 1 needs new merge logic), D (one type per message, shared behaviour copied per type, highest migration risk), E (keep the list, strength spread over the holds); the conversion that keeps the old modes until the user switches.
 - Open: the 2.0 section in `docs/DESIGN.md`; AB's migration error named in `03-reviewer-scores.md` (links after the rewrite) is fixed by the rule above; translations of "Always gets through" and the lane names in four languages.
+
+## D-234 Scope and shape of the 2.0.0 build (2026-11-19, design, maintainer)
+- Context: design of 2.0.0 after D-224, on `release/2.0`. Numbers D-225 to D-233 are taken on `release/1.1`. D-231 (1.1 is part of 2.0.0) replaces D-224's "merge when 1.1.0 is released": `release/1.1` is merged in as the first build step.
+- Scope (maintainer): 2.0.0 is the policy redesign AB with "only if" (D-216) and guests (D-209), on top of 1.1.0 merged in. Editable notify presets and per-channel targets in `notify` stay open questions, not part of 2.0.0.
+- Promise lines (maintainer): built as the last step of the 2.0.0 phase. When everything else is finished, the maintainer decides whether they ship in 2.0.0 or move to 2.1. 2.0.0 does not depend on them: the checker and the message history answer Q1 and Q2 on their own.
+- Downgrade (maintainer, "no way back"): the conversion rewrites the stored policies to the 2.0 shape and removes `policy_order`, `policy_mode`, `critical_passes` and `include_critical`. Going back to 1.x needs a Home Assistant backup made before the upgrade; the CHANGELOG "Before you upgrade" block says so first. This replaces the "only adds keys" conversion of `design-ab-v2.md` §6 and the "Restore 1.0 links" button.
+- Build plan (maintainer): one 2.0.0 phase with a checklist in `docs/DESIGN.md` §25 (§24 is 1.1.0 on `release/1.1`), not work packages.
+
+## D-235 2.0.0 design details, asked one by one (2026-11-19, design, maintainer)
+- Context: the maintainer asked that every open design question of `docs/DESIGN.md` §25 be asked, not settled by Claude. Answers in batches; §25 is updated with each.
+- Clocks (maintainer): Escalation and Reminder count from when the message was created, as in 1.x, with no per-policy choice; `count_from` from `design-ab-v2.md` is dropped. An escalation held by a quiet or summary hold is a setup mistake: the Overview shows an attention item `escalation_held`, the history names the hold, and the escalation form warns before Save when a hold without a covering band entry fits its messages.
+- Band entries may carry Only if (maintainer), unlike `design-ab-v2.md` §8 ("entries with time or condition" given up).
+- Band and Summarize (maintainer): a fitting band entry keeps the message out of every Summarize policy as a whole, banner included; Covers applies only to Quiet hours.
+- Duplicates (maintainer): the form keeps refusing a second policy of the same type with the same messages and trigger.
+- Check list (maintainer): items only for `links`, `never_acts` and `holds_anyway`; Runs alongside, the added entry Critical and Not for critical on Presence are listed once in the CHANGELOG.
+- Welcome (maintainer): new setups get the band entry Critical (covers everyone it reaches), like the 1.x default `critical_passes: true`.
+- Fallback (maintainer): never louder than its message; it passes the same holds. A band entry covering a speaker is the way to let it speak at night.
+- Band entry starts to fit (maintainer): when its switch turns on or its Only if turns true, Quiet hours deliveries it now covers are released at once (as D-216), and messages it fits are taken out of pending summaries and delivered at once (maintainer: "take it out" is more intuitive; needs a new release path in Summarize).
+- Checker (maintainer): plans 24 hours, with escalations and reminders, assuming nobody acknowledges or an acknowledgement after N minutes.
+- Mode `all` setups (maintainer): get the 2.0 rules; no `alongside` is set by the conversion. Differences (for example two overlapping reminders now keep one rhythm) are listed in the CHANGELOG.
+- Interaction matrix (`docs/dev/policy-redesign/04-interaction-matrix.md`), answers of 2026-11-20 (maintainer, one question each):
+  - O1: a summary goes to everyone the held messages would have reached, Deliver's recipients included. O1b: a summary that reaches nobody triggers a fitting Fallback, like any message.
+  - O2: a message taken out of a summary by a band entry runs as a new message: Deliver and Fallback act, and escalation and reminder clocks count from the release (as `_release_held` does today; the one exception to "from creation").
+  - O3: an escalation that Quiet hours hold, drop or send quietly gets the attention item; the Policies page warns as soon as the setup allows it, before any message runs into it.
+  - O4: an escalation that reaches nobody (Presence holds every target, or sending fails) gets an attention item and no Fallback; the Policies page warns when Presence can hold an escalation's targets.
+  - O5: two Summarize policies fit: the one whose summary is due next collects the message; never both.
+  - O6: two Presence policies that contradict both act; the Policies page and the form warn that the messages never arrive while both apply.
+  - O7: several band entries fit: each lets its own people through; together they cover everyone any of them covers.
+  - O8: an escalation also sends again to recipients who already have the message on that channel (a new push); it always does something visible. Replaces `resume=True` for escalations.
+  - O9: a Fallback fires only when the call's own delivery and every Deliver policy reached nobody.
+  - O10: reminders keep repeating a Fallback's sends (1.x).
+  - O11: a policy switched on, or freed by a link target switched off, acts only on messages that appear afterwards (1.x). O11b: Only if is different: a policy that fitted by For, Not for, switch and links when the message appeared plans its timers then, and its Only if is checked at each step (scenario 5 with two reminders works).
+  - O12: when automatic matching is off for a message (`match_policies_automatically: false`, `policy: none`, or a watch rule with its own policy, D-145), no automatic policy acts, holds and band entries included (1.x). O12b: a band entry may be "Only when named"; a call names it like any policy.
