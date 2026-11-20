@@ -608,8 +608,14 @@ class HubEngine:
             )
             kind = Kind.APPEARED if released else kind
             if kind is not Kind.UPDATED and not transition.silent and banner.active:
-                await self._apply_deliver(banner)
-                await self._fallback(banner, results)
+                delivered = await self._apply_deliver(banner)
+                # A Fallback steps in only when the call and every Deliver reached nobody (O9).
+                if not any(
+                    o.result in (Result.SENT, Result.HELD)
+                    for i, o in delivered
+                    if i.channel != CHANNEL_BANNER
+                ):
+                    await self._fallback(banner, results)
             if kind is Kind.UPDATED and banner.active:
                 await self._update_deliver(banner, {(i.channel, i.recipient) for i, _ in results})
             if kind is Kind.UPDATED:
@@ -644,8 +650,12 @@ class HubEngine:
         update: bool = False,
         resume: bool = False,
         origin: str,
+        resend: bool = False,
+        caught: list[str] | None = None,
     ) -> list[tuple[Planned, Outcome]]:
-        """Run planned deliveries through the precedence chain and the channels."""
+        """Run planned deliveries through the precedence chain and the channels. `resend`: send
+        again to a recipient who already has the message (escalations, D-235 O8). `caught`
+        collects why a hold changed a delivery: held, dropped or sent quietly."""
         results: list[tuple[Planned, Outcome]] = []
         self._count_audiences(banner)
         # `resume` also means "skip what was sent" for escalations and fallbacks; only the
@@ -653,7 +663,11 @@ class HubEngine:
         startup = resume and origin == "message"
         for item in planned:
             row = self.ledger.rows.get((banner.id, item.channel, item.recipient))
-            if resume and row is not None and (row.state is State.SENT or row.hold):
+            if (
+                resume
+                and row is not None
+                and (row.hold or (row.state is State.SENT and not resend))
+            ):
                 continue  # sent or held before the restart: never send twice
             channel = self.channels.get(item.channel)
             outcome = Outcome(item.result, item.reason)
@@ -663,9 +677,15 @@ class HubEngine:
                 )
                 if isinstance(step, Skip):
                     outcome = Outcome(Result.SKIPPED, step.reason)
+                    if caught is not None and step.reason in ("quiet_hours", "presence"):
+                        caught.append(step.reason)
                 elif isinstance(step, Hold):
                     outcome = Outcome(Result.HELD, step.reason, due=step.until, hold=step.kind)
+                    if caught is not None:
+                        caught.append(step.reason)
                 else:
+                    if caught is not None and step.target.quiet:
+                        caught.append("quiet_hours")
                     held_back = self._held_back(step.banner, item, step.target, update)
                     if held_back is not None:
                         outcome = Outcome(Result.SKIPPED, held_back)
@@ -991,10 +1011,24 @@ class HubEngine:
             self._finish(row, State.SKIPPED, problem)  # D-111: reported, never silent
             return
         message = escalation.message_for(banner, policy)
-        # Whoever already has the message on that channel is not notified a second time.
-        await self._send(message, await self.plan(message), resume=True, origin="escalation")
+        # An escalation always does something visible: it sends again to whoever already has
+        # the message (D-235 O8). A hold that catches it, or reaching nobody, is a setup mistake
+        # shown under Needs attention (O3, O4); no Fallback steps in.
+        caught: list[str] = []
+        results = await self._send(
+            message,
+            await self.plan(message),
+            resume=True,
+            origin="escalation",
+            resend=True,
+            caught=caught,
+        )
         self._finish(row, State.SENT, "escalated")
         self._log("escalation_sent", banner.id, policy.name)
+        if caught:
+            self._log("escalation_held", banner.id, f"{policy.name}|{caught[0]}")
+        if not any(o.result is Result.SENT for i, o in results if i.channel != CHANNEL_BANNER):
+            self._log("escalation_unreached", banner.id, policy.name)
 
     async def _remind(self, banner: Banner, policy: Policy, row: Delivery) -> None:
         # Cleared rows (dismissed or snoozed) are left out: a snooze pauses the person's
@@ -1196,11 +1230,12 @@ class HubEngine:
                 classes.setdefault(channel, set()).add("failed" if failed else "no_audience")
         return classes
 
-    async def _apply_deliver(self, banner: Banner) -> None:
+    async def _apply_deliver(self, banner: Banner) -> list[tuple[Planned, Outcome]]:
         """Deliver policies add channels and targets to the first delivery (D-121). Once per
         message; a recipient that already has the message on that channel is left out."""
+        results: list[tuple[Planned, Outcome]] = []
         if banner.source == SOURCE_SUMMARY or self.is_held(banner.id):
-            return
+            return results
         for policy in self.policies.for_message(banner):
             if (
                 policy.type != "deliver"
@@ -1213,8 +1248,11 @@ class HubEngine:
                 self._finish(marker, State.SKIPPED, problem)
                 continue
             message = escalation.message_for(banner, policy)
-            await self._send(message, await self.plan(message), resume=True, origin="deliver")
+            results += await self._send(
+                message, await self.plan(message), resume=True, origin="deliver"
+            )
             self._log("deliver_sent", banner.id, policy.name)
+        return results
 
     async def _update_deliver(self, banner: Banner, own: set[tuple[str, str]]) -> None:
         """An update replaces what a Deliver policy sent, like it replaces the call's own."""
@@ -1328,11 +1366,18 @@ class HubEngine:
             self.ledger.put_held(held)
 
     def on_policies_changed(self) -> None:
-        """A policy was deleted, disabled or renamed: the messages it holds become normal."""
+        """A policy was added, changed, deleted or switched: the messages a summary holds become
+        normal when their policy is gone or off, or when a band entry now fits them (D-235 O2).
+        Deliveries quiet hours hold go through the chain again, so a band entry that now covers
+        their recipient releases them."""
         for held in list(self.ledger.held.values()):
             policy = self.policies.by_key(held.policy)
-            if held.resolved or (policy is not None and policy.enabled):
+            if held.resolved:
                 continue
+            if policy is not None and policy.enabled:
+                banner = self.lookup(held.message_id)
+                if banner is None or policy.holds_anyway or not self.policies.passes(banner):
+                    continue
             self.ledger.drop_held(held.message_id)
             self._released.add(held.message_id)
             banner = self.lookup(held.message_id)
@@ -1342,6 +1387,8 @@ class HubEngine:
                     partial(self._release_held, banner.id),
                     f"heads_up release {banner.id}",
                 )
+        if any(p.type == "get_through" and p.enabled for p in self.policies.all()):
+            self._release_quiet(lambda row: True, "heads_up band changed")
         self.visibility_changed()
 
     async def _release_held(self, message_id: str) -> None:
@@ -1349,7 +1396,17 @@ class HubEngine:
         self._released.discard(message_id)
         if banner is None:
             return
-        await self._deliver(banner, update=False)
+        # Released from a summary, the message runs as a new one: Deliver and Fallback act, and
+        # its clocks start now (D-235 O2).
+        results = await self._deliver(banner, update=False)
+        if banner.active:
+            delivered = await self._apply_deliver(banner)
+            if not any(
+                o.result in (Result.SENT, Result.HELD)
+                for i, o in delivered
+                if i.channel != CHANNEL_BANNER
+            ):
+                await self._fallback(banner, results)
         self._arm(banner)
 
     def _arm_summary(self, policy: Policy) -> None:
@@ -1389,7 +1446,13 @@ class HubEngine:
     async def _send_summaries(self, entries: list[HeldMessage]) -> None:
         groups: dict[tuple[str, str], list[HeldMessage]] = {}
         for entry in entries:
-            for item in await self.plan(entry.as_banner()):
+            held = entry.as_banner()
+            planned = await self.plan(held)
+            # Deliver's recipients get the summary too (D-235 O1).
+            for policy in self.policies.for_message(held):
+                if policy.type == "deliver" and self.policy_problem(policy) is None:
+                    planned += await self.plan(escalation.message_for(held, policy))
+            for item in planned:
                 if item.result is not Result.SENT:
                     continue
                 who = item.who.person if item.who and item.who.person else item.recipient

@@ -23,6 +23,7 @@ from ..const import (
     OPT_SPEAK_TTS_ENTITY,
     POLICY_SUBENTRY,
     POLICY_TYPES,
+    PRESENCE_PEOPLE_CHANNELS,
     RULE_SUBENTRY,
     TIMER_CHANNEL,
 )
@@ -30,10 +31,21 @@ from ..manager import BannerManager
 from .activity import ActivityLog
 from .ledger import State
 from .policies import deliver, escalation, fallback, presence, quiet, reminder, summarize
+from .policies.convert import can_overlap, covered
 from .policies.matching import applies
-from .policies.models import Policy, parse_policy
+from .policies.models import Policy, parse_policy, presence_channels
 from .presence import UNKNOWN_STATES
 from .recipients import area_speakers
+
+
+def _check_band(data: dict[str, Any]) -> dict[str, str]:
+    """A band entry that covers only some people must name them."""
+    if data.get("covers") == "only" and not (
+        data.get("covers_audiences") or data.get("covers_recipients")
+    ):
+        return {"covers_recipients": "target_required"}
+    return {}
+
 
 CHECKS = {
     "escalation": escalation.check,
@@ -44,6 +56,7 @@ CHECKS = {
     "fallback": fallback.check,
     "summarize": summarize.check,
     "deliver": deliver.check,
+    "get_through": _check_band,
 }
 
 
@@ -189,6 +202,73 @@ def check_failures(log: list[dict[str, Any]], now: datetime) -> list[Attention]:
     ]
 
 
+def _which(policy: Policy) -> dict[str, list[str]]:
+    return {"severities": sorted(policy.severities), "tags": sorted(policy.tags)}
+
+
+def check_escalation_traps(policies: list[Policy]) -> list[Attention]:
+    """Setups where an escalation can be caught before any message runs into it (D-235 O3, O4):
+    a Quiet hours policy that fits its messages without an Always-gets-through entry for
+    everyone, or a Presence policy on one of its channels (Presence is never passed)."""
+    live = [p for p in policies if p.enabled and p.apply == "auto"]
+    band = [_which(p) for p in live if p.type == "get_through" and p.covers == "everyone"]
+    found = []
+    for esc in (p for p in live if p.type == "escalation"):
+        for hold in live:
+            if not can_overlap(_which(esc), _which(hold)):
+                continue
+            if hold.type == "quiet_hours" and (
+                hold.holds_anyway or not band or not covered(_which(esc), band)
+            ):
+                found.append(
+                    Attention("escalation_quiet", "warning", esc.name, hold.name, "policies")
+                )
+            elif hold.type == "presence" and (
+                not esc.channels or set(esc.channels) & set(presence_channels(hold))
+            ):
+                found.append(
+                    Attention("escalation_presence", "warning", esc.name, hold.name, "policies")
+                )
+    return found
+
+
+def check_presence_conflicts(policies: list[Policy]) -> list[Attention]:
+    """Two Presence policies that hold the same messages while a person is in and while they
+    are not in the same zone: those messages never arrive (D-235 O6)."""
+    live = [p for p in policies if p.enabled and p.apply == "auto" and p.type == "presence"]
+    found = []
+    for i, first in enumerate(live):
+        for second in live[i + 1 :]:
+            shared = set(presence_channels(first)) & set(presence_channels(second))
+            if (
+                first.zone == second.zone
+                and first.presence_when != second.presence_when
+                and shared & set(PRESENCE_PEOPLE_CHANNELS)
+                and can_overlap(_which(first), _which(second))
+            ):
+                found.append(
+                    Attention("presence_conflict", "warning", first.name, second.name, "policies")
+                )
+    return found
+
+
+def check_escalation_log(log: list[dict[str, Any]], now: datetime) -> list[Attention]:
+    """Escalations that a hold caught or that reached nobody in the last 24 hours (O3, O4)."""
+    counts: dict[tuple[str, str, str], int] = {}
+    for entry in log:
+        if entry["kind"] not in ("escalation_held", "escalation_unreached"):
+            continue
+        if now - dt_util.parse_datetime(entry["time"]) > FAILURE_WINDOW:  # type: ignore[operator]
+            continue
+        policy, _, reason = str(entry.get("detail") or "").partition("|")
+        key = (entry["kind"], policy, reason)
+        counts[key] = counts.get(key, 0) + 1
+    return [
+        Attention(kind, "warning", policy, reason or None, "messages", count)
+        for (kind, policy, reason), count in sorted(counts.items())
+    ]
+
+
 def check_critical_escalation(policies: list[Policy]) -> list[Attention]:
     """No enabled escalation covers critical messages without a tag (warning)."""
     for policy in policies:
@@ -298,6 +378,9 @@ def attention(hass: HomeAssistant, manager: BannerManager, entry: Any) -> list[d
         found += check_critical_escalation(hub.policies.all())
         found += check_quiet_entities(hub.policies.all(), states)
         found += check_failures(hub.log.latest(), dt_util.utcnow())
+        found += check_escalation_log(hub.log.latest(), dt_util.utcnow())
+        found += check_escalation_traps(hub.policies.all())
+        found += check_presence_conflicts(hub.policies.all())
     return [item.as_dict() for item in found]
 
 
