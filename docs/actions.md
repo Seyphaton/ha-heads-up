@@ -646,7 +646,7 @@ To change or delete a rule, open it from the same page. Changes apply at once; n
 
 The panel's Watch rules page lists every rule with a badge for its state (showing now, not showing, off) and its severity. Its form has four sections: When (an entity in a state, or a template, and an optional hold time), What to show (message, title, severity, icon, image), Who sees it (the people; none means everyone) and Behaviour (dismissible, dismiss scope, snooze, the policy, enabled). A sentence under the form says in words what the rule does. The page does not edit the buttons and the tap action; change them in the form under Settings > Devices & services > Heads Up.
 
-<img src="images/watch-rule.png" width="500" alt="The Add watch rule form: rule name, entity, condition, state">
+<img src="images/watch-rule.png" width="500" alt="The New watch rule form on the Watch rules page: name, When an entity is in a state, entity, condition equals, value on, attribute and hold time">
 
 ### Examples
 
@@ -739,7 +739,7 @@ empty_message: All clear
 
 ### Looks
 
-![Card with four banners: critical, warning, info and success, each with a severity label and the time since it was created](images/card-default.png)
+![Card with four banners: critical, warning, info and passive, each with a severity label and the time since it was created](images/card-default.png)
 
 The card above uses `show_time: true` and `show_severity: true`. The variants below change one thing each.
 
@@ -763,10 +763,10 @@ type: custom:heads-up-card
 title: House Information (custom colors)
 colorize: background
 colors:
-  critical: "#2d1f33"
-  warning: "#1d2d33"
-  info: "#1c2b2b"
-  passive: "#243021"
+  critical: "#8e24aa"
+  warning: "#00897b"
+  info: "#3949ab"
+  passive: "#7cb342"
 ```
 
 ![Card with custom background colors](images/card-custom-colors.png)

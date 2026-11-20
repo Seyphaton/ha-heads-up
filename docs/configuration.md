@@ -8,6 +8,8 @@ Create and edit them in the panel (Configuration group: Channels, Audiences, Rec
 
 The panel's Channels page lists banner, push, popup, speech, Persistent Notification and mail with a summary of their settings; select a channel to change it. The Persistent Notification row only says that the channel has no settings.
 
+<img src="images/channels.png" width="600" alt="The Channels page: one row per channel with a summary of its settings, and a button to the Severities page">
+
 A call names its channels in `channels`. Push, popup and mail take `recipients` or `audience`, speech takes `speakers`. The banner takes `recipients` or `audience` too, or shows to everyone without them. The Persistent Notification takes no target.
 
 | Channel | Target in `notify` | Shortcut action |
@@ -212,6 +214,8 @@ The four severities are `passive`, `info`, `warning` and `critical`. Calls, watc
 - Color: picked with the color picker, or typed as a CSS color or a theme variable, for example `#d00000` or `var(--error-color)`, used by every card and the popup. A card that has its own `colors` in its YAML keeps them. Empty: the theme color.
 - Push level and popup style, the same options as listed under Channels.
 
+<img src="images/severities.png" width="600" alt="The Severities page with Critical opened: label, icon, color, push level Critical (alarm) and popup Centered window; Warning, Info and Passive below with their push level and popup">
+
 ## Audiences
 
 These objects say who a call is for. An audience applies to push, popup, mail and, for who sees it, the banner. Speech takes recipients instead; the Persistent Notification takes no target.
@@ -246,6 +250,8 @@ Every person has a recipient profile without any setup. Their Companion app devi
 - Accepted channels: banner, push and popup by default. A channel you remove is skipped for that person. Mail is off until you add it.
 - Mail address: where mail to this person goes.
 - Where this person is: by default, where Home Assistant says the person is. For Home that is the person's state `home`; for another zone, the zone the person entity is in. For any zone you can choose an input boolean or binary sensor instead: the person counts as in that zone while it is `on`. Use it when the location comes from a rule of your own, for example a template binary sensor that also checks the alarm. Zones without a choice keep Home Assistant's location. It applies to At home, Not home, Last to leave, First home, audiences by zone and the Presence policy. An unavailable entity counts as unknown presence. In Home Assistant's own form the entity for Home is "Home from" and the others are "Other zones from", one `zone.work: binary_sensor.anna_at_work` per line.
+
+<img src="images/recipient-location.png" width="600" alt="Where this person is: Home follows Home Assistant and is in the zone now; Work follows input_boolean.admin_at_work, which is off now">
 
 The panel lists each person with a column per channel (Banner, Push, Popup, Mail): a tick when the person accepts the channel and it can work, a dash when the profile does not accept it, and a warning mark when it is accepted but cannot work (push without a usable device, popup without a Home Assistant user, mail without an address). Point at the mark for the reason. On a narrow screen the channels are written under the name, for example "Banner, Push (no device), Popup". A person who receives nothing is greyed out with a "disabled" badge. Devices, added and removed devices, the primary device, a missing notify service and the missing Home Assistant user are shown when you open a person. A profile that equals the detected devices is not stored. A person with no usable device is skipped on push (`no_usable_device`). A renamed device keeps working: the service is worked out from the device's current name each time.
 
@@ -395,6 +401,8 @@ Holds or drops a delivery depending on where people are. Push, popup and mail ar
 - A change of presence counts after the presence delay in Settings (60 seconds by default), so a short flip at the zone edge releases nothing. With the delay at 0 it counts at once.
 - A released delivery is sent once, and not if the message was cleared, expired or acknowledged meanwhile, or the person dismissed or snoozed it.
 - Held deliveries are stored and survive a restart.
+
+<img src="images/presence-policy.png" width="500" alt="The Presence policy form: channels it covers, zone, when the recipient is not in the zone, then hold until that changes, wait at most 0 minutes">
 
 Examples: "the recipient is not in Home, hold" sends a message when the person comes home. "The recipient is in Home, hold" sends a shopping list when the person leaves. "Speech, nobody of everyone is in Home, drop" keeps speakers silent in an empty house.
 
