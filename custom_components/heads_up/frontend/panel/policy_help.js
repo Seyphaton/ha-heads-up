@@ -1064,6 +1064,8 @@ export const STRINGS = {
  }
 };
 
+// The same icons as the Policies page, so a kind looks the same in both places.
+const ICONS = { summarize: "mdi:text-box-multiple-outline", quiet: "mdi:weather-night", presence: "mdi:home-account", through: "mdi:bell-ring-outline", deliver: "mdi:send-outline", escalation: "mdi:arrow-up-bold-circle-outline", reminder: "mdi:repeat", fallback: "mdi:speaker-wireless" };
 const SYMBOL = { wins: "▲", yields: "▼", both: "=", add: "+", first: "1", after: "2", one: "1×", calmer: "☾", warn: "!" };
 const CONFLICT = new Set(["wins", "yields", "one", "calmer", "warn"]);
 
@@ -1090,7 +1092,13 @@ const CSS = `
 .hu-page .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .hu-page .tile { display: flex; gap: 10px; align-items: center; text-align: left; width: 100%; padding: 10px 12px; border-radius: 12px; border: 2px solid var(--divider-color); background: var(--card-background-color); color: var(--primary-text-color); font: inherit; cursor: pointer; min-height: 52px; }
 .hu-page .tile[aria-pressed="true"] { border-color: var(--primary-color); }
-.hu-page .tile .ic { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; flex: none; font-weight: 700; background: var(--secondary-background-color); }
+.hu-page .calm { --lane-color: var(--success-color, #43a047); }
+.hu-page .band { --lane-color: var(--warning-color, #ffa600); }
+.hu-page .send { --lane-color: var(--info-color, #039be5); }
+.hu-page .pair-name { display: inline-flex; align-items: center; gap: 8px; --mdc-icon-size: 20px; }
+.hu-page .pair-name ha-icon { color: var(--lane-color); }
+.hu-page .tile .ic { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; flex: none; --mdc-icon-size: 20px; color: var(--lane-color); background: color-mix(in srgb, var(--lane-color) 16%, transparent); }
+.hu-page .detail { box-shadow: inset 4px 0 0 var(--primary-color); }
 .hu-page h3.lane { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; margin: 16px 0 8px; }
 .hu-page .detail { margin-top: 16px; border: 1px solid var(--divider-color); border-radius: 12px; padding: 12px; }
 .hu-page .example { background: var(--secondary-background-color); border-radius: 8px; padding: 8px 10px; margin: 6px 0; }
@@ -1122,7 +1130,7 @@ export function mount(container, ctx) {
       root.append(el("h3", { className: "lane", textContent: t.lanes[lane] }));
       const grid = el("div", { className: "tiles" });
       for (const kind of KINDS.filter((k) => k.lane === lane)) {
-        const button = el("button", { type: "button", className: "tile" }, [el("span", { className: "ic", textContent: kind.icon }), el("span", { textContent: t.names[kind.key] })]);
+        const button = el("button", { type: "button", className: `tile ${kind.lane}` }, [el("span", { className: "ic" }, [el("ha-icon", { icon: ICONS[kind.key] })]), el("span", { textContent: t.names[kind.key] })]);
         button.setAttribute("aria-pressed", String(state.kind === kind.key));
         button.querySelector(".ic").setAttribute("aria-hidden", "true");
         button.addEventListener("click", () => { state.kind = kind.key; render(); });
@@ -1150,7 +1158,7 @@ export function mount(container, ctx) {
       if (state.filter === "conflicts" && !CONFLICT.has(pair.verdict)) continue;
       const name = other.key === me.key ? `${t.names[other.key]} (${t.self})` : t.names[other.key];
       const summary = el("summary", {}, [
-        el("strong", { textContent: `${other.icon} ${name}` }),
+        el("strong", { className: `pair-name ${other.lane}` }, [el("ha-icon", { icon: ICONS[other.key] }), el("span", { textContent: name })]),
         el("div", { className: `verdict ${pair.verdict}`, textContent: `${SYMBOL[pair.verdict]} ${t.verdicts[pair.verdict]}` }),
         el("div", { textContent: pair.text[0] }),
         el("div", { className: "more", textContent: t.show }),

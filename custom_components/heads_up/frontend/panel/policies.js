@@ -104,6 +104,13 @@ export const STRINGS = {
     lane_arrive_hint: "Every sending policy that fits runs. Escalations and reminders count from when the message was created.",
     lane_named: "Only when named",
     lane_named_hint: "These act only when a call or a watch rule names them by their entity ID.",
+    col_policy: "Policy",
+    col_messages: "Which messages",
+    col_does: "What it does",
+    lane_empty: "None yet.",
+    badge_converted: "from 1.x",
+    turn_off: "Switch off",
+    turn_on: "Switch on",
     not_severities: "Not for severities",
     not_tags: "Not for tags, comma separated",
     rules: "From watch rule (none selected: any source)",
@@ -303,6 +310,13 @@ export const STRINGS = {
     lane_arrive_hint: "Jede passende sendende Richtlinie läuft. Eskalationen und Erinnerungen zählen ab dem Erstellen der Meldung.",
     lane_named: "Nur wenn genannt",
     lane_named_hint: "Diese wirken nur, wenn ein Aufruf oder eine Überwachungsregel sie mit ihrer Entitäts-ID nennt.",
+    col_policy: "Richtlinie",
+    col_messages: "Welche Meldungen",
+    col_does: "Was sie tut",
+    lane_empty: "Noch keine.",
+    badge_converted: "aus 1.x",
+    turn_off: "Ausschalten",
+    turn_on: "Einschalten",
     not_severities: "Nicht für Stufen",
     not_tags: "Nicht für Tags, durch Komma getrennt",
     rules: "Von Überwachungsregel (keine gewählt: jede Quelle)",
@@ -502,6 +516,13 @@ export const STRINGS = {
     lane_arrive_hint: "Chaque règle d'envoi qui correspond s'exécute. Les escalades et les rappels comptent depuis la création du message.",
     lane_named: "Seulement si nommée",
     lane_named_hint: "Elles n'agissent que si un appel ou une règle de surveillance les nomme par leur ID d'entité.",
+    col_policy: "Règle",
+    col_messages: "Quels messages",
+    col_does: "Ce qu'elle fait",
+    lane_empty: "Aucune pour l'instant.",
+    badge_converted: "de 1.x",
+    turn_off: "Désactiver",
+    turn_on: "Activer",
     not_severities: "Sauf pour les niveaux",
     not_tags: "Sauf pour les étiquettes, séparées par des virgules",
     rules: "Depuis la règle de surveillance (aucune : toute source)",
@@ -701,6 +722,13 @@ export const STRINGS = {
     lane_arrive_hint: "Se ejecuta cada regla de envío que encaja. Los escalados y recordatorios cuentan desde la creación del mensaje.",
     lane_named: "Solo si se nombra",
     lane_named_hint: "Solo actúan cuando una llamada o una regla de vigilancia las nombra por su ID de entidad.",
+    col_policy: "Regla",
+    col_messages: "Qué mensajes",
+    col_does: "Qué hace",
+    lane_empty: "Ninguna todavía.",
+    badge_converted: "de 1.x",
+    turn_off: "Desactivar",
+    turn_on: "Activar",
     not_severities: "Excepto niveles",
     not_tags: "Excepto etiquetas, separadas por comas",
     rules: "Desde la regla de vigilancia (ninguna: cualquier origen)",
@@ -826,26 +854,76 @@ export const STRINGS = {
 };
 
 const CSS = `
+.hu-page .pol-intro { max-width: 72ch; margin-bottom: 12px; }
+.hu-page .pol-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px; }
+.hu-page .pol-bar button, .hu-page .tl-actions button { display: inline-flex; align-items: center; gap: 8px; }
+.hu-page .pol-bar ha-icon, .hu-page .tl-actions ha-icon { --mdc-icon-size: 20px; }
+.hu-page .pol-bar button[aria-expanded="true"] { border-color: var(--primary-color); color: var(--primary-color); }
+.hu-page section.tl-list, .hu-page section.cl-card, .hu-page section.ck-card { padding: 0; overflow: hidden; --tl-cols: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.3fr); }
+.hu-page .tl-lead .badge { white-space: nowrap; flex: none; }
+.hu-page .lane-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px 10px; }
+.hu-page .lane-head .tl-title { margin: 0; }
+.hu-page .lane-hint { color: var(--secondary-text-color); font-size: 13px; line-height: 1.4; max-width: 70ch; }
+.hu-page .lane-icon { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 36px; height: 36px; border-radius: 10px; background: color-mix(in srgb, var(--lane-color) 16%, transparent); color: var(--lane-color); --mdc-icon-size: 20px; }
+.hu-page .lane-count { margin-left: auto; flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; background: var(--hu-fill); color: var(--secondary-text-color); }
+.hu-page section { --lane-color: var(--primary-color); }
+.hu-page section.lane.calm { --lane-color: var(--success-color, #43a047); }
+.hu-page section.lane.band { --lane-color: var(--warning-color, #ffa600); box-shadow: inset 4px 0 0 var(--lane-color); }
+.hu-page section.lane.arrive { --lane-color: var(--info-color, #039be5); }
+.hu-page section.lane.named { --lane-color: var(--secondary-text-color); }
+.hu-page section.cl-card { --lane-color: var(--warning-color, #ffa600); box-shadow: inset 4px 0 0 var(--lane-color); }
+.hu-page .tl-list .tl-lead ha-icon { color: var(--lane-color); }
+.hu-page .lane-head + .tl-head + .tl-item, .hu-page .lane-head + .tl-item { border-top: 1px solid var(--divider-color); }
+.hu-page .pol-sentence { margin: 0 0 12px; font-size: 15px; line-height: 1.5; max-width: 72ch; }
+.hu-page .pol-note { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 12px; padding: 8px 12px; border-radius: 8px; background: var(--card-background-color); border: 1px solid var(--divider-color); font-size: 14px; --mdc-icon-size: 18px; }
+.hu-page .pol-note ha-icon { color: var(--secondary-text-color); margin-top: 1px; }
+.hu-page .pol-pill { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 2px 2px 2px 10px; border-radius: 8px; background: var(--card-background-color); border: 1px solid var(--divider-color); }
+.hu-page .pol-pill code { font-size: 12px; overflow-wrap: anywhere; }
+.hu-page .pol-pill .pol-copy { min-height: 32px; padding: 0 10px; font-size: 13px; }
+.hu-page .cl-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--divider-color); --mdc-icon-size: 20px; }
+.hu-page .cl-row ha-icon { color: var(--lane-color); }
+.hu-page .cl-row.done { opacity: .7; }
+.hu-page .cl-row.done ha-icon { color: var(--success-color, #43a047); }
+.hu-page .cl-text { font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+.hu-page .cl-buttons { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.hu-page section.cl-card > .tl-actions, .hu-page section.ck-card > .tl-actions { padding: 0 16px 14px; margin-top: 4px; }
+.hu-page button.link { background: none; border-color: transparent; color: var(--primary-color); padding: 0 4px; }
+.hu-page .ck-grid, .hu-page section.ck-card > fieldset { margin: 0 16px 12px; }
+.hu-page .ck-grid { padding-top: 4px; }
+.hu-page input[type="datetime-local"] { box-sizing: border-box; height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--hu-line); background: var(--hu-fill); color: var(--primary-text-color); font: inherit; width: 100%; }
+.hu-page fieldset.pills { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 12px 12px; }
+.hu-page fieldset.pills.scroll { max-height: 220px; overflow: auto; }
+.hu-page fieldset.pills label.inline { min-height: 36px; gap: 8px; padding: 0 14px 0 10px; border-radius: 18px; border: 1px solid var(--hu-line); background: var(--hu-fill); cursor: pointer; }
+.hu-page fieldset.pills label.inline:has(input:checked) { border-color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 16%, var(--card-background-color)); }
+.hu-page fieldset.pills label.inline input { width: 16px; height: 16px; margin: 0; }
+.hu-page .ck-answer { margin: 4px 16px 16px; padding: 4px 0 0; border-top: 1px solid var(--divider-color); }
+.hu-page .ck-step { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; position: relative; padding: 12px 0 4px; }
+.hu-page .ck-step::before { content: ""; position: absolute; left: 37px; top: 34px; bottom: -8px; width: 2px; background: var(--divider-color); }
+.hu-page .ck-step:last-of-type::before { display: none; }
+.hu-page .ck-when { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 600; font-size: 13px; text-align: center; padding: 3px 0; border-radius: 12px; background: var(--hu-fill); height: fit-content; position: relative; z-index: 1; }
+.hu-page .ck-title { font-weight: 600; margin-bottom: 4px; }
+.hu-page ul.ck-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.hu-page .ck-line { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; --mdc-icon-size: 18px; }
+.hu-page .ck-line ha-icon { flex: none; margin-top: 1px; }
+.hu-page .ck-line.sent ha-icon { color: var(--success-color, #43a047); }
+.hu-page .ck-line.quiet ha-icon, .hu-page .ck-line.held ha-icon { color: var(--warning-color, #ffa600); }
+.hu-page .ck-line.skipped ha-icon { color: var(--secondary-text-color); }
+.hu-page .ck-line.failed ha-icon { color: var(--error-color, #db4437); }
 .hu-page h3.sec { font-size: 15px; margin: 20px 0 6px; padding-top: 12px; border-top: 1px solid var(--divider-color); }
-.hu-page .summary { background: var(--secondary-background-color); border-radius: 8px; padding: 10px 12px; margin: 16px 0 12px; }
+.hu-page .summary { background: var(--hu-fill); border-radius: 10px; padding: 10px 12px; margin: 16px 0 12px; }
 .hu-page .summary .sentence { margin: 4px 0; }
 .hu-page label.radio { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; cursor: pointer; }
 .hu-page label.radio input { margin-top: 4px; width: 20px; height: 20px; }
 .hu-page .type-desc { margin-top: 0; }
-.hu-page section.lane { border-left: 4px solid var(--divider-color); padding-left: 12px; }
-.hu-page section.lane.calm { border-left-color: var(--success-color); }
-.hu-page section.lane.band { border-left-color: var(--warning-color); background: var(--secondary-background-color); border-radius: 0 8px 8px 0; padding: 8px 12px; }
-.hu-page section.lane.arrive { border-left-color: var(--primary-color); }
-.hu-page li.policy { display: flex; align-items: center; gap: 4px; }
-.hu-page li.policy .grow { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.hu-page li.policy button { flex: none; }
-.hu-page ul.checklist { list-style: none; margin: 8px 0; padding: 0; }
-.hu-page ul.checklist li { padding: 10px 0; border-bottom: 1px solid var(--divider-color); overflow-wrap: anywhere; }
-.hu-page ul.checklist .row { margin-top: 8px; flex-wrap: wrap; }
-.hu-page .answer ul { margin: 4px 0; padding-left: 18px; }
-.hu-page .answer li { padding: 2px 0; overflow-wrap: anywhere; }
-.hu-page .answer .when { font-weight: 600; margin-top: 8px; }
-.hu-page input[type="datetime-local"] { font: inherit; padding: 6px; max-width: 100%; }
+@container (max-width: 520px) {
+  .hu-page .cl-row { grid-template-columns: 24px minmax(0, 1fr); }
+  .hu-page .cl-buttons, .hu-page .cl-row > .badge { grid-column: 2; justify-content: flex-start; }
+}
+@media (max-width: 520px) {
+  .hu-page .cl-row { grid-template-columns: 24px minmax(0, 1fr); }
+  .hu-page .cl-buttons, .hu-page .cl-row > .badge { grid-column: 2; justify-content: flex-start; }
+  .hu-page .lane-head { padding: 12px 12px 8px; }
+}
 `;
 
 // The page order: the lanes and the band (DESIGN §25.2). Which policies act does not depend on it.
@@ -1260,14 +1338,53 @@ export function checkLine(row, t, who, reasonText = (code) => code) {
   return `${who} · ${channel}: ${what}${why.length ? ` (${why.join("; ")})` : ""}`;
 }
 
+const TYPE_ICONS = {
+  summarize: "mdi:text-box-multiple-outline",
+  quiet_hours: "mdi:weather-night",
+  presence: "mdi:home-account",
+  get_through: "mdi:bell-ring-outline",
+  deliver: "mdi:send-outline",
+  escalation: "mdi:arrow-up-bold-circle-outline",
+  reminder: "mdi:repeat",
+  fallback: "mdi:speaker-wireless",
+};
+const LANE_ICONS = { calm: "mdi:weather-night", band: "mdi:bell-ring-outline", arrive: "mdi:send-outline", named: "mdi:at" };
+const RESULT_ICONS = { sent: "mdi:check-circle-outline", quiet: "mdi:bell-sleep-outline", held: "mdi:pause-circle-outline", skipped: "mdi:minus-circle-outline", failed: "mdi:alert-circle-outline" };
+
+// The "Which messages" column: For, Not for and From watch rule in a few words.
+export function whichText(values, t, ruleName = (v) => v) {
+  let text = appliesText(values, t);
+  if (values.apply === "manual") return text;
+  const not = [...values.not_severities.map((x) => t.severity_names[x]), ...splitTags(values.not_tags).map((x) => `#${x}`)];
+  if (not.length) text += fill(t.s_not_for, { list: not.join(", ") }).replace(/\.$/, "");
+  if (values.rules.length) text += fill(t.s_rules, { names: values.rules.map(ruleName).join(", ") }).replace(/\.$/, "");
+  return text;
+}
+
+// The "What it does" column: the sentence without who it applies to.
+export function doesText(values, t, labels = {}) {
+  const full = sentence({ ...values, not_severities: [], not_tags: "", rules: [] }, t, labels);
+  const lead = `${appliesText(values, t)}: `;
+  const rest = full.startsWith(lead) ? full.slice(lead.length) : full;
+  return rest.charAt(0).toUpperCase() + rest.slice(1);
+}
+
 export function mount(container, ctx) {
   const { t, s, ui } = ctx;
   const { el } = ui;
+  // Multiple choices as pill toggles; the checkbox stays, so the state is not shown by color only.
+  const pills = (...args) => {
+    const box = ui.chips(...args);
+    box.classList.add("pills");
+    return box;
+  };
   let hass = ctx.hass;
   let data = null;
   let editing = null; // { own, values }
   let message = "";
   let checked = null; // the last answer of the checker
+  let openKey = null; // the policy whose row is open
+  let showCheck = false; // the checker is folded away until asked for
   const ask = { severity: "warning", tag: "", rule: "", at: "", home: {}, ack: "", channels: ["banner", "push"], audience: "" };
   const root = el("div", { className: "hu-page" });
   container.append(root);
@@ -1276,50 +1393,112 @@ export function mount(container, ctx) {
   const ruleName = (id) => (data.rules.find((r) => r.subentry_id === id) || {}).name || id;
   const labels = () => ({ audience: (v) => ui.audienceLabel(v, data.choices), recipient: (v) => ui.recipientLabel(v, data.choices), rule: ruleName });
 
-  function card(policy) {
-    const values = fromPolicy(policy);
-    const edit = el("button", { type: "button", textContent: s.common.edit });
-    edit.addEventListener("click", () => { message = ""; editing = { own: policy, values }; render(); });
-    const body = el("div", { className: "grow" }, [
-      el("strong", { textContent: policy.name }),
-      el("span", { className: "badge", textContent: t.types[values.type] || values.type }),
-      ...(values.enabled ? [] : [el("span", { className: "badge", textContent: t.disabled })]),
-      el("div", { className: "sub", textContent: sentence(values, t, labels()) }),
-      ...(values.links.length ? [el("div", { className: "sub", textContent: fill(t.links_note, { names: values.links.map(policyName).join(", ") }) })] : []),
-      ...(values.apply === "manual" ? [el("div", { className: "sub" }, [el("code", { textContent: policy.entity_id || "" })])] : []),
-    ]);
-    return el("li", { className: `policy${values.enabled ? "" : " dim"}` }, [body, edit]);
-  }
-
+  // The lanes as tables like the other configuration pages: an icon and the name, which messages,
+  // what it does. A row opens its details: the sentence, the switch ID, links kept from 1.x, and
+  // the actions (DESIGN §25.9).
   function lanes() {
     const out = [];
+    const titles = { calm: [t.lane_calm, t.lane_calm_hint], band: [t.band, t.band_hint], arrive: [t.lane_arrive, t.lane_arrive_hint], named: [t.lane_named, t.lane_named_hint] };
     for (const id of ["calm", "band", "arrive", "named"]) {
-      const titles = { calm: [t.lane_calm, t.lane_calm_hint], band: [t.band, t.band_hint], arrive: [t.lane_arrive, t.lane_arrive_hint], named: [t.lane_named, t.lane_named_hint] };
       const mine = data.policies.filter((p) => laneOf(p) === id);
       if (id === "named" && !mine.length) continue;
       const [title, hint] = titles[id];
-      out.push(
-        el("section", { className: `lane ${id}` }, [
-          el("h2", { textContent: title }),
-          el("div", { className: "hint", textContent: hint }),
-          el("ul", { className: "list" }, mine.length ? mine.map(card) : [el("li", { className: "sub", textContent: "—" })]),
+      const box = el("section", { className: `tl-list lane ${id}` });
+      box.append(
+        el("div", { className: "lane-head" }, [
+          el("span", { className: "lane-icon" }, [el("ha-icon", { icon: LANE_ICONS[id] })]),
+          el("div", {}, [el("h2", { className: "tl-title", textContent: title }), el("div", { className: "lane-hint", textContent: hint })]),
+          el("span", { className: "lane-count", textContent: String(mine.length) }),
         ]),
       );
+      if (mine.length) box.append(ui.tableHead([t.col_policy, t.col_messages, t.col_does]));
+      for (const policy of mine) box.append(policyRow(policy));
+      if (!mine.length) box.append(el("div", { className: "tl-empty", textContent: t.lane_empty }));
+      out.push(box);
     }
     return out;
   }
 
-  // The check list after the 2.0 conversion (DESIGN §25.7): open items first.
+  function policyRow(policy) {
+    const values = fromPolicy(policy);
+    const id = `hu-pol-${policy.subentry_id}`;
+    const isOpen = openKey === policy.subentry_id;
+    const lead = [el("ha-icon", { icon: TYPE_ICONS[values.type] || "mdi:tune" }), el("span", { className: "tl-name", textContent: policy.name })];
+    if (!values.enabled) lead.push(el("span", { className: "badge", textContent: t.disabled }));
+    if (values.links.length) lead.push(el("span", { className: "badge", textContent: t.badge_converted }));
+    const messages = whichText(values, t, ruleName);
+    const does = doesText(values, t, labels());
+    const { item } = ui.tableRow({
+      id,
+      lead,
+      cells: [
+        { label: t.col_messages, node: el("span", { textContent: messages, title: messages }) },
+        { label: t.col_does, node: el("span", { textContent: does, title: does }), muted: true },
+      ],
+      open: isOpen,
+      dim: !values.enabled,
+      label: `${policy.name}, ${t.types[values.type]}: ${messages}. ${does}`,
+      onToggle: () => {
+        openKey = isOpen ? null : policy.subentry_id;
+        render();
+        root.querySelector(`[aria-controls="${id}"]`)?.focus();
+      },
+      body: isOpen ? policyDetails(policy, values) : null,
+    });
+    return item;
+  }
+
+  function policyDetails(policy, values) {
+    const body = el("div", {});
+    body.append(el("p", { className: "pol-sentence", textContent: sentence(values, t, labels()) }));
+    if (values.links.length) body.append(el("div", { className: "pol-note" }, [el("ha-icon", { icon: "mdi:link-variant" }), el("span", { textContent: fill(t.links_note, { names: values.links.map(policyName).join(", ") }) })]));
+    const pairs = [[t.type, `${t.types[values.type]} · ${t.type_desc[values.type]}`]];
+    if (policy.entity_id) {
+      const copy = el("button", { type: "button", className: "pol-copy", textContent: s.common.copy });
+      copy.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(policy.entity_id);
+          copy.textContent = s.common.copied;
+        } catch (err) {
+          copy.textContent = s.common.copy_failed;
+        }
+      });
+      pairs.push([t.entity_id, el("span", { className: "pol-pill" }, [el("code", { textContent: policy.entity_id }), copy])]);
+    }
+    body.append(ui.facts(pairs));
+    const edit = el("button", { type: "button", className: "primary", textContent: s.common.edit });
+    edit.addEventListener("click", () => { message = ""; editing = { own: policy, values: fromPolicy(policy) }; render(); });
+    const flip = el("button", { type: "button", textContent: values.enabled ? t.turn_off : t.turn_on });
+    flip.addEventListener("click", async () => {
+      const result = await ui.runFlow(hass, data.entry_id, "policy", policy.subentry_id, toFlowData({ ...values, enabled: !values.enabled }));
+      message = result.ok ? "" : Object.values(result.errors).map((c) => ui.errorText(c, ctx.language)).join(" ");
+      await load();
+    });
+    body.append(el("div", { className: "tl-actions" }, [edit, flip]));
+    return body;
+  }
+
+  // The check list after the 2.0 conversion (DESIGN §25.7): one row per item, its answer at the end.
   function checklist() {
-    const items = data.conversion_items || [];
+    const items = (data.conversion_items || []).filter((i) => data.policies.some((p) => p.subentry_id === i.policy));
     if (!items.length) return [];
-    const list = el("ul", { className: "checklist" });
+    const open = items.filter((i) => i.state === "open").length;
+    const box = el("section", { className: "cl-card" });
+    box.append(
+      el("div", { className: "lane-head" }, [
+        el("span", { className: "lane-icon warn" }, [el("ha-icon", { icon: "mdi:clipboard-check-outline" })]),
+        el("div", {}, [el("h2", { className: "tl-title", textContent: t.cl_title }), el("div", { className: "lane-hint", textContent: t.cl_intro })]),
+        el("span", { className: "lane-count", textContent: String(open) }),
+      ]),
+    );
     for (const item of items) {
       const policy = data.policies.find((p) => p.subentry_id === item.policy);
-      if (!policy) continue;
       const linked = (policy.data.links || []).map(policyName).join(", ");
       const text = { links: t.cl_links, never_acts: t.cl_never, holds_anyway: t.cl_holds }[item.kind];
-      const li = el("li", {}, [el("div", { textContent: fill(fill(text, { name: `“${policy.name}”` }), { names: linked }) })]);
+      const row = el("div", { className: `cl-row${item.state === "open" ? "" : " done"}` }, [
+        el("ha-icon", { icon: item.state === "open" ? (item.kind === "never_acts" ? "mdi:sleep" : "mdi:link-variant") : "mdi:check" }),
+        el("div", { className: "cl-text", textContent: fill(fill(text, { name: `“${policy.name}”` }), { names: linked }) }),
+      ]);
       if (item.state === "open") {
         const answer = async (choice) => {
           await hass.callWS({ type: "heads_up/conversion_item", policy: item.policy, kind: item.kind, choice });
@@ -1327,40 +1506,49 @@ export function mount(container, ctx) {
         };
         const keep = el("button", { type: "button", textContent: t.cl_keep });
         keep.addEventListener("click", () => answer("keep"));
-        const change = el("button", { type: "button", textContent: item.kind === "holds_anyway" ? t.cl_through : t.cl_act });
+        const change = el("button", { type: "button", className: "primary", textContent: item.kind === "holds_anyway" ? t.cl_through : t.cl_act });
         change.addEventListener("click", () => answer("change"));
-        li.append(el("div", { className: "row" }, [keep, change]));
+        row.append(el("div", { className: "cl-buttons" }, [keep, change]));
       } else {
-        li.append(el("div", { className: "sub", textContent: item.state === "kept" ? t.cl_kept : t.cl_changed }));
+        row.append(el("span", { className: "badge", textContent: item.state === "kept" ? t.cl_kept : t.cl_changed }));
       }
-      list.append(li);
+      box.append(row);
     }
-    const hide = el("button", { type: "button", textContent: t.cl_dismiss });
+    const hide = el("button", { type: "button", className: "link", textContent: t.cl_dismiss });
     hide.addEventListener("click", async () => { await hass.callWS({ type: "heads_up/conversion_items_dismiss" }); await load(); });
-    return [el("section", {}, [el("h2", { textContent: t.cl_title }), el("div", { className: "hint", textContent: t.cl_intro }), list, hide])];
+    box.append(el("div", { className: "tl-actions" }, [hide]));
+    return [box];
   }
 
   // The checker "What happens to a message?" (DESIGN §25.8): nothing is sent.
   function checker() {
-    const box = el("section", {}, [el("h2", { textContent: t.ck_title }), el("div", { className: "hint", textContent: t.ck_intro })]);
-    box.append(ui.field(t.ck_severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), ask.severity, (v) => { ask.severity = v; })));
-    box.append(ui.field(t.ck_tag, ui.textInput(ask.tag, (v) => { ask.tag = v; })));
-    box.append(ui.chips(t.ck_channels, ["banner", ...POLICY_CHANNELS].map((c) => ({ value: c, label: c === "banner" ? t.ck_banner : t.channel_names[c] })), ask.channels, (list) => { ask.channels = list; }));
+    const box = el("section", { className: "ck-card" });
+    box.append(
+      el("div", { className: "lane-head" }, [
+        el("span", { className: "lane-icon" }, [el("ha-icon", { icon: "mdi:map-marker-path" })]),
+        el("div", {}, [el("h2", { className: "tl-title", textContent: t.ck_title }), el("div", { className: "lane-hint", textContent: t.ck_intro })]),
+      ]),
+    );
+    const grid = el("div", { className: "tl-grid ck-grid" });
+    grid.append(ui.field(t.ck_severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), ask.severity, (v) => { ask.severity = v; })));
+    grid.append(ui.field(t.ck_tag, ui.textInput(ask.tag, (v) => { ask.tag = v; })));
+    const sources = [{ value: "", label: t.ck_source_call }, ...data.rules.map((r) => ({ value: r.subentry_id, label: r.name }))];
+    grid.append(ui.field(t.ck_source, ui.selectInput(sources, ask.rule, (v) => { ask.rule = v; })));
     const audiences = data.choices.audience_choices || [];
     if (!ask.audience && audiences.length) ask.audience = (audiences.find((a) => a.id === "everyone") || audiences[0]).id;
-    box.append(ui.field(t.ck_audience, ui.selectInput(audiences.map((a) => ({ value: a.id, label: a.name })), ask.audience, (v) => { ask.audience = v; })));
-    const sources = [{ value: "", label: t.ck_source_call }, ...data.rules.map((r) => ({ value: r.subentry_id, label: r.name }))];
-    box.append(ui.field(t.ck_source, ui.selectInput(sources, ask.rule, (v) => { ask.rule = v; })));
+    grid.append(ui.field(t.ck_audience, ui.selectInput(audiences.map((a) => ({ value: a.id, label: a.name })), ask.audience, (v) => { ask.audience = v; })));
     const at = el("input", { type: "datetime-local", value: ask.at });
     at.addEventListener("input", () => { ask.at = at.value; });
-    box.append(ui.field(t.ck_time, at));
+    grid.append(ui.field(t.ck_time, at));
+    grid.append(ui.field(t.ck_ack, ui.textInput(ask.ack, (v) => { ask.ack = v; })));
+    box.append(grid);
+    box.append(pills(t.ck_channels, ["banner", ...POLICY_CHANNELS].map((c) => ({ value: c, label: c === "banner" ? t.ck_banner : t.channel_names[c] })), ask.channels, (list) => { ask.channels = list; }));
     const persons = data.choices.persons || [];
     if (persons.length) {
-      box.append(ui.chips(t.ck_home, persons.map((p) => ({ value: p.id, label: p.name })), persons.filter((p) => ask.home[p.id] !== false).map((p) => p.id), (list) => {
+      box.append(pills(t.ck_home, persons.map((p) => ({ value: p.id, label: p.name })), persons.filter((p) => ask.home[p.id] !== false).map((p) => p.id), (list) => {
         ask.home = Object.fromEntries(persons.map((p) => [p.id, list.includes(p.id)]));
       }));
     }
-    box.append(ui.field(t.ck_ack, ui.textInput(ask.ack, (v) => { ask.ack = v; })));
     const run = el("button", { type: "button", className: "primary", textContent: t.ck_run });
     run.addEventListener("click", async () => {
       const request = { type: "heads_up/policy_check", severity: ask.severity, home: ask.home, channels: ask.channels.length ? ask.channels : ["banner"] };
@@ -1375,30 +1563,34 @@ export function mount(container, ctx) {
         checked = { error: err.message || String(err) };
       }
       render();
+      root.querySelector(".ck-answer")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     });
-    box.append(run);
+    box.append(el("div", { className: "tl-actions" }, [run]));
     if (checked) box.append(answer(checked));
     return box;
   }
 
   function answer(result) {
-    const out = el("div", { className: "summary answer" });
+    const out = el("div", { className: "ck-answer" });
     out.setAttribute("role", "status");
     if (result.error) return out.append(el("div", { className: "hint problems", textContent: result.error })), out;
     const time = (iso) => new Date(iso).toLocaleTimeString(ctx.language, { hour: "2-digit", minute: "2-digit" });
     const who = (row) => ui.recipientLabel(row.person || row.recipient || "", data.choices) || "—";
-    const lines = (rows) => el("ul", {}, rows.map((row) => el("li", { textContent: checkLine({ ...row, untilText: row.until ? time(row.until) : "" }, t, who(row), (code) => ctx.fmt.reasonText(code, s)) })));
-    if (result.held_for_summary) out.append(el("div", { textContent: fill(t.ck_summary, { policy: result.held_for_summary }) }));
+    const reason = (code) => ctx.fmt.reasonText(code, s);
+    const lines = (rows) =>
+      el("ul", { className: "ck-lines" }, rows.map((row) => {
+        const kind = row.result === "sent" && row.note === "quiet" ? "quiet" : row.result;
+        return el("li", { className: `ck-line ${kind}` }, [el("ha-icon", { icon: RESULT_ICONS[kind] || "mdi:circle-outline" }), el("span", { textContent: checkLine({ ...row, untilText: row.until ? time(row.until) : "" }, t, who(row), reason) })]);
+      }));
+    const step = (when, title, rows, note) =>
+      el("div", { className: "ck-step" }, [el("div", { className: "ck-when", textContent: when }), el("div", { className: "ck-what" }, [el("div", { className: "ck-title", textContent: title }), ...(note ? [el("div", { className: "lane-hint", textContent: note })] : []), rows])]);
+    if (result.held_for_summary) out.append(el("div", { className: "pol-note" }, [el("ha-icon", { icon: "mdi:text-box-multiple-outline" }), el("span", { textContent: fill(t.ck_summary, { policy: result.held_for_summary }) })]));
     const first = (result.rows || []).filter((r) => r.channel !== "banner");
-    out.append(el("div", { className: "when", textContent: t.ck_first }), first.length ? lines(first) : el("div", { textContent: t.ck_nothing }));
-    if ((result.steps || []).length) {
-      out.append(el("div", { className: "when", textContent: t.ck_later }));
-      for (const step of result.steps) {
-        const head = `${time(step.time)} · ${t.types[step.type] || step.type} ${step.policy}${step.skipped ? ` (${t.ck_waits})` : ""}`;
-        out.append(el("div", { textContent: head }), lines(step.rows));
-      }
+    out.append(step(result.at ? time(result.at) : t.ck_first, t.ck_first, first.length ? lines(first) : el("div", { className: "lane-hint", textContent: t.ck_nothing })));
+    for (const s2 of result.steps || []) {
+      out.append(step(time(s2.time), `${t.types[s2.type] || s2.type} · ${s2.policy}`, lines(s2.rows), s2.skipped ? t.ck_waits : ""));
     }
-    if ((result.band_off || []).length) out.append(el("div", { className: "hint", textContent: fill(t.ck_band_off, { names: result.band_off.join(", ") }) }));
+    if ((result.band_off || []).length) out.append(el("div", { className: "pol-note" }, [el("ha-icon", { icon: "mdi:information-outline" }), el("span", { textContent: fill(t.ck_band_off, { names: result.band_off.join(", ") }) })]));
     return out;
   }
 
@@ -1451,7 +1643,7 @@ export function mount(container, ctx) {
     const when = el("div");
     const number = (key, label, min = 1) => does.append(ui.field(label, ui.numberInput(values[key], (v) => { values[key] = v; paint(); }, { min })));
     const channelChips = (label) =>
-      does.append(ui.chips(label, POLICY_CHANNELS.map((c) => ({ value: c, label: t.channel_names[c] })), values.channels, (list) => { values.channels = list; again(); }));
+      does.append(pills(label, POLICY_CHANNELS.map((c) => ({ value: c, label: t.channel_names[c] })), values.channels, (list) => { values.channels = list; again(); }));
     const targetBlocks = () => {
       const labelsOf = { audience: t.target_audience, recipients: t.target_recipients, persistent: t.target_persistent };
       for (const channel of values.channels) {
@@ -1502,13 +1694,13 @@ export function mount(container, ctx) {
         if (!values.quiet_entity) {
           does.append(ui.field(t.from, ui.timeInput(values.from_time, (v) => { values.from_time = v; paint(); })));
           does.append(ui.field(t.to, ui.timeInput(values.to_time, (v) => { values.to_time = v; paint(); })));
-          does.append(ui.chips(t.days, DAYS.map((d) => ({ value: d, label: t.days_names[d] })), values.days, (list) => { values.days = list; paint(); }));
+          does.append(pills(t.days, DAYS.map((d) => ({ value: d, label: t.days_names[d] })), values.days, (list) => { values.days = list; paint(); }));
         }
         does.append(ui.field(t.action, ui.selectInput(["quiet", "wait", "drop"].map((k) => ({ value: k, label: t.actions[k] })), values.action, (v) => { values.action = v; paint(); })));
         holdsAnyway();
         break;
       case "presence": {
-        does.append(ui.chips(t.presence_channels, PRESENCE_CHANNELS.map((c) => ({ value: c, label: t.channel_names[c] })), values.channels, (list) => { values.channels = list; again(); }));
+        does.append(pills(t.presence_channels, PRESENCE_CHANNELS.map((c) => ({ value: c, label: t.channel_names[c] })), values.channels, (list) => { values.channels = list; again(); }));
         const zones = (data.choices.zones || []).map((z) => ({ value: z.id, label: z.name }));
         if (!zones.some((z) => z.value === values.zone)) zones.unshift({ value: values.zone, label: values.zone });
         does.append(ui.field(t.zone, ui.selectInput(zones, values.zone, (v) => { values.zone = v; paint(); })));
@@ -1540,9 +1732,9 @@ export function mount(container, ctx) {
         does.append(ui.field(t.covers, ui.selectInput([{ value: "everyone", label: t.covers_everyone }, { value: "only", label: t.covers_only }], values.covers, (v) => { values.covers = v; again(); })));
         if (values.covers === "only") {
           const audiences = (data.choices.audience_choices || []).map((a) => ({ value: a.id, label: a.name }));
-          does.append(ui.chips(t.covers_audiences, audiences, values.covers_audiences, (list) => { values.covers_audiences = list; paint(); }));
+          does.append(pills(t.covers_audiences, audiences, values.covers_audiences, (list) => { values.covers_audiences = list; paint(); }));
           const people = [...(data.choices.persons || []).map((p) => ({ value: p.id, label: p.name })), ...((data.choices.recipients || {}).speak || []).map((id) => ({ value: id, label: ui.recipientLabel(id, data.choices) }))];
-          does.append(ui.chips(t.covers_recipients, people, values.covers_recipients, (list) => { values.covers_recipients = list; paint(); }, true));
+          does.append(pills(t.covers_recipients, people, values.covers_recipients, (list) => { values.covers_recipients = list; paint(); }, true));
         }
         break;
       }
@@ -1564,11 +1756,11 @@ export function mount(container, ctx) {
     if (values.apply === "manual") {
       when.append(el("div", { className: "hint", textContent: t.manual_how }), ui.yamlBlock(`policy: ${own?.entity_id || String(values.name).trim() || "…"}`, s.common), el("div", { className: "hint", textContent: t.manual_note }));
     } else {
-      when.append(ui.chips(t.severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.severities, (list) => { values.severities = list; paint(); }));
+      when.append(pills(t.severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.severities, (list) => { values.severities = list; paint(); }));
       when.append(ui.field(t.tags, ui.textInput(values.tags, (v) => { values.tags = v; paint(); })));
-      when.append(ui.chips(t.not_severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.not_severities, (list) => { values.not_severities = list; paint(); }));
+      when.append(pills(t.not_severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.not_severities, (list) => { values.not_severities = list; paint(); }));
       when.append(ui.field(t.not_tags, ui.textInput(values.not_tags, (v) => { values.not_tags = v; paint(); })));
-      if (data.rules.length) when.append(ui.chips(t.rules, data.rules.map((r) => ({ value: r.subentry_id, label: r.name })), values.rules, (list) => { values.rules = list; paint(); }));
+      if (data.rules.length) when.append(pills(t.rules, data.rules.map((r) => ({ value: r.subentry_id, label: r.name })), values.rules, (list) => { values.rules = list; paint(); }));
       if (values.links.length) when.append(el("div", { className: "hint", textContent: fill(t.links_note, { names: values.links.map(policyName).join(", ") }) }));
       const note = el("div", { className: "hint" });
       const paintNote = () => {
@@ -1611,19 +1803,23 @@ export function mount(container, ctx) {
 
   function render() {
     ui.lockHeight(root);
-    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + CSS }), el("h1", { textContent: t.title }));
-    root.append(el("div", { className: "hint", textContent: t.intro }));
+    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + ui.TABLE_CSS + CSS }), el("h1", { textContent: t.title }));
+    root.append(el("div", { className: "hint pol-intro", textContent: t.intro }));
     if (editing) return void root.append(editor());
-    const help = el("button", { type: "button", textContent: t.help_button });
+    // The action bar: add, check a message, and the help page (DESIGN §25.9).
+    const add = el("button", { type: "button", className: "primary" }, [el("ha-icon", { icon: "mdi:plus" }), el("span", { textContent: t.new })]);
+    add.addEventListener("click", () => { message = ""; editing = { own: null, values: blankValues("quiet_hours") }; render(); });
+    const check = el("button", { type: "button" }, [el("ha-icon", { icon: "mdi:map-marker-path" }), el("span", { textContent: t.ck_title })]);
+    check.setAttribute("aria-expanded", String(showCheck));
+    check.addEventListener("click", () => { showCheck = !showCheck; render(); });
+    const help = el("button", { type: "button" }, [el("ha-icon", { icon: "mdi:help-circle-outline" }), el("span", { textContent: t.help_button })]);
     help.addEventListener("click", () => ctx.navigate("policy-help"));
-    root.append(el("div", { className: "row" }, [help]));
-    root.append(...checklist(), checker());
-    if (message) root.append(el("div", { className: "hint problems", textContent: message }));
-    if (!data.policies.length) root.append(el("div", { className: "sub", textContent: t.none }));
+    root.append(el("div", { className: "pol-bar" }, [add, check, help]));
+    if (message) root.append(el("div", { className: "hint problems", textContent: message, role: "alert" }));
+    root.append(...checklist());
+    if (showCheck) root.append(checker());
+    if (!data.policies.length) root.append(el("div", { className: "tl-empty", textContent: t.none }));
     root.append(...lanes());
-    const add = el("button", { type: "button", className: "primary", textContent: s.common.add });
-    add.addEventListener("click", () => { message = ""; editing = { own: null, values: blankValues() }; render(); });
-    root.append(el("div", { className: "row" }, [add]));
   }
 
   async function saveIt() {
