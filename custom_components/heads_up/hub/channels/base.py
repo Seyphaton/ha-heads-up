@@ -34,6 +34,7 @@ class Target:
     kind: str = ""  # person, device or speaker
     person: str | None = None
     quiet: bool = False  # set by a Quiet hours policy (H4b): passive, no sound
+    quiet_by: str = ""  # the Quiet hours policy that made it quiet
     ack_button: bool = False  # set when an escalation or reminder policy applies (H4a)
 
 
@@ -44,6 +45,7 @@ class Outcome:
     ref: str | None = None  # push tag or notification id, kept in the ledger
     due: datetime | None = None  # a held delivery: release time or deadline
     hold: str | None = None  # a held delivery: why (quiet_hours, away)
+    by: str | None = None  # the policy behind a hold, a skip or a quiet send (DESIGN §25.8)
 
 
 class Channel(Protocol):

@@ -29,6 +29,7 @@ class Step:
 @dataclass(frozen=True, slots=True)
 class Skip:
     reason: str
+    policy: str = ""  # the policy that dropped it
 
 
 @dataclass(frozen=True, slots=True)
@@ -39,6 +40,7 @@ class Hold:
     reason: str
     kind: str
     until: datetime | None = None
+    policy: str = ""  # the policy that holds it
 
 
 class Stage(Protocol):

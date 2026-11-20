@@ -12,13 +12,14 @@ comes first (N-103). A missing or unavailable entity is not quiet: the message g
 from __future__ import annotations
 
 from dataclasses import replace
-from datetime import date, datetime, time, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
 from ...const import CHANNEL_BANNER, HOLD_QUIET, WEEKDAYS
+from . import clock
 from .chain import Hold, Skip, Step
 from .models import Policy
 
@@ -100,7 +101,7 @@ class QuietHoursStage:
         if step.channel == CHANNEL_BANNER:
             return step
         message = step.banner
-        now = dt_util.now()
+        now = clock.now()
         active: list[tuple[Policy, datetime | None]] = []
         for policy in self._policies.for_message(message):
             if policy.type != "quiet_hours":
@@ -116,16 +117,23 @@ class QuietHoursStage:
                     active.append((policy, until))
             elif (end := window_end(policy, now)) is not None:
                 active.append((policy, end))
+
+        def first(action: str) -> str:
+            return next(p.name for p, _ in active if p.action == action)
+
         actions = {p.action for p, _ in active}
         if "drop" in actions:
-            return Skip("quiet_hours")
+            return Skip("quiet_hours", first("drop"))
         if "wait" in actions:
             if step.origin == "reminder":
-                return Skip("quiet_hours")  # a reminder is not worth holding until morning
-            ends = [end for p, end in active if p.action == "wait"]
+                # A reminder is not worth holding until morning.
+                return Skip("quiet_hours", first("wait"))
+            waits = [(p, end) for p, end in active if p.action == "wait"]
+            ends = [end for _, end in waits]
             # An entity without a known end holds until it turns off (the engine listens).
             until = None if None in ends else max(e for e in ends if e is not None)
-            return Hold("quiet_hours", HOLD_QUIET, dt_util.as_utc(until) if until else None)
+            last = max(waits, key=lambda w: w[1] or datetime.max.replace(tzinfo=UTC))[0].name
+            return Hold("quiet_hours", HOLD_QUIET, dt_util.as_utc(until) if until else None, last)
         if "quiet" in actions:
-            return replace(step, target=replace(step.target, quiet=True))
+            return replace(step, target=replace(step.target, quiet=True, quiet_by=first("quiet")))
         return step

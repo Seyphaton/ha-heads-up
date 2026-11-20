@@ -10,7 +10,7 @@ import asyncio
 import logging
 import secrets
 from collections.abc import Callable, Coroutine, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
 from functools import partial
 from typing import Any
@@ -361,6 +361,12 @@ class HubEngine:
                     rows.append({**self._preview_row(extra, item, None), "via": policy.name})
             by_channel = self._unreached(results)
             classes = set().union(*by_channel.values()) if by_channel else set()
+            # As the engine: no Fallback when a Deliver reached someone (D-235 O9).
+            if any(
+                r.get("via") and r["channel"] != CHANNEL_BANNER and r["result"] in ("sent", "held")
+                for r in rows
+            ):
+                classes = set()
             for policy in self.policies.for_message(message):
                 if policy.type != "fallback" or not fallback.matches(policy.when, classes):
                     continue
@@ -413,21 +419,42 @@ class HubEngine:
             if problem:
                 return {**row, "result": "failed", "reason": problem}
         if summary is not None:
-            return {**row, "result": "held", "reason": "summarize", "note": summary.name}
+            return {
+                **row,
+                "result": "held",
+                "reason": "summarize",
+                "note": summary.name,
+                "by": summary.name,
+            }
         if item.result is Result.SENT:
             step = self.chain.run(
                 Step(message, item.channel, self._target(item, message, ack=False), "message")
             )
             if isinstance(step, Skip):
-                return {**row, "result": "skipped", "reason": step.reason}
+                return {**row, "result": "skipped", "reason": step.reason, "by": step.policy}
             if isinstance(step, Hold):
                 until = step.until.isoformat() if step.until else None
-                return {**row, "result": "held", "reason": step.reason, "until": until}
+                return {
+                    **row,
+                    "result": "held",
+                    "reason": step.reason,
+                    "until": until,
+                    "by": step.policy,
+                }
             push = self.channels.get("push")
             if item.channel == "push" and hasattr(push, "level_for"):
                 row["push_level"] = push.level_for(step.banner, step.target)
             if step.target.quiet:
                 row["note"] = "quiet"
+                row["by"] = step.target.quiet_by
+            # A band entry that let it past quiet hours for this recipient (DESIGN §25.8).
+            through = [
+                e.name
+                for e in self.policies.band_for(message)
+                if self.policies.covers(e, step.target)
+            ]
+            if through:
+                row["through"] = through
         return row
 
     @staticmethod
@@ -690,11 +717,17 @@ class HubEngine:
                     Step(banner, item.channel, self._target(item, banner), origin)
                 )
                 if isinstance(step, Skip):
-                    outcome = Outcome(Result.SKIPPED, step.reason)
+                    outcome = Outcome(Result.SKIPPED, step.reason, by=step.policy or None)
                     if caught is not None and step.reason in ("quiet_hours", "presence"):
                         caught.append(step.reason)
                 elif isinstance(step, Hold):
-                    outcome = Outcome(Result.HELD, step.reason, due=step.until, hold=step.kind)
+                    outcome = Outcome(
+                        Result.HELD,
+                        step.reason,
+                        due=step.until,
+                        hold=step.kind,
+                        by=step.policy or None,
+                    )
                     if caught is not None:
                         caught.append(step.reason)
                 else:
@@ -711,6 +744,8 @@ class HubEngine:
                     else:
                         call = channel.update if update else channel.deliver
                         outcome = await call(step.banner, step.target)
+                        if step.target.quiet_by:
+                            outcome = replace(outcome, by=step.target.quiet_by)
                         self._sent(step.banner, item.channel, item.recipient, outcome)
             if (
                 item.channel == "mail"
@@ -1191,7 +1226,14 @@ class HubEngine:
             )
             if isinstance(step, Skip | Hold):  # a reminder is never held, only skipped
                 reason = step.reason
-                self._trace(banner.id, target_row.channel, target_row.recipient, "skipped", reason)
+                self._trace(
+                    banner.id,
+                    target_row.channel,
+                    target_row.recipient,
+                    "skipped",
+                    reason,
+                    step.policy or None,
+                )
                 continue
             if target_row.channel == "push" and not self.limiter.push_allowed(
                 step.banner, step.target.key
@@ -1337,11 +1379,13 @@ class HubEngine:
             skip = ("presence",) if skip_presence else ()
             step = self.chain.run(Step(banner, channel, target, "message"), skip=skip)
             if isinstance(step, Skip):
-                outcome = Outcome(Result.SKIPPED, step.reason)
+                outcome = Outcome(Result.SKIPPED, step.reason, by=step.policy or None)
             elif isinstance(step, Hold):
                 # Held again by Presence: the first deadline stays, a new one would never end.
                 until = deadline if step.kind == HOLD_AWAY and deadline else step.until
-                outcome = Outcome(Result.HELD, step.reason, due=until, hold=step.kind)
+                outcome = Outcome(
+                    Result.HELD, step.reason, due=until, hold=step.kind, by=step.policy or None
+                )
             elif channel == "push" and not self.limiter.push_allowed(step.banner, step.target.key):
                 outcome = Outcome(Result.SKIPPED, RATE_LIMITED)
             else:
@@ -1676,7 +1720,9 @@ class HubEngine:
                 hold=outcome.hold,
             )
         )
-        self._trace(message_id, channel, recipient, outcome.result.value, outcome.reason)
+        self._trace(
+            message_id, channel, recipient, outcome.result.value, outcome.reason, outcome.by
+        )
         if (
             outcome.result in (Result.SKIPPED, Result.FAILED)
             and outcome.reason not in fallback.UNLOGGED_REASONS
@@ -1686,11 +1732,23 @@ class HubEngine:
             self._schedule_held(message_id, channel, recipient)
 
     def _trace(
-        self, message_id: str, channel: str, recipient: str, result: str, reason: str | None
+        self,
+        message_id: str,
+        channel: str,
+        recipient: str,
+        result: str,
+        reason: str | None,
+        by: str | None = None,
     ) -> None:
         self.trace.add(
             TraceEntry(
-                dt_util.utcnow().isoformat(), message_id, channel, recipient or None, result, reason
+                dt_util.utcnow().isoformat(),
+                message_id,
+                channel,
+                recipient or None,
+                result,
+                reason,
+                by,
             )
         )
         self._trace_store.async_delay_save(self._trace_data, SAVE_DELAY)

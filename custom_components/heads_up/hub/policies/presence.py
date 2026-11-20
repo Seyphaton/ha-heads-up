@@ -33,6 +33,7 @@ from ...const import (
     PRESENCE_WHO,
 )
 from ..presence import in_zone
+from . import clock
 from .chain import Hold, Skip, Step
 from .models import Policy, presence_channels
 
@@ -78,6 +79,8 @@ class PresenceStage:
         self._household = household
 
     def _inside(self, person: str, zone: str) -> bool | None:
+        if (known := clock.home(person, zone)) is not None:
+            return known  # the checker's "who is home"
         return in_zone(self._hass, person, zone, self._zone_entity(person, zone))
 
     def applies(self, policy: Policy, step: Step) -> bool | None:
@@ -115,9 +118,9 @@ class PresenceStage:
             if not self.applies(policy, step):
                 continue
             if policy.presence_then == "drop":
-                return Skip("presence")
+                return Skip("presence", policy.name)
             until = (
                 dt_util.utcnow() + timedelta(minutes=policy.max_wait) if policy.max_wait else None
             )
-            return Hold("presence", HOLD_AWAY, until)
+            return Hold("presence", HOLD_AWAY, until, policy.name)
         return step

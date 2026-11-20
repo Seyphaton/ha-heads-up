@@ -15,6 +15,7 @@ class TraceEntry:
     recipient: str | None
     result: str
     reason: str | None = None
+    by: str | None = None  # the policy that held, dropped, quieted or let it through (2.0)
 
 
 class TraceBuffer:

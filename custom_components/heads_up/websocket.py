@@ -17,6 +17,7 @@ from homeassistant.components.websocket_api.decorators import (
     websocket_command,
 )
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.util import dt as dt_util
 
 from .binary_sensor import audience_entity_id
 from .const import (
@@ -31,7 +32,7 @@ from .const import (
     canonical_severity,
 )
 from .frontend import async_popup_url
-from .hub import panel_config, panel_data, panel_test, settings, welcome
+from .hub import checker, panel_config, panel_data, panel_test, settings, welcome
 from .hub.identity import GROUP_PREFIX
 from .manager import BannerManager, HeadsUpError
 from .switch import policy_entity_id
@@ -473,6 +474,54 @@ async def ws_hub_plan(
     connection.send_result(msg["id"], await manager.hub.preview(message))
 
 
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/policy_check",
+        vol.Required("severity"): str,
+        vol.Optional("tag"): vol.Any(None, str),
+        vol.Optional("rule"): vol.Any(None, str),
+        vol.Optional("channels", default=["banner", "push"]): [str],
+        vol.Optional("to"): dict,
+        vol.Optional("at"): vol.Any(None, str),
+        vol.Optional("home", default=dict): {str: bool},
+        vol.Optional("ack_after"): vol.Any(None, vol.All(int, vol.Range(min=0, max=1440))),
+    }
+)
+@require_admin
+@async_response
+async def ws_policy_check(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The checker "What happens to a message?" (DESIGN §25.8): sends nothing, stores nothing."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    if manager.hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    payload: dict[str, Any] = {
+        "message": "What happens to a message?",
+        "severity": msg["severity"],
+        "channels": msg["channels"],
+    }
+    tag = msg.get("tag") or ("rule" if msg.get("rule") else None)
+    if tag:
+        payload["tag"] = tag
+    if msg.get("to"):
+        payload["to"] = msg["to"]
+    at = dt_util.parse_datetime(msg["at"]) if msg.get("at") else None
+    if msg.get("at") and at is None:
+        connection.send_error(msg["id"], "invalid_format", "at is not a date and time")
+        return
+    try:
+        message = await panel_test.build(manager.hub, payload)
+    except panel_test.TestSendError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    message.id = checker.message_id_for(msg.get("rule"))
+    result = await checker.check(manager.hub, message, at, msg["home"], msg.get("ack_after"))
+    connection.send_result(msg["id"], result)
+
+
 @websocket_command({vol.Required("type"): "heads_up/hub_test_send", **_TEST_CALL})
 @require_admin
 @async_response
@@ -786,6 +835,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_policy_entity_id,
         ws_audience_entity_id,
         ws_hub_plan,
+        ws_policy_check,
         ws_hub_test_send,
         ws_hub_plan_yaml,
         ws_hub_test_send_yaml,
