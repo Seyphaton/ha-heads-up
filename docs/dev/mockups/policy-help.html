@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Policy help</title>
+<!--
+  Mockup of the 2.0.0 policy help (docs/DESIGN.md §25, matrix in docs/dev/policy-redesign/04-interaction-matrix.md).
+  Meant to become a panel page behind a help button on the Policies page. No dependencies; all text lives in
+  TEXT (per language) and PAIRS, so the panel can load the same data and translate it with its strings.
+  Colours use Home Assistant theme variables with fallbacks, so the page follows the HA theme once embedded.
+  Sample names only.
+-->
+<style>
+  :root {
+    --bg: var(--primary-background-color, #f6f7f9);
+    --card: var(--card-background-color, #ffffff);
+    --text: var(--primary-text-color, #1d2330);
+    --muted: var(--secondary-text-color, #5b6474);
+    --line: var(--divider-color, #dfe3ea);
+    --accent: var(--primary-color, #1f6feb);
+    --calm: #2e7d6b;      --calm-bg: #e6f4f0;
+    --band: #9a6700;      --band-bg: #fff4d6;
+    --send: #3557c9;      --send-bg: #e9eefc;
+    --warn: #b3261e;      --warn-bg: #fdecea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: var(--primary-background-color, #111418);
+      --card: var(--card-background-color, #1b1f26);
+      --text: var(--primary-text-color, #e6e9ef);
+      --muted: var(--secondary-text-color, #a3abb9);
+      --line: var(--divider-color, #2c323c);
+      --accent: var(--primary-color, #6ea8ff);
+      --calm: #7fd1bd;  --calm-bg: #16302a;
+      --band: #f0c75e;  --band-bg: #33290f;
+      --send: #9db4ff;  --send-bg: #1b2440;
+      --warn: #ff9b92;  --warn-bg: #3a1a18;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111418; --card: #1b1f26; --text: #e6e9ef; --muted: #a3abb9; --line: #2c323c; --accent: #6ea8ff;
+    --calm: #7fd1bd; --calm-bg: #16302a; --band: #f0c75e; --band-bg: #33290f;
+    --send: #9db4ff; --send-bg: #1b2440; --warn: #ff9b92; --warn-bg: #3a1a18;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 16px 16px 48px; }
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  h1 { font-size: 1.4rem; margin: 4px 0 4px; }
+  h2 { font-size: 1.05rem; margin: 0 0 8px; }
+  h3 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; margin: 18px 0 8px; }
+  p { margin: 0 0 8px; }
+  .lead { color: var(--muted); margin-bottom: 16px; }
+  .lang { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; flex: none; }
+  .lang button { border: 0; background: var(--card); color: var(--text); padding: 6px 10px; font: inherit; font-size: .85rem; cursor: pointer; }
+  .lang button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+  .lane h3.calm { color: var(--calm); }
+  .lane h3.band { color: var(--band); }
+  .lane h3.send { color: var(--send); }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .tile {
+    display: flex; gap: 10px; align-items: center; text-align: left; width: 100%;
+    padding: 10px 12px; border-radius: 12px; border: 2px solid var(--line);
+    background: var(--card); color: var(--text); font: inherit; cursor: pointer; min-height: 52px;
+  }
+  .tile .ic { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; flex: none; font-weight: 700; }
+  .tile.calm .ic { background: var(--calm-bg); color: var(--calm); }
+  .tile.band .ic { background: var(--band-bg); color: var(--band); }
+  .tile.send .ic { background: var(--send-bg); color: var(--send); }
+  .tile[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+  .tile:focus-visible, .lang button:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .detail { margin-top: 20px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .detail .kind { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .detail .kind.calm { color: var(--calm); } .detail .kind.band { color: var(--band); } .detail .kind.send { color: var(--send); }
+  .example { background: var(--bg); border-radius: 10px; padding: 10px 12px; margin: 8px 0 4px; font-size: .95rem; }
+  .example b { font-weight: 600; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+  .chip { border: 1px solid var(--line); background: var(--card); color: var(--text); border-radius: 999px; padding: 4px 10px; font: inherit; font-size: .85rem; cursor: pointer; }
+  .chip[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+  ul.pairs { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  ul.pairs li { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  details summary { list-style: none; cursor: pointer; padding: 10px 12px; display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: center; }
+  details summary::-webkit-details-marker { display: none; }
+  .other { font-weight: 600; }
+  .verdict { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; font-weight: 600; width: fit-content; padding: 2px 8px; border-radius: 999px; }
+  .v-wins { background: var(--calm-bg); color: var(--calm); }
+  .v-yields { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+  .v-both, .v-add, .v-first, .v-after, .v-one, .v-calmer { background: var(--send-bg); color: var(--send); }
+  .v-warn { background: var(--warn-bg); color: var(--warn); }
+  .sentence { grid-column: 1 / -1; }
+  .more { font-size: .85rem; color: var(--accent); grid-column: 1 / -1; }
+  details[open] .more .show, details:not([open]) .more .hide { display: none; }
+  .body { padding: 0 12px 12px; }
+  .dot { width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-size: .8rem; font-weight: 700; }
+  .dot.calm { background: var(--calm-bg); color: var(--calm); } .dot.band { background: var(--band-bg); color: var(--band); } .dot.send { background: var(--send-bg); color: var(--send); }
+
+  .rules { margin-top: 20px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+  .rules ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+  .note { margin-top: 12px; font-size: .9rem; color: var(--muted); }
+  @media (max-width: 420px) { .tiles { grid-template-columns: 1fr 1fr; } .tile { padding: 8px 10px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1 id="title"></h1>
+      <p class="lead" id="lead"></p>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="de">DE</button>
+    </div>
+  </header>
+
+  <div id="picker"></div>
+  <section class="detail" id="detail" aria-live="polite"></section>
+  <section class="rules" id="rules"></section>
+</main>
+
+<script>
+"use strict";
+
+// Kinds and their lane. Order is the page order.
+const KINDS = [
+  { key: "summarize", lane: "calm", icon: "Σ" },
+  { key: "quiet", lane: "calm", icon: "☾" },
+  { key: "presence", lane: "calm", icon: "⌂" },
+  { key: "through", lane: "band", icon: "⇡" },
+  { key: "deliver", lane: "send", icon: "➤" },
+  { key: "escalation", lane: "send", icon: "⇧" },
+  { key: "reminder", lane: "send", icon: "↻" },
+  { key: "fallback", lane: "send", icon: "⤳" },
+];
+
+// One entry per pair, written once. va: verdict for the first kind, vb: for the second.
+// Verdicts: wins, yields, both, add, first, after, one, calmer, warn.
+const PAIRS = {
+  "summarize|summarize": { va: "one", vb: "one",
+    en: ["If two summaries fit, the message goes into the one that is due next. Never into both.", "<b>Digest at 20:00</b> and <b>All info at 18:00</b>: an info message tagged digest is in the 18:00 summary."],
+    de: ["Passen zwei Zusammenfassungen, kommt die Meldung in die, die als nächste fällig ist. Nie in beide.", "<b>Digest um 20:00</b> und <b>Alle Infos um 18:00</b>: eine Info-Meldung mit Tag digest steht in der Zusammenfassung um 18:00."] },
+  "summarize|quiet": { va: "first", vb: "after",
+    en: ["The summary collects the message first. Quiet hours then decide how the summary itself arrives.", "The summary at 23:00 falls into <b>Night quiet</b> (quietly): it arrives without a sound."],
+    de: ["Die Zusammenfassung sammelt die Meldung zuerst. Die Ruhezeit entscheidet dann, wie die Zusammenfassung selbst ankommt.", "Die Zusammenfassung um 23:00 fällt in die <b>Nachtruhe</b> (leise): sie kommt ohne Ton."] },
+  "summarize|presence": { va: "first", vb: "after",
+    en: ["The summary collects the message first. Presence then decides about the summary itself.", "Anna is out at 20:00. If a Presence policy holds messages while she is away, she gets the summary when she comes home."],
+    de: ["Die Zusammenfassung sammelt die Meldung zuerst. Die Anwesenheit entscheidet dann über die Zusammenfassung selbst.", "Anna ist um 20:00 unterwegs. Hält eine Anwesenheits-Richtlinie Meldungen zurück, solange sie weg ist, bekommt sie die Zusammenfassung, wenn sie heimkommt."] },
+  "summarize|through": { va: "yields", vb: "wins",
+    en: ["A message that an Always-gets-through entry fits is never collected: it goes out at once. If the entry switches on later, waiting messages are taken out and sent. Exception: a summary marked \"Holds these anyway\".", "A water leak during the holiday summary: <b>Leaks get through</b> sends it at once instead of at 20:00."],
+    de: ["Eine Meldung, auf die ein Eintrag von „Kommt immer durch“ passt, wird nie gesammelt: sie geht sofort raus. Schaltet sich der Eintrag später ein, werden wartende Meldungen herausgeholt und gesendet. Ausnahme: eine Zusammenfassung mit „Hält sie trotzdem“.", "Ein Wasserschaden während der Urlaubs-Zusammenfassung: <b>Lecks kommen durch</b> sendet ihn sofort statt um 20:00."] },
+  "summarize|deliver": { va: "wins", vb: "yields",
+    en: ["A collected message is not sent extra by Deliver. The people Deliver would add get the summary instead.", "<b>Push to Ben for digest</b>: Ben gets the 20:00 summary, not a push for each message."],
+    de: ["Eine gesammelte Meldung wird nicht zusätzlich zugestellt. Die Leute, die Zustellen ergänzen würde, bekommen stattdessen die Zusammenfassung.", "<b>Push an Ben für Digest</b>: Ben bekommt die Zusammenfassung um 20:00, nicht für jede Meldung einen Push."] },
+  "summarize|escalation": { va: "wins", vb: "yields",
+    en: ["A collected message does not escalate: nobody is expected to react before the summary. If it is taken out of the summary, its clock starts then.", "A digest message at 14:00 never escalates; it is read at 20:00."],
+    de: ["Eine gesammelte Meldung eskaliert nicht: vor der Zusammenfassung muss niemand reagieren. Wird sie herausgeholt, startet ihre Uhr ab dann.", "Eine Digest-Meldung um 14:00 eskaliert nie; sie wird um 20:00 gelesen."] },
+  "summarize|reminder": { va: "wins", vb: "yields",
+    en: ["A collected message is not reminded. If it is taken out of the summary, reminders start then.", "The washing machine message waits for 20:00 without reminders."],
+    de: ["An eine gesammelte Meldung wird nicht erinnert. Wird sie herausgeholt, starten die Erinnerungen ab dann.", "Die Waschmaschinen-Meldung wartet ohne Erinnerungen auf 20:00."] },
+  "summarize|fallback": { va: "first", vb: "after",
+    en: ["If the summary itself reaches nobody, the fallback steps in, as for any message.", "No phone answers at 20:00: the <b>Kitchen speaker</b> reads out the summary."],
+    de: ["Erreicht die Zusammenfassung selbst niemanden, springt der Ersatz ein, wie bei jeder Meldung.", "Um 20:00 ist kein Handy erreichbar: der <b>Küchenlautsprecher</b> liest die Zusammenfassung vor."] },
+  "quiet|quiet": { va: "calmer", vb: "calmer",
+    en: ["Both act. The stricter one counts: drop, then wait, then quietly. Waiting lasts until the later end.", "<b>Weeknights</b> (quietly) and <b>Weekend lie-in</b> (wait until 10:00) on a Saturday at 08:00: the message waits until 10:00."],
+    de: ["Beide wirken. Die strengere zählt: verwerfen, dann warten, dann leise. Gewartet wird bis zum späteren Ende.", "<b>Werktags-Nachtruhe</b> (leise) und <b>Ausschlafen am Wochenende</b> (warten bis 10:00) am Samstag um 08:00: die Meldung wartet bis 10:00."] },
+  "quiet|presence": { va: "calmer", vb: "calmer",
+    en: ["Both act and the calmer result counts. A message that waits for the morning is checked by Presence when it is released.", "Held until 07:00, then Anna is not home: <b>Shopping list on leaving</b> holds it again until she leaves."],
+    de: ["Beide wirken, das ruhigere Ergebnis zählt. Eine Meldung, die auf den Morgen wartet, wird bei der Freigabe von der Anwesenheit geprüft.", "Bis 07:00 zurückgehalten, dann ist Anna zu Hause: <b>Einkaufsliste beim Losgehen</b> hält sie weiter, bis sie losgeht."] },
+  "quiet|through": { va: "yields", vb: "wins",
+    en: ["For the people the entry covers, quiet hours do not apply; everyone else stays quiet. Exception: quiet hours marked \"Holds these anyway\".", "A leak at 03:00: the Admins' phones ring, Anna's push stays silent."],
+    de: ["Für die Leute, für die der Eintrag gilt, zählt die Ruhezeit nicht; alle anderen bleiben leise. Ausnahme: eine Ruhezeit mit „Hält sie trotzdem“.", "Ein Leck um 03:00: die Handys der Admins klingeln, Annas Push bleibt still."] },
+  "quiet|deliver": { va: "wins", vb: "yields",
+    en: ["What Deliver adds goes through the quiet hours too.", "<b>Push to the Admins</b> for a warning at 23:00 arrives quietly during <b>Night quiet</b>, unless an Always-gets-through entry covers the Admins."],
+    de: ["Was Zustellen ergänzt, geht auch durch die Ruhezeit.", "<b>Push an die Admins</b> für eine Warnung um 23:00 kommt während der <b>Nachtruhe</b> leise an, außer ein Eintrag von „Kommt immer durch“ gilt für die Admins."] },
+  "quiet|escalation": { va: "warn", vb: "warn",
+    en: ["An escalation that quiet hours hold, drop or send quietly is a setup mistake. Heads Up warns on the Policies page as soon as your setup allows it, and again when it happens. Fix it with an Always-gets-through entry for those people.", "<b>Nobody looked</b> (30 min, Admins) and <b>Night quiet</b> (wait): the page shows a warning before any message runs into it."],
+    de: ["Eine Eskalation, die die Ruhezeit zurückhält, verwirft oder leise sendet, ist ein Einrichtungsfehler. Heads Up warnt auf der Richtlinien-Seite, sobald deine Einrichtung das zulässt, und noch einmal, wenn es passiert. Lösung: ein Eintrag von „Kommt immer durch“ für diese Leute.", "<b>Niemand hat geschaut</b> (30 Min., Admins) und <b>Nachtruhe</b> (warten): die Seite warnt, bevor eine Meldung in diese Falle läuft."] },
+  "quiet|reminder": { va: "wins", vb: "yields",
+    en: ["In a wait or drop window, reminders are skipped, not saved for the morning. In a quiet window they come quietly. People covered by an Always-gets-through entry are still reminded.", "<b>Critical repeat</b> every 10 minutes keeps going at night for the Admins, because the entry <b>Critical</b> covers them."],
+    de: ["In einem Warte- oder Verwerfen-Fenster fallen Erinnerungen aus, sie werden nicht für morgens aufgehoben. In einem Leise-Fenster kommen sie leise. Wer von „Kommt immer durch“ erfasst ist, wird weiter erinnert.", "<b>Kritisch wiederholen</b> alle 10 Minuten läuft nachts für die Admins weiter, weil der Eintrag <b>Kritisch</b> für sie gilt."] },
+  "quiet|fallback": { va: "wins", vb: "yields",
+    en: ["A fallback is never louder than its message: quiet hours apply to it. An Always-gets-through entry that covers the speaker lets it speak at night.", "An info message nobody received at 03:00: the <b>Kitchen speaker</b> stays silent."],
+    de: ["Ein Ersatz ist nie lauter als seine Meldung: die Ruhezeit gilt auch für ihn. Ein Eintrag von „Kommt immer durch“, der den Lautsprecher erfasst, lässt ihn nachts sprechen.", "Eine Info-Meldung, die um 03:00 niemand bekommen hat: der <b>Küchenlautsprecher</b> bleibt still."] },
+  "presence|presence": { va: "both", vb: "both",
+    en: ["Both act. If they contradict each other (one holds while home, one while away), the message never arrives. The Policies page and the form warn you.", "<b>Shopping list on leaving</b> and <b>Hold everything while away</b>: a warning appears when you save the second one."],
+    de: ["Beide wirken. Widersprechen sie sich (eine hält zu Hause zurück, eine unterwegs), kommt die Meldung nie an. Die Richtlinien-Seite und das Formular warnen dich.", "<b>Einkaufsliste beim Losgehen</b> und <b>Unterwegs alles zurückhalten</b>: beim Speichern der zweiten erscheint eine Warnung."] },
+  "presence|through": { va: "wins", vb: "yields",
+    en: ["Always gets through never overrides Presence: nothing is spoken into an empty house.", "A critical message, nobody home, <b>Speak only when someone is home</b>: nothing is spoken; phones still get it."],
+    de: ["„Kommt immer durch“ übergeht nie die Anwesenheit: in ein leeres Haus wird nichts gesprochen.", "Eine kritische Meldung, niemand zu Hause, <b>Nur sprechen, wenn jemand da ist</b>: es wird nichts gesagt; die Handys bekommen sie trotzdem."] },
+  "presence|deliver": { va: "wins", vb: "yields",
+    en: ["What Deliver adds is checked by Presence too.", "<b>Speak on the Kitchen speaker</b> for the doorbell stays silent when nobody is home."],
+    de: ["Was Zustellen ergänzt, prüft die Anwesenheit auch.", "<b>Auf dem Küchenlautsprecher sprechen</b> für die Türklingel bleibt still, wenn niemand zu Hause ist."] },
+  "presence|escalation": { va: "warn", vb: "warn",
+    en: ["If Presence holds every person an escalation goes to, the escalation reaches nobody. Heads Up warns on the Policies page and shows a notice when it happens. No fallback steps in.", "All Admins are away and their pushes are held: the escalation waits, and Overview shows the notice."],
+    de: ["Hält die Anwesenheit jede Person zurück, an die eine Eskalation geht, erreicht die Eskalation niemanden. Heads Up warnt auf der Richtlinien-Seite und zeigt einen Hinweis, wenn es passiert. Ein Ersatz springt nicht ein.", "Alle Admins sind weg und ihre Pushes werden zurückgehalten: die Eskalation wartet, und die Übersicht zeigt den Hinweis."] },
+  "presence|reminder": { va: "yields", vb: "wins",
+    en: ["Reminders are not checked by Presence: someone who already got the message is reminded wherever they are.", "Ben got the warning at home and left: the reminder still reaches his phone."],
+    de: ["Erinnerungen prüft die Anwesenheit nicht: wer die Meldung schon bekommen hat, wird erinnert, egal wo er ist.", "Ben hat die Warnung zu Hause bekommen und ist losgegangen: die Erinnerung erreicht sein Handy trotzdem."] },
+  "presence|fallback": { va: "wins", vb: "yields",
+    en: ["The fallback is checked by Presence too: in an empty house the speaker stays silent.", "Nobody reached, nobody home: the <b>Kitchen speaker</b> says nothing."],
+    de: ["Auch der Ersatz wird von der Anwesenheit geprüft: in einem leeren Haus bleibt der Lautsprecher still.", "Niemand erreicht, niemand zu Hause: der <b>Küchenlautsprecher</b> sagt nichts."] },
+  "through|through": { va: "add", vb: "add",
+    en: ["Both act: each entry lets its own people through.", "<b>Alarms wake the Admins</b> and <b>Alarms wake Anna</b>: at night the Admins and Anna are woken, everyone else stays quiet."],
+    de: ["Beide wirken: jeder Eintrag lässt seine eigenen Leute durch.", "<b>Alarme wecken die Admins</b> und <b>Alarme wecken Anna</b>: nachts werden die Admins und Anna geweckt, alle anderen bleiben leise."] },
+  "through|deliver": { va: "add", vb: "add",
+    en: ["Different jobs: the entry only allows waking, Deliver does the sending. Together they wake the Admins for leaks.", "<b>Alarms wake the Admins</b> plus <b>Alarms to the Admins</b> (push): a leak at 03:00 rings on the Admins' phones."],
+    de: ["Verschiedene Aufgaben: der Eintrag erlaubt nur das Wecken, Zustellen sendet. Zusammen wecken sie die Admins bei Lecks.", "<b>Alarme wecken die Admins</b> plus <b>Alarme an die Admins</b> (Push): ein Leck um 03:00 klingelt auf den Handys der Admins."] },
+  "through|escalation": { va: "both", vb: "both",
+    en: ["An escalation for messages the entry fits comes through the quiet hours for the people the entry covers.", "<b>Nobody looked</b> for an alarm at 02:00 rings for the Admins."],
+    de: ["Eine Eskalation für Meldungen, auf die der Eintrag passt, kommt für die erfassten Leute durch die Ruhezeit.", "<b>Niemand hat geschaut</b> für einen Alarm um 02:00 klingelt bei den Admins."] },
+  "through|reminder": { va: "both", vb: "both",
+    en: ["Reminders come through the quiet hours for the people the entry covers.", "<b>Critical repeat</b> every 10 minutes keeps ringing at night until someone acknowledges."],
+    de: ["Erinnerungen kommen für die erfassten Leute durch die Ruhezeit.", "<b>Kritisch wiederholen</b> klingelt nachts alle 10 Minuten, bis jemand bestätigt."] },
+  "through|fallback": { va: "both", vb: "both",
+    en: ["If the entry covers the fallback speaker, or everyone the message reaches, the fallback speaks even at night.", "A critical message nobody received at 03:00: the entry <b>Critical</b> lets the <b>Kitchen speaker</b> say it."],
+    de: ["Erfasst der Eintrag den Ersatz-Lautsprecher, oder alle, die die Meldung erreicht, spricht der Ersatz auch nachts.", "Eine kritische Meldung, die um 03:00 niemand bekommen hat: der Eintrag <b>Kritisch</b> lässt den <b>Küchenlautsprecher</b> sprechen."] },
+  "deliver|deliver": { va: "add", vb: "add",
+    en: ["Both send. Each person gets the message once per channel.", "<b>Push to the Admins</b> and <b>Push to Chris</b>: Chris, who is an Admin, gets one push."],
+    de: ["Beide senden. Jede Person bekommt die Meldung einmal pro Kanal.", "<b>Push an die Admins</b> und <b>Push an Chris</b>: Chris, selbst Admin, bekommt einen Push."] },
+  "deliver|escalation": { va: "both", vb: "both",
+    en: ["Both act: Deliver sends at once, the escalation later if nobody reacted. It also sends again to people who already have the message.", "The Admins get a push at once and, 15 minutes later without an acknowledgement, a second one from the escalation."],
+    de: ["Beide wirken: Zustellen sendet sofort, die Eskalation später, wenn niemand reagiert hat. Sie sendet auch erneut an Leute, die die Meldung schon haben.", "Die Admins bekommen sofort einen Push und, 15 Minuten später ohne Bestätigung, einen zweiten von der Eskalation."] },
+  "deliver|reminder": { va: "both", vb: "both",
+    en: ["Reminders repeat what Deliver sent too.", "Ben got the message from <b>Push to Ben</b>: he is reminded every 30 minutes like everyone else."],
+    de: ["Erinnerungen wiederholen auch, was Zustellen gesendet hat.", "Ben hat die Meldung über <b>Push an Ben</b> bekommen: er wird alle 30 Minuten erinnert wie alle anderen."] },
+  "deliver|fallback": { va: "first", vb: "after",
+    en: ["The fallback only steps in if neither the automation nor Deliver reached anyone.", "Anna's phone is off, but <b>Push to the Admins</b> reached the Admins: the Kitchen speaker stays silent."],
+    de: ["Der Ersatz springt nur ein, wenn weder die Automation noch Zustellen jemanden erreicht hat.", "Annas Handy ist aus, aber <b>Push an die Admins</b> hat die Admins erreicht: der Küchenlautsprecher bleibt still."] },
+  "escalation|escalation": { va: "add", vb: "add",
+    en: ["Each fires once, at its own time.", "Admins after 5 minutes, everyone after 15 minutes: both steps happen if nobody acknowledges."],
+    de: ["Jede geht einmal los, zu ihrer eigenen Zeit.", "Admins nach 5 Minuten, alle nach 15 Minuten: beide Stufen passieren, wenn niemand bestätigt."] },
+  "escalation|reminder": { va: "both", vb: "both",
+    en: ["Both act. After an escalation, reminders repeat its messages too. An acknowledgement on any device stops both.", "The escalation added Chris; from then on Chris is reminded as well."],
+    de: ["Beide wirken. Nach einer Eskalation wiederholen Erinnerungen auch ihre Meldungen. Eine Bestätigung auf irgendeinem Gerät stoppt beide.", "Die Eskalation hat Chris dazugenommen; ab dann wird auch Chris erinnert."] },
+  "escalation|fallback": { va: "warn", vb: "warn",
+    en: ["An escalation that reaches nobody does not trigger the fallback. Heads Up shows a notice instead, and the Policies page warns in advance.", "The escalation's push fails on every phone: Overview shows a notice; the speaker stays silent."],
+    de: ["Eine Eskalation, die niemanden erreicht, löst keinen Ersatz aus. Heads Up zeigt stattdessen einen Hinweis, und die Richtlinien-Seite warnt vorher.", "Der Push der Eskalation schlägt auf allen Handys fehl: die Übersicht zeigt einen Hinweis; der Lautsprecher bleibt still."] },
+  "reminder|reminder": { va: "one", vb: "one",
+    en: ["One rhythm per channel: the fastest one in force wins, and each reminder keeps its own count. \"Runs alongside\" keeps both rhythms.", "<b>Every 15 min while the window is open</b> and <b>Every hour</b>: while the window is open, every 15 minutes; afterwards hourly, with the hourly count untouched."],
+    de: ["Ein Rhythmus pro Kanal: der schnellste, der gerade gilt, gewinnt, und jede Erinnerung zählt für sich. „Läuft neben anderen Erinnerungen“ behält beide Rhythmen.", "<b>Alle 15 Min., solange das Fenster offen ist</b> und <b>Jede Stunde</b>: solange das Fenster offen ist, alle 15 Minuten; danach stündlich, die stündliche Zählung bleibt unberührt."] },
+  "reminder|fallback": { va: "both", vb: "both",
+    en: ["Reminders repeat the fallback's announcement too, until someone acknowledges.", "The Kitchen speaker said it as the fallback; every 30 minutes it says it again."],
+    de: ["Erinnerungen wiederholen auch die Ansage des Ersatzes, bis jemand bestätigt.", "Der Küchenlautsprecher hat es als Ersatz gesagt; alle 30 Minuten sagt er es erneut."] },
+  "fallback|fallback": { va: "add", vb: "add",
+    en: ["Each fallback that fits steps in once.", "<b>Say it in the house</b> and <b>Mail to Chris</b>: both happen when nobody was reached."],
+    de: ["Jeder passende Ersatz springt einmal ein.", "<b>Im Haus ansagen</b> und <b>Mail an Chris</b>: beides passiert, wenn niemand erreicht wurde."] },
+};
+
+const TEXT = {
+  en: {
+    title: "How policies work together",
+    lead: "Pick a policy to see what it does and what happens when it meets each of the others.",
+    lanes: { calm: "Keep it calm", band: "Always gets through", send: "Make sure it arrives" },
+    names: { summarize: "Summarize", quiet: "Quiet hours", presence: "Presence", through: "Get through", deliver: "Deliver", escalation: "Escalation", reminder: "Reminder", fallback: "Fallback" },
+    about: {
+      summarize: ["Collects messages and sends one summary at a time of day or every few minutes.", "<b>Evening summary</b>: messages tagged digest arrive together at 20:00."],
+      quiet: ["During set hours, messages wait, arrive quietly or are dropped.", "<b>Night quiet</b>: info messages between 22:00 and 07:00 arrive without a sound."],
+      presence: ["Sends depending on where people are: held until someone arrives or leaves, or dropped.", "<b>Speak only when someone is home</b>: no doorbell announcement in an empty house."],
+      through: ["Says which messages may wake whom, despite quiet hours and summaries. It sends nothing itself.", "<b>Alarms wake the Admins</b>: a leak at night rings for the Admins only."],
+      deliver: ["Also sends the message to more people or on more channels, at once.", "<b>Alarms to the Admins</b>: every alarm also goes to the Admins' phones."],
+      escalation: ["If nobody acknowledges in time, it notifies more people or on more channels, once.", "<b>Nobody looked</b>: after 15 minutes without an acknowledgement, everyone gets it."],
+      reminder: ["Repeats the message until someone acknowledges, at most a set number of times.", "<b>Warning reminder</b>: every 30 minutes, at most 3 times."],
+      fallback: ["Steps in when nobody could be reached, for example by a speaker.", "<b>Say it in the house</b>: no phone answered, so the Kitchen speaker says it."],
+    },
+    what: "What it does",
+    example: "Example",
+    together: "Together with …",
+    all: "All", conflicts: "Only conflicts",
+    show: "Show example", hide: "Hide example",
+    self: "another",
+    verdicts: { wins: "Wins", yields: "Gives way", both: "Both act", add: "Add up", first: "Acts first", after: "Acts after", one: "Only one counts", calmer: "The calmer counts", warn: "Warning" },
+    rulesTitle: "Three rules behind everything",
+    rules: [
+      "Every policy that fits a message acts. When calming policies disagree, the calmer result counts.",
+      "Escalations and reminders count from when the message was created. Each reminder keeps its own count.",
+      "Always gets through lets messages past quiet hours and summaries for the people it covers. Presence is never passed.",
+    ],
+    notes: [
+      "Switching a policy on only affects messages that arrive afterwards. \"Only if\" is checked at every step.",
+      "When an automation turns automatic policies off, none of these act for that message.",
+    ],
+  },
+  de: {
+    title: "Wie Richtlinien zusammenwirken",
+    lead: "Wähle eine Richtlinie: du siehst, was sie tut und was passiert, wenn sie auf jede andere trifft.",
+    lanes: { calm: "Für Ruhe sorgen", band: "Kommt immer durch", send: "Damit es ankommt" },
+    names: { summarize: "Zusammenfassen", quiet: "Ruhezeit", presence: "Anwesenheit", through: "Kommt durch", deliver: "Zustellen", escalation: "Eskalation", reminder: "Erinnerung", fallback: "Ersatz" },
+    about: {
+      summarize: ["Sammelt Meldungen und schickt eine Zusammenfassung zu einer Uhrzeit oder alle paar Minuten.", "<b>Abendzusammenfassung</b>: Meldungen mit Tag digest kommen gesammelt um 20:00."],
+      quiet: ["In festgelegten Zeiten warten Meldungen, kommen leise oder werden verworfen.", "<b>Nachtruhe</b>: Info-Meldungen zwischen 22:00 und 07:00 kommen ohne Ton."],
+      presence: ["Sendet abhängig davon, wo Leute sind: zurückgehalten, bis jemand ankommt oder geht, oder verworfen.", "<b>Nur sprechen, wenn jemand da ist</b>: keine Türklingel-Ansage in einem leeren Haus."],
+      through: ["Legt fest, welche Meldungen wen trotz Ruhezeit und Zusammenfassung wecken dürfen. Sendet selbst nichts.", "<b>Alarme wecken die Admins</b>: ein Leck nachts klingelt nur bei den Admins."],
+      deliver: ["Schickt die Meldung zusätzlich an weitere Leute oder auf weiteren Kanälen, sofort.", "<b>Alarme an die Admins</b>: jeder Alarm geht auch auf die Handys der Admins."],
+      escalation: ["Bestätigt niemand rechtzeitig, benachrichtigt sie einmal weitere Leute oder Kanäle.", "<b>Niemand hat geschaut</b>: nach 15 Minuten ohne Bestätigung bekommen es alle."],
+      reminder: ["Wiederholt die Meldung, bis jemand bestätigt, höchstens so oft wie eingestellt.", "<b>Warnungs-Erinnerung</b>: alle 30 Minuten, höchstens 3-mal."],
+      fallback: ["Springt ein, wenn niemand erreicht werden konnte, zum Beispiel über einen Lautsprecher.", "<b>Im Haus ansagen</b>: kein Handy hat reagiert, also sagt es der Küchenlautsprecher."],
+    },
+    what: "Was sie tut",
+    example: "Beispiel",
+    together: "Zusammen mit …",
+    all: "Alle", conflicts: "Nur Konflikte",
+    show: "Beispiel zeigen", hide: "Beispiel ausblenden",
+    self: "eine zweite",
+    verdicts: { wins: "Setzt sich durch", yields: "Gibt nach", both: "Beide wirken", add: "Ergänzen sich", first: "Wirkt zuerst", after: "Wirkt danach", one: "Nur eine zählt", calmer: "Die ruhigere zählt", warn: "Warnung" },
+    rulesTitle: "Drei Regeln hinter allem",
+    rules: [
+      "Jede Richtlinie, die auf eine Meldung passt, wirkt. Sind sich beruhigende Richtlinien uneinig, zählt das ruhigere Ergebnis.",
+      "Eskalationen und Erinnerungen zählen ab dem Erstellen der Meldung. Jede Erinnerung zählt für sich.",
+      "„Kommt immer durch“ lässt Meldungen für die erfassten Leute an Ruhezeit und Zusammenfassung vorbei. Die Anwesenheit wird nie übergangen.",
+    ],
+    notes: [
+      "Eine eingeschaltete Richtlinie wirkt nur auf Meldungen, die danach kommen. „Nur wenn“ wird bei jedem Schritt geprüft.",
+      "Schaltet eine Automation die automatischen Richtlinien ab, wirkt für diese Meldung keine davon.",
+    ],
+  },
+};
+
+const SYMBOL = { wins: "▲", yields: "▼", both: "=", add: "+", first: "1", after: "2", one: "1×", calmer: "☾", warn: "!" };
+const CONFLICT = new Set(["wins", "yields", "one", "calmer", "warn"]);
+const lanePrefix = { calm: "calm", band: "band", send: "send" };
+
+const state = { lang: pickLang(), kind: "quiet", filter: "all" };
+
+function pickLang() {
+  try { const saved = localStorage.getItem("hu-policy-help-lang"); if (saved === "en" || saved === "de") return saved; } catch (e) {}
+  return (navigator.language || "en").toLowerCase().startsWith("de") ? "de" : "en";
+}
+
+function pairFor(a, b) {
+  const direct = PAIRS[`${a}|${b}`];
+  if (direct) return { verdict: direct.va, text: direct[state.lang] };
+  const back = PAIRS[`${b}|${a}`];
+  return { verdict: back.vb, text: back[state.lang] };
+}
+
+function el(tag, attrs = {}, html) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+  if (html !== undefined) node.innerHTML = html;
+  return node;
+}
+
+function renderPicker() {
+  const t = TEXT[state.lang];
+  const root = document.getElementById("picker");
+  root.innerHTML = "";
+  for (const lane of ["calm", "band", "send"]) {
+    const box = el("section", { class: "lane", "aria-label": t.lanes[lane] });
+    box.append(el("h3", { class: lane }, t.lanes[lane]));
+    const grid = el("div", { class: "tiles" });
+    for (const k of KINDS.filter((x) => x.lane === lane)) {
+      const b = el("button", { type: "button", class: `tile ${lane}`, "aria-pressed": String(state.kind === k.key), "data-kind": k.key });
+      b.append(el("span", { class: "ic", "aria-hidden": "true" }, k.icon), el("span", {}, t.names[k.key]));
+      b.addEventListener("click", () => { state.kind = k.key; render(); document.getElementById("detail").focus({ preventScroll: true }); });
+      grid.append(b);
+    }
+    box.append(grid);
+    root.append(box);
+  }
+}
+
+function renderDetail() {
+  const t = TEXT[state.lang];
+  const me = KINDS.find((k) => k.key === state.kind);
+  const root = document.getElementById("detail");
+  root.setAttribute("tabindex", "-1");
+  root.innerHTML = "";
+  root.append(el("div", { class: `kind ${me.lane}` }, t.lanes[me.lane]));
+  root.append(el("h2", {}, t.names[me.key]));
+  root.append(el("p", {}, t.about[me.key][0]));
+  root.append(el("div", { class: "example" }, `<b>${t.example}:</b> ${t.about[me.key][1]}`));
+
+  root.append(el("h3", {}, t.together));
+  const filters = el("div", { class: "filters", role: "group" });
+  for (const f of ["all", "conflicts"]) {
+    const c = el("button", { type: "button", class: "chip", "aria-pressed": String(state.filter === f) }, f === "all" ? t.all : t.conflicts);
+    c.addEventListener("click", () => { state.filter = f; renderDetail(); });
+    filters.append(c);
+  }
+  root.append(filters);
+
+  const list = el("ul", { class: "pairs" });
+  for (const other of KINDS) {
+    const p = pairFor(me.key, other.key);
+    if (state.filter === "conflicts" && !CONFLICT.has(p.verdict)) continue;
+    const li = el("li");
+    const d = el("details");
+    const s = el("summary");
+    const name = other.key === me.key ? `${t.names[other.key]} (${t.self})` : t.names[other.key];
+    s.append(
+      el("span", { class: `dot ${other.lane}`, "aria-hidden": "true" }, other.icon),
+      el("span", { class: "other" }, name),
+      el("span", { class: `verdict v-${p.verdict}` }, `<span aria-hidden="true">${SYMBOL[p.verdict]}</span> ${t.verdicts[p.verdict]}`),
+      el("span", { class: "sentence" }, p.text[0]),
+      el("span", { class: "more" }, `<span class="show">${t.show}</span><span class="hide">${t.hide}</span>`),
+    );
+    d.append(s, el("div", { class: "body" }, `<div class="example"><b>${t.example}:</b> ${p.text[1]}</div>`));
+    li.append(d);
+    list.append(li);
+  }
+  root.append(list);
+}
+
+function renderRules() {
+  const t = TEXT[state.lang];
+  const root = document.getElementById("rules");
+  root.innerHTML = "";
+  root.append(el("h2", {}, t.rulesTitle));
+  const ol = el("ol");
+  t.rules.forEach((r) => ol.append(el("li", {}, r)));
+  root.append(ol);
+  t.notes.forEach((n) => root.append(el("p", { class: "note" }, n)));
+}
+
+function render() {
+  const t = TEXT[state.lang];
+  document.documentElement.lang = state.lang;
+  document.getElementById("title").textContent = t.title;
+  document.getElementById("lead").textContent = t.lead;
+  document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === state.lang)));
+  renderPicker();
+  renderDetail();
+  renderRules();
+}
+
+document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => {
+  state.lang = b.dataset.lang;
+  try { localStorage.setItem("hu-policy-help-lang", state.lang); } catch (e) {}
+  render();
+}));
+
+render();
+</script>
+</body>
+</html>
