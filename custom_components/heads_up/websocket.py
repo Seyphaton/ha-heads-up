@@ -19,7 +19,7 @@ from homeassistant.components.websocket_api.decorators import (
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.util import dt as dt_util
 
-from .binary_sensor import audience_entity_id
+from .binary_sensor import audience_entity_id, audience_entity_ids
 from .const import (
     BUILTIN_AUDIENCES,
     DOMAIN,
@@ -483,6 +483,7 @@ async def ws_hub_plan(
         vol.Optional("rule"): vol.Any(None, str),
         vol.Optional("channels", default=["banner", "push"]): [str],
         vol.Optional("to"): dict,
+        vol.Optional("audience"): vol.Any(None, str),
         vol.Optional("at"): vol.Any(None, str),
         vol.Optional("home", default=dict): {str: bool},
         vol.Optional("ack_after"): vol.Any(None, vol.All(int, vol.Range(min=0, max=1440))),
@@ -509,6 +510,13 @@ async def ws_policy_check(
         payload["tag"] = tag
     if msg.get("to"):
         payload["to"] = msg["to"]
+    if msg.get("audience"):
+        # The panel offers audiences by key; a call names them by the entity ID of their sensor.
+        found = manager.hub.resolver.audience(msg["audience"])
+        entities = audience_entity_ids(hass, hass.config_entries.async_loaded_entries(DOMAIN)[0])
+        payload["audience"] = (
+            entities.get(found.name, msg["audience"]) if found else msg["audience"]
+        )
     at = dt_util.parse_datetime(msg["at"]) if msg.get("at") else None
     if msg.get("at") and at is None:
         connection.send_error(msg["id"], "invalid_format", "at is not a date and time")

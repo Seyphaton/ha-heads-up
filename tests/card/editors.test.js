@@ -542,6 +542,7 @@ describe("2.0 policy fields", () => {
     expect(checkLine({ channel: "push", result: "sent", note: "quiet", by: "Night quiet" }, t, "Anna")).toBe("Anna · Push: sent quietly (by Night quiet)");
     expect(checkLine({ channel: "push", result: "sent", through: ["Alarms wake Admins"], via: "Alarms to Admins" }, t, "Ben")).toBe("Ben · Push: sent (let through by Alarms wake Admins; added by Alarms to Admins)");
     expect(checkLine({ channel: "push", result: "held", until: "x", untilText: "07:00", by: "Away" }, t, "Chris")).toBe("Chris · Push: held until 07:00 (by Away)");
+    expect(checkLine({ channel: "push", result: "skipped", reason: "no_usable_device" }, t, "Ben", () => "no usable device")).toBe("Ben · Push: skipped (no usable device)");
   });
 });
 

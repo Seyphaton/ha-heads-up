@@ -149,6 +149,9 @@ export const STRINGS = {
     ck_intro: "Nothing is sent. The answer uses the policies as they are now.",
     ck_severity: "Severity",
     ck_tag: "Tag",
+    ck_channels: "Channels",
+    ck_banner: "Dashboard banner",
+    ck_audience: "Sent to",
     ck_source: "Comes from",
     ck_source_call: "An automation or script",
     ck_time: "At",
@@ -345,6 +348,9 @@ export const STRINGS = {
     ck_intro: "Es wird nichts gesendet. Die Antwort nutzt die Richtlinien, wie sie jetzt sind.",
     ck_severity: "Stufe",
     ck_tag: "Tag",
+    ck_channels: "Kanäle",
+    ck_banner: "Dashboard-Banner",
+    ck_audience: "Gesendet an",
     ck_source: "Kommt von",
     ck_source_call: "Einer Automation oder einem Skript",
     ck_time: "Um",
@@ -541,6 +547,9 @@ export const STRINGS = {
     ck_intro: "Rien n'est envoyé. La réponse utilise les règles telles qu'elles sont maintenant.",
     ck_severity: "Niveau",
     ck_tag: "Étiquette",
+    ck_channels: "Canaux",
+    ck_banner: "Bannière du tableau de bord",
+    ck_audience: "Envoyé à",
     ck_source: "Vient de",
     ck_source_call: "Une automatisation ou un script",
     ck_time: "À",
@@ -737,6 +746,9 @@ export const STRINGS = {
     ck_intro: "No se envía nada. La respuesta usa las reglas tal como están ahora.",
     ck_severity: "Nivel",
     ck_tag: "Etiqueta",
+    ck_channels: "Canales",
+    ck_banner: "Aviso del panel",
+    ck_audience: "Enviado a",
     ck_source: "Viene de",
     ck_source_call: "Una automatización o un script",
     ck_time: "A las",
@@ -827,8 +839,9 @@ const CSS = `
 .hu-page li.policy { display: flex; align-items: center; gap: 4px; }
 .hu-page li.policy .grow { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .hu-page li.policy button { flex: none; }
-.hu-page .checklist li { display: block; }
-.hu-page .checklist .row { margin-top: 6px; flex-wrap: wrap; }
+.hu-page ul.checklist { list-style: none; margin: 8px 0; padding: 0; }
+.hu-page ul.checklist li { padding: 10px 0; border-bottom: 1px solid var(--divider-color); overflow-wrap: anywhere; }
+.hu-page ul.checklist .row { margin-top: 8px; flex-wrap: wrap; }
 .hu-page .answer ul { margin: 4px 0; padding-left: 18px; }
 .hu-page .answer li { padding: 2px 0; overflow-wrap: anywhere; }
 .hu-page .answer .when { font-weight: 600; margin-top: 8px; }
@@ -1232,12 +1245,14 @@ function sentenceBase(values, t, audienceName, recipientName) {
 }
 
 // One line of the checker's answer: who, which channel, what happens and why (DESIGN §25.8).
-export function checkLine(row, t, who) {
+export function checkLine(row, t, who, reasonText = (code) => code) {
   let what;
   if (row.result === "sent") what = row.note === "quiet" ? t.r_quiet : t.r_sent;
   else if (row.result === "held") what = row.until ? fill(t.r_held_until, { time: row.untilText || row.until }) : t.r_held;
   else what = t[`r_${row.result}`] || row.result;
   const why = [];
+  // A skip or a failure without a policy behind it says why (no device, nobody home, ...).
+  if (!row.by && row.reason && row.result !== "sent") why.push(reasonText(row.reason));
   if (row.by) why.push(fill(t.r_by, { policy: row.by }));
   if (row.through && row.through.length && row.result === "sent" && row.note !== "quiet") why.push(fill(t.r_through, { names: row.through.join(", ") }));
   if (row.via) why.push(fill(t.r_via, { policy: row.via }));
@@ -1253,7 +1268,7 @@ export function mount(container, ctx) {
   let editing = null; // { own, values }
   let message = "";
   let checked = null; // the last answer of the checker
-  const ask = { severity: "warning", tag: "", rule: "", at: "", home: {}, ack: "" };
+  const ask = { severity: "warning", tag: "", rule: "", at: "", home: {}, ack: "", channels: ["banner", "push"], audience: "" };
   const root = el("div", { className: "hu-page" });
   container.append(root);
 
@@ -1298,7 +1313,7 @@ export function mount(container, ctx) {
   function checklist() {
     const items = data.conversion_items || [];
     if (!items.length) return [];
-    const list = el("ul", { className: "list checklist" });
+    const list = el("ul", { className: "checklist" });
     for (const item of items) {
       const policy = data.policies.find((p) => p.subentry_id === item.policy);
       if (!policy) continue;
@@ -1330,6 +1345,10 @@ export function mount(container, ctx) {
     const box = el("section", {}, [el("h2", { textContent: t.ck_title }), el("div", { className: "hint", textContent: t.ck_intro })]);
     box.append(ui.field(t.ck_severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), ask.severity, (v) => { ask.severity = v; })));
     box.append(ui.field(t.ck_tag, ui.textInput(ask.tag, (v) => { ask.tag = v; })));
+    box.append(ui.chips(t.ck_channels, ["banner", ...POLICY_CHANNELS].map((c) => ({ value: c, label: c === "banner" ? t.ck_banner : t.channel_names[c] })), ask.channels, (list) => { ask.channels = list; }));
+    const audiences = data.choices.audience_choices || [];
+    if (!ask.audience && audiences.length) ask.audience = (audiences.find((a) => a.id === "everyone") || audiences[0]).id;
+    box.append(ui.field(t.ck_audience, ui.selectInput(audiences.map((a) => ({ value: a.id, label: a.name })), ask.audience, (v) => { ask.audience = v; })));
     const sources = [{ value: "", label: t.ck_source_call }, ...data.rules.map((r) => ({ value: r.subentry_id, label: r.name }))];
     box.append(ui.field(t.ck_source, ui.selectInput(sources, ask.rule, (v) => { ask.rule = v; })));
     const at = el("input", { type: "datetime-local", value: ask.at });
@@ -1344,7 +1363,8 @@ export function mount(container, ctx) {
     box.append(ui.field(t.ck_ack, ui.textInput(ask.ack, (v) => { ask.ack = v; })));
     const run = el("button", { type: "button", className: "primary", textContent: t.ck_run });
     run.addEventListener("click", async () => {
-      const request = { type: "heads_up/policy_check", severity: ask.severity, home: ask.home };
+      const request = { type: "heads_up/policy_check", severity: ask.severity, home: ask.home, channels: ask.channels.length ? ask.channels : ["banner"] };
+      if (ask.audience && ask.channels.some((c) => c !== "banner")) request.audience = ask.audience;
       if (ask.tag.trim()) request.tag = ask.tag.trim();
       if (ask.rule) request.rule = ask.rule;
       if (ask.at) request.at = new Date(ask.at).toISOString();
@@ -1367,7 +1387,7 @@ export function mount(container, ctx) {
     if (result.error) return out.append(el("div", { className: "hint problems", textContent: result.error })), out;
     const time = (iso) => new Date(iso).toLocaleTimeString(ctx.language, { hour: "2-digit", minute: "2-digit" });
     const who = (row) => ui.recipientLabel(row.person || row.recipient || "", data.choices) || "—";
-    const lines = (rows) => el("ul", {}, rows.map((row) => el("li", { textContent: checkLine({ ...row, untilText: row.until ? time(row.until) : "" }, t, who(row)) })));
+    const lines = (rows) => el("ul", {}, rows.map((row) => el("li", { textContent: checkLine({ ...row, untilText: row.until ? time(row.until) : "" }, t, who(row), (code) => ctx.fmt.reasonText(code, s)) })));
     if (result.held_for_summary) out.append(el("div", { textContent: fill(t.ck_summary, { policy: result.held_for_summary }) }));
     const first = (result.rows || []).filter((r) => r.channel !== "banner");
     out.append(el("div", { className: "when", textContent: t.ck_first }), first.length ? lines(first) : el("div", { textContent: t.ck_nothing }));

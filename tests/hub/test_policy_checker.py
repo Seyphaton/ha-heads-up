@@ -141,3 +141,15 @@ async def test_a_watch_rule_source_fits_from_watch_rule(
     assert [p["name"] for p in reply["result"]["policies"]] == ["Leak rule"]
     reply = await check(client, severity="warning", channels=["banner"])
     assert reply["result"]["policies"] == []
+
+
+async def test_the_panel_may_name_the_audience_by_its_key(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    client = await hass_ws_client(hass)
+    reply = await check(client, severity="info", audience="everyone")
+    assert any(r["channel"] == "push" and r["result"] == "sent" for r in reply["result"]["rows"])
