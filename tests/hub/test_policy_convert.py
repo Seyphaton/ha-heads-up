@@ -73,6 +73,17 @@ def test_away_stored_first_makes_the_others_leave_out_everything() -> None:
     assert kinds(result, "crit") == ["never_acts"]
 
 
+def test_a_switched_off_policy_that_is_fully_covered_is_listed_as_doing_nothing() -> None:
+    reminder = StoredPolicy("all", "Reminder", {"type": "reminder"})
+    digest = StoredPolicy(
+        "dig", "Digest", {"type": "summarize", "tags": ["smoke"], "enabled": False}
+    )
+    result = convert_v3(
+        [reminder, digest], {"policy_mode": "first", "policy_order": ["all", "dig"]}
+    )
+    assert kinds(result, "dig") == ["never_acts"]
+
+
 def test_missing_mode_counts_as_first() -> None:
     result = convert_v3(WELCOME, {})
     assert result.updates["night"]["not_tags"] == ["digest"]

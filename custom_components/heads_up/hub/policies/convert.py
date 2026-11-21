@@ -166,7 +166,9 @@ def convert_v3(policies: list[StoredPolicy], options: Mapping[str, Any]) -> Conv
                 added["not_tags"] = fresh_tags
             if links:
                 target["links"] = links
-            if _enabled(policy.data) and covered(policy.data, [q.data for q in above]):
+            # Covered also when switched off: switching it on later would still do nothing, and
+            # "leaves out every severity" says the same in a way nobody reads (D-242).
+            if covered(policy.data, [q.data for q in above]):
                 out.items.append(_item(policy, ITEM_NEVER_ACTS, added))
             else:
                 if added:
