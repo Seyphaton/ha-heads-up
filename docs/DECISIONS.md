@@ -379,6 +379,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - 2026-10-26: Phase 10 (condition `for`, template conditions, D-066, D-067) requested and approved by the maintainer; delivered; not committed at the time of writing.
 - 2026-10-27: Phase 12 (banner buttons and snooze, D-069, D-070) requested and approved by the maintainer; delivered and committed; not pushed.
 - 2026-11-20: Phase 17 (2.0.0 policies in two lanes, DESIGN §25, build checklist §25.15) approved by the maintainer ("Start build") on `release/2.0`, after the merge of `release/1.1`.
+- 2026-11-21: Phase 17 end approved by the maintainer ("Approve phase end"). Built on `release/2.0`, local, not pushed; `make check`, `make hassfest` and `make dev-smoke` on a clean instance green. Open before 2.0.0: real-device checks, the panel at phone width, light theme, keyboard and screen reader (`docs/OPEN_QUESTIONS.md`). No release step without the maintainer (D-020).
 
 ## D-068 `empty` and `not_empty` operators; State is not prefilled
 - Date: 2026-10-27. Phase 11 requested and approved by the maintainer.
