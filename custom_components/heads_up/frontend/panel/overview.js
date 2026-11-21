@@ -105,7 +105,7 @@ export const STRINGS = {
     sources_none: "No messages in this period.",
     source_action: "Actions (all calls)",
     source_gone: "deleted watch rule",
-    source_rule: "Watch rule {name}",
+    source_rule_named: "Watch rule {name}",
     stats_failed: "The activity could not be loaded.",
     legend_label: "Severities",
     first_run: "No policies yet. The introduction explains a few defaults you can switch on.",
@@ -221,7 +221,7 @@ export const STRINGS = {
     sources_none: "In diesem Zeitraum gab es keine Meldungen.",
     source_action: "Aktionen (alle Aufrufe)",
     source_gone: "gelöschte Überwachungsregel",
-    source_rule: "Überwachungsregel {name}",
+    source_rule_named: "Überwachungsregel {name}",
     stats_failed: "Die Aktivität konnte nicht geladen werden.",
     legend_label: "Schweregrade",
     first_run: "Noch keine Richtlinien. Die Einführung erklärt ein paar Standards, die du einschalten kannst.",
@@ -337,7 +337,7 @@ export const STRINGS = {
     sources_none: "Aucun message sur cette période.",
     source_action: "Actions (tous les appels)",
     source_gone: "règle de surveillance supprimée",
-    source_rule: "Règle de surveillance {name}",
+    source_rule_named: "Règle de surveillance {name}",
     stats_failed: "L'activité n'a pas pu être chargée.",
     legend_label: "Gravités",
     first_run: "Aucune politique pour l'instant. L'introduction explique quelques réglages par défaut que vous pouvez activer.",
@@ -453,7 +453,7 @@ export const STRINGS = {
     sources_none: "No hubo mensajes en este periodo.",
     source_action: "Acciones (todas las llamadas)",
     source_gone: "regla de vigilancia eliminada",
-    source_rule: "Regla de vigilancia {name}",
+    source_rule_named: "Regla de vigilancia {name}",
     stats_failed: "No se pudo cargar la actividad.",
     legend_label: "Gravedades",
     first_run: "Aún no hay políticas. La introducción explica algunos valores por defecto que puedes activar.",
@@ -646,7 +646,7 @@ export function matrixModel(matrix) {
 export function sourceRows(sources, t) {
   const peak = Math.max(1, ...sources.map((x) => x.count));
   return sources.map((x) => ({
-    text: x.kind === "action" ? t.source_action : x.name ? fill(t.source_rule, { name: x.name }) : t.source_gone,
+    text: x.kind === "action" ? t.source_action : x.name ? fill(t.source_rule_named, { name: x.name }) : t.source_gone,
     count: x.count,
     share: x.count / peak,
   }));

@@ -654,3 +654,97 @@ async def test_coming_up_counts_messages_held_by_quiet_hours_with_the_release_ti
     (quiet,) = [c for c in coming if c["kind"] == "quiet_release"]
     assert quiet["count"] == 2
     assert quiet["time"].startswith("2026-11-03T06:00:00")  # 07:00 Berlin in UTC
+
+
+async def test_last_actions_is_one_row_per_message_newest_first_and_without_summaries(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    client = await hass_ws_client(hass)  # before the clock moves
+    await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Digest", **SUMMARIZE, tags=["digest"])
+    await send(hass, entry, id="a", message="First", title="First title")
+    await send(hass, entry, id="b", message="Second")
+    await send(hass, entry, id="h", message="Held", tag="digest", severity="warning")
+    await wait(hass, entry, freezer, 61)  # the summary is made and is not a row of its own
+    rows = (await overview(hass, client))["last_actions"]
+    assert [r["id"] for r in rows] == ["h", "b", "a"]
+    assert rows[2]["title"] == "First title" and rows[1]["title"] is None
+    assert rows[1]["message"] == "Second" and rows[1]["severity"] == "critical"
+    assert rows[1]["source"] == {"kind": "action", "name": None}
+
+
+async def test_last_actions_is_limited_to_six_rows(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    for n in range(9):
+        await send(hass, entry, id=f"m{n}", message=f"Message {n}")
+    client = await hass_ws_client(hass)
+    rows = (await overview(hass, client))["last_actions"]
+    assert len(rows) == 6 and rows[0]["id"] == "m8"
+
+
+async def test_a_row_tells_what_became_of_the_message(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    client = await hass_ws_client(hass)
+    await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Water", **ESCALATION)
+    await add_policy(hass, entry, "Nag", **REMINDER)
+    await send(hass, entry)
+    await wait(hass, entry, freezer, 12)
+    entry.runtime_data.acknowledge("m", "anna-id")
+    await settle(hass, entry)
+    (row,) = (await overview(hass, client))["last_actions"]
+    assert row["state"] == "acknowledged"
+    assert row["acknowledged"]["seconds"] == 720
+    assert row["escalated"] == 1 and row["reminded"] >= 1
+    assert row["results"]["sent"] >= 2 and "failed" not in row["results"]
+
+
+async def test_a_row_names_the_policy_that_held_it_and_the_reason_something_was_skipped(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    await hass.config.async_set_time_zone("Europe/Berlin")
+    client = await hass_ws_client(hass)
+    await make_household(hass, mobile_app_device)
+    set_person(hass, "person.cleo", "home")  # no phone: push is skipped for them
+    night = await add_policy(hass, entry, "Night", **{**QUIET, "action": "wait"})
+    freezer.move_to("2026-11-02 23:00:00+01:00")
+    await send(
+        hass, entry, severity="warning", to={"push": {"recipients": ["person.anna", "person.cleo"]}}
+    )
+    (row,) = (await overview(hass, client))["last_actions"]
+    assert row["held_by"] == [night.title]
+    assert {p["reason"] for p in row["problems"]} == {"no_usable_device"}
+
+
+async def test_a_rule_row_has_the_rules_name_and_an_ended_message_its_reason(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    hass.states.async_set(WINDOW, "off")
+    rule = add_rule(hass, entry, severity="warning")
+    await hass.async_block_till_done()
+    hass.states.async_set(WINDOW, "on")
+    await settle(hass, entry)
+    hass.states.async_set(WINDOW, "off")
+    await settle(hass, entry)
+    client = await hass_ws_client(hass)
+    (row,) = (await overview(hass, client))["last_actions"]
+    assert row["source"] == {"kind": "rule", "name": rule.title}
+    assert row["state"] == "ended" and row["end_reason"]

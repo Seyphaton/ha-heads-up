@@ -497,6 +497,15 @@ describe("overview functions", () => {
     }
   });
 
+  it("has no key twice in a language of the Overview strings (the later one would hide the first)", () => {
+    const source = readFileSync("custom_components/heads_up/frontend/panel/overview.js", "utf8");
+    for (const lang of ["en", "de", "fr", "es"]) {
+      const block = source.match(new RegExp(`\\n  ${lang}: \\{\\n([\\s\\S]*?)\\n  \\},`))[1];
+      const keys = [...block.matchAll(/^ {4}(\w+):/gm)].map((m) => m[1]);
+      expect(keys.filter((k, i) => keys.indexOf(k) !== i), lang).toEqual([]);
+    }
+  });
+
   it("has the same keys in every language", () => {
     for (const strings of [OVERVIEW_STRINGS, MESSAGES_STRINGS]) {
       const keys = Object.keys(strings.en).sort();

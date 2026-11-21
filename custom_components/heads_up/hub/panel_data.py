@@ -27,6 +27,8 @@ from ..const import (
     PRESENCE_PEOPLE_CHANNELS,
     RULE_ID_PREFIX,
     RULE_SUBENTRY,
+    SOURCE_RULE,
+    SOURCE_SUMMARY,
     TIMER_CHANNEL,
 )
 from ..manager import BannerManager
@@ -573,6 +575,98 @@ def coming_up(manager: BannerManager) -> list[dict[str, Any]]:
     return sorted(out, key=lambda e: (e["time"], e["kind"], e["policy"]))
 
 
+LAST_ACTIONS = 6
+
+
+def last_actions(
+    manager: BannerManager, entry: Any, limit: int = LAST_ACTIONS
+) -> list[dict[str, Any]]:
+    """The newest messages as one row each (D-244): what it was, where it came from, what became
+    of it. Built from the recent messages, the delivery trace and the log of last actions, so the
+    Overview and the Message Log say the same."""
+    hub = manager.hub
+    if hub is None:
+        return []
+    titles = {
+        f"{RULE_ID_PREFIX}{sub.subentry_id}": sub.title
+        for sub in entry.subentries.values()
+        if sub.subentry_type == RULE_SUBENTRY
+    }
+    escalated: dict[str, int] = {}
+    reminded: dict[str, int] = {}
+    for logged in hub.log.latest():
+        if logged["kind"] == "escalation_sent":
+            escalated[logged["message_id"]] = escalated.get(logged["message_id"], 0) + 1
+        elif logged["kind"] == "reminder_sent":
+            reminded[logged["message_id"]] = reminded.get(logged["message_id"], 0) + 1
+    out = []
+    for item in hub.recent.listed():
+        if item.get("source") == SOURCE_SUMMARY:
+            continue
+        message_id = item["id"]
+        results: dict[str, int] = {}
+        problems: dict[str, int] = {}
+        failed_on: list[str] = []
+        held_by: list[str] = []
+        acknowledged = None
+        for logged in reversed(hub.trace.entries(message_id)):
+            channel, result = logged["channel"], logged["result"]
+            if channel == "" and result == "acknowledged" and acknowledged is None:
+                created = dt_util.parse_datetime(item["created_at"])
+                when = dt_util.parse_datetime(logged["time"])
+                acknowledged = {
+                    "by": manager._first_name(logged["recipient"] or "") or None,
+                    "seconds": int((when - created).total_seconds()) if created and when else None,
+                }
+            if channel in ("", TIMER_CHANNEL) or result not in (
+                "sent",
+                "held",
+                "skipped",
+                "failed",
+            ):
+                continue
+            results[result] = results.get(result, 0) + 1
+            if result in ("skipped", "failed") and logged["reason"]:
+                problems[logged["reason"]] = problems.get(logged["reason"], 0) + 1
+            if result == "failed" and channel not in failed_on:
+                failed_on.append(channel)
+            if result == "held" and logged.get("by") and logged["by"] not in held_by:
+                held_by.append(logged["by"])
+        live = manager.banners.get(message_id) or manager.rules.get(message_id)
+        if item.get("ended"):
+            state = "ended"
+        elif live is not None and live.acknowledged_by:
+            state = "acknowledged"
+        else:
+            state = "active"
+        is_rule = item.get("source") == SOURCE_RULE
+        out.append(
+            {
+                "id": message_id,
+                "title": item.get("title"),
+                "message": item.get("message"),
+                "severity": item.get("severity"),
+                "source": {"kind": "rule" if is_rule else "action", "name": titles.get(message_id)},
+                "time": item.get("ended") or item.get("created_at"),
+                "state": state,
+                "end_reason": item.get("reason"),
+                "results": results,
+                "problems": [
+                    {"reason": reason, "count": count}
+                    for reason, count in sorted(problems.items(), key=lambda kv: (-kv[1], kv[0]))
+                ][:2],
+                "failed_on": failed_on,
+                "held_by": held_by,
+                "acknowledged": acknowledged,
+                "escalated": escalated.get(message_id, 0),
+                "reminded": reminded.get(message_id, 0),
+            }
+        )
+        if len(out) >= limit:
+            break
+    return out
+
+
 def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[str, Any]:
     items = [_item(manager, b) for b in _messages(manager)]
     counts = {
@@ -600,6 +694,7 @@ def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[st
         "attention_hidden": hidden,
         "shortcuts": shortcuts(entry, manager),
         "log": hub.log.latest(50) if hub is not None else [],
+        "last_actions": last_actions(manager, entry),
         "activity": (hub.log if hub is not None else ActivityLog(1)).created_histogram(
             dt_util.utcnow().timestamp()
         ),
