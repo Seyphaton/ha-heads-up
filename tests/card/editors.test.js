@@ -31,6 +31,8 @@ import {
   whichText,
   notOverlap,
   doesText,
+  leftOut,
+  takenBy,
   overlapNames,
   overlaps,
   fromPolicy,
@@ -550,6 +552,15 @@ describe("2.0 policy fields", () => {
     expect(doesText({ ...blankPolicy("presence") }, t)).toBe("Hold until the person is at Home");
     for (const type of ["summarize", "quiet_hours", "presence", "get_through", "deliver", "escalation", "reminder", "fallback"]) {
       expect(doesText({ ...blankPolicy(type), channels: ["push"] }, t).length, type).toBeLessThan(60);
+    }
+  });
+
+  it("says in words what a converted policy leaves out", () => {
+    const t = POLICY_STRINGS.en;
+    expect(leftOut(["warning", "critical"], ["digest"], t)).toBe("messages with severity Warning, Critical or messages with the tag digest");
+    expect(takenBy({ data: { severities: ["critical"], tags: ["water"] } }, t)).toBe("messages with severity Critical and the tag water");
+    for (const [code, language] of Object.entries(POLICY_STRINGS)) {
+      for (const key of ["cl_not_for", "cl_never", "cl_links", "cl_holds", "cl_sev", "cl_tag", "cl_sev_tag", "links_note"]) expect(language[key], `${code} ${key}`).toBeTruthy();
     }
   });
 

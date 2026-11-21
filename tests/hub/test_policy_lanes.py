@@ -201,12 +201,13 @@ def test_converted_links_reproduce_only_the_first_for_every_message_and_switch_s
         ["crit", "warn", "eve", "night", "tagged"],
         ["away", "crit", "warn", "eve", "night", "tagged"],
     ):
-        result = convert_v3(WELCOME, {"policy_mode": "first", "policy_order": order})
         for switches in product((True, False), repeat=len(WELCOME)):
             stored = [
                 StoredPolicy(p.subentry_id, p.title, {**p.data, "enabled": on})
                 for p, on in zip(WELCOME, switches, strict=True)
             ]
+            # Converted with the switches as stored at the update (Not for is written then).
+            result = convert_v3(stored, {"policy_mode": "first", "policy_order": order})
             converted = [
                 policy_from_data(
                     p.title,
@@ -248,11 +249,11 @@ async def test_a_2_4_entry_moves_to_the_lanes_at_start(hass: HomeAssistant) -> N
     await hass.async_block_till_done()
     assert (entry.version, entry.minor_version) == (3, 1)
     data = {s.title: dict(s.data) for s in entry.subentries.values()}
-    assert data["Night quiet"]["links"] == ["eve"]
+    assert data["Night quiet"]["not_tags"] == ["digest"]
     assert data["Critical"]["type"] == "get_through"
     assert "policy_mode" not in entry.options and "policy_order" not in entry.options
     assert entry.options["conversion_items"] == [
-        {"policy": "night", "kind": "links", "state": "open"}
+        {"policy": "night", "kind": "not_for", "state": "open", "added": {"not_tags": ["digest"]}}
     ]
 
 
@@ -291,14 +292,19 @@ async def test_the_check_list_keeps_or_lets_a_converted_policy_act(
     client = await hass_ws_client(hass)
     await client.send_json_auto_id({"type": "heads_up/panel_config"})
     assert (await client.receive_json())["result"]["conversion_items"] == [
-        {"policy": "night", "kind": "links", "state": "open"}
+        {"policy": "night", "kind": "not_for", "state": "open", "added": {"not_tags": ["digest"]}}
     ]
     await client.send_json_auto_id(
-        {"type": "heads_up/conversion_item", "policy": "night", "kind": "links", "choice": "change"}
+        {
+            "type": "heads_up/conversion_item",
+            "policy": "night",
+            "kind": "not_for",
+            "choice": "change",
+        }
     )
     reply = await client.receive_json()
     assert reply["result"]["items"][0]["state"] == "changed"
-    assert "links" not in entry.subentries["night"].data
+    assert "not_tags" not in entry.subentries["night"].data
     await client.send_json_auto_id({"type": "heads_up/conversion_items_dismiss"})
     await client.receive_json()
     assert "conversion_items" not in entry.options

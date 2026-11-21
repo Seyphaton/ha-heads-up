@@ -31,6 +31,7 @@ REMOVED_FIELDS = ("critical_passes", "include_critical")
 ITEM_LINKS = "links"
 ITEM_NEVER_ACTS = "never_acts"
 ITEM_HOLDS_ANYWAY = "holds_anyway"
+ITEM_NOT_FOR = "not_for"
 
 
 @dataclass(frozen=True, slots=True)
@@ -48,7 +49,7 @@ class Converted:
     updates: dict[str, dict[str, Any]] = field(default_factory=dict)
     added: list[tuple[str, dict[str, Any]]] = field(default_factory=list)
     options: dict[str, Any] = field(default_factory=dict)
-    items: list[dict[str, str]] = field(default_factory=list)
+    items: list[dict[str, Any]] = field(default_factory=list)
 
 
 def _automatic(data: Mapping[str, Any]) -> bool:
@@ -118,19 +119,60 @@ def convert_v3(policies: list[StoredPolicy], options: Mapping[str, Any]) -> Conv
     listed = ordered(policies, options.get(OPT_POLICY_ORDER_OLD))
     new: dict[str, dict[str, Any]] = {p.subentry_id: dict(p.data) for p in listed}
 
-    # 1. Links and 2. never acts (mode first only).
+    # 1. The 1.x order as Not for, 2. never acts (mode first only). A policy below another one
+    # did not act on that one's messages; where Not for can say that (a severity list or a tag
+    # list), it is written as Not for, a field the user sees and edits (D-240). Only a policy
+    # above with both severities and tags needs a link. Disabled policies did nothing in 1.x.
     if mode == "first":
         automatic = [p for p in listed if _automatic(p.data)]
         for i, policy in enumerate(automatic):
-            above = [q for q in automatic[:i] if can_overlap(policy.data, q.data)]
+            above = [
+                q for q in automatic[:i] if _enabled(q.data) and can_overlap(policy.data, q.data)
+            ]
             if not above:
                 continue
-            new[policy.subentry_id]["links"] = [q.subentry_id for q in above]
-            live = [q.data for q in above if _enabled(q.data)]
-            if _enabled(policy.data) and live and covered(policy.data, live):
-                out.items.append(_item(policy, ITEM_NEVER_ACTS))
+            target = new[policy.subentry_id]
+            own_severities = _set(policy.data, "severities") or frozenset(SEVERITIES)
+            own_tags = _set(policy.data, "tags")
+            add_severities: set[str] = set()
+            add_tags: set[str] = set()
+            links: list[str] = []
+            for q in above:
+                severities, tags = _set(q.data, "severities"), _set(q.data, "tags")
+                # A condition that all of this policy's messages meet anyway drops out: below
+                # "info with tag digest", an info-only policy leaves out the tag digest.
+                if severities and own_severities <= severities:
+                    severities = frozenset()
+                if tags and own_tags and own_tags <= tags:
+                    tags = frozenset()
+                if not tags:
+                    add_severities |= (severities or frozenset(SEVERITIES)) & own_severities
+                elif not severities:
+                    add_tags |= (tags & own_tags) if own_tags else tags
+                else:
+                    links.append(q.subentry_id)
+            added: dict[str, list[str]] = {}
+            if add_severities:
+                old_severities: list[str] = list(target.get("not_severities") or [])
+                fresh_severities = [
+                    str(s) for s in SEVERITIES if s in add_severities and s not in old_severities
+                ]
+                target["not_severities"] = old_severities + fresh_severities
+                added["not_severities"] = fresh_severities
+            if add_tags:
+                old_tags: list[str] = list(target.get("not_tags") or [])
+                fresh_tags = sorted(add_tags - set(old_tags))
+                target["not_tags"] = old_tags + fresh_tags
+                added["not_tags"] = fresh_tags
+            if links:
+                target["links"] = links
+            if _enabled(policy.data) and covered(policy.data, [q.data for q in above]):
+                out.items.append(_item(policy, ITEM_NEVER_ACTS, added))
             else:
-                out.items.append(_item(policy, ITEM_LINKS))
+                if added:
+                    out.items.append(_item(policy, ITEM_NOT_FOR, added))
+                if links:
+                    out.items.append(_item(policy, ITEM_LINKS))
 
     # 4. Critical: one band entry instead of the per-hold settings.
     wants_entry = False
@@ -150,7 +192,7 @@ def convert_v3(policies: list[StoredPolicy], options: Mapping[str, Any]) -> Conv
                 target["holds_anyway"] = True
                 out.items.append(_item(policy, ITEM_HOLDS_ANYWAY))
         elif kind == "presence" and bool(data.get("critical_passes", True)):
-            excluded = list(data.get("not_severities") or [])
+            excluded = list(target.get("not_severities") or [])
             if "critical" not in excluded:
                 target["not_severities"] = [*excluded, "critical"]
         for name in REMOVED_FIELDS:
@@ -190,5 +232,10 @@ def _by_id(policies: list[StoredPolicy], subentry_id: str) -> StoredPolicy:
     return next(p for p in policies if p.subentry_id == subentry_id)
 
 
-def _item(policy: StoredPolicy, kind: str) -> dict[str, str]:
-    return {"policy": policy.subentry_id, "kind": kind, "state": "open"}
+def _item(
+    policy: StoredPolicy, kind: str, added: dict[str, list[str]] | None = None
+) -> dict[str, Any]:
+    item: dict[str, Any] = {"policy": policy.subentry_id, "kind": kind, "state": "open"}
+    if added:
+        item["added"] = added  # what the conversion wrote, so "Apply to them too" can take it back
+    return item

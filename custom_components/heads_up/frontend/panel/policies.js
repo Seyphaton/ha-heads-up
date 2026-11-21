@@ -56,6 +56,7 @@ export const STRINGS = {
     entity_id: "Entity ID of the switch",
     entity_id_new: "Home Assistant gives the policy this switch when you save. Name it in the policy field of a call by this ID: it keeps working when you rename the policy.",
     entity_id_own: "A rename does not change this ID. A call that names the policy by its text name stops working after a rename; a call that uses this ID does not.",
+    entity_switch_hint: "Switch it off to pause the policy and on to use it again, also from an automation, for example to turn on holiday policies. Only if inside the policy does the same with a condition.",
     max_wait: "Wait for arrival (minutes, 0: as long as the message lives)",
     when: "Use when",
     whens: WHENS.en,
@@ -169,16 +170,22 @@ export const STRINGS = {
     s_alongside: " Runs alongside other reminders.",
     s_holds_anyway: " Nothing gets past it, not even Always gets through.",
     s_rules: " Only messages of the watch rules {names}.",
-    links_note: "Skips messages that {names} already handle.",
+    links_note: "Leaves out {what} while {other} is switched on.",
     overlap_calm: "Where it and {names} both fit, the calmer counts.",
     overlap_send: "Also acts on the same messages: {names}.",
     cl_title: "Please check after the update",
     cl_intro: "Your policies work as they did before the update. A few now depend on each other; decide for each one.",
-    cl_links: "{name} skips messages that {names} already handle.",
-    cl_never: "{name} does nothing at the moment: {names} already handle all its messages.",
-    cl_holds: "{name} also holds back critical messages.",
+    cl_links: "{name} leaves out {what} while {other} is switched on, as before the update.",
+    cl_never: "{name} does nothing at the moment, so it works as before the update: it leaves out all its messages.",
+    cl_holds: "{name} also holds back critical messages, as before the update.",
+    cl_not_for: "{name} now leaves out {what}, so it works as before the update.",
+    cl_sev: "messages with severity {list}",
+    cl_tag: "messages with the tag {list}",
+    cl_sev_tag: "messages with severity {sev} and the tag {tags}",
+    cl_and: " and ",
+    cl_or: " or ",
     cl_keep: "Keep it like this",
-    cl_act: "Let it act on them too",
+    cl_act: "Apply to them too",
     cl_through: "Let critical messages through",
     cl_dismiss: "Hide this list",
     cl_kept: "kept",
@@ -293,6 +300,7 @@ export const STRINGS = {
     entity_id: "Entitäts-ID des Schalters",
     entity_id_new: "Home Assistant legt beim Speichern diesen Schalter für die Richtlinie an. Nenne die Richtlinie im Feld policy eines Aufrufs mit dieser ID: Sie gilt weiter, wenn du die Richtlinie umbenennst.",
     entity_id_own: "Eine Umbenennung ändert diese ID nicht. Ein Aufruf, der die Richtlinie mit ihrem Namen nennt, funktioniert nach einer Umbenennung nicht mehr; ein Aufruf mit dieser ID schon.",
+    entity_switch_hint: "Schalte ihn aus, um die Richtlinie zu pausieren, und wieder an, um sie zu nutzen, auch per Automation, zum Beispiel um Urlaubs-Richtlinien einzuschalten. Nur wenn in der Richtlinie erreicht dasselbe mit einer Bedingung.",
     max_wait: "Auf Ankunft warten (Minuten, 0: solange die Meldung besteht)",
     when: "Verwenden, wenn",
     whens: WHENS.de,
@@ -406,16 +414,22 @@ export const STRINGS = {
     s_alongside: " Läuft neben anderen Erinnerungen.",
     s_holds_anyway: " Nichts kommt vorbei, auch nicht Kommt immer durch.",
     s_rules: " Nur Meldungen der Überwachungsregeln {names}.",
-    links_note: "Überspringt Meldungen, um die sich {names} schon kümmert.",
+    links_note: "Lässt {what} aus, solange {other} eingeschaltet ist.",
     overlap_calm: "Wo sie und {names} beide passen, zählt die ruhigere.",
     overlap_send: "Wirkt auch auf dieselben Meldungen: {names}.",
     cl_title: "Bitte nach dem Update prüfen",
     cl_intro: "Deine Richtlinien arbeiten wie vor dem Update. Einige hängen jetzt voneinander ab; entscheide für jede.",
-    cl_links: "{name} überspringt Meldungen, um die sich {names} schon kümmert.",
-    cl_never: "{name} tut gerade nichts: {names} kümmert sich schon um alle ihre Meldungen.",
-    cl_holds: "{name} hält auch kritische Meldungen zurück.",
+    cl_links: "{name} lässt {what} aus, solange {other} eingeschaltet ist, wie vor dem Update.",
+    cl_never: "{name} tut gerade nichts und arbeitet damit wie vor dem Update: Sie lässt alle ihre Meldungen aus.",
+    cl_holds: "{name} hält auch kritische Meldungen zurück, wie vor dem Update.",
+    cl_not_for: "{name} lässt jetzt {what} aus und arbeitet damit wie vor dem Update.",
+    cl_sev: "Meldungen mit Stufe {list}",
+    cl_tag: "Meldungen mit dem Tag {list}",
+    cl_sev_tag: "Meldungen mit Stufe {sev} und dem Tag {tags}",
+    cl_and: " und ",
+    cl_or: " oder ",
     cl_keep: "So lassen",
-    cl_act: "Auch dafür wirken lassen",
+    cl_act: "Auch auf diese anwenden",
     cl_through: "Kritische Meldungen durchlassen",
     cl_dismiss: "Liste ausblenden",
     cl_kept: "beibehalten",
@@ -530,6 +544,7 @@ export const STRINGS = {
     entity_id: "ID d'entité du commutateur",
     entity_id_new: "Home Assistant crée ce commutateur pour la politique à l'enregistrement. Nommez la politique dans le champ policy d'un appel par cet ID : il reste valable si vous renommez la politique.",
     entity_id_own: "Renommer ne change pas cet ID. Un appel qui désigne la politique par son nom cesse de fonctionner après un renommage ; un appel qui utilise cet ID continue de fonctionner.",
+    entity_switch_hint: "Désactivez-le pour mettre la règle en pause et activez-le pour l'utiliser à nouveau, aussi depuis une automatisation, par exemple pour activer des règles de vacances. Seulement si dans la règle fait la même chose avec une condition.",
     max_wait: "Attendre l'arrivée (minutes, 0 : tant que le message existe)",
     when: "Utiliser quand",
     whens: WHENS.fr,
@@ -643,16 +658,22 @@ export const STRINGS = {
     s_alongside: " Fonctionne à côté des autres rappels.",
     s_holds_anyway: " Rien ne passe, pas même Passe toujours.",
     s_rules: " Seulement les messages des règles de surveillance {names}.",
-    links_note: "Ignore les messages dont {names} s'occupe déjà.",
+    links_note: "Laisse de côté {what} tant que {other} est activée.",
     overlap_calm: "Là où elle et {names} correspondent toutes deux, la plus calme compte.",
     overlap_send: "Agit aussi sur les mêmes messages : {names}.",
     cl_title: "À vérifier après la mise à jour",
     cl_intro: "Vos règles fonctionnent comme avant la mise à jour. Certaines dépendent maintenant les unes des autres ; décidez pour chacune.",
-    cl_links: "{name} ignore les messages dont {names} s'occupe déjà.",
-    cl_never: "{name} ne fait rien pour l'instant : {names} s'occupe déjà de tous ses messages.",
-    cl_holds: "{name} retient aussi les messages critiques.",
+    cl_links: "{name} laisse de côté {what} tant que {other} est activée, comme avant la mise à jour.",
+    cl_never: "{name} ne fait rien pour l'instant et fonctionne ainsi comme avant la mise à jour : elle laisse de côté tous ses messages.",
+    cl_holds: "{name} retient aussi les messages critiques, comme avant la mise à jour.",
+    cl_not_for: "{name} laisse maintenant de côté {what} et fonctionne ainsi comme avant la mise à jour.",
+    cl_sev: "les messages de niveau {list}",
+    cl_tag: "les messages avec l'étiquette {list}",
+    cl_sev_tag: "les messages de niveau {sev} avec l'étiquette {tags}",
+    cl_and: " et ",
+    cl_or: " ou ",
     cl_keep: "Laisser ainsi",
-    cl_act: "La laisser agir aussi sur eux",
+    cl_act: "L'appliquer aussi à eux",
     cl_through: "Laisser passer les messages critiques",
     cl_dismiss: "Masquer la liste",
     cl_kept: "gardé",
@@ -767,6 +788,7 @@ export const STRINGS = {
     entity_id: "ID de entidad del interruptor",
     entity_id_new: "Home Assistant crea este interruptor para la política al guardar. Nombra la política en el campo policy de una llamada con este ID: sigue valiendo si renombras la política.",
     entity_id_own: "Renombrar no cambia este ID. Una llamada que nombra la política por su texto deja de funcionar tras renombrarla; una que usa este ID sigue funcionando.",
+    entity_switch_hint: "Desactívalo para pausar la regla y actívalo para usarla de nuevo, también desde una automatización, por ejemplo para activar reglas de vacaciones. Solo si dentro de la regla hace lo mismo con una condición.",
     max_wait: "Esperar la llegada (minutos, 0: mientras exista el mensaje)",
     when: "Usar cuando",
     whens: WHENS.es,
@@ -880,16 +902,22 @@ export const STRINGS = {
     s_alongside: " Funciona junto a otros recordatorios.",
     s_holds_anyway: " No pasa nada, ni siquiera Siempre pasa.",
     s_rules: " Solo mensajes de las reglas de vigilancia {names}.",
-    links_note: "Omite los mensajes de los que ya se ocupa {names}.",
+    links_note: "Deja fuera {what} mientras {other} está activada.",
     overlap_calm: "Donde ella y {names} encajan, cuenta la más tranquila.",
     overlap_send: "También actúa en los mismos mensajes: {names}.",
     cl_title: "Revisa tras la actualización",
     cl_intro: "Tus reglas funcionan como antes de la actualización. Algunas dependen ahora unas de otras; decide para cada una.",
-    cl_links: "{name} omite los mensajes de los que ya se ocupa {names}.",
-    cl_never: "{name} no hace nada por ahora: {names} ya se ocupa de todos sus mensajes.",
-    cl_holds: "{name} también retiene los mensajes críticos.",
+    cl_links: "{name} deja fuera {what} mientras {other} está activada, como antes de la actualización.",
+    cl_never: "{name} no hace nada por ahora y así funciona como antes de la actualización: deja fuera todos sus mensajes.",
+    cl_holds: "{name} también retiene los mensajes críticos, como antes de la actualización.",
+    cl_not_for: "{name} deja ahora fuera {what} y así funciona como antes de la actualización.",
+    cl_sev: "los mensajes de nivel {list}",
+    cl_tag: "los mensajes con la etiqueta {list}",
+    cl_sev_tag: "los mensajes de nivel {sev} con la etiqueta {tags}",
+    cl_and: " y ",
+    cl_or: " o ",
     cl_keep: "Dejarlo así",
-    cl_act: "Que actúe también en ellos",
+    cl_act: "Aplicarla también a ellos",
     cl_through: "Dejar pasar los mensajes críticos",
     cl_dismiss: "Ocultar la lista",
     cl_kept: "mantenido",
@@ -1004,6 +1032,7 @@ const CSS = `
 .hu-page .pol-note ha-icon { color: var(--secondary-text-color); margin-top: 1px; }
 .hu-page .pol-pill { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 2px 2px 2px 10px; border-radius: 8px; background: var(--card-background-color); border: 1px solid var(--divider-color); }
 .hu-page .pol-pill code { font-size: 12px; overflow-wrap: anywhere; }
+.hu-page .pol-switch-hint { margin-top: 6px; }
 .hu-page .pol-pill .pol-copy { min-height: 32px; padding: 0 10px; font-size: 13px; }
 .hu-page .cl-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--divider-color); --mdc-icon-size: 20px; }
 .hu-page .cl-row ha-icon { color: var(--lane-color); }
@@ -1514,6 +1543,23 @@ export function notOverlap(values, t) {
   return [...severities, ...tags];
 }
 
+// "messages with severity Warning, Critical or messages with the tag digest": what a policy leaves out.
+export function leftOut(severities, tags, t, joiner = "cl_or") {
+  const parts = [];
+  if (severities.length) parts.push(fill(t.cl_sev, { list: severities.map((x) => t.severity_names[x]).join(", ") }));
+  if (tags.length) parts.push(fill(t.cl_tag, { list: tags.join(", ") }));
+  return parts.join(t[joiner]);
+}
+
+// What a linked policy takes: its severities AND its tags.
+export function takenBy(linked, t) {
+  const data = linked.data || {};
+  const severities = data.severities || [];
+  const tags = data.tags || [];
+  if (severities.length && tags.length) return fill(t.cl_sev_tag, { sev: severities.map((x) => t.severity_names[x]).join(", "), tags: tags.join(", ") });
+  return leftOut(severities, tags, t);
+}
+
 // The "What it does" column: the sentence without who it applies to.
 // The "What it does" column: a few words with the policy's own values, short enough for one row.
 // The full sentence is in the opened row.
@@ -1583,6 +1629,12 @@ export function mount(container, ctx) {
   const root = el("div", { className: "hu-page" });
   container.append(root);
 
+  const linkText = (ids) =>
+    ids
+      .map((id) => data.policies.find((p) => p.subentry_id === id))
+      .filter(Boolean)
+      .map((l) => fill(t.links_note, { what: takenBy(l, t), other: `“${l.name}”` }))
+      .join(" ");
   const policyName = (id) => (data.policies.find((p) => p.subentry_id === id) || {}).name || id;
   const ruleName = (id) => (data.rules.find((r) => r.subentry_id === id) || {}).name || id;
   const labels = () => ({ audience: (v) => ui.audienceLabel(v, data.choices), recipient: (v) => ui.recipientLabel(v, data.choices), rule: ruleName });
@@ -1648,7 +1700,7 @@ export function mount(container, ctx) {
     const full = sentence(values, t, labels());
     const lead = `${appliesText(values, t)}: `;
     const does = full.startsWith(lead) ? full.slice(lead.length) : full;
-    if (values.links.length) body.append(el("div", { className: "pol-note" }, [el("ha-icon", { icon: "mdi:link-variant" }), el("span", { textContent: fill(t.links_note, { names: values.links.map(policyName).join(", ") }) })]));
+    if (values.links.length) body.append(el("div", { className: "pol-note" }, [el("ha-icon", { icon: "mdi:link-variant" }), el("span", { textContent: linkText(values.links) })]));
     const pairs = [
       [t.d_messages, whichText(values, t, ruleName)],
       [t.d_does, does.charAt(0).toUpperCase() + does.slice(1)],
@@ -1664,7 +1716,7 @@ export function mount(container, ctx) {
           copy.textContent = s.common.copy_failed;
         }
       });
-      pairs.push([t.entity_id, el("span", { className: "pol-pill" }, [el("code", { textContent: policy.entity_id }), copy])]);
+      pairs.push([t.entity_id, el("span", {}, [el("span", { className: "pol-pill" }, [el("code", { textContent: policy.entity_id }), copy]), el("div", { className: "lane-hint pol-switch-hint", textContent: t.entity_switch_hint })])]);
     }
     body.append(ui.facts(pairs));
     const edit = el("button", { type: "button", className: "primary", textContent: s.common.edit });
@@ -1694,11 +1746,14 @@ export function mount(container, ctx) {
     );
     for (const item of items) {
       const policy = data.policies.find((p) => p.subentry_id === item.policy);
-      const linked = (policy.data.links || []).map(policyName).join(", ");
-      const text = { links: t.cl_links, never_acts: t.cl_never, holds_anyway: t.cl_holds }[item.kind];
+      const added = item.added || {};
+      const linked = (policy.data.links || []).map((id) => data.policies.find((p) => p.subentry_id === id)).filter(Boolean);
+      const what = item.kind === "links" ? linked.map((l) => takenBy(l, t)).join(t.cl_or) : leftOut(added.not_severities || [], added.not_tags || [], t);
+      const other = linked.map((l) => `“${l.name}”`).join(", ");
+      const text = { not_for: t.cl_not_for, links: t.cl_links, never_acts: t.cl_never, holds_anyway: t.cl_holds }[item.kind] || "";
       const row = el("div", { className: `cl-row${item.state === "open" ? "" : " done"}` }, [
-        el("ha-icon", { icon: item.state === "open" ? (item.kind === "never_acts" ? "mdi:sleep" : "mdi:link-variant") : "mdi:check" }),
-        el("div", { className: "cl-text", textContent: fill(fill(text, { name: `“${policy.name}”` }), { names: linked }) }),
+        el("ha-icon", { icon: item.state === "open" ? (item.kind === "never_acts" ? "mdi:sleep" : item.kind === "holds_anyway" ? "mdi:shield-outline" : "mdi:filter-outline") : "mdi:check" }),
+        el("div", { className: "cl-text", textContent: fill(text, { name: `“${policy.name}”`, what, other }) }),
       ]);
       if (item.state === "open") {
         const answer = async (choice) => {
@@ -1895,7 +1950,7 @@ export function mount(container, ctx) {
       }, 250);
     };
     box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; showEntity(v); paint(); })));
-    box.append(ui.field(t.entity_id, entityLine, own ? t.entity_id_own : t.entity_id_new));
+    box.append(ui.field(t.entity_id, entityLine, `${own ? t.entity_id_own : t.entity_id_new} ${t.entity_switch_hint}`));
     showEntity(values.name);
     box.append(ui.field(t.type, ui.selectInput(TYPES.map((k) => ({ value: k, label: t.types[k] })), values.type, (v) => { values.type = v; again(); })));
     box.append(el("div", { className: "hint type-desc", textContent: t.type_desc[values.type] }));
@@ -2038,7 +2093,7 @@ export function mount(container, ctx) {
       noteUpdaters.push(paintClash);
       when.append(clash);
       if (data.rules.length) when.append(pills(t.rules, data.rules.map((r) => ({ value: r.subentry_id, label: r.name })), values.rules, (list) => { values.rules = list; paint(); }));
-      if (values.links.length) when.append(el("div", { className: "hint", textContent: fill(t.links_note, { names: values.links.map(policyName).join(", ") }) }));
+      if (values.links.length) when.append(el("div", { className: "hint", textContent: linkText(values.links) }));
       const note = el("div", { className: "hint" });
       const paintNote = () => {
         const names = overlapNames({ values, own, policies: data.policies });

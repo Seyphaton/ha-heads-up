@@ -47,29 +47,45 @@ def test_welcome_list_with_a_later_away_at_the_end() -> None:
     result = convert_v3(
         [*WELCOME, AWAY], {"policy_mode": "first", "policy_order": ["crit", "warn", "eve", "night"]}
     )
-    assert result.updates["night"]["links"] == ["eve"]
-    assert kinds(result, "night") == ["links"]
-    # Away comes last in 1.x (missing from the order) and every message is taken first.
-    assert result.updates["away"]["links"] == ["crit", "warn", "eve", "night"]
+    # Night quiet came below Evening summary (info and passive, tag digest): it leaves out the
+    # tag digest, written as Not for (D-240), no link.
+    assert result.updates["night"]["not_tags"] == ["digest"]
+    assert "links" not in result.updates["night"]
+    assert kinds(result, "night") == ["not_for"]
+    item = next(i for i in result.items if i["policy"] == "night")
+    assert item["added"] == {"not_tags": ["digest"]}
+    # Away came last: every message was taken first. Only Evening summary needs a link, because
+    # Not for cannot say "info AND tag digest" for a policy of every severity.
+    away = result.updates["away"]
+    assert away["not_severities"] == ["passive", "info", "warning", "critical"]
+    assert away["links"] == ["eve"]
     assert kinds(result, "away") == ["never_acts"]
-    assert "links" not in result.updates.get("crit", {})
     assert "policy_mode" not in result.options and "policy_order" not in result.options
 
 
-def test_away_stored_first_takes_the_links_instead() -> None:
+def test_away_stored_first_makes_the_others_leave_out_everything() -> None:
     result = convert_v3(
         [AWAY, *WELCOME],
         {"policy_mode": "first", "policy_order": ["away", "crit", "warn", "eve", "night"]},
     )
     assert "links" not in result.updates.get("away", {})
-    assert result.updates["crit"]["links"] == ["away"]
-    assert result.updates["warn"]["links"] == ["away"]
+    assert result.updates["crit"]["not_severities"] == ["critical"]
     assert kinds(result, "crit") == ["never_acts"]
 
 
 def test_missing_mode_counts_as_first() -> None:
     result = convert_v3(WELCOME, {})
-    assert result.updates["night"]["links"] == ["eve"]
+    assert result.updates["night"]["not_tags"] == ["digest"]
+
+
+def test_a_policy_above_with_severity_and_tag_keeps_a_link() -> None:
+    water = StoredPolicy(
+        "water", "Water", {"type": "escalation", "severities": ["critical"], "tags": ["water"]}
+    )
+    nag = StoredPolicy("nag", "Nag", {"type": "reminder"})
+    result = convert_v3([water, nag], {"policy_mode": "first"})
+    assert result.updates["nag"]["links"] == ["water"]
+    assert kinds(result, "nag") == ["links"]
 
 
 def test_mode_all_gets_no_links() -> None:
@@ -94,12 +110,12 @@ def test_manual_policies_get_no_links_and_give_none() -> None:
     assert "links" not in result.updates.get("esc", {})
 
 
-def test_a_disabled_policy_above_links_but_does_not_make_it_never_act() -> None:
+def test_a_disabled_policy_above_changes_nothing() -> None:
     off = StoredPolicy("off", "Off", {"type": "deliver", "enabled": False})
     below = StoredPolicy("below", "Below", {"type": "reminder"})
     result = convert_v3([off, below], {"policy_mode": "first"})
-    assert result.updates["below"]["links"] == ["off"]
-    assert kinds(result, "below") == ["links"]
+    assert "below" not in result.updates
+    assert result.items == []
 
 
 def test_critical_passes_becomes_one_band_entry() -> None:

@@ -535,7 +535,7 @@ async def ws_policy_check(
     {
         vol.Required("type"): "heads_up/conversion_item",
         vol.Required("policy"): str,
-        vol.Required("kind"): vol.In(["links", "never_acts", "holds_anyway"]),
+        vol.Required("kind"): vol.In(["not_for", "links", "never_acts", "holds_anyway"]),
         vol.Required("choice"): vol.In(["keep", "change"]),
     }
 )
@@ -556,7 +556,19 @@ def ws_conversion_item(
         return
     if msg["choice"] == "change":
         data = dict(sub.data)
-        data.pop("links" if msg["kind"] != "holds_anyway" else "holds_anyway", None)
+        if msg["kind"] == "holds_anyway":
+            data.pop("holds_anyway", None)
+        else:
+            # Take back what the conversion wrote: its Not for values and its links.
+            for item in found:
+                for key, values in (item.get("added") or {}).items():
+                    kept = [v for v in data.get(key) or [] if v not in values]
+                    if kept:
+                        data[key] = kept
+                    else:
+                        data.pop(key, None)
+            if msg["kind"] in ("links", "never_acts"):
+                data.pop("links", None)
         hass.config_entries.async_update_subentry(entry, sub, data=data)
     for item in found:
         item["state"] = "kept" if msg["choice"] == "keep" else "changed"
