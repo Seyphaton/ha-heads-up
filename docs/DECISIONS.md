@@ -1571,3 +1571,4 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: Phase 17 end approved; the real-device checks are open (`docs/OPEN_QUESTIONS.md`).
 - Decision (maintainer, "Prepare 2.0.0-beta.1 pre-release"): the manifest version on `release/2.0` is `2.0.0-beta.1`. The CHANGELOG keeps `[Unreleased]` (it lists releases only); its block is the pre-release notes.
 - Not done without a further approval (D-020): pushing `release/2.0`, the tag `v2.0.0-beta.1` and the GitHub pre-release. Steps in `docs/dev/RELEASE.md`, Releasing 2.0.0, step 1.
+- Same day (maintainer, "push"): `release/2.0` and the tag `v2.0.0-beta.1` (on `9bc7061`) are pushed. The GitHub pre-release is the maintainer's step.
