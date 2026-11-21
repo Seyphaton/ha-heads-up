@@ -41,6 +41,14 @@ State: `release/1.1` was cut from `main` at `c5af204` (D-207); 1.0.x fixes go to
 4. Merge `release/1.1` into `main` and push `main`, only on the maintainer's explicit approval.
 5. Tag `v1.1.0` on `main`, push the tag, create the GitHub release (not a pre-release) with the 1.1.0 section as notes.
 
+## Releasing 2.0.0
+State: `release/2.0` was cut from `main` at `c5af204` and holds `release/1.1` (merged 2026-11-20, D-231), so 1.1.0 is not released on its own. Manifest still `1.1.0-beta.3`. Local only, not pushed. The first start converts policies to entry version 3.1; 1.x cannot read that (N-109), so the CHANGELOG and `docs/setup.md#upgrading` tell users to back up first.
+1. Real-device checks (`docs/OPEN_QUESTIONS.md`, sections 2.0.0 design, 1.1.0 and hub). While they are open, release pre-releases (`2.0.0-beta.N`: manifest version, commit, tag, push on the maintainer's approval).
+2. Merge `main` into `release/2.0` if `main` moved. Rename `[Unreleased]` in `CHANGELOG.md` to `[2.0.0]` with the date and set `version` in the manifest to `2.0.0`.
+3. `make check`, `make hassfest` and `make dev-smoke` green on a clean instance; an upgrade from a 1.1 setup on the dev instance converts the policies and shows the check list; push the branch and read CI.
+4. Merge `release/2.0` into `main` and push `main`, only on the maintainer's explicit approval. `release/1.1` needs no own merge.
+5. Tag `v2.0.0` on `main`, push the tag, create the GitHub release (not a pre-release) with the 2.0.0 section as notes. The tags `v1.1.0-beta.*` stay as they are.
+
 ## Default HACS list (optional)
 Custom-repository installs work without this. For the default list (N-54): the repository is public, the HACS Action and hassfest pass without ignores, a full GitHub release exists. Then fork `hacs/default`, create a branch from `master`, add `Seyphaton/ha-heads-up` to the file `integration` in alphabetical order, and open a pull request from a personal account with the template filled in.
 

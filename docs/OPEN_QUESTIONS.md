@@ -3,10 +3,11 @@
 ## 2.0.0 design (branch `release/2.0`, 2026-11-18)
 - Policy redesign AB decided (D-224); design set in `docs/dev/policy-redesign/` (fact sheet, stories, designs, reviews, comparison, reviewer scores), mockup `docs/dev/mockups/policy-redesign-a.html`.
 - Designed 2026-11-19: `docs/DESIGN.md` §25 (model, rules, stored shape, conversion and check list, checker and history, panel, wording, build checklist); scope, promise lines, downgrade and build plan in D-234.
-- Open before building (§25.16): Home Assistant's behaviour for a config entry with a higher major version; the condition selector for Only if and Faster while; Only if listeners on held deliveries across a restart; cost of the checker and promise lines on a large setup; the "watch rule" terms of the wording table against the 1.1 strings.
+- Resolved 2026-11-21 (§25.16): the higher major version (N-109), the Only if editor (entity and state, other conditions read-only), Only if across a restart (two tests, start check added), the checker's cost (at most 6.6 ms with 30 policies); promise lines are on the long list (D-241).
+- Open before releasing 2.0.0: real-device checks (the hub list below and section 1.1.0, plus a Get through push that rings for one person and stays quiet for another on real phones); the panel at phone width, in the light theme, with the keyboard and a screen reader; the French and Spanish Policies page call policies "règles"/"reglas" in places, the word of watch rules.
 - Done 2026-11-20: `release/1.1` merged into `release/2.0` (D-231); the section "1.1.0" below now belongs to 2.0.0.
 - Decided 2026-11-20: the cells O1 to O12 of `docs/dev/policy-redesign/04-interaction-matrix.md` (D-235); each row of the matrix becomes a test in the build phase.
-- Open: the interactive policy help (`docs/dev/mockups/policy-help.html`) as a panel page behind a help button, part of the 2.0.0 panel step.
+- Done 2026-11-21: the interactive policy help is the panel page "How policies work together" (Help, and a dialog on the Policies page).
 - Not in 2.0.0 (D-234): editable notify presets, per-channel targets in `notify`.
 
 ## Card follow-ups (found in Phase 4)

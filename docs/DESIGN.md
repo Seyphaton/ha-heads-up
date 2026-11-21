@@ -15,7 +15,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §22 parity of banner sources, rule buttons, tap action, dismiss scope and template conditions | implemented and tested (Phase 12 follow-up) |
 | §23 notification hub | built (Phase 15, H0 to H10 and the later maintainer changes) on the branch `hub/h9e-wizard`; pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.8 are tagged and pushed (D-133, D-154, D-175, D-190, D-196); not merged to `main`, no 1.0.0 |
 | §24 1.1.0: speech volume, Presence, quiet hours and home from an entity, snooze, severities | built and tested on `release/1.1` (Phase 16, D-225); checked on the dev HA; not on real devices; "only if" moved to 2.0.0 |
-| §25 2.0.0 policies in two lanes | built on `release/2.0` (Phase 17, D-234 to D-237): conversion, matching, band, matrix interactions, Only if, reminder rhythm, checker, panel and help page; user docs written; promise lines on the long list (D-241) |
+| §25 2.0.0 policies in two lanes | built and tested on `release/2.0` (Phase 17, D-234 to D-242): conversion, matching, band, matrix interactions, Only if, reminder rhythm, checker, panel and help page, watch-rule audience; user docs written; `make check`, `make hassfest` and `make dev-smoke` on a clean instance green; §25.16 verified; not on real devices, not checked at phone width, with the keyboard or a screen reader; promise lines on the long list (D-241) |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -898,6 +898,6 @@ Order; each step one or more commits, `make check` green after each.
 
 ### 25.16 To verify before building
 - Verified (N-109): Home Assistant refuses a config entry with a higher major version; the entry shows as a migration error and is not loaded.
-- The condition selector for Only if and Faster while in the panel's own forms (D-216 left it open).
-- Listeners for Only if on a held delivery across a restart.
-- Cost of the checker's 24-hour plan on a setup with 30 policies and 20 tags on a small host.
+- Settled by the build: the panel edits Only if and Faster while as an entity and a state; any other condition is shown read-only and kept, and is edited in the integration's form (D-216).
+- Verified: Only if on a held delivery across a restart. A change after the start is caught by the listener; a change while Home Assistant was stopped is caught by one check at the start (`engine.async_start` calls `conditions_changed` when a policy watches a condition; `tests/hub/test_policy_only_if.py`, two restart tests).
+- Measured 2026-11-21: the checker with 30 policies (10 reminders, 8 escalations, 5 quiet hours, 4 summaries, 3 band entries) over 20 tags, up to 62 planned steps per answer, took at most 6.6 ms per call (mean 3.1 ms) on the development Mac. A small host about ten times slower stays under 0.1 s. Not measured on a Raspberry Pi.
