@@ -215,6 +215,7 @@ import {
   fixKey,
   pathLines,
   statusHeadline,
+  statusPills,
   STRINGS as OVERVIEW_STRINGS,
 } from "../../custom_components/heads_up/frontend/panel/overview.js";
 import {
@@ -317,6 +318,15 @@ describe("overview functions", () => {
     expect(statusHeadline(0, t)).toBe(t.status_clear);
     expect(statusHeadline(1, t)).toBe(t.status_one);
     expect(statusHeadline(3, t)).toBe("3 notifications need you");
+  });
+
+  it("lists the severities of the status pills, critical first", () => {
+    const sh2 = { severity: { critical: "Critical", warning: "Warning" } };
+    expect(statusPills([{ severity: "warning" }, { severity: "critical" }, { severity: "warning" }], sh2)).toEqual([
+      { severity: "critical", text: "1 Critical" },
+      { severity: "warning", text: "2 Warning" },
+    ]);
+    expect(statusPills([], sh2)).toEqual([]);
   });
 
   it("counts messages with the right plural", () => {

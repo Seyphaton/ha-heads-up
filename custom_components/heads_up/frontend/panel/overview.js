@@ -4,6 +4,9 @@ export const STRINGS = {
   en: {
     title: "Overview",
     status: "Status",
+    status_title_clear: "All clear",
+    status_sub_clear: "No warning or critical notification is active.",
+    status_sub_active: "Acknowledge, snooze or clear them here.",
     status_clear: "All clear. No warning or critical notification is active.",
     status_one: "1 notification needs you",
     status_many: "{n} notifications need you",
@@ -89,6 +92,9 @@ export const STRINGS = {
   de: {
     title: "Übersicht",
     status: "Status",
+    status_title_clear: "Alles ruhig",
+    status_sub_clear: "Keine Warnung und keine kritische Meldung ist aktiv.",
+    status_sub_active: "Bestätige, stelle zurück oder entferne sie hier.",
     status_clear: "Alles ruhig. Keine Warnung und keine kritische Meldung ist aktiv.",
     status_one: "1 Meldung braucht dich",
     status_many: "{n} Meldungen brauchen dich",
@@ -174,6 +180,9 @@ export const STRINGS = {
   fr: {
     title: "Vue d'ensemble",
     status: "État",
+    status_title_clear: "Tout est calme",
+    status_sub_clear: "Aucun avertissement ni message critique n'est actif.",
+    status_sub_active: "Acquittez, reportez ou retirez-les ici.",
     status_clear: "Tout est calme. Aucun avertissement ni message critique n'est actif.",
     status_one: "1 notification a besoin de vous",
     status_many: "{n} notifications ont besoin de vous",
@@ -259,6 +268,9 @@ export const STRINGS = {
   es: {
     title: "Resumen",
     status: "Estado",
+    status_title_clear: "Todo en calma",
+    status_sub_clear: "Ningún aviso ni mensaje crítico está activo.",
+    status_sub_active: "Confírmalos, pospónlos o retíralos aquí.",
     status_clear: "Todo en calma. Ningún aviso ni mensaje crítico está activo.",
     status_one: "1 notificación te necesita",
     status_many: "{n} notificaciones te necesitan",
@@ -364,6 +376,13 @@ export function countText(n, t) {
 export function statusHeadline(count, t) {
   if (count === 0) return t.status_clear;
   return count === 1 ? t.status_one : fill(t.status_many, { n: count });
+}
+
+// The pills under the status title: "1 Critical · 2 Warning" from the listed messages.
+export function statusPills(items, s) {
+  const counts = {};
+  for (const item of items) counts[item.severity] = (counts[item.severity] || 0) + 1;
+  return ["critical", "warning"].filter((k) => counts[k]).map((k) => ({ severity: k, text: `${counts[k]} ${s.severity[k] || k}` }));
 }
 
 // One line of "Coming up": what happens, when, and how many messages it concerns.
@@ -480,65 +499,104 @@ function el(tag, props = {}, children = []) {
 }
 
 const CSS = `
-.hu-overview section { background: var(--card-background-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-.hu-overview h2 { font-size: 16px; margin: 0 0 8px; }
+.hu-overview { --hu-radius: 16px; --hu-shadow: 0 1px 2px rgba(0,0,0,.10), 0 8px 24px rgba(0,0,0,.10); --hu-ok: var(--success-color, #43a047); --hu-crit: var(--error-color, #db4437); --hu-warn: var(--warning-color, #ffa600); --hu-info: var(--info-color, #039be5); --hu-chip: color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
+.hu-overview > h1 { font-size: 26px; letter-spacing: -.02em; margin: 4px 0 18px; }
+.hu-overview section { background: var(--card-background-color); border: 1px solid var(--divider-color); border-radius: var(--hu-radius); padding: 18px 20px; margin-bottom: 16px; box-shadow: var(--hu-shadow); animation: hu-rise .45s both; }
+.hu-overview section:nth-of-type(2) { animation-delay: .05s; } .hu-overview section:nth-of-type(3) { animation-delay: .1s; }
+.hu-overview h2 { font-size: 15px; font-weight: 600; letter-spacing: .01em; margin: 0 0 6px; }
 .hu-overview .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .hu-overview .pair section { margin-bottom: 16px; }
-.hu-overview button { min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--divider-color); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
+.hu-overview button { font: inherit; cursor: pointer; color: var(--primary-text-color); }
 .hu-overview button:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
-.hu-overview ul { list-style: none; margin: 8px 0 0; padding: 0; }
-.hu-overview li { padding: 8px 0; border-top: 1px solid var(--divider-color); }
-.hu-overview ul:first-child li:first-child { border-top: none; }
+.hu-overview button.mini { min-height: 36px; padding: 0 12px; font-size: 13px; border-radius: 10px; border: 1px solid var(--divider-color); background: transparent; }
+.hu-overview button.mini:hover { border-color: var(--primary-color); }
+.hu-overview button.mini.primary { background: var(--primary-color); border-color: transparent; color: var(--text-primary-color, #fff); font-weight: 600; }
+.hu-overview button.link { min-height: 36px; padding: 0 6px; border: none; background: none; color: var(--primary-color); font-size: 13px; white-space: nowrap; }
+.hu-overview button.link:hover { text-decoration: underline; }
+.hu-overview button.link.quiet { color: var(--secondary-text-color); }
 .hu-overview .sub { color: var(--secondary-text-color); font-size: 13px; }
-.hu-overview .sev { font-weight: 600; margin-right: 6px; }
-.hu-overview .error { color: var(--error-color); font-weight: 600; margin-right: 6px; }
-.hu-overview .warning { color: var(--warning-color); font-weight: 600; margin-right: 6px; }
-.hu-overview .status { display: flex; flex-direction: column; gap: 4px; }
-.hu-overview .status .headline { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-.hu-overview .status .mark { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 14px; font-size: 16px; color: var(--text-primary-color, #fff); background: var(--success-color, #43a047); }
-.hu-overview .status.active .mark { background: var(--error-color, #db4437); }
-.hu-overview .status .rowbtns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-.hu-overview .path { margin: 6px 0 0; padding-left: 12px; border-left: 3px solid var(--divider-color); }
-.hu-overview .path div { font-size: 13px; padding: 2px 0; }
-.hu-overview .placeholder { color: var(--secondary-text-color); font-size: 14px; padding: 6px 0; }
-.hu-overview .reach { width: 100%; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
-.hu-overview .reach th { font-size: 13px; font-weight: 600; text-align: left; padding: 4px 6px; color: var(--secondary-text-color); }
+.hu-overview .pill { display: inline-flex; align-items: center; gap: 5px; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--hu-chip); color: var(--secondary-text-color); white-space: nowrap; }
+.hu-overview .pill.critical, .hu-overview .pill.error { background: color-mix(in srgb, var(--hu-crit) 18%, transparent); color: var(--hu-crit); }
+.hu-overview .pill.warning { background: color-mix(in srgb, var(--hu-warn) 22%, transparent); color: color-mix(in srgb, var(--hu-warn) 85%, var(--primary-text-color)); }
+.hu-overview .pill.info { background: color-mix(in srgb, var(--hu-info) 18%, transparent); color: var(--hu-info); }
+.hu-overview .pill.ok { background: color-mix(in srgb, var(--hu-ok) 18%, transparent); color: var(--hu-ok); }
+.hu-overview ul { list-style: none; margin: 10px 0 0; padding: 0; }
+.hu-overview ul > li { padding: 10px 0; border-top: 1px solid var(--divider-color); }
+.hu-overview ul > li:first-child { border-top: none; }
+
+/* status hero */
+.hu-overview section.hero { position: relative; overflow: hidden; border-radius: 20px; padding: 24px; display: grid; grid-template-columns: auto 1fr; gap: 8px 24px; align-items: center; background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--hero-tint) 16%, var(--card-background-color)), var(--card-background-color) 60%); }
+.hu-overview .hero.clear { --hero-tint: var(--hu-ok); } .hu-overview .hero.active { --hero-tint: var(--hu-crit); }
+.hu-overview .orb { width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; font-size: 34px; font-weight: 700; color: var(--text-primary-color, #fff); background: linear-gradient(135deg, color-mix(in srgb, var(--hero-tint) 70%, #fff), var(--hero-tint)); box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 14%, transparent), 0 0 0 18px color-mix(in srgb, var(--hero-tint) 7%, transparent); margin: 10px; }
+.hu-overview .hero.active .orb { animation: hu-pulse 1.8s infinite; }
+.hu-overview .hero .title { font-size: 24px; font-weight: 700; letter-spacing: -.02em; margin: 2px 0; }
+.hu-overview .hero .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+.hu-overview .hero .items { grid-column: 1 / -1; display: grid; gap: 10px; margin-top: 12px; }
+.hu-overview .alert { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; align-items: center; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--divider-color); background: var(--card-background-color); }
+.hu-overview .alert .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--hu-warn); }
+.hu-overview .alert.critical .dot { background: var(--hu-crit); }
+.hu-overview .alert .name { font-weight: 600; overflow-wrap: anywhere; }
+.hu-overview .alert .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.hu-overview .alert .path { grid-column: 1 / -1; }
+@media (max-width: 640px) { .hu-overview section.hero { grid-template-columns: 1fr; } .hu-overview .alert { grid-template-columns: auto 1fr; } .hu-overview .alert .acts { grid-column: 1 / -1; justify-content: flex-start; } }
+
+/* rows */
+.hu-overview .row { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; align-items: center; }
+.hu-overview .row .text { overflow-wrap: anywhere; }
+.hu-overview .row .acts { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.hu-overview .row.simple { grid-template-columns: 1fr auto; }
+.hu-overview .row.stack { grid-template-columns: auto 1fr; align-items: start; }
+.hu-overview .row.stack .acts { grid-column: 2; justify-content: flex-start; margin-left: -6px; }
+.hu-overview .time { font-variant-numeric: tabular-nums; color: var(--secondary-text-color); font-size: 12px; background: var(--hu-chip); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+.hu-overview .path { margin: 6px 0 0; padding-left: 14px; border-left: 3px solid var(--primary-color); display: grid; gap: 4px; }
+.hu-overview .path div { font-size: 13px; }
+.hu-overview .placeholder { color: var(--secondary-text-color); font-size: 14px; padding: 10px 0 4px; }
+@media (max-width: 560px) { .hu-overview .row { grid-template-columns: 1fr; } .hu-overview .row .acts { justify-content: flex-start; } }
+
+/* reach table */
+.hu-overview .reach { width: 100%; border-collapse: separate; border-spacing: 6px; table-layout: fixed; margin: 6px -6px 0; width: calc(100% + 12px); }
+.hu-overview .reach th { font-size: 12px; font-weight: 600; text-align: left; padding: 4px 6px; color: var(--secondary-text-color); letter-spacing: .02em; }
 .hu-overview .reach th.col { text-align: center; }
 .hu-overview .reach td { padding: 0; }
-.hu-overview .reach button.cell { width: 100%; min-height: 44px; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; line-height: 1.2; border-radius: 8px; border: 1px solid var(--divider-color); font-size: 13px; }
-.hu-overview .reach button.cell .count { font-size: 11px; opacity: .85; }
-.hu-overview .reach button.cell[aria-pressed="true"] { outline: 2px solid var(--primary-color); }
-.hu-overview .reach .st-sound { background: color-mix(in srgb, var(--error-color, #db4437) 22%, transparent); }
-.hu-overview .reach .st-shown { background: color-mix(in srgb, var(--success-color, #43a047) 22%, transparent); }
-.hu-overview .reach .st-quiet { background: color-mix(in srgb, var(--info-color, #039be5) 22%, transparent); }
-.hu-overview .reach .st-held { background: color-mix(in srgb, var(--warning-color, #ffa600) 24%, transparent); }
-.hu-overview .reach .st-skipped { background: color-mix(in srgb, var(--secondary-text-color) 14%, transparent); }
-.hu-overview .reach .st-not_set_up { background: transparent; border-style: dashed; color: var(--secondary-text-color); }
-.hu-overview .detail { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: var(--secondary-background-color); }
+.hu-overview .reach button.cell { width: 100%; min-height: 46px; padding: 4px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; border-radius: 12px; border: 1px solid transparent; font-size: 13px; font-weight: 600; transition: transform .12s, box-shadow .12s; }
+.hu-overview .reach button.cell:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.18); }
+.hu-overview .reach button.cell .count { font-size: 11px; font-weight: 400; opacity: .85; }
+.hu-overview .reach button.cell[aria-pressed="true"] { border-color: var(--primary-color); box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 35%, transparent); }
+.hu-overview .reach .st-sound { background: color-mix(in srgb, var(--hu-crit) 22%, transparent); color: var(--hu-crit); }
+.hu-overview .reach .st-shown { background: color-mix(in srgb, var(--hu-ok) 20%, transparent); color: var(--hu-ok); }
+.hu-overview .reach .st-quiet { background: color-mix(in srgb, var(--hu-info) 20%, transparent); color: var(--hu-info); }
+.hu-overview .reach .st-held { background: color-mix(in srgb, var(--hu-warn) 24%, transparent); color: color-mix(in srgb, var(--hu-warn) 85%, var(--primary-text-color)); }
+.hu-overview .reach .st-skipped { background: var(--hu-chip); color: var(--secondary-text-color); }
+.hu-overview .reach .st-not_set_up { background: transparent; border: 1px dashed var(--divider-color); color: var(--secondary-text-color); font-weight: 400; }
+.hu-overview .detail { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--hu-chip); display: grid; gap: 2px; }
 .hu-overview .detail .t { font-weight: 600; }
-.hu-overview .context { margin: 0 0 8px; }
-.hu-overview .context div { font-size: 13px; color: var(--secondary-text-color); }
+.hu-overview .context { margin: 0 0 8px; display: grid; gap: 2px; }
+.hu-overview .context .sub:first-child { color: var(--primary-text-color); }
+
+/* chart */
 .hu-overview .chartbox .head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-.hu-overview .chartbox .head .total { font-weight: 600; }
+.hu-overview .chartbox .head .total { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
 .hu-overview .chartbox .axis { display: flex; justify-content: space-between; margin-top: 6px; }
 .hu-overview svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
 .hu-overview svg.chart .bar { transform-box: fill-box; transform-origin: 50% 100%; transition: filter .2s; }
 .hu-overview svg.chart .bar:hover { filter: brightness(1.18); }
 .hu-overview svg.chart .empty { fill: var(--divider-color); opacity: .7; }
-.hu-overview svg.chart .sev-critical { fill: var(--error-color, #db4437); }
-.hu-overview svg.chart .sev-warning { fill: var(--warning-color, #ffa600); }
-.hu-overview svg.chart .sev-info { fill: var(--info-color, #039be5); }
-.hu-overview svg.chart .sev-passive { fill: var(--success-color, #43a047); }
+.hu-overview svg.chart .sev-critical { fill: var(--hu-crit); }
+.hu-overview svg.chart .sev-warning { fill: var(--hu-warn); }
+.hu-overview svg.chart .sev-info { fill: var(--hu-info); }
+.hu-overview svg.chart .sev-passive { fill: var(--hu-ok); }
 .hu-overview svg.chart.intro .bar { animation: hu-grow .8s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i) * 30ms); }
 .hu-overview svg.chart .bar.now .shine { animation: hu-glow 2.6s ease-in-out infinite; }
+.hu-overview .hint { background: var(--hu-chip); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+@keyframes hu-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes hu-pulse { 0% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 30%, transparent), 0 0 0 18px color-mix(in srgb, var(--hero-tint) 7%, transparent); } 100% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 14%, transparent), 0 0 0 26px transparent; } }
 @keyframes hu-grow { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
 @keyframes hu-glow { 0%, 100% { opacity: .35; } 50% { opacity: .75; } }
-@media (prefers-reduced-motion: reduce) { .hu-overview svg.chart .bar, .hu-overview svg.chart .bar .shine { animation: none !important; } }
-.hu-overview .hint { background: var(--secondary-background-color); border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+@media (prefers-reduced-motion: reduce) { .hu-overview section, .hu-overview .orb, .hu-overview svg.chart .bar, .hu-overview svg.chart .bar .shine { animation: none !important; } .hu-overview .reach button.cell { transition: none; } }
 @media (max-width: 480px) {
+  .hu-overview .reach { border-spacing: 4px; margin: 6px -4px 0; width: calc(100% + 8px); }
   .hu-overview .reach th { font-size: 11px; padding: 2px; }
   .hu-overview .reach button.cell { font-size: 11px; padding: 2px; min-height: 48px; }
-  .hu-overview .reach th.rowhead { width: 74px; }
 }
 `;
 
@@ -635,7 +693,7 @@ export function mount(container, ctx) {
 
   function pathButton(id) {
     const open = Boolean(openPaths[id]);
-    const button = el("button", { type: "button", textContent: open ? t.path_hide : t.path_show });
+    const button = el("button", { type: "button", className: "link", textContent: open ? t.path_hide : t.path_show });
     button.setAttribute("aria-expanded", String(open));
     button.addEventListener("click", () => togglePath(id));
     return button;
@@ -644,71 +702,68 @@ export function mount(container, ctx) {
   function statusCard() {
     const status = data.status;
     const active = status.count > 0;
-    const box = el("section", { className: `status${active ? " active" : ""}` });
+    const box = el("section", { className: `hero ${active ? "active" : "clear"}` });
     box.setAttribute("aria-label", t.status);
+    const pills = el("div", { className: "pills" }, statusPills(status.items, s).map((p) => el("span", { className: `pill ${p.severity}`, textContent: p.text })));
     box.append(
-      el("div", { className: "headline" }, [
-        el("span", { className: "mark", textContent: active ? String(status.count) : "✓", "aria-hidden": "true" }),
-        el("span", { textContent: statusHeadline(status.count, t) }),
+      el("div", { className: "orb", textContent: active ? String(status.count) : "✓", "aria-hidden": "true" }),
+      el("div", {}, [
+        active ? pills : "",
+        el("div", { className: "title", textContent: active ? statusHeadline(status.count, t) : t.status_title_clear }),
+        el("div", { className: "sub", textContent: active ? t.status_sub_active : t.status_sub_clear }),
       ]),
     );
-    const list = el("ul");
+    if (!active) return box;
+    const items = el("div", { className: "items" });
     for (const item of status.items) {
-      const buttons = el("div", { className: "rowbtns" });
-      if (item.can_acknowledge) {
-        const ack = el("button", { type: "button", textContent: t.acknowledge_message });
-        ack.addEventListener("click", () => act("heads_up/panel_acknowledge", { message_id: item.id }));
-        buttons.append(ack);
-      }
-      if (item.severity === "warning" && item.snoozable) {
-        const snooze = el("button", { type: "button", textContent: t.snooze_message });
-        snooze.addEventListener("click", () => act("heads_up/snooze", { banner_id: item.id, seconds: SNOOZE_SECONDS }));
-        buttons.append(snooze);
-      }
-      if (item.can_clear) {
-        const clear = el("button", { type: "button", textContent: t.clear_message });
-        clear.addEventListener("click", () => act("heads_up/panel_clear", { message_id: item.id }, fill(t.clear_confirm, { title: fmt.messageTitle(item) })));
-        buttons.append(clear);
-      }
+      const buttons = el("div", { className: "acts" });
+      const mini = (text, onClick, extra = "") => {
+        const button = el("button", { type: "button", className: `mini ${extra}`.trim(), textContent: text });
+        button.addEventListener("click", onClick);
+        return button;
+      };
+      if (item.can_acknowledge) buttons.append(mini(t.acknowledge_message, () => act("heads_up/panel_acknowledge", { message_id: item.id })));
+      if (item.severity === "warning" && item.snoozable) buttons.append(mini(t.snooze_message, () => act("heads_up/snooze", { banner_id: item.id, seconds: SNOOZE_SECONDS })));
+      if (item.can_clear) buttons.append(mini(t.clear_message, () => act("heads_up/panel_clear", { message_id: item.id }, fill(t.clear_confirm, { title: fmt.messageTitle(item) }))));
       buttons.append(pathButton(item.id));
-      const origin = item.source === "rule" ? el("span", { className: "sub", textContent: ` · ${t.source_rule}` }) : "";
-      const row = el("li", {}, [
-        el("span", { className: "sev", textContent: s.severity[item.severity] || item.severity }),
-        el("span", { textContent: fmt.messageTitle(item) }),
-        origin,
-        ...item.states.map((state) => el("div", { className: "sub", textContent: fmt.stateText(state, now(), s) })),
+      const states = item.states.map((state) => fmt.stateText(state, now(), s));
+      const origin = item.source === "rule" ? [t.source_rule] : [];
+      const meta = [s.severity[item.severity] || item.severity, ...origin, ...states].join(" · ");
+      const row = el("div", { className: `alert ${item.severity}` }, [
+        el("span", { className: "dot", "aria-hidden": "true" }),
+        el("div", {}, [el("div", { className: "name", textContent: fmt.messageTitle(item) }), el("div", { className: "sub", textContent: meta })]),
         buttons,
       ]);
       if (openPaths[item.id]) row.append(pathNode(item.id));
-      list.append(row);
+      items.append(row);
     }
-    if (active) box.append(list);
+    box.append(items);
     return box;
   }
 
   function attentionCard() {
     const attention = data.attention;
     const list = el("ul");
-    if (attention.length === 0) list.append(el("li", { textContent: t.attention_none }));
+    if (attention.length === 0) list.append(el("li", { className: "placeholder", textContent: t.attention_none }));
     for (const item of attention) {
-      const row = el("li", {}, [el("span", { className: item.level, textContent: t[item.level] }), el("span", { textContent: fmt.attentionText(item, s) })]);
+      const acts = el("div", { className: "acts" });
       const key = fixKey(item.page);
       if (t[key]) {
-        const fix = el("button", { type: "button", textContent: t[key], style: "margin-left:8px" });
+        const fix = el("button", { type: "button", className: "link", textContent: t[key] });
         fix.addEventListener("click", () => ctx.navigate(item.page));
-        row.append(fix);
+        acts.append(fix);
       }
       if (item.dismissible) {
-        const hide = el("button", { type: "button", textContent: t.hide, style: "margin-left:8px" });
+        const hide = el("button", { type: "button", className: "link quiet", textContent: t.hide });
         hide.setAttribute("aria-label", `${t.hide_label}: ${fmt.attentionText(item, s)}`);
         hide.addEventListener("click", () => act("heads_up/attention_dismiss", { key: item.key }));
-        row.append(hide);
+        acts.append(hide);
       }
-      list.append(row);
+      list.append(el("li", { className: "row stack" }, [el("span", { className: `pill ${item.level}`, textContent: t[item.level] }), el("span", { className: "text", textContent: fmt.attentionText(item, s) }), acts]));
     }
     const parts = [list];
     if (data.attention_hidden > 0) {
-      const again = el("button", { type: "button", textContent: t.show_hidden });
+      const again = el("button", { type: "button", className: "link", textContent: t.show_hidden });
       again.addEventListener("click", () => act("heads_up/attention_restore", {}));
       parts.push(el("div", { className: "sub", style: "margin-top:8px" }, [el("span", { textContent: `${fill(t.hidden_line, { n: data.attention_hidden })} ` }), again]));
     }
@@ -717,39 +772,38 @@ export function mount(container, ctx) {
 
   function comingCard() {
     const list = el("ul");
-    if (data.coming_up.length === 0) list.append(el("li", { textContent: t.coming_none }));
-    for (const entry of data.coming_up) list.append(el("li", { textContent: comingText(entry, now(), t, s, fmt) }));
+    if (data.coming_up.length === 0) list.append(el("li", { className: "placeholder", textContent: t.coming_none }));
+    for (const entry of data.coming_up) {
+      const [what, count] = comingText(entry, now(), t, s, fmt).split(" · ");
+      list.append(el("li", { className: "row simple" }, [el("span", { className: "text", textContent: what }), el("span", { className: "time", textContent: count })]));
+    }
     return section(t.coming_title, [list]);
   }
 
   function lastActionsCard() {
     const log = el("ul");
-    if (data.log.length === 0) log.append(el("li", { textContent: t.last_none }));
+    if (data.log.length === 0) log.append(el("li", { className: "placeholder", textContent: t.last_none }));
     for (const entry of data.log) {
-      const row = el("li", {}, [
-        el("span", { className: "sub", textContent: `${fmt.timeAgo(entry.time, now(), s)} · ` }),
-        el("span", { textContent: fmt.logText(entry, s) }),
-        el("span", { className: "sub", textContent: entry.title ? ` · ${entry.title}` : "" }),
-      ]);
+      const text = [fmt.logText(entry, s), entry.title].filter(Boolean).join(" · ");
+      const acts = el("div", { className: "acts" });
       // A message that still has a trace can unfold its path.
-      if (entry.message_id) {
-        row.append(" ", pathButton(entry.message_id));
-        if (openPaths[entry.message_id]) row.append(pathNode(entry.message_id));
-      }
+      if (entry.message_id) acts.append(pathButton(entry.message_id));
+      const row = el("li", {}, [el("div", { className: "row" }, [el("span", { className: "time", textContent: fmt.timeAgo(entry.time, now(), s) }), el("span", { className: "text", textContent: text }), acts])]);
+      if (entry.message_id && openPaths[entry.message_id]) row.append(pathNode(entry.message_id));
       log.append(row);
     }
-    const more = el("button", { type: "button", textContent: t.open_messages });
+    const more = el("button", { type: "button", className: "mini", textContent: t.open_messages });
     more.addEventListener("click", () => ctx.navigate("messages"));
-    const refresh = el("button", { type: "button", textContent: t.refresh, style: "margin-left:8px" });
+    const refresh = el("button", { type: "button", className: "mini", textContent: t.refresh, style: "margin-left:8px" });
     refresh.addEventListener("click", load);
-    return section(t.last_actions, [log, el("div", { style: "margin-top:8px" }, [more, refresh])]);
+    return section(t.last_actions, [log, el("div", { style: "margin-top:10px" }, [more, refresh])]);
   }
 
   function reachCard() {
     if (reach === false) return section(t.reach_title, [el("div", { className: "sub", textContent: t.reach_failed })]);
     if (!reach) return section(t.reach_title, [el("div", { className: "sub", textContent: t.loading })]);
     const lines = contextLines(reach.context, now(), t, s, fmt, ctx.language);
-    const context = el("div", { className: "context" }, [el("div", { textContent: t.reach_intro }), ...lines.map((line) => el("div", { textContent: line }))]);
+    const context = el("div", { className: "context" }, [el("div", { className: "sub", textContent: t.reach_intro }), ...lines.map((line) => el("div", { className: "sub", textContent: line }))]);
     const table = el("table", { className: "reach" });
     const head = el("tr", {}, [el("th", { className: "rowhead", scope: "col" })]);
     for (const severity of reach.severities) head.append(el("th", { className: "col", scope: "col", textContent: s.severity[severity] || severity }));
@@ -845,7 +899,7 @@ export function mount(container, ctx) {
     root.replaceChildren(el("style", { textContent: CSS }), el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }), tourHost);
     if (data.first_run) {
       if (!tour) {
-        const go = el("button", { type: "button", textContent: t.first_run_button });
+        const go = el("button", { type: "button", className: "mini primary", textContent: t.first_run_button });
         go.addEventListener("click", () => startTour(true));
         root.append(el("div", { className: "hint" }, [el("span", { textContent: t.first_run }), go]));
       }

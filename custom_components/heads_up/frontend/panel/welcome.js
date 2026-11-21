@@ -490,39 +490,42 @@ function el(tag, props = {}, children = []) {
 }
 
 const CSS = `
-.hu-tour { background: var(--card-background-color); border: 1px solid var(--divider-color); border-left: 4px solid var(--primary-color); border-radius: 12px; padding: 20px 24px; margin-bottom: 16px; }
-.hu-tour h2 { margin: 0 0 4px; font-size: 22px; }
+.hu-tour { background: radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--primary-color) 14%, var(--card-background-color)), var(--card-background-color) 60%); border: 1px solid var(--divider-color); border-radius: 20px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,.10), 0 8px 24px rgba(0,0,0,.10); }
+.hu-tour h2 { margin: 0 0 4px; font-size: 26px; letter-spacing: -.02em; }
 .hu-tour h3 { margin: 16px 0 4px; font-size: 16px; }
 .hu-tour p { margin: 4px 0 8px; line-height: 1.5; }
 .hu-tour .eyebrow { color: var(--secondary-text-color); font-size: 13px; margin-bottom: 12px; }
 .hu-tour ol.steps { display: flex; gap: 6px; margin: 6px 0 0; padding: 0; list-style: none; flex-wrap: wrap; }
-.hu-tour ol.steps li { display: flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 12px; border: 1px solid var(--divider-color); font-size: 13px; }
-.hu-tour ol.steps li.now { border-color: var(--primary-color); font-weight: 600; }
-.hu-tour ol.steps li.done::before { content: "✓"; color: var(--primary-color); }
+.hu-tour ol.steps li { display: flex; align-items: center; gap: 6px; padding: 3px 12px 3px 4px; border-radius: 999px; background: color-mix(in srgb, var(--primary-text-color) 8%, transparent); color: var(--secondary-text-color); font-size: 13px; }
+.hu-tour ol.steps li .n { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; background: var(--card-background-color); }
+.hu-tour ol.steps li.now { background: color-mix(in srgb, var(--primary-color) 18%, transparent); color: var(--primary-color); font-weight: 600; }
+.hu-tour ol.steps li.now .n { background: var(--primary-color); color: var(--text-primary-color, #fff); }
+.hu-tour ol.steps li.done .n { background: var(--success-color, #43a047); color: var(--text-primary-color, #fff); }
 .hu-tour .hint, .hu-overview .hu-tour .hint { display: block; background: none; padding: 0; border-radius: 0; color: var(--secondary-text-color); font-size: 13px; margin: 2px 0 8px; line-height: 1.45; }
 .hu-tour .intro-foot, .hu-overview .hu-tour .intro-foot { display: block; background: var(--secondary-background-color); border-radius: 8px; padding: 10px 12px; margin: 8px 0; color: var(--secondary-text-color); font-size: 13px; }
 .hu-tour .lead { font-size: 16px; }
 .hu-tour .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin: 12px 0; }
-.hu-tour .mini { border: 1px solid var(--divider-color); border-radius: 8px; padding: 10px 12px; }
-.hu-tour .mini strong { display: block; margin-bottom: 2px; }
+.hu-tour .mini { border: 1px solid var(--divider-color); border-radius: 14px; padding: 12px 14px; background: var(--card-background-color); }
+.hu-tour .mini strong { display: block; margin-bottom: 2px; font-size: 16px; }
 .hu-tour .mini .found { margin-top: 6px; font-size: 13px; }
 .hu-tour .mini .setting { margin-top: 8px; }
-.hu-tour button.card { text-align: left; min-height: 96px; padding: 10px 12px; border: 1px solid var(--divider-color); border-radius: 8px; background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
+.hu-tour button.card { text-align: left; min-height: 96px; padding: 10px 12px; border: 1px solid var(--divider-color); border-radius: 14px; background: var(--card-background-color); color: var(--primary-text-color); font: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: transform .12s, box-shadow .12s; }
+.hu-tour button.card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.18); }
 .hu-tour button.card:hover { border-color: var(--primary-color); }
 .hu-tour button.card .name { font-weight: 600; }
 .hu-tour button.card .person { font-size: 14px; }
 .hu-tour button.card .flip { margin-top: auto; font-size: 12px; color: var(--primary-color); }
-.hu-tour .item { border: 1px solid var(--divider-color); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+.hu-tour .item { border: 1px solid var(--divider-color); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; background: var(--card-background-color); }
 .hu-tour .badges { display: inline-flex; gap: 6px; flex-wrap: wrap; margin-left: 8px; }
-.hu-tour .badge { font-size: 12px; font-weight: 400; padding: 1px 8px; border-radius: 10px; border: 1px solid var(--divider-color); color: var(--secondary-text-color); }
+.hu-tour .badge { font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 999px; background: color-mix(in srgb, var(--primary-color) 16%, transparent); color: var(--primary-color); }
 .hu-tour label.inline { display: flex; align-items: center; gap: 10px; min-height: 48px; font-weight: 600; flex-wrap: wrap; }
 .hu-tour input[type=checkbox] { width: 22px; height: 22px; }
 .hu-tour label.field { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
 .hu-tour input[type=text], .hu-tour select { min-height: 40px; max-width: 100%; padding: 0 8px; border-radius: 6px; border: 1px solid var(--divider-color); background: var(--secondary-background-color); color: var(--primary-text-color); font: inherit; box-sizing: border-box; }
 .hu-tour fieldset { border: 1px solid var(--divider-color); border-radius: 8px; max-height: 160px; overflow: auto; margin: 8px 0; }
 .hu-tour legend { color: var(--secondary-text-color); font-size: 13px; }
-.hu-tour button { min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--divider-color); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
-.hu-tour button.primary { background: var(--primary-color); color: var(--text-primary-color, #fff); border-color: transparent; }
+.hu-tour button { min-height: 44px; padding: 0 18px; border-radius: 12px; border: 1px solid var(--divider-color); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
+.hu-tour button.primary { background: var(--primary-color); color: var(--text-primary-color, #fff); border-color: transparent; font-weight: 600; box-shadow: 0 4px 16px color-mix(in srgb, var(--primary-color) 40%, transparent); }
 .hu-tour button.link { border: none; color: var(--secondary-text-color); text-decoration: underline; padding: 0 8px; }
 .hu-tour button:focus-visible, .hu-tour select:focus-visible, .hu-tour input:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
 .hu-tour .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; align-items: center; }
@@ -598,7 +601,8 @@ export async function mount(container, ctx) {
     list.setAttribute("aria-label", t.steps_label);
     const names = [t.intro_title, t.channels_title, t.recipients_title, t.policies_title];
     STEPS.forEach((id, i) => {
-      const item = el("li", { className: i < state.step ? "done" : i === state.step ? "now" : "", textContent: `${i + 1}. ${i === 0 ? t.step_intro : names[i].split(/[:：]/)[0].trim()}` });
+      const label = i === 0 ? t.step_intro : names[i].split(/[:：]/)[0].trim();
+      const item = el("li", { className: i < state.step ? "done" : i === state.step ? "now" : "" }, [el("span", { className: "n", textContent: i < state.step ? "✓" : String(i + 1), "aria-hidden": "true" }), el("span", { textContent: label })]);
       if (i === state.step) item.setAttribute("aria-current", "step");
       list.append(item);
     });
