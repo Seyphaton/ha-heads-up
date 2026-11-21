@@ -11,6 +11,7 @@ export const STRINGS = {
     next: "Next",
     back: "Back",
     skip: "Skip the tour",
+    step_intro: "Introduction",
     intro_title: "The right message, to the right people, at the right time",
     intro_lead: "Your automations make one call. Heads Up delivers the message the way you set it up here: where it shows up, who gets it, and when it is delivered or escalated.",
     intro_where: "Where",
@@ -46,7 +47,7 @@ export const STRINGS = {
     nothing: "nothing",
     failed: "Could not create the policies. Try again.",
     policies_title: "Policies: when to be loud or quiet",
-    recipients_title: "Recipients: who gets it",
+    recipients_title: "Audiences: who gets it",
     intro_where_text: "Channels decide where a message shows up: a banner, a push, a popup, speech, mail or the bell.",
     intro_who_text: "Audiences decide who gets it: everyone, the admins, whoever is home or the person who left last.",
     intro_when_text: "Policies decide when: stay quiet at night, repeat what nobody acknowledged, hold small things for one summary.",
@@ -107,6 +108,7 @@ export const STRINGS = {
     next: "Weiter",
     back: "Zurück",
     skip: "Tour überspringen",
+    step_intro: "Einführung",
     intro_title: "Die richtige Meldung, an die richtigen Leute, zur richtigen Zeit",
     intro_lead: "Deine Automationen machen einen Aufruf. Heads Up stellt die Meldung so zu, wie du es hier einrichtest: wo sie erscheint, wer sie bekommt und wann sie zugestellt oder eskaliert wird.",
     intro_where: "Wo",
@@ -142,7 +144,7 @@ export const STRINGS = {
     nothing: "nichts",
     failed: "Die Richtlinien konnten nicht erstellt werden. Versuche es erneut.",
     policies_title: "Richtlinien: wann laut, wann leise",
-    recipients_title: "Empfänger: wer sie bekommt",
+    recipients_title: "Zielgruppen: wer sie bekommt",
     intro_where_text: "Kanäle bestimmen, wo eine Meldung erscheint: Banner, Push, Popup, Sprache, E-Mail oder die Glocke.",
     intro_who_text: "Zielgruppen bestimmen, wer sie bekommt: alle, die Admins, wer zu Hause ist oder wer zuletzt gegangen ist.",
     intro_when_text: "Richtlinien bestimmen, wann: nachts leise bleiben, wiederholen, was niemand bestätigt hat, Kleinkram zu einer Zusammenfassung sammeln.",
@@ -203,6 +205,7 @@ export const STRINGS = {
     next: "Suivant",
     back: "Retour",
     skip: "Passer la visite",
+    step_intro: "Introduction",
     intro_title: "Le bon message, aux bonnes personnes, au bon moment",
     intro_lead: "Vos automatisations font un seul appel. Heads Up remet le message selon ce que vous réglez ici : où il apparaît, qui le reçoit, et quand il est livré ou escaladé.",
     intro_where: "Où",
@@ -238,7 +241,7 @@ export const STRINGS = {
     nothing: "rien",
     failed: "Les politiques n'ont pas pu être créées. Réessayez.",
     policies_title: "Politiques : quand être fort ou discret",
-    recipients_title: "Destinataires : qui le reçoit",
+    recipients_title: "Audiences : qui le reçoit",
     intro_where_text: "Les canaux décident où un message apparaît : bannière, push, fenêtre, voix, courriel ou la cloche.",
     intro_who_text: "Les audiences décident qui le reçoit : tout le monde, les admins, ceux qui sont là ou la dernière personne partie.",
     intro_when_text: "Les politiques décident quand : rester calme la nuit, répéter ce que personne n'a confirmé, regrouper les petites choses en un résumé.",
@@ -299,6 +302,7 @@ export const STRINGS = {
     next: "Siguiente",
     back: "Atrás",
     skip: "Omitir el recorrido",
+    step_intro: "Introducción",
     intro_title: "El mensaje justo, a las personas justas, en el momento justo",
     intro_lead: "Tus automatizaciones hacen una sola llamada. Heads Up entrega el mensaje según lo que configuras aquí: dónde aparece, quién lo recibe y cuándo se entrega o se escala.",
     intro_where: "Dónde",
@@ -334,7 +338,7 @@ export const STRINGS = {
     nothing: "nada",
     failed: "No se pudieron crear las políticas. Inténtalo de nuevo.",
     policies_title: "Políticas: cuándo ser fuerte o discreto",
-    recipients_title: "Destinatarios: quién lo recibe",
+    recipients_title: "Audiencias: quién lo recibe",
     intro_where_text: "Los canales deciden dónde aparece un mensaje: banner, push, ventana, voz, correo o la campana.",
     intro_who_text: "Las audiencias deciden quién lo recibe: todos, los admins, quien está en casa o quien salió el último.",
     intro_when_text: "Las políticas deciden cuándo: callar de noche, repetir lo que nadie confirmó, juntar lo pequeño en un resumen.",
@@ -495,7 +499,8 @@ const CSS = `
 .hu-tour ol.steps li { display: flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 12px; border: 1px solid var(--divider-color); font-size: 13px; }
 .hu-tour ol.steps li.now { border-color: var(--primary-color); font-weight: 600; }
 .hu-tour ol.steps li.done::before { content: "✓"; color: var(--primary-color); }
-.hu-tour .hint { color: var(--secondary-text-color); font-size: 13px; margin: 2px 0 8px; line-height: 1.45; }
+.hu-tour .hint, .hu-overview .hu-tour .hint { display: block; background: none; padding: 0; border-radius: 0; color: var(--secondary-text-color); font-size: 13px; margin: 2px 0 8px; line-height: 1.45; }
+.hu-tour .intro-foot, .hu-overview .hu-tour .intro-foot { display: block; background: var(--secondary-background-color); border-radius: 8px; padding: 10px 12px; margin: 8px 0; color: var(--secondary-text-color); font-size: 13px; }
 .hu-tour .lead { font-size: 16px; }
 .hu-tour .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin: 12px 0; }
 .hu-tour .mini { border: 1px solid var(--divider-color); border-radius: 8px; padding: 10px 12px; }
@@ -593,7 +598,7 @@ export async function mount(container, ctx) {
     list.setAttribute("aria-label", t.steps_label);
     const names = [t.intro_title, t.channels_title, t.recipients_title, t.policies_title];
     STEPS.forEach((id, i) => {
-      const item = el("li", { className: i < state.step ? "done" : i === state.step ? "now" : "", textContent: `${i + 1}. ${names[i].split(":")[0]}` });
+      const item = el("li", { className: i < state.step ? "done" : i === state.step ? "now" : "", textContent: `${i + 1}. ${i === 0 ? t.step_intro : names[i].split(/[:：]/)[0].trim()}` });
       if (i === state.step) item.setAttribute("aria-current", "step");
       list.append(item);
     });
@@ -617,7 +622,7 @@ export async function mount(container, ctx) {
     for (const key of ["where", "who", "when"]) {
       grid.append(el("div", { className: "mini" }, [el("strong", { textContent: t[`intro_${key}`] }), el("span", { textContent: t[`intro_${key}_text`] })]));
     }
-    out.push(grid, el("div", { className: "hint", textContent: t.intro_foot }));
+    out.push(grid, el("div", { className: "intro-foot", textContent: t.intro_foot }));
     out.push(nav(button(t.skip, end, "link"), button(t.next, () => go(1), "primary")));
     return out;
   }

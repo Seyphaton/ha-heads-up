@@ -320,9 +320,8 @@ class HeadsUpPanel extends Base {
     this._main = node("main");
     root.append(this._header, this._nav, this._main);
     this._renderHeader();
-    const page = pageFromPath(this._route?.path);
-    this._open(page);
-    this._firstOpening(page);
+    this._open(pageFromPath(this._route?.path));
+    this._firstOpening();
   }
 
   _renderHeader() {
@@ -367,11 +366,11 @@ class HeadsUpPanel extends Base {
 
   // The introduction is a tour inside the Overview (D-244). On the first opening any other page
   // goes to the Overview, where the tour shows; it never covers the page.
-  async _firstOpening(page) {
-    if (page === "overview") return;
+  async _firstOpening() {
     try {
       const welcome = await this._hass.callWS({ type: "heads_up/welcome_get" });
-      if (welcome.show) this.navigate("overview");
+      // The route arrives after the first `hass`, so the page is read when the answer is in.
+      if (welcome.show && this._page !== DEFAULT_PAGE) this.navigate(DEFAULT_PAGE);
     } catch (err) {
       // The tour is a convenience: a failure must not block the panel.
     }
@@ -379,7 +378,7 @@ class HeadsUpPanel extends Base {
 
   // The Overview in tour mode, from Settings or from its own hint.
   openWelcome() {
-    this.navigate("overview", { tour: "1" });
+    this.navigate(DEFAULT_PAGE, { tour: "1" });
   }
 
   // `query` filters the page it opens, such as { audience: key } for the Message Log.
