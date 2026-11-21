@@ -32,6 +32,8 @@ async def async_get_config_entry_diagnostics(
     }
     if hub is not None:
         data["policies"] = [p.name for p in hub.policies.ordered()]
+        # The size and the date range of the activity history; the counts themselves stay out.
+        data["history"] = hub.stats.info()
         data["trace"] = hub.trace.entries(limit=TRACE_ENTRIES)
         # Titles and texts stay out: they are what the household wrote.
         data["recent_messages"] = [

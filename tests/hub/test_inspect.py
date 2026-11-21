@@ -120,6 +120,10 @@ async def test_diagnostics_hide_addresses_and_message_texts(
     (profile,) = [s for s in data["subentries"] if s["type"] == "recipient_profile"]
     assert profile["data"]["mail_address"] == REDACTED
     assert data["counts"]["messages"] == 1 and data["trace"] and data["recent_messages"]
+    # The history shows its size and range, not what it counted.
+    assert (
+        set(data["history"]) == {"days", "first", "last", "bytes"} and data["history"]["days"] == 1
+    )
 
 
 async def ask(client: Any, command: str, **data: Any) -> dict[str, Any]:

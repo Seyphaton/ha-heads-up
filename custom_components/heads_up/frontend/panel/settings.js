@@ -8,6 +8,14 @@ export const STRINGS = {
     welcome: "Introduction",
     welcome_button: "Restart introduction",
     welcome_hint: "The introduction is a short tour: what Heads Up does, then channels, audiences and policies. Its last step offers four default policies; switching one on adds only the policies that are missing and changes nothing you have.",
+    history: "Activity history",
+    history_hint: "The Overview's Activity card counts messages by day for the last 24 months. It stores counts only: no titles, texts or addresses.",
+    history_info: "{days} days, from {first} to {last}, about {size}.",
+    history_empty: "No history is stored yet.",
+    history_clear: "Clear history",
+    history_confirm: "Delete the whole activity history? This cannot be undone.",
+    history_cleared: "The history was cleared.",
+    history_failed: "Could not clear the history: {error}",
     save: "Save",
     saved: "Saved.",
     valid: "No problems.",
@@ -32,6 +40,14 @@ export const STRINGS = {
     welcome: "Einführung",
     welcome_button: "Einführung neu starten",
     welcome_hint: "Die Einführung ist eine kurze Tour: was Heads Up kann, dann Kanäle, Zielgruppen und Richtlinien. Der letzte Schritt bietet vier Standardrichtlinien an; wer eine einschaltet, fügt nur fehlende Richtlinien hinzu und ändert nichts, was du hast.",
+    history: "Aktivitätsverlauf",
+    history_hint: "Die Aktivitätskarte der Übersicht zählt Meldungen pro Tag für die letzten 24 Monate. Gespeichert werden nur Zahlen: keine Titel, Texte oder Adressen.",
+    history_info: "{days} Tage, von {first} bis {last}, etwa {size}.",
+    history_empty: "Es ist noch kein Verlauf gespeichert.",
+    history_clear: "Verlauf löschen",
+    history_confirm: "Den ganzen Aktivitätsverlauf löschen? Das lässt sich nicht rückgängig machen.",
+    history_cleared: "Der Verlauf wurde gelöscht.",
+    history_failed: "Der Verlauf konnte nicht gelöscht werden: {error}",
     save: "Speichern",
     saved: "Gespeichert.",
     valid: "Keine Probleme.",
@@ -56,6 +72,14 @@ export const STRINGS = {
     welcome: "Introduction",
     welcome_button: "Relancer l'introduction",
     welcome_hint: "L'introduction est une courte visite : ce que fait Heads Up, puis les canaux, les audiences et les politiques. Sa dernière étape propose quatre politiques par défaut ; en activer une n'ajoute que les politiques manquantes et ne change rien de ce que vous avez.",
+    history: "Historique d'activité",
+    history_hint: "La carte Activité de la vue d'ensemble compte les messages par jour sur les 24 derniers mois. Seuls des chiffres sont stockés : ni titres, ni textes, ni adresses.",
+    history_info: "{days} jours, du {first} au {last}, environ {size}.",
+    history_empty: "Aucun historique n'est encore stocké.",
+    history_clear: "Effacer l'historique",
+    history_confirm: "Supprimer tout l'historique d'activité ? C'est irréversible.",
+    history_cleared: "L'historique a été effacé.",
+    history_failed: "Impossible d'effacer l'historique : {error}",
     save: "Enregistrer",
     saved: "Enregistré.",
     valid: "Aucun problème.",
@@ -80,6 +104,14 @@ export const STRINGS = {
     welcome: "Introducción",
     welcome_button: "Reiniciar la introducción",
     welcome_hint: "La introducción es un recorrido corto: qué hace Heads Up, luego canales, audiencias y políticas. Su último paso ofrece cuatro políticas por defecto; activar una solo añade las políticas que faltan y no cambia nada de lo que tienes.",
+    history: "Historial de actividad",
+    history_hint: "La tarjeta Actividad del resumen cuenta los mensajes por día de los últimos 24 meses. Solo guarda cifras: ni títulos, ni textos, ni direcciones.",
+    history_info: "{days} días, del {first} al {last}, unos {size}.",
+    history_empty: "Aún no hay historial guardado.",
+    history_clear: "Borrar el historial",
+    history_confirm: "¿Borrar todo el historial de actividad? No se puede deshacer.",
+    history_cleared: "Se borró el historial.",
+    history_failed: "No se pudo borrar el historial: {error}",
     save: "Guardar",
     saved: "Guardado.",
     valid: "Sin problemas.",
@@ -212,6 +244,18 @@ export function entriesOf(layout, t) {
     desc: t.desc?.[section.name] ?? "",
     entries: section.entries.map((entry) => ({ ...entry, label: t.label[entry.key], hint: t.hint[entry.key] })),
   }));
+}
+
+// The size in a unit a person reads: "420 KB", "5.1 MB".
+export function sizeText(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+export function historyLine(info, t) {
+  if (!info || !info.days) return t.history_empty;
+  return t.history_info.replace("{days}", info.days).replace("{first}", info.first).replace("{last}", info.last).replace("{size}", sizeText(info.bytes));
 }
 
 function el(tag, props = {}, children = []) {
@@ -405,6 +449,29 @@ export function mount(container, ctx) {
     welcomeButton.addEventListener("click", () => ctx.openWelcome());
     group(t.welcome);
     section(null, [welcomeButton, el("div", { className: "hint", textContent: t.welcome_hint })]);
+
+    // The activity history: what is stored, and a button that deletes it after a confirmation.
+    const historyInfo = el("div", { className: "hint" });
+    const historyMessage = el("div", { className: "hint", role: "status" });
+    const clearHistory = el("button", { type: "button", textContent: t.history_clear });
+    const showHistory = (info) => {
+      historyInfo.textContent = historyLine(info, t);
+    };
+    hass
+      .callWS({ type: "heads_up/panel_stats", period: "week" })
+      .then((result) => showHistory(result.info))
+      .catch(() => showHistory(null));
+    clearHistory.addEventListener("click", async () => {
+      if (!window.confirm(t.history_confirm)) return;
+      try {
+        showHistory(await hass.callWS({ type: "heads_up/stats_clear" }));
+        historyMessage.textContent = t.history_cleared;
+      } catch (err) {
+        historyMessage.textContent = t.history_failed.replace("{error}", (err && err.message) || String(err));
+      }
+    });
+    group(t.history);
+    section(null, [el("div", { className: "hint", textContent: t.history_hint }), historyInfo, clearHistory, historyMessage]);
 
     let shown = null;
     for (const block of entriesOf(data.layout.filter((section) => !ON_CHANNELS.includes(section.name)), t)) {

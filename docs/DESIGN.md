@@ -958,3 +958,8 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 - `matrix`: messages by weekday and hour over the period, empty for `24h`. `sources`: the top eight with `kind` (`rule` or `action`) and the rule's current title, none for a deleted rule.
 - `heads_up/stats_clear` (admin-only) deletes the history and returns the empty `info`; the Settings page confirms first.
 - The 24-hour chart of the old page reads memory; the Activity card reads this store, so its counts survive a restart.
+
+### 27.4 Page and Settings
+- The Overview's Activity card (`overview.js`) has the period switch (24 hours, Week, Month, Year, 2 years; the last is labeled "2 years" because the store covers a rolling 24 months), four number tiles (Notifications with a pill for the change, Delivered, Median time to acknowledge, Held by quiet hours), the stacked chart with a legend, then the cards "When your house talks" (weekday by hour; a note to pick a longer period for 24 hours) and "Top sources". The chart reads the store, not memory, so it survives a restart. There are no Tips.
+- Settings has a block "Activity history": what is stored (days, range, size), a Clear history button with a confirmation, and a line that only counts are kept. Diagnostics list `history` with the number of days, the range and the size in bytes, never the counts.
+- Pure functions tested in vitest: `kpiModel`, `durationText`, `matrixModel`, `sourceRows`, `bucketLabel`, `barTip`, `sizeText`, `historyLine`.

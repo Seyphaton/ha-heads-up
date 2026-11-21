@@ -20,9 +20,11 @@ import {
   entriesOf,
   headingOf,
   fill,
+  historyLine,
   joinDuration,
   problems,
   rangesOf,
+  sizeText,
   splitDuration,
   STRINGS as SETTINGS_STRINGS,
   ttsEntities,
@@ -205,6 +207,7 @@ import {
 } from "../../custom_components/heads_up/frontend/heads-up-panel.js";
 import {
   barTip,
+  bucketLabel,
   cellDetail,
   cellLabel,
   CELL_STATES,
@@ -212,7 +215,12 @@ import {
   comingText,
   contextLines,
   countText,
+  durationText,
   fixKey,
+  kpiModel,
+  matrixModel,
+  PERIODS,
+  sourceRows,
   pathLines,
   statusHeadline,
   statusPills,
@@ -327,6 +335,54 @@ describe("overview functions", () => {
       { severity: "warning", text: "2 Warning" },
     ]);
     expect(statusPills([], sh2)).toEqual([]);
+  });
+
+  it("words a duration in seconds, minutes, and hours with minutes", () => {
+    expect(durationText(45, t)).toBe("45 s");
+    expect(durationText(210, t)).toBe("4 min");
+    expect(durationText(3900, t)).toBe("1 h 5 min");
+    expect(durationText(null, t)).toBe(t.kpi_none);
+  });
+
+  it("builds the four numbers and a pill for the change", () => {
+    const model = kpiModel({ notifications: 12, change: 20, delivered: 80, median_ack_seconds: 210, held_quiet: 3 }, t);
+    expect(model).toMatchObject({ notifications: "12", delivered: "80 %", median: "4 min", held: "3" });
+    expect(model.change).toEqual({ up: true, text: "+20% against the period before" });
+    expect(kpiModel({ notifications: 1, change: -5, delivered: null, median_ack_seconds: null, held_quiet: 0 }, t).change.text).toBe("-5% against the period before");
+    const none = kpiModel({ notifications: 0, change: null, delivered: null, median_ack_seconds: null, held_quiet: 0 }, t);
+    expect(none.change).toBeNull();
+    expect(none.delivered).toBe(t.kpi_none);
+  });
+
+  it("scales the weekday grid to its busiest cell and hides it without data", () => {
+    expect(matrixModel(null)).toBeNull();
+    const grid = matrixModel([[0, 4], [2, 0]]);
+    expect(grid.peak).toBe(4);
+    expect(grid.total).toBe(6);
+    expect(grid.rows[0][1]).toEqual({ n: 4, share: 1 });
+    expect(grid.rows[1][0].share).toBe(0.5);
+  });
+
+  it("names the top sources and scales their bars", () => {
+    const rows = sourceRows(
+      [{ kind: "rule", name: "Garage door", count: 10 }, { kind: "action", name: null, count: 5 }, { kind: "rule", name: null, count: 2 }],
+      t,
+    );
+    expect(rows.map((r) => r.text)).toEqual(["Watch rule Garage door", t.source_action, t.source_gone]);
+    expect(rows.map((r) => r.share)).toEqual([1, 0.5, 0.2]);
+    expect(sourceRows([], t)).toEqual([]);
+  });
+
+  it("labels a bar of a longer period with a day or a month and keeps the hourly wording", () => {
+    expect(barTip({ total: 2, start: "2026-11-21", hoursAgo: 0 }, t, "week", "en")).toMatch(/^Nov 21 · 2 messages$/);
+    expect(barTip({ total: 1, start: "2026-10-01", hoursAgo: 3 }, t, "year", "en")).toMatch(/^Oct 2026 · 1 message$/);
+    expect(bucketLabel("nonsense", "week", "en")).toBe("");
+    expect(barTip({ total: 3, hoursAgo: 5 }, t, "24h", "en")).toBe("3 messages · 5 h ago");
+  });
+
+  it("has a name for every period in every language", () => {
+    for (const [code, language] of Object.entries(OVERVIEW_STRINGS)) for (const period of PERIODS) expect(language[`period_${period}`], `${code}.${period}`).toBeTruthy();
+    expect(OVERVIEW_STRINGS.en.period_2y).toBe("2 years");
   });
 
   it("counts messages with the right plural", () => {
@@ -641,5 +697,26 @@ describe("keys are shown by name (D-199)", () => {
     expect(audienceLabel("A1", choices)).toBe("Parents");
     expect(audienceLabel("at_home", choices)).toBe("At home");
     expect(audienceLabel("name:Old", choices)).toBe("Old");
+  });
+});
+
+describe("history in Settings", () => {
+  it("writes the size in a unit a person reads", () => {
+    expect(sizeText(900)).toBe("900 B");
+    expect(sizeText(430000)).toBe("420 KB");
+    expect(sizeText(5.1 * 1024 * 1024)).toBe("5.1 MB");
+  });
+
+  it("words what is stored, or that nothing is", () => {
+    const t = SETTINGS_STRINGS.en;
+    expect(historyLine({ days: 12, first: "2026-11-01", last: "2026-11-12", bytes: 84000 }, t)).toBe("12 days, from 2026-11-01 to 2026-11-12, about 82 KB.");
+    expect(historyLine({ days: 0 }, t)).toBe(t.history_empty);
+    expect(historyLine(null, t)).toBe(t.history_empty);
+  });
+
+  it("has the history texts in every language", () => {
+    for (const [code, language] of Object.entries(SETTINGS_STRINGS)) {
+      for (const key of ["history", "history_hint", "history_info", "history_empty", "history_clear", "history_confirm", "history_cleared", "history_failed"]) expect(language[key], `${code}.${key}`).toBeTruthy();
+    }
   });
 });

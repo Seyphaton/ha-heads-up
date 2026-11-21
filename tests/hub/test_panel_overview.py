@@ -55,6 +55,8 @@ async def test_every_panel_command_is_for_admins_only(
         ("panel_acknowledge", {"message_id": "m"}),
         ("panel_reach", {}),
         ("panel_audiences", {}),
+        ("panel_stats", {"period": "week"}),
+        ("stats_clear", {}),
     ):
         assert (await ask(client, command, **data))["error"]["code"] == "unauthorized"
 
