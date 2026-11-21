@@ -153,6 +153,9 @@ class SpeakChannel:
     def _opt(self, key: str) -> Any:
         return self._manager.options.get(key, DEFAULT_OPTIONS[key])
 
+    def tts_entity(self) -> str | None:
+        return self._tts_entity()
+
     def _tts_entity(self) -> str | None:
         """The configured engine, else the only one there is."""
         if configured := self._opt(OPT_SPEAK_TTS_ENTITY):

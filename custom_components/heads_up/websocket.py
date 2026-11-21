@@ -32,7 +32,7 @@ from .const import (
     canonical_severity,
 )
 from .frontend import async_popup_url
-from .hub import checker, panel_config, panel_data, panel_test, settings, welcome
+from .hub import checker, panel_config, panel_data, panel_test, reach, settings, welcome
 from .hub.identity import GROUP_PREFIX
 from .hub.policies.convert import OPT_CONVERSION_ITEMS
 from .manager import BannerManager, HeadsUpError
@@ -255,6 +255,21 @@ def ws_welcome_apply(
         msg["id"],
         welcome.apply(hass, entry, msg["items"], chosen.key, msg["speakers"], msg["tts_engine"]),
     )
+
+
+@websocket_command({vol.Required("type"): "heads_up/panel_reach"})
+@require_admin
+@async_response
+async def ws_panel_reach(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The Overview table "What would a message do right now?": a dry run per severity."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    if manager.hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    connection.send_result(msg["id"], await reach.reach(hass, manager.hub, manager.options))
 
 
 @websocket_command({vol.Required("type"): "heads_up/panel_overview"})
@@ -915,6 +930,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_channels_set,
         ws_severity_display,
         ws_panel_overview,
+        ws_panel_reach,
         ws_attention_dismiss,
         ws_attention_restore,
         ws_audience_enable,
