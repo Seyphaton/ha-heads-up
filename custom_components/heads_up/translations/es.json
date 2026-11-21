@@ -1230,7 +1230,7 @@
             "covers_audiences": "Dejar pasar con Solo estos: las personas de estas audiencias.",
             "covers_recipients": "Dejar pasar con Solo estos: estas personas y altavoces.",
             "rules": "Solo los mensajes de estas reglas de vigilancia usan esta regla; vacío: cualquier origen.",
-            "only_if": "La regla actúa solo mientras se cumple esta condición, con la forma de la condición de notify: entity_id, operator, state, attribute y for opcionales, o template. Desconocido cuenta como lo que entrega más.",
+            "only_if": "La regla solo actúa mientras se cumple esta condición, con la forma de la condición de notify: entity_id, operator, state, attribute y for opcionales, o template. Si no se puede leer el estado, las reglas que retienen o silencian no hacen nada y las que envían siguen enviando.",
             "faster_while": "Recordatorio: condition y every_minutes. Mientras se cumple la condición, el recordatorio se repite a este ritmo más corto; un solo recuento y un solo límite para ambos.",
             "alongside": "Recordatorio: mantiene su propio ritmo junto a otros recordatorios en lugar de compartir el más corto."
           }
@@ -1324,7 +1324,7 @@
             "covers_audiences": "Dejar pasar con Solo estos: las personas de estas audiencias.",
             "covers_recipients": "Dejar pasar con Solo estos: estas personas y altavoces.",
             "rules": "Solo los mensajes de estas reglas de vigilancia usan esta regla; vacío: cualquier origen.",
-            "only_if": "La regla actúa solo mientras se cumple esta condición, con la forma de la condición de notify: entity_id, operator, state, attribute y for opcionales, o template. Desconocido cuenta como lo que entrega más.",
+            "only_if": "La regla solo actúa mientras se cumple esta condición, con la forma de la condición de notify: entity_id, operator, state, attribute y for opcionales, o template. Si no se puede leer el estado, las reglas que retienen o silencian no hacen nada y las que envían siguen enviando.",
             "faster_while": "Recordatorio: condition y every_minutes. Mientras se cumple la condición, el recordatorio se repite a este ritmo más corto; un solo recuento y un solo límite para ambos.",
             "alongside": "Recordatorio: mantiene su propio ritmo junto a otros recordatorios en lugar de compartir el más corto."
           }

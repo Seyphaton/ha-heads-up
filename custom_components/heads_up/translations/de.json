@@ -1230,7 +1230,7 @@
             "covers_audiences": "Kommt durch mit Nur diese: die Personen dieser Zielgruppen.",
             "covers_recipients": "Kommt durch mit Nur diese: diese Personen und Lautsprecher.",
             "rules": "Nur Meldungen dieser Überwachungsregeln nutzen diese Richtlinie; leer: jede Quelle.",
-            "only_if": "Die Richtlinie wirkt nur, solange diese Bedingung gilt, in der Form der notify-Bedingung: entity_id, operator, state, optional attribute und for, oder template. Unbekannt zählt als das, was mehr zustellt.",
+            "only_if": "Die Richtlinie wirkt nur, solange diese Bedingung zutrifft, in der Form der notify-Bedingung: entity_id, operator, state, optional attribute und for, oder template. Lässt sich der Zustand nicht lesen, tun Richtlinien, die zurückhalten oder leise schalten, nichts, und sendende Richtlinien senden trotzdem.",
             "faster_while": "Erinnerung: condition und every_minutes. Solange die Bedingung gilt, wiederholt die Erinnerung in diesem kürzeren Rhythmus; eine Zählung und ein Limit gelten für beide.",
             "alongside": "Erinnerung: behält ihren eigenen Rhythmus neben anderen Erinnerungen, statt den kürzesten zu teilen."
           }
@@ -1324,7 +1324,7 @@
             "covers_audiences": "Kommt durch mit Nur diese: die Personen dieser Zielgruppen.",
             "covers_recipients": "Kommt durch mit Nur diese: diese Personen und Lautsprecher.",
             "rules": "Nur Meldungen dieser Überwachungsregeln nutzen diese Richtlinie; leer: jede Quelle.",
-            "only_if": "Die Richtlinie wirkt nur, solange diese Bedingung gilt, in der Form der notify-Bedingung: entity_id, operator, state, optional attribute und for, oder template. Unbekannt zählt als das, was mehr zustellt.",
+            "only_if": "Die Richtlinie wirkt nur, solange diese Bedingung zutrifft, in der Form der notify-Bedingung: entity_id, operator, state, optional attribute und for, oder template. Lässt sich der Zustand nicht lesen, tun Richtlinien, die zurückhalten oder leise schalten, nichts, und sendende Richtlinien senden trotzdem.",
             "faster_while": "Erinnerung: condition und every_minutes. Solange die Bedingung gilt, wiederholt die Erinnerung in diesem kürzeren Rhythmus; eine Zählung und ein Limit gelten für beide.",
             "alongside": "Erinnerung: behält ihren eigenen Rhythmus neben anderen Erinnerungen, statt den kürzesten zu teilen."
           }

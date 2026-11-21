@@ -1230,7 +1230,7 @@
             "covers_audiences": "Laisser passer avec Seulement ceux-ci : les personnes de ces audiences.",
             "covers_recipients": "Laisser passer avec Seulement ceux-ci : ces personnes et haut-parleurs.",
             "rules": "Seuls les messages de ces règles de surveillance utilisent cette règle ; vide : toute source.",
-            "only_if": "La règle n'agit que tant que cette condition est vraie, sous la forme de la condition de notify : entity_id, operator, state, attribute et for en option, ou template. Inconnu compte comme ce qui livre davantage.",
+            "only_if": "La règle n'agit que tant que cette condition est vraie, sous la forme de la condition de notify : entity_id, operator, state, attribute et for en option, ou template. Si l'état ne peut pas être lu, les règles qui retiennent ou mettent en sourdine ne font rien et les règles qui envoient envoient quand même.",
             "faster_while": "Rappel : condition et every_minutes. Tant que la condition est vraie, le rappel se répète à ce rythme plus court ; un seul compte et une seule limite pour les deux.",
             "alongside": "Rappel : garde son propre rythme à côté des autres rappels au lieu de partager le plus court."
           }
@@ -1324,7 +1324,7 @@
             "covers_audiences": "Laisser passer avec Seulement ceux-ci : les personnes de ces audiences.",
             "covers_recipients": "Laisser passer avec Seulement ceux-ci : ces personnes et haut-parleurs.",
             "rules": "Seuls les messages de ces règles de surveillance utilisent cette règle ; vide : toute source.",
-            "only_if": "La règle n'agit que tant que cette condition est vraie, sous la forme de la condition de notify : entity_id, operator, state, attribute et for en option, ou template. Inconnu compte comme ce qui livre davantage.",
+            "only_if": "La règle n'agit que tant que cette condition est vraie, sous la forme de la condition de notify : entity_id, operator, state, attribute et for en option, ou template. Si l'état ne peut pas être lu, les règles qui retiennent ou mettent en sourdine ne font rien et les règles qui envoient envoient quand même.",
             "faster_while": "Rappel : condition et every_minutes. Tant que la condition est vraie, le rappel se répète à ce rythme plus court ; un seul compte et une seule limite pour les deux.",
             "alongside": "Rappel : garde son propre rythme à côté des autres rappels au lieu de partager le plus court."
           }

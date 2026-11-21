@@ -29,6 +29,7 @@ import {
   checkLine,
   laneOf,
   whichText,
+  notOverlap,
   overlapNames,
   overlaps,
   fromPolicy,
@@ -533,9 +534,16 @@ describe("2.0 policy fields", () => {
 
   it("says a band entry and the 2.0 extras in words", () => {
     const t = POLICY_STRINGS.en;
-    expect(sentence({ ...blankPolicy("get_through"), tags: "alarm", covers: "only", covers_recipients: ["person.ben"] }, t, { recipient: () => "Ben" })).toBe("Messages with tag alarm: may wake Ben despite quiet hours and summaries.");
+    expect(sentence({ ...blankPolicy("get_through"), tags: "alarm", covers: "only", covers_recipients: ["person.ben"] }, t, { recipient: () => "Ben" })).toBe("Messages with tag alarm: ignores quiet hours and summaries for Ben.");
+    expect(sentence({ ...blankPolicy("get_through"), severities: ["critical"] }, t)).toBe("Messages with severity Critical: ignores quiet hours and summaries.");
     expect(sentence({ ...blankPolicy("quiet_hours"), not_tags: "digest", holds_anyway: true }, t)).toBe("Every message: between 22:00 and 07:00, deliveries outside the dashboard are sent quietly. Not for #digest. Nothing gets past it, not even Always gets through.");
     expect(sentence({ ...blankPolicy("reminder"), fw_entity: "binary_sensor.window", fw_state: "on", fw_every: 15, alongside: true }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times. While binary_sensor.window is on: every 15 min. Runs alongside other reminders.");
+  });
+
+  it("warns when Not for repeats something from For", () => {
+    const t = POLICY_STRINGS.en;
+    expect(notOverlap({ ...blankPolicy("quiet_hours"), severities: ["passive"], not_severities: ["passive", "info"], tags: "a, b", not_tags: "b" }, t)).toEqual(["Passive", "#b"]);
+    expect(notOverlap({ ...blankPolicy("quiet_hours"), severities: ["info"], not_severities: ["critical"] }, t)).toEqual([]);
   });
 
   it("says Which messages in a few words", () => {

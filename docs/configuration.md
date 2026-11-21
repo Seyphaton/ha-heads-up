@@ -297,11 +297,11 @@ A policy attaches to messages automatically or manually, chosen in the editor un
 
 - Automatically: a message gets the policy when it fits all of these. An empty list matches everything.
   - Severities and tags: the severity is in the first list and the tag in the second. A message without a tag matches only a policy whose tag list is empty. Messages from watch rules have the tag `rule`.
-  - Not for severities and Not for tags: a message with one of these never gets the policy, even when the lists above match.
+  - Not for severities and Not for tags: a message with one of these never gets the policy, even when the lists above match. The editor warns when Not for repeats something from the lists above.
   - From watch rule: only messages of the chosen watch rules get the policy.
 - Manually: the policy has no lists and never attaches by itself. Only a call or a watch rule that names it in the `policy` field gets it. Get through entries can be manual too.
 
-Only if limits a policy, automatic or manual, to the time a condition holds, for example "while `input_boolean.guests` is off". It has the shape of the `condition` of `heads_up.notify`. Heads Up checks it each time the policy would act. When the condition turns false, deliveries the policy holds are released. When it turns true, a Get through entry releases what quiet hours hold for its people and takes its messages out of summaries. An unknown or unavailable state counts as whatever delivers more: Summarize, Quiet hours and Presence step aside, the other types act.
+Only if limits a policy, automatic or manual, to the time a condition holds, for example "while `input_boolean.guests` is off". It has the shape of the `condition` of `heads_up.notify`. Heads Up checks it each time the policy would act. When the condition turns false, deliveries the policy holds are released. When it turns true, a Get through entry releases what quiet hours hold for its people and takes its messages out of summaries. If Heads Up cannot read the state, for example because the device is offline, Summarize, Quiet hours and Presence do nothing, and the other types still act.
 
 The `policy` field of `heads_up.notify` names manual policies by the entity ID of their switch: they apply next to every automatic policy that matches. Set `match_policies_automatically: false` to switch the automatic policies off for the call; then no automatic policy acts, Quiet hours, Presence and Get through included. `policy: none` uses no policy at all. A watch rule that names a policy uses only that policy.
 

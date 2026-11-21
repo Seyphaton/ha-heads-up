@@ -121,7 +121,7 @@ export const STRINGS = {
     not_tags: "Not for tags, comma separated",
     rules: "From watch rule (none selected: any source)",
     only_if: "Only if",
-    only_if_hint: "The policy acts only while this holds. Unknown counts as whatever delivers more.",
+    only_if_hint: "The policy acts only while this is true. If the state cannot be read, for example because the device is offline, policies that hold or quiet messages do nothing, and policies that send still send.",
     oi_entity: "Entity",
     oi_state: "State",
     oi_none: "Always (no condition)",
@@ -136,8 +136,11 @@ export const STRINGS = {
     covers_only: "Only these",
     covers_audiences: "Audiences",
     covers_recipients: "People and speakers",
-    s_through: "{applies}: may wake {who} despite quiet hours and summaries.",
-    s_through_everyone: "everyone it reaches",
+    s_through: "{applies}: ignores quiet hours and summaries{who}.",
+    s_through_everyone: "",
+    s_through_for: " for {who}",
+    not_overlap: "Not for repeats something from For ({list}): those messages never get this policy.",
+    unsaved_confirm: "You have changes that are not saved. Close anyway?",
     s_not_for: " Not for {list}.",
     s_only_if: " Only while {entity} is {state}.",
     s_faster: " While {entity} is {state}: every {n} min.",
@@ -333,7 +336,7 @@ export const STRINGS = {
     not_tags: "Nicht für Tags, durch Komma getrennt",
     rules: "Von Überwachungsregel (keine gewählt: jede Quelle)",
     only_if: "Nur wenn",
-    only_if_hint: "Die Richtlinie wirkt nur, solange das gilt. Unbekannt zählt als das, was mehr zustellt.",
+    only_if_hint: "Die Richtlinie wirkt nur, solange das zutrifft. Lässt sich der Zustand nicht lesen, zum Beispiel weil das Gerät offline ist, tun Richtlinien, die zurückhalten oder leise schalten, nichts, und sendende Richtlinien senden trotzdem.",
     oi_entity: "Entität",
     oi_state: "Zustand",
     oi_none: "Immer (keine Bedingung)",
@@ -348,8 +351,11 @@ export const STRINGS = {
     covers_only: "Nur diese",
     covers_audiences: "Zielgruppen",
     covers_recipients: "Personen und Lautsprecher",
-    s_through: "{applies}: darf {who} trotz Ruhezeit und Zusammenfassung wecken.",
-    s_through_everyone: "alle, die sie erreicht",
+    s_through: "{applies}: ignoriert Ruhezeit und Zusammenfassung{who}.",
+    s_through_everyone: "",
+    s_through_for: " für {who}",
+    not_overlap: "Nicht für wiederholt etwas aus Für ({list}): diese Meldungen bekommen die Richtlinie nie.",
+    unsaved_confirm: "Du hast Änderungen, die nicht gespeichert sind. Trotzdem schließen?",
     s_not_for: " Nicht für {list}.",
     s_only_if: " Nur solange {entity} {state} ist.",
     s_faster: " Solange {entity} {state} ist: alle {n} Min.",
@@ -545,7 +551,7 @@ export const STRINGS = {
     not_tags: "Sauf pour les étiquettes, séparées par des virgules",
     rules: "Depuis la règle de surveillance (aucune : toute source)",
     only_if: "Seulement si",
-    only_if_hint: "La règle n'agit que tant que c'est vrai. Inconnu compte comme ce qui livre davantage.",
+    only_if_hint: "La règle n'agit que tant que c'est vrai. Si l'état ne peut pas être lu, par exemple parce que l'appareil est hors ligne, les règles qui retiennent ou mettent en sourdine ne font rien, et les règles qui envoient envoient quand même.",
     oi_entity: "Entité",
     oi_state: "État",
     oi_none: "Toujours (sans condition)",
@@ -560,8 +566,11 @@ export const STRINGS = {
     covers_only: "Seulement ceux-ci",
     covers_audiences: "Audiences",
     covers_recipients: "Personnes et haut-parleurs",
-    s_through: "{applies} : peut réveiller {who} malgré les heures calmes et les résumés.",
-    s_through_everyone: "tous ceux qu'il atteint",
+    s_through: "{applies} : ignore les heures calmes et les résumés{who}.",
+    s_through_everyone: "",
+    s_through_for: " pour {who}",
+    not_overlap: "Sauf pour reprend un élément de Pour ({list}) : ces messages ne reçoivent jamais cette règle.",
+    unsaved_confirm: "Vous avez des modifications non enregistrées. Fermer quand même ?",
     s_not_for: " Sauf pour {list}.",
     s_only_if: " Seulement tant que {entity} est {state}.",
     s_faster: " Tant que {entity} est {state} : toutes les {n} min.",
@@ -757,7 +766,7 @@ export const STRINGS = {
     not_tags: "Excepto etiquetas, separadas por comas",
     rules: "Desde la regla de vigilancia (ninguna: cualquier origen)",
     only_if: "Solo si",
-    only_if_hint: "La regla solo actúa mientras se cumple. Desconocido cuenta como lo que entrega más.",
+    only_if_hint: "La regla solo actúa mientras esto se cumple. Si no se puede leer el estado, por ejemplo porque el dispositivo está desconectado, las reglas que retienen o silencian no hacen nada y las que envían siguen enviando.",
     oi_entity: "Entidad",
     oi_state: "Estado",
     oi_none: "Siempre (sin condición)",
@@ -772,8 +781,11 @@ export const STRINGS = {
     covers_only: "Solo estos",
     covers_audiences: "Audiencias",
     covers_recipients: "Personas y altavoces",
-    s_through: "{applies}: puede despertar a {who} pese a las horas de silencio y los resúmenes.",
-    s_through_everyone: "todos a quienes llega",
+    s_through: "{applies}: ignora las horas de silencio y los resúmenes{who}.",
+    s_through_everyone: "",
+    s_through_for: " para {who}",
+    not_overlap: "Excepto repite algo de Para ({list}): esos mensajes nunca reciben esta regla.",
+    unsaved_confirm: "Tienes cambios sin guardar. ¿Cerrar de todos modos?",
     s_not_for: " Excepto {list}.",
     s_only_if: " Solo mientras {entity} esté en {state}.",
     s_faster: " Mientras {entity} esté en {state}: cada {n} min.",
@@ -930,6 +942,8 @@ const CSS = `
 .hu-page .hu-modal-body .ck-card .tl-grid, .hu-page .hu-modal-body .ck-card > fieldset { margin: 0 16px 12px; }
 .hu-page .hu-modal-body .ck-card > .tl-actions { padding: 0 16px; }
 .hu-page .hu-modal-body > .hu-page { padding: 0 16px; }
+.hu-page .hu-modal-body > .pol-editor { padding: 8px 20px 4px; }
+.hu-page .pol-editor .row { position: sticky; bottom: -16px; background: var(--card-background-color); padding: 10px 0; z-index: 1; }
 @media (max-width: 600px) {
   .hu-page dialog.hu-modal { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; border: 0; }
 }
@@ -1349,7 +1363,9 @@ function sentenceBase(values, t, audienceName, recipientName) {
     case "deliver":
       return fill(t.s_deliver, { applies, channels });
     case "get_through": {
-      const who = values.covers === "only" ? [...values.covers_audiences.map(audienceName), ...values.covers_recipients.map(recipientName)].join(", ") || "—" : t.s_through_everyone;
+      // Objective: what the entry does, and for whom only when it is limited (D-238).
+      const names = [...values.covers_audiences.map(audienceName), ...values.covers_recipients.map(recipientName)].join(", ");
+      const who = values.covers === "only" ? fill(t.s_through_for, { who: names || "—" }) : "";
       return fill(t.s_through, { applies, who });
     }
     default:
@@ -1400,6 +1416,13 @@ export function whichText(values, t, ruleName = (v) => v) {
   if (not.length) parts.push(fill(t.w_not, { list: not.join(", ") }));
   if (values.rules.length) parts.push(values.rules.map(ruleName).join(", "));
   return parts.join(" · ");
+}
+
+// What Not for repeats from For: those messages never get the policy, so the editor warns.
+export function notOverlap(values, t) {
+  const severities = values.not_severities.filter((x) => values.severities.includes(x)).map((x) => t.severity_names[x]);
+  const tags = splitTags(values.not_tags).filter((x) => splitTags(values.tags).includes(x)).map((x) => `#${x}`);
+  return [...severities, ...tags];
 }
 
 // The "What it does" column: the sentence without who it applies to.
@@ -1507,7 +1530,7 @@ export function mount(container, ctx) {
     }
     body.append(ui.facts(pairs));
     const edit = el("button", { type: "button", className: "primary", textContent: s.common.edit });
-    edit.addEventListener("click", () => { message = ""; editing = { own: policy, values: fromPolicy(policy) }; render(); });
+    edit.addEventListener("click", () => openEditor(policy, fromPolicy(policy)));
     const flip = el("button", { type: "button", textContent: values.enabled ? t.turn_off : t.turn_on });
     flip.addEventListener("click", async () => {
       const result = await ui.runFlow(hass, data.entry_id, "policy", policy.subentry_id, toFlowData({ ...values, enabled: !values.enabled }));
@@ -1562,11 +1585,14 @@ export function mount(container, ctx) {
 
   // The checker "What happens to a message?" (DESIGN §25.8): nothing is sent.
   // A dialog over the page, closed by its button, Escape or a click beside it.
-  function modal(title, intro, icon) {
+  function modal(title, intro, icon, requestClose = null) {
     const dialog = el("dialog", { className: "hu-modal" });
+    const ask = () => (requestClose ? requestClose() : dialog.close());
     const close = el("button", { type: "button", className: "hu-close" }, [el("ha-icon", { icon: "mdi:close" })]);
     close.setAttribute("aria-label", t.ck_close);
-    close.addEventListener("click", () => dialog.close());
+    close.addEventListener("click", ask);
+    // Escape asks too, so unsaved changes are not lost by accident.
+    dialog.addEventListener("cancel", (event) => { event.preventDefault(); ask(); });
     const head = el("div", { className: "hu-modal-head" }, [
       el("span", { className: "lane-icon" }, [el("ha-icon", { icon })]),
       el("div", {}, [el("h2", { className: "tl-title", textContent: title }), ...(intro ? [el("div", { className: "lane-hint", textContent: intro })] : [])]),
@@ -1574,11 +1600,37 @@ export function mount(container, ctx) {
     ]);
     const body = el("div", { className: "hu-modal-body" });
     dialog.append(head, body);
-    dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+    dialog.addEventListener("click", (event) => { if (event.target === dialog) ask(); });
     dialog.addEventListener("close", () => dialog.remove());
     root.append(dialog);
     dialog.showModal();
     return { dialog, body };
+  }
+
+  let editorDialog = null;
+
+  function openEditor(own, values) {
+    message = "";
+    editing = { own, values, start: JSON.stringify(toFlowData(values)) };
+    const { dialog, body } = modal(own ? `${t.editing}: ${own.name}` : t.new, "", own ? TYPE_ICONS[values.type] || "mdi:tune" : "mdi:plus", requestCloseEditor);
+    editorDialog = { dialog, body };
+    dialog.addEventListener("close", () => { editing = null; editorDialog = null; });
+    body.append(editor());
+  }
+
+  function refreshEditor() {
+    if (!editorDialog) return;
+    const scroll = editorDialog.body.scrollTop;
+    editorDialog.body.replaceChildren(editor());
+    editorDialog.body.scrollTop = scroll;
+  }
+
+  // Closing by X, Cancel, Escape or a click beside it: ask first when something changed.
+  function requestCloseEditor() {
+    if (!editorDialog) return;
+    const changed = editing && JSON.stringify(toFlowData(editing.values)) !== editing.start;
+    if (changed && !window.confirm(t.unsaved_confirm)) return;
+    editorDialog.dialog.close();
   }
 
   function openChecker() {
@@ -1680,8 +1732,8 @@ export function mount(container, ctx) {
   function editor() {
     const { own, values } = editing;
     const existing = data.policies.map((p) => p.name);
-    const box = el("section", {}, [el("h2", { textContent: own ? t.editing : t.new })]);
-    const again = () => render();
+    const box = el("div", { className: "pol-editor" });
+    const again = () => refreshEditor();
 
     box.append(ui.checkbox(s.common.enabled, values.enabled, (on) => { values.enabled = on; paint(); }));
     box.append(el("div", { className: "hint", textContent: t.enabled_hint }));
@@ -1837,6 +1889,16 @@ export function mount(container, ctx) {
       when.append(ui.field(t.tags, ui.textInput(values.tags, (v) => { values.tags = v; paint(); })));
       when.append(pills(t.not_severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.not_severities, (list) => { values.not_severities = list; paint(); }));
       when.append(ui.field(t.not_tags, ui.textInput(values.not_tags, (v) => { values.not_tags = v; paint(); })));
+      const clash = el("div", { className: "hint problems" });
+      clash.setAttribute("role", "status");
+      const paintClash = () => {
+        const list = notOverlap(values, t);
+        clash.textContent = list.length ? fill(t.not_overlap, { list: list.join(", ") }) : "";
+        clash.hidden = !list.length;
+      };
+      paintClash();
+      noteUpdaters.push(paintClash);
+      when.append(clash);
       if (data.rules.length) when.append(pills(t.rules, data.rules.map((r) => ({ value: r.subentry_id, label: r.name })), values.rules, (list) => { values.rules = list; paint(); }));
       if (values.links.length) when.append(el("div", { className: "hint", textContent: fill(t.links_note, { names: values.links.map(policyName).join(", ") }) }));
       const note = el("div", { className: "hint" });
@@ -1856,7 +1918,7 @@ export function mount(container, ctx) {
     const save = el("button", { type: "button", className: "primary", textContent: s.common.save });
     save.addEventListener("click", saveIt);
     const cancel = el("button", { type: "button", textContent: s.common.cancel });
-    cancel.addEventListener("click", () => { editing = null; render(); });
+    cancel.addEventListener("click", requestCloseEditor);
     const buttons = el("div", { className: "row" }, [save, cancel]);
     if (own) {
       const del = el("button", { type: "button", className: "danger", textContent: s.common.delete });
@@ -1882,10 +1944,9 @@ export function mount(container, ctx) {
     ui.lockHeight(root);
     root.replaceChildren(el("style", { textContent: ui.BASE_CSS + ui.TABLE_CSS + CSS }), el("h1", { textContent: t.title }));
     root.append(el("div", { className: "hint pol-intro", textContent: t.intro }));
-    if (editing) return void root.append(editor());
     // The action bar: add, check a message, and the help page (DESIGN §25.9).
     const add = el("button", { type: "button", className: "primary" }, [el("ha-icon", { icon: "mdi:plus" }), el("span", { textContent: t.new })]);
-    add.addEventListener("click", () => { message = ""; editing = { own: null, values: blankValues("quiet_hours") }; render(); });
+    add.addEventListener("click", () => openEditor(null, blankValues("quiet_hours")));
     const check = el("button", { type: "button" }, [el("ha-icon", { icon: "mdi:flask-outline" }), el("span", { textContent: t.ck_title })]);
     check.setAttribute("aria-haspopup", "dialog");
     check.addEventListener("click", openChecker);
@@ -1904,11 +1965,11 @@ export function mount(container, ctx) {
     const result = await ui.runFlow(hass, data.entry_id, "policy", own?.subentry_id, toFlowData(values));
     if (!result.ok) {
       message = Object.values(result.errors).map((c) => ui.errorText(c, ctx.language)).join(" ");
-      render();
+      refreshEditor();
       return;
     }
-    editing = null;
     message = "";
+    editorDialog?.dialog.close();
     await load();
   }
 
@@ -1916,7 +1977,7 @@ export function mount(container, ctx) {
     const { own } = editing;
     if (!window.confirm(fill(s.common.delete_confirm, { name: own.name }))) return;
     await ui.removeSubentry(hass, data.entry_id, own.subentry_id);
-    editing = null;
+    editorDialog?.dialog.close();
     await load();
   }
 
