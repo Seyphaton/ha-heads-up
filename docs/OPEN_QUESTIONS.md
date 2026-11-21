@@ -148,3 +148,11 @@
 - Push snooze uses only the first snooze option (D-142); more snooze buttons on a push are not planned.
 - Audience usage (D-227) is stored while the Message Log is memory only; when the log is stored, the usage should be derived from it or kept consistent with it.
 - Before the 1.1.0 release: the release steps in `docs/dev/RELEASE.md`, the version in the manifest and the CHANGELOG date.
+
+## Overview redesign (plan of 2026-11-21, D-244)
+- Tips on the Overview ("a rule sent 38 info messages this week, a summary would bundle them"): left out of Phases 18 and 19. They need rules that decide when to suggest what, and real history to test them on. Candidate first rule: a watch rule or call with many info or passive messages a week and no Summarize policy covering it.
+- The line "the last critical message was acknowledged N ago" on the status card: left out of Phase 18 because the activity log is memory only. Phase 19 can read it from the history store.
+- Passive looks like Info in most cells of the table "What would a message do right now?": the rules the code states differ little for them. Revisit if a Passive-specific rule appears.
+- The tour's Create sets the critical push level to `critical` as a side effect (`hub/welcome.py`). The tour text could name it; not decided.
+- Real-device checks for the Critical push (iOS critical alert permission, Android alarm channel) are open as before.
+
