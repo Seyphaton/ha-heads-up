@@ -15,7 +15,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §22 parity of banner sources, rule buttons, tap action, dismiss scope and template conditions | implemented and tested (Phase 12 follow-up) |
 | §23 notification hub | built (Phase 15, H0 to H10 and the later maintainer changes) on the branch `hub/h9e-wizard`; pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.8 are tagged and pushed (D-133, D-154, D-175, D-190, D-196); not merged to `main`, no 1.0.0 |
 | §24 1.1.0: speech volume, Presence, quiet hours and home from an entity, snooze, severities | built and tested on `release/1.1` (Phase 16, D-225); checked on the dev HA; not on real devices; "only if" moved to 2.0.0 |
-| §25 2.0.0 policies in two lanes | built on `release/2.0` (Phase 17, D-234 to D-237): conversion, matching, band, matrix interactions, Only if, reminder rhythm, checker, panel and help page; user docs written; promise lines not built |
+| §25 2.0.0 policies in two lanes | built on `release/2.0` (Phase 17, D-234 to D-237): conversion, matching, band, matrix interactions, Only if, reminder rhythm, checker, panel and help page; user docs written; promise lines on the long list (D-241) |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -737,7 +737,7 @@ Status: built on `release/1.1` (D-207, build choices D-225), checked on the dev 
 - Dashboard: the card editor loses `colors`; labels may change if a label is overridden.
 
 ## 25. 2.0.0: policies in two lanes (D-224, D-234)
-Built in Phase 17 except promise lines (§25.11). The design set behind it is `docs/dev/policy-redesign/` (choice and reasons in `02-comparison.md`, the model in `design-ab-v2.md`, mockup `docs/dev/mockups/policy-redesign-a.html`). §24 is the 1.1 work on `release/1.1`, which is not released on its own and becomes part of 2.0.0 (D-231); this section assumes it merged into `release/2.0` first (Presence holding every recipient, D-232; quiet hours and home from an entity; per-zone location entities, D-229; the severity `passive`, D-231). Pairwise behaviour of every policy kind: `docs/dev/policy-redesign/04-interaction-matrix.md`.
+Built in Phase 17; promise lines are on the long list (§25.11, D-241). The design set behind it is `docs/dev/policy-redesign/` (choice and reasons in `02-comparison.md`, the model in `design-ab-v2.md`, mockup `docs/dev/mockups/policy-redesign-a.html`). §24 is the 1.1 work on `release/1.1`, which is not released on its own and becomes part of 2.0.0 (D-231); this section assumes it merged into `release/2.0` first (Presence holding every recipient, D-232; quiet hours and home from an entity; per-zone location entities, D-229; the severity `passive`, D-231). Pairwise behaviour of every policy kind: `docs/dev/policy-redesign/04-interaction-matrix.md`.
 
 ### 25.1 Problem
 1.0 and 1.1 decide which policies act by one shared list order and a mode (`first` or `all`, D-148). The order means "more specific" and "stronger" at once, hold-back and sending policies look alike, severity `critical` is the only way through a hold, and tags cannot be excluded (pain points 1 to 7 in `00-fact-sheet.md`). 2.0.0 replaces the order and the modes with rules that need no order.
@@ -857,14 +857,14 @@ Lane, band and new labels in the four languages; type names and existing labels 
 | faster while | Faster while | Öfter, solange | Plus souvent tant que | Más a menudo mientras |
 | alongside | Runs alongside other reminders | Läuft neben anderen Erinnerungen | Fonctionne à côté des autres rappels | Funciona junto a otros recordatorios |
 | checker | Test policies | Richtlinien testen | Tester les règles | Probar las reglas |
-| check list | Please check after the update | Bitte nach dem Update prüfen | À vérifier après la mise à jour | Revisa tras la actualización |
+| check list | The policy feature has been updated – please review the new behaviour | Die Richtlinien wurden überarbeitet – bitte prüfe das neue Verhalten | Les règles ont été repensées – vérifiez le nouveau comportement | Las reglas se han rediseñado – revisa el nuevo comportamiento |
 | keep | Keep it like this | So lassen | Laisser ainsi | Dejarlo así |
 | let act | Let it act on them too | Auch dafür wirken lassen | La laisser agir aussi sur eux | Que actúe también en ellos |
 
 The German and French terms for "watch rule" follow the existing rule strings of 1.1; the table is checked against them when the strings are written. Top lines (plain language, D-238): calm "Policies that hold messages back, send them quietly or bundle them into a summary. If two disagree, the quieter one wins." Band "These messages are never summarized, and quiet hours do not apply to the people covered. Who gets them depends on the original message (for example named people, the Admins, everyone at home)." Arrive "Policies that send additional messages, for example when the original recipients could not be reached or nobody reacted. All policies that fit are applied." No user-facing text names the earlier version; a converted link reads "Skips messages that … already handle".
 
-### 25.11 Promise lines (last step, D-234)
-A line on every card ("Kept", "Bent for tag alarm by Alarms wake Admins: let through for the Admins", "Never acts: …"), computed by the checker's work over four severities × each named tag and no tag × 168 hours, short form "Bent for 3 kinds of message: see What happens" when more than two cases apply. Built last; when the rest of the phase is done, the maintainer decides whether it ships in 2.0.0 or moves to 2.1. A test per scenario of `01-users-and-stories.md` covers each line; the line must fit one row at 380 px in all four languages.
+### 25.11 Promise lines (moved to the long list, D-241)
+A line on every card ("Kept", "Bent for tag alarm by …", "Never acts"), computed by playing four severities × each named tag and no tag × 168 hours through the policies. Not built: the maintainer moved it to the long list with the status "unclear, not needed now" (`docs/OPEN_QUESTIONS.md`, Deferred ideas). Test policies and the Needs attention warnings answer the same questions on request.
 
 ### 25.12 Parity (rule 9)
 Watch-rule messages fit policies by severity, tag `rule` and From watch rule, reach the band and Deliver, and show in the checker (source watch rule) and the history. Frozen rules (D-100) and a rule's named policy (D-145) are unchanged. No exception is added to §22.
@@ -894,10 +894,10 @@ Order; each step one or more commits, `make check` green after each.
 8. Panel: lanes, band, cards, forms, Add outcomes, check list, checker, Messages timeline, welcome list; strings in four languages.
 9. Docs: `configuration.md` policies section, `setup.md` upgrading, `examples.md`, CHANGELOG "Before you upgrade" (backup first, then each difference), §0 status, HA_API_NOTES rows.
 10. `make hassfest`, `make dev-smoke`, browser-pane checks.
-11. Promise lines (§25.11), then the maintainer's ship-or-defer decision.
+11. Promise lines: moved to the long list (D-241), not part of 2.0.0.
 
 ### 25.16 To verify before building
 - Verified (N-109): Home Assistant refuses a config entry with a higher major version; the entry shows as a migration error and is not loaded.
 - The condition selector for Only if and Faster while in the panel's own forms (D-216 left it open).
 - Listeners for Only if on a held delivery across a restart.
-- Cost of the checker's 24-hour plan and of promise lines on a setup with 30 policies and 20 tags on a small host.
+- Cost of the checker's 24-hour plan on a setup with 30 policies and 20 tags on a small host.

@@ -154,6 +154,7 @@ export const STRINGS = {
     alongside_hint: "Off: reminders on the same channel share the shortest rhythm, each with its own count.",
     holds_anyway: "Holds these anyway",
     holds_anyway_hint: "No Always gets through entry can get messages past this policy.",
+    holds_anyway_warning: "This also holds back critical messages, for example smoke or leak alarms.",
     covers: "Covers",
     covers_everyone: "Everyone it reaches",
     covers_only: "Only these",
@@ -173,8 +174,8 @@ export const STRINGS = {
     links_note: "Leaves out {what} while {other} is switched on.",
     overlap_calm: "Where it and {names} both fit, the calmer counts.",
     overlap_send: "Also acts on the same messages: {names}.",
-    cl_title: "Please check after the update",
-    cl_intro: "Your policies work as they did before the update. A few now depend on each other; decide for each one.",
+    cl_title: "The policy feature has been updated – please review the new behaviour",
+    cl_intro: "Below you find the policies that we have automatically updated to match the previous behaviour. Decide for each one if you want to keep the migration edits. This is a one-time task after the introduction of the policy redesign.",
     cl_links: "{name} leaves out {what} while {other} is switched on, as before the update.",
     cl_never: "{name} does nothing at the moment, so it works as before the update: it leaves out all its messages.",
     cl_holds: "{name} also holds back critical messages, as before the update.",
@@ -398,6 +399,7 @@ export const STRINGS = {
     alongside_hint: "Aus: Erinnerungen auf demselben Kanal teilen sich den kürzesten Rhythmus, jede mit eigener Zählung.",
     holds_anyway: "Hält sie trotzdem",
     holds_anyway_hint: "Kein Eintrag von Kommt immer durch bringt Meldungen an dieser Richtlinie vorbei.",
+    holds_anyway_warning: "Damit werden auch kritische Meldungen zurückgehalten, zum Beispiel Rauch- oder Wasseralarme.",
     covers: "Gilt für",
     covers_everyone: "Alle, die sie erreicht",
     covers_only: "Nur diese",
@@ -417,8 +419,8 @@ export const STRINGS = {
     links_note: "Lässt {what} aus, solange {other} eingeschaltet ist.",
     overlap_calm: "Wo sie und {names} beide passen, zählt die ruhigere.",
     overlap_send: "Wirkt auch auf dieselben Meldungen: {names}.",
-    cl_title: "Bitte nach dem Update prüfen",
-    cl_intro: "Deine Richtlinien arbeiten wie vor dem Update. Einige hängen jetzt voneinander ab; entscheide für jede.",
+    cl_title: "Die Richtlinien wurden überarbeitet – bitte prüfe das neue Verhalten",
+    cl_intro: "Unten findest du die Richtlinien, die wir automatisch angepasst haben, damit sie sich wie vorher verhalten. Entscheide für jede, ob du die Anpassung behalten willst. Das ist eine einmalige Aufgabe nach der Neugestaltung der Richtlinien.",
     cl_links: "{name} lässt {what} aus, solange {other} eingeschaltet ist, wie vor dem Update.",
     cl_never: "{name} tut gerade nichts und arbeitet damit wie vor dem Update: Sie lässt alle ihre Meldungen aus.",
     cl_holds: "{name} hält auch kritische Meldungen zurück, wie vor dem Update.",
@@ -642,6 +644,7 @@ export const STRINGS = {
     alongside_hint: "Désactivé : les rappels d'un même canal partagent le rythme le plus court, chacun avec son propre compte.",
     holds_anyway: "Les retient quand même",
     holds_anyway_hint: "Aucune entrée Passe toujours ne fait passer les messages au-delà de cette règle.",
+    holds_anyway_warning: "Cela retient aussi les messages critiques, par exemple les alarmes de fumée ou de fuite.",
     covers: "Concerne",
     covers_everyone: "Tous ceux qu'il atteint",
     covers_only: "Seulement ceux-ci",
@@ -661,8 +664,8 @@ export const STRINGS = {
     links_note: "Laisse de côté {what} tant que {other} est activée.",
     overlap_calm: "Là où elle et {names} correspondent toutes deux, la plus calme compte.",
     overlap_send: "Agit aussi sur les mêmes messages : {names}.",
-    cl_title: "À vérifier après la mise à jour",
-    cl_intro: "Vos règles fonctionnent comme avant la mise à jour. Certaines dépendent maintenant les unes des autres ; décidez pour chacune.",
+    cl_title: "Les règles ont été repensées – vérifiez le nouveau comportement",
+    cl_intro: "Voici les règles que nous avons adaptées automatiquement pour garder le comportement d'avant. Décidez pour chacune si vous gardez l'adaptation. C'est une tâche unique après la refonte des règles.",
     cl_links: "{name} laisse de côté {what} tant que {other} est activée, comme avant la mise à jour.",
     cl_never: "{name} ne fait rien pour l'instant et fonctionne ainsi comme avant la mise à jour : elle laisse de côté tous ses messages.",
     cl_holds: "{name} retient aussi les messages critiques, comme avant la mise à jour.",
@@ -886,6 +889,7 @@ export const STRINGS = {
     alongside_hint: "Desactivado: los recordatorios de un mismo canal comparten el ritmo más corto, cada uno con su propio recuento.",
     holds_anyway: "Los retiene igualmente",
     holds_anyway_hint: "Ninguna entrada Siempre pasa deja pasar mensajes más allá de esta regla.",
+    holds_anyway_warning: "Esto también retiene los mensajes críticos, por ejemplo alarmas de humo o de fugas.",
     covers: "Afecta a",
     covers_everyone: "Todos a quienes llega",
     covers_only: "Solo estos",
@@ -905,8 +909,8 @@ export const STRINGS = {
     links_note: "Deja fuera {what} mientras {other} está activada.",
     overlap_calm: "Donde ella y {names} encajan, cuenta la más tranquila.",
     overlap_send: "También actúa en los mismos mensajes: {names}.",
-    cl_title: "Revisa tras la actualización",
-    cl_intro: "Tus reglas funcionan como antes de la actualización. Algunas dependen ahora unas de otras; decide para cada una.",
+    cl_title: "Las reglas se han rediseñado – revisa el nuevo comportamiento",
+    cl_intro: "Abajo están las reglas que hemos ajustado automáticamente para mantener el comportamiento anterior. Decide para cada una si conservas el ajuste. Es una tarea única tras el rediseño de las reglas.",
     cl_links: "{name} deja fuera {what} mientras {other} está activada, como antes de la actualización.",
     cl_never: "{name} no hace nada por ahora y así funciona como antes de la actualización: deja fuera todos sus mensajes.",
     cl_holds: "{name} también retiene los mensajes críticos, como antes de la actualización.",
@@ -1033,6 +1037,7 @@ const CSS = `
 .hu-page .pol-pill { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 2px 2px 2px 10px; border-radius: 8px; background: var(--card-background-color); border: 1px solid var(--divider-color); }
 .hu-page .pol-pill code { font-size: 12px; overflow-wrap: anywhere; }
 .hu-page .pol-switch-hint { margin-top: 6px; }
+.hu-page .pol-warn { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0 12px; padding: 8px 12px; border-radius: 8px; color: var(--warning-color, #ffa600); background: color-mix(in srgb, var(--warning-color, #ffa600) 12%, transparent); border: 1px solid color-mix(in srgb, var(--warning-color, #ffa600) 40%, transparent); font-size: 14px; --mdc-icon-size: 18px; }
 .hu-page .pol-pill .pol-copy { min-height: 32px; padding: 0 10px; font-size: 13px; }
 .hu-page .cl-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--divider-color); --mdc-icon-size: 20px; }
 .hu-page .cl-row ha-icon { color: var(--lane-color); }
@@ -1952,7 +1957,15 @@ export function mount(container, ctx) {
     box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; showEntity(v); paint(); })));
     box.append(ui.field(t.entity_id, entityLine, `${own ? t.entity_id_own : t.entity_id_new} ${t.entity_switch_hint}`));
     showEntity(values.name);
-    box.append(ui.field(t.type, ui.selectInput(TYPES.map((k) => ({ value: k, label: t.types[k] })), values.type, (v) => { values.type = v; again(); })));
+    // The types in the groups of the page, so it is clear where a type belongs.
+    const typeSelect = el("select", {});
+    for (const lane of LANES) {
+      const group = el("optgroup", { label: { calm: t.lane_calm, band: t.band, arrive: t.lane_arrive }[lane.id] });
+      for (const k of lane.types) group.append(el("option", { value: k, textContent: t.types[k], selected: values.type === k }));
+      typeSelect.append(group);
+    }
+    typeSelect.addEventListener("change", () => { values.type = typeSelect.value; again(); });
+    box.append(ui.field(t.type, typeSelect));
     box.append(el("div", { className: "hint type-desc", textContent: t.type_desc[values.type] }));
 
     const words = el("div", { className: "sentence" });
@@ -1991,8 +2004,13 @@ export function mount(container, ctx) {
       else peopleBlocks();
     };
     const holdsAnyway = () => {
-      does.append(ui.checkbox(t.holds_anyway, values.holds_anyway, (on) => { values.holds_anyway = on; paint(); }));
+      does.append(ui.checkbox(t.holds_anyway, values.holds_anyway, (on) => { values.holds_anyway = on; again(); }));
       does.append(el("div", { className: "hint", textContent: t.holds_anyway_hint }));
+      if (values.holds_anyway) {
+        const warn = el("div", { className: "pol-warn" }, [el("ha-icon", { icon: "mdi:alert-outline" }), el("span", { textContent: t.holds_anyway_warning })]);
+        warn.setAttribute("role", "alert");
+        does.append(warn);
+      }
     };
     switch (values.type) {
       case "escalation":

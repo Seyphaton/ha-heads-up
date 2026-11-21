@@ -39,6 +39,7 @@
 - Per-severity binary sensors (D-013).
 - Other channels under the Heads Up name: toasts, popups (D-004).
 - A produced demo video of the card and the banner lifecycle (long list, maintainer 2026-10-27).
+- Promise lines on every policy card ("Kept", "Bent for … by …", "Never acts"), computed by playing a week through the policies (`docs/DESIGN.md` §25.11). Status: unclear, not needed now (long list, maintainer 2026-11-21, D-241). Test policies and Needs attention answer the same questions on request; revisit only if users ask for it.
 
 ## Phase 8: watch rules
 - Label-based watching (a label on an entity adds a banner with its name): not built (D-057).

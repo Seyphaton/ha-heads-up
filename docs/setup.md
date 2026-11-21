@@ -163,7 +163,7 @@ From 1.x to 2.0.0: policies no longer run in a list order or a mode. Every polic
 - Where critical messages passed quiet hours or summaries, a Get through entry Critical is added. A Quiet hours or Summarize policy that held critical messages gets Holds these anyway. A Presence policy that let critical messages pass gets Not for severities Critical.
 - Setups on "Every policy that applies runs" get the 2.0 rules: two reminders on one channel share the shorter rhythm instead of both repeating.
 
-The Policies page shows Please check after the update with every policy the update changed this way, or that now does nothing. For each, choose Keep it like this or Apply to them too. 1.x cannot read the converted setup: make a backup before you update, and restore it to go back.
+The Policies page shows "The policy feature has been updated – please review the new behaviour" with every policy the update changed this way, or that now does nothing. For each, choose Keep it like this or Apply to them too. 1.x cannot read the converted setup: make a backup before you update, and restore it to go back.
 
 To go back to an earlier 1.x release, stop Home Assistant, run `python scripts/restore_identity_backup.py <config folder>` from the repository, then install the earlier release. To go back from 1.1.0 to 1.0.0, run `python scripts/restore_presence_backup.py <config folder>` instead. It puts the Away policies back and renames `passive` to `success` again, because 1.0.0 knows neither Presence nor `passive`. Without the restore, Home Assistant refuses to set up the converted data in an older release instead of reading it wrongly.
 
