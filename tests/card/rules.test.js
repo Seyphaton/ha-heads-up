@@ -110,4 +110,25 @@ describe("watch rule form", () => {
       expect(Object.keys(language.errors).sort(), code).toEqual(Object.keys(STRINGS.en.errors).sort());
     }
   });
+
+  it("reads who sees a rule: an audience, chosen people or everyone", () => {
+    expect(fromRule({ name: "A", data: { audience: "parents" } })).toMatchObject({ who: "audience", audience: "parents" });
+    expect(fromRule(rule).who).toBe("people");
+    expect(fromRule({ name: "B", data: {} }).who).toBe("everyone");
+  });
+
+  it("sends an audience without people, and people only when chosen people is picked", () => {
+    const base = { ...blankValues(), name: "W", entity_id: "binary_sensor.w", message: "Open", people: ["person.anna"] };
+    const audience = toFlowData({ ...base, who: "audience", audience: "parents" });
+    expect(audience.audience).toBe("parents");
+    expect(audience.people).toEqual([]);
+    expect(toFlowData({ ...base, who: "everyone" })).toMatchObject({ people: [] });
+    expect(toFlowData({ ...base, who: "everyone" }).audience).toBeUndefined();
+    expect(toFlowData({ ...base, who: "people" }).people).toEqual(["person.anna"]);
+  });
+
+  it("has the table and dialog texts in every language", () => {
+    const keys = ["col_rule", "col_watches", "col_shows", "f_who", "who_everyone", "who_people", "who_hint", "d_when", "d_who", "d_dismiss", "turn_off", "turn_on", "unsaved_confirm"];
+    for (const [code, language] of Object.entries(STRINGS)) for (const key of keys) expect(language[key], `${code} ${key}`).toBeTruthy();
+  });
 });

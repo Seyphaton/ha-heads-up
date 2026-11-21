@@ -3,11 +3,14 @@
 
 export const NAV = [
   { id: "overview", pages: ["status"] },
-  { id: "notifications", pages: ["test", "rules", "messages"] },
   { id: "configuration", pages: ["channels", "audiences", "recipients", "policies", "severities"] },
+  { id: "watch", pages: ["rules"] },
   { id: "settings", pages: ["general"] },
+  { id: "tests", pages: ["test", "messages"] },
   { id: "faq", pages: ["faq", "examples", "card", "policy-help"] },
 ];
+// Group paths of earlier versions, so a bookmark still opens the right page.
+const OLD_GROUPS = { notifications: "test" };
 // Page id to the module that renders it. A page without a module shows a note.
 export const MODULES = {
   status: "overview.js",
@@ -36,7 +39,7 @@ export const STRINGS = {
     tour_paused: "Introduction paused after step {n} of {total}.",
     tour_continue: "Continue the tour",
     tour_end: "End the tour",
-    groups: { overview: "Overview", notifications: "Notifications and rules", configuration: "Configuration", settings: "Settings", faq: "Help" },
+    groups: { overview: "Overview", configuration: "Configuration", watch: "Banner watch rules", settings: "Settings", tests: "Test & Logs", faq: "Help" },
     pages: { status: "Status", test: "Test send", rules: "Watch rules", messages: "Message Log", audiences: "Audiences", recipients: "Recipients", policies: "Policies", severities: "Severities", channels: "Channels", general: "General", faq: "FAQ", examples: "Notify examples", card: "Card examples", "policy-help": "How policies work together" },
     not_built: "This page is not available.",
     loading: "Loading…",
@@ -50,7 +53,7 @@ export const STRINGS = {
     tour_paused: "Einführung nach Schritt {n} von {total} pausiert.",
     tour_continue: "Tour fortsetzen",
     tour_end: "Tour beenden",
-    groups: { overview: "Übersicht", notifications: "Benachrichtigungen und Regeln", configuration: "Konfiguration", settings: "Einstellungen", faq: "Hilfe" },
+    groups: { overview: "Übersicht", configuration: "Konfiguration", watch: "Banner-Überwachungsregeln", settings: "Einstellungen", tests: "Test & Protokolle", faq: "Hilfe" },
     pages: { status: "Status", test: "Testsenden", rules: "Überwachungsregeln", messages: "Meldungsprotokoll", audiences: "Zielgruppen", recipients: "Empfänger", policies: "Richtlinien", severities: "Schweregrade", channels: "Kanäle", general: "Allgemein", faq: "FAQ", examples: "Notify-Beispiele", card: "Karten-Beispiele", "policy-help": "Wie Richtlinien zusammenwirken" },
     not_built: "Diese Seite ist nicht verfügbar.",
     loading: "Lädt…",
@@ -64,7 +67,7 @@ export const STRINGS = {
     tour_paused: "Introduction en pause après l'étape {n} sur {total}.",
     tour_continue: "Continuer la visite",
     tour_end: "Terminer la visite",
-    groups: { overview: "Vue d'ensemble", notifications: "Notifications et règles", configuration: "Configuration", settings: "Réglages", faq: "Aide" },
+    groups: { overview: "Vue d'ensemble", configuration: "Configuration", watch: "Règles de surveillance des bannières", settings: "Réglages", tests: "Test et journaux", faq: "Aide" },
     pages: { status: "État", test: "Envoi de test", rules: "Règles de surveillance", messages: "Journal des messages", audiences: "Audiences", recipients: "Destinataires", policies: "Politiques", severities: "Gravités", channels: "Canaux", general: "Général", faq: "FAQ", examples: "Exemples notify", card: "Exemples de carte", "policy-help": "Comment les règles agissent ensemble" },
     not_built: "Cette page n'est pas disponible.",
     loading: "Chargement…",
@@ -78,7 +81,7 @@ export const STRINGS = {
     tour_paused: "Introducción en pausa tras el paso {n} de {total}.",
     tour_continue: "Continuar el recorrido",
     tour_end: "Terminar el recorrido",
-    groups: { overview: "Resumen", notifications: "Notificaciones y reglas", configuration: "Configuración", settings: "Ajustes", faq: "Ayuda" },
+    groups: { overview: "Resumen", configuration: "Configuración", watch: "Reglas de vigilancia de avisos", settings: "Ajustes", tests: "Prueba y registros", faq: "Ayuda" },
     pages: { status: "Estado", test: "Envío de prueba", rules: "Reglas de vigilancia", messages: "Registro de mensajes", audiences: "Audiencias", recipients: "Destinatarios", policies: "Políticas", severities: "Gravedades", channels: "Canales", general: "General", faq: "Preguntas", examples: "Ejemplos de notify", card: "Ejemplos de tarjeta", "policy-help": "Cómo actúan juntas las reglas" },
     not_built: "Esta página no está disponible.",
     loading: "Cargando…",
@@ -107,6 +110,7 @@ export function groupOf(page) {
 export function pageFromPath(path) {
   const id = String(path || "").split("/").filter(Boolean)[0];
   if (groupOf(id)) return id;
+  if (OLD_GROUPS[id]) return OLD_GROUPS[id];
   const group = NAV.find((g) => g.id === id);
   return group ? group.pages[0] : DEFAULT_PAGE;
 }

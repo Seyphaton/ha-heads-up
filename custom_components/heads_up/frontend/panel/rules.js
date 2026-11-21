@@ -1,22 +1,37 @@
-// Heads Up panel: Watch rules page (D-134). A list of the rules with their state and an editor that
-// saves through the integration's own rule flow, like the other editors (D-119).
+// Heads Up panel: Watch rules page (D-134, D-242). A table of the rules with their state, like the
+// other configuration pages, and an editor in a dialog that saves through the integration's own
+// rule flow (D-119).
 
 export const STRINGS = {
   en: {
     title: "Watch rules",
-    intro: "A watch rule shows a banner while an entity is in a state, or while a template is true.\n\n- When the condition no longer holds, Heads Up removes the banner by itself.\n- Rules are stored in Heads Up, not in a dashboard. Several cards with different filters share the same rules and messages without copying them.\n\nAn automation can do the same: a trigger that calls heads_up.create_banner, or heads_up.notify with the banner channel, with the condition filled in.",
+    intro: "A watch rule shows a banner while an entity is in a state, or while a template is true. When that is no longer the case, the banner goes away by itself.",
     none: "You have no watch rules yet.",
     showing: "Showing now",
     not_showing: "Not showing",
     off: "Off",
     new: "New watch rule",
     editing: "Edit watch rule",
+    col_rule: "Rule",
+    col_watches: "Watches",
+    col_shows: "Shows",
+    f_who: "Show to",
+    who_everyone: "Everyone",
+    who_people: "Chosen people",
+    who_hint: "An audience is worked out at the moment the banner appears, as for a message.",
+    d_when: "When",
+    d_who: "Who sees it",
+    d_dismiss: "Dismiss",
+    turn_off: "Switch off",
+    turn_on: "Switch on",
+    unsaved_confirm: "You have changes that are not saved. Close anyway?",
     sec_when: "When",
     sec_what: "What to show",
     sec_who: "Who sees it",
     sec_how: "Behaviour",
     kind_entity: "An entity is in a state",
     kind_template: "A template is true",
+    f_kind: "Type of condition",
     f_entity: "Entity",
     f_operator: "Condition",
     f_state: "Value (several: separate with commas)",
@@ -28,7 +43,7 @@ export const STRINGS = {
     f_severity: "Severity",
     f_icon: "Icon (optional, like mdi:door)",
     f_image: "Image (optional, a URL or a path)",
-    f_people: "People (none: everyone)",
+    f_people: "People",
     f_dismissible: "Viewers can dismiss it",
     f_policy: "Policy",
     policy_all: "All that apply (automatic)",
@@ -54,6 +69,7 @@ export const STRINGS = {
     sentence_for: " The condition must hold for {n} min first.",
     watches: "watches {entity} {operator} {value}",
     watches_template: "watches a template",
+    template_cell: "A template",
     operators: {"equals": "equals", "not_equals": "does not equal", "above": "above", "below": "below", "between": "between", "contains": "contains", "not_contains": "does not contain", "empty": "is empty", "not_empty": "is not empty"},
     severities: {"passive": "Passive", "info": "Info", "warning": "Warning", "critical": "Critical"},
     saved: "Saved.",
@@ -62,19 +78,33 @@ export const STRINGS = {
   },
   de: {
     title: "Überwachungsregeln",
-    intro: "Eine Überwachungsregel zeigt ein Banner, solange eine Entität einen Zustand hat oder eine Vorlage wahr ist.\n\n- Gilt die Bedingung nicht mehr, entfernt Heads Up das Banner von selbst.\n- Regeln liegen in Heads Up, nicht in einem Dashboard. Mehrere Karten mit unterschiedlichen Filtern nutzen dieselben Regeln und Meldungen, ohne sie zu kopieren.\n\nEine Automation kann dasselbe: ein Auslöser, der heads_up.create_banner oder heads_up.notify mit dem Kanal Banner aufruft, mit ausgefüllter Bedingung.",
+    intro: "Eine Überwachungsregel zeigt ein Banner, solange eine Entität in einem Zustand ist oder eine Vorlage wahr ist. Trifft das nicht mehr zu, verschwindet das Banner von selbst.",
     none: "Du hast noch keine Überwachungsregeln.",
     showing: "Wird gezeigt",
     not_showing: "Wird nicht gezeigt",
     off: "Aus",
     new: "Neue Überwachungsregel",
     editing: "Überwachungsregel bearbeiten",
+    col_rule: "Regel",
+    col_watches: "Überwacht",
+    col_shows: "Zeigt",
+    f_who: "Anzeigen für",
+    who_everyone: "Alle",
+    who_people: "Ausgewählte Personen",
+    who_hint: "Eine Zielgruppe wird in dem Moment bestimmt, in dem das Banner erscheint, wie bei einer Meldung.",
+    d_when: "Wann",
+    d_who: "Wer sieht es",
+    d_dismiss: "Ausblenden",
+    turn_off: "Ausschalten",
+    turn_on: "Einschalten",
+    unsaved_confirm: "Du hast Änderungen, die nicht gespeichert sind. Trotzdem schließen?",
     sec_when: "Wann",
     sec_what: "Was gezeigt wird",
     sec_who: "Wer es sieht",
     sec_how: "Verhalten",
     kind_entity: "Eine Entität hat einen Zustand",
     kind_template: "Eine Vorlage ist wahr",
+    f_kind: "Art der Bedingung",
     f_entity: "Entität",
     f_operator: "Bedingung",
     f_state: "Wert (mehrere: mit Kommas trennen)",
@@ -86,7 +116,7 @@ export const STRINGS = {
     f_severity: "Schweregrad",
     f_icon: "Symbol (optional, etwa mdi:door)",
     f_image: "Bild (optional, eine URL oder ein Pfad)",
-    f_people: "Personen (keine: alle)",
+    f_people: "Personen",
     f_dismissible: "Betrachter können es ausblenden",
     f_policy: "Richtlinie",
     policy_all: "Alle, die gelten (automatisch)",
@@ -112,6 +142,7 @@ export const STRINGS = {
     sentence_for: " Die Bedingung muss zuerst {n} Min. gelten.",
     watches: "überwacht {entity} {operator} {value}",
     watches_template: "überwacht eine Vorlage",
+    template_cell: "Eine Vorlage",
     operators: {"equals": "ist gleich", "not_equals": "ist ungleich", "above": "über", "below": "unter", "between": "zwischen", "contains": "enthält", "not_contains": "enthält nicht", "empty": "ist leer", "not_empty": "ist nicht leer"},
     severities: {"passive": "Passiv", "info": "Info", "warning": "Warnung", "critical": "Kritisch"},
     saved: "Gespeichert.",
@@ -120,19 +151,33 @@ export const STRINGS = {
   },
   fr: {
     title: "Règles de surveillance",
-    intro: "Une règle de surveillance affiche une bannière tant qu'une entité est dans un état, ou tant qu'un modèle est vrai.\n\n- Quand la condition n'est plus vraie, Heads Up retire la bannière tout seul.\n- Les règles sont stockées dans Heads Up, pas dans un tableau de bord. Plusieurs cartes avec des filtres différents partagent les mêmes règles et messages sans les copier.\n\nUne automatisation peut faire la même chose : un déclencheur qui appelle heads_up.create_banner, ou heads_up.notify avec le canal bannière, avec la condition renseignée.",
+    intro: "Une règle de surveillance affiche une bannière tant qu'une entité est dans un état, ou tant qu'un modèle est vrai. Quand ce n'est plus le cas, la bannière disparaît d'elle-même.",
     none: "Vous n'avez pas encore de règle de surveillance.",
     showing: "Affichée",
     not_showing: "Non affichée",
     off: "Désactivée",
     new: "Nouvelle règle de surveillance",
     editing: "Modifier la règle de surveillance",
+    col_rule: "Règle",
+    col_watches: "Surveille",
+    col_shows: "Affiche",
+    f_who: "Afficher pour",
+    who_everyone: "Tout le monde",
+    who_people: "Personnes choisies",
+    who_hint: "Une audience est déterminée au moment où la bannière apparaît, comme pour un message.",
+    d_when: "Quand",
+    d_who: "Qui la voit",
+    d_dismiss: "Masquer",
+    turn_off: "Désactiver",
+    turn_on: "Activer",
+    unsaved_confirm: "Certaines modifications ne sont pas enregistrées. Fermer quand même ?",
     sec_when: "Quand",
     sec_what: "Quoi afficher",
     sec_who: "Qui la voit",
     sec_how: "Comportement",
     kind_entity: "Une entité est dans un état",
     kind_template: "Un modèle est vrai",
+    f_kind: "Type de condition",
     f_entity: "Entité",
     f_operator: "Condition",
     f_state: "Valeur (plusieurs : séparez par des virgules)",
@@ -144,7 +189,7 @@ export const STRINGS = {
     f_severity: "Gravité",
     f_icon: "Icône (facultatif, comme mdi:door)",
     f_image: "Image (facultatif, une URL ou un chemin)",
-    f_people: "Personnes (aucune : tout le monde)",
+    f_people: "Personnes",
     f_dismissible: "Les spectateurs peuvent la masquer",
     f_policy: "Politique",
     policy_all: "Toutes celles qui s'appliquent (automatiques)",
@@ -170,6 +215,7 @@ export const STRINGS = {
     sentence_for: " La condition doit d'abord durer {n} min.",
     watches: "surveille {entity} {operator} {value}",
     watches_template: "surveille un modèle",
+    template_cell: "Un modèle",
     operators: {"equals": "est égal à", "not_equals": "est différent de", "above": "au-dessus de", "below": "en dessous de", "between": "entre", "contains": "contient", "not_contains": "ne contient pas", "empty": "est vide", "not_empty": "n'est pas vide"},
     severities: {"passive": "Passif", "info": "Info", "warning": "Avertissement", "critical": "Critique"},
     saved: "Enregistré.",
@@ -178,19 +224,33 @@ export const STRINGS = {
   },
   es: {
     title: "Reglas de vigilancia",
-    intro: "Una regla de vigilancia muestra un aviso mientras una entidad está en un estado, o mientras una plantilla es verdadera.\n\n- Cuando la condición deja de cumplirse, Heads Up quita el aviso solo.\n- Las reglas se guardan en Heads Up, no en un panel. Varias tarjetas con filtros distintos comparten las mismas reglas y mensajes sin copiarlos.\n\nUna automatización puede hacer lo mismo: un disparador que llama a heads_up.create_banner, o a heads_up.notify con el canal aviso, con la condición rellenada.",
+    intro: "Una regla de vigilancia muestra un aviso mientras una entidad está en un estado, o mientras una plantilla es verdadera. Cuando deja de serlo, el aviso desaparece solo.",
     none: "Aún no tienes reglas de vigilancia.",
     showing: "Mostrándose",
     not_showing: "No se muestra",
     off: "Desactivada",
     new: "Nueva regla de vigilancia",
     editing: "Editar regla de vigilancia",
+    col_rule: "Regla",
+    col_watches: "Vigila",
+    col_shows: "Muestra",
+    f_who: "Mostrar a",
+    who_everyone: "Todos",
+    who_people: "Personas elegidas",
+    who_hint: "Una audiencia se calcula en el momento en que aparece el aviso, como para un mensaje.",
+    d_when: "Cuándo",
+    d_who: "Quién lo ve",
+    d_dismiss: "Descartar",
+    turn_off: "Desactivar",
+    turn_on: "Activar",
+    unsaved_confirm: "Hay cambios sin guardar. ¿Cerrar de todos modos?",
     sec_when: "Cuándo",
     sec_what: "Qué mostrar",
     sec_who: "Quién lo ve",
     sec_how: "Comportamiento",
     kind_entity: "Una entidad está en un estado",
     kind_template: "Una plantilla es verdadera",
+    f_kind: "Tipo de condición",
     f_entity: "Entidad",
     f_operator: "Condición",
     f_state: "Valor (varios: sepáralos con comas)",
@@ -202,7 +262,7 @@ export const STRINGS = {
     f_severity: "Gravedad",
     f_icon: "Icono (opcional, como mdi:door)",
     f_image: "Imagen (opcional, una URL o una ruta)",
-    f_people: "Personas (ninguna: todos)",
+    f_people: "Personas",
     f_dismissible: "Quien lo ve puede descartarlo",
     f_policy: "Política",
     policy_all: "Todas las que se aplican (automáticas)",
@@ -228,6 +288,7 @@ export const STRINGS = {
     sentence_for: " La condición debe cumplirse antes durante {n} min.",
     watches: "vigila {entity} {operator} {value}",
     watches_template: "vigila una plantilla",
+    template_cell: "Una plantilla",
     operators: {"equals": "es igual a", "not_equals": "es distinto de", "above": "por encima de", "below": "por debajo de", "between": "entre", "contains": "contiene", "not_contains": "no contiene", "empty": "está vacío", "not_empty": "no está vacío"},
     severities: {"passive": "Pasivo", "info": "Info", "warning": "Aviso", "critical": "Crítico"},
     saved: "Guardado.",
@@ -248,7 +309,7 @@ export function fill(template, params) {
 export function blankValues() {
   return {
     name: "", kind: "entity", entity_id: "", operator: "equals", state: "", attribute: "", for_minutes: "", template: "",
-    message: "", title: "", severity: "warning", icon: "", image: "", people: [],
+    message: "", title: "", severity: "warning", icon: "", image: "", who: "everyone", audience: "", people: [],
     dismissible: false, dismiss_scope: "", snoozable: "", snooze_scope: "", snooze_minutes: [], snooze_custom: false, policy: "", enabled: true,
   };
 }
@@ -273,6 +334,8 @@ export function fromRule(rule) {
     severity: d.severity || "warning",
     icon: text(d.icon),
     image: text(d.image),
+    who: d.audience ? "audience" : (d.people || []).length ? "people" : "everyone",
+    audience: text(d.audience),
     people: [...(d.people || [])],
     dismissible: Boolean(d.dismissible),
     dismiss_scope: text(d.dismiss_scope),
@@ -296,7 +359,7 @@ export function toFlowData(values, own) {
     name: values.name.trim(),
     message: values.message.trim(),
     severity: values.severity,
-    people: [...values.people],
+    people: values.who === "people" ? [...values.people] : [],
     dismissible: Boolean(values.dismissible),
     enabled: Boolean(values.enabled),
   };
@@ -317,6 +380,7 @@ export function toFlowData(values, own) {
   if (values.snooze_minutes.length) data.snooze_options = [...values.snooze_minutes];
   if (values.snooze_custom) data.snooze_custom = true;
   if (values.policy) data.policy = values.policy;
+  if (values.who === "audience" && values.audience) data.audience = values.audience;
   const kept = own?.data || {};
   if (kept.actions) data.actions = kept.actions;
   if (kept.tap_action) data.tap_action = kept.tap_action;
@@ -349,6 +413,12 @@ export function watchesText(data, t) {
   return fill(t.watches, { entity: data.entity_id || "", operator: t.operators[data.operator || "equals"], value: valueText(data, t) }).replace(/\s+$/, "");
 }
 
+// "light.x equals on" for the Watches column, whose title already says "watches".
+export function conditionText(data, t) {
+  if (data.template) return t.template_cell;
+  return `${data.entity_id || ""} ${t.operators[data.operator || "equals"]} ${valueText(data, t)}`.trim();
+}
+
 export function sentence(values, t) {
   const severity = t.severities[values.severity] || values.severity;
   const forText = Number(values.for_minutes) > 0 ? fill(t.sentence_for, { n: values.for_minutes }) : "";
@@ -357,56 +427,175 @@ export function sentence(values, t) {
   return fill(t.sentence_entity, { message: values.message, severity, entity: values.entity_id || "…", operator: t.operators[values.operator], value }).replace(" .", ".") + forText;
 }
 
+const CSS = `
+.hu-page .pol-intro { max-width: 72ch; margin-bottom: 12px; }
+.hu-page .pol-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 16px; }
+.hu-page .pol-bar button, .hu-page .tl-actions button { display: inline-flex; align-items: center; gap: 8px; }
+.hu-page .pol-bar ha-icon { --mdc-icon-size: 20px; }
+.hu-page section.tl-list { padding: 0; overflow: hidden; --tl-cols: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1.4fr); }
+.hu-page .tl-list .tl-cell { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.35; }
+.hu-page .tl-cell .badge { white-space: nowrap; margin-right: 4px; }
+.hu-page .tl-lead ha-icon { color: var(--secondary-text-color); }
+.hu-page .tl-item.showing .tl-lead ha-icon { color: var(--warning-color, #ffa600); }
+.hu-page .badge.on { border-color: var(--warning-color, #ffa600); color: var(--warning-color, #ffa600); }
+.hu-page dialog.hu-modal { width: min(920px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); padding: 0; border: 1px solid var(--divider-color); border-radius: 16px; background: var(--card-background-color); color: var(--primary-text-color); box-shadow: 0 12px 40px rgba(0, 0, 0, .35); overflow: hidden; }
+.hu-page dialog.hu-modal[open] { display: flex; flex-direction: column; }
+.hu-page dialog.hu-modal::backdrop { background: rgba(0, 0, 0, .55); }
+.hu-page .hu-modal-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--divider-color); }
+.hu-page .hu-modal-head h2 { margin: 0; }
+.hu-page .hu-modal-head .lane-icon { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--hu-fill); --mdc-icon-size: 20px; }
+.hu-page .hu-close { margin-left: auto; flex: none; width: 44px; height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+.hu-page .hu-modal-body { overflow: auto; padding: 8px 20px 4px; }
+.hu-page .hu-modal-body h3.sec { font-size: 15px; margin: 20px 0 6px; padding-top: 12px; border-top: 1px solid var(--divider-color); }
+.hu-page .hu-modal-body h3.sec:first-of-type { border-top: 0; padding-top: 0; margin-top: 8px; }
+.hu-page .hu-modal-body .row { position: sticky; bottom: -4px; background: var(--card-background-color); padding: 10px 0; z-index: 1; }
+.hu-page .hu-modal-body textarea { width: 100%; max-width: 100%; box-sizing: border-box; }
+.hu-page .summary { background: var(--hu-fill); border-radius: 10px; padding: 10px 12px; margin: 16px 0 12px; }
+@media (max-width: 600px) {
+  .hu-page dialog.hu-modal { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; border: 0; }
+}
+`;
+
+const RULE_ICON = "mdi:eye-check-outline";
+
 export function mount(container, ctx) {
   const { t, ui } = ctx;
   const s = ctx.s;
   const { el } = ui;
   let hass = ctx.hass;
   let data = null;
-  let editing = null; // { own, values }
+  let editing = null; // { own, values, start }
+  let editorDialog = null;
+  let openKey = null;
   let message = "";
   const root = el("div", { className: "hu-page" });
   container.append(root);
 
   const personName = (id) => data.choices.persons.find((p) => p.id === id)?.name ?? id;
+  const audienceName = (id) => (data.choices.audience_choices || []).find((a) => a.id === id)?.name ?? id;
+  const policyName = (id) => (data.policies || []).find((p) => p.subentry_id === id)?.name ?? id;
   const errorTexts = (codes) => codes.map((c) => t.errors[c] || ui.errorText(c, ctx.language)).join(" ");
+  const whoText = (d) => (d.audience ? audienceName(d.audience) : (d.people || []).length ? d.people.map(personName).join(", ") : t.who_everyone);
 
-  function row(rule) {
+  // The rules as a table like the other pages: name and state, what it watches, what it shows.
+  function table() {
+    const box = el("section", { className: "tl-list" });
+    if (data.rules.length) box.append(ui.tableHead([t.col_rule, t.col_watches, t.col_shows]));
+    for (const rule of data.rules) box.append(ruleRow(rule));
+    if (!data.rules.length) box.append(el("div", { className: "tl-empty", textContent: t.none }));
+    return box;
+  }
+
+  function ruleRow(rule) {
     const d = rule.data;
     const enabled = d.enabled !== false;
+    const id = `hu-rule-${rule.subentry_id}`;
+    const isOpen = openKey === rule.subentry_id;
     const state = !enabled ? t.off : rule.showing ? t.showing : t.not_showing;
-    const edit = el("button", { type: "button", textContent: s.common.edit });
-    edit.addEventListener("click", () => {
-      message = "";
-      editing = { own: rule, values: fromRule(rule) };
-      render();
+    const lead = [
+      el("ha-icon", { icon: RULE_ICON }),
+      el("span", { className: "tl-name", textContent: rule.name }),
+    ];
+    const shows = `${t.severities[d.severity || "warning"]} · ${d.message || ""}`;
+    const { item } = ui.tableRow({
+      id,
+      lead,
+      cells: [
+        { label: t.col_watches, node: el("span", { textContent: conditionText(d, t) }) },
+        { label: t.col_shows, node: el("span", {}, [el("span", { className: `badge${enabled && rule.showing ? " on" : ""}`, textContent: state }), document.createTextNode(` ${shows}`)]) },
+      ],
+      open: isOpen,
+      dim: !enabled,
+      label: `${rule.name}, ${state}: ${watchesText(d, t)}. ${shows}`,
+      onToggle: () => {
+        openKey = isOpen ? null : rule.subentry_id;
+        render();
+        root.querySelector(`[aria-controls="${id}"]`)?.focus();
+      },
+      body: isOpen ? details(rule) : null,
     });
-    return el("li", { className: enabled ? "" : "dim" }, [
-      el("div", {}, [
-        el("strong", { textContent: rule.name }),
-        el("div", { className: "badges" }, [
-          el("span", { className: `badge${enabled && rule.showing ? " on" : ""}`, textContent: state }),
-          el("span", { className: `badge sev sev-${d.severity || "warning"}`, textContent: t.severities[d.severity || "warning"] }),
-        ]),
-        el("div", { className: "sub", textContent: watchesText(d, t) }),
-        el("div", { className: "sub" }, [/\{[{%]/.test(d.message || "") ? el("code", { className: "tpl", textContent: d.message }) : document.createTextNode(d.message || "")]),
+    if (enabled && rule.showing) item.classList.add("showing");
+    return item;
+  }
+
+  function details(rule) {
+    const d = rule.data;
+    const body = el("div", {});
+    const shown = /\{[{%]/.test(d.message || "") ? el("code", { className: "tpl", textContent: d.message }) : d.message || "";
+    const policy = !d.policy ? t.policy_all : d.policy === "none" ? t.policy_none : policyName(d.policy);
+    body.append(
+      ui.facts([
+        [t.d_when, (d.template ? d.template : conditionText(d, t)) + (d.for ? fill(t.sentence_for, { n: Math.round(d.for / 60) }) : "")],
+        [t.f_message, shown],
+        [t.d_who, whoText(d)],
+        [t.f_policy, policy],
+        [t.d_dismiss, d.dismissible ? (d.dismiss_scope === "global" ? t.scope_global : t.scope_user) : t.snooze_off],
       ]),
-      edit,
+    );
+    const edit = el("button", { type: "button", className: "primary", textContent: s.common.edit });
+    edit.addEventListener("click", () => openEditor(rule, fromRule(rule)));
+    const enabled = d.enabled !== false;
+    const flip = el("button", { type: "button", textContent: enabled ? t.turn_off : t.turn_on });
+    flip.addEventListener("click", async () => {
+      const result = await ui.runFlow(hass, data.entry_id, "rule", rule.subentry_id, toFlowData({ ...fromRule(rule), enabled: !enabled }, rule));
+      message = result.ok ? "" : errorTexts(Object.values(result.errors));
+      await load();
+    });
+    body.append(el("div", { className: "tl-actions" }, [edit, flip]));
+    return body;
+  }
+
+  // A dialog over the page; X, Cancel, Escape and a click beside it ask first when something changed.
+  function openEditor(own, values) {
+    message = "";
+    editing = { own, values, start: JSON.stringify(toFlowData(values, own)) };
+    const dialog = el("dialog", { className: "hu-modal" });
+    const close = el("button", { type: "button", className: "hu-close" }, [el("ha-icon", { icon: "mdi:close" })]);
+    close.setAttribute("aria-label", s.common.cancel);
+    close.addEventListener("click", requestClose);
+    const head = el("div", { className: "hu-modal-head" }, [
+      el("span", { className: "lane-icon" }, [el("ha-icon", { icon: own ? RULE_ICON : "mdi:plus" })]),
+      el("h2", { textContent: own ? `${t.editing}: ${own.name}` : t.new }),
+      close,
     ]);
+    const body = el("div", { className: "hu-modal-body" });
+    dialog.append(head, body);
+    dialog.addEventListener("cancel", (event) => { event.preventDefault(); requestClose(); });
+    dialog.addEventListener("click", (event) => { if (event.target === dialog) requestClose(); });
+    dialog.addEventListener("close", () => { dialog.remove(); editing = null; editorDialog = null; });
+    root.append(dialog);
+    editorDialog = { dialog, body };
+    body.append(editor());
+    dialog.showModal();
+  }
+
+  function refreshEditor() {
+    if (!editorDialog) return;
+    const scroll = editorDialog.body.scrollTop;
+    editorDialog.body.replaceChildren(editor());
+    editorDialog.body.scrollTop = scroll;
+  }
+
+  function requestClose() {
+    if (!editorDialog) return;
+    const changed = editing && JSON.stringify(toFlowData(editing.values, editing.own)) !== editing.start;
+    if (changed && !window.confirm(t.unsaved_confirm)) return;
+    editorDialog.dialog.close();
   }
 
   function editor() {
     const { own, values } = editing;
     const existing = data.rules.map((r) => r.name);
-    const box = el("section", {}, [el("h2", { textContent: own ? t.editing : t.new })]);
-    const again = () => render();
+    const box = el("div", {});
+    const again = () => refreshEditor();
     const text = (key, label, extra = {}) => ui.field(label, ui.textInput(values[key], (v) => { values[key] = v; paint(); }, extra));
+    box.append(ui.checkbox(t.f_enabled, values.enabled, (on) => { values.enabled = on; paint(); }));
     box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; paint(); })));
 
-    box.append(el("h2", { textContent: t.sec_when, style: "margin-top:12px" }));
-    box.append(ui.selectInput([{ value: "entity", label: t.kind_entity }, { value: "template", label: t.kind_template }], values.kind, (v) => { values.kind = v; again(); }));
+    box.append(el("h3", { className: "sec", textContent: t.sec_when }));
+    box.append(ui.field(t.f_kind, ui.selectInput([{ value: "entity", label: t.kind_entity }, { value: "template", label: t.kind_template }], values.kind, (v) => { values.kind = v; again(); })));
     if (values.kind === "template") {
-      const area = el("textarea", { value: values.template, rows: 3, style: "width:100%;max-width:100%;box-sizing:border-box" });
+      const area = el("textarea", { value: values.template, rows: 3 });
       area.addEventListener("input", () => { values.template = area.value; paint(); });
       box.append(ui.field(t.f_template, area));
     } else {
@@ -420,17 +609,27 @@ export function mount(container, ctx) {
     }
     box.append(ui.field(t.f_for, ui.numberInput(values.for_minutes, (v) => { values.for_minutes = Number.isNaN(v) ? "" : String(v); paint(); }, { min: 0, max: 1440, step: "any" })));
 
-    box.append(el("h2", { textContent: t.sec_what, style: "margin-top:12px" }));
-    const msg = el("textarea", { value: values.message, rows: 3, style: "width:100%;max-width:100%;box-sizing:border-box" });
+    box.append(el("h3", { className: "sec", textContent: t.sec_what }));
+    const msg = el("textarea", { value: values.message, rows: 3 });
     msg.addEventListener("input", () => { values.message = msg.value; paint(); });
     box.append(ui.field(t.f_message, msg), text("title", t.f_title));
     box.append(ui.field(t.f_severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: t.severities[k] })), values.severity, (v) => { values.severity = v; paint(); })));
     box.append(text("icon", t.f_icon), text("image", t.f_image, { style: "max-width:100%" }));
 
-    box.append(el("h2", { textContent: t.sec_who, style: "margin-top:12px" }));
-    box.append(ui.chips(t.f_people, data.choices.persons.map((p) => ({ value: p.id, label: p.name })), values.people, (list) => { values.people = list; paint(); }));
+    box.append(el("h3", { className: "sec", textContent: t.sec_who }));
+    const audiences = (data.choices.audience_choices || []).filter((a) => a.id !== "everyone");
+    const whoOptions = [{ value: "everyone", label: t.who_everyone }, ...audiences.map((a) => ({ value: `audience:${a.id}`, label: a.name })), { value: "people", label: t.who_people }];
+    const whoValue = values.who === "audience" ? `audience:${values.audience}` : values.who;
+    box.append(ui.field(t.f_who, ui.selectInput(whoOptions, whoValue, (v) => {
+      if (v.startsWith("audience:")) Object.assign(values, { who: "audience", audience: v.slice(9) });
+      else Object.assign(values, { who: v, audience: "" });
+      again();
+    }), t.who_hint));
+    if (values.who === "people") {
+      box.append(ui.chips(t.f_people, data.choices.persons.map((p) => ({ value: p.id, label: p.name })), values.people, (list) => { values.people = list; paint(); }));
+    }
 
-    box.append(el("h2", { textContent: t.sec_how, style: "margin-top:12px" }));
+    box.append(el("h3", { className: "sec", textContent: t.sec_how }));
     box.append(ui.checkbox(t.f_dismissible, values.dismissible, (on) => { values.dismissible = on; paint(); }));
     const scopes = [{ value: "", label: t.scope_default }, { value: "user", label: t.scope_user }, { value: "global", label: t.scope_global }];
     box.append(ui.field(t.f_dismiss_scope, ui.selectInput(scopes, values.dismiss_scope, (v) => { values.dismiss_scope = v; paint(); })));
@@ -445,24 +644,23 @@ export function mount(container, ctx) {
     }
     const policies = [{ value: "", label: t.policy_all }, { value: "none", label: t.policy_none }, ...listed];
     box.append(ui.field(t.f_policy, ui.selectInput(policies, values.policy, (v) => { values.policy = v; paint(); }), t.policy_hint));
-    box.append(ui.checkbox(t.f_enabled, values.enabled, (on) => { values.enabled = on; paint(); }));
     if (own && (own.data.actions || own.data.tap_action)) box.append(el("div", { className: "hint", textContent: t.kept }));
 
-    const words = el("div", { className: "hint" });
+    const words = el("div", {});
     const status = el("div", { className: "hint" });
     status.setAttribute("role", "status");
     status.setAttribute("aria-live", "polite");
     const save = el("button", { type: "button", className: "primary", textContent: s.common.save });
     save.addEventListener("click", saveIt);
     const cancel = el("button", { type: "button", textContent: s.common.cancel });
-    cancel.addEventListener("click", () => { editing = null; render(); });
+    cancel.addEventListener("click", requestClose);
     const buttons = el("div", { className: "row" }, [save, cancel]);
     if (own) {
       const del = el("button", { type: "button", className: "danger", textContent: s.common.delete });
       del.addEventListener("click", remove);
       buttons.append(del);
     }
-    box.append(el("h2", { textContent: t.sentence, style: "margin-top:12px" }), words, status, buttons);
+    box.append(el("div", { className: "summary" }, [el("strong", { textContent: t.sentence }), words, status]), buttons);
     if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ name: own.name, ...own.data }), s.common));
     function paint() {
       const codes = Object.values(validate(values, existing, own?.name));
@@ -477,25 +675,26 @@ export function mount(container, ctx) {
 
   function render() {
     ui.lockHeight(root);
-    root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
-    root.append(ui.richNode(t.intro, { className: "hint" }));
-    if (editing) return void root.append(editor());
-    const list = el("ul", { className: "list" }, data.rules.length ? data.rules.map(row) : [el("li", { className: "sub", textContent: t.none })]);
-    const add = el("button", { type: "button", className: "primary", textContent: s.common.add });
-    add.addEventListener("click", () => { message = ""; editing = { own: null, values: blankValues() }; render(); });
-    root.append(el("section", {}, [list, add]));
+    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + ui.TABLE_CSS + CSS }), el("h1", { textContent: t.title }));
+    root.append(ui.richNode(t.intro, { className: "hint pol-intro" }));
+    const add = el("button", { type: "button", className: "primary" }, [el("ha-icon", { icon: "mdi:plus" }), el("span", { textContent: t.new })]);
+    add.setAttribute("aria-haspopup", "dialog");
+    add.addEventListener("click", () => openEditor(null, blankValues()));
+    root.append(el("div", { className: "pol-bar" }, [add]));
+    if (message) root.append(el("div", { className: "hint problems", textContent: message, role: "alert" }));
+    root.append(table());
   }
 
   async function saveIt() {
     const { own, values } = editing;
     const result = await ui.runFlow(hass, data.entry_id, "rule", own?.subentry_id, toFlowData(values, own));
     if (!result.ok) {
-      message = errorTexts(Object.values(result.errors).map((c) => c));
-      render();
+      message = errorTexts(Object.values(result.errors));
+      refreshEditor();
       return;
     }
-    editing = null;
     message = "";
+    editorDialog?.dialog.close();
     await load();
   }
 
@@ -503,7 +702,7 @@ export function mount(container, ctx) {
     const { own } = editing;
     if (!window.confirm(fill(s.common.delete_confirm, { name: own.name }))) return;
     await ui.removeSubentry(hass, data.entry_id, own.subentry_id);
-    editing = null;
+    editorDialog?.dialog.close();
     await load();
   }
 

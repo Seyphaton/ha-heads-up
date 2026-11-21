@@ -24,6 +24,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ### Added
 
+- Watch rules can name an audience: the banner shows to the members of the audience at the moment it appears.
+- Banner watch rules has its own tab, with a table and the form in a window like the Policies page. Test send and the Message Log are under Test & Logs.
 - Policies page in three tables: Keep it calm (Summarize, Quiet hours, Presence), Always gets through and Make sure it arrives (Deliver, Escalation, Reminder, Fallback), plus Only when named. Each row says in words what the policy does and opens its switch ID, Edit and Switch off.
 - Get through entries: say which messages may wake whom despite quiet hours and summaries, for everyone a message reaches or only some people and speakers. Presence is never passed.
 - Not for severities and Not for tags, and From watch rule, on every policy.

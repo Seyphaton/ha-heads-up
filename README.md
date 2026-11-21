@@ -53,10 +53,10 @@ When something did not arrive, the Message Log tells you why. It lists each chan
 
    <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/overview-active.png" width="480" alt="The Heads Up Overview: four active messages, a chart of the last 24 hours, and Acknowledge and Clear buttons on each message">
 
-4. Open Notifications and rules > Test send. Pick channels and an audience, and the table shows who would get the message on which channel, or why not. Send test sends one real message, which ends by itself after 10 minutes.
+4. Open Test & Logs > Test send. Pick channels and an audience, and the table shows who would get the message on which channel, or why not. Send test sends one real message, which ends by itself after 10 minutes.
 
 5. Add the card to a dashboard of your own (the built-in Overview cannot be edited): Edit, Add card, then search for Heads Up.
-6. In an automation, add the action Heads Up: Notify and fill in the form. For a banner that shows while an entity is in a state, with no automation at all, add a watch rule under Notifications and rules > Watch rules.
+6. In an automation, add the action Heads Up: Notify and fill in the form. For a banner that shows while an entity is in a state, with no automation at all, add a watch rule under Banner watch rules.
 
 ## The same in YAML
 
@@ -81,7 +81,7 @@ data:
   id: front_door
 ```
 
-To try a call by hand, use Developer tools > Actions (named Tools in Home Assistant 2026.10) in YAML mode. If nothing arrives, open Notifications and rules > Message Log and select the message.
+To try a call by hand, use Developer tools > Actions (named Tools in Home Assistant 2026.10) in YAML mode. If nothing arrives, open Test & Logs > Message Log and select the message.
 
 ## Documentation
 

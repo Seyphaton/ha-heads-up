@@ -55,7 +55,7 @@ data:
 
 ### When nothing arrived
 
-1. Open Heads Up > Notifications and rules > Message Log, select the message. A window lists every channel with its result (sent, held, skipped or failed), the people or phones it covers and a reason, for example `no_usable_device` (the person has no Companion app device) or `rate_limited`. The sidebar entry must be on; see Install.
+1. Open Heads Up > Test & Logs > Message Log, select the message. A window lists every channel with its result (sent, held, skipped or failed), the people or phones it covers and a reason, for example `no_usable_device` (the person has no Companion app device) or `rate_limited`. The sidebar entry must be on; see Install.
 2. Use Test send, in the same group as the Message Log, to see the same reasons before you send anything. `dry_run: true` on the `notify` action does the same from an automation. The response of a `notify` call lists the reasons known at the call in `reasons`.
 3. [Examples and FAQ](examples.md#troubleshooting) lists every reason.
 4. To report a bug, download diagnostics from Settings > Devices & services > Heads Up. They hold the options, policies, rules, audiences and recipients, the last 200 trace entries and the list of recent messages, without mail addresses and message texts.
@@ -94,7 +94,7 @@ The banner appears in the card without a reload, and everyone with a Companion a
 
 The panel is an administrator page in the sidebar. Without it you cannot use Test send, the Message Log with the delivery trace, the Overview, the introduction, the Channels settings or the Help pages. Audiences, recipients, policies, watch rules and the other settings stay editable under Settings > Devices & services > Heads Up. Calls, the card and the messages work the same with or without the panel.
 
-Five groups in a top row: Overview, Notifications and rules, Configuration, Settings, Help. A group with several pages shows them as pills. The address of a page is `/heads-up/<page>`, for example `/heads-up/general`.
+Six groups in a top row: Overview, Configuration, Banner watch rules, Settings, Test & Logs, Help. A group with several pages shows them as pills. The address of a page is `/heads-up/<page>`, for example `/heads-up/general`.
 
 ### Overview
 
@@ -119,7 +119,7 @@ Send test sends one real message with the title prefix `Test: `, the tag `test` 
 
 ### Watch rules, configuration, settings and help
 
-- Watch rules (Notifications and rules group): lists every rule with its state, what it watches and its message. Add opens an empty form and Edit opens the stored rule. The page saves through the rule form under Settings > Devices & services > Heads Up, so Save, Delete and the error texts are the same. It does not edit a rule's buttons and tap action; it keeps them as they are. See [Watch rules](actions.md#watch-rules).
+- Banner watch rules: a table of the rules with what each watches and what it shows, with a badge for its state. Open a row for the details, Edit and Switch off. New watch rule and Edit open the form in a window; closing it with unsaved changes asks first. The page saves through the rule form under Settings > Devices & services > Heads Up, so Save, Delete and the error texts are the same. It does not edit a rule's buttons and tap action; it keeps them as they are. See [Watch rules](actions.md#watch-rules).
 - Audiences, Recipients, Policies and Channels (Configuration group): see [Configuration](configuration.md).
 - Settings: see [Settings](settings.md).
 - Help: three pages. FAQ has the questions of [Examples and FAQ](examples.md#frequently-asked-questions) and more. Notify examples has six calls from a banner to a push to one person, each with a Copy button; the names in them are samples, so replace them with your own audiences, persons and speakers. Card examples has six configurations of the card, each with a Copy button. Every Help page links to the project's GitHub issues page.

@@ -31,7 +31,7 @@ import {
 
 describe("panel navigation", () => {
   it("has the five groups of the specification in order", () => {
-    expect(NAV.map((g) => g.id)).toEqual(["overview", "notifications", "configuration", "settings", "faq"]);
+    expect(NAV.map((g) => g.id)).toEqual(["overview", "configuration", "watch", "settings", "tests", "faq"]);
   });
 
   it("finds the group of a page", () => {
@@ -49,11 +49,15 @@ describe("panel navigation", () => {
     expect(pageFromPath("/settings")).toBe("general");
     expect(pageFromPath("/configuration")).toBe("channels");
     expect(pageFromPath("/faq")).toBe("faq");
+    expect(pageFromPath("/watch")).toBe("rules");
+    expect(pageFromPath("/tests")).toBe("test");
+    expect(pageFromPath("/notifications")).toBe("test"); // a bookmark of an earlier version
   });
 
   it("shows a second row only for a group with more than one page", () => {
     expect(secondRow("audiences")).toEqual(["channels", "audiences", "recipients", "policies", "severities"]);
-    expect(secondRow("test")).toEqual(["test", "rules", "messages"]);
+    expect(secondRow("test")).toEqual(["test", "messages"]);
+    expect(secondRow("rules")).toEqual([]);
     expect(secondRow("general")).toEqual([]);
     expect(secondRow("status")).toEqual([]);
     expect(secondRow("faq")).toEqual(["faq", "examples", "card", "policy-help"]);
