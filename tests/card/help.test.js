@@ -17,10 +17,10 @@ describe("help pages", () => {
     expect(MODULES["policy-help"]).toBe("policy_help.js");
   });
 
-  it("have six notify examples, six card examples and 27 questions", () => {
+  it("have six notify examples, six card examples and 29 questions", () => {
     expect(EXAMPLES).toHaveLength(6);
     expect(CARD_EXAMPLES).toHaveLength(6);
-    expect(QUESTION_IDS).toHaveLength(27);
+    expect(QUESTION_IDS).toHaveLength(29);
   });
 
   it("link to the issues page of the repository, which the manifest names as issue tracker", () => {

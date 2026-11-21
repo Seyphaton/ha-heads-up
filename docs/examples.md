@@ -358,7 +358,7 @@ Add a Quiet hours policy. During the window it can send quietly, hold the messag
 
 ### What if someone is not home?
 
-A Presence policy sends the message when the person arrives, as long as it is still there. A Fallback policy sends it to someone else when the first delivery reached nobody.
+A Presence policy holds the message for a person until they arrive, as long as the message is still there, or drops it. It applies to every severity; set Not for severities to Critical to let critical messages through. A Fallback policy sends the message to someone else when neither the call nor a Deliver policy reached anyone.
 
 ### Do critical messages get special treatment?
 
@@ -382,7 +382,7 @@ Pending escalations keep their due time, and a step that came due during the res
 
 ## Troubleshooting
 
-Start with the Message Log (Heads Up > Notifications and rules > Message Log): choose the message and read the result and the reason of each row. Test send shows the same reasons before you send anything.
+Start with the Message Log (Heads Up > Test & Logs > Message Log): choose the message and read the result and the reason of each row. Test send shows the same reasons before you send anything.
 
 ### The card shows "Custom element doesn't exist: heads-up-card"
 
@@ -421,7 +421,7 @@ Open the message in the Message Log. A dismissal shows a `dismissed` row, then o
 
 ### A push did not arrive
 
-Open Heads Up > Notifications and rules > Message Log and choose the message. Each recipient has a result and a reason.
+Open Heads Up > Test & Logs > Message Log and choose the message. Each recipient has a result and a reason.
 
 - `no_usable_device`: the person has no Companion device. Check that a `device_tracker` of the app is in the person's trackers, or add the device in a recipient profile.
 - `service_not_found`: `notify.mobile_app_<device name>` does not exist. The app was removed or renamed and has not registered again. Look for the service in Developer tools > Actions.
