@@ -1563,4 +1563,4 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer): the top row is Overview, Configuration, Banner watch rules, Settings, Test & Logs (Test send, Message Log), Help. `/heads-up/notifications` opens Test send.
 - The rule page uses the table and dialog of the Policies page: columns Rule, Watches, Shows (with the state badge), a row opens details with Edit and Switch off, the editor is a dialog that asks before discarding changes.
 - A rule may name an `audience` (subentry field). It is resolved each time the rule banner becomes visible and when the rule is saved, like the audience of a call (D-131); until then the banner has nobody, so it never flashes up for everyone. `audience` and `people` exclude each other (`audience_or_people`); an unknown audience is refused (`audience_unknown`). This closes the D-195 exception in §22.
-
+- Same day (maintainer): the check list after the update goes away by itself once every item is answered, the next time the Policies page is opened (the panel then calls `heads_up/conversion_items_dismiss`). Answering the last item leaves the list in view until then.

@@ -1614,6 +1614,12 @@ export function doesText(values, t, labels = {}) {
   return text;
 }
 
+// Whether the check list has items of existing policies and every one of them is answered.
+export function checklistAnswered(items, policies) {
+  const shown = (items || []).filter((i) => (policies || []).some((p) => p.subentry_id === i.policy));
+  return shown.length > 0 && shown.every((i) => i.state !== "open");
+}
+
 export function mount(container, ctx) {
   const { t, s, ui } = ctx;
   const { el } = ui;
@@ -2192,8 +2198,16 @@ export function mount(container, ctx) {
     await load();
   }
 
+  let firstLoad = true;
   async function load() {
     data = await hass.callWS({ type: "heads_up/panel_config" });
+    // A check list whose items are all answered goes away the next time the page is opened, not
+    // while the user is answering, so the last answer stays visible until then (D-242).
+    if (firstLoad && checklistAnswered(data.conversion_items, data.policies)) {
+      await hass.callWS({ type: "heads_up/conversion_items_dismiss" });
+      data = { ...data, conversion_items: [] };
+    }
+    firstLoad = false;
     render();
   }
 

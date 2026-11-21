@@ -41,6 +41,7 @@ import {
   STRINGS as POLICY_STRINGS,
   toFlowData as policyData,
   validate as validatePolicy,
+  checklistAnswered,
 } from "../../custom_components/heads_up/frontend/panel/policies.js";
 import {
   changes as channelChanges,
@@ -693,5 +694,19 @@ describe("policy channels and recipients from the call", () => {
       for (const key of ["policy", "call", "failed"]) expect(t.cf[key], `${lang}.cf.${key}`).toBeTruthy();
       for (const key of ["policy", "call"]) expect(t.tf[key], `${lang}.tf.${key}`).toBeTruthy();
     }
+  });
+});
+
+describe("check list after the update", () => {
+  const policies = [{ subentry_id: "a" }, { subentry_id: "b" }];
+  it("counts as answered only when every item of an existing policy is answered", () => {
+    expect(checklistAnswered([{ policy: "a", state: "kept" }, { policy: "b", state: "changed" }], policies)).toBe(true);
+    expect(checklistAnswered([{ policy: "a", state: "kept" }, { policy: "b", state: "open" }], policies)).toBe(false);
+  });
+
+  it("ignores items of deleted policies and is not answered when nothing is left", () => {
+    expect(checklistAnswered([{ policy: "a", state: "kept" }, { policy: "gone", state: "open" }], policies)).toBe(true);
+    expect(checklistAnswered([{ policy: "gone", state: "kept" }], policies)).toBe(false);
+    expect(checklistAnswered(undefined, policies)).toBe(false);
   });
 });

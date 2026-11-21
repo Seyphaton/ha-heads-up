@@ -816,7 +816,7 @@ Equivalence test: for each fixture, run the 1.1 selection and chain over a grid 
 
 ### 25.7 Check list after the update
 - Stored as the entry option `conversion_items`: `{policy, kind, state, added}`, `kind` one of `not_for`, `links`, `never_acts`, `holds_anyway` (D-235, D-240); `state` `open`, `kept` or `changed`.
-- Shown at the top of the Policies page until every item is answered or the list is dismissed. Each item: one sentence and two buttons.
+- Shown at the top of the Policies page until the list is dismissed (Hide this list), or until the page is opened again after every item was answered; then the panel dismisses it (D-242). Answering the last item does not hide it at once. Each item: one sentence and two buttons.
   - `links`: "Night quiet skips messages that Evening summary already handles." Keep it like this / Let it act on them too (removes the links).
   - `never_acts`: "Never acts: Critical delivery, Warning reminder, Evening summary and Night quiet take all its messages first." Keep as before / Let it act.
   - `holds_anyway`: "Holds critical messages too, as before." Keep as before / Let Critical through.
