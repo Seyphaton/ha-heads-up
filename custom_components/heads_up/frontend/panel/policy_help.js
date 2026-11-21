@@ -1098,7 +1098,6 @@ const CSS = `
 .hu-page .pair-name { display: inline-flex; align-items: center; gap: 8px; --mdc-icon-size: 20px; }
 .hu-page .pair-name ha-icon { color: var(--lane-color); }
 .hu-page .tile .ic { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; flex: none; --mdc-icon-size: 20px; color: var(--lane-color); background: color-mix(in srgb, var(--lane-color) 16%, transparent); }
-.hu-page .detail { box-shadow: inset 4px 0 0 var(--primary-color); }
 .hu-page h3.lane { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; margin: 16px 0 8px; }
 .hu-page .detail { margin-top: 16px; border: 1px solid var(--divider-color); border-radius: 12px; padding: 12px; }
 .hu-page .example { background: var(--secondary-background-color); border-radius: 8px; padding: 8px 10px; margin: 6px 0; }

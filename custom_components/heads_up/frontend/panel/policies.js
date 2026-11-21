@@ -1025,10 +1025,10 @@ const CSS = `
 .hu-page .lane-count { margin-left: auto; flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; background: var(--hu-fill); color: var(--secondary-text-color); }
 .hu-page section { --lane-color: var(--primary-color); }
 .hu-page section.lane.calm { --lane-color: var(--success-color, #43a047); }
-.hu-page section.lane.band { --lane-color: var(--warning-color, #ffa600); box-shadow: inset 4px 0 0 var(--lane-color); }
+.hu-page section.lane.band { --lane-color: var(--warning-color, #ffa600); }
 .hu-page section.lane.arrive { --lane-color: var(--info-color, #039be5); }
 .hu-page section.lane.named { --lane-color: var(--secondary-text-color); }
-.hu-page section.cl-card { --lane-color: var(--warning-color, #ffa600); box-shadow: inset 4px 0 0 var(--lane-color); }
+.hu-page section.cl-card { --lane-color: var(--warning-color, #ffa600); }
 .hu-page .tl-list .tl-lead ha-icon { color: var(--lane-color); }
 .hu-page .lane-head + .tl-head + .tl-item, .hu-page .lane-head + .tl-item { border-top: 1px solid var(--divider-color); }
 .hu-page .pol-sentence { margin: 0 0 12px; font-size: 15px; line-height: 1.5; max-width: 72ch; }
