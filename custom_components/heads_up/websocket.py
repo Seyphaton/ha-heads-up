@@ -37,6 +37,7 @@ from .frontend import async_popup_url
 from .hub import checker, panel_config, panel_data, panel_test, reach, settings, welcome
 from .hub.identity import GROUP_PREFIX
 from .hub.policies.convert import OPT_CONVERSION_ITEMS
+from .hub.recipients import speaker_entities
 from .manager import BannerManager, HeadsUpError
 from .switch import policy_entity_id
 
@@ -575,6 +576,14 @@ async def ws_policy_check(
     tag = msg.get("tag") or ("rule" if msg.get("rule") else None)
     if tag:
         payload["tag"] = tag
+    if "speak" in msg["channels"] and "speak" not in (msg.get("to") or {}):
+        # Speech has no audience: the checker speaks on every speaker, as the Overview table does.
+        # With none, speech is left out instead of failing the whole check.
+        speakers = speaker_entities(hass)
+        if speakers:
+            payload["to"] = {**(msg.get("to") or {}), "speak": {"recipients": speakers}}
+        else:
+            payload["channels"] = [c for c in msg["channels"] if c != "speak"]
     if msg.get("to"):
         payload["to"] = msg["to"]
     if msg.get("audience"):

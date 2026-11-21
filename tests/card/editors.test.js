@@ -42,6 +42,7 @@ import {
   toFlowData as policyData,
   validate as validatePolicy,
   checklistAnswered,
+  rowWho,
 } from "../../custom_components/heads_up/frontend/panel/policies.js";
 import {
   changes as channelChanges,
@@ -50,7 +51,7 @@ import {
   validChannelId,
   validMailTemplate,
 } from "../../custom_components/heads_up/frontend/panel/channels.js";
-import { errorText, ERRORS, joinTags, parseRich, splitTags, toYaml } from "../../custom_components/heads_up/frontend/panel/ui.js";
+import { errorText, ERRORS, joinTags, parseRich, recipientLabel, splitTags, toYaml } from "../../custom_components/heads_up/frontend/panel/ui.js";
 
 describe("yaml of stored data", () => {
   it("writes nested maps, lists and scalars", () => {
@@ -708,5 +709,27 @@ describe("check list after the update", () => {
     expect(checklistAnswered([{ policy: "a", state: "kept" }, { policy: "gone", state: "open" }], policies)).toBe(true);
     expect(checklistAnswered([{ policy: "gone", state: "kept" }], policies)).toBe(false);
     expect(checklistAnswered(undefined, policies)).toBe(false);
+  });
+});
+
+describe("checker rows name the phone", () => {
+  const choices = {
+    persons: [{ id: "person.anna", name: "Anna" }],
+    registrations: [
+      { id: "aaaa1111", name: "iPhone" },
+      { id: "bbbb2222", name: "iPad" },
+    ],
+  };
+  const label = recipientLabel;
+
+  it("shows the person and the phone, so two phones are not two duplicates", () => {
+    expect(rowWho({ person: "person.anna", recipient: "device:aaaa1111" }, choices, label)).toBe("Anna (iPhone)");
+    expect(rowWho({ person: "person.anna", recipient: "device:bbbb2222" }, choices, label)).toBe("Anna (iPad)");
+  });
+
+  it("shows the person alone for a row without a phone, the phone alone without a person, and a dash for nothing", () => {
+    expect(rowWho({ person: "person.anna", recipient: "person.anna" }, choices, label)).toBe("Anna");
+    expect(rowWho({ person: null, recipient: "device:aaaa1111" }, choices, label)).toBe("iPhone");
+    expect(rowWho({ person: null, recipient: "" }, choices, label)).toBe("—");
   });
 });

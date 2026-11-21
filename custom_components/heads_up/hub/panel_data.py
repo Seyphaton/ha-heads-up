@@ -575,7 +575,8 @@ def coming_up(manager: BannerManager) -> list[dict[str, Any]]:
     return sorted(out, key=lambda e: (e["time"], e["kind"], e["policy"]))
 
 
-LAST_ACTIONS = 6
+LAST_ACTIONS = 5
+RESULT_KINDS = ("sent", "held", "skipped", "failed")
 
 
 def last_actions(
@@ -604,27 +605,33 @@ def last_actions(
         if item.get("source") == SOURCE_SUMMARY:
             continue
         message_id = item["id"]
+        created = dt_util.parse_datetime(item["created_at"])
+        acknowledged = None
+        latest: dict[tuple[str, str], dict[str, Any]] = {}
+        last_time = item.get("ended") or item["created_at"]
+        # Oldest first, so the newest result of a recipient wins. Entries from before this
+        # message appeared belong to an earlier appearance of the same ID and are ignored.
+        for logged in reversed(hub.trace.entries(message_id)):
+            when = dt_util.parse_datetime(logged["time"])
+            if created is not None and when is not None and when < created:
+                continue
+            last_time = max(last_time, logged["time"])
+            channel, result = logged["channel"], logged["result"]
+            if channel == "" and result == "acknowledged" and acknowledged is None:
+                seconds = int((when - created).total_seconds()) if created and when else None
+                acknowledged = {
+                    "by": manager._first_name(logged["recipient"] or "") or None,
+                    "seconds": max(seconds, 0) if seconds is not None else None,
+                }
+            if channel not in ("", TIMER_CHANNEL) and result in RESULT_KINDS:
+                latest[(channel, logged["recipient"] or "")] = logged
+        # One count per recipient on a channel, however often an update sent to it again.
         results: dict[str, int] = {}
         problems: dict[str, int] = {}
         failed_on: list[str] = []
         held_by: list[str] = []
-        acknowledged = None
-        for logged in reversed(hub.trace.entries(message_id)):
-            channel, result = logged["channel"], logged["result"]
-            if channel == "" and result == "acknowledged" and acknowledged is None:
-                created = dt_util.parse_datetime(item["created_at"])
-                when = dt_util.parse_datetime(logged["time"])
-                acknowledged = {
-                    "by": manager._first_name(logged["recipient"] or "") or None,
-                    "seconds": int((when - created).total_seconds()) if created and when else None,
-                }
-            if channel in ("", TIMER_CHANNEL) or result not in (
-                "sent",
-                "held",
-                "skipped",
-                "failed",
-            ):
-                continue
+        for (channel, _recipient), logged in latest.items():
+            result = logged["result"]
             results[result] = results.get(result, 0) + 1
             if result in ("skipped", "failed") and logged["reason"]:
                 problems[logged["reason"]] = problems.get(logged["reason"], 0) + 1
@@ -633,6 +640,8 @@ def last_actions(
             if result == "held" and logged.get("by") and logged["by"] not in held_by:
                 held_by.append(logged["by"])
         live = manager.banners.get(message_id) or manager.rules.get(message_id)
+        if acknowledged is not None and live is not None and not live.acknowledged_by:
+            acknowledged = None  # a rule that appeared again starts without an acknowledgement
         if item.get("ended"):
             state = "ended"
         elif live is not None and live.acknowledged_by:
@@ -647,7 +656,7 @@ def last_actions(
                 "message": item.get("message"),
                 "severity": item.get("severity"),
                 "source": {"kind": "rule" if is_rule else "action", "name": titles.get(message_id)},
-                "time": item.get("ended") or item.get("created_at"),
+                "time": last_time,
                 "state": state,
                 "end_reason": item.get("reason"),
                 "results": results,
@@ -662,9 +671,9 @@ def last_actions(
                 "reminded": reminded.get(message_id, 0),
             }
         )
-        if len(out) >= limit:
-            break
-    return out
+    # Newest activity first: a message that was updated again moves up.
+    out.sort(key=lambda row: row["time"], reverse=True)
+    return out[:limit]
 
 
 def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[str, Any]:

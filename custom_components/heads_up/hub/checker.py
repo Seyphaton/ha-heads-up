@@ -161,6 +161,7 @@ def _row(
     out: dict[str, Any] = {
         "channel": channel,
         "recipient": recipient,
+        "person": who.person if who is not None else None,
         "result": result.value,
         "reason": reason,
         "by": None,
@@ -177,6 +178,7 @@ def _replay(hub: HubEngine, message: Banner, row: dict[str, Any], origin: str) -
     out = {
         "channel": row["channel"],
         "recipient": row["recipient"],
+        "person": row.get("person"),
         "result": "sent",
         "reason": None,
         "by": None,

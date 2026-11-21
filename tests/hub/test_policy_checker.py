@@ -11,6 +11,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
 from .conftest import AddDevice
+from .helpers import FakeSpeakers
 from .policy_support import ESCALATION, QUIET, add_policy, make_household, pushes
 
 NIGHT = "2026-11-03T03:00:00+01:00"
@@ -153,3 +154,62 @@ async def test_the_panel_may_name_the_audience_by_its_key(
     client = await hass_ws_client(hass)
     reply = await check(client, severity="info", audience="everyone")
     assert any(r["channel"] == "push" and r["result"] == "sent" for r in reply["result"]["rows"])
+
+
+async def test_the_checker_speaks_on_every_speaker_when_speech_is_ticked(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+    fake_speakers: FakeSpeakers,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id(
+        {"type": "heads_up/policy_check", "severity": "warning", "channels": ["banner", "speak"]}
+    )
+    reply = await client.receive_json()
+    assert reply["success"], reply
+    speakers = {r["recipient"] for r in reply["result"]["rows"] if r["channel"] == "speak"}
+    assert speakers == {
+        fake_speakers.announce_player,
+        fake_speakers.plain_player,
+        fake_speakers.satellite,
+    }
+
+
+async def test_the_checker_leaves_speech_out_when_there_is_no_speaker(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id(
+        {"type": "heads_up/policy_check", "severity": "warning", "channels": ["banner", "speak"]}
+    )
+    reply = await client.receive_json()
+    assert reply["success"], reply
+    assert not [r for r in reply["result"]["rows"] if r["channel"] == "speak"]
+
+
+async def test_the_rows_of_every_step_name_the_person_behind_a_phone(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Water", **ESCALATION)
+    await add_policy(hass, entry, "Nag", type="reminder", every_minutes=10, max_count=1)
+    client = await hass_ws_client(hass)
+    reply = await check(client, severity="warning", at="2026-11-03T12:00:00+01:00", to=TO_ANNA)
+    result = reply["result"]
+    phones = [r for r in result["rows"] if r["channel"] == "push"]
+    assert phones and all(r["recipient"].startswith("device:") for r in phones)
+    reminders = [r for s in result["steps"] if s["policy"] == "Nag" for r in s["rows"]]
+    escalations = [r for s in result["steps"] if s["policy"] == "Water" for r in s["rows"]]
+    for row in [*phones, *reminders, *escalations]:
+        if row["channel"] == "push":
+            assert row["person"] in ("person.anna", "person.ben"), row

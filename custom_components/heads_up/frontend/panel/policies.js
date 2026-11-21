@@ -202,7 +202,8 @@ export const STRINGS = {
     ck_source_call: "An automation or script",
     ck_time: "At",
     ck_home: "At home",
-    ck_ack: "Acknowledged after (minutes, empty: never)",
+    ck_ack: "Acknowledged after (min)",
+    ck_ack_hint: "Empty: nobody acknowledges.",
     ck_run: "Check",
     ck_first: "At once",
     ck_later: "Later",
@@ -447,7 +448,8 @@ export const STRINGS = {
     ck_source_call: "Einer Automation oder einem Skript",
     ck_time: "Um",
     ck_home: "Zu Hause",
-    ck_ack: "Bestätigt nach (Minuten, leer: nie)",
+    ck_ack: "Bestätigt nach (Min.)",
+    ck_ack_hint: "Leer: niemand bestätigt.",
     ck_run: "Prüfen",
     ck_first: "Sofort",
     ck_later: "Später",
@@ -692,7 +694,8 @@ export const STRINGS = {
     ck_source_call: "Une automatisation ou un script",
     ck_time: "À",
     ck_home: "À la maison",
-    ck_ack: "Confirmé après (minutes, vide : jamais)",
+    ck_ack: "Confirmé après (min)",
+    ck_ack_hint: "Vide : personne ne confirme.",
     ck_run: "Vérifier",
     ck_first: "Tout de suite",
     ck_later: "Plus tard",
@@ -937,7 +940,8 @@ export const STRINGS = {
     ck_source_call: "Una automatización o un script",
     ck_time: "A las",
     ck_home: "En casa",
-    ck_ack: "Confirmado tras (minutos, vacío: nunca)",
+    ck_ack: "Confirmado tras (min",
+    ck_ack_hint: "Vacío: nadie confirma.",
     ck_run: "Comprobar",
     ck_first: "Enseguida",
     ck_later: "Más tarde",
@@ -1048,7 +1052,9 @@ const CSS = `
 .hu-page section.cl-card > .tl-actions, .hu-page section.ck-card > .tl-actions { padding: 0 16px 14px; margin-top: 4px; }
 .hu-page button.link { background: none; border-color: transparent; color: var(--primary-color); padding: 0 4px; }
 .hu-page .ck-grid, .hu-page section.ck-card > fieldset { margin: 0 16px 12px; }
-.hu-page .ck-grid { padding-top: 4px; }
+.hu-page .ck-grid { padding-top: 4px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); align-items: start; }
+.hu-page .ck-grid .field { min-width: 0; }
+.hu-page .ck-grid input, .hu-page .ck-grid select { min-width: 0; width: 100%; box-sizing: border-box; }
 .hu-page input[type="datetime-local"] { box-sizing: border-box; height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--hu-line); background: var(--hu-fill); color: var(--primary-text-color); font: inherit; width: 100%; }
 .hu-page fieldset.pills { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 12px 12px; }
 .hu-page fieldset.pills.scroll { max-height: 220px; overflow: auto; }
@@ -1498,6 +1504,18 @@ function sentenceBase(values, t, audienceName, recipientName) {
   }
 }
 
+// Who a row of the checker is about. A push row names the phone as well as the person, so two
+// phones of one person do not look like duplicates: "Anna (iPhone)".
+export function rowWho(row, choices, label) {
+  const person = row.person ? label(row.person, choices) : "";
+  const recipient = String(row.recipient || "");
+  if (recipient.startsWith("device:")) {
+    const device = label(recipient.slice("device:".length), choices);
+    return person ? `${person} (${device})` : device;
+  }
+  return person || (recipient ? label(recipient, choices) : "") || "—";
+}
+
 // One line of the checker's answer: who, which channel, what happens and why (DESIGN §25.8).
 export function checkLine(row, t, who, reasonText = (code) => code) {
   let what;
@@ -1871,7 +1889,7 @@ export function mount(container, ctx) {
     const at = el("input", { type: "datetime-local", value: ask.at });
     at.addEventListener("input", () => { ask.at = at.value; });
     grid.append(ui.field(t.ck_time, at));
-    grid.append(ui.field(t.ck_ack, ui.textInput(ask.ack, (v) => { ask.ack = v; })));
+    grid.append(ui.field(t.ck_ack, ui.textInput(ask.ack, (v) => { ask.ack = v; }), t.ck_ack_hint));
     box.append(grid);
     box.append(pills(t.ck_channels, ["banner", ...POLICY_CHANNELS].map((c) => ({ value: c, label: c === "banner" ? t.ck_banner : t.channel_names[c] })), ask.channels, (list) => { ask.channels = list; }));
     const persons = data.choices.persons || [];
@@ -1908,7 +1926,7 @@ export function mount(container, ctx) {
     out.setAttribute("role", "status");
     if (result.error) return out.append(el("div", { className: "hint problems", textContent: result.error })), out;
     const time = (iso) => new Date(iso).toLocaleTimeString(ctx.language, { hour: "2-digit", minute: "2-digit" });
-    const who = (row) => ui.recipientLabel(row.person || row.recipient || "", data.choices) || "—";
+    const who = (row) => rowWho(row, data.choices, ui.recipientLabel);
     const reason = (code) => ctx.fmt.reasonText(code, s);
     const lines = (rows) =>
       el("ul", { className: "ck-lines" }, rows.map((row) => {

@@ -963,12 +963,13 @@ const CSS = `
 
 .hu-overview .cardhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
 .hu-overview .cardhead h2 { margin: 0; }
-.hu-overview .act { display: grid; gap: 3px; padding: 12px 0; }
-.hu-overview .act .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.hu-overview .act .headline { font-weight: 600; flex: 1 1 160px; min-width: 0; overflow-wrap: anywhere; }
-.hu-overview .act .outcome { font-size: 14px; }
-.hu-overview .act .chips { display: flex; gap: 6px; flex-wrap: wrap; }
-.hu-overview .act .chips .pill { font-weight: 500; }
+.hu-overview .act { display: grid; gap: 2px; padding: 7px 0; }
+.hu-overview .act .top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.hu-overview .act .headline { flex: 1 1 auto; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hu-overview .act .top .pill { font-size: 11px; padding: 1px 8px; flex: none; }
+.hu-overview .act button.link { min-height: 28px; font-size: 12px; padding: 0 2px; flex: none; }
+.hu-overview .act .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: 12px; color: var(--secondary-text-color); }
+.hu-overview .act .meta .pill { font-size: 11px; font-weight: 500; padding: 0 8px; }
 .hu-overview .act .pill.state-ended { background: var(--hu-chip); }
 .hu-overview .act .pill.state-acknowledged { background: color-mix(in srgb, var(--hu-ok) 18%, transparent); color: var(--hu-ok); }
 .hu-overview .act .pill.state-active { background: color-mix(in srgb, var(--hu-info) 18%, transparent); color: var(--hu-info); }
@@ -1209,8 +1210,8 @@ export function mount(container, ctx) {
         el("span", { className: `pill state-${row.stateKind}`, textContent: row.state }),
         pathButton(item.id),
       ]);
-      const li = el("li", { className: "act" }, [top, el("div", { className: "sub", textContent: `${row.source} · ${row.when}` }), el("div", { className: "outcome", textContent: row.outcome })]);
-      if (row.chips.length) li.append(el("div", { className: "chips" }, row.chips.map((chip) => el("span", { className: "pill", textContent: chip }))));
+      const meta = el("div", { className: "meta" }, [el("span", { textContent: `${row.source} · ${row.when} · ${row.outcome}` }), ...row.chips.map((chip) => el("span", { className: "pill", textContent: chip }))]);
+      const li = el("li", { className: "act" }, [top, meta]);
       if (openPaths[item.id]) li.append(pathNode(item.id));
       list.append(li);
     }

@@ -677,7 +677,7 @@ async def test_last_actions_is_one_row_per_message_newest_first_and_without_summ
     assert rows[1]["source"] == {"kind": "action", "name": None}
 
 
-async def test_last_actions_is_limited_to_six_rows(
+async def test_last_actions_is_limited_to_five_rows(
     hass: HomeAssistant,
     entry: MockConfigEntry,
     hass_ws_client: WebSocketGenerator,
@@ -688,7 +688,7 @@ async def test_last_actions_is_limited_to_six_rows(
         await send(hass, entry, id=f"m{n}", message=f"Message {n}")
     client = await hass_ws_client(hass)
     rows = (await overview(hass, client))["last_actions"]
-    assert len(rows) == 6 and rows[0]["id"] == "m8"
+    assert len(rows) == 5 and rows[0]["id"] == "m8"
 
 
 async def test_a_row_tells_what_became_of_the_message(
@@ -748,3 +748,61 @@ async def test_a_rule_row_has_the_rules_name_and_an_ended_message_its_reason(
     (row,) = (await overview(hass, client))["last_actions"]
     assert row["source"] == {"kind": "rule", "name": rule.title}
     assert row["state"] == "ended" and row["end_reason"]
+
+
+async def test_last_actions_are_ordered_by_their_latest_activity_not_by_when_they_began(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    await send(hass, entry, id="old", message="Began first")
+    await wait(hass, entry, freezer, 5)
+    await send(hass, entry, id="new", message="Began second")
+    await wait(hass, entry, freezer, 5)
+    await send(hass, entry, id="old", message="Updated again")  # the first message moves up
+    client = await hass_ws_client(hass)
+    rows = (await overview(hass, client))["last_actions"]
+    assert [r["id"] for r in rows] == ["old", "new"]
+    times = [r["time"] for r in rows]
+    assert times == sorted(times, reverse=True)
+
+
+async def test_an_updated_message_counts_each_recipient_once(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    client = await hass_ws_client(hass)
+    await make_household(hass, mobile_app_device)
+    for n in range(4):
+        await send(hass, entry, id="same", message=f"Update {n}")
+    (row,) = (await overview(hass, client))["last_actions"]
+    assert row["results"] == {"sent": 2}  # the banner and Anna's phone, not eight sends
+
+
+async def test_an_acknowledgement_of_an_earlier_appearance_is_not_counted(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    client = await hass_ws_client(hass)
+    hass.states.async_set(WINDOW, "off")
+    add_rule(hass, entry, severity="warning")
+    await hass.async_block_till_done()
+    hass.states.async_set(WINDOW, "on")
+    await settle(hass, entry)
+    (rule_id,) = entry.runtime_data.rules
+    entry.runtime_data.acknowledge(rule_id, "anna-id", any_message=True)
+    await settle(hass, entry)
+    hass.states.async_set(WINDOW, "off")
+    await settle(hass, entry)
+    await wait(hass, entry, freezer, 10)
+    hass.states.async_set(WINDOW, "on")  # it appears again, as a new message
+    await settle(hass, entry)
+    (row,) = (await overview(hass, client))["last_actions"]
+    assert row["acknowledged"] is None and row["state"] == "active"
