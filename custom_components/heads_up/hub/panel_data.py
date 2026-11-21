@@ -30,12 +30,13 @@ from ..const import (
 )
 from ..manager import BannerManager
 from .activity import ActivityLog
+from .audiences import BUILTINS
 from .ledger import State
 from .policies import deliver, escalation, fallback, presence, quiet, reminder, summarize
 from .policies.convert import can_overlap, covered
 from .policies.matching import applies
 from .policies.models import Policy, parse_policy, presence_channels
-from .presence import UNKNOWN_STATES
+from .presence import UNKNOWN_STATES, is_home
 from .recipients import area_speakers
 
 
@@ -687,3 +688,43 @@ def trace(hass: HomeAssistant, manager: BannerManager, message_id: str) -> dict[
         "acknowledged_count": len(live.acknowledged_by) if live else 0,
         "held": hub.is_held(message_id),
     }
+
+
+# Audiences ---------------------------------------------------------------------------------
+
+
+async def audiences(hass: HomeAssistant, hub: Any) -> dict[str, Any]:
+    """The six built-in audiences with who is in each now (and why), the people with a home mark,
+    and for Last to leave and First home the time it happened (the tour's step 3)."""
+    resolver = hub.resolver
+    disabled = resolver.disabled_audiences()
+    people = [
+        {
+            "person": s.entity_id,
+            "name": s.attributes.get("friendly_name") or s.entity_id,
+            "home": is_home(hass, s.entity_id, resolver.home_entity(s.entity_id)) is True,
+        }
+        for s in sorted(hass.states.async_all("person"), key=lambda s: s.entity_id)
+    ]
+    times = {
+        "last_to_leave": resolver.presence.last_to_leave_at,
+        "first_home": resolver.presence.first_home_at,
+    }
+    out = []
+    for key in BUILTIN_AUDIENCES.values():
+        # A switched-off audience is listed, so the tour can say so; it still resolves here.
+        audience = next((a for a in BUILTINS.values() if a.key == key), None)
+        if audience is None:
+            continue
+        found = await resolver.members(audience, "warning")
+        at = times.get(key)
+        out.append(
+            {
+                "key": key,
+                "enabled": key not in disabled,
+                "members": [{"person": r.key, "reason": r.reason} for r in found.recipients],
+                "skipped": [{"person": s.who, "reason": s.reason} for s in found.skipped],
+                "at": at.isoformat() if at else None,
+            }
+        )
+    return {"people": people, "audiences": out}

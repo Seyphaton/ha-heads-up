@@ -5,6 +5,7 @@ from typing import Any
 import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.core import HomeAssistant
+from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from ..test_restart import restart
@@ -162,3 +163,78 @@ async def test_a_limited_last_to_leave_names_the_person_only_when_they_are_in_th
     assert await audience_members(entry, "Last to leave") == ["person.ben"]
     assert await audience_members(entry, "Anna last") == []
     assert await audience_members(entry, "Ben last") == ["person.ben"]
+
+
+async def test_leave_and_arrival_times_are_empty_before_the_first_event(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    set_person(hass, "person.anna", "home")
+    await hass.async_block_till_done()
+    presence = entry.runtime_data.hub.resolver.presence
+    assert presence.last_to_leave_at is None and presence.first_home_at is None
+
+
+async def test_the_times_are_those_of_the_settled_change(
+    hass: HomeAssistant, entry: MockConfigEntry, freezer: FrozenDateTimeFactory
+) -> None:
+    presence = entry.runtime_data.hub.resolver.presence
+    set_person(hass, "person.anna", "home")
+    await hass.async_block_till_done()
+    freezer.move_to("2026-11-02 17:40:00+00:00")
+    set_person(hass, "person.anna", "not_home")
+    await hass.async_block_till_done()
+    assert presence.last_to_leave_at == dt_util.parse_datetime("2026-11-02T17:40:00+00:00")
+    assert presence.first_home_at is None
+    freezer.move_to("2026-11-03 07:12:00+00:00")
+    set_person(hass, "person.anna", "home")
+    await hass.async_block_till_done()
+    assert presence.first_home_at == dt_util.parse_datetime("2026-11-03T07:12:00+00:00")
+    assert presence.last_to_leave_at is None  # someone is home: no last to leave
+
+
+class TestTimesWithDebounce:
+    @pytest.fixture
+    def options(self) -> dict[str, Any]:
+        return {"presence_debounce_seconds": 60}
+
+    async def test_the_leave_time_is_when_the_absence_counted_not_when_it_began(
+        self, hass: HomeAssistant, entry: MockConfigEntry, freezer: FrozenDateTimeFactory
+    ) -> None:
+        presence = entry.runtime_data.hub.resolver.presence
+        set_person(hass, "person.anna", "home")
+        await hass.async_block_till_done()
+        freezer.move_to("2026-11-02 17:00:00+00:00")
+        set_person(hass, "person.anna", "not_home")
+        await hass.async_block_till_done()
+        await tick(hass, freezer, 30)
+        assert presence.last_to_leave_at is None
+        await tick(hass, freezer, 40)
+        assert presence.last_to_leave_at == dt_util.parse_datetime("2026-11-02T17:01:10+00:00")
+
+
+async def test_the_times_survive_a_restart(
+    hass: HomeAssistant, entry: MockConfigEntry, freezer: FrozenDateTimeFactory
+) -> None:
+    set_person(hass, "person.anna", "home")
+    await hass.async_block_till_done()
+    freezer.move_to("2026-11-02 17:40:00+00:00")
+    set_person(hass, "person.anna", "not_home")
+    await hass.async_block_till_done()
+    await restart(hass, entry)
+    presence = entry.runtime_data.hub.resolver.presence
+    assert presence.last_to_leave_at == dt_util.parse_datetime("2026-11-02T17:40:00+00:00")
+
+
+async def test_a_store_without_times_still_loads(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    from homeassistant.helpers.storage import Store
+
+    from custom_components.heads_up.const import PRESENCE_KEY
+
+    await Store(hass, 1, PRESENCE_KEY).async_save(
+        {"last_to_leave": "person.anna", "first_home": None}
+    )
+    await restart(hass, entry)
+    presence = entry.runtime_data.hub.resolver.presence
+    assert presence.last_to_leave_at is None

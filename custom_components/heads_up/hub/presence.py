@@ -18,6 +18,7 @@ from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, State, callb
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.storage import Store
+from homeassistant.util import dt as dt_util
 
 from ..const import HOME_ZONE, PRESENCE_KEY, SAVE_DELAY, SIGNAL_AUDIENCES
 
@@ -73,6 +74,9 @@ class PresenceTracker:
         self.home: set[str] = set()
         self._last_to_leave: str | None = None
         self._first_home: str | None = None
+        # When they happened, for the Overview; optional, so a store of an earlier shape loads.
+        self._last_to_leave_at: datetime | None = None
+        self._first_home_at: datetime | None = None
         self._pending: dict[str, CALLBACK_TYPE] = {}
         self._unsub: CALLBACK_TYPE | None = None
 
@@ -80,6 +84,8 @@ class PresenceTracker:
         data = await self._store.async_load() or {}
         self._last_to_leave = data.get("last_to_leave")
         self._first_home = data.get("first_home")
+        self._last_to_leave_at = dt_util.parse_datetime(str(data.get("last_to_leave_at") or ""))
+        self._first_home_at = dt_util.parse_datetime(str(data.get("first_home_at") or ""))
         # What happened while Home Assistant was stopped is unknown: take the states as they are.
         self.home = {
             s.entity_id
@@ -119,6 +125,14 @@ class PresenceTracker:
     def first_home(self) -> str | None:
         """The first person home after the house was empty; none while nobody is home."""
         return self._first_home if self.home else None
+
+    @property
+    def last_to_leave_at(self) -> datetime | None:
+        return None if self.home else self._last_to_leave_at
+
+    @property
+    def first_home_at(self) -> datetime | None:
+        return self._first_home_at if self.home else None
 
     def persons_of(self, entity_id: str) -> list[str]:
         """The persons whose presence this entity gives: a person without a home entity, or
@@ -180,13 +194,22 @@ class PresenceTracker:
         if is_home:
             if not self.home:
                 self._first_home = entity_id
+                self._first_home_at = dt_util.utcnow()
             self.home.add(entity_id)
         else:
             self.home.discard(entity_id)
             if not self.home:
                 self._last_to_leave = entity_id
+                self._last_to_leave_at = dt_util.utcnow()
         self._store.async_delay_save(self._data, SAVE_DELAY)
         async_dispatcher_send(self._hass, SIGNAL_AUDIENCES)
 
     def _data(self) -> dict[str, Any]:
-        return {"last_to_leave": self._last_to_leave, "first_home": self._first_home}
+        return {
+            "last_to_leave": self._last_to_leave,
+            "first_home": self._first_home,
+            "last_to_leave_at": self._last_to_leave_at.isoformat()
+            if self._last_to_leave_at
+            else None,
+            "first_home_at": self._first_home_at.isoformat() if self._first_home_at else None,
+        }

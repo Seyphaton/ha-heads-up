@@ -272,6 +272,21 @@ async def ws_panel_reach(
     connection.send_result(msg["id"], await reach.reach(hass, manager.hub, manager.options))
 
 
+@websocket_command({vol.Required("type"): "heads_up/panel_audiences"})
+@require_admin
+@async_response
+async def ws_panel_audiences(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The six built-in audiences with their members now, for the tour's step 3."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    if manager.hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    connection.send_result(msg["id"], await panel_data.audiences(hass, manager.hub))
+
+
 @websocket_command({vol.Required("type"): "heads_up/panel_overview"})
 @require_admin
 @callback
@@ -931,6 +946,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_severity_display,
         ws_panel_overview,
         ws_panel_reach,
+        ws_panel_audiences,
         ws_attention_dismiss,
         ws_attention_restore,
         ws_audience_enable,
