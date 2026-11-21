@@ -213,9 +213,10 @@ data:
 |---|---|---|---|
 | Water escalation | Escalation | severity `critical`, tag `water`; after 5 minutes; speak to the group Ground floor; push to `Admins` | If nobody acknowledges within 5 minutes, the message is also said on the speakers and pushed to the administrators. |
 | Water reminder | Reminder | severity `critical`, tag `water`; every 10 minutes, at most 3 | Repeats the push while nobody acknowledges. |
-| Night quiet | Quiet hours | 22:00 to 07:00, critical messages pass | Lower severities become passive pushes at night; this message still alerts. |
+| Night quiet | Quiet hours | 22:00 to 07:00, send quietly | Lower severities become passive pushes at night. |
+| Critical | Get through | severity `critical`, covers everyone it reaches | This message passes Night quiet and still alerts. |
 
-The default setting runs only the first policy that matches a message. For both policies to run, choose "Every policy that applies runs" on the Policies page. If you used the introduction's defaults, put both above "Critical delivery" (see [Policies](configuration.md#how-policies-interact)). Acknowledging the message on a phone stops both the escalation and the reminder. The banner stays until `heads_up.clear_notifications` or the sensor's own automation takes it back. See [Policies](configuration.md#policies).
+Every policy that fits a message acts, so the escalation, the reminder and the introduction's Critical delivery all run. Acknowledging the message on a phone stops both the escalation and the reminder. The banner stays until `heads_up.clear_notifications` or the sensor's own automation takes it back. See [Policies](configuration.md#policies).
 
 ### An evening summary
 
@@ -231,7 +232,7 @@ data:
   audience: binary_sensor.heads_up_audience_admins
 ```
 
-Create a Summarize policy for the tag `digest` with the time 20:00. The banner and the push are held on every channel and appear in the summary. Critical messages are not held unless the policy includes them.
+Create a Summarize policy for the tag `digest` with the time 20:00. The banner and the push are held on every channel and appear in the summary. A message that a Get through entry fits, such as Critical from the introduction, is not held.
 
 ### Mail to one person
 
@@ -353,7 +354,7 @@ Acknowledging says that someone has seen the message. It stops every escalation 
 
 ### How do I keep messages quiet at night?
 
-Add a Quiet hours policy. During the window it can send quietly, hold the messages until the end or drop them. Critical messages pass by default. The introduction creates one from 22:00 to 07:00 that sends quietly.
+Add a Quiet hours policy. During the window it can send quietly, hold the messages until the end or drop them. A Get through entry lets the messages it fits through for the people it covers, for example leaks for the Admins. The introduction creates Night quiet from 22:00 to 07:00 that sends quietly, and the entry Critical.
 
 ### What if someone is not home?
 
@@ -361,7 +362,7 @@ A Presence policy sends the message when the person arrives, as long as it is st
 
 ### Do critical messages get special treatment?
 
-Yes, in five places. Quiet hours let them pass unless you switch that off. Summarize does not hold them unless you include them. The rate limits never hold them back. Presence audiences include a person whose presence is unknown. Presence policies let them pass unless you switch that off.
+In three places. The rate limits never hold them back. Presence audiences include a person whose presence is unknown. A Get through entry for critical messages, such as Critical from the introduction, lets them pass quiet hours and summaries; without one, policies treat them like any other severity.
 
 ### What stops a flood of pushes?
 
@@ -440,7 +441,8 @@ Open the message in the Message Log and look for entries with the channel `timer
 - `cleared` with `dismissed_counts_as_acknowledged`: the policy counts a dismissal as an acknowledgement.
 - `skipped` with `audience_missing` or `group_missing`: an audience or group the policy names was deleted. Edit the policy. Home Assistant lets you delete any entry on its Devices & services page, even one a policy uses, so Heads Up raises a notice under Settings > System > Repairs that names the policy, and Needs attention lists it. Delete audiences and speaker groups on the panel pages instead: they refuse while a policy uses them.
 - `cleared` with `nobody_left`: every recipient had dismissed or snoozed, so there was nobody to remind.
-- No entry: the policy did not match the message (severity, tag, or the `policy` field), is disabled, or was added after the message became visible. A policy added later starts at the message's next update. See [Policies](configuration.md#policies).
+- `skipped` with `only_if`: the policy's Only if was false at that moment.
+- No entry: the policy did not match the message (severity, tag, Not for, From watch rule or the `policy` field), is disabled, or was added after the message became visible. What happens to a message? on the Policies page shows which policies fit. A policy added later starts at the message's next update. See [Policies](configuration.md#policies).
 
 ### A push did not arrive during the night, or arrived late
 
@@ -449,7 +451,7 @@ Open the message in the Message Log.
 - `held` with `quiet_hours`: a Quiet hours policy with the action `wait` holds it until the window ends.
 - `skipped` with `quiet_hours`: the action is `drop`, or the delivery was a reminder.
 - `held` with `away`: a Presence policy holds it until the person is in the zone, or out of it, as the person's state or the entity on their recipient profile says. `skipped` with `presence`: the policy drops it. `skipped` with `max_wait_exceeded`: the wait ended first.
-- Critical messages ignore Quiet hours unless the policy has Critical messages pass turned off.
+- The Message Log names the policy that held or dropped it. A message passes Quiet hours only for the people a Get through entry covers, and never when the policy has Holds these anyway.
 - The window uses the Home Assistant time zone (Settings > System > General).
 
 See [Policies](configuration.md#policies).

@@ -6,6 +6,14 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ### Before you upgrade
 
+- Make a backup before you update. The first start converts your policies, and Heads Up 1.x cannot read the converted setup. To go back, restore the backup. [Upgrading](docs/setup.md#upgrading) has the steps.
+- Policies no longer run in a list order or a mode: every policy that fits a message acts. The conversion keeps what your policies did. A policy that came below another one gets a note "Acts only on messages that … do not take", and the Policies page lists every such policy under Check after the update, with Keep as before and Let it act.
+- "Critical messages pass" and "Include critical messages" are gone. Where they let critical messages through, the conversion adds the Get through entry Critical; where they held them, the policy gets Holds these anyway; a Presence policy that let them through gets Not for Critical. The policy switch attributes `critical_passes`, `include_critical` and `order` are gone; `not_severities`, `not_tags` and `rules` are new.
+- Setups on "Every policy that applies runs": two reminders on the same channel now share the shorter rhythm instead of both repeating. Turn on Runs alongside on a reminder to keep its own rhythm.
+- An escalation also sends to people who already have the message: they get a second push.
+- A Fallback steps in only when neither the call nor a Deliver policy reached anyone.
+- A summary also goes to the people a Deliver policy would have added, and a summary that reaches nobody gets a Fallback.
+- A message released from a summary, because its policy was switched off or a Get through entry now fits it, runs as a new message: Deliver and Fallback act and its escalations and reminders start then.
 - The severity `success` is now called `passive`. Calls and card YAML with `success` keep working: it is read as `passive`. Events, entity attributes, the message log and the panel say `passive`, so an automation or template that checks for `success` must check for `passive`. Stored messages, policies, watch rules and severity settings are converted on the first start.
 - The card editor no longer shows Severity colors. A card that has `colors` in its YAML keeps them; set colors for every card on the panel's new Severities page instead.
 - The Away policy is now called Presence. Your Away policies are converted on the first start and keep what they did: push, popup and mail, held until the person comes home, and dropped when the maximum wait ends. One difference: a person the call lists by name (`recipients`) is held too, where Away sent to them at once. A backup of the policies is written to `.storage/heads_up.migration_v2_2`. The policy switch attribute `type` reads `presence`.
@@ -16,6 +24,15 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ### Added
 
+- Policies page in three tables: Keep it calm (Summarize, Quiet hours, Presence), Always gets through and Make sure it arrives (Deliver, Escalation, Reminder, Fallback), plus Only when named. Each row says in words what the policy does and opens its switch ID, Edit and Switch off.
+- Get through entries: say which messages may wake whom despite quiet hours and summaries, for everyone a message reaches or only some people and speakers. Presence is never passed.
+- Not for severities and Not for tags, and From watch rule, on every policy.
+- Only if on every policy: it acts only while a condition holds, in the shape of the `notify` condition. Guests: a Presence policy with Only if "guest mode is off".
+- Reminders: Faster while repeats at a shorter time while a condition holds; Runs alongside keeps a reminder's own rhythm.
+- What happens to a message? on the Policies page: plays a message through your policies at a chosen time and with chosen people at home, and lists per person what happens and why, with the escalations and reminders of the next 24 hours. Nothing is sent.
+- Help page How policies work together: each type of policy against every other one, with an example.
+- The Message Log names the policy that held, dropped or quieted a delivery. Needs attention warns when an escalation can be caught by quiet hours or Presence, when it was, and when two Presence policies contradict each other.
+- The introduction offers one list without a choice of mode; Critical messages adds the Get through entry Critical.
 - New setups get other default push levels: critical `critical` (an alarm that sounds in silent mode), warning `time-sensitive`, info `normal`, passive `passive`. An existing setup keeps the levels it had; change them on the Severities page.
 - Audiences page: a table with who is in each audience now and how many messages were sent to it and when last, kept across restarts. An audience's details list its policies and link to the Message Log filtered to the messages sent to it.
 - The Channels, Audiences, Recipients and Severities pages show one row per item with the current settings, and open an item's fields under its row. The Configuration group starts with Channels.

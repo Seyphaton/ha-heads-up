@@ -268,41 +268,58 @@ You can rename a policy, an audience, a speaker group, a watch rule or a person 
 
 ## Policies
 
-A policy adds behaviour to messages without changing the automation that sends them. The types are Escalation, Reminder, Quiet hours, Presence, Fallback, Deliver and Summarize. Add one in the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy. Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, the fields of its type (for example `from_time`, `to_time`, `action` and `critical_passes` for Quiet hours) and `order`, its place in the list. The policy editor shows the entity ID of the switch. A new policy shows the ID it gets when you save.
+A policy adds behaviour to messages without changing the automation that sends them. The types are Summarize, Quiet hours, Presence, Get through, Deliver, Escalation, Reminder and Fallback. Add one with New policy on the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy.
 
-Renaming a policy changes only its name. Its entity ID, the watch rules that use it, the messages that are running and their escalations, reminders and held summaries stay as they were. Deleting a policy ends its timers; a new policy with the same name is a different policy, and a rule or message that used the deleted one is listed under Needs attention until you choose another.
+Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, `not_severities`, `not_tags`, `rules` and the fields of its type. A row on the Policies page opens the entity ID with a Copy button. A new policy shows the ID it gets when you save.
 
-### How policies interact
+Renaming a policy changes only its name. Its entity ID, the watch rules that use it, the messages that are running and their escalations, reminders and held summaries stay as they were. Deleting a policy ends its timers. A new policy with the same name is a different policy, and a rule or message that used the deleted one is listed under Needs attention until you choose another.
 
-A setting on the Policies page, and the first question of the policies step of the introduction, decides what happens when several automatic policies match one message.
+### How policies work together
 
-- Only the first policy that applies runs (the default). The Policies page is one ordered list, and a message gets the first enabled automatic policy of the list that matches its severity and tag. Drag a policy or use the arrows to change the order. A policy you add later goes to the bottom. When a policy above it matches every message it matches, the list marks it "Never runs by itself"; a call that names it still uses it.
-- Every policy that applies runs. A message can get several policies at once, for example quiet hours and a reminder. The order does not matter. Policies can interfere with each other: check a call with Test send.
+Every policy that fits a message acts. There is no order and no mode. The Policies page groups the policies in three tables:
 
-A call or a watch rule that names a policy uses only that policy under both settings. `none` uses no policy. Policies that have no stored order start in this order: Summarize, Quiet hours, Presence, Escalation, Reminder, Fallback, Deliver, each type by name.
+- Keep it calm: Summarize, Quiet hours and Presence decide when a message may reach people. They act on every delivery, also on what the other policies add.
+- Always gets through: Get through entries say which messages may still wake whom, despite quiet hours and summaries.
+- Make sure it arrives: Deliver, Escalation, Reminder and Fallback decide who else gets a message and how often.
 
-"Critical delivery" from the introduction matches every critical message, so under the first setting it comes first and hides later policies for critical messages. Put a policy for a narrower critical case, such as severity `critical` with tag `water`, above it.
+A fourth table, Only when named, lists manual policies. Four rules decide what happens when policies meet:
 
-### The defaults of the introduction
+1. Where two calming policies disagree, the calmer result counts: a summary, then drop, then wait, then send quietly.
+2. Escalations and reminders count from when the message was created. Reminders on one channel share the shortest rhythm, and each reminder keeps its own count.
+3. A Get through entry keeps the messages it fits out of every summary. Quiet hours do not apply to them for the people the entry covers.
+4. Presence is never passed: nothing is spoken into an empty house.
 
-Under "only the first policy that applies runs" the introduction offers four policies that do not overlap, in this order: Critical delivery (critical messages are pushed at once to the audience you choose, Admins by default, and the push level of critical becomes critical; no reminder follows), Warning reminders (every 30 minutes, at most 3 times), Evening summary (info and passive messages tagged `digest` are held and sent at 20:00) and Night quiet (info and passive messages without that tag are sent quietly from 22:00 to 07:00).
-
-Under "every policy that applies runs" it offers: Night quiet (22:00 to 07:00, send quietly, critical passes), Evening summary (messages tagged `digest`, critical never held), Critical messages (Critical delivery as a Deliver policy, Critical reminder every 10 minutes at most 3 times and, if you choose speakers, Critical escalation after 10 minutes on those speakers; dismissing counts as acknowledging) and Warning reminders. Before you switch on Critical messages in this mode:
-
-- It covers every critical message, also those of your existing automations. They get an Acknowledge button on the card and in the push, and a push or speech after 10 minutes without an acknowledgement.
-- Speech passes quiet hours, so a critical message that nobody acknowledges is said on the speakers at night too.
-- Evening summary only holds messages that carry the tag `digest`; your automations have to set it.
-
-Create adds only what is missing: a policy with the same name, or one that does the same as a policy you have, is skipped, and nothing you have is changed or deleted. The audience and the speakers are chosen in the dialog because a policy cannot mean "the people of the original call".
+The help page How policies work together, under Help and behind a button on the Policies page, shows each type of policy against every other one, with an example.
 
 ### Which messages a policy applies to
 
 A policy attaches to messages automatically or manually, chosen in the editor under Which messages.
 
-- Automatically: the policy has two lists. A message gets it when its severity is in the first list and its tag in the second. An empty list matches everything. A message without a tag matches only a policy whose tag list is empty. Messages from watch rules have the tag `rule`.
-- Manually: the policy has no lists and never attaches by itself. Only a call or a watch rule that names it in the `policy` field gets it.
+- Automatically: a message gets the policy when it fits all of these. An empty list matches everything.
+  - Severities and tags: the severity is in the first list and the tag in the second. A message without a tag matches only a policy whose tag list is empty. Messages from watch rules have the tag `rule`.
+  - Not for severities and Not for tags: a message with one of these never gets the policy, even when the lists above match.
+  - From watch rule: only messages of the chosen watch rules get the policy.
+- Manually: the policy has no lists and never attaches by itself. Only a call or a watch rule that names it in the `policy` field gets it. Get through entries can be manual too.
 
-The `policy` field of `heads_up.notify` names manual policies by the entity ID of their switch: they apply next to every automatic policy that matches, whatever their own lists say. Set `match_policies_automatically: false` to switch the automatic policies off for the call; `policy: none` uses no policy at all. A disabled policy is never used. Names must be unique, and `none` is reserved. The form refuses a second automatic policy of the same type with the same severities, tags and time, because it would do the same thing twice.
+Only if limits a policy, automatic or manual, to the time a condition holds, for example "while `input_boolean.guests` is off". It has the shape of the `condition` of `heads_up.notify`. Heads Up checks it each time the policy would act. When the condition turns false, deliveries the policy holds are released. When it turns true, a Get through entry releases what quiet hours hold for its people and takes its messages out of summaries. An unknown or unavailable state counts as whatever delivers more: Summarize, Quiet hours and Presence step aside, the other types act.
+
+The `policy` field of `heads_up.notify` names manual policies by the entity ID of their switch: they apply next to every automatic policy that matches. Set `match_policies_automatically: false` to switch the automatic policies off for the call; then no automatic policy acts, Quiet hours, Presence and Get through included. `policy: none` uses no policy at all. A watch rule that names a policy uses only that policy.
+
+A disabled policy is never used. A policy you switch on acts on messages that arrive afterwards. Names must be unique, and `none` is reserved. The form refuses a second automatic policy of the same type with the same lists and time, because it would do the same thing twice.
+
+### What happens to a message?
+
+What happens to a message? on the Policies page plays a message through your policies without sending anything. Choose the severity, the tag, where it comes from, the channels and the audience, a time, who is at home and when someone acknowledges. The answer lists, per person and channel, whether the message is sent, sent quietly, held or skipped, and which policy caused it. Below it come the escalations and reminders of the next 24 hours.
+
+The answer uses your policies and audiences as they are now. Only if and Faster while use the current state of their entities.
+
+### Needs attention for policies
+
+The Overview warns before a setup traps a message, and again when it happens:
+
+- An escalation that quiet hours can hold, drop or send quietly, because no Get through entry for everyone covers its messages.
+- An escalation whose people a Presence policy can hold. It then reaches nobody, and no Fallback steps in.
+- Two Presence policies that hold the same messages while a person is in a zone and while they are not. Those messages never arrive.
 
 ### Acknowledging
 
@@ -328,9 +345,25 @@ Taking both from the call is refused, because the policy would add nothing. Esca
 
 - When the channels come from the call, the policy has a People target (an audience or persons, used for push, popup and mail) and a Speakers target (used for speech). Give at least one; a kind of channel without a target is skipped.
 - When the recipients come from the call, the people are the audience or persons the call gave on push, popup or mail, reused on every new channel that takes people. Speech uses the speakers the call named, or is skipped when it named none. The Persistent Notification needs no target. The banner is never part of these deliveries.
-- Someone who already has the message on a channel is not notified there a second time.
 
 Example: send to At home, and fall back to Everyone when nobody is home. Add a Fallback policy that applies to the tag `home-only`, with Use when "Nobody to notify", Channels come from "The call", and the People target set to the audience Everyone. A call with `channels: [push]`, `to: {push: {audience: binary_sensor.heads_up_audience_at_home}}` and `tag: home-only` then pushes to Everyone when At home is empty.
+
+### Get through
+
+A Get through entry lets the messages it fits past quiet hours and summaries. It sends nothing itself; pair it with a Deliver policy to reach phones that the call does not name.
+
+| Field | Default | Meaning |
+|---|---|---|
+| Covers | Everyone it reaches | Everyone the message reaches, or only these. |
+| Audiences, People and speakers | none | With Only these: the people of these audiences, and these persons and speakers. |
+
+- Summarize never collects a message that an enabled entry fits, whatever the entry covers.
+- Quiet hours do not apply to the people and speakers the entry covers. Everyone else gets the message as quiet hours say. One push can ring for the Admins and stay silent for Anna.
+- Several entries add up: each lets its own people through.
+- An entry never passes Presence.
+- A Quiet hours or Summarize policy with Holds these anyway is not passed by any entry.
+
+Example: wake the Admins for leaks at night. Add a Get through entry for the tag `alarm` that covers only the audience Admins, and a Deliver policy for the tag `alarm` with a push to Admins.
 
 ### Escalation
 
@@ -338,18 +371,19 @@ If nobody acknowledges within the time, the policy delivers the message on the c
 
 | Field | Default | Meaning |
 |---|---|---|
-| Escalate after (minutes) | 5 | Time from the moment the message is visible. |
+| Escalate after (minutes) | 5 | Time from when the message was created. |
 | Channels come from | This policy | This policy, or the call. See above. |
 | Channels | none | `push`, `popup`, `speak`, `persistent`, `mail`; used when the channels come from the policy. |
 | Recipients come from | This policy | This policy, or the call. |
 | Targets | none | Per channel an audience or recipients, never both. Speak takes recipients only; a persistent notification takes none. With channels from the call: a People target and a Speakers target. |
 | Dismissing counts as acknowledging | off | A dismissal by anyone stops this escalation. |
 
-- Someone who already has the message on that channel is not notified a second time.
+- The escalation also sends to people who already have the message on that channel: they get a new push.
+- Quiet hours and Presence act on the escalation like on any delivery. When they hold, drop or quieten it, or it reaches nobody, Needs attention says so. No Fallback steps in.
 - Several escalations form a chain by their times. Each runs on its own timer.
 - The time is stored. After a restart, an escalation that came due while Home Assistant was stopped runs once.
-- A message that waits for its condition does not start its timer until the condition is true. A message that ends cancels its timers.
-- A new severity restarts the timers with the policies of the new severity.
+- With Only if, an escalation whose condition is false when it comes due waits, and runs when the condition turns true.
+- A message that waits for its condition does not start its timer until the condition is true. A message that ends cancels its timers. A new severity restarts the timers with the policies of the new severity.
 
 ### Reminder
 
@@ -360,8 +394,14 @@ While nobody acknowledges, the policy repeats the notification.
 | Repeat every (minutes) | 30 | Time between repeats. |
 | At most this many reminders | 3 | The reminder stops after this many. |
 | Channels | all | Limit the repeats to these channels. |
+| Faster while | none | An entity and a state, and a shorter time. While the entity has that state, the reminder repeats at the shorter time. One count and one limit cover both. |
+| Runs alongside other reminders | off | On: the reminder keeps its own rhythm next to the others. |
 
-Only people who still have the notification are reminded. Someone who dismissed or snoozed it is left out, and when a snooze ends they are notified again. When nobody is left the reminder stops. Reminders repeat the push with the same tag, so the phone replaces it.
+- Reminders on the same channel share one rhythm: the shortest of the reminders that act at that moment. Each reminder counts its own repeats, so a slow reminder still has its repeats after a fast one stops.
+- A reminder never repeats sooner than its own time after the last repeat on its channels.
+- Only people who still have the notification are reminded. Someone who dismissed or snoozed it is left out, and when a snooze ends they are notified again. When nobody is left the reminder stops.
+- Reminders also repeat what Deliver, Escalation and Fallback sent. Reminders repeat the push with the same tag, so the phone replaces it.
+- With Only if, a reminder whose condition is false skips that repeat and tries again after its time.
 
 ### Quiet hours
 
@@ -373,8 +413,9 @@ Between two times of day, or while an entity of your choice is on, deliveries ou
 | Days | every day | The days a window starts on. A window that starts on Friday ends on Saturday morning. |
 | Or quiet while this is on | none | A schedule, input boolean or binary sensor. While it is `on`, quiet hours apply and the times and days are not used. A missing or unavailable entity counts as not quiet, so messages go out, and the Overview shows a warning. |
 | During quiet hours | Send quietly | Send quietly: a push is passive and without sound, speech is skipped, a popup is a corner card. Wait: hold the delivery until the window ends, then send it once. Drop: do not deliver. |
-| Critical messages pass | on | Critical messages ignore the policy. |
+| Holds these anyway | off | On: no Get through entry lets messages past this policy. |
 
+- Quiet hours apply to every severity. Critical messages get through only with a Get through entry, such as Critical from the introduction.
 - The window follows the wall clock. On the day the clocks change it is one hour shorter or longer. A time that does not exist or occurs twice uses its first occurrence.
 - Reminders during the window are skipped, not held, whatever the action.
 - A held delivery is stored and released once at the end of the window, also after a restart. If the message was cleared, expired or acknowledged meanwhile, or the person dismissed it, nothing is sent and the Message Log says why.
@@ -394,9 +435,10 @@ Holds or drops a delivery depending on where people are. Push, popup and mail ar
 | Then | Hold until that changes | Or: Drop. |
 | Wait at most (minutes) | 0 | For Hold. 0 means as long as the message lives. |
 | When the wait ends | Send anyway | Or: Drop (`max_wait_exceeded`). |
-| Critical messages pass | on | Off: the policy holds or drops critical messages too. |
 
 - For push, popup and mail, Presence checks every recipient: members of an audience and persons the call lists by name.
+- Presence applies to every severity. To let critical messages through, set Not for severities to Critical.
+- Get through entries never pass Presence. Reminders are not checked.
 - Unknown presence is never held: the delivery goes out at once. For speech, people whose presence is unknown do not count.
 - A change of presence counts after the presence delay in Settings (60 seconds by default), so a short flip at the zone edge releases nothing. With the delay at 0 it counts at once.
 - A released delivery is sent once, and not if the message was cleared, expired or acknowledged meanwhile, or the person dismissed or snoozed it.
@@ -404,29 +446,32 @@ Holds or drops a delivery depending on where people are. Push, popup and mail ar
 
 <img src="images/presence-policy.png" width="500" alt="The Presence policy form: channels it covers, zone, when the recipient is not in the zone, then hold until that changes, wait at most 0 minutes">
 
-Examples: "the recipient is not in Home, hold" sends a message when the person comes home. "The recipient is in Home, hold" sends a shopping list when the person leaves. "Speech, nobody of everyone is in Home, drop" keeps speakers silent in an empty house.
+Examples: "the recipient is not in Home, hold" sends a message when the person comes home. "The recipient is in Home, hold" sends a shopping list when the person leaves. "Speech, nobody of everyone is in Home, drop" keeps speakers silent in an empty house. Guests: give that last policy the Only if "`input_boolean.guests` is off", and speech goes out while guest mode is on.
 
 ### Fallback
 
-If the first delivery of a message reached nobody on a channel, the policy delivers somewhere else: on its own channels to its own targets, on the channels of the call to other people, or on other channels to the same people. It is not limited to other channels: a Fallback on push can send the same message to another audience.
+If a message reached nobody, the policy delivers somewhere else: on its own channels to its own targets, on the channels of the call to other people, or on other channels to the same people.
 
 | Field | Default | Meaning |
 |---|---|---|
 | Use when | Nobody to notify | Nobody to notify: the audience resolved to nobody (for example nobody is home). Delivery failed: the person has no usable device or sending failed. Both: either. |
 | Channels come from, Channels, Recipients come from, Targets | This policy | As for an escalation, with a fourth choice for the channels: the channels of the call that reached nobody for the reason you chose. "Same recipients" helps only with Delivery failed: when the audience was empty, the same recipients are empty too. |
 
-- A fallback is judged once, after the first delivery of the message. It is not judged again on updates, and escalations, reminders and fallbacks never start a fallback.
+- A fallback is judged once, after the first delivery of the message. It steps in only when neither the call nor any Deliver policy reached someone.
 - A channel with a delivery that was sent or held counts as reached. The banner does not count.
-- Messages from watch rules only have the banner channel, so they have no first delivery to fall back from. Their escalations still pass quiet hours and Presence.
+- A summary that reaches nobody gets a fallback too. Escalations, reminders and other fallbacks never start one.
+- A fallback is never louder than its message: quiet hours and Presence act on it. A Get through entry that covers the speaker lets it speak at night.
+- Messages from watch rules only have the banner channel, so they have no first delivery to fall back from.
 
 ### Deliver
 
 A call names the channels of its first delivery. A Deliver policy adds channels and targets to it, at once, for the messages it applies to: its own channels and targets, the channels of the call for other people, or other channels for the people of the call. It is how a critical message reaches phones the moment it appears even when the automation or the watch rule only creates a banner.
 
 - It fires once per message, at its first delivery. An update replaces what it sent, like the call's own deliveries.
-- Someone who already has the message on that channel from the call is not notified a second time.
-- It passes quiet hours, Presence and fallback like any delivery. It does not fire for a message held for a summary, and not for a message that became visible while Home Assistant was starting.
-- A watch rule message gets it when the policy applies to the tag `rule`. With `match_policies_automatically: false` in the call it is switched off for that call.
+- Someone who already has the message on that channel from the call is not notified a second time. Several Deliver policies add up.
+- Quiet hours, Presence and Get through act on it like on any delivery.
+- A message held for a summary gets no Deliver; the people Deliver would add get the summary instead.
+- A watch rule message gets it when the policy applies to the tag `rule` or names the rule under From watch rule.
 
 ### Summarize
 
@@ -436,15 +481,28 @@ A Summarize policy holds the messages it applies to on every channel, including 
 |---|---|---|
 | Summary every (minutes) | 60 | The summary is sent this many minutes after the first message was held. |
 | Summary at (time of day) | none | Sends one summary each day at this local time instead of by the interval. |
-| Include critical messages | off | Off: critical messages are not held and are delivered at once. |
+| Holds these anyway | off | On: Get through entries do not keep messages out of this summary. |
 
-- A held message is not shown on the dashboard, not counted by the active banners sensor and not sent. Administrators with `show_all` still see it.
-- The summary is one message for each recipient and channel: a person's phone gets a push that lists the messages meant for that person; the dashboard gets one banner. It has a count in the title and one line per message, at most ten, then "and N more". Its severity is the highest of the messages.
+- A message that a Get through entry fits is not held. When an entry starts to fit later, held messages it fits are taken out and delivered as new messages.
+- If two Summarize policies fit a message, the one whose summary is due next holds it.
+- A held message is not shown on the dashboard, not counted by the active banners sensor and not sent. Administrators with `show_all` still see it. It starts no escalation or reminder.
+- The summary is one message for each recipient and channel: the people the held messages would have reached, Deliver's recipients included. It has a count in the title and one line per message, at most ten, then "and N more". Its severity is the highest of the messages.
 - A message that was cleared before the summary is listed once, marked resolved. Nothing is sent when nothing was held.
-- The summary stays for 24 hours or until it is dismissed. It passes through quiet hours, Presence and fallback like any delivery, and is never held, escalated, reminded or summarized itself.
-- The messages stay hidden after their summary. A held message that changes its text or severity is listed again in the next summary. A held message that becomes critical is released at once, unless the policy includes critical.
-- The hold is decided when the message appears. A policy added later does not hold messages that are already there, and a policy added after a message was sent only starts when that message is next updated. Deleting or disabling the policy releases its held messages.
+- The summary stays for 24 hours or until it is dismissed. Quiet hours, Presence and Fallback act on it like on any delivery. It is never held, escalated, reminded or summarized itself.
+- The messages stay hidden after their summary. A held message that changes its text or severity is listed again in the next summary.
+- The hold is decided when the message appears. A policy added later does not hold messages that are already there. Deleting or disabling the policy releases its held messages, which then run as new messages.
 - Held messages and the timer are stored and survive a restart. A summary that came due while Home Assistant was stopped is sent once.
+
+### The defaults of the introduction
+
+The introduction offers four items. Create adds only what is missing: a policy with the same name, or one that does the same as a policy you have, is skipped, and nothing you have is changed or deleted.
+
+- Critical messages: the Get through entry Critical (critical messages pass quiet hours and summaries for everyone), Critical delivery (a push to the audience you choose, Admins by default, as an alarm), Critical reminder (every 10 minutes, at most 3 times) and, if you choose speakers, Critical escalation (after 10 minutes on those speakers; dismissing counts as acknowledging).
+- Warning reminders: every 30 minutes, at most 3 times.
+- Evening summary: messages tagged `digest` are held and sent at 20:00. Your automations have to set the tag.
+- Night quiet: from 22:00 to 07:00 pushes go out without sound and speech is skipped, Not for the tag `digest`.
+
+Critical messages covers every critical message, also those of your existing automations. They get an Acknowledge button on the card and in the push. The audience and the speakers are chosen in the dialog because a policy cannot mean "the people of the original call".
 
 ### Example
 

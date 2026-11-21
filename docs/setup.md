@@ -130,20 +130,16 @@ The panel polls every 10 seconds, so pages do not update the moment something ha
 
 The first time an administrator opens the panel, a tour of four steps opens: what Heads Up does, the channels, the recipients, and the default policies. Only the last step creates anything, and Not now creates nothing. The Restart introduction button on Settings opens it again.
 
-The last step first asks how policies interact: Only the first policy that applies runs (the default), or Every policy that applies runs. [Configuration](configuration.md#how-policies-interact) explains both. Under the default, the tour offers four policies that do not overlap, in this order:
+The last step offers four items:
 
 | Item | What it creates |
 |---|---|
-| Critical messages | Critical delivery: critical messages are pushed at once to the audience you choose (Admins by default). It also sets the push level of critical messages back to critical, the alert on iOS and the alarm channel on Android, if it was changed. A critical message gets this and no reminder. |
+| Critical messages | The Get through entry Critical, so critical messages pass quiet hours and summaries for everyone. Critical delivery: critical messages are pushed at once to the audience you choose (Admins by default). Critical reminder: every 10 minutes, at most 3 times. With speakers: Critical escalation, said after 10 minutes. It also sets the push level of critical messages back to critical, the alert on iOS and the alarm channel on Android, if it was changed. |
 | Warning reminders | Warning reminders: a warning nobody acknowledges is repeated every 30 minutes, at most 3 times. |
-| Evening summary | Evening summary: info and passive messages tagged `digest` are held and sent as one summary at 20:00. |
-| Quiet hours | Night quiet: info and passive messages without that tag are sent quietly from 22:00 to 07:00. |
+| Evening summary | Evening summary: messages tagged `digest` are held and sent as one summary at 20:00. |
+| Quiet hours | Night quiet: from 22:00 to 07:00 pushes go out without sound and speech is skipped, except for messages tagged `digest`. |
 
-Create adds only what is missing. A policy with the same name, or one that does the same as a policy you have, is skipped, and nothing you have is changed or deleted. Edit the policies afterwards on the Policies page.
-
-Under Every policy that applies runs, the Critical item also asks for speakers that say an unacknowledged critical message after 10 minutes. When you choose speakers and Home Assistant has more than one text-to-speech engine, the item asks which engine to use.
-
-"Critical delivery" matches every critical message, so it comes first in the list and hides later policies for critical messages. Put a narrower policy, such as an escalation for severity `critical` and tag `water`, above it. The Policies page marks a policy that a policy above it hides.
+Create adds only what is missing. A policy with the same name, or one that does the same as a policy you have, is skipped, and nothing you have is changed or deleted. Edit the policies afterwards on the Policies page. When you choose speakers and Home Assistant has more than one text-to-speech engine, the Critical item asks which engine to use.
 
 ## Upgrading
 
@@ -161,9 +157,17 @@ From an earlier 1.0.0 pre-release to 1.0.0: Heads Up stores policies, audiences 
 
 From 1.0.0 to 1.1.0: Away policies become Presence policies. They behave as before, except that a person the call names in `recipients` is held too. The first start after the update writes a backup of the policies to `.storage/heads_up.migration_v2_2` first. The severity `success` is renamed to `passive` in the settings, policies, watch rules and stored messages; calls that send `success` keep working. Your push levels stay as they were.
 
-To go back to an earlier release, stop Home Assistant, run `python scripts/restore_identity_backup.py <config folder>` from the repository, then install the earlier release. To go back from 1.1.0 to 1.0.0, run `python scripts/restore_presence_backup.py <config folder>` instead. It puts the Away policies back and renames `passive` to `success` again, because 1.0.0 knows neither Presence nor `passive`. Without the restore, Home Assistant refuses to set up the converted data in an older release instead of reading it wrongly.
+From 1.x to 2.0.0: policies no longer run in a list order or a mode. Every policy that fits a message acts. The first start converts your policies so that they do what they did:
 
-Heads Up uses [semantic versioning](https://semver.org/). Action names, field names, defaults, response keys, event types, event data keys, the card type and the card options are the public interface. A minor version adds to it. A removal or a change of meaning needs a major version, and the minor version before it logs a warning when you use the old form. The stored data has version 2.
+- A policy that came below another one in the list gets a note "Acts only on messages that … do not take". It follows the switch of that policy, as the order did.
+- Where critical messages passed quiet hours or summaries, a Get through entry Critical is added. A Quiet hours or Summarize policy that held critical messages gets Holds these anyway. A Presence policy that let critical messages pass gets Not for severities Critical.
+- Setups on "Every policy that applies runs" get the 2.0 rules: two reminders on one channel share the shorter rhythm instead of both repeating.
+
+The Policies page shows Check after the update with every policy that now works differently or never acts. For each, choose Keep as before or Let it act. 1.x cannot read the converted setup: make a backup before you update, and restore it to go back.
+
+To go back to an earlier 1.x release, stop Home Assistant, run `python scripts/restore_identity_backup.py <config folder>` from the repository, then install the earlier release. To go back from 1.1.0 to 1.0.0, run `python scripts/restore_presence_backup.py <config folder>` instead. It puts the Away policies back and renames `passive` to `success` again, because 1.0.0 knows neither Presence nor `passive`. Without the restore, Home Assistant refuses to set up the converted data in an older release instead of reading it wrongly.
+
+Heads Up uses [semantic versioning](https://semver.org/). Action names, field names, defaults, response keys, event types, event data keys, the card type and the card options are the public interface. A minor version adds to it. A removal or a change of meaning needs a major version, and the minor version before it logs a warning when you use the old form. The stored data has version 3.
 
 ## Uninstalling
 
