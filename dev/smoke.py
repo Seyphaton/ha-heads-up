@@ -497,6 +497,61 @@ async def policies() -> None:
         assert any(e["result"] == "acknowledged" for e in trace), trace
 
 
+async def lanes() -> None:
+    """2.0 policies (DESIGN §25): a Get through entry added through the real subentry flow lets
+    a message past the quiet hours of the policies phase; the checker shows it, sending nothing."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    async with aiohttp.ClientSession() as s:
+        admin = await token(s, "ADMIN")
+        headers = {"Authorization": f"Bearer {admin}"}
+        eid = await entry_id(s, admin)
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow",
+            json={"handler": [eid, "policy"], "show_advanced_options": False},
+            headers=headers,
+        )
+        flow = await r.json()
+        r = await s.post(
+            f"{BASE}/api/config/config_entries/subentries/flow/{flow['flow_id']}",
+            json={"name": "Smoke alarms", "type": "get_through", "tags": ["smoke_alarm"]},
+            headers=headers,
+        )
+        result = await r.json()
+        print("get through form:", result["type"], result.get("errors"))
+        await asyncio.sleep(1)
+        r = await s.get(f"{BASE}/api/config", headers=headers)
+        zone = ZoneInfo((await r.json())["time_zone"])
+        night = datetime.now(zone).replace(hour=3, minute=0, second=0, microsecond=0).isoformat()
+        ws = await connect(s, admin)
+
+        async def ask(tag: str) -> dict[str, Any]:
+            msg_id = await ws.send(
+                {
+                    "type": "heads_up/policy_check",
+                    "severity": "info",
+                    "tag": tag,
+                    "channels": ["persistent"],
+                    "at": night,
+                }
+            )
+            reply = await ws.recv(msg_id)
+            assert "result" in reply, reply
+            (row,) = [r for r in reply["result"]["rows"] if r["channel"] == "persistent"]
+            return dict(row)
+
+        alarm, other = await ask("smoke_alarm"), await ask("smoke_other")
+        print("checker, alarm at 03:00:", alarm)
+        print("checker, other at 03:00:", other)
+        assert alarm.get("note") != "quiet" and "Smoke alarms" in alarm.get("through", []), alarm
+        # The dev instance may have more quiet hours than Smoke night; any of them may be named.
+        assert other.get("note") == "quiet" and other.get("by"), other
+        msg_id = await ws.send({"type": "heads_up/panel_config"})
+        config = (await ws.recv(msg_id))["result"]
+        assert "conversion_items" in config and "policy_mode" not in config, config.keys()
+
+
 async def editors() -> None:
     """What the panel's editors do: create, reconfigure and delete a subentry through the REST
     flow API and the delete command, and read the result through heads_up/panel_config."""
@@ -772,6 +827,7 @@ asyncio.run(
         "policies": policies,
         "policies_verify": policies_verify,
         "editors": editors,
+        "lanes": lanes,
         "hub_e2e": hub_e2e,
         "hub_e2e_verify": hub_e2e_verify,
     }[sys.argv[1]]()

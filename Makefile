@@ -53,6 +53,7 @@ dev-smoke:      ## end-to-end check against dev HA (see dev/smoke.py; restarts t
 	uv run python dev/smoke.py hub_core
 	uv run python dev/smoke.py policies
 	uv run python dev/smoke.py editors
+	uv run python dev/smoke.py lanes
 	uv run python dev/smoke.py hub_e2e
 	$(COMPOSE) restart homeassistant
 	until curl -sf -o /dev/null http://127.0.0.1:8124/manifest.json; do sleep 2; done; sleep 5
