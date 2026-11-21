@@ -165,12 +165,16 @@ class StatsStore:
             "bytes": len(json.dumps(self.days, separators=(",", ":"))),
         }
 
+    def read(self, period: str) -> dict[str, Any]:
+        return StatsReader(self.days).read(period, dt_util.now())
+
     # Recording --------------------------------------------------------------------------
 
     @safe
     def created(self, now: datetime, severity: str, tag: str | None, source: str) -> None:
         day, hour = self._day(now)
         day["h"][hour] += 1
+        day.setdefault("hs", {}).setdefault(severity, [0] * 24)[hour] += 1
         _bump(day.setdefault("sev", {}), severity)
         if tag:
             _bump(day.setdefault("tag", {}), tag)
@@ -247,3 +251,148 @@ def months_back(today: date, months: int) -> date:
 
 def days_between(start: date, end: date) -> list[str]:
     return [(start + timedelta(days=n)).isoformat() for n in range((end - start).days + 1)]
+
+
+PERIODS = ("24h", "week", "month", "year", "2y")
+SEVERITIES = ("critical", "warning", "info", "passive")
+
+
+def _sum_tables(days: list[dict[str, Any]], key: str) -> dict[str, int]:
+    out: dict[str, int] = {}
+    for day in days:
+        for name, count in (day.get(key) or {}).items():
+            out[name] = out.get(name, 0) + count
+    return out
+
+
+def _month_start(today: date, back: int) -> date:
+    return months_back(today, back)
+
+
+class StatsReader:
+    """The numbers of one period from the daily records (plan 19.3)."""
+
+    def __init__(self, days: dict[str, dict[str, Any]]) -> None:
+        self._days = days
+
+    def _slice(self, first: date, last: date) -> list[tuple[date, dict[str, Any]]]:
+        found = []
+        for key in days_between(first, last):
+            if key in self._days:
+                found.append((date.fromisoformat(key), self._days[key]))
+        return found
+
+    def _hours(self, local_now: datetime, back: int) -> list[dict[str, Any]]:
+        """Hourly buckets for the `back` hours that end `back` hours before the current hour."""
+        buckets = []
+        current = local_now.replace(minute=0, second=0, microsecond=0)
+        for offset in range(23, -1, -1):
+            moment = current - timedelta(hours=offset + back)
+            record = self._days.get(moment.date().isoformat())
+            by = {
+                sev: counts[moment.hour]
+                for sev, counts in ((record or {}).get("hs") or {}).items()
+                if counts[moment.hour]
+            }
+            total = (record or {"h": [0] * 24})["h"][moment.hour]
+            buckets.append({"start": moment.isoformat(), "total": total, "by": by})
+        return buckets
+
+    def _bucketed(self, first: date, last: date, step: str) -> list[dict[str, Any]]:
+        """Daily buckets, or monthly ones when `step` is month, between two dates."""
+        buckets: list[dict[str, Any]] = []
+        if step == "day":
+            for key in days_between(first, last):
+                record = self._days.get(key) or {}
+                buckets.append(
+                    {
+                        "start": key,
+                        "total": sum((record.get("sev") or {}).values()),
+                        "by": dict(record.get("sev") or {}),
+                    }
+                )
+            return buckets
+        month = first
+        while month <= last:
+            nxt = months_back(month, -1)
+            records = [r for d, r in self._slice(month, nxt - timedelta(days=1))]
+            by = _sum_tables(records, "sev")
+            buckets.append({"start": month.isoformat(), "total": sum(by.values()), "by": by})
+            month = nxt
+        return buckets
+
+    def read(self, period: str, local_now: datetime) -> dict[str, Any]:
+        today = local_now.date()
+        if period == "24h":
+            buckets = self._hours(local_now, 0)
+            before = self._hours(local_now, 24)
+            first, last = today - timedelta(days=1), today
+        elif period in ("week", "month"):
+            length = 7 if period == "week" else 30
+            first = today - timedelta(days=length - 1)
+            last = today
+            buckets = self._bucketed(first, last, "day")
+            before = self._bucketed(
+                first - timedelta(days=length), first - timedelta(days=1), "day"
+            )
+        else:
+            length = 12 if period == "year" else 24
+            first = months_back(today, length - 1)
+            last = today
+            buckets = self._bucketed(first, last, "month")
+            before = (
+                self._bucketed(months_back(first, length), months_back(first, 1), "month")
+                if period == "year"
+                else []
+            )
+        records = [r for _, r in self._slice(first, last)]
+        total = sum(b["total"] for b in buckets)
+        previous = sum(b["total"] for b in before)
+        channels = _sum_tables(
+            [
+                {
+                    "x": {
+                        f"{ch}|{res}": n
+                        for ch, results in (r.get("ch") or {}).items()
+                        for res, n in results.items()
+                    }
+                }
+                for r in records
+            ],
+            "x",
+        )
+        sent = sum(n for k, n in channels.items() if k.endswith("|sent"))
+        failed = sum(n for k, n in channels.items() if k.endswith("|failed"))
+        histogram = [0] * (len(EDGES) + 1)
+        for record in records:
+            for counts in (record.get("ack") or {}).values():
+                histogram = [a + b for a, b in zip(histogram, counts, strict=True)]
+        reasons = _sum_tables(records, "rs")
+        matrix = None
+        if period != "24h":
+            matrix = [[0] * 24 for _ in range(7)]
+            for day_date, record in self._slice(first, last):
+                row = matrix[day_date.weekday()]
+                for hour, count in enumerate(record["h"]):
+                    row[hour] += count
+        return {
+            "period": period,
+            "buckets": buckets,
+            "numbers": {
+                "notifications": total,
+                "previous": previous if before else None,
+                "change": round((total - previous) * 100 / previous)
+                if before and previous
+                else None,
+                "sent": sent,
+                "failed": failed,
+                "delivered": round(sent * 100 / (sent + failed)) if sent + failed else None,
+                "median_ack_seconds": median_seconds(histogram),
+                "held_quiet": sum(n for k, n in reasons.items() if k.endswith("|held|quiet_hours")),
+                # The whole days the numbers come from; for 24 hours these are two days.
+                "from": first.isoformat(),
+                "to": last.isoformat(),
+            },
+            "matrix": matrix,
+            "sources": sorted(_sum_tables(records, "src").items(), key=lambda kv: (-kv[1], kv[0])),
+        }

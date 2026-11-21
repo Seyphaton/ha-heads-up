@@ -32,6 +32,10 @@ async def test_a_created_message_counts_in_its_hour_severity_tag_and_source(
     stats.created(NOW, "info", None, "action")
     day = stats.days["2026-11-21"]
     assert day["h"][18] == 2 and sum(day["h"]) == 2
+    assert day["hs"] == {
+        "critical": [1 if h == 18 else 0 for h in range(24)],
+        "info": [1 if h == 18 else 0 for h in range(24)],
+    }
     assert day["sev"] == {"critical": 1, "info": 1}
     assert day["tag"] == {"water": 1} and day["src"] == {"rule_abc": 1, "action": 1}
 

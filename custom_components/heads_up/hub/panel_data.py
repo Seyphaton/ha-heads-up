@@ -25,6 +25,7 @@ from ..const import (
     POLICY_SUBENTRY,
     POLICY_TYPES,
     PRESENCE_PEOPLE_CHANNELS,
+    RULE_ID_PREFIX,
     RULE_SUBENTRY,
     TIMER_CHANNEL,
 )
@@ -728,3 +729,33 @@ async def audiences(hass: HomeAssistant, hub: Any) -> dict[str, Any]:
             }
         )
     return {"people": people, "audiences": out}
+
+
+# Activity ----------------------------------------------------------------------------------
+
+TOP_SOURCES = 8
+
+
+def stats(manager: BannerManager, entry: Any, period: str) -> dict[str, Any]:
+    """The Activity card: buckets, the four numbers, the weekday matrix and the top sources. A
+    source that is a rule is named by the rule's current title; a deleted rule has no name."""
+    hub = manager.hub
+    if hub is None:
+        return {"period": period, "buckets": [], "numbers": {}, "matrix": None, "sources": []}
+    result = hub.stats.read(period)
+    titles = {
+        f"{RULE_ID_PREFIX}{sub.subentry_id}": sub.title
+        for sub in entry.subentries.values()
+        if sub.subentry_type == RULE_SUBENTRY
+    }
+    result["sources"] = [
+        {
+            "key": key,
+            "kind": "rule" if key.startswith(RULE_ID_PREFIX) else "action",
+            "name": titles.get(key),
+            "count": count,
+        }
+        for key, count in result["sources"][:TOP_SOURCES]
+    ]
+    result["info"] = hub.stats.info()
+    return result

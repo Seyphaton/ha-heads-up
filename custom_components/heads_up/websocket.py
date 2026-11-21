@@ -293,6 +293,37 @@ async def ws_panel_audiences(
     connection.send_result(msg["id"], await panel_data.audiences(hass, manager.hub))
 
 
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/panel_stats",
+        vol.Optional("period", default="week"): vol.In(["24h", "week", "month", "year", "2y"]),
+    }
+)
+@require_admin
+@callback
+def ws_panel_stats(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """The Activity card of the Overview: a period of the history (D-244, plan 19.3)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    connection.send_result(msg["id"], panel_data.stats(entry.runtime_data, entry, msg["period"]))
+
+
+@websocket_command({vol.Required("type"): "heads_up/stats_clear"})
+@require_admin
+@async_response
+async def ws_stats_clear(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Delete the whole history. The Settings page asks for a confirmation first (decision 12)."""
+    if (manager := _manager(hass, connection, msg["id"])) is None:
+        return
+    if manager.hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is switched off")
+        return
+    await manager.hub.stats.async_clear()
+    connection.send_result(msg["id"], manager.hub.stats.info())
+
+
 @websocket_command({vol.Required("type"): "heads_up/panel_overview"})
 @require_admin
 @callback
@@ -953,6 +984,8 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_panel_overview,
         ws_panel_reach,
         ws_panel_audiences,
+        ws_panel_stats,
+        ws_stats_clear,
         ws_attention_dismiss,
         ws_attention_restore,
         ws_audience_enable,
