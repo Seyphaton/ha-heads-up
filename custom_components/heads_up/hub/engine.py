@@ -193,6 +193,10 @@ class HubEngine:
             EVENT_STATE_CHANGED, self._on_condition_entity, event_filter=self._is_condition_entity
         )
         self._plan_condition_waits()
+        if self.policies.watched():
+            # A condition may have changed while Home Assistant was stopped: check the holds and
+            # timers once, as a change would; what still holds is held again (DESIGN §25.16).
+            self.conditions_changed()
         self._ready.set()
 
     async def _restore_bell(self) -> None:

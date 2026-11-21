@@ -93,6 +93,47 @@ async def test_a_held_delivery_is_released_when_its_only_if_turns_false(
     assert len(pushes(home.anna)) == 1
 
 
+async def restart(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await settle(hass, entry)
+
+
+async def test_after_a_restart_a_held_delivery_is_released_when_its_only_if_turns_false(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    hass.states.async_set(X, "on")
+    await add_policy(hass, entry, "Night", **{**QUIET, "action": "wait", "only_if": WHEN_X})
+    freezer.move_to("2026-11-02 23:00:00+01:00")
+    await send(hass, entry, severity="warning")
+    await restart(hass, entry)
+    assert not pushes(home.anna)  # still held: the condition still holds
+    await switch(hass, entry, "off")
+    assert len(pushes(home.anna)) == 1
+
+
+async def test_an_only_if_that_turned_false_during_a_restart_releases_at_the_start(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    hass.states.async_set(X, "on")
+    await add_policy(hass, entry, "Night", **{**QUIET, "action": "wait", "only_if": WHEN_X})
+    freezer.move_to("2026-11-02 23:00:00+01:00")
+    await send(hass, entry, severity="warning")
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    hass.states.async_set(X, "off")
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await settle(hass, entry)
+    assert len(pushes(home.anna)) == 1
+
+
 async def test_guests_through_only_if_presence_steps_aside_while_guest_mode_is_on(
     hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
 ) -> None:
