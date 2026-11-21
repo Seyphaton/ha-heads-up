@@ -712,7 +712,11 @@ const CSS = `
 .hu-overview .path { margin: 6px 0 0; padding-left: 14px; border-left: 3px solid var(--primary-color); display: grid; gap: 4px; }
 .hu-overview .path div { font-size: 13px; }
 .hu-overview .placeholder { color: var(--secondary-text-color); font-size: 14px; padding: 10px 0 4px; }
-@media (max-width: 560px) { .hu-overview .row { grid-template-columns: 1fr; } .hu-overview .row .acts { justify-content: flex-start; } }
+.hu-overview .row.log { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.hu-overview .row.log .time { flex: none; align-self: center; }
+.hu-overview .row.log .text { flex: 1 1 160px; min-width: 0; }
+.hu-overview .row.log .acts { margin-left: auto; }
+@media (max-width: 560px) { .hu-overview .row:not(.log):not(.stack):not(.simple) { grid-template-columns: 1fr; } }
 
 /* reach table */
 .hu-overview .reach { width: 100%; border-collapse: separate; border-spacing: 6px; table-layout: fixed; margin: 6px -6px 0; width: calc(100% + 12px); }
@@ -970,11 +974,11 @@ export function mount(container, ctx) {
     const log = el("ul");
     if (data.log.length === 0) log.append(el("li", { className: "placeholder", textContent: t.last_none }));
     for (const entry of data.log) {
-      const text = [fmt.logText(entry, s), entry.title].filter(Boolean).join(" · ");
+      const text = [fmt.logText(entry, s), entry.title || s.severity[entry.severity]].filter(Boolean).join(" · ");
       const acts = el("div", { className: "acts" });
       // A message that still has a trace can unfold its path.
       if (entry.message_id) acts.append(pathButton(entry.message_id));
-      const row = el("li", {}, [el("div", { className: "row" }, [el("span", { className: "time", textContent: fmt.timeAgo(entry.time, now(), s) }), el("span", { className: "text", textContent: text }), acts])]);
+      const row = el("li", {}, [el("div", { className: "row log" }, [el("span", { className: "time", textContent: fmt.timeAgo(entry.time, now(), s) }), el("span", { className: "text", textContent: text }), acts])]);
       if (entry.message_id && openPaths[entry.message_id]) row.append(pathNode(entry.message_id));
       log.append(row);
     }
