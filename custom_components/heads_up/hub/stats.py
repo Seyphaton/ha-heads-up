@@ -27,7 +27,16 @@ _LOGGER = logging.getLogger(__name__)
 # everything above the last edge.
 EDGES = (30, 60, 120, 300, 600, 900, 1800, 3600, 7200, 21600, 86400)
 RESULTS = ("sent", "held", "skipped", "failed")
-POLICY_ACTIONS = ("held", "quieted", "escalated", "reminded", "summarized", "fallback", "dropped")
+POLICY_ACTIONS = (
+    "held",
+    "quieted",
+    "escalated",
+    "reminded",
+    "summarized",
+    "fallback",
+    "delivered",
+    "dropped",
+)
 
 
 def bucket_of(seconds: float) -> int:
@@ -215,6 +224,12 @@ class StatsStore:
         _bump(day.setdefault("end", {}), reason)
         histogram = day.setdefault("te", [0] * (len(EDGES) + 1))
         histogram[bucket_of(seconds)] += 1
+        self._changed()
+
+    @safe
+    def dismissed(self, now: datetime) -> None:
+        day, _ = self._day(now)
+        _bump(day, "dis")
         self._changed()
 
     @safe

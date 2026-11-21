@@ -34,6 +34,7 @@ from ..const import (
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
     SAVE_DELAY,
+    SOURCE_RULE,
     SOURCE_SUMMARY,
     SUMMARY_LIFETIME_HOURS,
     SUMMARY_PREFIX,
@@ -102,6 +103,15 @@ class Planned:
     result: Result
     reason: str | None = None
     who: Recipient | None = None  # what the resolver knows about the recipient
+
+
+# The log kinds that are an action of a policy, and how the history counts them.
+POLICY_LOG_ACTIONS = {
+    "escalation_sent": "escalated",
+    "reminder_sent": "reminded",
+    "fallback_sent": "fallback",
+    "deliver_sent": "delivered",
+}
 
 
 class HubEngine:
@@ -573,30 +583,58 @@ class HubEngine:
                 dt_util.utcnow().isoformat(), kind, message_id, title or None, severity, detail
             )
         )
+        # The same call counts what a policy did, by its key: a rename keeps the history.
+        action = POLICY_LOG_ACTIONS.get(kind)
+        if action and detail and (policy := self.policies.by_name(detail.split("|")[0])):
+            self.stats.policy_action(dt_util.utcnow(), policy.key, action)
 
     def _remember(self, transition: BannerTransition) -> None:
         banner, kind = transition.banner, transition.kind
+        now = dt_util.utcnow()
         if kind in (Kind.APPEARED, Kind.BECAME_VISIBLE):
             self.recent.seen(banner.id, self._info(banner))
             if not transition.silent and banner.source != SOURCE_SUMMARY:
                 self._log("created", banner.id, ",".join(banner.channels))
+                # A watch rule is one source by its rule ID, every call is one source: `action`.
+                source = banner.id if banner.source == SOURCE_RULE else banner.source
+                self.stats.created(now, banner.severity, banner.tag, source)
             return
         if transition.silent:
             return
         who = self._user_name(transition.user_id)
         if kind is Kind.ACKNOWLEDGED:
             self._log("acknowledged", banner.id, who)
+            self.stats.acknowledged(
+                now,
+                banner.severity,
+                (now - banner.created_at).total_seconds(),
+                self._pending_escalations(banner.id),
+            )
         elif kind is Kind.SNOOZED:
             self._log("snoozed", banner.id, who)
+            self.stats.snoozed(now)
         elif kind is Kind.UNSNOOZED:
             self._log("unsnoozed", banner.id, who)
         elif kind is Kind.HIDDEN and transition.reason == Reason.DISMISSED:
             self._log("dismissed", banner.id, who)
+            self.stats.dismissed(now)
         elif transition.ends_message:
-            now = dt_util.utcnow().isoformat()
-            self.recent.ended(banner.id, now, transition.reason)
+            self.recent.ended(banner.id, now.isoformat(), transition.reason)
             expired = transition.reason == Reason.EXPIRED
             self._log("expired" if expired else "cleared", banner.id, transition.reason)
+            if banner.source != SOURCE_SUMMARY:
+                self.stats.ended(
+                    now, str(transition.reason), (now - banner.created_at).total_seconds()
+                )
+
+    def _pending_escalations(self, message_id: str) -> int:
+        """Escalations still waiting to fire: an acknowledgement is about to stop them."""
+        count = 0
+        for row in self.ledger.timers(message_id):
+            policy = self.policies.by_key(row.recipient)
+            if policy is not None and policy.type == "escalation" and row.state is State.PLANNED:
+                count += 1
+        return count
 
     def _enqueue(
         self, message_id: str, work: Callable[[], Coroutine[Any, Any, None]], name: str
@@ -1685,6 +1723,7 @@ class HubEngine:
                 self.ledger.drop_held(entry.message_id)
             else:
                 entry.summarized = True
+                self.stats.policy_action(dt_util.utcnow(), entry.policy, "summarized")
                 self.ledger.put_held(entry)
 
     async def send_once(self, message: Banner) -> list[Planned]:
@@ -1730,6 +1769,15 @@ class HubEngine:
         )
         self._trace(
             message_id, channel, recipient, outcome.result.value, outcome.reason, outcome.by
+        )
+        by = self.policies.by_name(outcome.by) if outcome.by else None
+        self.stats.delivery(
+            dt_util.utcnow(),
+            channel,
+            outcome.result.value,
+            outcome.reason,
+            by.key if by else None,
+            person,
         )
         if (
             outcome.result in (Result.SKIPPED, Result.FAILED)

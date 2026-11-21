@@ -946,3 +946,8 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 - Counts only: no title, text or address. Sources, policies and people are keyed by rule ID, `action`, policy key and person entity ID, never by a name.
 - Recording calls are wrapped (`safe`): the first fault is logged, none reaches a delivery.
 - Size, measured by `tests/hub/test_stats_store.py` on a synthetic busy household (200 messages a day, 5 people, 6 channels, 12 policies, 25 sources, 30 tags) over 730 days: about 7 KB per day, 5.1 MB in all. The test fails above 12 KB per day.
+
+### 27.2 Recording (`hub/engine.py`)
+- Hooks, all synchronous and wrapped by `safe`: `_remember` (created, acknowledged with its time and the escalations still pending, snoozed, dismissed, ended with its reason and time), `_record` (every delivery outcome: channel, result, reason, person, policy), `_log` (escalated, reminded, fallback, delivered by a policy, looked up by name to the policy key) and the end of a summary (one `summarized` per held message). Summary messages are not counted as created.
+- Sources: a watch rule by its message ID (`rule_<subentry ID>`), every call by `action`. Messages from actions and from rules take the same path (parity, rule 9).
+- Dropped for lack of a reliable hook: push levels used (the channel does not report the level it sent at). Everything else of the planned record is kept.
