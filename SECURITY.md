@@ -10,6 +10,7 @@ Open a private security advisory on the GitHub repository.
 
 - Administrators can see every banner with the card option `show_all`.
 - Banners are stored in plain text in `.storage/heads_up.banners`. Anyone with access to the Home Assistant files or backups can read them.
+- The activity history in `.storage/heads_up.stats` holds counts per day, rule, policy and person (the person's entity ID). It holds no titles, texts or addresses. Settings > Activity history clears it.
 - Do not put passwords, codes or other secrets in banners.
 
 ## Images from other hosts

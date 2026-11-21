@@ -380,6 +380,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - 2026-10-27: Phase 12 (banner buttons and snooze, D-069, D-070) requested and approved by the maintainer; delivered and committed; not pushed.
 - 2026-11-20: Phase 17 (2.0.0 policies in two lanes, DESIGN §25, build checklist §25.15) approved by the maintainer ("Start build") on `release/2.0`, after the merge of `release/1.1`.
 - 2026-11-21: Phase 17 end approved by the maintainer ("Approve phase end"). Built on `release/2.0`, local, not pushed; `make check`, `make hassfest` and `make dev-smoke` on a clean instance green. Open before 2.0.0: real-device checks, the panel at phone width, light theme, keyboard and screen reader (`docs/OPEN_QUESTIONS.md`). No release step without the maintainer (D-020).
+- 2026-11-21: Phase 18 (new Overview, D-244, D-245) approved and built on `release/2.0`: status card, Coming up, reach table, audience members and presence times, Overview page, tour in the page, quick shortcuts; Last actions and Top sources reworked after review. `make check`, `make hassfest` and `make dev-smoke` green; checked in the browser pane at desktop and phone width, light and dark, in the three states. Pushed on the maintainer's approval.
+- 2026-11-21: Phase 19 (history store, D-246) approved and built on `release/2.0`: store `heads_up.stats`, recording hooks, `panel_stats`, the Activity cards, Clear history, diagnostics. Checks as above; pushed on the maintainer's approval. Not verified: real devices, German, French and Spanish text on screen, keyboard and screen reader.
 
 ## D-068 `empty` and `not_empty` operators; State is not prefilled
 - Date: 2026-10-27. Phase 11 requested and approved by the maintainer.
@@ -1589,3 +1591,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 ## D-246 Phase 19 approved (2026-11-21, maintainer)
 - Context: Phase 18 was pushed (`release/2.0` at `b05fa44`). The maintainer approved Phase 19 (the history store, steps 19.1 to 19.5 of `docs/dev/overview-redesign/PLAN.md`). Nothing is tagged or merged to `main`; a new push needs a new approval (D-020).
 - Decision: build 19.1 to 19.5 as planned. A field of the daily record without a reliable recording hook is dropped and named in the phase summary.
+
+## D-247 Prepare 2.0.0-beta.2 (2026-11-22, maintainer)
+- Context: Phases 18 and 19 are pushed on `release/2.0` after `v2.0.0-beta.1`; the real-device checks are still open (`docs/OPEN_QUESTIONS.md`).
+- Decision (maintainer, "Prepare v2.0.0-beta.2"): the manifest version on `release/2.0` is `2.0.0-beta.2`. The CHANGELOG keeps `[Unreleased]`; its block is the pre-release notes and now includes the new Overview, the introduction in the page and the activity history. No new Home Assistant API is used (the history store, websocket commands and the panel follow patterns that exist), so `docs/dev/HA_API_NOTES.md` has no new row.
+- Not done without a further approval (D-020): pushing the branch, the tag `v2.0.0-beta.2` and the GitHub pre-release. Steps in `docs/dev/RELEASE.md`, Releasing 2.0.0, step 1.

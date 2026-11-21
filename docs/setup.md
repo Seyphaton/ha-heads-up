@@ -110,7 +110,7 @@ The page refreshes every 10 seconds. From the top:
 - When your house talks: the messages by weekday and hour over the period. It needs a period of a week or more.
 - Top sources: the eight sources that made the most messages in the period. A watch rule shows its current name. A call is listed by the ID you gave it, else by its tag; calls with neither are grouped as Other calls, and the panel's Test send as Test send. A call that sets a new ID for every message is grouped as Other calls after 60 IDs a day.
 
-The Activity cards read a history that Heads Up stores for the last 24 months, one record of counts per day. It holds no titles, texts or addresses, only counts per rule, policy and person, and it survives a restart. Settings > Activity history shows how much is stored and clears it after a confirmation.
+The Activity cards read a history that Heads Up stores for the last 24 months, one record of counts per day. It holds no titles, texts or addresses, only counts per rule, policy and person, and it survives a restart. Settings > Activity history shows how much is stored and clears it after a confirmation. The history starts when you update; messages from before are not counted.
 
 Before the first policy exists, the page shows the introduction on top and, under it, empty cards for Needs attention, Coming up, Activity and Last actions with a line on what each will show.
 
@@ -186,7 +186,7 @@ Heads Up uses [semantic versioning](https://semver.org/). Action names, field na
 ## Uninstalling
 
 1. Remove the card from your dashboards. A card of a removed integration shows "Custom element doesn't exist" after the next reload.
-2. Go to Settings > Devices & services > Heads Up, open the menu and choose Delete. This removes your watch rules, the sensor `sensor.heads_up_active_banners`, the audiences, recipient profiles, speaker groups and policies, and deletes `.storage/heads_up.banners`.
+2. Go to Settings > Devices & services > Heads Up, open the menu and choose Delete. This removes your watch rules, the sensor `sensor.heads_up_active_banners`, the audiences, recipient profiles, speaker groups and policies, and deletes `.storage/heads_up.banners` and `.storage/heads_up.stats`.
 3. Remove Heads Up in HACS.
 4. Restart Home Assistant.
 

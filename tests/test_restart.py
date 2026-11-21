@@ -103,3 +103,15 @@ async def test_removing_entry_deletes_storage(
     await hass.config_entries.async_remove(entry.entry_id)
     await hass.async_block_till_done()
     assert "heads_up.banners" not in hass_storage
+
+
+async def test_removing_entry_deletes_the_activity_history_too(
+    hass: HomeAssistant, entry: MockConfigEntry, create: CreateBanner, hass_storage: dict
+) -> None:
+    await create(id="a", message="x")
+    await hass.config_entries.async_unload(entry.entry_id)
+    assert "heads_up.stats" in hass_storage
+
+    await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert "heads_up.stats" not in hass_storage

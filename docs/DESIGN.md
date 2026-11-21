@@ -2,7 +2,7 @@
 
 Living design document: requirements and architecture. Decisions are referenced as D-nnn (`docs/DECISIONS.md`), API facts as N-nn (row in `docs/dev/HA_API_NOTES.md`), risks as R-n (§14). Where code and this document disagree, fix one of them in the same commit.
 
-## 0. Implementation status (2026-11-19)
+## 0. Implementation status (2026-11-22)
 
 | Part | Status |
 |---|---|
@@ -16,6 +16,8 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §23 notification hub | built (Phase 15, H0 to H10 and the later maintainer changes) on the branch `hub/h9e-wizard`; pre-releases 1.0.0-alpha.2 to 1.0.0-alpha.8 are tagged and pushed (D-133, D-154, D-175, D-190, D-196); not merged to `main`, no 1.0.0 |
 | §24 1.1.0: speech volume, Presence, quiet hours and home from an entity, snooze, severities | built and tested on `release/1.1` (Phase 16, D-225); checked on the dev HA; not on real devices; "only if" moved to 2.0.0 |
 | §25 2.0.0 policies in two lanes | built and tested on `release/2.0` (Phase 17, D-234 to D-242): conversion, matching, band, matrix interactions, Only if, reminder rhythm, checker, panel and help page, watch-rule audience; user docs written; `make check`, `make hassfest` and `make dev-smoke` on a clean instance green; §25.16 verified; not on real devices, not checked at phone width, with the keyboard or a screen reader; promise lines on the long list (D-241) |
+| §26 new Overview (status card, Coming up, reach table, tour in the page, quick shortcuts, Last actions) | built and tested on `release/2.0` (Phase 18, D-244, D-245); checked in the browser pane at desktop and phone width, light and dark; not on real devices |
+| §27 history store (24 months, Activity cards, Clear history) | built and tested on `release/2.0` (Phase 19, D-246); about 7 KB a day measured on a synthetic busy household; push levels used are not recorded |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |

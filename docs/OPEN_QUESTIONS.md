@@ -155,4 +155,8 @@
 - Passive looks like Info in most cells of the table "What would a message do right now?": the rules the code states differ little for them. Revisit if a Passive-specific rule appears.
 - The tour's Create sets the critical push level to `critical` as a side effect (`hub/welcome.py`). The tour text could name it; not decided.
 - Real-device checks for the Critical push (iOS critical alert permission, Android alarm channel) are open as before.
-
+- Phase 18 and 19 are checked in the browser pane only. Open: the first-launch placeholder cards on screen, German, French and Spanish text of the Overview, the tour and the history, keyboard and screen reader use, touch, real phones.
+- The history does not record the push level a message was sent at: the push channel does not report it. Add a hook if the Activity card should show it.
+- "The last critical message was acknowledged N ago" (status card) can now be built from the history; not done.
+- The history writes at most every 60 seconds; a restart can lose the last minute of counts. Check on a busy household whether that is acceptable.
+- Calls that set a new ID for every message are grouped as "Other calls" in Top sources after 60 IDs a day; a different identifier (the automation's entity ID) would need a field in the call.
