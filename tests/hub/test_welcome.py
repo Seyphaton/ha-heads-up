@@ -279,3 +279,53 @@ async def test_the_defaults_together_behave_as_decided_for_a_critical_message(
     assert (
         len(pushes(home.anna)) == 2 and len(fake_speakers.announce) == 1
     )  # acknowledged: it stops
+
+
+async def test_welcome_get_returns_what_step_two_of_the_tour_needs(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    hass.services.async_register("notify", "smtp_house", lambda call: None)
+    hass.config_entries.async_update_entry(
+        entry,
+        options={
+            **entry.options,
+            "mail_service": "smtp_house",
+            "mail_global_address": "house@example.com",
+        },
+    )
+    client = await hass_ws_client(hass)
+    reply = await ask(client, "welcome_get")
+    assert reply["success"]
+    result = reply["result"]
+    assert "smtp_house" in result["notify_services"]
+    assert result["mail_service"] == "smtp_house"
+    assert result["mail_global_address"] == "house@example.com"
+
+
+async def test_the_tour_saves_the_mail_service_and_address_through_channels_set(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    hass.services.async_register("notify", "smtp_house", lambda call: None)
+    client = await hass_ws_client(hass)
+    reply = await ask(
+        client, "channels_set", mail_service="smtp_house", mail_global_address="a@example.com"
+    )
+    assert reply["success"], reply
+    assert entry.options["mail_service"] == "smtp_house"
+    assert entry.options["mail_global_address"] == "a@example.com"
+
+
+async def test_the_tour_cannot_save_an_unknown_mail_service_or_a_too_long_address(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    client = await hass_ws_client(hass)
+    unknown = await ask(client, "channels_set", mail_service="no_such_service")
+    assert (
+        unknown["error"]["code"] == "invalid_format"
+        and "mail_service" in unknown["error"]["message"]
+    )
+    long = await ask(client, "channels_set", mail_global_address="a" * 250 + "@example.com")
+    assert long["error"]["code"] == "invalid_format"
+    assert not entry.options.get("mail_service")

@@ -551,6 +551,10 @@ export function mount(container, ctx) {
   let openPaths = {}; // message id -> trace entries, "loading" or "error"
   let timer = null;
   let played = false;
+  let tour = null;
+  let tourStarted = false;
+  // The tour lives in its own node, so the page's redraws never wipe it.
+  const tourHost = el("div");
   const root = el("div", { className: "hu-overview" });
   container.append(root);
 
@@ -593,6 +597,30 @@ export function mount(container, ctx) {
       }
     }
     return box;
+  }
+
+  // The introduction tour, inside the page (D-244): shown on the first opening, or when asked for.
+  async function startTour(force) {
+    if (tour) return;
+    try {
+      const mod = await ctx.loadModule("welcome.js");
+      tour = await mod.mount(tourHost, {
+        hass,
+        t: ctx.tableFor(mod),
+        s,
+        ui: ctx.ui,
+        language: ctx.language,
+        force,
+        onClose: () => {
+          tour = null;
+          if (globalThis.location?.search) globalThis.history?.replaceState(null, "", globalThis.location.pathname);
+          load();
+        },
+      });
+    } catch (err) {
+      tour = null; // the tour is a convenience: a failure must not block the page
+    }
+    if (tour) render();
   }
 
   async function act(type, extra, confirmText) {
@@ -814,11 +842,13 @@ export function mount(container, ctx) {
     const intro = !played;
     played = true;
     ctx.ui?.lockHeight(root);
-    root.replaceChildren(el("style", { textContent: CSS }), el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }));
+    root.replaceChildren(el("style", { textContent: CSS }), el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }), tourHost);
     if (data.first_run) {
-      const go = el("button", { type: "button", textContent: t.first_run_button });
-      go.addEventListener("click", () => ctx.openWelcome());
-      root.append(el("div", { className: "hint" }, [el("span", { textContent: t.first_run }), go]));
+      if (!tour) {
+        const go = el("button", { type: "button", textContent: t.first_run_button });
+        go.addEventListener("click", () => startTour(true));
+        root.append(el("div", { className: "hint" }, [el("span", { textContent: t.first_run }), go]));
+      }
       if (data.status.count > 0) root.append(statusCard());
       root.append(
         el("div", { className: "pair" }, [
@@ -837,6 +867,10 @@ export function mount(container, ctx) {
     try {
       data = await hass.callWS({ type: "heads_up/panel_overview" });
       render();
+      if (!tourStarted) {
+        tourStarted = true;
+        startTour(new URLSearchParams(globalThis.location?.search || "").get("tour") === "1");
+      }
     } catch (err) {
       root.replaceChildren(el("div", { textContent: t.load_failed }));
       return;
@@ -861,6 +895,7 @@ export function mount(container, ctx) {
     },
     destroy() {
       clearInterval(timer);
+      tour?.destroy();
       root.remove();
     },
   };

@@ -27,6 +27,8 @@ from .const import (
     MAX_ATTENTION_DISMISSED,
     OPT_ATTENTION_DISMISSED,
     OPT_AUDIENCES_DISABLED,
+    OPT_MAIL_ADDRESS,
+    OPT_MAIL_SERVICE,
     OPT_SPEAK_TTS_ENTITY,
     SEVERITIES,
     canonical_severity,
@@ -215,6 +217,10 @@ def ws_welcome_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
             "areas": panel_config.area_choices(hass),
             "tts_engines": sorted(s.entity_id for s in hass.states.async_all("tts")),
             "tts_engine": str(entry.options.get(OPT_SPEAK_TTS_ENTITY) or ""),
+            # Step 2 of the tour: the mail settings it can change (saved with channels_set).
+            "notify_services": panel_config.notify_services(hass),
+            "mail_service": str(entry.options.get(OPT_MAIL_SERVICE) or ""),
+            "mail_global_address": str(entry.options.get(OPT_MAIL_ADDRESS) or ""),
         },
     )
 

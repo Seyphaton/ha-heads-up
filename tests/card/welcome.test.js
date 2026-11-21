@@ -1,10 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
+  audienceMembers,
+  audienceNote,
+  BUILTIN_AUDIENCES,
+  channelChanges,
   channelStatus,
+  createLabel,
   fill,
+  ITEM_LANES,
   ITEMS,
   payloadFor,
-  recipientsStatus,
+  policyCount,
   resultText,
   setupSummary,
   STEPS,
@@ -94,25 +100,34 @@ describe("welcome", () => {
     expect(fill("{a} and {b}", { a: 1, b: "x" })).toBe("1 and x");
   });
 
-  it("is a tour of four steps: introduction, channels, recipients, policies", () => {
-    expect(STEPS).toEqual(["intro", "channels", "recipients", "policies"]);
+  it("is a tour of four steps: introduction, channels, audiences, policies", () => {
+    expect(STEPS).toEqual(["intro", "channels", "audiences", "policies"]);
     for (const [code, language] of Object.entries(STRINGS)) {
       for (const key of ["intro_title", "channels_title", "recipients_title", "policies_title", "intro_lead", "intro_foot"]) {
         expect(language[key], `${code}.${key}`).toBeTruthy();
       }
+      // Each box of step 1 starts with the key word of its page.
+      for (const key of ["where", "who", "when"]) expect(language[`intro_${key}_text`], `${code}.${key}`).toBeTruthy();
+    }
+    expect(STRINGS.en.intro_where_text.startsWith("Channels decide where")).toBe(true);
+    expect(STRINGS.en.intro_who_text.startsWith("Audiences decide who")).toBe(true);
+    expect(STRINGS.en.intro_when_text.startsWith("Policies decide when")).toBe(true);
+  });
+
+  it("has a name, a meaning and an example for each of the six audiences in every language", () => {
+    expect(BUILTIN_AUDIENCES).toEqual(["everyone", "admins", "at_home", "not_home", "last_to_leave", "first_home"]);
+    for (const [code, language] of Object.entries(STRINGS)) {
+      for (const key of BUILTIN_AUDIENCES) for (const prefix of ["aud_", "aud_what_", "aud_example_"]) expect(language[prefix + key], `${code}.${prefix}${key}`).toBeTruthy();
     }
   });
 
   const config = {
     profiles: [{ devices: [{}, {}] }, { devices: [{}] }, { devices: [] }],
     choices: { persons: [{}, {}, {}], speakers: ["media_player.a"] },
-    channels: { mail_service: "" },
-    audiences: [{ builtin: true }, { builtin: false }],
-    groups: [{}],
   };
 
   it("counts what the tour shows from the panel config", () => {
-    expect(setupSummary(config)).toEqual({ persons: 3, devices: 3, withDevice: 2, speakers: 1, mail: false, audiences: 1, groups: 1 });
+    expect(setupSummary(config)).toEqual({ persons: 3, devices: 3, speakers: 1 });
     expect(setupSummary(null)).toBeNull();
   });
 
@@ -121,11 +136,56 @@ describe("welcome", () => {
     const summary = setupSummary(config);
     expect(channelStatus("push", summary, t)).toBe("App devices found: 3");
     expect(channelStatus("speak", { ...summary, speakers: 0 }, t)).toBe("Speakers and satellites found: none yet");
-    expect(channelStatus("mail", summary, t)).toBe(t.found_mail_off);
-    expect(channelStatus("mail", { ...summary, mail: true }, t)).toBe(t.found_mail_on);
+    expect(channelStatus("mail", summary, t)).toBe("");
     expect(channelStatus("banner", summary, t)).toBe("");
     expect(channelStatus("push", null, t)).toBe("");
-    expect(recipientsStatus(summary, t)).toBe("In your Home Assistant: people 3, with an app device 2; audiences of your own 1; speaker groups 1.");
-    expect(recipientsStatus(null, t)).toBe("");
+  });
+
+  it("counts the policies Create makes: Critical three, four with speakers", () => {
+    const on = (extra) => ({ on: { critical: true, warnings: true, digest: true, quiet: true, ...extra }, speakers: [] });
+    expect(policyCount(on())).toBe(6);
+    expect(policyCount({ ...on(), speakers: ["media_player.k"] })).toBe(7);
+    expect(policyCount(on({ critical: false }))).toBe(3);
+    expect(policyCount(on({ critical: false, warnings: false, digest: false, quiet: false }))).toBe(0);
+    expect(createLabel(1, STRINGS.en)).toBe("Create 1 policy");
+    expect(createLabel(6, STRINGS.en)).toBe("Create 6 policies");
+  });
+
+  it("puts each default in its group, Critical in two", () => {
+    expect(ITEM_LANES).toEqual({ critical: ["through", "arrive"], warnings: ["arrive"], digest: ["calm"], quiet: ["calm"] });
+  });
+
+  const saved = { mailService: "", mailAddress: "", ttsEngine: "" };
+
+  it("saves nothing when step 2 was left untouched", () => {
+    expect(channelChanges({ ...saved }, saved)).toEqual([]);
+  });
+
+  it("saves only the mail fields that changed, through channels_set", () => {
+    expect(channelChanges({ ...saved, mailService: "smtp_house" }, saved)).toEqual([{ type: "heads_up/channels_set", mail_service: "smtp_house" }]);
+    expect(channelChanges({ ...saved, mailService: "smtp_house", mailAddress: "a@example.com" }, saved)).toEqual([
+      { type: "heads_up/channels_set", mail_service: "smtp_house", mail_global_address: "a@example.com" },
+    ]);
+  });
+
+  it("saves the speech engine through settings_set, and clears it with an empty value", () => {
+    expect(channelChanges({ ...saved, ttsEngine: "tts.cloud" }, saved)).toEqual([{ type: "heads_up/settings_set", speak_tts_entity: "tts.cloud" }]);
+    expect(channelChanges({ ...saved }, { ...saved, ttsEngine: "tts.cloud" })).toEqual([{ type: "heads_up/settings_set", speak_tts_entity: "" }]);
+  });
+
+  it("writes the note of Last to leave and First home from the stored time", () => {
+    const t = STRINGS.en;
+    expect(audienceNote({ key: "last_to_leave", at: null }, t, "en")).toBe("");
+    expect(audienceNote({ key: "last_to_leave", at: "2026-11-02T17:40:00Z" }, t, "en")).toMatch(/^Left at /);
+    expect(audienceNote({ key: "first_home", at: "2026-11-03T07:12:00Z" }, t, "en")).toMatch(/^Arrived at /);
+  });
+
+  it("names the people of an audience with their home mark", () => {
+    const people = [{ person: "person.a", name: "Anna", home: true }, { person: "person.b", name: "Ben", home: false }];
+    expect(audienceMembers({ members: [{ person: "person.a" }, { person: "person.b" }, { person: "person.c" }] }, people)).toEqual([
+      { name: "Anna", home: true },
+      { name: "Ben", home: false },
+      { name: "person.c", home: false },
+    ]);
   });
 });
