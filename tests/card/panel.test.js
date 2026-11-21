@@ -221,6 +221,7 @@ import {
   matrixModel,
   PERIODS,
   actionRow,
+  shortcutCards,
   sourceRows,
   pathLines,
   statusHeadline,
@@ -449,6 +450,22 @@ describe("overview functions", () => {
   it("has a name for every period in every language", () => {
     for (const [code, language] of Object.entries(OVERVIEW_STRINGS)) for (const period of PERIODS) expect(language[`period_${period}`], `${code}.${period}`).toBeTruthy();
     expect(OVERVIEW_STRINGS.en.period_2y).toBe("2 years");
+  });
+
+  it("builds the four shortcut cards with the page, a number and one line each", () => {
+    const data = {
+      shortcuts: { channels: { total: 6, mail: false }, audiences: { builtin: 6, custom: 2 }, policies: { total: 7, enabled: 5 } },
+      rules: { enabled: 3, showing: 1 },
+    };
+    const cards = shortcutCards(data, t);
+    expect(cards.map((c) => [c.page, c.title, c.big])).toEqual([
+      ["channels", "Channels", 6],
+      ["audiences", "Audiences", 8],
+      ["policies", "Policies", 5],
+      ["rules", "Watch rules", 3],
+    ]);
+    expect(cards.map((c) => c.sub)).toEqual(["Mail is not set up", "2 of your own, 6 built in", "5 of 7 on", "1 showing now"]);
+    expect(shortcutCards({ ...data, shortcuts: { ...data.shortcuts, channels: { total: 6, mail: true } } }, t)[0].sub).toBe("Mail is set up");
   });
 
   it("counts messages with the right plural", () => {

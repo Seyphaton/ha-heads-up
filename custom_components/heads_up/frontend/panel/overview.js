@@ -132,6 +132,17 @@ export const STRINGS = {
     source_kind_tag: "Tag",
     source_other: "Other calls (no ID or tag)",
     source_test: "Test send",
+    sc_label: "Quick shortcuts",
+    sc_channels: "Channels",
+    sc_audiences: "Audiences",
+    sc_policies: "Policies",
+    sc_rules: "Watch rules",
+    sc_channels_mail_on: "Mail is set up",
+    sc_channels_mail_off: "Mail is not set up",
+    sc_audiences_sub: "{custom} of your own, {builtin} built in",
+    sc_policies_sub: "{enabled} of {total} on",
+    sc_rules_sub: "{showing} showing now",
+    sc_open: "Open {page}",
     first_run: "No policies yet. The introduction explains a few defaults you can switch on.",
     first_run_button: "Restart introduction",
     ph_attention: "Problems with your setup show up here.",
@@ -272,6 +283,17 @@ export const STRINGS = {
     source_kind_tag: "Tag",
     source_other: "Andere Aufrufe (ohne ID und Tag)",
     source_test: "Test senden",
+    sc_label: "Schnellzugriff",
+    sc_channels: "Kanäle",
+    sc_audiences: "Zielgruppen",
+    sc_policies: "Richtlinien",
+    sc_rules: "Überwachungsregeln",
+    sc_channels_mail_on: "E-Mail ist eingerichtet",
+    sc_channels_mail_off: "E-Mail ist nicht eingerichtet",
+    sc_audiences_sub: "{custom} eigene, {builtin} eingebaute",
+    sc_policies_sub: "{enabled} von {total} an",
+    sc_rules_sub: "{showing} werden gerade gezeigt",
+    sc_open: "{page} öffnen",
     first_run: "Noch keine Richtlinien. Die Einführung erklärt ein paar Standards, die du einschalten kannst.",
     first_run_button: "Einführung neu starten",
     ph_attention: "Probleme mit deiner Einrichtung erscheinen hier.",
@@ -412,6 +434,17 @@ export const STRINGS = {
     source_kind_tag: "Étiquette",
     source_other: "Autres appels (sans ID ni étiquette)",
     source_test: "Envoi test",
+    sc_label: "Raccourcis",
+    sc_channels: "Canaux",
+    sc_audiences: "Audiences",
+    sc_policies: "Politiques",
+    sc_rules: "Règles de surveillance",
+    sc_channels_mail_on: "Le courriel est configuré",
+    sc_channels_mail_off: "Le courriel n'est pas configuré",
+    sc_audiences_sub: "{custom} à vous, {builtin} intégrées",
+    sc_policies_sub: "{enabled} sur {total} actives",
+    sc_rules_sub: "{showing} affichées en ce moment",
+    sc_open: "Ouvrir {page}",
     first_run: "Aucune politique pour l'instant. L'introduction explique quelques réglages par défaut que vous pouvez activer.",
     first_run_button: "Relancer l'introduction",
     ph_attention: "Les problèmes de votre configuration apparaissent ici.",
@@ -552,6 +585,17 @@ export const STRINGS = {
     source_kind_tag: "Etiqueta",
     source_other: "Otras llamadas (sin ID ni etiqueta)",
     source_test: "Envío de prueba",
+    sc_label: "Accesos rápidos",
+    sc_channels: "Canales",
+    sc_audiences: "Audiencias",
+    sc_policies: "Políticas",
+    sc_rules: "Reglas de vigilancia",
+    sc_channels_mail_on: "El correo está configurado",
+    sc_channels_mail_off: "El correo no está configurado",
+    sc_audiences_sub: "{custom} propias, {builtin} integradas",
+    sc_policies_sub: "{enabled} de {total} activas",
+    sc_rules_sub: "{showing} mostrándose ahora",
+    sc_open: "Abrir {page}",
     first_run: "Aún no hay políticas. La introducción explica algunos valores por defecto que puedes activar.",
     first_run_button: "Reiniciar la introducción",
     ph_attention: "Los problemas de tu configuración aparecen aquí.",
@@ -657,6 +701,18 @@ export function pathLines(entries, s, fmt) {
     else lines.push({ text, time: entry.time, n: 1 });
   }
   return lines;
+}
+
+// The four small cards under the status card: the page each opens, a number and one line.
+export function shortcutCards(data, t) {
+  const sc = data.shortcuts;
+  const rules = data.rules;
+  return [
+    { page: "channels", title: t.sc_channels, big: sc.channels.total, sub: sc.channels.mail ? t.sc_channels_mail_on : t.sc_channels_mail_off },
+    { page: "audiences", title: t.sc_audiences, big: sc.audiences.builtin + sc.audiences.custom, sub: fill(t.sc_audiences_sub, sc.audiences) },
+    { page: "policies", title: t.sc_policies, big: sc.policies.enabled, sub: fill(t.sc_policies_sub, sc.policies) },
+    { page: "rules", title: t.sc_rules, big: rules.enabled, sub: fill(t.sc_rules_sub, { showing: rules.showing }) },
+  ];
 }
 
 // The bars of the activity chart: one per hour, oldest first, stacked by severity (the least
@@ -918,6 +974,13 @@ const CSS = `
 .hu-overview .act .pill.state-active { background: color-mix(in srgb, var(--hu-info) 18%, transparent); color: var(--hu-info); }
 .hu-overview .srcbar .nm { display: flex; align-items: baseline; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
 .hu-overview .srcbar .kind { font-size: 11px; color: var(--secondary-text-color); white-space: nowrap; }
+
+.hu-overview .shortcuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 16px; }
+.hu-overview button.shortcut { display: grid; gap: 1px; justify-items: start; text-align: left; padding: 12px 14px; min-height: 76px; border-radius: 14px; border: 1px solid var(--divider-color); background: var(--card-background-color); box-shadow: var(--hu-shadow); transition: transform .12s, border-color .12s; }
+.hu-overview button.shortcut:hover { transform: translateY(-1px); border-color: var(--primary-color); }
+.hu-overview button.shortcut .name { font-size: 13px; font-weight: 600; color: var(--primary-color); }
+.hu-overview button.shortcut .big { font-size: 24px; font-weight: 700; line-height: 1.15; letter-spacing: -.02em; }
+.hu-overview button.shortcut .sub { font-size: 12px; }
 @keyframes hu-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes hu-pulse { 0% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 30%, transparent), 0 0 0 18px color-mix(in srgb, var(--hero-tint) 7%, transparent); } 100% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 14%, transparent), 0 0 0 26px transparent; } }
 @keyframes hu-grow { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
@@ -1029,6 +1092,22 @@ export function mount(container, ctx) {
     button.setAttribute("aria-expanded", String(open));
     button.addEventListener("click", () => togglePath(id));
     return button;
+  }
+
+  function shortcutRow() {
+    const row = el("div", { className: "shortcuts" });
+    row.setAttribute("aria-label", t.sc_label);
+    for (const card of shortcutCards(data, t)) {
+      const button = el("button", { type: "button", className: "shortcut" }, [
+        el("span", { className: "name", textContent: card.title }),
+        el("span", { className: "big", textContent: String(card.big) }),
+        el("span", { className: "sub", textContent: card.sub }),
+      ]);
+      button.setAttribute("aria-label", `${fill(t.sc_open, { page: card.title })}: ${card.big}, ${card.sub}`);
+      button.addEventListener("click", () => ctx.navigate(card.page));
+      row.append(button);
+    }
+    return row;
   }
 
   function statusCard() {
@@ -1324,6 +1403,7 @@ export function mount(container, ctx) {
         root.append(el("div", { className: "hint" }, [el("span", { textContent: t.first_run }), go]));
       }
       if (data.status.count > 0) root.append(statusCard());
+      root.append(shortcutRow());
       root.append(
         el("div", { className: "pair" }, [
           data.attention.length ? attentionCard() : placeholder(t.attention, t.ph_attention),
@@ -1334,7 +1414,7 @@ export function mount(container, ctx) {
       );
       return;
     }
-    root.append(statusCard(), el("div", { className: "pair" }, [attentionCard(), comingCard()]), lastActionsCard(), reachCard(), ...activityCards(intro));
+    root.append(statusCard(), shortcutRow(), el("div", { className: "pair" }, [attentionCard(), comingCard()]), lastActionsCard(), reachCard(), ...activityCards(intro));
   }
 
   async function loadStats() {
