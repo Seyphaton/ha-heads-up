@@ -451,20 +451,20 @@ export const PAIRS = {
   "va": "add",
   "vb": "add",
   "en": [
-   "Different jobs: the entry only allows waking, Deliver does the sending. Together they wake the Admins for leaks.",
-   "<b>Alarms wake the Admins</b> plus <b>Alarms to the Admins</b> (push): a leak at 03:00 rings on the Admins' phones."
+   "Different jobs: the entry only changes how a message arrives for the people who get it anyway; Deliver adds people. You need Deliver only when the message should reach people the original message does not name.",
+   "The leak automation already pushes to the Admins: <b>Alarms wake the Admins</b> alone makes it ring at 03:00. If it only creates a banner, add <b>Alarms to the Admins</b> (push)."
   ],
   "de": [
-   "Verschiedene Aufgaben: der Eintrag erlaubt nur das Wecken, Zustellen sendet. Zusammen wecken sie die Admins bei Lecks.",
-   "<b>Alarme wecken die Admins</b> plus <b>Alarme an die Admins</b> (Push): ein Leck um 03:00 klingelt auf den Handys der Admins."
+   "Verschiedene Aufgaben: Der Eintrag ändert nur, wie eine Meldung bei den Leuten ankommt, die sie ohnehin bekommen; Zustellen nimmt Leute dazu. Zustellen brauchst du nur, wenn die Meldung Leute erreichen soll, die die ursprüngliche Meldung nicht nennt.",
+   "Die Leck-Automation pusht schon an die Admins: <b>Alarme wecken die Admins</b> allein lässt es um 03:00 klingeln. Erzeugt sie nur ein Banner, ergänze <b>Alarme an die Admins</b> (Push)."
   ],
   "fr": [
-   "Des rôles différents : l'entrée autorise seulement le réveil, Livrer fait l'envoi. Ensemble, elles réveillent les admins pour les fuites.",
-   "<b>Les alarmes réveillent les admins</b> plus <b>Alarmes aux admins</b> (push) : une fuite à 03:00 sonne sur les téléphones des admins."
+   "Des rôles différents : l'entrée change seulement la façon dont un message arrive chez ceux qui le reçoivent de toute façon ; Livrer ajoute des personnes. Livrer n'est utile que si le message doit joindre des personnes que le message d'origine ne nomme pas.",
+   "L'automatisation de fuite envoie déjà un push aux admins : <b>Les alarmes réveillent les admins</b> suffit pour que ça sonne à 03:00. Si elle crée seulement une bannière, ajoutez <b>Alarmes aux admins</b> (push)."
   ],
   "es": [
-   "Tareas distintas: la entrada solo permite despertar, Entregar hace el envío. Juntas despiertan a los admins por las fugas.",
-   "<b>Las alarmas despiertan a los admins</b> más <b>Alarmas a los admins</b> (push): una fuga a las 03:00 suena en los teléfonos de los admins."
+   "Tareas distintas: la entrada solo cambia cómo llega un mensaje a quienes lo reciben igualmente; Entregar añade personas. Solo necesitas Entregar si el mensaje debe llegar a personas que el mensaje original no nombra.",
+   "La automatización de fugas ya envía un push a los admins: <b>Las alarmas despiertan a los admins</b> basta para que suene a las 03:00. Si solo crea un aviso, añade <b>Alarmas a los admins</b> (push)."
   ]
  },
  "through|escalation": {
@@ -762,7 +762,7 @@ export const STRINGS = {
     "<b>Speak only when someone is home</b>: no doorbell announcement in an empty house."
    ],
    "through": [
-    "Says which messages may wake whom, despite quiet hours and summaries. It sends nothing itself.",
+    "Lets the messages it fits ignore quiet hours and summaries for the people who get them anyway. It sends nothing itself.",
     "<b>Alarms wake the Admins</b>: a leak at night rings for the Admins only."
    ],
    "deliver": [
@@ -845,7 +845,7 @@ export const STRINGS = {
     "<b>Nur sprechen, wenn jemand da ist</b>: keine Türklingel-Ansage in einem leeren Haus."
    ],
    "through": [
-    "Legt fest, welche Meldungen wen trotz Ruhezeit und Zusammenfassung wecken dürfen. Sendet selbst nichts.",
+    "Lässt die passenden Meldungen für die Leute, die sie ohnehin bekommen, Ruhezeit und Zusammenfassung ignorieren. Sendet selbst nichts.",
     "<b>Alarme wecken die Admins</b>: ein Leck nachts klingelt nur bei den Admins."
    ],
    "deliver": [
@@ -928,7 +928,7 @@ export const STRINGS = {
     "<b>Parler seulement si quelqu'un est là</b> : pas d'annonce de sonnette dans une maison vide."
    ],
    "through": [
-    "Dit quels messages peuvent réveiller qui, malgré les heures calmes et les résumés. N'envoie rien lui-même.",
+    "Fait ignorer les heures calmes et les résumés aux messages concernés, pour ceux qui les reçoivent de toute façon. N'envoie rien elle-même.",
     "<b>Les alarmes réveillent les admins</b> : une fuite la nuit ne sonne que chez les admins."
    ],
    "deliver": [
@@ -1011,7 +1011,7 @@ export const STRINGS = {
     "<b>Hablar solo si hay alguien</b>: ningún aviso del timbre en una casa vacía."
    ],
    "through": [
-    "Indica qué mensajes pueden despertar a quién, pese a las horas de silencio y los resúmenes. No envía nada.",
+    "Hace que los mensajes que encaja ignoren las horas de silencio y los resúmenes para quienes los reciben igualmente. No envía nada.",
     "<b>Las alarmas despiertan a los admins</b>: una fuga de noche solo suena a los admins."
    ],
    "deliver": [

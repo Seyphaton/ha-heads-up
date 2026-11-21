@@ -350,7 +350,7 @@ Example: send to At home, and fall back to Everyone when nobody is home. Add a F
 
 ### Get through
 
-A Get through entry lets the messages it fits past quiet hours and summaries. It sends nothing itself; pair it with a Deliver policy to reach phones that the call does not name.
+A Get through entry lets the messages it fits past quiet hours and summaries. It sends nothing itself: it only changes how a message arrives for the people who get it anyway. Add a Deliver policy only when the message should also reach people the original message does not name.
 
 | Field | Default | Meaning |
 |---|---|---|
@@ -363,7 +363,7 @@ A Get through entry lets the messages it fits past quiet hours and summaries. It
 - An entry never passes Presence.
 - A Quiet hours or Summarize policy with Holds these anyway is not passed by any entry.
 
-Example: wake the Admins for leaks at night. Add a Get through entry for the tag `alarm` that covers only the audience Admins, and a Deliver policy for the tag `alarm` with a push to Admins.
+Example: wake the Admins for leaks at night. Add a Get through entry for the tag `alarm` that covers only the audience Admins. If the leak automation already pushes to the Admins, that is all. If it only creates a banner, add a Deliver policy for the tag `alarm` with a push to Admins.
 
 ### Escalation
 

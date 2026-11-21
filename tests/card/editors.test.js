@@ -30,6 +30,7 @@ import {
   laneOf,
   whichText,
   notOverlap,
+  doesText,
   overlapNames,
   overlaps,
   fromPolicy,
@@ -538,6 +539,18 @@ describe("2.0 policy fields", () => {
     expect(sentence({ ...blankPolicy("get_through"), severities: ["critical"] }, t)).toBe("Messages with severity Critical: ignores quiet hours and summaries.");
     expect(sentence({ ...blankPolicy("quiet_hours"), not_tags: "digest", holds_anyway: true }, t)).toBe("Every message: between 22:00 and 07:00, deliveries outside the dashboard are sent quietly. Not for #digest. Nothing gets past it, not even Always gets through.");
     expect(sentence({ ...blankPolicy("reminder"), fw_entity: "binary_sensor.window", fw_state: "on", fw_every: 15, alongside: true }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times. While binary_sensor.window is on: every 15 min. Runs alongside other reminders.");
+  });
+
+  it("says What it does in a few words that fit one row", () => {
+    const t = POLICY_STRINGS.en;
+    expect(doesText({ ...blankPolicy("reminder") }, t)).toBe("Every 30 min, at most 3 times");
+    expect(doesText({ ...blankPolicy("quiet_hours") }, t)).toBe("22:00–07:00: send quietly");
+    expect(doesText({ ...blankPolicy("get_through") }, t)).toBe("Ignores quiet hours and summaries");
+    expect(doesText({ ...blankPolicy("escalation"), channels: ["push"] }, t)).toBe("After 5 min: Push");
+    expect(doesText({ ...blankPolicy("presence") }, t)).toBe("Hold until the person is at Home");
+    for (const type of ["summarize", "quiet_hours", "presence", "get_through", "deliver", "escalation", "reminder", "fallback"]) {
+      expect(doesText({ ...blankPolicy(type), channels: ["push"] }, t).length, type).toBeLessThan(60);
+    }
   });
 
   it("warns when Not for repeats something from For", () => {

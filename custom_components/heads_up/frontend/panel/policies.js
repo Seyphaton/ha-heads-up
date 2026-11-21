@@ -87,7 +87,7 @@ export const STRINGS = {
     enabled_hint: "A disabled policy is never used, not even when a call names it.",
     sec_when: "Which messages",
     sec_does: "What it does",
-    type_desc: {"get_through": "Lets the messages it fits past quiet hours and summaries for the people it covers. It sends nothing itself; pair it with a Deliver policy.", "escalation": "If nobody acknowledges within the time, the message is also delivered on the channels and to the targets you choose.", "reminder": "While nobody acknowledges, the message is repeated at an interval, up to a maximum.", "quiet_hours": "Between two times of day, deliveries outside the dashboard are sent quietly, held until the end or dropped.", "presence": "Holds or drops a delivery by where people are: for each recipient on push, popup and mail, for the household on speakers.", "fallback": "If the first delivery reached nobody, the message is delivered somewhere else: on other channels, or to other people on the same channels.", "summarize": "Matching messages are held on every channel, the banner included, and one summary is sent instead.", "deliver": "Matching messages are also delivered at once to the audience and channels you choose."},
+    type_desc: {"get_through": "Lets the messages it fits past quiet hours and summaries for the people it covers. It sends nothing itself: it only changes how a message arrives for people who get it anyway. To reach other people too, add a Deliver policy.", "escalation": "If nobody acknowledges within the time, the message is also delivered on the channels and to the targets you choose.", "reminder": "While nobody acknowledges, the message is repeated at an interval, up to a maximum.", "quiet_hours": "Between two times of day, deliveries outside the dashboard are sent quietly, held until the end or dropped.", "presence": "Holds or drops a delivery by where people are: for each recipient on push, popup and mail, for the household on speakers.", "fallback": "If the first delivery reached nobody, the message is delivered somewhere else: on other channels, or to other people on the same channels.", "summarize": "Matching messages are held on every channel, the banner included, and one summary is sent instead.", "deliver": "Matching messages are also delivered at once to the audience and channels you choose."},
     apply_label: "Attaches to messages",
     apply_auto: "Automatically",
     apply_auto_hint: "Every message whose severity and tag match gets this policy. An empty list matches any.",
@@ -104,6 +104,28 @@ export const STRINGS = {
     lane_arrive_hint: "Policies that send additional messages, for example when the original recipients could not be reached or nobody reacted. All policies that fit are applied.",
     lane_named: "Only when named",
     lane_named_hint: "Used only when an automation or a watch rule names them.",
+    x_summary_every: "Summary every {n} min",
+    x_summary_at: "Summary at {time}",
+    x_quiet: "{from}–{to}: {action}",
+    x_quiet_entity: "While {entity} is on: {action}",
+    x_act_quiet: "send quietly",
+    x_act_wait: "hold until the end",
+    x_act_drop: "drop",
+    x_away_hold: "Hold until the person is at {zone}",
+    x_home_hold: "Hold until the person leaves {zone}",
+    x_away_drop: "Drop when the person is not at {zone}",
+    x_home_drop: "Drop when the person is at {zone}",
+    x_speak_nobody: "Speech only when someone is at {zone}",
+    x_speak_somebody: "Speech only when nobody is at {zone}",
+    x_through: "Ignores quiet hours and summaries",
+    x_through_for: "Ignores quiet hours and summaries for {who}",
+    x_deliver: "Also sends: {channels}",
+    x_escalation: "After {n} min: {channels}",
+    x_reminder: "Every {n} min, at most {m} times",
+    x_fallback: "If nobody was reached: {channels}",
+    x_only_if: "only while {entity} is {state}",
+    d_messages: "Which messages",
+    d_does: "What it does",
     ck_close: "Close",
     help_close: "Close",
     w_all: "All messages",
@@ -302,7 +324,7 @@ export const STRINGS = {
     enabled_hint: "Eine deaktivierte Richtlinie wird nie genutzt, auch nicht, wenn ein Aufruf sie nennt.",
     sec_when: "Welche Meldungen",
     sec_does: "Was sie tut",
-    type_desc: {"get_through": "Lässt die passenden Meldungen für die erfassten Leute an Ruhezeit und Zusammenfassung vorbei. Sendet selbst nichts; kombiniere sie mit Zustellen.", "escalation": "Bestätigt niemand innerhalb der Zeit, wird die Meldung zusätzlich auf den gewählten Kanälen und an die gewählten Ziele zugestellt.", "reminder": "Solange niemand bestätigt, wird die Meldung in einem Abstand wiederholt, höchstens so oft wie eingestellt.", "quiet_hours": "Zwischen zwei Uhrzeiten werden Zustellungen außerhalb des Dashboards leise gesendet, bis zum Ende zurückgehalten oder verworfen.", "presence": "Hält eine Zustellung zurück oder verwirft sie, je nachdem wo Personen sind: für jeden Empfänger bei Push, Popup und Mail, für den Haushalt bei Lautsprechern.", "fallback": "Hat die erste Zustellung niemanden erreicht, wird die Meldung anderswo zugestellt: auf anderen Kanälen oder an andere Personen auf denselben Kanälen.", "summarize": "Passende Meldungen werden auf jedem Kanal zurückgehalten, auch im Banner, und stattdessen wird eine Zusammenfassung gesendet.", "deliver": "Passende Meldungen werden zusätzlich sofort an die gewählte Zielgruppe auf den gewählten Kanälen zugestellt."},
+    type_desc: {"get_through": "Lässt die passenden Meldungen für die erfassten Leute an Ruhezeit und Zusammenfassung vorbei. Sendet selbst nichts: Der Eintrag ändert nur, wie eine Meldung bei den Leuten ankommt, die sie ohnehin bekommen. Sollen weitere Leute sie bekommen, ergänze eine Richtlinie Zustellen.", "escalation": "Bestätigt niemand innerhalb der Zeit, wird die Meldung zusätzlich auf den gewählten Kanälen und an die gewählten Ziele zugestellt.", "reminder": "Solange niemand bestätigt, wird die Meldung in einem Abstand wiederholt, höchstens so oft wie eingestellt.", "quiet_hours": "Zwischen zwei Uhrzeiten werden Zustellungen außerhalb des Dashboards leise gesendet, bis zum Ende zurückgehalten oder verworfen.", "presence": "Hält eine Zustellung zurück oder verwirft sie, je nachdem wo Personen sind: für jeden Empfänger bei Push, Popup und Mail, für den Haushalt bei Lautsprechern.", "fallback": "Hat die erste Zustellung niemanden erreicht, wird die Meldung anderswo zugestellt: auf anderen Kanälen oder an andere Personen auf denselben Kanälen.", "summarize": "Passende Meldungen werden auf jedem Kanal zurückgehalten, auch im Banner, und stattdessen wird eine Zusammenfassung gesendet.", "deliver": "Passende Meldungen werden zusätzlich sofort an die gewählte Zielgruppe auf den gewählten Kanälen zugestellt."},
     apply_label: "Gilt für Meldungen",
     apply_auto: "Automatisch",
     apply_auto_hint: "Jede Meldung, deren Schweregrad und Tag passen, bekommt diese Richtlinie. Eine leere Liste passt auf alles.",
@@ -319,6 +341,28 @@ export const STRINGS = {
     lane_arrive_hint: "Richtlinien, die zusätzliche Meldungen senden, zum Beispiel wenn die ursprünglichen Empfänger nicht erreicht wurden oder niemand reagiert hat. Alle passenden Richtlinien werden angewendet.",
     lane_named: "Nur wenn genannt",
     lane_named_hint: "Werden nur benutzt, wenn eine Automation oder eine Überwachungsregel sie nennt.",
+    x_summary_every: "Zusammenfassung alle {n} Min.",
+    x_summary_at: "Zusammenfassung um {time}",
+    x_quiet: "{from}–{to}: {action}",
+    x_quiet_entity: "Solange {entity} an ist: {action}",
+    x_act_quiet: "leise senden",
+    x_act_wait: "bis zum Ende zurückhalten",
+    x_act_drop: "verwerfen",
+    x_away_hold: "Zurückhalten, bis die Person in {zone} ist",
+    x_home_hold: "Zurückhalten, bis die Person {zone} verlässt",
+    x_away_drop: "Verwerfen, wenn die Person nicht in {zone} ist",
+    x_home_drop: "Verwerfen, wenn die Person in {zone} ist",
+    x_speak_nobody: "Sprache nur, wenn jemand in {zone} ist",
+    x_speak_somebody: "Sprache nur, wenn niemand in {zone} ist",
+    x_through: "Ignoriert Ruhezeit und Zusammenfassung",
+    x_through_for: "Ignoriert Ruhezeit und Zusammenfassung für {who}",
+    x_deliver: "Sendet zusätzlich: {channels}",
+    x_escalation: "Nach {n} Min.: {channels}",
+    x_reminder: "Alle {n} Min., höchstens {m}-mal",
+    x_fallback: "Wenn niemand erreicht wurde: {channels}",
+    x_only_if: "nur solange {entity} {state} ist",
+    d_messages: "Welche Meldungen",
+    d_does: "Was sie tut",
     ck_close: "Schließen",
     help_close: "Schließen",
     w_all: "Alle Meldungen",
@@ -517,7 +561,7 @@ export const STRINGS = {
     enabled_hint: "Une politique désactivée n'est jamais utilisée, même si un appel la nomme.",
     sec_when: "Quels messages",
     sec_does: "Ce qu'elle fait",
-    type_desc: {"get_through": "Fait passer les messages qu'elle concerne au-delà des heures calmes et des résumés pour les personnes concernées. N'envoie rien elle-même ; combinez-la avec Livrer.", "escalation": "Si personne ne confirme dans le délai, le message est aussi remis sur les canaux et aux cibles que vous choisissez.", "reminder": "Tant que personne ne confirme, le message est répété à intervalle régulier, jusqu'à un maximum.", "quiet_hours": "Entre deux heures de la journée, les remises hors tableau de bord sont envoyées discrètement, retenues jusqu'à la fin ou abandonnées.", "presence": "Retient ou abandonne une livraison selon où se trouvent les personnes : pour chaque destinataire sur push, popup et courriel, pour le foyer sur les haut-parleurs.", "fallback": "Si la première remise n'a joint personne, le message est remis ailleurs : sur d'autres canaux, ou à d'autres personnes sur les mêmes canaux.", "summarize": "Les messages correspondants sont retenus sur chaque canal, bannière comprise, et un seul résumé est envoyé à la place.", "deliver": "Les messages correspondants sont aussi remis tout de suite à l'audience et sur les canaux que vous choisissez."},
+    type_desc: {"get_through": "Fait passer les messages qu'elle concerne au-delà des heures calmes et des résumés pour les personnes concernées. N'envoie rien elle-même : elle change seulement la façon dont un message arrive chez ceux qui le reçoivent de toute façon. Pour joindre d'autres personnes, ajoutez une règle Livrer.", "escalation": "Si personne ne confirme dans le délai, le message est aussi remis sur les canaux et aux cibles que vous choisissez.", "reminder": "Tant que personne ne confirme, le message est répété à intervalle régulier, jusqu'à un maximum.", "quiet_hours": "Entre deux heures de la journée, les remises hors tableau de bord sont envoyées discrètement, retenues jusqu'à la fin ou abandonnées.", "presence": "Retient ou abandonne une livraison selon où se trouvent les personnes : pour chaque destinataire sur push, popup et courriel, pour le foyer sur les haut-parleurs.", "fallback": "Si la première remise n'a joint personne, le message est remis ailleurs : sur d'autres canaux, ou à d'autres personnes sur les mêmes canaux.", "summarize": "Les messages correspondants sont retenus sur chaque canal, bannière comprise, et un seul résumé est envoyé à la place.", "deliver": "Les messages correspondants sont aussi remis tout de suite à l'audience et sur les canaux que vous choisissez."},
     apply_label: "S'applique aux messages",
     apply_auto: "Automatiquement",
     apply_auto_hint: "Chaque message dont la gravité et l'étiquette correspondent reçoit cette politique. Une liste vide correspond à tout.",
@@ -534,6 +578,28 @@ export const STRINGS = {
     lane_arrive_hint: "Des règles qui envoient des messages supplémentaires, par exemple quand les destinataires d'origine n'ont pas été joints ou que personne n'a réagi. Toutes les règles qui correspondent sont appliquées.",
     lane_named: "Seulement si nommée",
     lane_named_hint: "Utilisées seulement quand une automatisation ou une règle de surveillance les nomme.",
+    x_summary_every: "Résumé toutes les {n} min",
+    x_summary_at: "Résumé à {time}",
+    x_quiet: "{from}–{to} : {action}",
+    x_quiet_entity: "Tant que {entity} est activé : {action}",
+    x_act_quiet: "envoyer discrètement",
+    x_act_wait: "retenir jusqu'à la fin",
+    x_act_drop: "abandonner",
+    x_away_hold: "Retenir jusqu'à ce que la personne soit à {zone}",
+    x_home_hold: "Retenir jusqu'à ce que la personne quitte {zone}",
+    x_away_drop: "Abandonner si la personne n'est pas à {zone}",
+    x_home_drop: "Abandonner si la personne est à {zone}",
+    x_speak_nobody: "Voix seulement si quelqu'un est à {zone}",
+    x_speak_somebody: "Voix seulement si personne n'est à {zone}",
+    x_through: "Ignore les heures calmes et les résumés",
+    x_through_for: "Ignore les heures calmes et les résumés pour {who}",
+    x_deliver: "Envoie aussi : {channels}",
+    x_escalation: "Après {n} min : {channels}",
+    x_reminder: "Toutes les {n} min, au plus {m} fois",
+    x_fallback: "Si personne n'a été joint : {channels}",
+    x_only_if: "seulement tant que {entity} est {state}",
+    d_messages: "Quels messages",
+    d_does: "Ce qu'elle fait",
     ck_close: "Fermer",
     help_close: "Fermer",
     w_all: "Tous les messages",
@@ -732,7 +798,7 @@ export const STRINGS = {
     enabled_hint: "Una política desactivada nunca se usa, ni siquiera si una llamada la nombra.",
     sec_when: "Qué mensajes",
     sec_does: "Qué hace",
-    type_desc: {"get_through": "Deja pasar los mensajes que encaja más allá de las horas de silencio y los resúmenes para las personas afectadas. No envía nada; combínala con Entregar.", "escalation": "Si nadie confirma en el tiempo, el mensaje se entrega también por los canales y a los destinos que elijas.", "reminder": "Mientras nadie confirma, el mensaje se repite a intervalos, hasta un máximo.", "quiet_hours": "Entre dos horas del día, las entregas fuera del panel se envían en silencio, se retienen hasta el final o se descartan.", "presence": "Retiene o descarta una entrega según dónde está la gente: para cada destinatario en push, ventana y correo, para el hogar en los altavoces.", "fallback": "Si la primera entrega no llegó a nadie, el mensaje se entrega en otro sitio: por otros canales o a otras personas por los mismos canales.", "summarize": "Los mensajes que coinciden se retienen en todos los canales, el aviso incluido, y se envía un solo resumen.", "deliver": "Los mensajes que coinciden también se entregan al instante a la audiencia y por los canales que elijas."},
+    type_desc: {"get_through": "Deja pasar los mensajes que encaja más allá de las horas de silencio y los resúmenes para las personas afectadas. No envía nada: solo cambia cómo llega un mensaje a quienes lo reciben igualmente. Para llegar a otras personas, añade una regla Entregar.", "escalation": "Si nadie confirma en el tiempo, el mensaje se entrega también por los canales y a los destinos que elijas.", "reminder": "Mientras nadie confirma, el mensaje se repite a intervalos, hasta un máximo.", "quiet_hours": "Entre dos horas del día, las entregas fuera del panel se envían en silencio, se retienen hasta el final o se descartan.", "presence": "Retiene o descarta una entrega según dónde está la gente: para cada destinatario en push, ventana y correo, para el hogar en los altavoces.", "fallback": "Si la primera entrega no llegó a nadie, el mensaje se entrega en otro sitio: por otros canales o a otras personas por los mismos canales.", "summarize": "Los mensajes que coinciden se retienen en todos los canales, el aviso incluido, y se envía un solo resumen.", "deliver": "Los mensajes que coinciden también se entregan al instante a la audiencia y por los canales que elijas."},
     apply_label: "Se aplica a los mensajes",
     apply_auto: "Automáticamente",
     apply_auto_hint: "Cada mensaje cuya gravedad y etiqueta coinciden recibe esta política. Una lista vacía coincide con todo.",
@@ -749,6 +815,28 @@ export const STRINGS = {
     lane_arrive_hint: "Reglas que envían mensajes adicionales, por ejemplo cuando no se localizó a los destinatarios originales o nadie reaccionó. Se aplican todas las reglas que encajan.",
     lane_named: "Solo si se nombra",
     lane_named_hint: "Solo se usan cuando una automatización o una regla de vigilancia las nombra.",
+    x_summary_every: "Resumen cada {n} min",
+    x_summary_at: "Resumen a las {time}",
+    x_quiet: "{from}–{to}: {action}",
+    x_quiet_entity: "Mientras {entity} está activado: {action}",
+    x_act_quiet: "enviar en silencio",
+    x_act_wait: "retener hasta el final",
+    x_act_drop: "descartar",
+    x_away_hold: "Retener hasta que la persona esté en {zone}",
+    x_home_hold: "Retener hasta que la persona salga de {zone}",
+    x_away_drop: "Descartar si la persona no está en {zone}",
+    x_home_drop: "Descartar si la persona está en {zone}",
+    x_speak_nobody: "Voz solo si hay alguien en {zone}",
+    x_speak_somebody: "Voz solo si no hay nadie en {zone}",
+    x_through: "Ignora las horas de silencio y los resúmenes",
+    x_through_for: "Ignora las horas de silencio y los resúmenes para {who}",
+    x_deliver: "Envía también: {channels}",
+    x_escalation: "Tras {n} min: {channels}",
+    x_reminder: "Cada {n} min, como mucho {m} veces",
+    x_fallback: "Si no se localizó a nadie: {channels}",
+    x_only_if: "solo mientras {entity} esté en {state}",
+    d_messages: "Qué mensajes",
+    d_does: "Qué hace",
     ck_close: "Cerrar",
     help_close: "Cerrar",
     w_all: "Todos los mensajes",
@@ -897,6 +985,7 @@ const CSS = `
 .hu-page .pol-bar button[aria-expanded="true"] { border-color: var(--primary-color); color: var(--primary-color); }
 .hu-page section.tl-list, .hu-page section.cl-card, .hu-page section.ck-card { padding: 0; overflow: hidden; --tl-cols: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.3fr); }
 .hu-page .tl-lead .badge { white-space: nowrap; flex: none; }
+.hu-page section.tl-list .tl-cell { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.35; }
 .hu-page .lane-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px 10px; }
 .hu-page .lane-head .tl-title { margin: 0; }
 .hu-page .lane-hint { color: var(--secondary-text-color); font-size: 13px; line-height: 1.4; max-width: 70ch; }
@@ -1426,11 +1515,52 @@ export function notOverlap(values, t) {
 }
 
 // The "What it does" column: the sentence without who it applies to.
+// The "What it does" column: a few words with the policy's own values, short enough for one row.
+// The full sentence is in the opened row.
 export function doesText(values, t, labels = {}) {
-  const full = sentence({ ...values, not_severities: [], not_tags: "", rules: [] }, t, labels);
-  const lead = `${appliesText(values, t)}: `;
-  const rest = full.startsWith(lead) ? full.slice(lead.length) : full;
-  return rest.charAt(0).toUpperCase() + rest.slice(1);
+  const audienceName = labels.audience || ((v) => v);
+  const recipientName = labels.recipient || ((v) => v);
+  const channels = () => (values.channels_from === "call" ? t.s_channels_call : values.channels_from === "failed" ? t.s_channels_failed : values.channels.map((c) => t.channel_names[c]).join(", ") || "—");
+  const zone = values.zone === "zone.home" ? "Home" : String(values.zone).replace(/^zone\./, "");
+  let text;
+  switch (values.type) {
+    case "summarize":
+      text = values.summary_mode === "at" ? fill(t.x_summary_at, { time: String(values.summary_at).slice(0, 5) }) : fill(t.x_summary_every, { n: values.summary_every });
+      break;
+    case "quiet_hours": {
+      const action = t[`x_act_${values.action}`];
+      text = values.quiet_entity ? fill(t.x_quiet_entity, { entity: values.quiet_entity, action }) : fill(t.x_quiet, { from: String(values.from_time).slice(0, 5), to: String(values.to_time).slice(0, 5), action });
+      break;
+    }
+    case "presence": {
+      const covered = values.channels.length ? values.channels : PEOPLE_CHANNELS;
+      if (covered.some((c) => PEOPLE_CHANNELS.includes(c))) {
+        const key = `x_${values.presence_when === "in" ? "home" : "away"}_${values.presence_then === "drop" ? "drop" : "hold"}`;
+        text = fill(t[key], { zone });
+      } else {
+        text = fill(values.household_who === "somebody" ? t.x_speak_somebody : t.x_speak_nobody, { zone });
+      }
+      break;
+    }
+    case "get_through": {
+      const who = [...values.covers_audiences.map(audienceName), ...values.covers_recipients.map(recipientName)].join(", ");
+      text = values.covers === "only" ? fill(t.x_through_for, { who: who || "—" }) : t.x_through;
+      break;
+    }
+    case "deliver":
+      text = fill(t.x_deliver, { channels: channels() });
+      break;
+    case "escalation":
+      text = fill(t.x_escalation, { n: values.after_minutes, channels: channels() });
+      break;
+    case "reminder":
+      text = fill(t.x_reminder, { n: values.every_minutes, m: values.max_count });
+      break;
+    default:
+      text = fill(t.x_fallback, { channels: channels() });
+  }
+  if (values.oi_entity && values.oi_state) text += ` · ${fill(t.x_only_if, { entity: values.oi_entity, state: values.oi_state })}`;
+  return text;
 }
 
 export function mount(container, ctx) {
@@ -1513,9 +1643,17 @@ export function mount(container, ctx) {
 
   function policyDetails(policy, values) {
     const body = el("div", {});
-    body.append(el("p", { className: "pol-sentence", textContent: sentence(values, t, labels()) }));
+    // The opened row shows the full details once; the column has the short form, the editor the
+    // description of the type.
+    const full = sentence(values, t, labels());
+    const lead = `${appliesText(values, t)}: `;
+    const does = full.startsWith(lead) ? full.slice(lead.length) : full;
     if (values.links.length) body.append(el("div", { className: "pol-note" }, [el("ha-icon", { icon: "mdi:link-variant" }), el("span", { textContent: fill(t.links_note, { names: values.links.map(policyName).join(", ") }) })]));
-    const pairs = [[t.type, `${t.types[values.type]} · ${t.type_desc[values.type]}`]];
+    const pairs = [
+      [t.d_messages, whichText(values, t, ruleName)],
+      [t.d_does, does.charAt(0).toUpperCase() + does.slice(1)],
+      [t.type, t.types[values.type]],
+    ];
     if (policy.entity_id) {
       const copy = el("button", { type: "button", className: "pol-copy", textContent: s.common.copy });
       copy.addEventListener("click", async () => {
