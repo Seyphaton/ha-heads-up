@@ -38,7 +38,7 @@ async def test_a_message_from_an_action_counts_as_created_with_its_severity_and_
     await send(hass, entry, id="a", severity="warning", tag="door")
     day = today(entry)
     assert sum(day["h"]) == 1 and day["sev"] == {"warning": 1}
-    assert day["tag"] == {"door": 1} and day["src"] == {"action": 1}
+    assert day["tag"] == {"door": 1} and day["src"] == {"id:a": 1}
 
 
 async def test_a_message_from_a_watch_rule_is_recorded_under_its_rule_id(
@@ -150,7 +150,7 @@ async def test_messages_held_for_a_summary_count_as_summarized_for_the_policy(
     await wait(hass, entry, freezer, 61)
     day = today(entry)
     assert day["pol"][digest.subentry_id]["summarized"] == 2
-    assert day["src"] == {"action": 2}  # the summary itself is not a created message
+    assert day["src"] == {"id:h1": 1, "id:h2": 1}  # the summary itself is not a created message
 
 
 async def test_a_fault_in_the_history_does_not_stop_a_delivery(
@@ -180,3 +180,14 @@ async def test_the_day_is_the_local_day_of_the_message(
     key = dt_util.now().date().isoformat()
     assert list(entry.runtime_data.hub.stats.days) == [key]
     assert dt_util.now() - timedelta(0) is not None
+
+
+async def test_a_call_is_keyed_by_its_own_id_else_its_tag_else_action(
+    hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
+) -> None:
+    await make_household(hass, mobile_app_device)
+    await send(hass, entry, id="water_leak")
+    await send(hass, entry, id="hu_0123456789", tag="door")  # an ID the integration made up
+    await send(hass, entry, id="hu_abcdef0123")
+    await send(hass, entry, id="hu_test_ab12cd34", tag="test")
+    assert today(entry)["src"] == {"id:water_leak": 1, "tag:door": 1, "action": 1, "test": 1}

@@ -220,6 +220,7 @@ import {
   kpiModel,
   matrixModel,
   PERIODS,
+  actionRow,
   sourceRows,
   pathLines,
   statusHeadline,
@@ -363,14 +364,79 @@ describe("overview functions", () => {
     expect(grid.rows[1][0].share).toBe(0.5);
   });
 
-  it("names the top sources and scales their bars", () => {
+  it("names the top sources with their kind and scales their bars", () => {
     const rows = sourceRows(
-      [{ kind: "rule", name: "Garage door", count: 10 }, { kind: "action", name: null, count: 5 }, { kind: "rule", name: null, count: 2 }],
+      [
+        { kind: "rule", name: "Garage door", count: 10 },
+        { kind: "id", name: "water_leak", count: 5 },
+        { kind: "tag", name: "door", count: 4 },
+        { kind: "test", name: null, count: 3 },
+        { kind: "rule", name: null, count: 2 },
+        { kind: "action", name: null, count: 1 },
+      ],
       t,
     );
-    expect(rows.map((r) => r.text)).toEqual(["Watch rule Garage door", t.source_action, t.source_gone]);
-    expect(rows.map((r) => r.share)).toEqual([1, 0.5, 0.2]);
+    expect(rows.map((r) => [r.text, r.kind])).toEqual([
+      ["Garage door", "Watch rule"],
+      ["water_leak", "Call"],
+      ["door", "Tag"],
+      [t.source_test, ""],
+      [t.source_gone, "Watch rule"],
+      [t.source_other, ""],
+    ]);
+    expect(rows.map((r) => r.share)).toEqual([1, 0.5, 0.4, 0.3, 0.2, 0.1]);
     expect(sourceRows([], t)).toEqual([]);
+  });
+
+  const item = (extra = {}) => ({
+    id: "water_leak",
+    title: null,
+    message: "Water in the cellar",
+    severity: "critical",
+    source: { kind: "action", name: null },
+    time: "2026-11-21T18:00:00Z",
+    state: "ended",
+    end_reason: "expired",
+    results: { sent: 3, skipped: 1 },
+    problems: [{ reason: "no_usable_device", count: 1 }],
+    failed_on: [],
+    held_by: [],
+    acknowledged: null,
+    escalated: 0,
+    reminded: 0,
+    ...extra,
+  });
+  const afmt = { timeAgo: () => "2 min ago", reasonText: (c) => `r:${c}`, channelName: (c) => `ch:${c}` };
+
+  it("builds a row from a message: headline, source, outcome and state", () => {
+    const row = actionRow(item(), 0, t, sh, afmt);
+    expect(row).toMatchObject({ text: "Water in the cellar", source: "water_leak", when: "2 min ago", state: "Ended: r:expired", stateKind: "ended" });
+    expect(row.outcome).toBe("3 sent · 1 skipped (r:no_usable_device)");
+    expect(row.chips).toEqual([]);
+    expect(actionRow(item({ title: "Leak" }), 0, t, sh, afmt).text).toBe("Leak");
+  });
+
+  it("names where a message came from: a rule, a made-up ID, a test", () => {
+    expect(actionRow(item({ source: { kind: "rule", name: "Garage" } }), 0, t, sh, afmt).source).toBe("Watch rule Garage");
+    expect(actionRow(item({ source: { kind: "rule", name: null } }), 0, t, sh, afmt).source).toBe(`Watch rule ${t.source_gone}`);
+    expect(actionRow(item({ id: "hu_0123456789" }), 0, t, sh, afmt).source).toBe(t.act_source_action);
+    expect(actionRow(item({ id: "hu_test_ab12cd34" }), 0, t, sh, afmt).source).toBe(t.source_test);
+  });
+
+  it("adds who acknowledged and how long it took", () => {
+    const base = { results: { sent: 2 }, problems: [], state: "acknowledged" };
+    expect(actionRow(item({ ...base, acknowledged: { by: "Anna", seconds: 240 } }), 0, t, sh, afmt).outcome).toBe("2 sent · acknowledged by Anna after 4 min");
+    expect(actionRow(item({ ...base, acknowledged: { by: null, seconds: 45 } }), 0, t, sh, afmt).outcome).toBe("2 sent · acknowledged after 45 s");
+    expect(actionRow(item({ ...base, acknowledged: { by: "Ben", seconds: null } }), 0, t, sh, afmt).outcome).toBe("2 sent · acknowledged by Ben");
+    expect(actionRow(item({ ...base, acknowledged: { by: null, seconds: null } }), 0, t, sh, afmt).outcome).toBe("2 sent · acknowledged");
+  });
+
+  it("says when nothing was delivered and lists the chips", () => {
+    const row = actionRow(item({ results: {}, problems: [], escalated: 1, reminded: 3, held_by: ["Night"], failed_on: ["mail"], state: "active" }), 0, t, sh, afmt);
+    expect(row.outcome).toBe(t.act_nothing);
+    expect(row.chips).toEqual(["Escalated", "3 reminders", "Held by Night", "Failed on ch:mail"]);
+    expect(row.state).toBe("Active");
+    expect(actionRow(item({ reminded: 1 }), 0, t, sh, afmt).chips).toEqual(["1 reminder"]);
   });
 
   it("labels a bar of a longer period with a day or a month and keeps the hourly wording", () => {

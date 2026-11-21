@@ -219,3 +219,13 @@ async def test_a_busy_household_stays_under_the_size_limit_over_730_days(
     )
     assert info["days"] == 730
     assert info["bytes"] // info["days"] <= 12_000
+
+
+async def test_a_call_with_a_new_id_every_time_cannot_grow_a_day_without_limit(
+    hass: HomeAssistant,
+) -> None:
+    stats = await store(hass)
+    for n in range(200):
+        stats.created(NOW, "info", None, f"id:call_{n}")
+    sources = stats.days["2026-11-21"]["src"]
+    assert len(sources) == 61 and sources["action"] == 140

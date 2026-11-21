@@ -846,8 +846,10 @@ def stats(manager: BannerManager, entry: Any, period: str) -> dict[str, Any]:
     result["sources"] = [
         {
             "key": key,
-            "kind": "rule" if key.startswith(RULE_ID_PREFIX) else "action",
-            "name": titles.get(key),
+            "kind": "rule" if key.startswith(RULE_ID_PREFIX) else key.partition(":")[0],
+            "name": titles.get(key)
+            if key.startswith(RULE_ID_PREFIX)
+            else key.partition(":")[2] or None,
             "count": count,
         }
         for key, count in result["sources"][:TOP_SOURCES]

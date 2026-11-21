@@ -26,6 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 # Time to acknowledge or to end, in seconds: the upper edges of the buckets. The last bucket is
 # everything above the last edge.
 EDGES = (30, 60, 120, 300, 600, 900, 1800, 3600, 7200, 21600, 86400)
+MAX_SOURCES_PER_DAY = 60
 RESULTS = ("sent", "held", "skipped", "failed")
 POLICY_ACTIONS = (
     "held",
@@ -178,7 +179,11 @@ class StatsStore:
         _bump(day.setdefault("sev", {}), severity)
         if tag:
             _bump(day.setdefault("tag", {}), tag)
-        _bump(day.setdefault("src", {}), source)
+        sources = day.setdefault("src", {})
+        # A call with a new ID for every message must not grow the record without a limit.
+        if source not in sources and len(sources) >= MAX_SOURCES_PER_DAY:
+            source = "action"
+        _bump(sources, source)
         self._changed()
 
     @safe

@@ -103,11 +103,35 @@ export const STRINGS = {
     matrix_label: "Messages by weekday and hour, {total} in all",
     sources_title: "Top sources",
     sources_none: "No messages in this period.",
-    source_action: "Actions (all calls)",
     source_gone: "deleted watch rule",
-    source_rule_named: "Watch rule {name}",
     stats_failed: "The activity could not be loaded.",
     legend_label: "Severities",
+    all_messages: "All messages",
+    act_sent: "{n} sent",
+    act_held: "{n} held",
+    act_skipped: "{n} skipped",
+    act_failed: "{n} failed",
+    act_nothing: "Nothing was delivered",
+    act_acked: "acknowledged by {who} after {time}",
+    act_acked_time: "acknowledged after {time}",
+    act_acked_who: "acknowledged by {who}",
+    act_acked_plain: "acknowledged",
+    chip_escalated: "Escalated",
+    chip_reminder_one: "1 reminder",
+    chip_reminder_many: "{n} reminders",
+    chip_held_by: "Held by {policy}",
+    chip_failed_on: "Failed on {channel}",
+    state_active: "Active",
+    state_acknowledged: "Acknowledged",
+    state_ended: "Ended",
+    state_ended_reason: "Ended: {reason}",
+    act_source_action: "Action",
+    act_text_none: "(no text)",
+    source_kind_rule: "Watch rule",
+    source_kind_call: "Call",
+    source_kind_tag: "Tag",
+    source_other: "Other calls (no ID or tag)",
+    source_test: "Test send",
     first_run: "No policies yet. The introduction explains a few defaults you can switch on.",
     first_run_button: "Restart introduction",
     ph_attention: "Problems with your setup show up here.",
@@ -219,11 +243,35 @@ export const STRINGS = {
     matrix_label: "Meldungen nach Wochentag und Stunde, insgesamt {total}",
     sources_title: "Häufigste Quellen",
     sources_none: "In diesem Zeitraum gab es keine Meldungen.",
-    source_action: "Aktionen (alle Aufrufe)",
     source_gone: "gelöschte Überwachungsregel",
-    source_rule_named: "Überwachungsregel {name}",
     stats_failed: "Die Aktivität konnte nicht geladen werden.",
     legend_label: "Schweregrade",
+    all_messages: "Alle Meldungen",
+    act_sent: "{n} gesendet",
+    act_held: "{n} zurückgehalten",
+    act_skipped: "{n} übersprungen",
+    act_failed: "{n} fehlgeschlagen",
+    act_nothing: "Es wurde nichts zugestellt",
+    act_acked: "bestätigt von {who} nach {time}",
+    act_acked_time: "bestätigt nach {time}",
+    act_acked_who: "bestätigt von {who}",
+    act_acked_plain: "bestätigt",
+    chip_escalated: "Eskaliert",
+    chip_reminder_one: "1 Erinnerung",
+    chip_reminder_many: "{n} Erinnerungen",
+    chip_held_by: "Zurückgehalten von {policy}",
+    chip_failed_on: "Fehlgeschlagen auf {channel}",
+    state_active: "Aktiv",
+    state_acknowledged: "Bestätigt",
+    state_ended: "Beendet",
+    state_ended_reason: "Beendet: {reason}",
+    act_source_action: "Aktion",
+    act_text_none: "(kein Text)",
+    source_kind_rule: "Überwachungsregel",
+    source_kind_call: "Aufruf",
+    source_kind_tag: "Tag",
+    source_other: "Andere Aufrufe (ohne ID und Tag)",
+    source_test: "Test senden",
     first_run: "Noch keine Richtlinien. Die Einführung erklärt ein paar Standards, die du einschalten kannst.",
     first_run_button: "Einführung neu starten",
     ph_attention: "Probleme mit deiner Einrichtung erscheinen hier.",
@@ -335,11 +383,35 @@ export const STRINGS = {
     matrix_label: "Messages par jour de la semaine et par heure, {total} au total",
     sources_title: "Principales sources",
     sources_none: "Aucun message sur cette période.",
-    source_action: "Actions (tous les appels)",
     source_gone: "règle de surveillance supprimée",
-    source_rule_named: "Règle de surveillance {name}",
     stats_failed: "L'activité n'a pas pu être chargée.",
     legend_label: "Gravités",
+    all_messages: "Tous les messages",
+    act_sent: "{n} envoyé(s)",
+    act_held: "{n} retenu(s)",
+    act_skipped: "{n} ignoré(s)",
+    act_failed: "{n} en échec",
+    act_nothing: "Rien n'a été remis",
+    act_acked: "confirmé par {who} après {time}",
+    act_acked_time: "confirmé après {time}",
+    act_acked_who: "confirmé par {who}",
+    act_acked_plain: "confirmé",
+    chip_escalated: "Escaladé",
+    chip_reminder_one: "1 rappel",
+    chip_reminder_many: "{n} rappels",
+    chip_held_by: "Retenu par {policy}",
+    chip_failed_on: "Échec sur {channel}",
+    state_active: "Actif",
+    state_acknowledged: "Confirmé",
+    state_ended: "Terminé",
+    state_ended_reason: "Terminé : {reason}",
+    act_source_action: "Action",
+    act_text_none: "(sans texte)",
+    source_kind_rule: "Règle de surveillance",
+    source_kind_call: "Appel",
+    source_kind_tag: "Étiquette",
+    source_other: "Autres appels (sans ID ni étiquette)",
+    source_test: "Envoi test",
     first_run: "Aucune politique pour l'instant. L'introduction explique quelques réglages par défaut que vous pouvez activer.",
     first_run_button: "Relancer l'introduction",
     ph_attention: "Les problèmes de votre configuration apparaissent ici.",
@@ -451,11 +523,35 @@ export const STRINGS = {
     matrix_label: "Mensajes por día de la semana y hora, {total} en total",
     sources_title: "Principales fuentes",
     sources_none: "No hubo mensajes en este periodo.",
-    source_action: "Acciones (todas las llamadas)",
     source_gone: "regla de vigilancia eliminada",
-    source_rule_named: "Regla de vigilancia {name}",
     stats_failed: "No se pudo cargar la actividad.",
     legend_label: "Gravedades",
+    all_messages: "Todos los mensajes",
+    act_sent: "{n} enviado(s)",
+    act_held: "{n} retenido(s)",
+    act_skipped: "{n} omitido(s)",
+    act_failed: "{n} fallido(s)",
+    act_nothing: "No se entregó nada",
+    act_acked: "confirmado por {who} tras {time}",
+    act_acked_time: "confirmado tras {time}",
+    act_acked_who: "confirmado por {who}",
+    act_acked_plain: "confirmado",
+    chip_escalated: "Escalado",
+    chip_reminder_one: "1 recordatorio",
+    chip_reminder_many: "{n} recordatorios",
+    chip_held_by: "Retenido por {policy}",
+    chip_failed_on: "Fallo en {channel}",
+    state_active: "Activo",
+    state_acknowledged: "Confirmado",
+    state_ended: "Terminado",
+    state_ended_reason: "Terminado: {reason}",
+    act_source_action: "Acción",
+    act_text_none: "(sin texto)",
+    source_kind_rule: "Regla de vigilancia",
+    source_kind_call: "Llamada",
+    source_kind_tag: "Etiqueta",
+    source_other: "Otras llamadas (sin ID ni etiqueta)",
+    source_test: "Envío de prueba",
     first_run: "Aún no hay políticas. La introducción explica algunos valores por defecto que puedes activar.",
     first_run_button: "Reiniciar la introducción",
     ph_attention: "Los problemas de tu configuración aparecen aquí.",
@@ -642,14 +738,46 @@ export function matrixModel(matrix) {
   return { peak, total: matrix.flat().reduce((a, b) => a + b, 0), rows: matrix.map((row) => row.map((n) => ({ n, share: n / peak }))) };
 }
 
-// A source of the top list: its name and its share of the busiest one.
+// A source of the top list: what it is called, what kind it is, and its share of the busiest one.
 export function sourceRows(sources, t) {
   const peak = Math.max(1, ...sources.map((x) => x.count));
-  return sources.map((x) => ({
-    text: x.kind === "action" ? t.source_action : x.name ? fill(t.source_rule_named, { name: x.name }) : t.source_gone,
-    count: x.count,
-    share: x.count / peak,
-  }));
+  return sources.map((x) => {
+    const label = { rule: x.name || t.source_gone, id: x.name, tag: x.name, test: t.source_test }[x.kind] ?? t.source_other;
+    const kind = { rule: t.source_kind_rule, id: t.source_kind_call, tag: t.source_kind_tag }[x.kind] ?? "";
+    return { text: label, kind, count: x.count, share: x.count / peak };
+  });
+}
+
+const AUTO_ID = /^hu_[0-9a-f]{10}$/;
+
+// One row of Last actions: the headline, where it came from, what became of it, and chips.
+export function actionRow(item, now, t, s, fmt) {
+  const text = item.title || item.message || t.act_text_none;
+  let source;
+  if (item.source.kind === "rule") source = `${t.source_kind_rule} ${item.source.name || t.source_gone}`;
+  else if (item.id.startsWith("hu_test_")) source = t.source_test;
+  else source = AUTO_ID.test(item.id) ? t.act_source_action : item.id;
+  const r = item.results || {};
+  const parts = [];
+  if (r.sent) parts.push(fill(t.act_sent, { n: r.sent }));
+  if (r.held) parts.push(fill(t.act_held, { n: r.held }));
+  if (r.skipped) parts.push(fill(t.act_skipped, { n: r.skipped }));
+  if (r.failed) parts.push(fill(t.act_failed, { n: r.failed }));
+  let outcome = parts.length ? parts.join(" · ") : t.act_nothing;
+  if (item.problems?.length) outcome += ` (${item.problems.map((p) => fmt.reasonText(p.reason, s)).join(", ")})`;
+  if (item.acknowledged) {
+    const who = item.acknowledged.by;
+    const time = item.acknowledged.seconds === null || item.acknowledged.seconds === undefined ? null : durationText(item.acknowledged.seconds, t);
+    const key = who && time ? "act_acked" : time ? "act_acked_time" : who ? "act_acked_who" : "act_acked_plain";
+    outcome += ` · ${fill(t[key], { who, time })}`;
+  }
+  const chips = [];
+  if (item.escalated) chips.push(t.chip_escalated);
+  if (item.reminded) chips.push(item.reminded === 1 ? t.chip_reminder_one : fill(t.chip_reminder_many, { n: item.reminded }));
+  for (const policy of item.held_by || []) chips.push(fill(t.chip_held_by, { policy }));
+  for (const channel of item.failed_on || []) chips.push(fill(t.chip_failed_on, { channel: fmt.channelName(channel, s) }));
+  const state = { active: t.state_active, acknowledged: t.state_acknowledged }[item.state] ?? (item.end_reason ? fill(t.state_ended_reason, { reason: fmt.reasonText(item.end_reason, s) }) : t.state_ended);
+  return { text, source, when: fmt.timeAgo(item.time, now, s), outcome, chips, state, stateKind: item.state, severity: item.severity };
 }
 
 function el(tag, props = {}, children = []) {
@@ -776,6 +904,20 @@ const CSS = `
 .hu-overview .srcbar .t i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--primary-color), color-mix(in srgb, var(--primary-color) 55%, var(--hu-info))); width: calc(var(--share) * 100%); }
 .hu-overview .srcbar .n { text-align: right; font-variant-numeric: tabular-nums; }
 @media (max-width: 480px) { .hu-overview .srcbar { grid-template-columns: 1fr 44px; } .hu-overview .srcbar .t { grid-column: 1 / -1; order: 3; } .hu-overview .heat { grid-template-columns: 28px repeat(24, minmax(0, 1fr)); gap: 2px; } .hu-overview .seg button { padding: 0 9px; font-size: 13px; } .hu-overview .kpi .big { font-size: 22px; } }
+
+.hu-overview .cardhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.hu-overview .cardhead h2 { margin: 0; }
+.hu-overview .act { display: grid; gap: 3px; padding: 12px 0; }
+.hu-overview .act .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hu-overview .act .headline { font-weight: 600; flex: 1 1 160px; min-width: 0; overflow-wrap: anywhere; }
+.hu-overview .act .outcome { font-size: 14px; }
+.hu-overview .act .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.hu-overview .act .chips .pill { font-weight: 500; }
+.hu-overview .act .pill.state-ended { background: var(--hu-chip); }
+.hu-overview .act .pill.state-acknowledged { background: color-mix(in srgb, var(--hu-ok) 18%, transparent); color: var(--hu-ok); }
+.hu-overview .act .pill.state-active { background: color-mix(in srgb, var(--hu-info) 18%, transparent); color: var(--hu-info); }
+.hu-overview .srcbar .nm { display: flex; align-items: baseline; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
+.hu-overview .srcbar .kind { font-size: 11px; color: var(--secondary-text-color); white-space: nowrap; }
 @keyframes hu-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes hu-pulse { 0% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 30%, transparent), 0 0 0 18px color-mix(in srgb, var(--hero-tint) 7%, transparent); } 100% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 14%, transparent), 0 0 0 26px transparent; } }
 @keyframes hu-grow { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
@@ -970,23 +1112,30 @@ export function mount(container, ctx) {
     return section(t.coming_title, [list]);
   }
 
+  // A card title with a link to the Message Log on the right, as in the mockup.
+  function headed(title, children) {
+    const link = el("button", { type: "button", className: "link", textContent: t.all_messages });
+    link.addEventListener("click", () => ctx.navigate("messages"));
+    return el("section", {}, [el("div", { className: "cardhead" }, [el("h2", { textContent: title }), link]), ...children]);
+  }
+
   function lastActionsCard() {
-    const log = el("ul");
-    if (data.log.length === 0) log.append(el("li", { className: "placeholder", textContent: t.last_none }));
-    for (const entry of data.log) {
-      const text = [fmt.logText(entry, s), entry.title || s.severity[entry.severity]].filter(Boolean).join(" · ");
-      const acts = el("div", { className: "acts" });
-      // A message that still has a trace can unfold its path.
-      if (entry.message_id) acts.append(pathButton(entry.message_id));
-      const row = el("li", {}, [el("div", { className: "row log" }, [el("span", { className: "time", textContent: fmt.timeAgo(entry.time, now(), s) }), el("span", { className: "text", textContent: text }), acts])]);
-      if (entry.message_id && openPaths[entry.message_id]) row.append(pathNode(entry.message_id));
-      log.append(row);
+    const list = el("ul");
+    if (data.last_actions.length === 0) list.append(el("li", { className: "placeholder", textContent: t.last_none }));
+    for (const item of data.last_actions) {
+      const row = actionRow(item, now(), t, s, fmt);
+      const top = el("div", { className: "top" }, [
+        el("span", { className: `pill ${row.severity}`, textContent: s.severity[row.severity] || row.severity }),
+        el("span", { className: "headline", textContent: row.text }),
+        el("span", { className: `pill state-${row.stateKind}`, textContent: row.state }),
+        pathButton(item.id),
+      ]);
+      const li = el("li", { className: "act" }, [top, el("div", { className: "sub", textContent: `${row.source} · ${row.when}` }), el("div", { className: "outcome", textContent: row.outcome })]);
+      if (row.chips.length) li.append(el("div", { className: "chips" }, row.chips.map((chip) => el("span", { className: "pill", textContent: chip }))));
+      if (openPaths[item.id]) li.append(pathNode(item.id));
+      list.append(li);
     }
-    const more = el("button", { type: "button", className: "mini", textContent: t.open_messages });
-    more.addEventListener("click", () => ctx.navigate("messages"));
-    const refresh = el("button", { type: "button", className: "mini", textContent: t.refresh, style: "margin-left:8px" });
-    refresh.addEventListener("click", load);
-    return section(t.last_actions, [log, el("div", { style: "margin-top:10px" }, [more, refresh])]);
+    return headed(t.last_actions, [list]);
   }
 
   function reachCard() {
@@ -1143,14 +1292,15 @@ export function mount(container, ctx) {
       matrixCard.append(heat);
     }
     const rows = sourceRows(stats.sources, t);
-    const sourcesCard = section(t.sources_title, rows.length ? [] : [el("div", { className: "sub", textContent: t.sources_none })]);
+    const sourcesCard = headed(t.sources_title, rows.length ? [] : [el("div", { className: "sub", textContent: t.sources_none })]);
     if (rows.length) {
       const bars = el("div", { className: "bars" });
       for (const row of rows) {
         const fill_ = el("i");
         const track = el("span", { className: "t" }, [fill_]);
         track.style.setProperty("--share", String(row.share));
-        bars.append(el("div", { className: "srcbar" }, [el("span", { textContent: row.text }), track, el("span", { className: "n", textContent: String(row.count) })]));
+        const name = el("span", { className: "nm" }, [el("span", { textContent: row.text }), row.kind ? el("span", { className: "kind", textContent: row.kind }) : ""]);
+        bars.append(el("div", { className: "srcbar" }, [name, track, el("span", { className: "n", textContent: String(row.count) })]));
       }
       sourcesCard.append(bars);
     }

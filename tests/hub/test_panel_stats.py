@@ -139,7 +139,18 @@ async def test_a_rule_source_is_named_by_its_title_and_a_deleted_rule_has_no_nam
     await hass.async_block_till_done()
     hub = entry.runtime_data.hub
     today = (datetime.now(UTC)).date().isoformat()
-    day(hub.stats, today, src={f"rule_{rule.subentry_id}": 4, "rule_gone": 2, "action": 1})
+    day(
+        hub.stats,
+        today,
+        src={
+            f"rule_{rule.subentry_id}": 4,
+            "rule_gone": 2,
+            "action": 1,
+            "id:water_leak": 3,
+            "tag:door": 2,
+            "test": 1,
+        },
+    )
     client = await hass_ws_client(hass)
     reply = await ask(client, period="week")
     assert reply["success"], reply
@@ -147,6 +158,12 @@ async def test_a_rule_source_is_named_by_its_title_and_a_deleted_rule_has_no_nam
     assert sources[f"rule_{rule.subentry_id}"]["name"] == rule.title
     assert sources["rule_gone"]["name"] is None and sources["rule_gone"]["kind"] == "rule"
     assert sources["action"]["kind"] == "action" and reply["result"]["info"]["days"] >= 1
+    assert (sources["id:water_leak"]["kind"], sources["id:water_leak"]["name"]) == (
+        "id",
+        "water_leak",
+    )
+    assert (sources["tag:door"]["kind"], sources["tag:door"]["name"]) == ("tag", "door")
+    assert sources["test"]["kind"] == "test"
 
 
 async def test_clear_history_deletes_every_day_and_reports_the_empty_store(

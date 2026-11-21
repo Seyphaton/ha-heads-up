@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 import secrets
 from collections.abc import Callable, Coroutine, Mapping
 from dataclasses import dataclass, replace
@@ -39,6 +40,7 @@ from ..const import (
     SUMMARY_LIFETIME_HOURS,
     SUMMARY_PREFIX,
     TARGET_CHANNELS,
+    TEST_ID_PREFIX,
     TIMER_CHANNEL,
 )
 from ..models import Banner
@@ -103,6 +105,21 @@ class Planned:
     result: Result
     reason: str | None = None
     who: Recipient | None = None  # what the resolver knows about the recipient
+
+
+AUTO_ID = re.compile(r"^hu_[0-9a-f]{10}$")
+
+
+def source_key(banner: Banner) -> str:
+    """What made a message, as a stable key for the history: a watch rule by its rule ID; a call
+    by the ID its author chose, else by its tag, else just `action`; Test send is `test`."""
+    if banner.source == SOURCE_RULE:
+        return banner.id
+    if banner.id.startswith(TEST_ID_PREFIX):
+        return "test"
+    if not AUTO_ID.match(banner.id):
+        return f"id:{banner.id[:64]}"
+    return f"tag:{banner.tag[:64]}" if banner.tag else "action"
 
 
 # The log kinds that are an action of a policy, and how the history counts them.
@@ -595,9 +612,7 @@ class HubEngine:
             self.recent.seen(banner.id, self._info(banner))
             if not transition.silent and banner.source != SOURCE_SUMMARY:
                 self._log("created", banner.id, ",".join(banner.channels))
-                # A watch rule is one source by its rule ID, every call is one source: `action`.
-                source = banner.id if banner.source == SOURCE_RULE else banner.source
-                self.stats.created(now, banner.severity, banner.tag, source)
+                self.stats.created(now, banner.severity, banner.tag, source_key(banner))
             return
         if transition.silent:
             return
