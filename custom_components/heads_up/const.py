@@ -124,6 +124,10 @@ GROUP_SUFFIX: Final = " (group)"  # how a recipient group is named in calls
 PRESENCE_KEY: Final = "heads_up.presence"
 TRACE_VERSION: Final = 2  # raised with the other stores so older code refuses it (D-200)
 AUDIENCE_USAGE_KEY: Final = "heads_up.audience_usage"  # count and last use (D-227)
+STATS_KEY: Final = "heads_up.stats"  # the daily history of the Overview (D-244)
+STATS_VERSION: Final = 1
+STATS_MONTHS: Final = 24  # the store always covers the last 24 months
+STATS_SAVE_DELAY: Final = 60  # seconds; the file is large, so writes are batched longer
 TRACE_KEY: Final = "heads_up.trace"  # the delivery trace survives a restart (D-194)
 # Built in, not stored (D-080). Names are the ones calls use.
 # A banner whose audience is empty when it is created is aimed at this person, who does not exist:

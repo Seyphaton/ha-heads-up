@@ -56,6 +56,7 @@ from .policies.models import Policy
 from .policies.presence import PresenceStage
 from .policies.quiet import QuietHoursStage
 from .resolver import HubResolver, Recipient
+from .stats import StatsStore
 from .trace import TraceBuffer, TraceEntry
 from .transitions import BannerTransition, Kind, Reason
 from .usage import AudienceUsage
@@ -114,6 +115,7 @@ class HubEngine:
         self.trace = TraceBuffer(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
         self._trace_store = trace_store(hass)
         self.usage = AudienceUsage(hass)
+        self.stats = StatsStore(hass)
         self.resolver = HubResolver(hass, options)
         self.limiter = Limiter(options)
         self.log = ActivityLog(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
@@ -155,6 +157,7 @@ class HubEngine:
         """Load the ledger and forget what no longer exists, without re-sending anything."""
         self.ledger.identity = self.identity
         await self.ledger.async_load()
+        await self.stats.async_load()
         if self.ledger.migrated:
             _LOGGER.info("Stored deliveries: %d names became keys", self.ledger.migrated)
             await self.ledger.async_save()
@@ -242,6 +245,7 @@ class HubEngine:
         await self.ledger.async_save()
         await self._trace_store.async_save(self._trace_data())
         await self.usage.async_save()
+        await self.stats.async_save()
 
     async def async_wait_idle(self) -> None:
         """Wait until the queued deliveries are done (tests, and a clean unload)."""

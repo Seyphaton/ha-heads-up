@@ -937,3 +937,12 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 
 ### 26.6 Look
 - Cards follow the approved mockup, with Home Assistant theme variables only: 16 px cards with a soft shadow and a short rise-in, a status hero (orb with halo, pulsing while messages are active, title, severity pills, one sub-card per message), tinted pills for severity and problem level, link-style actions, number pills for time and count, rounded tinted cells in the table. The tour has the same card style with numbered step pills. Reduced motion switches the animations off.
+
+## 27. History store (Phase 19, D-244, D-246)
+
+### 27.1 Store (`hub/stats.py`)
+- Store `heads_up.stats`, version 1, loaded at start, saved with a delayed save (60 s, `STATS_SAVE_DELAY`) and at unload. It always covers the last 24 months: days before the same day 24 months ago are removed at start and when the first record of a new local day arrives. A damaged file or record is ignored and logged (like the other stores).
+- One record per local day (Home Assistant time zone): `h` (24 hourly totals of created messages), `sev`, `tag`, `src` (counts), `ch` (per channel: sent, held, skipped, failed), `rs` (`channel|result|reason`), `per` (`person|channel|result`... per person `channel|result`), `pol` (per policy key: held, quieted, dropped, escalated, reminded, summarized, fallback), `ack` (per severity: histogram of the time to acknowledge), `avoid` (escalations that were still pending when someone acknowledged), `end` (how messages ended), `te` (histogram of the time to end), `snz` (snoozes). Histograms have 12 buckets with the upper edges 30 s, 1, 2, 5, 10, 15, 30 min, 1, 2, 6, 24 h and one above.
+- Counts only: no title, text or address. Sources, policies and people are keyed by rule ID, `action`, policy key and person entity ID, never by a name.
+- Recording calls are wrapped (`safe`): the first fault is logged, none reaches a delivery.
+- Size, measured by `tests/hub/test_stats_store.py` on a synthetic busy household (200 messages a day, 5 people, 6 channels, 12 policies, 25 sources, 30 tags) over 730 days: about 7 KB per day, 5.1 MB in all. The test fails above 12 KB per day.

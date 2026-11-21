@@ -16,6 +16,8 @@ from .const import (
     DELIVERIES_KEY,
     DELIVERIES_MINOR_VERSION,
     DELIVERIES_VERSION,
+    STATS_KEY,
+    STATS_VERSION,
     STORAGE_KEY,
     STORAGE_VERSION,
     TRACE_KEY,
@@ -45,3 +47,7 @@ def ledger_store(hass: HomeAssistant) -> KeyedStore:
     return KeyedStore(
         hass, DELIVERIES_VERSION, DELIVERIES_KEY, minor_version=DELIVERIES_MINOR_VERSION
     )
+
+
+def stats_store(hass: HomeAssistant) -> KeyedStore:
+    return KeyedStore(hass, STATS_VERSION, STATS_KEY)

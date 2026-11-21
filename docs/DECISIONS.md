@@ -1585,3 +1585,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 ## D-245 Phase 18 approved; dev instance reset (2026-11-21, maintainer)
 - Context: the maintainer approved Phase 18 only (steps 18.1 to 18.7 of `docs/dev/overview-redesign/PLAN.md`); Phase 19 needs its own go; nothing is pushed or tagged without a new approval (D-020). `make check` was green before any change (1292 pytest, 320 vitest).
 - Decision: the dev instance (`dev/ha-config`, data in the 1.1 layout) is reset with `make dev-reset` and `make dev-onboard` instead of converted, so the first-launch state can be checked on a clean instance.
+
+## D-246 Phase 19 approved (2026-11-21, maintainer)
+- Context: Phase 18 was pushed (`release/2.0` at `b05fa44`). The maintainer approved Phase 19 (the history store, steps 19.1 to 19.5 of `docs/dev/overview-redesign/PLAN.md`). Nothing is tagged or merged to `main`; a new push needs a new approval (D-020).
+- Decision: build 19.1 to 19.5 as planned. A field of the daily record without a reliable recording hook is dropped and named in the phase summary.
