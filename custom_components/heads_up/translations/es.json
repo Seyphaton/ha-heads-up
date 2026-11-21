@@ -864,7 +864,8 @@
             "actions": "Botones",
             "tap_action": "Acción al tocar",
             "image": "Imagen",
-            "policy": "Política"
+            "policy": "Política",
+            "audience": "Audiencia"
           },
           "data_description": {
             "name": "Solo se muestra en la lista de reglas.",
@@ -886,7 +887,8 @@
             "actions": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action. «dismiss» requiere «Se puede cerrar».\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```",
-            "policy": "Automática: cada política automática que se aplica a un mensaje de regla (etiqueta rule). Una política: solo esa, también después de renombrarla. Ninguna: ninguna política."
+            "policy": "Automática: cada política automática que se aplica a un mensaje de regla (etiqueta rule). Una política: solo esa, también después de renombrarla. Ninguna: ninguna política.",
+            "audience": "Quién ve el aviso: las personas de esta audiencia en el momento en que aparece. Déjalo vacío para usar Personas; sin elección, lo ven todos."
           }
         },
         "reconfigure": {
@@ -914,7 +916,8 @@
             "snooze_custom": "El espectador puede elegir la duración",
             "actions": "Botones",
             "tap_action": "Acción al tocar",
-            "image": "Imagen"
+            "image": "Imagen",
+            "audience": "Audiencia"
           },
           "data_description": {
             "name": "Solo se muestra en la lista de reglas.",
@@ -935,7 +938,8 @@
             "snooze_custom": "La tarjeta ofrece también «Otro…»: los minutos que se quiera o hasta una hora, como máximo 24 horas.",
             "actions": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action. «dismiss» requiere «Se puede cerrar».\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
+            "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```",
+            "audience": "Quién ve el aviso: las personas de esta audiencia en el momento en que aparece. Déjalo vacío para usar Personas; sin elección, lo ven todos."
           }
         }
       },
@@ -957,7 +961,9 @@
         "tap_action_invalid": "La acción al tocar necesita una clave action.",
         "image_invalid": "La imagen debe ser una URL http(s) o una ruta que empieza por /.",
         "actions_dismiss_needs_dismissible": "Un botón con dismiss requiere que «Se puede cerrar» esté activado.",
-        "policy_unknown": "Esta política no existe. Usa el nombre de una política, o none."
+        "policy_unknown": "Esta política no existe. Usa el nombre de una política, o none.",
+        "audience_or_people": "Elige una audiencia o personas, no ambas.",
+        "audience_unknown": "Esta audiencia no existe."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguración se realizó correctamente."

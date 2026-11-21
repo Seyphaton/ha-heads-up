@@ -1557,3 +1557,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 ## D-241 Promise lines go to the long list (2026-11-21, maintainer)
 - Decision (maintainer, after the explanation in plain words): promise lines (a status line on every policy card, D-224, D-234) are not built for 2.0.0. They are on the long list in `docs/OPEN_QUESTIONS.md` with the status "unclear, not needed now". Test policies and Needs attention answer the same questions on request. This closes the ship-or-defer decision of D-234.
 - Same day (maintainer): the type list of the editor is grouped by the lanes of the page; Holds these anyway shows an orange warning that critical messages, such as smoke or leak alarms, are held too; the check list is titled "The policy feature has been updated – please review the new behaviour" and explains that it is a one-time task after the redesign.
+
+## D-242 Watch rules get their own tab and an audience (2026-11-21, maintainer)
+- Context: the maintainer tested the panel: watch rules were hidden in "Notifications and rules", the rule page looked different from the other configuration pages, and a rule could not name an audience (D-195 exception in DESIGN §22).
+- Decision (maintainer): the top row is Overview, Configuration, Banner watch rules, Settings, Test & Logs (Test send, Message Log), Help. `/heads-up/notifications` opens Test send.
+- The rule page uses the table and dialog of the Policies page: columns Rule, Watches, Shows (with the state badge), a row opens details with Edit and Switch off, the editor is a dialog that asks before discarding changes.
+- A rule may name an `audience` (subentry field). It is resolved each time the rule banner becomes visible and when the rule is saved, like the audience of a call (D-131); until then the banner has nobody, so it never flashes up for everyone. `audience` and `people` exclude each other (`audience_or_people`); an unknown audience is refused (`audience_unknown`). This closes the D-195 exception in §22.
+

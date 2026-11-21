@@ -864,7 +864,8 @@
             "actions": "Buttons",
             "tap_action": "Tap action",
             "image": "Image",
-            "policy": "Policy"
+            "policy": "Policy",
+            "audience": "Audience"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -886,7 +887,8 @@
             "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
-            "policy": "Automatic: every automatic policy that applies to a rule message (tag rule). A policy: only that policy, also after you rename it. None: no policy."
+            "policy": "Automatic: every automatic policy that applies to a rule message (tag rule). A policy: only that policy, also after you rename it. None: no policy.",
+            "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone."
           }
         },
         "reconfigure": {
@@ -914,7 +916,8 @@
             "snooze_custom": "Viewer may choose the duration",
             "actions": "Buttons",
             "tap_action": "Tap action",
-            "image": "Image"
+            "image": "Image",
+            "audience": "Audience"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -935,7 +938,8 @@
             "snooze_custom": "The card also offers \"Other…\": any number of minutes or until a time, at most 24 hours.",
             "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
+            "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
+            "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone."
           }
         }
       },
@@ -957,7 +961,9 @@
         "tap_action_invalid": "The tap action needs an action key.",
         "image_invalid": "The image must be an http(s) URL or a path starting with /.",
         "actions_dismiss_needs_dismissible": "A button with dismiss needs Dismissible to be on.",
-        "policy_unknown": "This policy does not exist. Use the name of a policy, or none."
+        "policy_unknown": "This policy does not exist. Use the name of a policy, or none.",
+        "audience_or_people": "Choose an audience or people, not both.",
+        "audience_unknown": "This audience does not exist."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

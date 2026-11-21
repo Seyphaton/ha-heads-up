@@ -634,6 +634,7 @@ An automation does the same: a trigger that calls `heads_up.create_banner`, or `
 | Title | none | Up to 100 characters. |
 | Severity | `warning` | Color, icon and sort order, as for [the action fields](#heads_upnotify). |
 | Icon | severity icon | Replaces the default icon. |
+| Audience | none | Show only to the members of this audience at the moment the banner appears. A person who joins the audience while the banner shows does not see it; an audience with nobody in it gives a banner nobody sees. Use Audience or People, not both. |
 | People | everyone | Show only to users linked to these person entities. |
 | Dismissible | off | Off: no close button. On: each user can hide the banner. |
 | Dismiss scope | per user | Per user: closing hides it for that user until the condition turns false and true again. Everyone: it hides for all until then. |
@@ -644,7 +645,7 @@ An automation does the same: a trigger that calls `heads_up.create_banner`, or `
 
 To change or delete a rule, open it from the same page. Changes apply at once; no restart is needed.
 
-The panel's Watch rules page lists every rule with a badge for its state (showing now, not showing, off) and its severity. Its form has four sections: When (an entity in a state, or a template, and an optional hold time), What to show (message, title, severity, icon, image), Who sees it (the people; none means everyone) and Behaviour (dismissible, dismiss scope, snooze, the policy, enabled). A sentence under the form says in words what the rule does. The page does not edit the buttons and the tap action; change them in the form under Settings > Devices & services > Heads Up.
+The panel's Banner watch rules page lists the rules in a table: the rule, what it watches, and what it shows with a badge for its state (showing now, not showing, off). Open a row for the details, Edit and Switch off. The form opens in a window and has four sections: When (an entity in a state, or a template, and an optional hold time), What to show (message, title, severity, icon, image), Who sees it (everyone, an audience or chosen people) and Behaviour (dismissible, dismiss scope, snooze, the policy). Closing the window with unsaved changes asks first. A sentence under the form says in words what the rule does. The page does not edit the buttons and the tap action; change them in the form under Settings > Devices & services > Heads Up.
 
 <img src="images/watch-rule.png" width="500" alt="The New watch rule form on the Watch rules page: name, When an entity is in a state, entity, condition equals, value on, attribute and hold time">
 

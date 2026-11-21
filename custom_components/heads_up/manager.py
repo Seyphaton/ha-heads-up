@@ -33,6 +33,7 @@ from homeassistant.util import dt as dt_util
 
 from .conditions import DEFAULT_OPERATOR, NO_STATE_OPERATORS, matches
 from .const import (
+    BANNER_NOBODY,
     CHANNEL_BANNER,
     DEFAULT_OPTIONS,
     DEFAULT_SEVERITY,
@@ -622,6 +623,7 @@ class BannerManager:
             self._rule_sources[banner_id] = source
             banner = self._build_rule(banner_id, source, old)
             self.rules[banner_id] = banner
+            self._rule_audience(banner)
             self._track_template(banner)
             if banner.condition_met != bool(old and old.condition_met):
                 if banner.condition_met:
@@ -643,6 +645,27 @@ class BannerManager:
         self._refresh_tracking()
         if changed and not silent:
             self._notify()
+
+    def _rule_audience(self, banner: Banner) -> None:
+        """A rule that names an audience shows its banner to the people of the audience as of the
+        moment it becomes visible, as a call does (D-131, D-242). Until that is worked out nobody
+        sees it, so it never flashes up for everyone."""
+        source = self._rule_sources.get(banner.id) or {}
+        audience = source.get("audience")
+        if not audience or self.hub is None:
+            return
+        banner.people = [BANNER_NOBODY]
+        hub = self.hub
+
+        async def resolve() -> None:
+            people = await hub.resolver.banner_people(str(audience), banner.severity)
+            if people and people != [BANNER_NOBODY]:
+                people = hub.resolver.enabled_people(people) or [BANNER_NOBODY]
+            if self.rules.get(banner.id) is banner and banner.people != people:
+                banner.people = people
+                self._changed()
+
+        self.hass.async_create_task(resolve(), f"heads_up rule audience {banner.id}")
 
     def _build_rule(self, banner_id: str, source: Mapping[str, Any], old: Banner | None) -> Banner:
         now = dt_util.utcnow()
@@ -737,6 +760,7 @@ class BannerManager:
             changed = True
             if met:
                 banner.updated_at = dt_util.utcnow()  # the card's "time ago" counts from the flip
+                self._rule_audience(banner)
                 self._fire(EVENT_CREATED, banner, severity=banner.severity)
                 self._emit(Kind.BECAME_VISIBLE, banner)
             else:

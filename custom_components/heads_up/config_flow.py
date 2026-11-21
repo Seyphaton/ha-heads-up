@@ -322,9 +322,11 @@ def _rule_data(user_input: dict[str, Any]) -> dict[str, Any]:
     else:
         data.pop("state", None)
     data["message"] = data["message"].strip()
-    for key in ("attribute", "title", "icon", "policy"):
+    for key in ("attribute", "title", "icon", "policy", "audience"):
         if not (data.get(key) or "").strip():
             data.pop(key, None)
+    if data.get("audience"):
+        data.pop("people", None)  # an audience and people are alternatives
     if "policy" in data:
         data["policy"] = data["policy"].strip()
     # Buttons and tap action go through the same schemas as the action (DESIGN §22).
@@ -421,7 +423,21 @@ class RuleSubentryFlow(ConfigSubentryFlow):
         if current and current not in known and current not in (POLICY_AUTOMATIC, POLICY_NONE):
             shown = current[len(NAME_PREFIX) :] if current.startswith(NAME_PREFIX) else current
             options.append(SelectOptionDict(value=current, label=f"{shown} (missing)"))
-        fields = {k: v for k, v in _RULE_SCHEMA.schema.items() if str(k) != "policy"}
+        fields: dict[Any, Any] = {}
+        for k, v in _RULE_SCHEMA.schema.items():
+            if str(k) == "policy":
+                continue
+            fields[k] = v
+            if str(k) == "icon":
+                # Who sees the banner: an audience, as of the moment the banner appears (D-242).
+                audiences = hub.resolver.audience_choices() if hub is not None else []
+                fields[vol.Optional("audience")] = SelectSelector(
+                    SelectSelectorConfig(
+                        options=[SelectOptionDict(value=k2, label=n) for k2, n in audiences],
+                        mode=SelectSelectorMode.DROPDOWN,
+                        custom_value=True,
+                    )
+                )
         fields[vol.Optional("policy", default=POLICY_AUTOMATIC)] = SelectSelector(
             SelectSelectorConfig(
                 options=options, mode=SelectSelectorMode.DROPDOWN, custom_value=True
@@ -474,6 +490,14 @@ class RuleSubentryFlow(ConfigSubentryFlow):
             errors["for"] = "for_too_long"
         if user_input.get("snoozable") and not user_input.get("dismissible"):
             errors["snoozable"] = "snoozable_needs_dismissible"
+        if user_input.get("audience") and user_input.get("people"):
+            errors["audience"] = "audience_or_people"
+        elif (
+            (audience := user_input.get("audience"))
+            and (hub := self._hub()) is not None
+            and hub.resolver.audience(audience) is None
+        ):
+            errors["audience"] = "audience_unknown"
         if image := (user_input.get("image") or "").strip():
             try:
                 IMAGE(image)

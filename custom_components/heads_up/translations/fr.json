@@ -864,7 +864,8 @@
             "actions": "Boutons",
             "tap_action": "Action au toucher",
             "image": "Image",
-            "policy": "Politique"
+            "policy": "Politique",
+            "audience": "Audience"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
@@ -886,7 +887,8 @@
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
-            "policy": "Automatique : chaque politique automatique qui s'applique à un message de règle (balise rule). Une politique : seulement celle-ci, même après l'avoir renommée. Aucune : aucune politique."
+            "policy": "Automatique : chaque politique automatique qui s'applique à un message de règle (balise rule). Une politique : seulement celle-ci, même après l'avoir renommée. Aucune : aucune politique.",
+            "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit."
           }
         },
         "reconfigure": {
@@ -914,7 +916,8 @@
             "snooze_custom": "Le spectateur peut choisir la durée",
             "actions": "Boutons",
             "tap_action": "Action au toucher",
-            "image": "Image"
+            "image": "Image",
+            "audience": "Audience"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
@@ -935,7 +938,8 @@
             "snooze_custom": "La carte propose aussi « Autre… » : un nombre de minutes au choix ou jusqu'à une heure, 24 heures au plus.",
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
+            "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
+            "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit."
           }
         }
       },
@@ -957,7 +961,9 @@
         "tap_action_invalid": "L'action au toucher a besoin d'une clé action.",
         "image_invalid": "L'image doit être une URL http(s) ou un chemin commençant par /.",
         "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé.",
-        "policy_unknown": "Cette politique n'existe pas. Utilisez le nom d'une politique, ou none."
+        "policy_unknown": "Cette politique n'existe pas. Utilisez le nom d'une politique, ou none.",
+        "audience_or_people": "Choisissez une audience ou des personnes, pas les deux.",
+        "audience_unknown": "Cette audience n'existe pas."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."

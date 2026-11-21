@@ -864,7 +864,8 @@
             "actions": "Schaltflächen",
             "tap_action": "Tipp-Aktion",
             "image": "Bild",
-            "policy": "Richtlinie"
+            "policy": "Richtlinie",
+            "audience": "Zielgruppe"
           },
           "data_description": {
             "name": "Wird nur in der Liste der Regeln angezeigt.",
@@ -886,7 +887,8 @@
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
-            "policy": "Automatisch: jede automatische Richtlinie, die für eine Regelmeldung gilt (Tag rule). Eine Richtlinie: nur diese, auch nach einer Umbenennung. Keine: keine Richtlinie."
+            "policy": "Automatisch: jede automatische Richtlinie, die für eine Regelmeldung gilt (Tag rule). Eine Richtlinie: nur diese, auch nach einer Umbenennung. Keine: keine Richtlinie.",
+            "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle."
           }
         },
         "reconfigure": {
@@ -914,7 +916,8 @@
             "snooze_custom": "Betrachter darf die Dauer wählen",
             "actions": "Schaltflächen",
             "tap_action": "Tipp-Aktion",
-            "image": "Bild"
+            "image": "Bild",
+            "audience": "Zielgruppe"
           },
           "data_description": {
             "name": "Wird nur in der Liste der Regeln angezeigt.",
@@ -935,7 +938,8 @@
             "snooze_custom": "Die Karte bietet zusätzlich „Andere…“ an: beliebige Minuten oder bis zu einer Uhrzeit, höchstens 24 Stunden.",
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
-            "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
+            "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
+            "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle."
           }
         }
       },
@@ -957,7 +961,9 @@
         "tap_action_invalid": "Die Tipp-Aktion braucht einen action-Schlüssel.",
         "image_invalid": "Das Bild muss eine http(s)-URL oder ein Pfad sein, der mit / beginnt.",
         "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an.",
-        "policy_unknown": "Diese Richtlinie gibt es nicht. Nimm den Namen einer Richtlinie oder none."
+        "policy_unknown": "Diese Richtlinie gibt es nicht. Nimm den Namen einer Richtlinie oder none.",
+        "audience_or_people": "Wähle eine Zielgruppe oder Personen, nicht beides.",
+        "audience_unknown": "Diese Zielgruppe gibt es nicht."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
