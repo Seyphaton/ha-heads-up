@@ -159,11 +159,11 @@ From 1.0.0 to 1.1.0: Away policies become Presence policies. They behave as befo
 
 From 1.x to 2.0.0: policies no longer run in a list order or a mode. Every policy that fits a message acts. The first start converts your policies so that they do what they did:
 
-- A policy that came below another one in the list gets a note "Acts only on messages that … do not take". It follows the switch of that policy, as the order did.
+- A policy that came below another one in the list gets the note "Skips messages that … already handle". It follows the switch of that policy, as the order did.
 - Where critical messages passed quiet hours or summaries, a Get through entry Critical is added. A Quiet hours or Summarize policy that held critical messages gets Holds these anyway. A Presence policy that let critical messages pass gets Not for severities Critical.
 - Setups on "Every policy that applies runs" get the 2.0 rules: two reminders on one channel share the shorter rhythm instead of both repeating.
 
-The Policies page shows Check after the update with every policy that now works differently or never acts. For each, choose Keep as before or Let it act. 1.x cannot read the converted setup: make a backup before you update, and restore it to go back.
+The Policies page shows Please check after the update with every policy that now depends on another one or does nothing. For each, choose Keep it like this or Let it act on them too. 1.x cannot read the converted setup: make a backup before you update, and restore it to go back.
 
 To go back to an earlier 1.x release, stop Home Assistant, run `python scripts/restore_identity_backup.py <config folder>` from the repository, then install the earlier release. To go back from 1.1.0 to 1.0.0, run `python scripts/restore_presence_backup.py <config folder>` instead. It puts the Away policies back and renames `passive` to `success` again, because 1.0.0 knows neither Presence nor `passive`. Without the restore, Home Assistant refuses to set up the converted data in an older release instead of reading it wrongly.
 

@@ -28,6 +28,7 @@ import {
   blankValues as blankPolicy,
   checkLine,
   laneOf,
+  whichText,
   overlapNames,
   overlaps,
   fromPolicy,
@@ -533,8 +534,23 @@ describe("2.0 policy fields", () => {
   it("says a band entry and the 2.0 extras in words", () => {
     const t = POLICY_STRINGS.en;
     expect(sentence({ ...blankPolicy("get_through"), tags: "alarm", covers: "only", covers_recipients: ["person.ben"] }, t, { recipient: () => "Ben" })).toBe("Messages with tag alarm: may wake Ben despite quiet hours and summaries.");
-    expect(sentence({ ...blankPolicy("quiet_hours"), not_tags: "digest", holds_anyway: true }, t)).toBe("Every message: between 22:00 and 07:00, deliveries outside the dashboard are sent quietly. Not for #digest. No Always gets through entry passes it.");
+    expect(sentence({ ...blankPolicy("quiet_hours"), not_tags: "digest", holds_anyway: true }, t)).toBe("Every message: between 22:00 and 07:00, deliveries outside the dashboard are sent quietly. Not for #digest. Nothing gets past it, not even Always gets through.");
     expect(sentence({ ...blankPolicy("reminder"), fw_entity: "binary_sensor.window", fw_state: "on", fw_every: 15, alongside: true }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times. While binary_sensor.window is on: every 15 min. Runs alongside other reminders.");
+  });
+
+  it("says Which messages in a few words", () => {
+    const t = POLICY_STRINGS.en;
+    expect(whichText(blankPolicy("quiet_hours"), t)).toBe("All messages");
+    expect(whichText({ ...blankPolicy("quiet_hours"), severities: ["critical"], tags: "alarm", not_tags: "digest" }, t)).toBe("Severity: Critical · Tag: alarm · not #digest");
+    expect(whichText({ ...blankPolicy("deliver"), apply: "manual" }, t)).toBe("Only when named");
+  });
+
+  it("never mentions the earlier version in the page texts", () => {
+    for (const [code, language] of Object.entries(POLICY_STRINGS)) {
+      for (const [key, value] of Object.entries(language)) {
+        if (typeof value === "string") expect(value, `${code} ${key}`).not.toMatch(/1\.x/);
+      }
+    }
   });
 
   it("words one line of the checker", () => {

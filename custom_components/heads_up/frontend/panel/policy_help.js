@@ -1125,7 +1125,8 @@ export function mount(container, ctx) {
   container.append(root);
 
   function render() {
-    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + CSS }), el("h1", { textContent: t.title }), el("div", { className: "hint", textContent: t.lead }));
+    // In the dialog of the Policies page the dialog has the title already.
+    root.replaceChildren(el("style", { textContent: ui.BASE_CSS + CSS }), ...(ctx.embedded ? [] : [el("h1", { textContent: t.title })]), el("div", { className: "hint", textContent: t.lead }));
     for (const lane of ["calm", "band", "send"]) {
       root.append(el("h3", { className: "lane", textContent: t.lanes[lane] }));
       const grid = el("div", { className: "tiles" });

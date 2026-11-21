@@ -29,7 +29,7 @@ const WHENS = {
 export const STRINGS = {
   en: {
     title: "Policies",
-    intro: "Policies decide when a message may reach people, who else gets it and how often. Every policy that fits a message acts; there is no order.",
+    intro: "Policies change how messages are delivered: when they may arrive, who else gets them and how often. Every policy that fits a message is applied.",
     none: "You have no policies yet. The introduction (Settings, Restart introduction) offers a starting set.",
     new: "New policy",
     editing: "Edit policy",
@@ -97,18 +97,24 @@ export const STRINGS = {
     manual_note: "A call that names a policy uses only that policy, not the automatic ones. policy: none switches every policy off for a call.",
     badge_manual: "manual",
     lane_calm: "Keep it calm",
-    lane_calm_hint: "These act on every delivery, also on what the other lane adds. Where two disagree, the calmer counts. Repeats never wait: they are skipped.",
+    lane_calm_hint: "Policies that hold messages back, send them quietly or bundle them into a summary. If two disagree, the quieter one wins.",
     band: "Always gets through",
-    band_hint: "These messages are never summarized, and quiet hours do not apply to the people covered. Presence still decides by where people are.",
+    band_hint: "These messages are never summarized, and quiet hours do not apply to the people covered. Who gets them depends on the original message (for example named people, the Admins, everyone at home).",
     lane_arrive: "Make sure it arrives",
-    lane_arrive_hint: "Every sending policy that fits runs. Escalations and reminders count from when the message was created.",
+    lane_arrive_hint: "Policies that send additional messages, for example when the original recipients could not be reached or nobody reacted. All policies that fit are applied.",
     lane_named: "Only when named",
-    lane_named_hint: "These act only when a call or a watch rule names them by their entity ID.",
+    lane_named_hint: "Used only when an automation or a watch rule names them.",
+    ck_close: "Close",
+    help_close: "Close",
+    w_all: "All messages",
+    w_severity: "Severity: {list}",
+    w_tag: "Tag: {list}",
+    w_not: "not {list}",
+    w_named: "Only when named",
     col_policy: "Policy",
     col_messages: "Which messages",
     col_does: "What it does",
     lane_empty: "None yet.",
-    badge_converted: "from 1.x",
     turn_off: "Switch off",
     turn_on: "Switch on",
     not_severities: "Not for severities",
@@ -124,7 +130,7 @@ export const STRINGS = {
     alongside: "Runs alongside other reminders",
     alongside_hint: "Off: reminders on the same channel share the shortest rhythm, each with its own count.",
     holds_anyway: "Holds these anyway",
-    holds_anyway_hint: "No Always gets through entry lets messages past this policy.",
+    holds_anyway_hint: "No Always gets through entry can get messages past this policy.",
     covers: "Covers",
     covers_everyone: "Everyone it reaches",
     covers_only: "Only these",
@@ -136,24 +142,24 @@ export const STRINGS = {
     s_only_if: " Only while {entity} is {state}.",
     s_faster: " While {entity} is {state}: every {n} min.",
     s_alongside: " Runs alongside other reminders.",
-    s_holds_anyway: " No Always gets through entry passes it.",
+    s_holds_anyway: " Nothing gets past it, not even Always gets through.",
     s_rules: " Only messages of the watch rules {names}.",
-    links_note: "Acts only on messages that {names} do not take, as in 1.x.",
+    links_note: "Skips messages that {names} already handle.",
     overlap_calm: "Where it and {names} both fit, the calmer counts.",
     overlap_send: "Also acts on the same messages: {names}.",
-    cl_title: "Check after the update",
-    cl_intro: "The update kept what your policies did. These policies now work differently or never act; choose for each.",
-    cl_links: "{name} acts only on messages that {names} do not take, as before.",
-    cl_never: "{name} never acts: {names} take all its messages first.",
-    cl_holds: "{name} holds critical messages too, as before.",
-    cl_keep: "Keep as before",
-    cl_act: "Let it act",
-    cl_through: "Let Critical through",
-    cl_dismiss: "Hide the list",
+    cl_title: "Please check after the update",
+    cl_intro: "Your policies work as they did before the update. A few now depend on each other; decide for each one.",
+    cl_links: "{name} skips messages that {names} already handle.",
+    cl_never: "{name} does nothing at the moment: {names} already handle all its messages.",
+    cl_holds: "{name} also holds back critical messages.",
+    cl_keep: "Keep it like this",
+    cl_act: "Let it act on them too",
+    cl_through: "Let critical messages through",
+    cl_dismiss: "Hide this list",
     cl_kept: "kept",
     cl_changed: "changed",
-    ck_title: "What happens to a message?",
-    ck_intro: "Nothing is sent. The answer uses the policies as they are now.",
+    ck_title: "Test policies",
+    ck_intro: "Try out a message: you see who would get it, when and why. Nothing is sent.",
     ck_severity: "Severity",
     ck_tag: "Tag",
     ck_channels: "Channels",
@@ -235,7 +241,7 @@ export const STRINGS = {
   },
   de: {
     title: "Richtlinien",
-    intro: "Richtlinien entscheiden, wann eine Meldung Leute erreichen darf, wer sie noch bekommt und wie oft. Jede Richtlinie, die auf eine Meldung passt, wirkt; es gibt keine Reihenfolge.",
+    intro: "Richtlinien ändern, wie Meldungen zugestellt werden: wann sie ankommen dürfen, wer sie noch bekommt und wie oft. Jede Richtlinie, die auf eine Meldung passt, wird angewendet.",
     none: "Du hast noch keine Richtlinien. Die Einführung (Einstellungen, Einführung neu starten) bietet einen Grundstock an.",
     new: "Neue Richtlinie",
     editing: "Richtlinie bearbeiten",
@@ -303,18 +309,24 @@ export const STRINGS = {
     manual_note: "Ein Aufruf, der eine Richtlinie nennt, nutzt nur diese, nicht die automatischen. policy: none schaltet alle Richtlinien für einen Aufruf ab.",
     badge_manual: "manuell",
     lane_calm: "Für Ruhe sorgen",
-    lane_calm_hint: "Diese wirken auf jede Zustellung, auch auf das, was die andere Spur ergänzt. Sind sich zwei uneinig, zählt die ruhigere. Wiederholungen warten nie: sie fallen aus.",
+    lane_calm_hint: "Richtlinien, die Meldungen zurückhalten, leise senden oder in einer Zusammenfassung bündeln. Sind sich zwei uneinig, gewinnt die ruhigere.",
     band: "Kommt immer durch",
-    band_hint: "Diese Meldungen werden nie gesammelt, und die Ruhezeit gilt nicht für die erfassten Leute. Die Anwesenheit entscheidet weiter danach, wo Leute sind.",
+    band_hint: "Diese Meldungen werden nie zusammengefasst, und die Ruhezeit gilt nicht für die erfassten Leute. Wer sie bekommt, hängt von der ursprünglichen Meldung ab (zum Beispiel genannte Personen, die Admins, alle zu Hause).",
     lane_arrive: "Damit es ankommt",
-    lane_arrive_hint: "Jede passende sendende Richtlinie läuft. Eskalationen und Erinnerungen zählen ab dem Erstellen der Meldung.",
+    lane_arrive_hint: "Richtlinien, die zusätzliche Meldungen senden, zum Beispiel wenn die ursprünglichen Empfänger nicht erreicht wurden oder niemand reagiert hat. Alle passenden Richtlinien werden angewendet.",
     lane_named: "Nur wenn genannt",
-    lane_named_hint: "Diese wirken nur, wenn ein Aufruf oder eine Überwachungsregel sie mit ihrer Entitäts-ID nennt.",
+    lane_named_hint: "Werden nur benutzt, wenn eine Automation oder eine Überwachungsregel sie nennt.",
+    ck_close: "Schließen",
+    help_close: "Schließen",
+    w_all: "Alle Meldungen",
+    w_severity: "Stufe: {list}",
+    w_tag: "Tag: {list}",
+    w_not: "nicht {list}",
+    w_named: "Nur wenn genannt",
     col_policy: "Richtlinie",
     col_messages: "Welche Meldungen",
     col_does: "Was sie tut",
     lane_empty: "Noch keine.",
-    badge_converted: "aus 1.x",
     turn_off: "Ausschalten",
     turn_on: "Einschalten",
     not_severities: "Nicht für Stufen",
@@ -330,7 +342,7 @@ export const STRINGS = {
     alongside: "Läuft neben anderen Erinnerungen",
     alongside_hint: "Aus: Erinnerungen auf demselben Kanal teilen sich den kürzesten Rhythmus, jede mit eigener Zählung.",
     holds_anyway: "Hält sie trotzdem",
-    holds_anyway_hint: "Kein Eintrag von Kommt immer durch lässt Meldungen an dieser Richtlinie vorbei.",
+    holds_anyway_hint: "Kein Eintrag von Kommt immer durch bringt Meldungen an dieser Richtlinie vorbei.",
     covers: "Gilt für",
     covers_everyone: "Alle, die sie erreicht",
     covers_only: "Nur diese",
@@ -342,24 +354,24 @@ export const STRINGS = {
     s_only_if: " Nur solange {entity} {state} ist.",
     s_faster: " Solange {entity} {state} ist: alle {n} Min.",
     s_alongside: " Läuft neben anderen Erinnerungen.",
-    s_holds_anyway: " Kein Eintrag von Kommt immer durch kommt vorbei.",
+    s_holds_anyway: " Nichts kommt vorbei, auch nicht Kommt immer durch.",
     s_rules: " Nur Meldungen der Überwachungsregeln {names}.",
-    links_note: "Wirkt nur auf Meldungen, die {names} nicht übernehmen, wie in 1.x.",
+    links_note: "Überspringt Meldungen, um die sich {names} schon kümmert.",
     overlap_calm: "Wo sie und {names} beide passen, zählt die ruhigere.",
     overlap_send: "Wirkt auch auf dieselben Meldungen: {names}.",
-    cl_title: "Nach dem Update prüfen",
-    cl_intro: "Das Update hat beibehalten, was deine Richtlinien taten. Diese Richtlinien arbeiten jetzt anders oder wirken nie; entscheide für jede.",
-    cl_links: "{name} wirkt nur auf Meldungen, die {names} nicht übernehmen, wie bisher.",
-    cl_never: "{name} wirkt nie: {names} übernehmen alle ihre Meldungen zuerst.",
-    cl_holds: "{name} hält auch kritische Meldungen zurück, wie bisher.",
-    cl_keep: "Wie bisher lassen",
-    cl_act: "Wirken lassen",
-    cl_through: "Kritisch durchlassen",
+    cl_title: "Bitte nach dem Update prüfen",
+    cl_intro: "Deine Richtlinien arbeiten wie vor dem Update. Einige hängen jetzt voneinander ab; entscheide für jede.",
+    cl_links: "{name} überspringt Meldungen, um die sich {names} schon kümmert.",
+    cl_never: "{name} tut gerade nichts: {names} kümmert sich schon um alle ihre Meldungen.",
+    cl_holds: "{name} hält auch kritische Meldungen zurück.",
+    cl_keep: "So lassen",
+    cl_act: "Auch dafür wirken lassen",
+    cl_through: "Kritische Meldungen durchlassen",
     cl_dismiss: "Liste ausblenden",
     cl_kept: "beibehalten",
     cl_changed: "geändert",
-    ck_title: "Was passiert mit einer Meldung?",
-    ck_intro: "Es wird nichts gesendet. Die Antwort nutzt die Richtlinien, wie sie jetzt sind.",
+    ck_title: "Richtlinien testen",
+    ck_intro: "Probiere eine Meldung aus: du siehst, wer sie wann bekommen würde und warum. Es wird nichts gesendet.",
     ck_severity: "Stufe",
     ck_tag: "Tag",
     ck_channels: "Kanäle",
@@ -441,7 +453,7 @@ export const STRINGS = {
   },
   fr: {
     title: "Politiques",
-    intro: "Les règles décident quand un message peut joindre les gens, qui d'autre le reçoit et à quelle fréquence. Chaque règle qui correspond à un message agit ; il n'y a pas d'ordre.",
+    intro: "Les règles changent la façon dont les messages sont livrés : quand ils peuvent arriver, qui d'autre les reçoit et à quelle fréquence. Chaque règle qui correspond à un message est appliquée.",
     none: "Vous n'avez pas encore de politique. L'introduction (Réglages, Relancer l'introduction) propose un jeu de départ.",
     new: "Nouvelle politique",
     editing: "Modifier la politique",
@@ -509,18 +521,24 @@ export const STRINGS = {
     manual_note: "Un appel qui nomme une politique n'utilise que celle-là, pas les automatiques. policy: none désactive toutes les politiques pour un appel.",
     badge_manual: "manuelle",
     lane_calm: "Garder le calme",
-    lane_calm_hint: "Elles agissent sur chaque envoi, aussi sur ce que l'autre voie ajoute. Quand deux divergent, la plus calme compte. Les répétitions n'attendent jamais : elles sont ignorées.",
+    lane_calm_hint: "Des règles qui retiennent les messages, les envoient discrètement ou les regroupent dans un résumé. Si deux divergent, la plus calme l'emporte.",
     band: "Passe toujours",
-    band_hint: "Ces messages ne sont jamais résumés, et les heures calmes ne s'appliquent pas aux personnes concernées. La présence décide toujours selon où sont les gens.",
+    band_hint: "Ces messages ne sont jamais résumés, et les heures calmes ne s'appliquent pas aux personnes concernées. Qui les reçoit dépend du message d'origine (par exemple des personnes nommées, les admins, tout le monde à la maison).",
     lane_arrive: "S'assurer qu'il arrive",
-    lane_arrive_hint: "Chaque règle d'envoi qui correspond s'exécute. Les escalades et les rappels comptent depuis la création du message.",
+    lane_arrive_hint: "Des règles qui envoient des messages supplémentaires, par exemple quand les destinataires d'origine n'ont pas été joints ou que personne n'a réagi. Toutes les règles qui correspondent sont appliquées.",
     lane_named: "Seulement si nommée",
-    lane_named_hint: "Elles n'agissent que si un appel ou une règle de surveillance les nomme par leur ID d'entité.",
+    lane_named_hint: "Utilisées seulement quand une automatisation ou une règle de surveillance les nomme.",
+    ck_close: "Fermer",
+    help_close: "Fermer",
+    w_all: "Tous les messages",
+    w_severity: "Niveau : {list}",
+    w_tag: "Étiquette : {list}",
+    w_not: "sauf {list}",
+    w_named: "Seulement si nommée",
     col_policy: "Règle",
     col_messages: "Quels messages",
     col_does: "Ce qu'elle fait",
     lane_empty: "Aucune pour l'instant.",
-    badge_converted: "de 1.x",
     turn_off: "Désactiver",
     turn_on: "Activer",
     not_severities: "Sauf pour les niveaux",
@@ -548,24 +566,24 @@ export const STRINGS = {
     s_only_if: " Seulement tant que {entity} est {state}.",
     s_faster: " Tant que {entity} est {state} : toutes les {n} min.",
     s_alongside: " Fonctionne à côté des autres rappels.",
-    s_holds_anyway: " Aucune entrée Passe toujours ne passe.",
+    s_holds_anyway: " Rien ne passe, pas même Passe toujours.",
     s_rules: " Seulement les messages des règles de surveillance {names}.",
-    links_note: "N'agit que sur les messages que {names} ne prennent pas, comme en 1.x.",
+    links_note: "Ignore les messages dont {names} s'occupe déjà.",
     overlap_calm: "Là où elle et {names} correspondent toutes deux, la plus calme compte.",
     overlap_send: "Agit aussi sur les mêmes messages : {names}.",
     cl_title: "À vérifier après la mise à jour",
-    cl_intro: "La mise à jour a gardé ce que faisaient vos règles. Ces règles fonctionnent désormais autrement ou n'agissent jamais ; choisissez pour chacune.",
-    cl_links: "{name} n'agit que sur les messages que {names} ne prennent pas, comme avant.",
-    cl_never: "{name} n'agit jamais : {names} prennent tous ses messages d'abord.",
-    cl_holds: "{name} retient aussi les messages critiques, comme avant.",
-    cl_keep: "Garder comme avant",
-    cl_act: "La laisser agir",
-    cl_through: "Laisser passer Critique",
+    cl_intro: "Vos règles fonctionnent comme avant la mise à jour. Certaines dépendent maintenant les unes des autres ; décidez pour chacune.",
+    cl_links: "{name} ignore les messages dont {names} s'occupe déjà.",
+    cl_never: "{name} ne fait rien pour l'instant : {names} s'occupe déjà de tous ses messages.",
+    cl_holds: "{name} retient aussi les messages critiques.",
+    cl_keep: "Laisser ainsi",
+    cl_act: "La laisser agir aussi sur eux",
+    cl_through: "Laisser passer les messages critiques",
     cl_dismiss: "Masquer la liste",
     cl_kept: "gardé",
     cl_changed: "modifié",
-    ck_title: "Que devient un message ?",
-    ck_intro: "Rien n'est envoyé. La réponse utilise les règles telles qu'elles sont maintenant.",
+    ck_title: "Tester les règles",
+    ck_intro: "Essayez un message : vous voyez qui le recevrait, quand et pourquoi. Rien n'est envoyé.",
     ck_severity: "Niveau",
     ck_tag: "Étiquette",
     ck_channels: "Canaux",
@@ -647,7 +665,7 @@ export const STRINGS = {
   },
   es: {
     title: "Políticas",
-    intro: "Las reglas deciden cuándo un mensaje puede llegar a la gente, quién más lo recibe y con qué frecuencia. Cada regla que encaja con un mensaje actúa; no hay orden.",
+    intro: "Las reglas cambian cómo se entregan los mensajes: cuándo pueden llegar, quién más los recibe y con qué frecuencia. Se aplica cada regla que encaja con un mensaje.",
     none: "Aún no tienes políticas. La introducción (Ajustes, Reiniciar la introducción) ofrece un conjunto inicial.",
     new: "Nueva política",
     editing: "Editar política",
@@ -715,18 +733,24 @@ export const STRINGS = {
     manual_note: "Una llamada que nombra una política usa solo esa, no las automáticas. policy: none desactiva todas las políticas para una llamada.",
     badge_manual: "manual",
     lane_calm: "Mantener la calma",
-    lane_calm_hint: "Actúan en cada envío, también en lo que añade la otra vía. Cuando dos discrepan, cuenta la más tranquila. Las repeticiones nunca esperan: se omiten.",
+    lane_calm_hint: "Reglas que retienen mensajes, los envían en silencio o los agrupan en un resumen. Si dos discrepan, gana la más tranquila.",
     band: "Siempre pasa",
-    band_hint: "Estos mensajes nunca se resumen y las horas de silencio no se aplican a las personas afectadas. La presencia sigue decidiendo según dónde está la gente.",
+    band_hint: "Estos mensajes nunca se resumen y las horas de silencio no se aplican a las personas afectadas. Quién los recibe depende del mensaje original (por ejemplo personas nombradas, los admins, todos en casa).",
     lane_arrive: "Asegurar que llegue",
-    lane_arrive_hint: "Se ejecuta cada regla de envío que encaja. Los escalados y recordatorios cuentan desde la creación del mensaje.",
+    lane_arrive_hint: "Reglas que envían mensajes adicionales, por ejemplo cuando no se localizó a los destinatarios originales o nadie reaccionó. Se aplican todas las reglas que encajan.",
     lane_named: "Solo si se nombra",
-    lane_named_hint: "Solo actúan cuando una llamada o una regla de vigilancia las nombra por su ID de entidad.",
+    lane_named_hint: "Solo se usan cuando una automatización o una regla de vigilancia las nombra.",
+    ck_close: "Cerrar",
+    help_close: "Cerrar",
+    w_all: "Todos los mensajes",
+    w_severity: "Nivel: {list}",
+    w_tag: "Etiqueta: {list}",
+    w_not: "excepto {list}",
+    w_named: "Solo si se nombra",
     col_policy: "Regla",
     col_messages: "Qué mensajes",
     col_does: "Qué hace",
     lane_empty: "Ninguna todavía.",
-    badge_converted: "de 1.x",
     turn_off: "Desactivar",
     turn_on: "Activar",
     not_severities: "Excepto niveles",
@@ -754,24 +778,24 @@ export const STRINGS = {
     s_only_if: " Solo mientras {entity} esté en {state}.",
     s_faster: " Mientras {entity} esté en {state}: cada {n} min.",
     s_alongside: " Funciona junto a otros recordatorios.",
-    s_holds_anyway: " Ninguna entrada Siempre pasa la atraviesa.",
+    s_holds_anyway: " No pasa nada, ni siquiera Siempre pasa.",
     s_rules: " Solo mensajes de las reglas de vigilancia {names}.",
-    links_note: "Solo actúa en mensajes que {names} no toman, como en 1.x.",
+    links_note: "Omite los mensajes de los que ya se ocupa {names}.",
     overlap_calm: "Donde ella y {names} encajan, cuenta la más tranquila.",
     overlap_send: "También actúa en los mismos mensajes: {names}.",
-    cl_title: "Revisar tras la actualización",
-    cl_intro: "La actualización mantuvo lo que hacían tus reglas. Estas reglas ahora funcionan de otro modo o nunca actúan; elige para cada una.",
-    cl_links: "{name} solo actúa en mensajes que {names} no toman, como antes.",
-    cl_never: "{name} nunca actúa: {names} toman primero todos sus mensajes.",
-    cl_holds: "{name} también retiene los mensajes críticos, como antes.",
-    cl_keep: "Dejar como antes",
-    cl_act: "Dejar que actúe",
-    cl_through: "Dejar pasar Crítico",
+    cl_title: "Revisa tras la actualización",
+    cl_intro: "Tus reglas funcionan como antes de la actualización. Algunas dependen ahora unas de otras; decide para cada una.",
+    cl_links: "{name} omite los mensajes de los que ya se ocupa {names}.",
+    cl_never: "{name} no hace nada por ahora: {names} ya se ocupa de todos sus mensajes.",
+    cl_holds: "{name} también retiene los mensajes críticos.",
+    cl_keep: "Dejarlo así",
+    cl_act: "Que actúe también en ellos",
+    cl_through: "Dejar pasar los mensajes críticos",
     cl_dismiss: "Ocultar la lista",
     cl_kept: "mantenido",
     cl_changed: "cambiado",
-    ck_title: "¿Qué pasa con un mensaje?",
-    ck_intro: "No se envía nada. La respuesta usa las reglas tal como están ahora.",
+    ck_title: "Probar las reglas",
+    ck_intro: "Prueba un mensaje: ves quién lo recibiría, cuándo y por qué. No se envía nada.",
     ck_severity: "Nivel",
     ck_tag: "Etiqueta",
     ck_channels: "Canales",
@@ -896,6 +920,19 @@ const CSS = `
 .hu-page fieldset.pills label.inline { min-height: 36px; gap: 8px; padding: 0 14px 0 10px; border-radius: 18px; border: 1px solid var(--hu-line); background: var(--hu-fill); cursor: pointer; }
 .hu-page fieldset.pills label.inline:has(input:checked) { border-color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 16%, var(--card-background-color)); }
 .hu-page fieldset.pills label.inline input { width: 16px; height: 16px; margin: 0; }
+.hu-page dialog.hu-modal { width: min(920px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); padding: 0; border: 1px solid var(--divider-color); border-radius: 16px; background: var(--card-background-color); color: var(--primary-text-color); box-shadow: 0 12px 40px rgba(0, 0, 0, .35); overflow: hidden; }
+.hu-page dialog.hu-modal[open] { display: flex; flex-direction: column; }
+.hu-page dialog.hu-modal::backdrop { background: rgba(0, 0, 0, .55); }
+.hu-page .hu-modal-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--divider-color); }
+.hu-page .hu-modal-head .tl-title { margin: 0; }
+.hu-page .hu-close { margin-left: auto; flex: none; width: 44px; height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+.hu-page .hu-modal-body { overflow: auto; padding: 8px 0 16px; }
+.hu-page .hu-modal-body .ck-card .tl-grid, .hu-page .hu-modal-body .ck-card > fieldset { margin: 0 16px 12px; }
+.hu-page .hu-modal-body .ck-card > .tl-actions { padding: 0 16px; }
+.hu-page .hu-modal-body > .hu-page { padding: 0 16px; }
+@media (max-width: 600px) {
+  .hu-page dialog.hu-modal { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; border: 0; }
+}
 .hu-page .ck-answer { margin: 4px 16px 16px; padding: 4px 0 0; border-top: 1px solid var(--divider-color); }
 .hu-page .ck-step { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; position: relative; padding: 12px 0 4px; }
 .hu-page .ck-step::before { content: ""; position: absolute; left: 37px; top: 34px; bottom: -8px; width: 2px; background: var(--divider-color); }
@@ -1353,12 +1390,16 @@ const RESULT_ICONS = { sent: "mdi:check-circle-outline", quiet: "mdi:bell-sleep-
 
 // The "Which messages" column: For, Not for and From watch rule in a few words.
 export function whichText(values, t, ruleName = (v) => v) {
-  let text = appliesText(values, t);
-  if (values.apply === "manual") return text;
+  if (values.apply === "manual") return t.w_named;
+  const parts = [];
+  if (values.severities.length) parts.push(fill(t.w_severity, { list: values.severities.map((x) => t.severity_names[x]).join(", ") }));
+  const tags = splitTags(values.tags);
+  if (tags.length) parts.push(fill(t.w_tag, { list: tags.join(", ") }));
+  if (!parts.length) parts.push(t.w_all);
   const not = [...values.not_severities.map((x) => t.severity_names[x]), ...splitTags(values.not_tags).map((x) => `#${x}`)];
-  if (not.length) text += fill(t.s_not_for, { list: not.join(", ") }).replace(/\.$/, "");
-  if (values.rules.length) text += fill(t.s_rules, { names: values.rules.map(ruleName).join(", ") }).replace(/\.$/, "");
-  return text;
+  if (not.length) parts.push(fill(t.w_not, { list: not.join(", ") }));
+  if (values.rules.length) parts.push(values.rules.map(ruleName).join(", "));
+  return parts.join(" · ");
 }
 
 // The "What it does" column: the sentence without who it applies to.
@@ -1384,7 +1425,7 @@ export function mount(container, ctx) {
   let message = "";
   let checked = null; // the last answer of the checker
   let openKey = null; // the policy whose row is open
-  let showCheck = false; // the checker is folded away until asked for
+  let checkDialog = null; // the open "Test policies" dialog
   const ask = { severity: "warning", tag: "", rule: "", at: "", home: {}, ack: "", channels: ["banner", "push"], audience: "" };
   const root = el("div", { className: "hu-page" });
   container.append(root);
@@ -1394,7 +1435,7 @@ export function mount(container, ctx) {
   const labels = () => ({ audience: (v) => ui.audienceLabel(v, data.choices), recipient: (v) => ui.recipientLabel(v, data.choices), rule: ruleName });
 
   // The lanes as tables like the other configuration pages: an icon and the name, which messages,
-  // what it does. A row opens its details: the sentence, the switch ID, links kept from 1.x, and
+  // what it does. A row opens its details: the sentence, the switch ID, the policies it skips for, and
   // the actions (DESIGN §25.9).
   function lanes() {
     const out = [];
@@ -1425,7 +1466,6 @@ export function mount(container, ctx) {
     const isOpen = openKey === policy.subentry_id;
     const lead = [el("ha-icon", { icon: TYPE_ICONS[values.type] || "mdi:tune" }), el("span", { className: "tl-name", textContent: policy.name })];
     if (!values.enabled) lead.push(el("span", { className: "badge", textContent: t.disabled }));
-    if (values.links.length) lead.push(el("span", { className: "badge", textContent: t.badge_converted }));
     const messages = whichText(values, t, ruleName);
     const does = doesText(values, t, labels());
     const { item } = ui.tableRow({
@@ -1521,14 +1561,49 @@ export function mount(container, ctx) {
   }
 
   // The checker "What happens to a message?" (DESIGN §25.8): nothing is sent.
+  // A dialog over the page, closed by its button, Escape or a click beside it.
+  function modal(title, intro, icon) {
+    const dialog = el("dialog", { className: "hu-modal" });
+    const close = el("button", { type: "button", className: "hu-close" }, [el("ha-icon", { icon: "mdi:close" })]);
+    close.setAttribute("aria-label", t.ck_close);
+    close.addEventListener("click", () => dialog.close());
+    const head = el("div", { className: "hu-modal-head" }, [
+      el("span", { className: "lane-icon" }, [el("ha-icon", { icon })]),
+      el("div", {}, [el("h2", { className: "tl-title", textContent: title }), ...(intro ? [el("div", { className: "lane-hint", textContent: intro })] : [])]),
+      close,
+    ]);
+    const body = el("div", { className: "hu-modal-body" });
+    dialog.append(head, body);
+    dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+    dialog.addEventListener("close", () => dialog.remove());
+    root.append(dialog);
+    dialog.showModal();
+    return { dialog, body };
+  }
+
+  function openChecker() {
+    const { dialog, body } = modal(t.ck_title, t.ck_intro, "mdi:flask-outline");
+    checkDialog = { dialog, body };
+    dialog.addEventListener("close", () => { checkDialog = null; });
+    body.append(checker());
+  }
+
+  async function openHelp() {
+    const { body } = modal(t.help_button, "", "mdi:help-circle-outline");
+    try {
+      const self = new URL(import.meta.url);
+      const url = new URL("policy_help.js", self);
+      url.search = self.search;
+      const help = await import(url.href);
+      const code = String(ctx.language || "en").split("-")[0];
+      help.mount(body, { t: help.STRINGS[code] || help.STRINGS.en, ui, embedded: true });
+    } catch (err) {
+      body.append(el("div", { className: "hint problems", textContent: String(err.message || err) }));
+    }
+  }
+
   function checker() {
-    const box = el("section", { className: "ck-card" });
-    box.append(
-      el("div", { className: "lane-head" }, [
-        el("span", { className: "lane-icon" }, [el("ha-icon", { icon: "mdi:map-marker-path" })]),
-        el("div", {}, [el("h2", { className: "tl-title", textContent: t.ck_title }), el("div", { className: "lane-hint", textContent: t.ck_intro })]),
-      ]),
-    );
+    const box = el("div", { className: "ck-card" });
     const grid = el("div", { className: "tl-grid ck-grid" });
     grid.append(ui.field(t.ck_severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), ask.severity, (v) => { ask.severity = v; })));
     grid.append(ui.field(t.ck_tag, ui.textInput(ask.tag, (v) => { ask.tag = v; })));
@@ -1562,8 +1637,10 @@ export function mount(container, ctx) {
       } catch (err) {
         checked = { error: err.message || String(err) };
       }
-      render();
-      root.querySelector(".ck-answer")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      if (checkDialog) {
+        checkDialog.body.replaceChildren(checker());
+        checkDialog.body.querySelector(".ck-answer")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     });
     box.append(el("div", { className: "tl-actions" }, [run]));
     if (checked) box.append(answer(checked));
@@ -1809,15 +1886,15 @@ export function mount(container, ctx) {
     // The action bar: add, check a message, and the help page (DESIGN §25.9).
     const add = el("button", { type: "button", className: "primary" }, [el("ha-icon", { icon: "mdi:plus" }), el("span", { textContent: t.new })]);
     add.addEventListener("click", () => { message = ""; editing = { own: null, values: blankValues("quiet_hours") }; render(); });
-    const check = el("button", { type: "button" }, [el("ha-icon", { icon: "mdi:map-marker-path" }), el("span", { textContent: t.ck_title })]);
-    check.setAttribute("aria-expanded", String(showCheck));
-    check.addEventListener("click", () => { showCheck = !showCheck; render(); });
+    const check = el("button", { type: "button" }, [el("ha-icon", { icon: "mdi:flask-outline" }), el("span", { textContent: t.ck_title })]);
+    check.setAttribute("aria-haspopup", "dialog");
+    check.addEventListener("click", openChecker);
     const help = el("button", { type: "button" }, [el("ha-icon", { icon: "mdi:help-circle-outline" }), el("span", { textContent: t.help_button })]);
-    help.addEventListener("click", () => ctx.navigate("policy-help"));
+    help.setAttribute("aria-haspopup", "dialog");
+    help.addEventListener("click", openHelp);
     root.append(el("div", { className: "pol-bar" }, [add, check, help]));
     if (message) root.append(el("div", { className: "hint problems", textContent: message, role: "alert" }));
     root.append(...checklist());
-    if (showCheck) root.append(checker());
     if (!data.policies.length) root.append(el("div", { className: "tl-empty", textContent: t.none }));
     root.append(...lanes());
   }

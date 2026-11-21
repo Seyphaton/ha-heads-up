@@ -442,7 +442,7 @@ Open the message in the Message Log and look for entries with the channel `timer
 - `skipped` with `audience_missing` or `group_missing`: an audience or group the policy names was deleted. Edit the policy. Home Assistant lets you delete any entry on its Devices & services page, even one a policy uses, so Heads Up raises a notice under Settings > System > Repairs that names the policy, and Needs attention lists it. Delete audiences and speaker groups on the panel pages instead: they refuse while a policy uses them.
 - `cleared` with `nobody_left`: every recipient had dismissed or snoozed, so there was nobody to remind.
 - `skipped` with `only_if`: the policy's Only if was false at that moment.
-- No entry: the policy did not match the message (severity, tag, Not for, From watch rule or the `policy` field), is disabled, or was added after the message became visible. What happens to a message? on the Policies page shows which policies fit. A policy added later starts at the message's next update. See [Policies](configuration.md#policies).
+- No entry: the policy did not match the message (severity, tag, Not for, From watch rule or the `policy` field), is disabled, or was added after the message became visible. Test policies on the Policies page shows which policies fit. A policy added later starts at the message's next update. See [Policies](configuration.md#policies).
 
 ### A push did not arrive during the night, or arrived late
 

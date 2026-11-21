@@ -7,7 +7,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ### Before you upgrade
 
 - Make a backup before you update. The first start converts your policies, and Heads Up 1.x cannot read the converted setup. To go back, restore the backup. [Upgrading](docs/setup.md#upgrading) has the steps.
-- Policies no longer run in a list order or a mode: every policy that fits a message acts. The conversion keeps what your policies did. A policy that came below another one gets a note "Acts only on messages that … do not take", and the Policies page lists every such policy under Check after the update, with Keep as before and Let it act.
+- Policies no longer run in a list order or a mode: every policy that fits a message acts. The conversion keeps what your policies did. A policy that came below another one gets the note "Skips messages that … already handle", and the Policies page lists every such policy under Please check after the update, with Keep it like this and Let it act on them too.
 - "Critical messages pass" and "Include critical messages" are gone. Where they let critical messages through, the conversion adds the Get through entry Critical; where they held them, the policy gets Holds these anyway; a Presence policy that let them through gets Not for Critical. The policy switch attributes `critical_passes`, `include_critical` and `order` are gone; `not_severities`, `not_tags` and `rules` are new.
 - Setups on "Every policy that applies runs": two reminders on the same channel now share the shorter rhythm instead of both repeating. Turn on Runs alongside on a reminder to keep its own rhythm.
 - An escalation also sends to people who already have the message: they get a second push.
@@ -29,8 +29,8 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - Not for severities and Not for tags, and From watch rule, on every policy.
 - Only if on every policy: it acts only while a condition holds, in the shape of the `notify` condition. Guests: a Presence policy with Only if "guest mode is off".
 - Reminders: Faster while repeats at a shorter time while a condition holds; Runs alongside keeps a reminder's own rhythm.
-- What happens to a message? on the Policies page: plays a message through your policies at a chosen time and with chosen people at home, and lists per person what happens and why, with the escalations and reminders of the next 24 hours. Nothing is sent.
-- Help page How policies work together: each type of policy against every other one, with an example.
+- Test policies on the Policies page: plays a message through your policies at a chosen time and with chosen people at home, and lists per person what happens and why, with the escalations and reminders of the next 24 hours. Nothing is sent.
+- How policies work together, in a window from the Policies page and under Help: each type of policy against every other one, with an example.
 - The Message Log names the policy that held, dropped or quieted a delivery. Needs attention warns when an escalation can be caught by quiet hours or Presence, when it was, and when two Presence policies contradict each other.
 - The introduction offers one list without a choice of mode; Critical messages adds the Get through entry Critical.
 - New setups get other default push levels: critical `critical` (an alarm that sounds in silent mode), warning `time-sensitive`, info `normal`, passive `passive`. An existing setup keeps the levels it had; change them on the Severities page.

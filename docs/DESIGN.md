@@ -817,14 +817,14 @@ Equivalence test: for each fixture, run the 1.1 selection and chain over a grid 
 ### 25.7 Check list after the update
 - Stored as the entry option `conversion_items`: `{policy, kind, state}`, `kind` one of `links`, `never_acts`, `holds_anyway` (D-235); `state` `open`, `kept` or `changed`.
 - Shown at the top of the Policies page until every item is answered or the list is dismissed. Each item: one sentence and two buttons.
-  - `links`: "Acts only on messages that Critical delivery and Warning reminder do not take, as before." Keep as before / Let it act (removes the links).
+  - `links`: "Night quiet skips messages that Evening summary already handles." Keep it like this / Let it act on them too (removes the links).
   - `never_acts`: "Never acts: Critical delivery, Warning reminder, Evening summary and Night quiet take all its messages first." Keep as before / Let it act.
   - `holds_anyway`: "Holds critical messages too, as before." Keep as before / Let Critical through.
 - The added entry Critical and Not for critical on Presence get no item; the CHANGELOG lists them once, with the mode `all` differences.
 - A user who never opens the list keeps 1.x behaviour, except the listed differences.
 
 ### 25.8 Checker and message history
-Checker "What happens to a message?" at the top of the Policies page, admin WebSocket command `heads_up/policy_check`:
+Checker "Test policies", a dialog opened from the action bar of the Policies page, admin WebSocket command `heads_up/policy_check`:
 - Input: severity, tag, source (`notify`, or a watch rule), channels and recipients as in a call (default: push to everyone), time (default now), who is home (default as now, each person switchable), acknowledged after (never, or N minutes).
 - Work: the same `fits` and chain stages as the engine, with a fixed clock and the given presence; no ledger, store or trace writes. It plans escalations and reminders for 24 hours, or until the limits end them.
 - Output: one line per recipient and channel and per planned step: time, outcome (sent, sent quietly, held until, dropped, skipped), the policy that caused it and why ("tagged alarm", "22:00 to 07:00", "nobody home"), and "would have let it through" where a fitting band entry is switched off.
@@ -856,12 +856,12 @@ Lane, band and new labels in the four languages; type names and existing labels 
 | from rule | From watch rule | Von Überwachungsregel | Depuis la règle de surveillance | Desde la regla de vigilancia |
 | faster while | Faster while | Öfter, solange | Plus souvent tant que | Más a menudo mientras |
 | alongside | Runs alongside other reminders | Läuft neben anderen Erinnerungen | Fonctionne à côté des autres rappels | Funciona junto a otros recordatorios |
-| checker | What happens to a message? | Was passiert mit einer Meldung? | Que devient un message ? | ¿Qué pasa con un mensaje? |
-| check list | Check after the update | Nach dem Update prüfen | À vérifier après la mise à jour | Revisar tras la actualización |
-| keep | Keep as before | Wie bisher lassen | Garder comme avant | Dejar como antes |
-| let act | Let it act | Wirken lassen | La laisser agir | Dejar que actúe |
+| checker | Test policies | Richtlinien testen | Tester les règles | Probar las reglas |
+| check list | Please check after the update | Bitte nach dem Update prüfen | À vérifier après la mise à jour | Revisa tras la actualización |
+| keep | Keep it like this | So lassen | Laisser ainsi | Dejarlo así |
+| let act | Let it act on them too | Auch dafür wirken lassen | La laisser agir aussi sur eux | Que actúe también en ellos |
 
-The German and French terms for "watch rule" follow the existing rule strings of 1.1; the table is checked against them when the strings are written. Top lines: calm "These act on every delivery, also on what the other lane adds. Where two disagree, the calmer counts. Repeats never wait: they are skipped." Band "These messages are never summarized, and quiet hours do not apply to the people covered. Presence still decides by where people are." Arrive "Every sending policy that fits runs. Escalations and reminders count from when the message was created."
+The German and French terms for "watch rule" follow the existing rule strings of 1.1; the table is checked against them when the strings are written. Top lines (plain language, D-238): calm "Policies that hold messages back, send them quietly or bundle them into a summary. If two disagree, the quieter one wins." Band "These messages are never summarized, and quiet hours do not apply to the people covered. Who gets them depends on the original message (for example named people, the Admins, everyone at home)." Arrive "Policies that send additional messages, for example when the original recipients could not be reached or nobody reacted. All policies that fit are applied." No user-facing text names the earlier version; a converted link reads "Skips messages that … already handle".
 
 ### 25.11 Promise lines (last step, D-234)
 A line on every card ("Kept", "Bent for tag alarm by Alarms wake Admins: let through for the Admins", "Never acts: …"), computed by the checker's work over four severities × each named tag and no tag × 168 hours, short form "Bent for 3 kinds of message: see What happens" when more than two cases apply. Built last; when the rest of the phase is done, the maintainer decides whether it ships in 2.0.0 or moves to 2.1. A test per scenario of `01-users-and-stories.md` covers each line; the line must fit one row at 380 px in all four languages.

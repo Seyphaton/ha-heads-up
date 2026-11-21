@@ -289,7 +289,7 @@ A fourth table, Only when named, lists manual policies. Four rules decide what h
 3. A Get through entry keeps the messages it fits out of every summary. Quiet hours do not apply to them for the people the entry covers.
 4. Presence is never passed: nothing is spoken into an empty house.
 
-The help page How policies work together, under Help and behind a button on the Policies page, shows each type of policy against every other one, with an example.
+How policies work together opens in a window from the Policies page and is also under Help. It shows each type of policy against every other one, with an example.
 
 ### Which messages a policy applies to
 
@@ -307,9 +307,9 @@ The `policy` field of `heads_up.notify` names manual policies by the entity ID o
 
 A disabled policy is never used. A policy you switch on acts on messages that arrive afterwards. Names must be unique, and `none` is reserved. The form refuses a second automatic policy of the same type with the same lists and time, because it would do the same thing twice.
 
-### What happens to a message?
+### Test policies
 
-What happens to a message? on the Policies page plays a message through your policies without sending anything. Choose the severity, the tag, where it comes from, the channels and the audience, a time, who is at home and when someone acknowledges. The answer lists, per person and channel, whether the message is sent, sent quietly, held or skipped, and which policy caused it. Below it come the escalations and reminders of the next 24 hours.
+Test policies on the Policies page opens a window that plays a message through your policies without sending anything. Choose the severity, the tag, where it comes from, the channels and the audience, a time, who is at home and when someone acknowledges. The answer lists, per person and channel, whether the message is sent, sent quietly, held or skipped, and which policy caused it. Below it come the escalations and reminders of the next 24 hours.
 
 The answer uses your policies and audiences as they are now. Only if and Faster while use the current state of their entities.
 
