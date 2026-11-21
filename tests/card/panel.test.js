@@ -204,10 +204,17 @@ import {
   timeAgo,
 } from "../../custom_components/heads_up/frontend/heads-up-panel.js";
 import {
-  badgeList,
   barTip,
+  cellDetail,
+  cellLabel,
+  CELL_STATES,
   chartModel,
+  comingText,
+  contextLines,
+  countText,
   fixKey,
+  pathLines,
+  statusHeadline,
   STRINGS as OVERVIEW_STRINGS,
 } from "../../custom_components/heads_up/frontend/panel/overview.js";
 import {
@@ -302,13 +309,82 @@ describe("shared wording", () => {
 });
 
 describe("overview functions", () => {
-  it("lists only the badges that occur, in a fixed order", () => {
-    expect(badgeList({ escalating: 0, reminding: 2, snoozed: 1, held: 0, acknowledged: 3 })).toEqual([
-      { key: "reminding", n: 2 },
-      { key: "snoozed", n: 1 },
-      { key: "acknowledged", n: 3 },
+  const fmt = { inTime: (iso) => `in(${iso})`, reasonText: (code) => `r:${code}`, channelName: (c) => `ch:${c}` };
+  const sh = { channel: { push: "Push" }, severity: { critical: "Critical" }, result: { sent: "sent", skipped: "skipped", acknowledged: "acknowledged" } };
+  const t = OVERVIEW_STRINGS.en;
+
+  it("words the status headline for none, one and many", () => {
+    expect(statusHeadline(0, t)).toBe(t.status_clear);
+    expect(statusHeadline(1, t)).toBe(t.status_one);
+    expect(statusHeadline(3, t)).toBe("3 notifications need you");
+  });
+
+  it("counts messages with the right plural", () => {
+    expect(countText(1, t)).toBe("1 message");
+    expect(countText(2, t)).toBe("2 messages");
+  });
+
+  it("words a Coming up entry with its policy, time and count", () => {
+    const text = comingText({ kind: "escalation", policy: "Water", time: "T", count: 2 }, 0, t, sh, fmt);
+    expect(text).toBe("Escalation Water: in(T) · 2 messages");
+    expect(comingText({ kind: "quiet_release", policy: "", time: "T", count: 1 }, 0, t, sh, fmt)).toBe("Held by quiet hours, sent in(T) · 1 message");
+  });
+
+  it("shows a count in a cell only when the people differ", () => {
+    expect(cellLabel({ state: "sound", count: 3, total: 3 }, t)).toEqual({ word: "Sound", count: null });
+    expect(cellLabel({ state: "shown", count: 2, total: 3 }, t)).toEqual({ word: "Shown", count: "2 of 3" });
+    expect(cellLabel({ state: "not_set_up", count: 0, total: 0 }, t)).toEqual({ word: "Not set up", count: null });
+  });
+
+  it("has a word and a sentence for every cell state in every language", () => {
+    for (const [code, language] of Object.entries(OVERVIEW_STRINGS)) {
+      for (const state of CELL_STATES) {
+        expect(language[`cell_${state}`], `${code} ${state}`).toBeTruthy();
+        expect(language[`sentence_${state}`], `${code} ${state}`).toBeTruthy();
+      }
+    }
+  });
+
+  it("describes a cell with the people and their reasons", () => {
+    const cell = { state: "shown", count: 1, total: 2, reason: null, who: [{ name: "Anna", state: "shown", reason: null }, { name: "Ben", state: "held", reason: "quiet_hours" }] };
+    const detail = cellDetail(cell, "push", "critical", t, sh, fmt);
+    expect(detail.title).toBe("Push, Critical: Shown, 1 of 2");
+    expect(detail.sentence).toBe(t.sentence_shown);
+    expect(detail.people).toEqual(["Anna: Shown", "Ben: Waits (r:quiet_hours)"]);
+    const none = cellDetail({ state: "skipped", count: 0, total: 0, reason: "no_recipients", who: [] }, "push", "critical", t, sh, fmt);
+    expect(none.reason).toBe("r:no_recipients");
+    expect(none.empty).toBe(t.reach_nobody);
+  });
+
+  it("lists the context: time, quiet hours, who is away and each summary", () => {
+    const context = {
+      now: "2026-11-02T22:30:00Z",
+      quiet: { policies: ["Night"], until: "2026-11-03T06:00:00Z" },
+      away: ["Ben"],
+      summaries: [{ policy: "Digest", tags: ["digest"], due: "D" }, { policy: "All", tags: [], due: "E" }],
+    };
+    const lines = contextLines(context, 0, t, sh, fmt, "en");
+    expect(lines).toHaveLength(5);
+    expect(lines[1]).toMatch(/^Quiet hours until /);
+    expect(lines[2]).toBe("Away: Ben.");
+    expect(lines[3]).toBe("Messages tagged digest wait for the summary Digest, in(D).");
+    expect(lines[4]).toBe("Messages wait for the summary All, in(E).");
+    expect(contextLines({ now: context.now, quiet: { policies: ["Night"], until: null }, away: [], summaries: [] }, 0, t, sh, fmt, "en")[1]).toBe(t.reach_quiet_open);
+    expect(contextLines(null, 0, t, sh, fmt, "en")).toEqual([]);
+  });
+
+  it("writes the path of a message oldest first and folds identical steps", () => {
+    const entries = [
+      { channel: "", result: "acknowledged", who: "Anna", time: "3" },
+      { channel: "push", result: "skipped", reason: "quiet_hours", time: "2" },
+      { channel: "push", result: "skipped", reason: "quiet_hours", time: "2" },
+      { channel: "timer", result: "sent", timer: { policy: "Water" }, time: "1" },
+    ];
+    expect(pathLines(entries, sh, fmt).map((l) => [l.text, l.n])).toEqual([
+      ["Water · sent", 1],
+      ["ch:push · skipped: r:quiet_hours", 2],
+      ["acknowledged · Anna", 1],
     ]);
-    expect(badgeList(undefined)).toEqual([]);
   });
 
   it("draws one bar per hour, stacked by severity with the least severe at the bottom", () => {
@@ -341,7 +417,6 @@ describe("overview functions", () => {
         expect(language[key], `${code} ${key}`).toBeTruthy();
       }
     }
-    const t = OVERVIEW_STRINGS.en;
     expect(barTip({ total: 1, hoursAgo: 0 }, t)).toBe("1 message · last hour");
     expect(barTip({ total: 3, hoursAgo: 5 }, t)).toBe("3 messages · 5 h ago");
   });
