@@ -18,6 +18,7 @@ from ..const import (
     AUDIENCE_SUBENTRY,
     BUILTIN_AUDIENCES,
     CHANNELS,
+    HOLD_QUIET,
     OPT_ATTENTION_DISMISSED,
     OPT_MAIL_SERVICE,
     OPT_SPEAK_TTS_ENTITY,
@@ -499,21 +500,79 @@ def shortcuts(entry: Any, manager: BannerManager) -> dict[str, Any]:
     }
 
 
-def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[str, Any]:
-    items = []
-    for banner in _messages(manager):
-        items.append(
-            {
-                "id": banner.id,
-                "title": banner.title,
-                "message": banner.message,
-                "severity": banner.severity,
-                "source": banner.source,
-                "states": message_states(manager, banner),
-                "can_acknowledge": manager.can_acknowledge_any(banner),
-                "can_clear": banner.id not in manager.rules,
-            }
+def _item(manager: BannerManager, banner: Any) -> dict[str, Any]:
+    return {
+        "id": banner.id,
+        "title": banner.title,
+        "message": banner.message,
+        "severity": banner.severity,
+        "source": banner.source,
+        "states": message_states(manager, banner),
+        "can_acknowledge": manager.can_acknowledge_any(banner),
+        "can_clear": banner.id not in manager.rules,
+        "snoozable": banner.snoozable,
+    }
+
+
+def status(manager: BannerManager) -> dict[str, Any]:
+    """The status card: active critical and warning messages nobody has acknowledged (D-244)."""
+    items = [
+        _item(manager, b)
+        for b in _messages(manager)
+        if b.severity in ("critical", "warning") and not b.acknowledged_by
+    ]
+    return {"count": len(items), "items": items}
+
+
+def coming_up(manager: BannerManager) -> list[dict[str, Any]]:
+    """What is about to happen, earliest first: escalations and reminders due, the next summary
+    with the messages waiting for it, and the release of deliveries held by quiet hours. Each
+    entry has a kind, a time and a count of messages (and the policy when one is named)."""
+    hub = manager.hub
+    if hub is None:
+        return []
+    groups: dict[tuple[str, str], dict[str, Any]] = {}
+
+    def add(kind: str, policy: str, time: datetime | None, message_id: str) -> None:
+        if time is None:
+            return
+        entry = groups.setdefault(
+            (kind, policy),
+            {"kind": kind, "policy": policy, "time": time, "ids": set()},
         )
+        entry["time"] = min(entry["time"], time)
+        entry["ids"].add(message_id)
+
+    for banner in _messages(manager):
+        if banner.acknowledged_by:
+            continue
+        for row in hub.ledger.timers(banner.id):
+            kind, name = _policy_kind_name(hub, row.recipient)
+            if kind in ("escalation", "reminder") and row.state is State.PLANNED:
+                add(kind, name, row.due, banner.id)
+    for held in hub.ledger.held.values():
+        if held.resolved or held.summarized:
+            continue
+        policy = hub.policies.by_key(held.policy)
+        due = hub._summary_due(policy) if policy is not None else None
+        add("summary", policy.name if policy else "", due, held.message_id)
+    for row in hub.ledger.rows.values():
+        if row.state is State.HELD and row.hold == HOLD_QUIET:
+            add("quiet_release", "", row.due, row.message_id)
+    out = [
+        {
+            "kind": g["kind"],
+            "policy": g["policy"],
+            "time": g["time"].isoformat(),
+            "count": len(g["ids"]),
+        }
+        for g in groups.values()
+    ]
+    return sorted(out, key=lambda e: (e["time"], e["kind"], e["policy"]))
+
+
+def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[str, Any]:
+    items = [_item(manager, b) for b in _messages(manager)]
     counts = {
         key: sum(1 for i in items if any(s["state"] == key for s in i["states"]))
         for key in ("escalating", "reminding", "snoozed", "held", "acknowledged")
@@ -533,6 +592,8 @@ def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[st
             "showing": sum(1 for r in rules if r["showing"]),
             "items": rules,
         },
+        "status": status(manager),
+        "coming_up": coming_up(manager),
         "attention": shown,
         "attention_hidden": hidden,
         "shortcuts": shortcuts(entry, manager),

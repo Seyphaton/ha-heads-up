@@ -1581,3 +1581,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Table: a cell is computed by the real engine for the people of the Everyone audience, and shows a count when people differ. Passive is a column. No cell states a rule the engine does not state (quiet hours may send quietly, hold or drop; push levels come from the severity settings).
 - Status card counts only unacknowledged critical and warning messages. The presence store keeps the time of the last leave and the first arrival. Tips are not in the first version. The mockup file stays local; the version is decided at release time.
 
+
+## D-245 Phase 18 approved; dev instance reset (2026-11-21, maintainer)
+- Context: the maintainer approved Phase 18 only (steps 18.1 to 18.7 of `docs/dev/overview-redesign/PLAN.md`); Phase 19 needs its own go; nothing is pushed or tagged without a new approval (D-020). `make check` was green before any change (1292 pytest, 320 vitest).
+- Decision: the dev instance (`dev/ha-config`, data in the 1.1 layout) is reset with `make dev-reset` and `make dev-onboard` instead of converted, so the first-launch state can be checked on a clean instance.

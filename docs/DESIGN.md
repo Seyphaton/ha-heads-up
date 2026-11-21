@@ -901,3 +901,12 @@ Order; each step one or more commits, `make check` green after each.
 - Settled by the build: the panel edits Only if and Faster while as an entity and a state; any other condition is shown read-only and kept, and is edited in the integration's form (D-216).
 - Verified: Only if on a held delivery across a restart. A change after the start is caught by the listener; a change while Home Assistant was stopped is caught by one check at the start (`engine.async_start` calls `conditions_changed` when a policy watches a condition; `tests/hub/test_policy_only_if.py`, two restart tests).
 - Measured 2026-11-21: the checker with 30 policies (10 reminders, 8 escalations, 5 quiet hours, 4 summaries, 3 band entries) over 20 tags, up to 62 planned steps per answer, took at most 6.6 ms per call (mean 3.1 ms) on the development Mac. A small host about ten times slower stays under 0.1 s. Not measured on a Raspberry Pi.
+
+## 26. New Overview (Phase 18, D-244, D-245)
+
+Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section records what is built, step by step.
+
+### 26.1 Status and Coming up (`heads_up/panel_overview`)
+- `status`: `{count, items}` for active critical and warning messages that nobody has acknowledged (decision 7). An item has the fields of an `active` item plus `snoozable`; snoozed messages stay in the list.
+- `coming_up`: entries `{kind, policy, time, count}`, earliest first. Kinds: `escalation` and `reminder` (planned timer rows of unacknowledged active messages, grouped by policy: earliest time, number of messages), `summary` (messages held and not yet summarized, with the due time of the summary timer), `quiet_release` (deliveries held by Quiet hours, earliest release time, number of messages). An empty setup returns `[]`.
+- `active` and `attention` are unchanged; the old page keeps working until step 18.4.

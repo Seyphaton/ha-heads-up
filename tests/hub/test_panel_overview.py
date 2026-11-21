@@ -14,6 +14,7 @@ from .conftest import AddDevice
 from .helpers import set_person, settle
 from .policy_support import (
     ESCALATION,
+    QUIET,
     REMINDER,
     SUMMARIZE,
     add_audience,
@@ -558,3 +559,94 @@ async def test_clearing_or_acknowledging_an_unknown_message_is_not_found(
     for command in ("panel_clear", "panel_acknowledge"):
         reply = await ask(client, command, message_id="missing")
         assert reply["error"]["code"] == "not_found"
+
+
+async def test_status_and_coming_up_are_empty_without_messages(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    client = await hass_ws_client(hass)
+    result = await overview(hass, client)
+    assert result["status"] == {"count": 0, "items": []}
+    assert result["coming_up"] == []
+
+
+async def test_status_lists_only_unacknowledged_critical_and_warning_messages(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    await send(hass, entry, id="c", severity="critical", message="Leak")
+    await send(hass, entry, id="w", severity="warning", message="Door", snooze="user")
+    await send(hass, entry, id="i", severity="info", message="FYI")
+    await send(hass, entry, id="p", severity="passive", message="Done")
+    await send(hass, entry, id="a", severity="critical", message="Seen")
+    entry.runtime_data.acknowledge("a", "anna-id")
+    client = await hass_ws_client(hass)
+    status = (await overview(hass, client))["status"]
+    assert status["count"] == 2
+    by_id = {i["id"]: i for i in status["items"]}
+    assert set(by_id) == {"c", "w"}
+    assert by_id["w"]["snoozable"] is True and by_id["c"]["snoozable"] is False
+    assert by_id["c"]["can_acknowledge"] is False  # no policy applies, so nothing to acknowledge
+    assert by_id["c"]["severity"] == "critical"
+
+
+async def test_coming_up_names_the_escalation_and_the_reminder_with_time_and_count(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Water", **ESCALATION)
+    await add_policy(hass, entry, "Nag", **REMINDER)
+    await send(hass, entry, id="a", message="Leak")
+    await send(hass, entry, id="b", message="Pipe")
+    client = await hass_ws_client(hass)
+    coming = (await overview(hass, client))["coming_up"]
+    kinds = {c["kind"]: c for c in coming}
+    assert set(kinds) == {"escalation", "reminder"}
+    assert kinds["escalation"]["count"] == 2 and kinds["escalation"]["policy"] == "Water"
+    assert kinds["reminder"]["count"] == 2 and kinds["reminder"]["time"]
+    assert [c["time"] for c in coming] == sorted(c["time"] for c in coming)
+    entry.runtime_data.acknowledge("a", "anna-id")
+    coming = (await overview(hass, client))["coming_up"]
+    assert {c["kind"]: c["count"] for c in coming} == {"escalation": 1, "reminder": 1}
+
+
+async def test_coming_up_counts_messages_held_for_a_summary_with_the_summary_time(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Digest", **SUMMARIZE, tags=["digest"])
+    await send(hass, entry, id="h1", severity="warning", tag="digest")
+    await send(hass, entry, id="h2", severity="warning", tag="digest")
+    client = await hass_ws_client(hass)
+    coming = (await overview(hass, client))["coming_up"]
+    (summary,) = [c for c in coming if c["kind"] == "summary"]
+    assert summary["count"] == 2 and summary["time"] and summary["policy"] == "Digest"
+
+
+async def test_coming_up_counts_messages_held_by_quiet_hours_with_the_release_time(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    await hass.config.async_set_time_zone("Europe/Berlin")
+    client = await hass_ws_client(hass)  # before the clock moves: tokens expire in frozen time
+    await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Night", **{**QUIET, "action": "wait"})
+    freezer.move_to("2026-11-02 23:00:00+01:00")
+    await send(hass, entry, id="n1", severity="warning")
+    await send(hass, entry, id="n2", severity="warning")
+    coming = (await overview(hass, client))["coming_up"]
+    (quiet,) = [c for c in coming if c["kind"] == "quiet_release"]
+    assert quiet["count"] == 2
+    assert quiet["time"].startswith("2026-11-03T06:00:00")  # 07:00 Berlin in UTC
