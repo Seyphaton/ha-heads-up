@@ -49,9 +49,9 @@ When something did not arrive, the Message Log tells you why. It lists each chan
 
 1. In HACS, search for "Heads Up", click Download and restart Home Assistant. It needs Home Assistant 2026.9.0 or newer. Make a backup first.
 2. Go to Settings > Devices & services > Add integration > Heads Up. Leave "Show Heads Up in the sidebar" on: it adds the panel, visible to administrators.
-3. Open Heads Up in the sidebar. A four-step introduction shows what it found in your Home Assistant and offers four default policies: critical messages pushed at once to the administrators, warnings repeated every 30 minutes up to three times, an evening summary and quiet hours at night. Not now creates nothing.
+3. Open Heads Up in the sidebar. The Overview starts with a four-step introduction: what Heads Up does, the channels, the audiences with the people in them now, and four default policies. The default policies are critical messages pushed at once to the administrators, warnings repeated every 30 minutes up to three times, an evening summary and quiet hours at night. Policies are created only in the last step, and Not now creates none.
 
-   <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/overview-active.png" width="480" alt="The Heads Up Overview: four active messages, a chart of the last 24 hours, and Acknowledge and Clear buttons on each message">
+   <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/overview-active.png" width="480" alt="The Heads Up Overview: two notifications that need you, with Acknowledge, Snooze, Clear and Show path buttons, then Needs attention and Coming up side by side">
 
 4. Open Test & Logs > Test send. Pick channels and an audience, and the table shows who would get the message on which channel, or why not. Send test sends one real message, which ends by itself after 10 minutes.
 

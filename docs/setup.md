@@ -98,12 +98,16 @@ Six groups in a top row: Overview, Configuration, Banner watch rules, Settings, 
 
 ### Overview
 
-The Status page refreshes every 10 seconds.
+The page refreshes every 10 seconds. From the top:
 
-- Active notifications: the number of messages that have not ended, with a badge for each state that occurs (escalating, reminding, snoozed, in a summary, acknowledged). Show list explains each message in one line and gives it two buttons: Acknowledge (only while an escalation or reminder policy applies and nobody has acknowledged) and Clear, which takes the message back from every channel after a confirmation. A message made by a watch rule has no Clear; disable or delete the rule.
-- Shortcut cards for Watch rules, Channels, Audiences and Policies. A card opens its page.
+- Status: all clear, or the number of critical and warning messages nobody has acknowledged. Each message has Acknowledge (only while an escalation or reminder policy applies), Snooze 1 h (warnings that allow snoozing), Clear (after a confirmation; a watch rule's message has none, so disable or delete the rule) and Show path, which lists what happened to the message, oldest step first.
 - Needs attention: each problem with a button to the page that fixes it. Errors are a watch rule on a missing entity, a device without a notify service, a speaker group without an existing speaker, a speaker group with a media player and no usable text-to-speech engine, an invalid policy and a policy that names a deleted audience. Warnings are a person without a usable device, sends that failed in the last 24 hours and no escalation policy for critical messages. Each warning has a Hide button; errors cannot be hidden.
-- Last actions: the latest events, newest first, with the reason for a skipped or failed delivery.
+- Coming up: what is about to happen, earliest first. Escalations and reminders that are due, the next summary with the number of messages waiting for it, and the messages held by quiet hours with the time they are sent. It says "Nothing is scheduled." when there is nothing.
+- Last actions: the latest events, newest first, with the reason for a skipped or failed delivery. A message with a trace has Show path.
+- What would a message do right now?: a table with the channels as rows and Critical, Warning, Info and Passive as columns. Each cell is the result of a test message to Everyone (speech: to every speaker), run through your policies at this moment, and nothing is sent. A cell says Sound, Shown, Quiet, Waits, Skipped or Not set up. When the people differ it adds a count such as "2 of 3". Select a cell for one sentence, the reason and each person's result. Above the table: the time, quiet hours if they are on, who is away, and each summary with the tags it holds. The table shows Everyone; an action chooses its own channels and people.
+- Activity: the messages of the last 24 hours as bars per hour, split by severity. The numbers start empty after a restart.
+
+Before the first policy exists, the page shows the introduction on top and, under it, empty cards for Needs attention, Coming up, Activity and Last actions with a line on what each will show.
 
 ### Message Log
 
@@ -128,7 +132,12 @@ The panel polls every 10 seconds, so pages do not update the moment something ha
 
 ### The introduction
 
-The first time an administrator opens the panel, a tour of four steps opens: what Heads Up does, the channels, the recipients, and the default policies. Only the last step creates anything, and Not now creates nothing. The Restart introduction button on Settings opens it again.
+The first time an administrator opens the panel, the Overview shows a tour of four steps above its cards. While the tour has not been seen, a visit to any other page opens the Overview. The Restart introduction button on Settings opens it again.
+
+1. Introduction: Channels decide where a message shows up, Audiences decide who gets it, Policies decide when.
+2. Channels: the six channels with what was found. Two settings are here: the notify service for mail with an optional global address, and the text-to-speech engine when Home Assistant has more than one. Mail is only set up here; none of the default policies sends mail. The settings are saved when you leave the step with Next or Back, so they stay if you stop the tour later.
+3. Audiences: the six built-in audiences with the people in them now and whether each is home or away. Last to leave and First home show when it happened. Select a card to read what the audience means, with an example.
+4. Policies: the three groups, Keep it calm, Always gets through and Make sure it arrives, and four default policies, each marked with its group. Create says how many policies it makes. Critical messages makes three, or four when you choose speakers. Policies are created only in this step; Skip the tour and Not now create none.
 
 The last step offers four items:
 

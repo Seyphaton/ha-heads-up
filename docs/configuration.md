@@ -502,7 +502,7 @@ The introduction offers four items. Create adds only what is missing: a policy w
 - Evening summary: messages tagged `digest` are held and sent at 20:00. Your automations have to set the tag.
 - Night quiet: from 22:00 to 07:00 pushes go out without sound and speech is skipped, Not for the tag `digest`.
 
-Critical messages covers every critical message, also those of your existing automations. They get an Acknowledge button on the card and in the push. The audience and the speakers are chosen in the dialog because a policy cannot mean "the people of the original call".
+Critical messages covers every critical message, also those of your existing automations. They get an Acknowledge button on the card and in the push. The audience and the speakers are chosen inside the Critical item of the introduction because a policy cannot mean "the people of the original call". Create states how many policies it makes: three for Critical messages, four with speakers, and one for each other item.
 
 ### Example
 

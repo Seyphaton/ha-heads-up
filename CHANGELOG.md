@@ -45,6 +45,9 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - Speech volume by time of day (up to 4 bands) and by severity, under Settings, Speech volume. Without bands or a severity volume the volume is not changed.
 - `snooze_custom` on `heads_up.notify`, `heads_up.create_banner` and watch rules: the card's snooze row offers **Other…**, so the viewer can snooze for any number of minutes or until a time of day, up to 24 hours.
 - `heads_up_banner_unsnoozed` has the field `reason` and fires when a snooze ends by itself, including a snooze that ran out while Home Assistant was stopped. A global snooze has no `user_id`.
+- New Overview. A status card lists the critical and warning messages nobody has acknowledged, with Acknowledge, Snooze 1 h, Clear and Show path. Coming up lists escalations, reminders, the next summary and the deliveries quiet hours hold, with a time and a count. The table "What would a message do right now?" shows for each channel and severity whether a message would make a sound, show, arrive quietly, wait, be skipped or not be set up, worked out by the same engine that delivers. Last actions rows can show the path of a message.
+- The introduction is part of the Overview instead of a window. Step 2 sets the mail notify service, the global address and the speech engine, and saves them when you leave it. Step 3 shows the six built-in audiences with the people in them. Step 4 names the groups of policies and says how many policies Create makes. Settings > Restart introduction opens it on the Overview.
+- Last to leave and First home remember when they happened; the introduction shows the time.
 
 ## [1.0.0] - 2026-11-16
 
@@ -84,6 +87,7 @@ Read these if you have automations that use 0.4.0. Make a backup first; [Upgradi
 
 ### Changed
 
+- The Overview no longer has the shortcut cards, the Active notifications tile with its badges and the Watch rules tile. The introduction window, the bar that continued a paused tour and the Open page buttons are gone.
 - The integration options (Configure) are grouped in sections and hold the same entries as the panel's Settings page.
 - The event `heads_up_banner_action` carries `person` and `channel`.
 - An invalid call is explained in a sentence, for example "The field message is required.", and a close misspelling of a name gets "Did you mean ...?".
