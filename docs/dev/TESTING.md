@@ -69,6 +69,11 @@
 | `dev/smoke.py editors` | on the dev instance: create, duplicate refusal, reconfigure through `subentry_id`, admin only, delete |
 | `tests/hub/test_panel_attention.py` | each needs-attention check as a pure function: rule entity, device service, person without device, empty group, invalid policy and deleted target, no critical escalation, hub off |
 | `tests/hub/test_panel_overview.py` | admin only, active tile counts and states (escalating pending and sent, reminding, snoozed, held, acknowledged), rules tile, rule messages, needs attention end to end, healthy setup, hub off, log kinds and order, names, bounds, recent messages (order, bound, ended, results, restart), trace, first-run hint |
+| `tests/hub/test_panel_reach.py` | the reach table: admin only, shape, push level sound, quiet hours quiet, wait and drop, a band entry covering some people, popup off, no user, no device, disabled person, mail without service, speech without speaker or engine, summary and away context |
+| `tests/hub/test_panel_audiences.py` | the six audiences with members and times, switched-off audience, admin only |
+| `tests/hub/test_stats_store.py` | the history store: records, local day, clock change, 24 months, restart, damaged files, a fault, clear, size of 730 busy days |
+| `tests/hub/test_stats_recording.py` | what the engine records: created, rule and action sources, deliveries, quiet holds by policy key, acknowledgement time and avoided escalation, reminders, snoozes, dismissals, ends, summaries, a fault does not stop a delivery |
+| `tests/hub/test_panel_stats.py` | `panel_stats` periods, buckets, the four numbers, matrix, sources, clear history, admin only |
 | `tests/hub/test_panel_registration.py` | no entry by default, entry added and removed with the option without a restart, panel config (element, hashed module, base and version), unload and reload, shell and page served and cached, setup flow toggle (on by default, can be off), options form switch |
 | `tests/hub/test_panel_settings.py` | the two commands are admin only, read, write (options kept, trace resized live, range refused), hub switch, people summary |
 | `tests/card/panel.test.js` | navigation (groups, pages, path, second row, URLs), texts in every language (keys and placeholders), Settings functions (problems, changes, labels) |

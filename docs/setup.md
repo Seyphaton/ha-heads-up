@@ -105,7 +105,11 @@ The page refreshes every 10 seconds. From the top:
 - Coming up: what is about to happen, earliest first. Escalations and reminders that are due, the next summary with the number of messages waiting for it, and the messages held by quiet hours with the time they are sent. It says "Nothing is scheduled." when there is nothing.
 - Last actions: the latest events, newest first, with the reason for a skipped or failed delivery. A message with a trace has Show path.
 - What would a message do right now?: a table with the channels as rows and Critical, Warning, Info and Passive as columns. Each cell is the result of a test message to Everyone (speech: to every speaker), run through your policies at this moment, and nothing is sent. A cell says Sound, Shown, Quiet, Waits, Skipped or Not set up. When the people differ it adds a count such as "2 of 3". Select a cell for one sentence, the reason and each person's result. Above the table: the time, quiet hours if they are on, who is away, and each summary with the tags it holds. The table shows Everyone; an action chooses its own channels and people.
-- Activity: the messages of the last 24 hours as bars per hour, split by severity. The numbers start empty after a restart.
+- Activity: pick 24 hours, Week, Month, Year or 2 years. Four numbers: Notifications (with the change against the period before), Delivered (sent divided by sent plus failed; messages held or skipped by a policy are not counted), Median time to acknowledge and Held by quiet hours. Under them a chart of the messages split by severity. For 24 hours, only Notifications cover exactly those hours; the other numbers cover today and yesterday.
+- When your house talks: the messages by weekday and hour over the period. It needs a period of a week or more.
+- Top sources: the eight watch rules and calls that made the most messages. A watch rule shows its current name; every call counts as "Actions (all calls)".
+
+The Activity cards read a history that Heads Up stores for the last 24 months, one record of counts per day. It holds no titles, texts or addresses, only counts per rule, policy and person, and it survives a restart. Settings > Activity history shows how much is stored and clears it after a confirmation.
 
 Before the first policy exists, the page shows the introduction on top and, under it, empty cards for Needs attention, Coming up, Activity and Last actions with a line on what each will show.
 

@@ -17,6 +17,7 @@ Every block has a heading of its own. Save is enabled only when something change
 | Part | What it does |
 |---|---|
 | Introduction | A button, Restart introduction, that opens the introduction on the Overview again. Only in the panel. |
+| Activity history | What is stored (days, range, size) and a button, Clear history, that deletes the history of the Overview's Activity cards after a confirmation. Only in the panel. |
 | Sidebar panel | The sidebar switch (`show_panel`). |
 | Messages | Dismiss settings (default dismiss scope, default timeout in days, hours, minutes and seconds, the ended-buttons switch) and snooze settings (snoozable by default, default snooze scope). Each card says which channels it applies to. The snooze choices of the banner and the snooze time of push and popup are on the Channels page, in the Banner, Push and Popup rows. |
 | Presence | The presence delay for Last to leave, First home and the Presence policy. |
