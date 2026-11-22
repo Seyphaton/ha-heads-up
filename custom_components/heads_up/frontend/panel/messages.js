@@ -10,6 +10,8 @@ export const STRINGS = {
     close: "Close",
     unknown_phone: "Unknown phone ({id})",
     deliveries_title: "Deliveries",
+    purpose_title: "Not sent on purpose",
+    purpose_note: "Left out because of your settings. They are not counted as missed.",
     title: "Message Log",
     recent: "Recent messages",
     recent_hint: "Kept in memory; the list starts empty after a restart.",
@@ -51,6 +53,8 @@ export const STRINGS = {
     close: "Schließen",
     unknown_phone: "Unbekanntes Telefon ({id})",
     deliveries_title: "Zustellungen",
+    purpose_title: "Absichtlich nicht gesendet",
+    purpose_note: "Wegen deiner Einstellungen ausgelassen. Sie zählen nicht als verpasst.",
     title: "Meldungsprotokoll",
     recent: "Letzte Meldungen",
     recent_hint: "Im Speicher gehalten; die Liste ist nach einem Neustart leer.",
@@ -92,6 +96,8 @@ export const STRINGS = {
     close: "Fermer",
     unknown_phone: "Téléphone inconnu ({id})",
     deliveries_title: "Livraisons",
+    purpose_title: "Volontairement non envoyé",
+    purpose_note: "Exclus selon vos réglages. Ils ne comptent pas comme manqués.",
     title: "Journal des messages",
     recent: "Messages récents",
     recent_hint: "Gardés en mémoire ; la liste est vide après un redémarrage.",
@@ -133,6 +139,8 @@ export const STRINGS = {
     close: "Cerrar",
     unknown_phone: "Teléfono desconocido ({id})",
     deliveries_title: "Entregas",
+    purpose_title: "No enviado a propósito",
+    purpose_note: "Excluidos por tu configuración. No cuentan como no alcanzados.",
     title: "Registro de mensajes",
     recent: "Mensajes recientes",
     recent_hint: "Se guardan en memoria; la lista está vacía tras un reinicio.",
@@ -296,6 +304,26 @@ export function mount(container, ctx) {
   container.append(root);
   const now = () => Date.now();
   const label = (value) => (choices && ui ? ui.recipientLabel(value, choices) : value);
+  // The Overview's wording of status and reach, loaded from its module (D-250); until it is there
+  // the list falls back to the older words.
+  let story = null;
+  const storyLine = (message) => {
+    if (!story) return [fmt.timeAgo(message.created_at, now(), s), statusLabel(message, t, s, fmt.reasonText), resultsLine(message.results, t), message.source === "rule" ? t.from_rule : ""].filter(Boolean).join(" · ");
+    const { ov, t: ot } = story;
+    const states = message.states || [];
+    const item = {
+      state: message.ended ? "ended" : states.some((x) => x.state === "acknowledged") ? "acknowledged" : "active",
+      snoozed: states.some((x) => x.state === "snoozed"),
+      end_reason: message.reason,
+      created_at: message.created_at,
+      ended_at: message.ended,
+    };
+    const status = !message.active && !message.ended ? t.inactive : ov.statusOf(item, ot).label;
+    const old = now() - Date.parse(message.created_at) >= 24 * 3600000;
+    const time = old ? ov.clockText(message.created_at, now(), ctx.language) : fmt.timeAgo(message.created_at, now(), s);
+    const channels = (message.delivered_channels || []).map((c) => fmt.channelName(c, s)).join(", ");
+    return [status, time, channels, ov.reachText(message.reach, ot), message.source === "rule" ? t.from_rule : ""].filter(Boolean).join(" · ");
+  };
   const when = (iso) => {
     const date = new Date(iso);
     const absolute = Number.isNaN(date.getTime()) ? "" : date.toLocaleString(ctx.language, { dateStyle: "short", timeStyle: "short" });
@@ -327,9 +355,19 @@ export function mount(container, ctx) {
       const names = trace.acknowledged_by.join(", ");
       body.append(el("div", { textContent: names ? fill(t.ack, { names }) : fill(t.ack_count, { n: trace.acknowledged_count }) }));
     }
+    if (story && trace.reach) {
+      const reached = story.ov.reachText(trace.reach, story.t);
+      if (reached) body.append(el("div", { textContent: reached }));
+      const excluded = trace.reach.excluded || [];
+      if (excluded.length) {
+        body.append(el("h3", { textContent: t.purpose_title }), el("div", { className: "sub", textContent: t.purpose_note }));
+        body.append(el("ul", {}, excluded.map((name) => el("li", { textContent: `${name}: ${fmt.reasonText(trace.reach.excluded_reasons?.[name], s)}`, style: "padding:2px 0" }))));
+      }
+    }
     body.append(el("h3", { textContent: t.deliveries_title }));
     if (trace.entries.length === 0) body.append(el("div", { className: "sub", textContent: t.no_entries }));
-    for (const group of groupEntries(trace.entries, label, t)) {
+    // Oldest first, like the path on the Overview (the server sends the newest first).
+    for (const group of groupEntries([...trace.entries].reverse(), label, t)) {
       // A reason code with no text (a timer's "escalated") says nothing a reader can use.
       const known = deliveryChannel(group.channel) || Boolean(s.reason[group.reason]);
       const reason = group.reason === "ok" || !known ? "" : fmt.reasonText(group.reason, s);
@@ -396,7 +434,7 @@ export function mount(container, ctx) {
         el("span", { className: "main" }, [
           el("span", { className: "sev", textContent: s.severity[message.severity] || message.severity }),
           el("span", { textContent: fmt.messageTitle(message) }),
-          el("div", { className: "sub", textContent: [fmt.timeAgo(message.created_at, now(), s), statusLabel(message, t, s, fmt.reasonText), resultsLine(message.results, t), message.source === "rule" ? t.from_rule : ""].filter(Boolean).join(" · ") }),
+          el("div", { className: "sub", textContent: storyLine(message) }),
         ]),
         el("span", { className: "chev", textContent: "›" }),
       );
@@ -445,6 +483,11 @@ export function mount(container, ctx) {
   }
 
   listHost.append(el("div", { textContent: t.loading }));
+  ctx.loadModule("overview.js").then((ov) => {
+    story = { ov, t: ctx.tableFor(ov) };
+    if (list) renderList();
+    if (selected) renderSheet();
+  }, () => {});
   // Names for the recipients; without them the log shows the ids.
   hass.callWS({ type: "heads_up/panel_config" }).then((data) => {
     choices = data.choices;

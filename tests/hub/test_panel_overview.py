@@ -896,3 +896,35 @@ async def test_a_person_with_two_phones_counts_once_and_a_row_without_trace_says
     entry.runtime_data.hub.trace._entries.clear()  # the trace rotated out
     (row,) = (await overview(hass, client))["last_actions"]
     assert row["trace_complete"] is False and row["reach"]["reached"] == []
+
+
+async def test_the_log_lists_who_was_reached_and_who_was_left_out_on_purpose(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    hass.config_entries.async_add_subentry(
+        entry,
+        ConfigSubentry(
+            data={"person": "person.ben", "enabled": False, "channels": ["banner", "push"]},
+            subentry_type="recipient_profile",
+            title="person.ben",
+            unique_id=None,
+        ),
+    )
+    await hass.async_block_till_done()
+    await send(hass, entry, to={"push": {"audience": "Everyone"}})
+    client = await hass_ws_client(hass)
+    (item,) = (await ask(client, "panel_messages"))["result"]["messages"]
+    assert item["delivered_channels"] == ["banner", "push"] and item["channels"] == [
+        "banner",
+        "push",
+    ]
+    assert item["reach"]["reached"] == ["Anna"] and item["trace_complete"] is True
+    reach = (await ask(client, "panel_trace", message_id="m"))["result"]["reach"]
+    assert reach["excluded"] == ["Ben"] and reach["excluded_reasons"] == {
+        "Ben": "recipient_disabled"
+    }
+    assert reach["audiences"] == ["Everyone"]

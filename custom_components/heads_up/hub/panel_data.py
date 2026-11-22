@@ -810,6 +810,27 @@ def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[st
 # Messages ----------------------------------------------------------------------------------
 
 
+def _latest_results(
+    hub: Any, message_id: str, created_at: str | None
+) -> dict[tuple[str, str], dict[str, Any]]:
+    """The newest delivery result of each recipient on each channel since the message appeared (the
+    entries of an earlier appearance of the same ID are ignored; an update that changed nothing is
+    no result)."""
+    created = dt_util.parse_datetime(created_at) if created_at else None
+    latest: dict[tuple[str, str], dict[str, Any]] = {}
+    for logged in reversed(hub.trace.entries(message_id)):
+        when = dt_util.parse_datetime(logged["time"])
+        if created is not None and when is not None and when < created:
+            continue
+        if (
+            logged["channel"] not in ("", TIMER_CHANNEL)
+            and logged["result"] in RESULT_KINDS
+            and logged["reason"] != "duplicate"
+        ):
+            latest[(logged["channel"], logged["recipient"] or "")] = logged
+    return latest
+
+
 def messages(manager: BannerManager) -> list[dict[str, Any]]:
     """The recent messages with their delivery results counted from the trace."""
     hub = manager.hub
@@ -822,12 +843,22 @@ def messages(manager: BannerManager) -> list[dict[str, Any]]:
             if entry["result"] in ("sent", "held", "skipped", "failed"):
                 counts[entry["result"]] = counts.get(entry["result"], 0) + 1
         live = manager.banners.get(item["id"]) or manager.rules.get(item["id"])
+        latest = _latest_results(hub, item["id"], item.get("created_at"))
         out.append(
             {
                 **item,
                 "active": live is not None and live.active,
                 "results": counts,
                 "states": message_states(manager, live) if live is not None else [],
+                # `channels` are the requested ones; these are the ones that arrived.
+                "delivered_channels": [
+                    c
+                    for c in CHANNEL_ORDER
+                    if any(k[0] == c for k, v in latest.items() if v["result"] == "sent")
+                ],
+                "reach": reach(manager, latest, item.get("audiences", [])),
+                "trace_complete": bool(latest)
+                or any(e["channel"] == "" for e in hub.trace.entries(item["id"])),
             }
         )
     return out
@@ -856,18 +887,7 @@ def trace(hass: HomeAssistant, manager: BannerManager, message_id: str) -> dict[
     known = next((m for m in hub.recent.listed() if m["id"] == message_id), None)
     if live is None and known is None:
         return None
-    created = dt_util.parse_datetime(known["created_at"]) if known else None
-    latest: dict[tuple[str, str], dict[str, Any]] = {}
-    for logged in reversed(hub.trace.entries(message_id)):
-        when = dt_util.parse_datetime(logged["time"])
-        if created is not None and when is not None and when < created:
-            continue
-        if (
-            logged["channel"] not in ("", TIMER_CHANNEL)
-            and logged["result"] in RESULT_KINDS
-            and logged["reason"] != "duplicate"
-        ):
-            latest[(logged["channel"], logged["recipient"] or "")] = logged
+    latest = _latest_results(hub, message_id, known["created_at"] if known else None)
     return {
         "id": message_id,
         "message": known,
