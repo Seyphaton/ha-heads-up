@@ -380,6 +380,18 @@ A policy is looked up when a message appears. A policy you add later starts when
 
 Pending escalations keep their due time, and a step that came due during the restart runs once if the message is still active and not acknowledged. Messages held for quiet hours, a Presence policy or a summary stay held. Pushes of messages that no longer exist are removed. The record of recent messages and last actions starts empty.
 
+### How do I read the table "What would a message do right now?" on the Overview?
+
+The table runs a test message through your policies at this moment and sends nothing. Rows are channels, columns are severities. A cell says Sound, Shown, Quiet, Waits, Skipped or Not set up. It shows the way the people who are reached get it, with a count such as "1 of 4" when others are not reached. Select a cell to see each person and the reason, for example a disabled person or a channel their profile does not accept. The ? next to the title shows the time, quiet hours, who is away and the summaries.
+
+### Where do the Activity numbers come from, and can I clear them?
+
+Heads Up keeps one record of counts per day for the last 24 months: messages by hour, severity and source, deliveries with their results and reasons, acknowledgements, and what policies did. It holds no titles, texts or addresses. It starts when you install the update, so older messages are not in it. A dash instead of a change means there is nothing to compare with: the period before has none of that number, or the history does not reach back that far. Clear it under Settings > Activity history.
+
+### What do the lines under Show path mean?
+
+Each line is one event, newest first: a send with its channels, a reminder or an escalation, a message held for a summary and the summary, an acknowledgement, a dismissal. A send that went out quietly names the policy. "2 not sent" counts people who were not reached, for example a disabled person; hover the line to see who and why. A delivery that failed is a red line with the reason. Only the steps since the message appeared are shown.
+
 ## Troubleshooting
 
 Start with the Message Log (Heads Up > Test & Logs > Message Log): choose the message and read the result and the reason of each row. Test send shows the same reasons before you send anything.
@@ -560,7 +572,7 @@ See also [CONTRIBUTING](../CONTRIBUTING.md#report-a-bug).
 - Speech does not restore a volume it set and has no all-clear announcement ([Speech](configuration.md#speech)).
 - Mail delivery is the job of the notify service you choose; Heads Up knows only whether the call returned an error ([Mail](configuration.md#mail)).
 - A popup needs an open Home Assistant page ([Popups](configuration.md#popup)). A persistent notification goes to everyone ([Persistent notifications](configuration.md#persistent-notification)).
-- It keeps no history of messages. Each change fires an event; see [actions](actions.md#events). The panel's trace, recent messages and log of last actions are kept in memory and start empty after a restart.
+- It keeps no history of message texts. Each change fires an event; see [actions](actions.md#events). The panel's recent messages and log of last actions are kept in memory and start empty after a restart; the delivery trace is stored. The Activity cards read a separate history of counts for the last 24 months (no titles, texts or addresses; [Overview](setup.md#overview)).
 - The critical push level needs the app's permission on iOS and plays a sound in silent mode there. On Android it uses the alarm channel, which also sounds in silent mode; Do Not Disturb is overridden only if you allow it for that channel in the Android settings.
 - A watch rule watches one entity (its state or one attribute) or one template. The state is compared as text unless the condition is above, below or between.
 - Banner text is shown as you write it. The card's own labels and the integration's screens follow your Home Assistant language in English, German, French and Spanish; other languages show English.

@@ -41,6 +41,8 @@ The leak automation then only says "critical, tag `water`". If nobody acknowledg
 
 Acknowledging a message on a phone, the card or a popup stops its escalations and reminders for everyone. A Fallback policy sends a message somewhere else when it reached nobody, for example because nobody was home or the push failed.
 
+The Overview shows what needs you now, what is about to happen and what happened last, and a table that runs a test message through your policies and says what it would do on each channel. Its Activity cards count messages, failed deliveries, critical messages, escalations and how often quiet hours and summaries took over, with the change against the period before, for up to two years. They store counts only.
+
 When something did not arrive, the Message Log tells you why. It lists each channel with the people and phones it reached and a reason for every skipped delivery, such as "push to Anna skipped: quiet hours".
 
 <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/message-log-trace.png" width="420" alt="The Message Log trace of a critical message: the Persistent Notification, the popup and the banner were sent, the push was skipped because there is no usable device, and a reminder policy is waiting">
