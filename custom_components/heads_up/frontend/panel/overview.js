@@ -96,10 +96,8 @@ export const STRINGS = {
     kpi_quiet_help: "Deliveries that quiet hours held, dropped or sent quietly, of all that could go out. Banners are not counted.",
     kpi_summary_help: "Messages held for a summary, of all messages.",
     kpi_before: "Before: {n}",
-    legend_pill_worse: "rise is worse",
-    legend_pill_better: "fall is good",
-    legend_pill_neutral: "no verdict",
-    legend_pp: "pp = percentage points",
+    legend_pill: "Change vs. previous period",
+    kpi_no_change: "No comparison: the period before has none of it, or its history does not exist yet.",
     kpi_change: "{sign}{n}% against the period before",
     kpi_none: "no data",
     kpi_scope_24h: "Apart from Notifications, the numbers cover today and yesterday.",
@@ -290,10 +288,8 @@ export const STRINGS = {
     kpi_quiet_help: "Zustellungen, die die Ruhezeit zurückgehalten, verworfen oder leise gesendet hat, von allen, die hätten rausgehen können. Banner zählen nicht.",
     kpi_summary_help: "Meldungen, die für eine Zusammenfassung zurückgehalten wurden, von allen Meldungen.",
     kpi_before: "Davor: {n}",
-    legend_pill_worse: "Anstieg ist schlechter",
-    legend_pill_better: "Rückgang ist gut",
-    legend_pill_neutral: "ohne Wertung",
-    legend_pp: "pp = Prozentpunkte",
+    legend_pill: "Änderung zum Zeitraum davor",
+    kpi_no_change: "Kein Vergleich: Im Zeitraum davor gab es nichts davon, oder es gibt dafür noch keinen Verlauf.",
     kpi_change: "{sign}{n} % gegenüber dem Zeitraum davor",
     kpi_none: "keine Daten",
     kpi_scope_24h: "Außer den Meldungen gelten die Zahlen für heute und gestern.",
@@ -484,10 +480,8 @@ export const STRINGS = {
     kpi_quiet_help: "Envois que les heures calmes ont retenus, abandonnés ou envoyés discrètement, sur tous ceux qui pouvaient partir. Les bannières ne comptent pas.",
     kpi_summary_help: "Messages retenus pour un résumé, sur tous les messages.",
     kpi_before: "Avant : {n}",
-    legend_pill_worse: "hausse = pire",
-    legend_pill_better: "baisse = bien",
-    legend_pill_neutral: "sans jugement",
-    legend_pp: "pt = points de pourcentage",
+    legend_pill: "Variation par rapport à la période précédente",
+    kpi_no_change: "Pas de comparaison : la période précédente n'en a pas, ou son historique n'existe pas encore.",
     kpi_change: "{sign}{n} % par rapport à la période précédente",
     kpi_none: "pas de données",
     kpi_scope_24h: "Hors Notifications, les chiffres couvrent aujourd'hui et hier.",
@@ -678,10 +672,8 @@ export const STRINGS = {
     kpi_quiet_help: "Entregas que las horas de silencio retuvieron, descartaron o enviaron en silencio, de todas las que podían salir. Los banners no cuentan.",
     kpi_summary_help: "Mensajes retenidos para un resumen, de todos los mensajes.",
     kpi_before: "Antes: {n}",
-    legend_pill_worse: "subir es peor",
-    legend_pill_better: "bajar es bueno",
-    legend_pill_neutral: "sin juicio",
-    legend_pp: "pp = puntos porcentuales",
+    legend_pill: "Cambio frente al periodo anterior",
+    kpi_no_change: "Sin comparación: el periodo anterior no tiene nada de esto, o aún no existe su historial.",
     kpi_change: "{sign}{n} % frente al periodo anterior",
     kpi_none: "sin datos",
     kpi_scope_24h: "Salvo Notificaciones, las cifras cubren hoy y ayer.",
@@ -1050,14 +1042,9 @@ export function durationText(seconds, t) {
   return fill(t.dur_h, { h: Math.floor(seconds / 3600), m: Math.round((seconds % 3600) / 60) });
 }
 
-// The key to the pills of the numbers: which colour means what.
+// The key to the pills of the numbers: one pill, what it is.
 export function pillLegend(t) {
-  return [
-    { tone: "warning", text: t.legend_pill_worse },
-    { tone: "ok", text: t.legend_pill_better },
-    { tone: "", text: t.legend_pill_neutral },
-    { tone: null, text: t.legend_pp },
-  ];
+  return [{ tone: "", text: t.legend_pill }];
 }
 
 // How many notifications the period had, for the chart's heading.
@@ -1073,7 +1060,8 @@ export function kpiModel(numbers, t) {
   // The hover of a pill names the number of the period before, so "0 %" can be told from "no data".
   const pill = (number, unit, key, worse) => {
     const change = number?.change;
-    if (change === null || change === undefined) return null;
+    // No comparison (nothing in the period before, or no history yet): a neutral dash that says so.
+    if (change === null || change === undefined) return { tone: "", text: "–", title: t.kpi_no_change };
     const tone = change === 0 || !worse ? "" : change > 0 ? "warning" : "ok";
     const before = number.previous === null || number.previous === undefined ? "" : ` · ${fill(t.kpi_before, { n: unit === "pp" ? `${number.previous} %` : number.previous })}`;
     return { tone, text: `${sign(change)}${change} ${unit}`, title: `${fill(t[key], { sign: sign(change), n: change })}${before}` };
@@ -1702,7 +1690,7 @@ export function mount(container, ctx) {
     legend.setAttribute("aria-label", t.legend_label);
     // The key to the pills sits next to the severities, so the colours of both can be read together.
     pillLegend(t).forEach((item, index) => {
-      const mark = item.tone === null ? "" : el("span", { className: `pill ${item.tone}`.trim(), textContent: "±", "aria-hidden": "true" });
+      const mark = el("span", { className: `pill ${item.tone}`.trim(), textContent: "±", "aria-hidden": "true" });
       legend.append(el("span", { className: `pilllegend${index === 0 ? " first" : ""}` }, [mark, el("span", { textContent: item.text })]));
     });
     return el("div", { className: "chartbox" }, [

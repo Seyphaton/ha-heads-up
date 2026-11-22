@@ -367,7 +367,7 @@ describe("overview functions", () => {
     const tiles = kpiModel(numbers, t);
     expect(tiles.map((k) => k.key)).toEqual(["notifications", "failed", "critical", "escalations", "quiet_share", "summary_share"]);
     expect(tiles.map((k) => k.value)).toEqual(["121", "4", "6", "3", "55 %", t.kpi_none]);
-    expect(tiles.map((k) => k.pill?.text ?? null)).toEqual(["+16 %", "-50 %", "0 %", "+200 %", "+35 pp", null]);
+    expect(tiles.map((k) => k.pill?.text ?? null)).toEqual(["+16 %", "-50 %", "0 %", "+200 %", "+35 pp", "–"]);
     expect(tiles[0].pill.title).toBe("+16% against the period before · Before: 104");
     expect(tiles[4].pill.title).toBe("+35 pp against the period before · Before: 20 %");
     expect(tiles[2].pill.title).toBe("0% against the period before · Before: 6");
@@ -384,13 +384,15 @@ describe("overview functions", () => {
     expect(tone("quiet_share", 5)).toBe("");
   });
 
-  it("has a key to the pill colours: rise is worse, fall is good, no verdict, and what pp means", () => {
-    expect(pillLegend(t).map((i) => [i.tone, i.text])).toEqual([
-      ["warning", "rise is worse"],
-      ["ok", "fall is good"],
-      ["", "no verdict"],
-      [null, "pp = percentage points"],
-    ]);
+  it("has one key for the pills: the change against the previous period", () => {
+    expect(pillLegend(t)).toEqual([{ tone: "", text: "Change vs. previous period" }]);
+  });
+
+  it("shows a dash with an explanation when there is nothing to compare with", () => {
+    const [tile] = kpiModel({ notifications: { value: 5, previous: null, change: null } }, t);
+    expect(tile.pill).toEqual({ tone: "", text: "–", title: t.kpi_no_change });
+    const [zero] = kpiModel({ notifications: { value: 5, previous: 0, change: null } }, t);
+    expect(zero.pill.text).toBe("–");
   });
 
   it("reads the notification total of the period as a number for the chart heading", () => {

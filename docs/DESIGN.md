@@ -1016,3 +1016,4 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 - The period before: for 24 hours the two days before yesterday and today's pair, for a week and a month the same number of days before, for a year the 12 months before, none for 2 years.
 - The Activity row is one flex row that scrolls sideways (`overflow-x: auto`), each tile at least 140 px wide. The removed numbers: Delivered, Median time to acknowledge, Held by quiet hours (a count).
 - A small key to the pill colours (rise is worse, fall is good, no verdict, pp = percentage points) sits in the chart legend row, to the right of the severities (`pillLegend`).
+- The pill key is a single pill, "Change vs. previous period". A number with no comparison (no history before the period, or none of it) shows a dash pill with the hover "No comparison: …" instead of no pill.
