@@ -945,3 +945,21 @@ async def test_two_people_with_the_same_first_name_are_told_apart_in_the_reach(
     await send(hass, entry, to={"push": {"audience": "Everyone"}})
     (row,) = (await overview(hass, client))["last_actions"]
     assert row["reach"]["reached"] == ["Anna Berg", "Anna Stein"]
+
+
+async def test_a_rule_that_stopped_showing_while_stopped_is_not_listed_as_active(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(WINDOW, "on")
+    sub = add_rule(hass, entry)
+    await hass.async_block_till_done()
+    rule = f"rule_{sub.subentry_id}"
+    assert [m["id"] for m in entry.runtime_data.hub.recent.listed()] == [rule]
+
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    hass.states.async_set(WINDOW, "off")
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert not entry.runtime_data.rules[rule].active
+    assert [m["id"] for m in entry.runtime_data.hub.recent.listed()] == []

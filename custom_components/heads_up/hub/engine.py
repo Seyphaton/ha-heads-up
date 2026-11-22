@@ -206,7 +206,9 @@ class HubEngine:
                 self._trace(message_id, row.channel, row.recipient, "cleared", "gone_at_startup")
             self.ledger.drop_message(message_id)
         for message_id in sorted(known_ids):
-            if (loaded := self.lookup(message_id)) is not None:
+            # A rule or conditional banner whose condition is false at the start is not showing:
+            # listing it would mark it Active, as nothing will ever end it (silent startup).
+            if (loaded := self.lookup(message_id)) is not None and loaded.active:
                 self.recent.seen(message_id, self._info(loaded))
         await self._restore_bell()
         self._restore_timers()
