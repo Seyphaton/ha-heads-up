@@ -1411,7 +1411,6 @@ const CSS = `
 .hu-overview button.sumcard { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: end; text-align: left; padding: 14px 16px; min-height: 104px; border-radius: 16px; border: 1px solid var(--divider-color); background: var(--card-background-color); box-shadow: var(--hu-shadow); transition: transform .18s, border-color .18s, box-shadow .18s; --tone: var(--secondary-text-color); }
 .hu-overview button.sumcard.tone-crit { --tone: var(--hu-crit); } .hu-overview button.sumcard.tone-warn { --tone: var(--hu-warn); }
 .hu-overview button.sumcard.tone-ok { --tone: var(--hu-ok); } .hu-overview button.sumcard.tone-info { --tone: var(--hu-info); }
-.hu-overview button.sumcard::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 4px 4px 0; background: var(--tone); }
 .hu-overview button.sumcard:hover { transform: translateY(-2px); border-color: var(--primary-color); }
 .hu-overview button.sumcard[aria-expanded="true"] { border-color: var(--primary-color); box-shadow: 0 0 0 1px var(--primary-color), var(--hu-shadow); }
 .hu-overview .sumcard .sumtitle { grid-column: 1 / -1; font-size: 13px; font-weight: 600; color: var(--secondary-text-color); }
@@ -1425,7 +1424,7 @@ const CSS = `
 .hu-overview .reveal .panel > section { margin-bottom: 0; }
 .hu-overview .reveal.open:not(.static) .panel:not([hidden]) > section { animation: hu-slide .45s cubic-bezier(.2, .8, .2, 1) both; }
 @keyframes hu-slide { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
-@media (max-width: 560px) { .hu-overview .sumcards { gap: 8px; } .hu-overview button.sumcard { padding: 12px 10px 12px 14px; min-height: 96px; } .hu-overview .sumcard .sumbig { font-size: 28px; } .hu-overview .sumcard .sumchev { display: none; } }
+@media (max-width: 560px) { .hu-overview .sumcards { gap: 8px; } .hu-overview button.sumcard { padding: 12px 10px; min-height: 96px; } .hu-overview .sumcard .sumbig { font-size: 28px; } .hu-overview .sumcard .sumchev { display: none; } }
 @media (prefers-reduced-motion: reduce) { .hu-overview .reveal, .hu-overview button.sumcard, .hu-overview .sumchev { transition: none; } .hu-overview .reveal .panel > section { animation: none !important; } }
 @keyframes hu-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes hu-pulse { 0% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 30%, transparent), 0 0 0 18px color-mix(in srgb, var(--hero-tint) 7%, transparent); } 100% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 14%, transparent), 0 0 0 26px transparent; } }
