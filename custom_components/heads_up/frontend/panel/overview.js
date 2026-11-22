@@ -19,7 +19,6 @@ export const STRINGS = {
     path_hide: "Hide path",
     path_loading: "Loading…",
     path_failed: "The path could not be loaded.",
-    path_none: "Nothing was recorded for this message.",
     source_rule: "watch rule",
     coming_title: "Coming up",
     coming_none: "Nothing is scheduled.",
@@ -108,11 +107,6 @@ export const STRINGS = {
     stats_failed: "The activity could not be loaded.",
     legend_label: "Severities",
     all_messages: "All messages",
-    act_sent: "{n} sent",
-    act_held: "{n} held",
-    act_skipped: "{n} skipped",
-    act_failed: "{n} failed",
-    act_nothing: "Nothing was delivered",
     act_acked: "acknowledged by {who} after {time}",
     act_acked_time: "acknowledged after {time}",
     act_acked_who: "acknowledged by {who}",
@@ -122,10 +116,6 @@ export const STRINGS = {
     chip_reminder_many: "{n} reminders",
     chip_held_by: "Held by {policy}",
     chip_failed_on: "Failed on {channel}",
-    state_active: "Active",
-    state_acknowledged: "Acknowledged",
-    state_ended: "Ended",
-    state_ended_reason: "Ended: {reason}",
     act_source_action: "Action",
     act_text_none: "(no text)",
     source_kind_rule: "Watch rule",
@@ -151,7 +141,6 @@ export const STRINGS = {
     ev_held: "Held",
     ev_not_sent: "Not sent",
     ev_failed: "Failed",
-    ev_taken_back: "Taken back",
     ev_ack: "Acknowledged by {who}",
     ev_ack_plain: "Acknowledged",
     ev_dismissed: "Dismissed by {who}",
@@ -162,8 +151,6 @@ export const STRINGS = {
     ev_silent: "silently due to {policy}",
     ev_silent_plain: "silently",
     ev_channels_silent: "{channels} silently",
-    ev_not_sent_n: "{n} not sent",
-    ev_taken_back_from: "taken back from {channels}",
     first_run: "No policies yet. The introduction explains a few defaults you can switch on.",
     first_run_button: "Restart introduction",
     ph_attention: "Problems with your setup show up here.",
@@ -172,6 +159,31 @@ export const STRINGS = {
     ph_last: "What Heads Up did shows up here.",
     loading: "Loading…",
     load_failed: "The overview could not be loaded.",
+    path_none: "No delivery details are kept for this message.",
+    dur_hours: "{n} h",
+    dur_days: "{n} d",
+    status_active: "Active",
+    status_acknowledged: "Acknowledged",
+    status_snoozed: "Snoozed",
+    status_resolved: "Resolved",
+    status_expired: "Expired",
+    status_expired_after: "Expired after {time}",
+    status_dismissed: "Dismissed",
+    status_dismissed_all: "Dismissed for everyone",
+    status_cleared: "Cleared",
+    status_ended: "Ended",
+    reach_to: "To {audience}",
+    reach_reached: "{names} reached",
+    people_failed: "{names} failed",
+    reach_not_reached: "{names} not reached",
+    reach_held: "{names} held back",
+    reach_counts: "{n}/{total} reached",
+    reach_all: "all {total} reached",
+    reach_failed_n: "{n} failed",
+    reach_not_reached_n: "{n} not reached",
+    reach_held_n: "{n} held back",
+    ev_not_reached: "Not reached on {channels}: {names}",
+    ev_ended: "{status}",
   },
   de: {
     title: "Übersicht",
@@ -191,7 +203,6 @@ export const STRINGS = {
     path_hide: "Weg verbergen",
     path_loading: "Lädt…",
     path_failed: "Der Weg konnte nicht geladen werden.",
-    path_none: "Zu dieser Meldung wurde nichts aufgezeichnet.",
     source_rule: "Überwachungsregel",
     coming_title: "Als Nächstes",
     coming_none: "Nichts ist geplant.",
@@ -280,11 +291,6 @@ export const STRINGS = {
     stats_failed: "Die Aktivität konnte nicht geladen werden.",
     legend_label: "Schweregrade",
     all_messages: "Alle Meldungen",
-    act_sent: "{n} gesendet",
-    act_held: "{n} zurückgehalten",
-    act_skipped: "{n} übersprungen",
-    act_failed: "{n} fehlgeschlagen",
-    act_nothing: "Es wurde nichts zugestellt",
     act_acked: "bestätigt von {who} nach {time}",
     act_acked_time: "bestätigt nach {time}",
     act_acked_who: "bestätigt von {who}",
@@ -294,10 +300,6 @@ export const STRINGS = {
     chip_reminder_many: "{n} Erinnerungen",
     chip_held_by: "Zurückgehalten von {policy}",
     chip_failed_on: "Fehlgeschlagen auf {channel}",
-    state_active: "Aktiv",
-    state_acknowledged: "Bestätigt",
-    state_ended: "Beendet",
-    state_ended_reason: "Beendet: {reason}",
     act_source_action: "Aktion",
     act_text_none: "(kein Text)",
     source_kind_rule: "Überwachungsregel",
@@ -323,7 +325,6 @@ export const STRINGS = {
     ev_held: "Zurückgehalten",
     ev_not_sent: "Nicht gesendet",
     ev_failed: "Fehlgeschlagen",
-    ev_taken_back: "Zurückgenommen",
     ev_ack: "Bestätigt von {who}",
     ev_ack_plain: "Bestätigt",
     ev_dismissed: "Ausgeblendet von {who}",
@@ -334,8 +335,6 @@ export const STRINGS = {
     ev_silent: "leise wegen {policy}",
     ev_silent_plain: "leise",
     ev_channels_silent: "{channels} leise",
-    ev_not_sent_n: "{n} nicht gesendet",
-    ev_taken_back_from: "zurückgenommen von {channels}",
     first_run: "Noch keine Richtlinien. Die Einführung erklärt ein paar Standards, die du einschalten kannst.",
     first_run_button: "Einführung neu starten",
     ph_attention: "Probleme mit deiner Einrichtung erscheinen hier.",
@@ -344,6 +343,31 @@ export const STRINGS = {
     ph_last: "Was Heads Up getan hat, erscheint hier.",
     loading: "Lädt…",
     load_failed: "Die Übersicht konnte nicht geladen werden.",
+    path_none: "Zu dieser Meldung sind keine Zustelldetails gespeichert.",
+    dur_hours: "{n} Std.",
+    dur_days: "{n} T.",
+    status_active: "Aktiv",
+    status_acknowledged: "Bestätigt",
+    status_snoozed: "Zurückgestellt",
+    status_resolved: "Erledigt",
+    status_expired: "Abgelaufen",
+    status_expired_after: "Abgelaufen nach {time}",
+    status_dismissed: "Ausgeblendet",
+    status_dismissed_all: "Für alle ausgeblendet",
+    status_cleared: "Entfernt",
+    status_ended: "Beendet",
+    reach_to: "An {audience}",
+    reach_reached: "{names} erreicht",
+    people_failed: "{names} fehlgeschlagen",
+    reach_not_reached: "{names} nicht erreicht",
+    reach_held: "{names} zurückgehalten",
+    reach_counts: "{n}/{total} erreicht",
+    reach_all: "alle {total} erreicht",
+    reach_failed_n: "{n} fehlgeschlagen",
+    reach_not_reached_n: "{n} nicht erreicht",
+    reach_held_n: "{n} zurückgehalten",
+    ev_not_reached: "Nicht erreicht über {channels}: {names}",
+    ev_ended: "{status}",
   },
   fr: {
     title: "Vue d'ensemble",
@@ -363,7 +387,6 @@ export const STRINGS = {
     path_hide: "Masquer le parcours",
     path_loading: "Chargement…",
     path_failed: "Le parcours n'a pas pu être chargé.",
-    path_none: "Rien n'a été enregistré pour ce message.",
     source_rule: "règle de surveillance",
     coming_title: "À venir",
     coming_none: "Rien n'est prévu.",
@@ -452,11 +475,6 @@ export const STRINGS = {
     stats_failed: "L'activité n'a pas pu être chargée.",
     legend_label: "Gravités",
     all_messages: "Tous les messages",
-    act_sent: "{n} envoyé(s)",
-    act_held: "{n} retenu(s)",
-    act_skipped: "{n} ignoré(s)",
-    act_failed: "{n} en échec",
-    act_nothing: "Rien n'a été remis",
     act_acked: "confirmé par {who} après {time}",
     act_acked_time: "confirmé après {time}",
     act_acked_who: "confirmé par {who}",
@@ -466,10 +484,6 @@ export const STRINGS = {
     chip_reminder_many: "{n} rappels",
     chip_held_by: "Retenu par {policy}",
     chip_failed_on: "Échec sur {channel}",
-    state_active: "Actif",
-    state_acknowledged: "Confirmé",
-    state_ended: "Terminé",
-    state_ended_reason: "Terminé : {reason}",
     act_source_action: "Action",
     act_text_none: "(sans texte)",
     source_kind_rule: "Règle de surveillance",
@@ -495,7 +509,6 @@ export const STRINGS = {
     ev_held: "Retenu",
     ev_not_sent: "Non envoyé",
     ev_failed: "Échec",
-    ev_taken_back: "Retiré",
     ev_ack: "Confirmé par {who}",
     ev_ack_plain: "Confirmé",
     ev_dismissed: "Masqué par {who}",
@@ -506,8 +519,6 @@ export const STRINGS = {
     ev_silent: "discrètement à cause de {policy}",
     ev_silent_plain: "discrètement",
     ev_channels_silent: "{channels} discrètement",
-    ev_not_sent_n: "{n} non envoyé(s)",
-    ev_taken_back_from: "retiré de {channels}",
     first_run: "Aucune politique pour l'instant. L'introduction explique quelques réglages par défaut que vous pouvez activer.",
     first_run_button: "Relancer l'introduction",
     ph_attention: "Les problèmes de votre configuration apparaissent ici.",
@@ -516,6 +527,31 @@ export const STRINGS = {
     ph_last: "Ce que Heads Up a fait apparaît ici.",
     loading: "Chargement…",
     load_failed: "La vue d'ensemble n'a pas pu être chargée.",
+    path_none: "Aucun détail de remise n'est conservé pour ce message.",
+    dur_hours: "{n} h",
+    dur_days: "{n} j",
+    status_active: "Actif",
+    status_acknowledged: "Confirmé",
+    status_snoozed: "Reporté",
+    status_resolved: "Résolu",
+    status_expired: "Expiré",
+    status_expired_after: "Expiré après {time}",
+    status_dismissed: "Masqué",
+    status_dismissed_all: "Masqué pour tous",
+    status_cleared: "Retiré",
+    status_ended: "Terminé",
+    reach_to: "À {audience}",
+    reach_reached: "{names} atteint(s)",
+    people_failed: "{names} en échec",
+    reach_not_reached: "{names} non atteint(s)",
+    reach_held: "{names} retenu(s)",
+    reach_counts: "{n}/{total} atteints",
+    reach_all: "les {total} atteints",
+    reach_failed_n: "{n} en échec",
+    reach_not_reached_n: "{n} non atteints",
+    reach_held_n: "{n} retenus",
+    ev_not_reached: "Non atteint par {channels} : {names}",
+    ev_ended: "{status}",
   },
   es: {
     title: "Resumen",
@@ -535,7 +571,6 @@ export const STRINGS = {
     path_hide: "Ocultar recorrido",
     path_loading: "Cargando…",
     path_failed: "No se pudo cargar el recorrido.",
-    path_none: "No se registró nada de este mensaje.",
     source_rule: "regla de vigilancia",
     coming_title: "Próximamente",
     coming_none: "No hay nada programado.",
@@ -624,11 +659,6 @@ export const STRINGS = {
     stats_failed: "No se pudo cargar la actividad.",
     legend_label: "Gravedades",
     all_messages: "Todos los mensajes",
-    act_sent: "{n} enviado(s)",
-    act_held: "{n} retenido(s)",
-    act_skipped: "{n} omitido(s)",
-    act_failed: "{n} fallido(s)",
-    act_nothing: "No se entregó nada",
     act_acked: "confirmado por {who} tras {time}",
     act_acked_time: "confirmado tras {time}",
     act_acked_who: "confirmado por {who}",
@@ -638,10 +668,6 @@ export const STRINGS = {
     chip_reminder_many: "{n} recordatorios",
     chip_held_by: "Retenido por {policy}",
     chip_failed_on: "Fallo en {channel}",
-    state_active: "Activo",
-    state_acknowledged: "Confirmado",
-    state_ended: "Terminado",
-    state_ended_reason: "Terminado: {reason}",
     act_source_action: "Acción",
     act_text_none: "(sin texto)",
     source_kind_rule: "Regla de vigilancia",
@@ -667,7 +693,6 @@ export const STRINGS = {
     ev_held: "Retenido",
     ev_not_sent: "No enviado",
     ev_failed: "Fallido",
-    ev_taken_back: "Retirado",
     ev_ack: "Confirmado por {who}",
     ev_ack_plain: "Confirmado",
     ev_dismissed: "Descartado por {who}",
@@ -678,8 +703,6 @@ export const STRINGS = {
     ev_silent: "en silencio por {policy}",
     ev_silent_plain: "en silencio",
     ev_channels_silent: "{channels} en silencio",
-    ev_not_sent_n: "{n} no enviado(s)",
-    ev_taken_back_from: "retirado de {channels}",
     first_run: "Aún no hay políticas. La introducción explica algunos valores por defecto que puedes activar.",
     first_run_button: "Reiniciar la introducción",
     ph_attention: "Los problemas de tu configuración aparecen aquí.",
@@ -688,6 +711,31 @@ export const STRINGS = {
     ph_last: "Lo que hizo Heads Up aparece aquí.",
     loading: "Cargando…",
     load_failed: "No se pudo cargar el resumen.",
+    path_none: "No se guardan detalles de entrega de este mensaje.",
+    dur_hours: "{n} h",
+    dur_days: "{n} d",
+    status_active: "Activo",
+    status_acknowledged: "Confirmado",
+    status_snoozed: "Pospuesto",
+    status_resolved: "Resuelto",
+    status_expired: "Caducado",
+    status_expired_after: "Caducado tras {time}",
+    status_dismissed: "Ocultado",
+    status_dismissed_all: "Ocultado para todos",
+    status_cleared: "Retirado",
+    status_ended: "Terminado",
+    reach_to: "A {audience}",
+    reach_reached: "{names} alcanzado(s)",
+    people_failed: "{names} con error",
+    reach_not_reached: "{names} sin alcanzar",
+    reach_held: "{names} retenido(s)",
+    reach_counts: "{n}/{total} alcanzados",
+    reach_all: "los {total} alcanzados",
+    reach_failed_n: "{n} con error",
+    reach_not_reached_n: "{n} sin alcanzar",
+    reach_held_n: "{n} retenidos",
+    ev_not_reached: "No alcanzado por {channels}: {names}",
+    ev_ended: "{status}",
   },
 };
 
@@ -771,6 +819,9 @@ export function contextLines(context, now, t, s, fmt, locale) {
 
 const DELIVERY_RESULTS = ["sent", "held", "skipped", "failed", "cleared", "summarized"];
 const CLUSTER_MS = 90000;
+// Skips the user chose (D-250): the Overview does not show them; the Message Log does. The same list is in
+// hub/panel_data.py (CHOICE_REASONS).
+export const CHOICE_REASONS = ["recipient_disabled", "channel_not_accepted", "popup_off"];
 const ORIGIN_TEXT = { message: "ev_sent", reminder: "ev_reminder", escalation: "ev_escalation", deliver: "ev_deliver", fallback: "ev_fallback", released: "ev_released", summary: "ev_summary" };
 
 // The clock time of an event: "13:57", or with the date when it is not today.
@@ -797,7 +848,7 @@ export function entryWho(entry, choices, label) {
 // A failed delivery is an event of its own. Only the steps since the message appeared (`since`): an
 // ID that is used again keeps its old entries, which belong to earlier messages. `title` is the
 // hover text: who each line was for. `who(entry)` names the person and phone of an entry.
-export function pathEvents(entries, { t, s, fmt, since, who, now, locale }) {
+export function pathEvents(entries, { t, s, fmt, since, who, now, locale, ended = null }) {
   const from = since ? Date.parse(since) : NaN;
   const list = [...(entries || [])].reverse().filter((e) => (Number.isNaN(from) || Date.parse(e.time) >= from) && e.channel !== "timer" && e.reason !== "duplicate");
   const channel = (c) => fmt.channelName(c, s);
@@ -815,10 +866,11 @@ export function pathEvents(entries, { t, s, fmt, since, who, now, locale }) {
     const time = cluster.time;
     const add = (type, kind, text, group) => events.push({ time, type, kind, text, title: hover(group) });
     const sent = rows.filter((e) => e.result === "sent");
-    // A skipped delivery without a policy behind it (a disabled person, a channel the profile does not
-    // accept, no phone) is not an event: it is counted on the send, and the hover says who and why.
+    // A skipped delivery without a policy behind it: a choice of the user (a disabled recipient, a
+    // channel the profile does not accept) is not shown here, the Message Log lists it (D-250). Any
+    // other skip is a line that names the people who were not reached.
     const skipped = rows.filter((e) => e.result === "skipped");
-    const plain = skipped.filter((e) => !e.by);
+    const plain = skipped.filter((e) => !e.by && !CHOICE_REASONS.includes(e.reason));
     const byPolicy = skipped.filter((e) => e.by);
     if (sent.length) {
       const quiet = sent.filter((e) => e.by);
@@ -826,28 +878,28 @@ export function pathEvents(entries, { t, s, fmt, since, who, now, locale }) {
       let rest = "";
       if (quiet.length === sent.length) rest = ` · ${fill(t.ev_silent, { policy: policies })}`;
       else if (quiet.length) rest = ` · ${fill(t.ev_channels_silent, { channels: channels(quiet.map((e) => e.channel)) })} (${policies})`;
-      const missing = new Set(plain.map((e) => `${e.channel}|${e.recipient}`)).size;
-      if (missing) rest += ` · ${fill(t.ev_not_sent_n, { n: missing })}`;
-      add("sent", "ok", line(t[ORIGIN_TEXT[cluster.origin] || "ev_sent"], time, ` (${channels(sent.map((e) => e.channel))})${rest}`), [...sent, ...plain]);
+      add("sent", "ok", line(t[ORIGIN_TEXT[cluster.origin] || "ev_sent"], time, ` (${channels(sent.map((e) => e.channel))})${rest}`), sent);
     }
     const summarized = rows.filter((e) => e.result === "summarized");
     if (summarized.length) add("summary", "ok", line(t.ev_summary, time, ` (${channels(summarized.map((e) => e.channel))})${summarized[0].by ? ` · ${summarized[0].by}` : ""}`), summarized);
     const held = rows.filter((e) => e.result === "held");
     if (held.length) add("held", "hold", line(t.ev_held, time, ` (${channels(held.map((e) => e.channel))})${held[0].by ? ` · ${held[0].by}` : ""}`), held);
-    for (const group of [byPolicy, sent.length ? [] : plain]) {
-      for (const reason of [...new Set(group.map(reasonOf))]) {
-        const same = group.filter((e) => reasonOf(e) === reason);
-        const by = same.find((e) => e.by)?.by;
-        add("skipped", "note", line(t.ev_not_sent, time, ` (${channels(same.map((e) => e.channel))})${reason ? `: ${reason}` : ""}${by ? ` · ${by}` : ""}`), same);
-      }
+    for (const reason of [...new Set(byPolicy.map(reasonOf))]) {
+      const same = byPolicy.filter((e) => reasonOf(e) === reason);
+      const by = same.find((e) => e.by)?.by;
+      add("skipped", "note", line(t.ev_not_sent, time, ` (${channels(same.map((e) => e.channel))})${reason ? `: ${reason}` : ""}${by ? ` · ${by}` : ""}`), same);
+    }
+    for (const reason of [...new Set(plain.map(reasonOf))]) {
+      const same = plain.filter((e) => reasonOf(e) === reason);
+      const names = [...new Set(same.map(who).filter((n) => n && n !== "—"))].join(", ");
+      const text = fill(t.ev_not_reached, { channels: channels(same.map((e) => e.channel)), names: names || "—" });
+      add("skipped", "note", line(text, time, reason ? ` (${reason})` : ""), same);
     }
     const failed = rows.filter((e) => e.result === "failed");
     for (const reason of [...new Set(failed.map(reasonOf))]) {
       const same = failed.filter((e) => reasonOf(e) === reason);
       add("failed", "fail", line(t.ev_failed, time, ` (${channels(same.map((e) => e.channel))})${reason ? `: ${reason}` : ""}`), same);
     }
-    const cleared = rows.filter((e) => e.result === "cleared");
-    if (cleared.length) events.push({ time, type: "cleared", kind: "note", text: "", title: "", channels: channels(cleared.map((e) => e.channel)) });
     cluster = null;
   };
   for (const entry of list) {
@@ -864,7 +916,7 @@ export function pathEvents(entries, { t, s, fmt, since, who, now, locale }) {
       if (text) events.push({ time: entry.time, type: entry.result, kind: entry.result === "held" ? "hold" : "note", text: line(text(), entry.time), title: "" });
       continue;
     }
-    if (!DELIVERY_RESULTS.includes(entry.result)) continue;
+    if (!DELIVERY_RESULTS.includes(entry.result) || entry.result === "cleared") continue;
     const origin = entry.result === "summarized" ? "summary" : entry.origin || "message";
     if (cluster && cluster.origin === origin && Date.parse(entry.time) - Date.parse(cluster.time) <= CLUSTER_MS) cluster.rows.push(entry);
     else {
@@ -873,18 +925,15 @@ export function pathEvents(entries, { t, s, fmt, since, who, now, locale }) {
     }
   }
   flush();
-  // Taking a message back follows a dismissal or a snooze: say it on that line instead of a line of its own.
-  const merged = [];
-  for (const event of events) {
-    if (event.type !== "cleared") {
-      merged.push(event);
-      continue;
-    }
-    const cause = events.find((e) => ["dismissed", "snoozed"].includes(e.type) && Math.abs(Date.parse(e.time) - Date.parse(event.time)) <= CLUSTER_MS);
-    if (cause) cause.text += ` · ${fill(t.ev_taken_back_from, { channels: event.channels })}`;
-    else merged.push({ ...event, text: line(t.ev_taken_back, event.time, ` (${event.channels})`) });
+  // Taking the message off the channels is not an event of its own: the end says why it ended, unless
+  // a dismissal a moment before already says it (D-250).
+  if (ended?.time) {
+    const covered = events.some((e) => e.type === "dismissed" && Math.abs(Date.parse(e.time) - Date.parse(ended.time)) <= CLUSTER_MS);
+    if (!covered) events.push({ time: ended.time, type: "ended", kind: "note", text: line(fill(t.ev_ended, { status: ended.label }), ended.time), title: "" });
   }
-  return merged.sort((a, b) => Date.parse(b.time) - Date.parse(a.time));
+  // Oldest first, like a story; at the same moment the end comes last.
+  const lastRank = (e) => (e.type === "ended" ? 1 : 0);
+  return events.map((e, i) => ({ e, i })).sort((a, b) => Date.parse(a.e.time) - Date.parse(b.e.time) || lastRank(a.e) - lastRank(b.e) || a.i - b.i).map(({ e }) => e);
 }
 
 // The four small links under the status card: the page each opens.
@@ -988,34 +1037,79 @@ export function sourceRows(sources, t) {
 
 const AUTO_ID = /^hu_[0-9a-f]{10}$/;
 
-// One row of Last actions: the headline, where it came from, what became of it, and chips.
-export function actionRow(item, now, t, s, fmt) {
+// "45 s", "4 min", "5 h", "3 d": how long something took, rounded for a status.
+export function spanText(seconds, t) {
+  if (seconds < 3600) return durationText(seconds, t);
+  if (seconds < 48 * 3600) return fill(t.dur_hours, { n: Math.round(seconds / 3600) });
+  return fill(t.dur_days, { n: Math.round(seconds / 86400) });
+}
+
+// The status of a message in one word (and the time it took when it expired). `kind` is the CSS class.
+export function statusOf(item, t) {
+  if (item.state === "acknowledged") return { label: t.status_acknowledged, kind: "acknowledged" };
+  if (item.state !== "ended") return item.snoozed ? { label: t.status_snoozed, kind: "snoozed" } : { label: t.status_active, kind: "active" };
+  const label = {
+    condition: t.status_resolved,
+    rule: t.status_resolved,
+    dismissed: t.status_dismissed,
+    dismissed_global: t.status_dismissed_all,
+    admin: t.status_cleared,
+    clear_all: t.status_cleared,
+    cleared: t.status_cleared,
+    evicted: t.status_cleared,
+  }[item.end_reason];
+  if (item.end_reason === "expired") {
+    const seconds = item.created_at && item.ended_at ? (Date.parse(item.ended_at) - Date.parse(item.created_at)) / 1000 : 0;
+    return { label: seconds > 0 ? fill(t.status_expired_after, { time: spanText(seconds, t) }) : t.status_expired, kind: "ended" };
+  }
+  return { label: label || t.status_ended, kind: "ended" };
+}
+
+// Who was reached, as one phrase: "Everyone (3/4 reached, 1 failed)", "Last to leave (Ben reached)".
+// Up to three people by name, more as counts. A person who was left out on purpose is not counted.
+export function reachText(reach, t) {
+  if (!reach) return "";
+  const groups = [["reached", "reach_reached"], ["failed", "people_failed", "reach_failed_n"], ["not_reached", "reach_not_reached", "reach_not_reached_n"], ["held", "reach_held", "reach_held_n"]];
+  const total = groups.reduce((n, [key]) => n + (reach[key] || []).length, 0);
+  if (!total) return "";
+  let detail;
+  if (total <= 3) detail = groups.filter(([key]) => reach[key]?.length).map(([key, text]) => fill(t[text], { names: reach[key].join(", ") })).join(", ");
+  else {
+    const n = reach.reached.length;
+    detail = [n === total ? fill(t.reach_all, { total }) : fill(t.reach_counts, { n, total }), ...groups.slice(1).filter(([key]) => reach[key]?.length).map(([key, , count]) => fill(t[count], { n: reach[key].length }))].join(", ");
+  }
+  const audience = (reach.audiences || []).join(" + ");
+  return audience ? `${fill(t.reach_to, { audience })} (${detail})` : detail;
+}
+
+// One row of Last actions: severity, title and status on the first line; time, channels and who was
+// reached on the second, then chips for what a policy did and what went wrong (D-250).
+export function actionRow(item, now, t, s, fmt, locale) {
   const text = item.title || item.message || t.act_text_none;
   let source;
   if (item.source.kind === "rule") source = `${t.source_kind_rule} ${item.source.name || t.source_gone}`;
   else if (item.id.startsWith("hu_test_")) source = t.source_test;
   else source = AUTO_ID.test(item.id) ? t.act_source_action : item.id;
-  const r = item.results || {};
   const parts = [];
-  if (r.sent) parts.push(fill(t.act_sent, { n: r.sent }));
-  if (r.held) parts.push(fill(t.act_held, { n: r.held }));
-  if (r.skipped) parts.push(fill(t.act_skipped, { n: r.skipped }));
-  if (r.failed) parts.push(fill(t.act_failed, { n: r.failed }));
-  let outcome = parts.length ? parts.join(" · ") : t.act_nothing;
-  if (item.problems?.length) outcome += ` (${item.problems.map((p) => fmt.reasonText(p.reason, s)).join(", ")})`;
+  if (item.channels?.length) parts.push(item.channels.map((c) => fmt.channelName(c, s)).join(", "));
+  const reach = reachText(item.reach, t);
+  if (reach) parts.push(reach);
   if (item.acknowledged) {
     const who = item.acknowledged.by;
     const time = item.acknowledged.seconds === null || item.acknowledged.seconds === undefined ? null : durationText(item.acknowledged.seconds, t);
     const key = who && time ? "act_acked" : time ? "act_acked_time" : who ? "act_acked_who" : "act_acked_plain";
-    outcome += ` · ${fill(t[key], { who, time })}`;
+    parts.push(fill(t[key], { who, time }));
   }
   const chips = [];
   if (item.escalated) chips.push(t.chip_escalated);
   if (item.reminded) chips.push(item.reminded === 1 ? t.chip_reminder_one : fill(t.chip_reminder_many, { n: item.reminded }));
   for (const policy of item.held_by || []) chips.push(fill(t.chip_held_by, { policy }));
   for (const channel of item.failed_on || []) chips.push(fill(t.chip_failed_on, { channel: fmt.channelName(channel, s) }));
-  const state = { active: t.state_active, acknowledged: t.state_acknowledged }[item.state] ?? (item.end_reason ? fill(t.state_ended_reason, { reason: fmt.reasonText(item.end_reason, s) }) : t.state_ended);
-  return { text, source, when: fmt.timeAgo(item.time, now, s), outcome, chips, state, stateKind: item.state, severity: item.severity };
+  for (const problem of item.problems || []) chips.push(fmt.reasonText(problem.reason, s));
+  const diff = now - Date.parse(item.time);
+  const when = diff >= 24 * 3600000 && locale ? clockText(item.time, now, locale) : fmt.timeAgo(item.time, now, s);
+  const status = statusOf(item, t);
+  return { text, source, when, outcome: parts.join(" · "), chips, state: status.label, stateKind: status.kind, severity: item.severity };
 }
 
 function el(tag, props = {}, children = []) {
@@ -1156,6 +1250,7 @@ const CSS = `
 .hu-overview .act .meta .pill { font-size: 11px; font-weight: 500; padding: 0 8px; }
 .hu-overview .act .pill.state-ended { background: var(--hu-chip); }
 .hu-overview .act .pill.state-acknowledged { background: color-mix(in srgb, var(--hu-ok) 18%, transparent); color: var(--hu-ok); }
+.hu-overview .act .pill.state-snoozed { background: color-mix(in srgb, var(--hu-warn) 22%, transparent); }
 .hu-overview .act .pill.state-active { background: color-mix(in srgb, var(--hu-info) 18%, transparent); color: var(--hu-info); }
 .hu-overview .srcbar .nm { display: flex; align-items: baseline; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
 .hu-overview .srcbar .kind { font-size: 11px; color: var(--secondary-text-color); white-space: nowrap; }
@@ -1249,8 +1344,12 @@ export function mount(container, ctx) {
     else if (value === "error") box.append(el("div", { textContent: t.path_failed }));
     else {
       const label = (v, c) => (ctx.ui ? ctx.ui.recipientLabel(v, c) : v);
-      const events = pathEvents(value.entries, { t, s, fmt, since: value.since, now: now(), locale: ctx.language, who: (entry) => entryWho(entry, choices || {}, label) });
-      if (!events.length) box.append(el("div", { className: "sub", textContent: t.path_none }));
+      const item = (data?.last_actions || []).find((a) => a.id === id);
+      const status = item && item.state === "ended" ? statusOf(item, t) : null;
+      const ended = status && item.ended_at ? { time: item.ended_at, label: status.label } : null;
+      const events = pathEvents(value.entries, { t, s, fmt, since: value.since, now: now(), locale: ctx.language, ended, who: (entry) => entryWho(entry, choices || {}, label) });
+      if (item) box.append(el("div", { className: "sub", textContent: actionRow(item, now(), t, s, fmt, ctx.language).source }));
+      if (!events.length || (item && item.trace_complete === false)) box.append(el("div", { className: "sub", textContent: t.path_none }));
       for (const event of events) {
         const row = el("div", { className: `ev ev-${event.kind}`, textContent: event.text });
         if (event.title) row.title = event.title;
@@ -1406,14 +1505,14 @@ export function mount(container, ctx) {
     const list = el("ul");
     if (data.last_actions.length === 0) list.append(el("li", { className: "placeholder", textContent: t.last_none }));
     for (const item of data.last_actions) {
-      const row = actionRow(item, now(), t, s, fmt);
+      const row = actionRow(item, now(), t, s, fmt, ctx.language);
       const top = el("div", { className: "top" }, [
         el("span", { className: `pill ${row.severity}`, textContent: s.severity[row.severity] || row.severity }),
         el("span", { className: "headline", textContent: row.text }),
         el("span", { className: `pill state-${row.stateKind}`, textContent: row.state }),
         pathButton(item.id),
       ]);
-      const meta = el("div", { className: "meta" }, [el("span", { textContent: `${row.source} · ${row.when} · ${row.outcome}` }), ...row.chips.map((chip) => el("span", { className: "pill", textContent: chip }))]);
+      const meta = el("div", { className: "meta" }, [el("span", { textContent: [row.when, row.outcome].filter(Boolean).join(" · ") }), ...row.chips.map((chip) => el("span", { className: "pill", textContent: chip }))]);
       const li = el("li", { className: "act" }, [top, meta]);
       if (openPaths[item.id]) li.append(pathNode(item.id));
       list.append(li);

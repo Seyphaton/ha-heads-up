@@ -224,6 +224,7 @@ import {
   matrixModel,
   PERIODS,
   actionRow,
+  reachText,
   shortcutCards,
   sourceRows,
   clockText,
@@ -402,12 +403,18 @@ describe("overview functions", () => {
     severity: "critical",
     source: { kind: "action", name: null },
     time: "2026-11-21T18:00:00Z",
+    created_at: "2026-11-20T18:00:00Z",
+    ended_at: "2026-11-21T18:00:00Z",
     state: "ended",
     end_reason: "expired",
     results: { sent: 3, skipped: 1 },
-    problems: [{ reason: "no_usable_device", count: 1 }],
+    problems: [],
     failed_on: [],
     held_by: [],
+    channels: ["banner", "push"],
+    reach: { reached: ["Anna", "Ben"], failed: [], held: [], not_reached: [], excluded: [], audiences: [] },
+    trace_complete: true,
+    snoozed: false,
     acknowledged: null,
     escalated: 0,
     reminded: 0,
@@ -415,10 +422,10 @@ describe("overview functions", () => {
   });
   const afmt = { timeAgo: () => "2 min ago", reasonText: (c) => `r:${c}`, channelName: (c) => `ch:${c}` };
 
-  it("builds a row from a message: headline, source, outcome and state", () => {
+  it("builds a row from a message: headline, status, time, channels and who was reached", () => {
     const row = actionRow(item(), 0, t, sh, afmt);
-    expect(row).toMatchObject({ text: "Water in the cellar", source: "water_leak", when: "2 min ago", state: "Ended: r:expired", stateKind: "ended" });
-    expect(row.outcome).toBe("3 sent · 1 skipped (r:no_usable_device)");
+    expect(row).toMatchObject({ text: "Water in the cellar", source: "water_leak", when: "2 min ago", state: "Expired after 24 h", stateKind: "ended" });
+    expect(row.outcome).toBe("ch:banner, ch:push · Anna, Ben reached");
     expect(row.chips).toEqual([]);
     expect(actionRow(item({ title: "Leak" }), 0, t, sh, afmt).text).toBe("Leak");
   });
@@ -430,20 +437,62 @@ describe("overview functions", () => {
     expect(actionRow(item({ id: "hu_test_ab12cd34" }), 0, t, sh, afmt).source).toBe(t.source_test);
   });
 
-  it("adds who acknowledged and how long it took", () => {
-    const base = { results: { sent: 2 }, problems: [], state: "acknowledged" };
-    expect(actionRow(item({ ...base, acknowledged: { by: "Anna", seconds: 240 } }), 0, t, sh, afmt).outcome).toBe("2 sent · acknowledged by Anna after 4 min");
-    expect(actionRow(item({ ...base, acknowledged: { by: null, seconds: 45 } }), 0, t, sh, afmt).outcome).toBe("2 sent · acknowledged after 45 s");
-    expect(actionRow(item({ ...base, acknowledged: { by: "Ben", seconds: null } }), 0, t, sh, afmt).outcome).toBe("2 sent · acknowledged by Ben");
-    expect(actionRow(item({ ...base, acknowledged: { by: null, seconds: null } }), 0, t, sh, afmt).outcome).toBe("2 sent · acknowledged");
+  it("words the status of a message in one word", () => {
+    const status = (extra) => actionRow(item(extra), 0, t, sh, afmt).state;
+    expect(status({ state: "active", end_reason: null })).toBe("Active");
+    expect(status({ state: "active", snoozed: true })).toBe("Snoozed");
+    expect(status({ state: "acknowledged" })).toBe("Acknowledged");
+    expect(status({ end_reason: "condition" })).toBe("Resolved");
+    expect(status({ end_reason: "rule" })).toBe("Resolved");
+    expect(status({ end_reason: "dismissed" })).toBe("Dismissed");
+    expect(status({ end_reason: "dismissed_global" })).toBe("Dismissed for everyone");
+    for (const reason of ["admin", "clear_all", "cleared", "evicted"]) expect(status({ end_reason: reason })).toBe("Cleared");
+    expect(status({ end_reason: "expired", created_at: null })).toBe("Expired");
+    expect(status({ end_reason: "expired", created_at: "2026-11-21T17:30:00Z" })).toBe("Expired after 30 min");
+    expect(status({ end_reason: "something_new" })).toBe("Ended");
   });
 
-  it("says when nothing was delivered and lists the chips", () => {
-    const row = actionRow(item({ results: {}, problems: [], escalated: 1, reminded: 3, held_by: ["Night"], failed_on: ["mail"], state: "active" }), 0, t, sh, afmt);
-    expect(row.outcome).toBe(t.act_nothing);
-    expect(row.chips).toEqual(["Escalated", "3 reminders", "Held by Night", "Failed on ch:mail"]);
+  it("says who was reached by name up to three people and by count above", () => {
+    const reach = (extra) => ({ reached: [], failed: [], held: [], not_reached: [], excluded: [], audiences: [], ...extra });
+    expect(reachText(reach({ reached: ["Ben"], audiences: ["Last to leave"] }), t)).toBe("To Last to leave (Ben reached)");
+    expect(reachText(reach({ reached: ["Ben", "Tom"], audiences: ["At home"] }), t)).toBe("To At home (Ben, Tom reached)");
+    expect(reachText(reach({ reached: ["Ann", "Ben"], failed: ["Cleo"], audiences: ["Everyone"] }), t)).toBe("To Everyone (Ann, Ben reached, Cleo failed)");
+    expect(reachText(reach({ reached: ["A", "B", "C"], failed: ["D"], audiences: ["Everyone"] }), t)).toBe("To Everyone (3/4 reached, 1 failed)");
+    expect(reachText(reach({ reached: ["A", "B", "C", "D"], audiences: ["Everyone"] }), t)).toBe("To Everyone (all 4 reached)");
+    expect(reachText(reach({ reached: ["A", "B", "C"], not_reached: ["D", "E"], held: ["F"] }), t)).toBe("3/6 reached, 2 not reached, 1 held back");
+    expect(reachText(reach({ reached: ["Anna"] }), t)).toBe("Anna reached");
+  });
+
+  it("leaves people out who were skipped on purpose and says nothing when nobody was addressed", () => {
+    expect(reachText({ reached: ["Anna"], failed: [], held: [], not_reached: [], excluded: ["Ben"], audiences: ["Everyone"] }, t)).toBe("To Everyone (Anna reached)");
+    expect(reachText({ reached: [], failed: [], held: [], not_reached: [], excluded: ["Ben"], audiences: [] }, t)).toBe("");
+    expect(reachText(null, t)).toBe("");
+  });
+
+  it("claims no delivery when the trace is gone", () => {
+    const row = actionRow(item({ channels: [], reach: { reached: [], failed: [], held: [], not_reached: [], excluded: [], audiences: [] }, results: {}, trace_complete: false, state: "active", end_reason: null }), 0, t, sh, afmt);
+    expect(row.outcome).toBe("");
     expect(row.state).toBe("Active");
+  });
+
+  it("adds who acknowledged and how long it took", () => {
+    const base = { state: "acknowledged" };
+    const outcome = (acknowledged) => actionRow(item({ ...base, acknowledged }), 0, t, sh, afmt).outcome;
+    expect(outcome({ by: "Anna", seconds: 240 })).toBe("ch:banner, ch:push · Anna, Ben reached · acknowledged by Anna after 4 min");
+    expect(outcome({ by: null, seconds: 45 })).toContain("acknowledged after 45 s");
+    expect(outcome({ by: "Ben", seconds: null })).toContain("acknowledged by Ben");
+    expect(outcome({ by: null, seconds: null })).toMatch(/ · acknowledged$/);
+  });
+
+  it("lists the chips for policies and problems, and the reasons of the skips that matter", () => {
+    const row = actionRow(item({ escalated: 1, reminded: 3, held_by: ["Night"], failed_on: ["mail"], problems: [{ reason: "no_usable_device", count: 1 }], state: "active" }), 0, t, sh, afmt);
+    expect(row.chips).toEqual(["Escalated", "3 reminders", "Held by Night", "Failed on ch:mail", "r:no_usable_device"]);
     expect(actionRow(item({ reminded: 1 }), 0, t, sh, afmt).chips).toEqual(["1 reminder"]);
+  });
+
+  it("shows the date when the last activity is a day old or more", () => {
+    const row = actionRow(item({ time: "2026-11-21T18:00:00Z" }), Date.parse("2026-11-23T18:00:00Z"), t, sh, afmt, "en-GB");
+    expect(row.when).toMatch(/^21 Nov \d\d:\d\d$/);
   });
 
   it("labels a bar of a longer period with a day or a month and keeps the hourly wording", () => {
@@ -534,7 +583,7 @@ describe("overview functions", () => {
     });
   const times = (list) => list.map((e) => e.text.match(/\d\d:\d\d/)?.[0]);
 
-  it("lists what happened newest first, one event per moment, with its channels", () => {
+  it("lists what happened oldest first, one event per moment, with its channels", () => {
     const entries = [
       { channel: "", result: "acknowledged", who: "Ben", time: T("13:58") },
       { channel: "push", result: "sent", origin: "reminder", time: T("13:57") },
@@ -545,11 +594,11 @@ describe("overview functions", () => {
     ].reverse();
     const events = ev(entries);
     expect(events.map((e) => e.text)).toEqual([
-      "Acknowledged by Ben at 13:58",
-      "Reminder sent at 13:57 (ch:banner, ch:push, ch:speak)",
       "Sent at 13:47 (ch:banner, ch:push)",
+      "Reminder sent at 13:57 (ch:banner, ch:push, ch:speak)",
+      "Acknowledged by Ben at 13:58",
     ]);
-    expect(events.map((e) => e.kind)).toEqual(["note", "ok", "ok"]);
+    expect(events.map((e) => e.kind)).toEqual(["ok", "ok", "note"]);
   });
 
   it("says when a send went out silently and which policy made it quiet", () => {
@@ -568,21 +617,21 @@ describe("overview functions", () => {
       { channel: "banner", result: "summarized", origin: "summary", by: "Evening summary", time: T("20:00") },
       { channel: "", result: "held", reason: "summarize", by: "Evening summary", time: T("13:47") },
     ].reverse(), { now: Date.parse(T("20:30")) });
-    expect(events.map((e) => e.text)).toEqual(["Summary sent at 20:00 (ch:banner, ch:push) · Evening summary", "Held for summary (Evening summary) at 13:47"]);
-    expect(events[1].kind).toBe("hold");
+    expect(events.map((e) => e.text)).toEqual(["Held for summary (Evening summary) at 13:47", "Summary sent at 20:00 (ch:banner, ch:push) · Evening summary"]);
+    expect(events[0].kind).toBe("hold");
   });
 
-  it("counts the people who were not reached on the send instead of a line each, and keeps the reasons in the hover", () => {
+  it("leaves out what the user chose and names the people who were not reached for another reason", () => {
     const events = ev([
       { channel: "banner", result: "sent", origin: "message", time: T("09:31") },
       { channel: "push", result: "sent", origin: "message", time: T("09:31") },
       { channel: "push", result: "skipped", reason: "recipient_disabled", recipient: "person.guest", origin: "message", time: T("09:31") },
       { channel: "push", result: "skipped", reason: "channel_not_accepted", recipient: "person.wall", origin: "message", time: T("09:31") },
+      { channel: "push", result: "skipped", reason: "no_usable_device", recipient: "person.cleo", origin: "message", time: T("09:31") },
     ].reverse());
-    expect(events).toHaveLength(1);
-    expect(events[0].text).toBe("Sent at 09:31 (ch:banner, ch:push) · 2 not sent");
-    expect(events[0].title).toContain("who:person.guest: skipped (r:recipient_disabled)");
-    expect(events[0].title).toContain("who:person.wall: skipped (r:channel_not_accepted)");
+    expect(events.map((e) => e.text)).toEqual(["Sent at 09:31 (ch:banner, ch:push)", "Not reached on ch:push: who:person.cleo at 09:31 (r:no_usable_device)"]);
+    expect(JSON.stringify(events)).not.toContain("guest");
+    expect(JSON.stringify(events)).not.toContain("wall");
   });
 
   it("leaves out an update that was skipped as a duplicate", () => {
@@ -593,20 +642,25 @@ describe("overview functions", () => {
     expect(events.map((e) => e.text)).toEqual(["Sent at 13:47 (ch:popup)"]);
   });
 
-  it("says taking a message back on the dismissal that caused it", () => {
-    const events = ev([
+  it("never says a message was taken back: a dismissal covers the end, else the status closes the story", () => {
+    const entries = [
       { channel: "push", result: "cleared", time: T("12:25") },
       { channel: "", result: "dismissed", who: "Philip", time: T("12:25") },
       { channel: "", result: "acknowledged", who: "Philip", time: T("09:32") },
       { channel: "push", result: "sent", origin: "message", time: T("09:31") },
-    ], { now: Date.parse(T("13:00")) });
-    expect(events.map((e) => e.text)).toEqual([
-      "Dismissed by Philip at 12:25 · taken back from ch:push",
-      "Acknowledged by Philip at 09:32",
-      "Sent at 09:31 (ch:push)",
-    ]);
-    const lone = ev([{ channel: "push", result: "cleared", time: T("12:25") }]);
-    expect(lone.map((e) => e.text)).toEqual(["Taken back at 12:25 (ch:push)"]);
+    ];
+    const events = ev(entries, { now: Date.parse(T("13:00")), ended: { time: T("12:25"), label: "Dismissed" } });
+    expect(events.map((e) => e.text)).toEqual(["Sent at 09:31 (ch:push)", "Acknowledged by Philip at 09:32", "Dismissed by Philip at 12:25"]);
+    const resolved = ev([{ channel: "push", result: "sent", origin: "message", time: T("09:31") }, { channel: "push", result: "cleared", time: T("09:40") }], { ended: { time: T("09:40"), label: "Resolved" } });
+    expect(resolved.map((e) => e.text)).toEqual(["Sent at 09:31 (ch:push)", "Resolved at 09:40"]);
+    expect(ev([{ channel: "push", result: "cleared", time: T("12:25") }])).toEqual([]);
+  });
+
+  it("puts the end after the send even when both happen in the same minute, and dates both lines the same way", () => {
+    const now = Date.parse("2026-11-22T20:00:00Z");
+    const events = ev([{ channel: "push", result: "sent", origin: "message", time: "2026-11-21T19:13:00Z" }], { now, ended: { time: "2026-11-22T19:13:00Z", label: "Expired after 24 h" } });
+    expect(events[0].text).toMatch(/^Sent at 21 Nov \d\d:\d\d \(ch:push\)$/);
+    expect(events[1].text).toMatch(/^Expired after 24 h at \d\d:\d\d$/);
   });
 
   it("uses class names that the shell's own styles do not catch (its .note class has padding)", () => {
@@ -631,12 +685,12 @@ describe("overview functions", () => {
   it("shows held and not sent deliveries with the reason and the policy", () => {
     const events = ev([
       { channel: "push", result: "held", reason: "quiet_hours", by: "Night", origin: "message", time: T("13:47") },
-      { channel: "mail", result: "skipped", reason: "no_mail_address", origin: "message", time: T("13:47") },
+      { channel: "mail", result: "skipped", reason: "no_mail_address", recipient: "person.cleo", origin: "message", time: T("13:47") },
       { channel: "popup", result: "skipped", reason: "quiet_hours", by: "Night", origin: "message", time: T("13:47") },
     ].reverse());
     expect(events.map((e) => e.text).sort()).toEqual([
       "Held at 13:47 (ch:push) · Night",
-      "Not sent at 13:47 (ch:mail): r:no_mail_address",
+      "Not reached on ch:mail: who:person.cleo at 13:47 (r:no_mail_address)",
       "Not sent at 13:47 (ch:popup): r:quiet_hours · Night",
     ]);
   });
@@ -657,7 +711,7 @@ describe("overview functions", () => {
       { channel: "push", result: "sent", origin: "message", time: "2026-11-21T13:47:50Z" },
       { channel: "banner", result: "sent", origin: "message", time: T("13:47") },
     ].reverse());
-    expect(events.map((e) => e.text.split(" at ")[0])).toEqual(["Reminder sent", "Escalation sent", "Sent"]);
+    expect(events.map((e) => e.text.split(" at ")[0])).toEqual(["Sent", "Escalation sent", "Reminder sent"]);
   });
 
   it("shows only the steps since the message appeared", () => {
@@ -667,7 +721,7 @@ describe("overview functions", () => {
       { channel: "push", result: "sent", time: "2026-11-18T09:00:00Z" },
     ];
     expect(ev(entries, { since: T("13:00") })).toHaveLength(1);
-    expect(ev(entries)).toHaveLength(3);
+    expect(ev(entries)).toHaveLength(2);
     expect(times(ev(entries, { since: T("13:00") }))).toEqual(["13:50"]);
   });
 

@@ -748,7 +748,10 @@ def last_actions(
                 "channels": [c for c in CHANNEL_ORDER if c in delivered],
                 "reach": reach(manager, latest, item.get("audiences", [])),
                 "trace_complete": seen,
+                "created_at": item["created_at"],
                 "ended_at": item.get("ended"),
+                "snoozed": live is not None
+                and any(st["state"] == "snoozed" for st in message_states(manager, live)),
                 "acknowledged": acknowledged,
                 "escalated": escalated.get(message_id, 0),
                 "reminded": reminded.get(message_id, 0),
