@@ -1596,3 +1596,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: Phases 18 and 19 are pushed on `release/2.0` after `v2.0.0-beta.1`; the real-device checks are still open (`docs/OPEN_QUESTIONS.md`).
 - Decision (maintainer, "Prepare v2.0.0-beta.2"): the manifest version on `release/2.0` is `2.0.0-beta.2`. The CHANGELOG keeps `[Unreleased]`; its block is the pre-release notes and now includes the new Overview, the introduction in the page and the activity history. No new Home Assistant API is used (the history store, websocket commands and the panel follow patterns that exist), so `docs/dev/HA_API_NOTES.md` has no new row.
 - Not done without a further approval (D-020): pushing the branch, the tag `v2.0.0-beta.2` and the GitHub pre-release. Steps in `docs/dev/RELEASE.md`, Releasing 2.0.0, step 1.
+
+## D-248 Release 2.0.0-beta.3 (2026-11-22, maintainer)
+- Context: beta.2 was tested on the maintainer's instance; the Last actions, path, checker and layout fixes since the tag are in `release/2.0`.
+- Decision (maintainer, "tag beta.3"): the manifest version is `2.0.0-beta.3`; `release/2.0` and the tag `v2.0.0-beta.3` are pushed. The CHANGELOG keeps `[Unreleased]` (the pre-release notes). The GitHub pre-release is the maintainer's step.
+
