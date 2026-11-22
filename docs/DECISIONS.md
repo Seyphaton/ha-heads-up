@@ -1605,3 +1605,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: beta.3 lost `startTour` in a rewrite: the first load of the Overview failed and the introduction never opened. The path also had lost its CSS.
 - Decision (maintainer, "tag new beta.4 and push"): the manifest version is `2.0.0-beta.4`; `release/2.0` and the tag `v2.0.0-beta.4` are pushed. Beta.3 should not be used. The CHANGELOG keeps `[Unreleased]`.
 
+
+## D-250 Last actions and Message Log: one story per message (2026-11-22, maintainer)
+- Context: the Last actions rows and the path counted deliveries per recipient and channel, mixed choices (a disabled recipient) with problems, said "Taken back" and "Nothing was delivered" where the trace was empty, and the Message Log used other words for the same facts.
+- Decision (maintainer, answers to five questions; plan in `.private/last-actions-ux-plan-2026-11.md`, local): the work is part of Phase 18. A row has severity, title and status, then time, channels, reach and a policy only when it changed the outcome. Statuses: Active, Acknowledged, Snoozed, Resolved (condition or rule ended), Expired, Dismissed, Cleared. Reach names the audience and says who was reached: up to 3 people by name ("Everyone (Ben, Tom reached)"), above that counts ("Everyone (3/4 reached, 1 failed)"). Recipients that are disabled on purpose appear only in the Message Log, not in Last actions. The path reads oldest first, with the date on every line that is not today. No delivery claim when the trace is empty. The Overview and the Message Log use one shared function for the wording.
+- Not done without a further approval: any code. Phase 18 reopens for this change only after the maintainer approves the plan.
