@@ -832,3 +832,67 @@ async def test_a_part_of_the_overview_that_fails_is_empty_and_the_rest_still_loa
     assert result["last_actions"] == [] and result["coming_up"] == []
     assert result["status"]["count"] == 1 and result["active"]["count"] == 1
     assert "The Overview part last_actions could not be built" in caplog.text
+
+
+async def test_a_row_says_who_was_reached_per_person_and_the_audience(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    client = await hass_ws_client(hass)
+    await make_household(hass, mobile_app_device)
+    set_person(hass, "person.cleo", "home")  # no phone: push cannot reach them
+    await send(
+        hass,
+        entry,
+        to={"push": {"audience": "Everyone"}},
+    )
+    (row,) = (await overview(hass, client))["last_actions"]
+    reach = row["reach"]
+    assert reach["reached"] == ["Anna", "Ben"] and reach["not_reached"] == ["Cleo"]
+    assert reach["audiences"] == ["Everyone"] and reach["excluded"] == []
+    assert row["channels"] == ["banner", "push"] and row["trace_complete"] is True
+
+
+async def test_a_disabled_person_is_excluded_from_reach_and_from_the_problems(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    client = await hass_ws_client(hass)
+    await make_household(hass, mobile_app_device)
+    hass.config_entries.async_add_subentry(
+        entry,
+        ConfigSubentry(
+            data={"person": "person.ben", "enabled": False, "channels": ["banner", "push"]},
+            subentry_type="recipient_profile",
+            title="person.ben",
+            unique_id=None,
+        ),
+    )
+    await hass.async_block_till_done()
+    await send(hass, entry, to={"push": {"audience": "Everyone"}})
+    (row,) = (await overview(hass, client))["last_actions"]
+    assert row["reach"]["reached"] == ["Anna"] and row["reach"]["excluded"] == ["Ben"]
+    assert row["reach"]["excluded_reasons"] == {"Ben": "recipient_disabled"}
+    assert row["problems"] == []  # a choice is no problem
+
+
+async def test_a_person_with_two_phones_counts_once_and_a_row_without_trace_says_so(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    client = await hass_ws_client(hass)
+    await make_household(hass, mobile_app_device)
+    await mobile_app_device("Anna's tablet", user_id="anna-id", person_entity_id="person.anna")
+    await send(hass, entry, to={"push": {"audience": "Everyone"}})
+    (row,) = (await overview(hass, client))["last_actions"]
+    assert row["reach"]["reached"] == ["Anna", "Ben"]
+    entry.runtime_data.hub.trace.resize(1)
+    entry.runtime_data.hub.trace._entries.clear()  # the trace rotated out
+    (row,) = (await overview(hass, client))["last_actions"]
+    assert row["trace_complete"] is False and row["reach"]["reached"] == []

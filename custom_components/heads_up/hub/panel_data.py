@@ -578,8 +578,70 @@ def coming_up(manager: BannerManager) -> list[dict[str, Any]]:
     return sorted(out, key=lambda e: (e["time"], e["kind"], e["policy"]))
 
 
+CHANNEL_ORDER = ("banner", "push", "popup", "speak", "persistent", "mail")
 LAST_ACTIONS = 5
 RESULT_KINDS = ("sent", "held", "skipped", "failed")
+# Skips the user chose (D-250): a disabled recipient, a channel the profile does not take, popups
+# switched off for the severity. They are no problem and no part of "who should have got it".
+CHOICE_REASONS = frozenset({"recipient_disabled", "channel_not_accepted", "popup_off"})
+
+
+def _person_of(logged: dict[str, Any]) -> str | None:
+    """The person behind a trace entry: the phone's person, or the person it was addressed to."""
+    if logged.get("person"):
+        return str(logged["person"])
+    recipient = logged.get("recipient") or ""
+    return recipient if recipient.startswith("person.") else None
+
+
+def reach(
+    manager: BannerManager,
+    latest: dict[tuple[str, str], dict[str, Any]],
+    audience_keys: list[str],
+) -> dict[str, Any]:
+    """Who a message reached (D-250), per person, not per delivery. A person with two phones counts
+    once and is reached when any delivery arrived. `reached`, `failed`, `held` and `not_reached`
+    are first names; `excluded` lists skips the user chose, for the Message Log only."""
+    hub = manager.hub
+    per_person: dict[str, list[dict[str, Any]]] = {}
+    for logged in latest.values():
+        if (person := _person_of(logged)) is not None:
+            per_person.setdefault(person, []).append(logged)
+
+    def name(person: str) -> str:
+        state = manager.hass.states.get(person)
+        words = str(state.attributes.get("friendly_name") or "").split() if state else []
+        return words[0] if words else person.removeprefix("person.").replace("_", " ").title()
+
+    out: dict[str, list[str]] = {
+        "reached": [],
+        "failed": [],
+        "held": [],
+        "not_reached": [],
+        "excluded": [],
+    }
+    reasons: dict[str, str] = {}
+    for person, rows in sorted(per_person.items(), key=lambda kv: name(kv[0]).lower()):
+        results = {r["result"] for r in rows}
+        if "sent" in results:
+            bucket = "reached"
+        elif "failed" in results:
+            bucket = "failed"
+        elif "held" in results or any(r["result"] == "skipped" and r.get("by") for r in rows):
+            bucket = "held"
+        elif all((r["reason"] or "") in CHOICE_REASONS for r in rows):
+            bucket = "excluded"
+        else:
+            bucket = "not_reached"
+        out[bucket].append(name(person))
+        if bucket == "excluded":
+            reasons[name(person)] = rows[0]["reason"] or ""
+    audiences = []
+    for key in audience_keys:
+        found = hub.resolver.audience(key) if hub is not None else None
+        if found is not None:
+            audiences.append(found.name)
+    return {**out, "audiences": audiences, "excluded_reasons": reasons}
 
 
 def last_actions(
@@ -611,6 +673,7 @@ def last_actions(
         created = dt_util.parse_datetime(item["created_at"])
         acknowledged = None
         latest: dict[tuple[str, str], dict[str, Any]] = {}
+        seen = False  # any trace entry since the message appeared
         last_time = item.get("ended") or item["created_at"]
         # Oldest first, so the newest result of a recipient wins. Entries from before this
         # message appeared belong to an earlier appearance of the same ID and are ignored.
@@ -619,6 +682,7 @@ def last_actions(
             if created is not None and when is not None and when < created:
                 continue
             last_time = max(last_time, logged["time"])
+            seen = True
             channel, result = logged["channel"], logged["result"]
             if channel == "" and result == "acknowledged" and acknowledged is None:
                 seconds = int((when - created).total_seconds()) if created and when else None
@@ -638,10 +702,17 @@ def last_actions(
         problems: dict[str, int] = {}
         failed_on: list[str] = []
         held_by: list[str] = []
+        delivered: set[str] = set()
         for (channel, _recipient), logged in latest.items():
             result = logged["result"]
+            if result == "sent":
+                delivered.add(channel)
             results[result] = results.get(result, 0) + 1
-            if result in ("skipped", "failed") and logged["reason"]:
+            if (
+                result in ("skipped", "failed")
+                and logged["reason"]
+                and logged["reason"] not in CHOICE_REASONS
+            ):
                 problems[logged["reason"]] = problems.get(logged["reason"], 0) + 1
             if result == "failed" and channel not in failed_on:
                 failed_on.append(channel)
@@ -674,6 +745,10 @@ def last_actions(
                 ][:2],
                 "failed_on": failed_on,
                 "held_by": held_by,
+                "channels": [c for c in CHANNEL_ORDER if c in delivered],
+                "reach": reach(manager, latest, item.get("audiences", [])),
+                "trace_complete": seen,
+                "ended_at": item.get("ended"),
                 "acknowledged": acknowledged,
                 "escalated": escalated.get(message_id, 0),
                 "reminded": reminded.get(message_id, 0),
@@ -778,9 +853,22 @@ def trace(hass: HomeAssistant, manager: BannerManager, message_id: str) -> dict[
     known = next((m for m in hub.recent.listed() if m["id"] == message_id), None)
     if live is None and known is None:
         return None
+    created = dt_util.parse_datetime(known["created_at"]) if known else None
+    latest: dict[tuple[str, str], dict[str, Any]] = {}
+    for logged in reversed(hub.trace.entries(message_id)):
+        when = dt_util.parse_datetime(logged["time"])
+        if created is not None and when is not None and when < created:
+            continue
+        if (
+            logged["channel"] not in ("", TIMER_CHANNEL)
+            and logged["result"] in RESULT_KINDS
+            and logged["reason"] != "duplicate"
+        ):
+            latest[(logged["channel"], logged["recipient"] or "")] = logged
     return {
         "id": message_id,
         "message": known,
+        "reach": reach(manager, latest, (known or {}).get("audiences", [])),
         "entries": [_trace_entry(manager, hub, e) for e in hub.trace.entries(message_id)],
         "deliveries": [
             {
