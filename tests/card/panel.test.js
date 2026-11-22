@@ -320,6 +320,7 @@ describe("shared wording", () => {
 });
 
 describe("overview functions", () => {
+  const afmt0 = { reasonText: (code) => `r:${code}`, channelName: (c) => `ch:${c}` };
   const fmt = { inTime: (iso) => `in(${iso})`, reasonText: (code) => `r:${code}`, channelName: (c) => `ch:${c}` };
   const sh = { channel: { push: "Push" }, severity: { critical: "Critical" }, result: { sent: "sent", skipped: "skipped", acknowledged: "acknowledged" } };
   const t = OVERVIEW_STRINGS.en;
@@ -520,6 +521,18 @@ describe("overview functions", () => {
     expect(lines[4]).toBe("Messages wait for the summary All, in(E).");
     expect(contextLines({ now: context.now, quiet: { policies: ["Night"], until: null }, away: [], summaries: [] }, 0, t, sh, fmt, "en")[1]).toBe(t.reach_quiet_open);
     expect(contextLines(null, 0, t, sh, fmt, "en")).toEqual([]);
+  });
+
+  it("shows only the steps since the message appeared, with the time of the latest of identical steps", () => {
+    const entries = [
+      { channel: "push", result: "sent", time: "2026-11-21T10:00:00Z" },
+      { channel: "push", result: "sent", time: "2026-11-21T09:00:00Z" },
+      { channel: "push", result: "cleared", time: "2026-11-18T10:00:00Z" },
+      { channel: "push", result: "sent", time: "2026-11-18T09:00:00Z" },
+    ];
+    const lines = pathLines(entries, sh, afmt0, "2026-11-21T08:00:00Z");
+    expect(lines.map((l) => [l.text, l.n, l.time])).toEqual([["ch:push · sent", 2, "2026-11-21T10:00:00Z"]]);
+    expect(pathLines(entries, sh, afmt0)).toHaveLength(2);
   });
 
   it("writes the path of a message oldest first and folds identical steps", () => {

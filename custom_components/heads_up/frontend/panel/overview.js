@@ -685,10 +685,14 @@ export function contextLines(context, now, t, s, fmt, locale) {
   return lines;
 }
 
-// The path of one message, oldest step first. Identical steps are written once with a count.
-export function pathLines(entries, s, fmt) {
+// The path of one message, oldest step first. Only the steps since it appeared (`since`): an ID that
+// is used again keeps its old entries in the trace, and they belong to an earlier message. Identical
+// steps are written once with a count and the time of the latest one.
+export function pathLines(entries, s, fmt, since) {
   const lines = [];
+  const from = since ? Date.parse(since) : NaN;
   for (const entry of [...(entries || [])].reverse()) {
+    if (!Number.isNaN(from) && Date.parse(entry.time) < from) continue;
     let text;
     if (entry.channel === "timer") text = [entry.timer?.policy, s.result[entry.result] || entry.result].filter(Boolean).join(" · ");
     else if (!entry.channel) text = [s.result[entry.result] || entry.result, entry.who].filter(Boolean).join(" · ");
@@ -697,8 +701,10 @@ export function pathLines(entries, s, fmt) {
       text = `${fmt.channelName(entry.channel, s)} · ${s.result[entry.result] || entry.result}${reason}`;
     }
     const found = lines.find((line) => line.text === text);
-    if (found) found.n += 1;
-    else lines.push({ text, time: entry.time, n: 1 });
+    if (found) {
+      found.n += 1;
+      found.time = entry.time;
+    } else lines.push({ text, time: entry.time, n: 1 });
   }
   return lines;
 }
@@ -1030,7 +1036,7 @@ export function mount(container, ctx) {
     render();
     try {
       const result = await hass.callWS({ type: "heads_up/panel_trace", message_id: id });
-      openPaths[id] = result?.entries || [];
+      openPaths[id] = { entries: result?.entries || [], since: result?.message?.created_at || null };
     } catch (err) {
       openPaths[id] = "error";
     }
@@ -1043,7 +1049,7 @@ export function mount(container, ctx) {
     if (value === "loading") box.append(el("div", { className: "sub", textContent: t.path_loading }));
     else if (value === "error") box.append(el("div", { textContent: t.path_failed }));
     else {
-      const lines = pathLines(value, s, fmt);
+      const lines = pathLines(value.entries, s, fmt, value.since);
       if (!lines.length) box.append(el("div", { className: "sub", textContent: t.path_none }));
       for (const line of lines) {
         const times = line.n > 1 ? ` ×${line.n}` : "";

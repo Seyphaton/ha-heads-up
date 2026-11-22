@@ -978,3 +978,6 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 - `heads_up/policy_check` speaks on every speaker when Speak is ticked (as the Overview table does) and leaves speech out when there is no speaker, instead of failing with "speak needs a target".
 - Every row of the checker has `person`, also the rows of escalation and reminder steps, so the panel names a phone as "Person (device)" through `rowWho` instead of showing `device:<id>`.
 - The checker form is a responsive grid; its date field no longer overlaps the next field, and the acknowledge label is short with a hint.
+
+### 27.8 Path of a message on the Overview
+- Show path lists the trace entries since the message appeared (`message.created_at` of `heads_up/panel_trace`), not the whole trace of its ID: an ID that is used again keeps its old entries, which belong to earlier messages. Identical steps are written once with a count and the time of the latest one. The Message Log's trace dialog still shows every entry of the ID.
