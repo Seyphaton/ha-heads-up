@@ -95,6 +95,7 @@ export const STRINGS = {
     kpi_change_pp: "{sign}{n} pp against the period before",
     kpi_quiet_help: "Deliveries that quiet hours held, dropped or sent quietly, of all that could go out. Banners are not counted.",
     kpi_summary_help: "Messages held for a summary, of all messages.",
+    kpi_before: "Before: {n}",
     kpi_change: "{sign}{n}% against the period before",
     kpi_none: "no data",
     kpi_scope_24h: "Apart from Notifications, the numbers cover today and yesterday.",
@@ -284,6 +285,7 @@ export const STRINGS = {
     kpi_change_pp: "{sign}{n} Prozentpunkte gegenüber dem Zeitraum davor",
     kpi_quiet_help: "Zustellungen, die die Ruhezeit zurückgehalten, verworfen oder leise gesendet hat, von allen, die hätten rausgehen können. Banner zählen nicht.",
     kpi_summary_help: "Meldungen, die für eine Zusammenfassung zurückgehalten wurden, von allen Meldungen.",
+    kpi_before: "Davor: {n}",
     kpi_change: "{sign}{n} % gegenüber dem Zeitraum davor",
     kpi_none: "keine Daten",
     kpi_scope_24h: "Außer den Meldungen gelten die Zahlen für heute und gestern.",
@@ -473,6 +475,7 @@ export const STRINGS = {
     kpi_change_pp: "{sign}{n} pt par rapport à la période précédente",
     kpi_quiet_help: "Envois que les heures calmes ont retenus, abandonnés ou envoyés discrètement, sur tous ceux qui pouvaient partir. Les bannières ne comptent pas.",
     kpi_summary_help: "Messages retenus pour un résumé, sur tous les messages.",
+    kpi_before: "Avant : {n}",
     kpi_change: "{sign}{n} % par rapport à la période précédente",
     kpi_none: "pas de données",
     kpi_scope_24h: "Hors Notifications, les chiffres couvrent aujourd'hui et hier.",
@@ -662,6 +665,7 @@ export const STRINGS = {
     kpi_change_pp: "{sign}{n} pp frente al periodo anterior",
     kpi_quiet_help: "Entregas que las horas de silencio retuvieron, descartaron o enviaron en silencio, de todas las que podían salir. Los banners no cuentan.",
     kpi_summary_help: "Mensajes retenidos para un resumen, de todos los mensajes.",
+    kpi_before: "Antes: {n}",
     kpi_change: "{sign}{n} % frente al periodo anterior",
     kpi_none: "sin datos",
     kpi_scope_24h: "Salvo Notificaciones, las cifras cubren hoy y ayer.",
@@ -1040,13 +1044,16 @@ export function notificationTotal(numbers) {
 // (failures, critical, escalations), so a rise is a warning and a fall is good; the rest is neutral.
 export function kpiModel(numbers, t) {
   const sign = (n) => (n > 0 ? "+" : "");
-  const pill = (change, unit, key, worse) => {
+  // The hover of a pill names the number of the period before, so "0 %" can be told from "no data".
+  const pill = (number, unit, key, worse) => {
+    const change = number?.change;
     if (change === null || change === undefined) return null;
     const tone = change === 0 || !worse ? "" : change > 0 ? "warning" : "ok";
-    return { tone, text: `${sign(change)}${change} ${unit}`, title: fill(t[key], { sign: sign(change), n: change }) };
+    const before = number.previous === null || number.previous === undefined ? "" : ` · ${fill(t.kpi_before, { n: unit === "pp" ? `${number.previous} %` : number.previous })}`;
+    return { tone, text: `${sign(change)}${change} ${unit}`, title: `${fill(t[key], { sign: sign(change), n: change })}${before}` };
   };
-  const count = (key, name, worse) => ({ key, name, value: String(numbers[key]?.value ?? 0), pill: pill(numbers[key]?.change, "%", "kpi_change", worse) });
-  const share = (key, name, help) => ({ key, name, help, value: numbers[key]?.value === null || numbers[key]?.value === undefined ? t.kpi_none : `${numbers[key].value} %`, pill: pill(numbers[key]?.change, "pp", "kpi_change_pp", false) });
+  const count = (key, name, worse) => ({ key, name, value: String(numbers[key]?.value ?? 0), pill: pill(numbers[key], "%", "kpi_change", worse) });
+  const share = (key, name, help) => ({ key, name, help, value: numbers[key]?.value === null || numbers[key]?.value === undefined ? t.kpi_none : `${numbers[key].value} %`, pill: pill(numbers[key], "pp", "kpi_change_pp", false) });
   return [
     count("notifications", t.kpi_notifications, false),
     count("failed", t.kpi_failed, true),

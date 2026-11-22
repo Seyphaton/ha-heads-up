@@ -367,8 +367,9 @@ describe("overview functions", () => {
     expect(tiles.map((k) => k.key)).toEqual(["notifications", "failed", "critical", "escalations", "quiet_share", "summary_share"]);
     expect(tiles.map((k) => k.value)).toEqual(["121", "4", "6", "3", "55 %", t.kpi_none]);
     expect(tiles.map((k) => k.pill?.text ?? null)).toEqual(["+16 %", "-50 %", "0 %", "+200 %", "+35 pp", null]);
-    expect(tiles[0].pill.title).toBe("+16% against the period before");
-    expect(tiles[4].pill.title).toBe("+35 pp against the period before");
+    expect(tiles[0].pill.title).toBe("+16% against the period before · Before: 104");
+    expect(tiles[4].pill.title).toBe("+35 pp against the period before · Before: 20 %");
+    expect(tiles[2].pill.title).toBe("0% against the period before · Before: 6");
   });
 
   it("colours a rise of failures, critical messages and escalations as a warning and a fall as good, the rest neutral", () => {
