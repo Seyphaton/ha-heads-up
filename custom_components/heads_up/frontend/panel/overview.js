@@ -1011,7 +1011,8 @@ export function kpiModel(numbers, t) {
   const change = numbers.change;
   return {
     notifications: String(numbers.notifications ?? 0),
-    change: change === null || change === undefined ? null : { up: change > 0, text: fill(t.kpi_change, { sign: change > 0 ? "+" : "", n: change }) },
+    // The pill is short ("+16 %"); the full sentence is its hover text and its spoken label.
+    change: change === null || change === undefined ? null : { up: change > 0, text: `${change > 0 ? "+" : ""}${change} %`, title: fill(t.kpi_change, { sign: change > 0 ? "+" : "", n: change }) },
     delivered: numbers.delivered === null || numbers.delivered === undefined ? t.kpi_none : `${numbers.delivered} %`,
     median: durationText(numbers.median_ack_seconds, t),
     held: String(numbers.held_quiet ?? 0),
@@ -1225,7 +1226,7 @@ const CSS = `
 .hu-overview .kpi { padding: 12px 14px; border-radius: 14px; background: var(--hu-chip); }
 .hu-overview .kpi .big { font-size: 28px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em; }
 .hu-overview .kpi .name { font-size: 12px; color: var(--secondary-text-color); margin-top: 2px; }
-.hu-overview .kpi .pill { margin-top: 6px; font-size: 11px; }
+.hu-overview .kpi .pill { margin-top: 6px; font-size: 11px; max-width: 100%; }
 .hu-overview .legend { display: flex; gap: 12px; font-size: 12px; color: var(--secondary-text-color); flex-wrap: wrap; margin-top: 8px; }
 .hu-overview .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; }
 .hu-overview .heat { display: grid; grid-template-columns: 34px repeat(24, minmax(0, 1fr)); gap: 3px; margin-top: 10px; font-size: 11px; color: var(--secondary-text-color); }
@@ -1655,7 +1656,8 @@ export function mount(container, ctx) {
     }
     const kpi = kpiModel(stats.numbers, t);
     const tile = (value, name, pill) => el("div", { className: "kpi" }, [el("div", { className: "big", textContent: value }), el("div", { className: "name", textContent: name }), pill || ""]);
-    const change = kpi.change ? el("span", { className: `pill ${kpi.change.up ? "warning" : "ok"}`, textContent: kpi.change.text }) : null;
+    const change = kpi.change ? el("span", { className: `pill ${kpi.change.up ? "warning" : "ok"}`, textContent: kpi.change.text, title: kpi.change.title }) : null;
+    if (change) change.setAttribute("aria-label", kpi.change.title);
     first.append(
       el("div", { className: "kpis" }, [tile(kpi.notifications, t.kpi_notifications, change), tile(kpi.delivered, t.kpi_delivered), tile(kpi.median, t.kpi_median), tile(kpi.held, t.kpi_held)]),
     );

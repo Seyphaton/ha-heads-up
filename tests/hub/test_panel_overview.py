@@ -928,3 +928,20 @@ async def test_the_log_lists_who_was_reached_and_who_was_left_out_on_purpose(
         "Ben": "recipient_disabled"
     }
     assert reach["audiences"] == ["Everyone"]
+
+
+async def test_two_people_with_the_same_first_name_are_told_apart_in_the_reach(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    client = await hass_ws_client(hass)
+    await make_household(hass, mobile_app_device)
+    for person, name in (("person.anna", "Anna Berg"), ("person.ben", "Anna Stein")):
+        state = hass.states.get(person)
+        assert state is not None
+        hass.states.async_set(person, state.state, {**state.attributes, "friendly_name": name})
+    await send(hass, entry, to={"push": {"audience": "Everyone"}})
+    (row,) = (await overview(hass, client))["last_actions"]
+    assert row["reach"]["reached"] == ["Anna Berg", "Anna Stein"]

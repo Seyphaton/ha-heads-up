@@ -608,10 +608,18 @@ def reach(
         if (person := _person_of(logged)) is not None:
             per_person.setdefault(person, []).append(logged)
 
-    def name(person: str) -> str:
+    def words(person: str) -> list[str]:
         state = manager.hass.states.get(person)
-        words = str(state.attributes.get("friendly_name") or "").split() if state else []
-        return words[0] if words else person.removeprefix("person.").replace("_", " ").title()
+        return str(state.attributes.get("friendly_name") or "").split() if state else []
+
+    firsts = [w[0] for p in per_person if (w := words(p))]
+
+    def name(person: str) -> str:
+        # The first name, or the full name when two people in the list share a first name.
+        found = words(person)
+        if not found:
+            return person.removeprefix("person.").replace("_", " ").title()
+        return found[0] if firsts.count(found[0]) < 2 else " ".join(found)
 
     out: dict[str, list[str]] = {
         "reached": [],
