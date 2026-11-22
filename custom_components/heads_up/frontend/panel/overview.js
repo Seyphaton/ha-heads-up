@@ -46,6 +46,7 @@ export const STRINGS = {
     last_none: "Nothing has happened since Home Assistant started.",
     open_messages: "Open Message Log",
     refresh: "Refresh",
+    reach_help: "What does this table show?",
     reach_title: "What would a message do right now?",
     reach_intro: "The call chooses channels and people. This shows a message to Everyone.",
     reach_now: "It is {time}.",
@@ -137,12 +138,30 @@ export const STRINGS = {
     sc_audiences: "Audiences",
     sc_policies: "Policies",
     sc_rules: "Watch rules",
-    sc_channels_mail_on: "Mail is set up",
-    sc_channels_mail_off: "Mail is not set up",
-    sc_audiences_sub: "{custom} of your own, {builtin} built in",
-    sc_policies_sub: "{enabled} of {total} on",
-    sc_rules_sub: "{showing} showing now",
     sc_open: "Open {page}",
+    ev_line: "{what} at {time}",
+    ev_sent: "Sent",
+    ev_reminder: "Reminder sent",
+    ev_escalation: "Escalation sent",
+    ev_deliver: "Sent by a policy",
+    ev_fallback: "Fallback sent",
+    ev_released: "Sent after the hold",
+    ev_summary: "Summary sent",
+    ev_held_summary: "Held for summary",
+    ev_held: "Held",
+    ev_not_sent: "Not sent",
+    ev_failed: "Failed",
+    ev_taken_back: "Taken back",
+    ev_ack: "Acknowledged by {who}",
+    ev_ack_plain: "Acknowledged",
+    ev_dismissed: "Dismissed by {who}",
+    ev_dismissed_plain: "Dismissed",
+    ev_snoozed: "Snoozed by {who}",
+    ev_snoozed_plain: "Snoozed",
+    ev_unsnoozed: "Snooze ended",
+    ev_silent: "silently due to {policy}",
+    ev_silent_plain: "silently",
+    ev_channels_silent: "{channels} silently",
     first_run: "No policies yet. The introduction explains a few defaults you can switch on.",
     first_run_button: "Restart introduction",
     ph_attention: "Problems with your setup show up here.",
@@ -197,6 +216,7 @@ export const STRINGS = {
     last_none: "Seit dem Start von Home Assistant ist nichts passiert.",
     open_messages: "Meldungsprotokoll öffnen",
     refresh: "Aktualisieren",
+    reach_help: "Was zeigt diese Tabelle?",
     reach_title: "Was würde eine Meldung jetzt tun?",
     reach_intro: "Der Aufruf wählt Kanäle und Personen. Hier siehst du eine Meldung an Alle.",
     reach_now: "Es ist {time}.",
@@ -288,12 +308,30 @@ export const STRINGS = {
     sc_audiences: "Zielgruppen",
     sc_policies: "Richtlinien",
     sc_rules: "Überwachungsregeln",
-    sc_channels_mail_on: "E-Mail ist eingerichtet",
-    sc_channels_mail_off: "E-Mail ist nicht eingerichtet",
-    sc_audiences_sub: "{custom} eigene, {builtin} eingebaute",
-    sc_policies_sub: "{enabled} von {total} an",
-    sc_rules_sub: "{showing} werden gerade gezeigt",
     sc_open: "{page} öffnen",
+    ev_line: "{what} um {time}",
+    ev_sent: "Gesendet",
+    ev_reminder: "Erinnerung gesendet",
+    ev_escalation: "Eskalation gesendet",
+    ev_deliver: "Von einer Richtlinie gesendet",
+    ev_fallback: "Ersatz gesendet",
+    ev_released: "Nach dem Zurückhalten gesendet",
+    ev_summary: "Zusammenfassung gesendet",
+    ev_held_summary: "Für die Zusammenfassung zurückgehalten",
+    ev_held: "Zurückgehalten",
+    ev_not_sent: "Nicht gesendet",
+    ev_failed: "Fehlgeschlagen",
+    ev_taken_back: "Zurückgenommen",
+    ev_ack: "Bestätigt von {who}",
+    ev_ack_plain: "Bestätigt",
+    ev_dismissed: "Ausgeblendet von {who}",
+    ev_dismissed_plain: "Ausgeblendet",
+    ev_snoozed: "Zurückgestellt von {who}",
+    ev_snoozed_plain: "Zurückgestellt",
+    ev_unsnoozed: "Zurückstellung beendet",
+    ev_silent: "leise wegen {policy}",
+    ev_silent_plain: "leise",
+    ev_channels_silent: "{channels} leise",
     first_run: "Noch keine Richtlinien. Die Einführung erklärt ein paar Standards, die du einschalten kannst.",
     first_run_button: "Einführung neu starten",
     ph_attention: "Probleme mit deiner Einrichtung erscheinen hier.",
@@ -348,6 +386,7 @@ export const STRINGS = {
     last_none: "Rien ne s'est passé depuis le démarrage de Home Assistant.",
     open_messages: "Ouvrir le journal des messages",
     refresh: "Actualiser",
+    reach_help: "Que montre ce tableau ?",
     reach_title: "Que ferait un message maintenant ?",
     reach_intro: "L'appel choisit les canaux et les personnes. Ici : un message pour Tout le monde.",
     reach_now: "Il est {time}.",
@@ -439,12 +478,30 @@ export const STRINGS = {
     sc_audiences: "Audiences",
     sc_policies: "Politiques",
     sc_rules: "Règles de surveillance",
-    sc_channels_mail_on: "Le courriel est configuré",
-    sc_channels_mail_off: "Le courriel n'est pas configuré",
-    sc_audiences_sub: "{custom} à vous, {builtin} intégrées",
-    sc_policies_sub: "{enabled} sur {total} actives",
-    sc_rules_sub: "{showing} affichées en ce moment",
     sc_open: "Ouvrir {page}",
+    ev_line: "{what} à {time}",
+    ev_sent: "Envoyé",
+    ev_reminder: "Rappel envoyé",
+    ev_escalation: "Escalade envoyée",
+    ev_deliver: "Envoyé par une politique",
+    ev_fallback: "Repli envoyé",
+    ev_released: "Envoyé après la retenue",
+    ev_summary: "Résumé envoyé",
+    ev_held_summary: "Retenu pour le résumé",
+    ev_held: "Retenu",
+    ev_not_sent: "Non envoyé",
+    ev_failed: "Échec",
+    ev_taken_back: "Retiré",
+    ev_ack: "Confirmé par {who}",
+    ev_ack_plain: "Confirmé",
+    ev_dismissed: "Masqué par {who}",
+    ev_dismissed_plain: "Masqué",
+    ev_snoozed: "Reporté par {who}",
+    ev_snoozed_plain: "Reporté",
+    ev_unsnoozed: "Report terminé",
+    ev_silent: "discrètement à cause de {policy}",
+    ev_silent_plain: "discrètement",
+    ev_channels_silent: "{channels} discrètement",
     first_run: "Aucune politique pour l'instant. L'introduction explique quelques réglages par défaut que vous pouvez activer.",
     first_run_button: "Relancer l'introduction",
     ph_attention: "Les problèmes de votre configuration apparaissent ici.",
@@ -499,6 +556,7 @@ export const STRINGS = {
     last_none: "No ha pasado nada desde que arrancó Home Assistant.",
     open_messages: "Abrir el registro de mensajes",
     refresh: "Actualizar",
+    reach_help: "¿Qué muestra esta tabla?",
     reach_title: "¿Qué haría un mensaje ahora mismo?",
     reach_intro: "La llamada elige canales y personas. Aquí se ve un mensaje para Todos.",
     reach_now: "Son las {time}.",
@@ -590,12 +648,30 @@ export const STRINGS = {
     sc_audiences: "Audiencias",
     sc_policies: "Políticas",
     sc_rules: "Reglas de vigilancia",
-    sc_channels_mail_on: "El correo está configurado",
-    sc_channels_mail_off: "El correo no está configurado",
-    sc_audiences_sub: "{custom} propias, {builtin} integradas",
-    sc_policies_sub: "{enabled} de {total} activas",
-    sc_rules_sub: "{showing} mostrándose ahora",
     sc_open: "Abrir {page}",
+    ev_line: "{what} a las {time}",
+    ev_sent: "Enviado",
+    ev_reminder: "Recordatorio enviado",
+    ev_escalation: "Escalada enviada",
+    ev_deliver: "Enviado por una política",
+    ev_fallback: "Respaldo enviado",
+    ev_released: "Enviado tras la retención",
+    ev_summary: "Resumen enviado",
+    ev_held_summary: "Retenido para el resumen",
+    ev_held: "Retenido",
+    ev_not_sent: "No enviado",
+    ev_failed: "Fallido",
+    ev_taken_back: "Retirado",
+    ev_ack: "Confirmado por {who}",
+    ev_ack_plain: "Confirmado",
+    ev_dismissed: "Descartado por {who}",
+    ev_dismissed_plain: "Descartado",
+    ev_snoozed: "Pospuesto por {who}",
+    ev_snoozed_plain: "Pospuesto",
+    ev_unsnoozed: "Pospuesta terminada",
+    ev_silent: "en silencio por {policy}",
+    ev_silent_plain: "en silencio",
+    ev_channels_silent: "{channels} en silencio",
     first_run: "Aún no hay políticas. La introducción explica algunos valores por defecto que puedes activar.",
     first_run_button: "Reiniciar la introducción",
     ph_attention: "Los problemas de tu configuración aparecen aquí.",
@@ -685,39 +761,112 @@ export function contextLines(context, now, t, s, fmt, locale) {
   return lines;
 }
 
-// The path of one message, oldest step first. Only the steps since it appeared (`since`): an ID that
-// is used again keeps its old entries in the trace, and they belong to an earlier message. Identical
-// steps are written once with a count and the time of the latest one.
-export function pathLines(entries, s, fmt, since) {
-  const lines = [];
-  const from = since ? Date.parse(since) : NaN;
-  for (const entry of [...(entries || [])].reverse()) {
-    if (!Number.isNaN(from) && Date.parse(entry.time) < from) continue;
-    let text;
-    if (entry.channel === "timer") text = [entry.timer?.policy, s.result[entry.result] || entry.result].filter(Boolean).join(" · ");
-    else if (!entry.channel) text = [s.result[entry.result] || entry.result, entry.who].filter(Boolean).join(" · ");
-    else {
-      const reason = entry.reason ? `: ${fmt.reasonText(entry.reason, s)}` : "";
-      text = `${fmt.channelName(entry.channel, s)} · ${s.result[entry.result] || entry.result}${reason}`;
-    }
-    const found = lines.find((line) => line.text === text);
-    if (found) {
-      found.n += 1;
-      found.time = entry.time;
-    } else lines.push({ text, time: entry.time, n: 1 });
-  }
-  return lines;
+const DELIVERY_RESULTS = ["sent", "held", "skipped", "failed", "cleared", "summarized"];
+const CLUSTER_MS = 90000;
+const ORIGIN_TEXT = { message: "ev_sent", reminder: "ev_reminder", escalation: "ev_escalation", deliver: "ev_deliver", fallback: "ev_fallback", released: "ev_released", summary: "ev_summary" };
+
+// The clock time of an event: "13:57", or with the date when it is not today.
+export function clockText(iso, now, locale) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  const time = date.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+  return date.toDateString() === new Date(now).toDateString() ? time : `${date.toLocaleDateString(locale, { day: "numeric", month: "short" })} ${time}`;
 }
 
-// The four small cards under the status card: the page each opens, a number and one line.
-export function shortcutCards(data, t) {
-  const sc = data.shortcuts;
-  const rules = data.rules;
+// Who an entry of the trace was for: "Anna (iPhone)", a person, a phone, a speaker.
+export function entryWho(entry, choices, label) {
+  const person = entry.person ? label(entry.person, choices) : "";
+  const recipient = String(entry.recipient || "");
+  if (recipient.startsWith("device:")) {
+    const device = label(recipient.slice("device:".length), choices);
+    return person ? `${person} (${device})` : device;
+  }
+  return person || (recipient ? label(recipient, choices) : "") || "—";
+}
+
+// What happened to a message, newest first, one event per moment: a send (with its channels, and
+// "silently due to <policy>"), a reminder, an escalation, a hold, a summary, an acknowledgement.
+// A failed delivery is an event of its own. Only the steps since the message appeared (`since`): an
+// ID that is used again keeps its old entries, which belong to earlier messages. `title` is the
+// hover text: who each line was for. `who(entry)` names the person and phone of an entry.
+export function pathEvents(entries, { t, s, fmt, since, who, now, locale }) {
+  const from = since ? Date.parse(since) : NaN;
+  const list = [...(entries || [])].reverse().filter((e) => (Number.isNaN(from) || Date.parse(e.time) >= from) && e.channel !== "timer");
+  const channel = (c) => fmt.channelName(c, s);
+  const order = ["banner", "push", "popup", "speak", "persistent", "mail"];
+  const rank = (c) => (order.includes(c) ? order.indexOf(c) : order.length);
+  const channels = (names) => [...new Set(names)].sort((a, b) => rank(a) - rank(b)).map(channel).join(", ");
+  const reasonOf = (e) => (e.reason ? fmt.reasonText(e.reason, s) : "");
+  const events = [];
+  const line = (what, time, rest = "") => `${fill(t.ev_line, { what, time: clockText(time, now, locale) })}${rest}`;
+  const hover = (entriesOf) => entriesOf.map((e) => `${who(e)}: ${s.result[e.result] || e.result}${reasonOf(e) ? ` (${reasonOf(e)})` : ""}`).join("\n");
+  let cluster = null;
+  const flush = () => {
+    if (!cluster) return;
+    const rows = cluster.rows;
+    const time = cluster.time;
+    const sent = rows.filter((e) => e.result === "sent");
+    const push = (kind, text, group) => events.push({ time, kind, text, title: hover(group) });
+    if (sent.length) {
+      const quiet = sent.filter((e) => e.by);
+      const policies = [...new Set(quiet.map((e) => e.by))].join(", ");
+      let rest = "";
+      if (quiet.length === sent.length) rest = ` · ${fill(t.ev_silent, { policy: policies })}`;
+      else if (quiet.length) rest = ` · ${fill(t.ev_channels_silent, { channels: channels(quiet.map((e) => e.channel)) })} (${policies})`;
+      push("ok", line(t[ORIGIN_TEXT[cluster.origin] || "ev_sent"], time, ` (${channels(sent.map((e) => e.channel))})${rest}`), sent);
+    }
+    const summarized = rows.filter((e) => e.result === "summarized");
+    if (summarized.length) push("ok", line(t.ev_summary, time, ` (${channels(summarized.map((e) => e.channel))}) · ${summarized[0].by || ""}`.replace(/ · $/, "")), summarized);
+    const held = rows.filter((e) => e.result === "held");
+    if (held.length) push("hold", line(t.ev_held, time, ` (${channels(held.map((e) => e.channel))})${held[0].by ? ` · ${held[0].by}` : ""}`), held);
+    const skipped = rows.filter((e) => e.result === "skipped");
+    for (const reason of [...new Set(skipped.map(reasonOf))]) {
+      const group = skipped.filter((e) => reasonOf(e) === reason);
+      const by = group.find((e) => e.by)?.by;
+      push("note", line(t.ev_not_sent, time, ` (${channels(group.map((e) => e.channel))})${reason ? `: ${reason}` : ""}${by ? ` · ${by}` : ""}`), group);
+    }
+    const failed = rows.filter((e) => e.result === "failed");
+    for (const reason of [...new Set(failed.map(reasonOf))]) {
+      const group = failed.filter((e) => reasonOf(e) === reason);
+      push("fail", line(t.ev_failed, time, ` (${channels(group.map((e) => e.channel))})${reason ? `: ${reason}` : ""}`), group);
+    }
+    const cleared = rows.filter((e) => e.result === "cleared");
+    if (cleared.length) push("note", line(t.ev_taken_back, time, ` (${channels(cleared.map((e) => e.channel))})`), cleared);
+    cluster = null;
+  };
+  for (const entry of list) {
+    if (entry.channel === "") {
+      flush();
+      const named = (key, plain) => (entry.who ? fill(t[key], { who: entry.who }) : t[plain]);
+      const text = {
+        acknowledged: () => named("ev_ack", "ev_ack_plain"),
+        dismissed: () => named("ev_dismissed", "ev_dismissed_plain"),
+        snoozed: () => named("ev_snoozed", "ev_snoozed_plain"),
+        unsnoozed: () => t.ev_unsnoozed,
+        held: () => `${t.ev_held_summary}${entry.by ? ` (${entry.by})` : ""}`,
+      }[entry.result];
+      if (text) events.push({ time: entry.time, kind: entry.result === "held" ? "hold" : "note", text: line(text(), entry.time), title: "" });
+      continue;
+    }
+    if (!DELIVERY_RESULTS.includes(entry.result)) continue;
+    const origin = entry.result === "summarized" ? "summary" : entry.origin || "message";
+    if (cluster && cluster.origin === origin && Date.parse(entry.time) - Date.parse(cluster.time) <= CLUSTER_MS) cluster.rows.push(entry);
+    else {
+      flush();
+      cluster = { origin, time: entry.time, rows: [entry] };
+    }
+  }
+  flush();
+  return events.sort((a, b) => Date.parse(b.time) - Date.parse(a.time));
+}
+
+// The four small links under the status card: the page each opens.
+export function shortcutCards(t) {
   return [
-    { page: "channels", title: t.sc_channels, big: sc.channels.total, sub: sc.channels.mail ? t.sc_channels_mail_on : t.sc_channels_mail_off },
-    { page: "audiences", title: t.sc_audiences, big: sc.audiences.builtin + sc.audiences.custom, sub: fill(t.sc_audiences_sub, sc.audiences) },
-    { page: "policies", title: t.sc_policies, big: sc.policies.enabled, sub: fill(t.sc_policies_sub, sc.policies) },
-    { page: "rules", title: t.sc_rules, big: rules.enabled, sub: fill(t.sc_rules_sub, { showing: rules.showing }) },
+    { page: "channels", title: t.sc_channels },
+    { page: "audiences", title: t.sc_audiences },
+    { page: "policies", title: t.sc_policies },
+    { page: "rules", title: t.sc_rules },
   ];
 }
 
@@ -852,8 +1001,9 @@ function el(tag, props = {}, children = []) {
 const CSS = `
 .hu-overview { --hu-radius: 16px; --hu-shadow: 0 1px 2px rgba(0,0,0,.10), 0 8px 24px rgba(0,0,0,.10); --hu-ok: var(--success-color, #43a047); --hu-crit: var(--error-color, #db4437); --hu-warn: var(--warning-color, #ffa600); --hu-info: var(--info-color, #039be5); --hu-chip: color-mix(in srgb, var(--primary-text-color) 8%, transparent); }
 .hu-overview > h1 { font-size: 26px; letter-spacing: -.02em; margin: 4px 0 18px; }
-.hu-overview section { background: var(--card-background-color); border: 1px solid var(--divider-color); border-radius: var(--hu-radius); padding: 18px 20px; margin-bottom: 16px; box-shadow: var(--hu-shadow); animation: hu-rise .45s both; }
-.hu-overview section:nth-of-type(2) { animation-delay: .05s; } .hu-overview section:nth-of-type(3) { animation-delay: .1s; }
+.hu-overview section { background: var(--card-background-color); border: 1px solid var(--divider-color); border-radius: var(--hu-radius); padding: 18px 20px; margin-bottom: 16px; box-shadow: var(--hu-shadow); }
+.hu-overview.enter section { animation: hu-rise .45s both; }
+.hu-overview.enter section:nth-of-type(2) { animation-delay: .05s; } .hu-overview.enter section:nth-of-type(3) { animation-delay: .1s; }
 .hu-overview h2 { font-size: 15px; font-weight: 600; letter-spacing: .01em; margin: 0 0 6px; }
 .hu-overview .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .hu-overview .pair section { margin-bottom: 16px; }
@@ -925,8 +1075,9 @@ const CSS = `
 .hu-overview .reach .st-not_set_up { background: transparent; border: 1px dashed var(--divider-color); color: var(--secondary-text-color); font-weight: 400; }
 .hu-overview .detail { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--hu-chip); display: grid; gap: 2px; }
 .hu-overview .detail .t { font-weight: 600; }
-.hu-overview .context { margin: 0 0 8px; display: grid; gap: 2px; }
-.hu-overview .context .sub:first-child { color: var(--primary-text-color); }
+.hu-overview button.help { min-width: 24px; min-height: 24px; width: 24px; height: 24px; padding: 0; margin-left: 8px; border-radius: 50%; border: 1px solid var(--divider-color); background: transparent; font-size: 13px; line-height: 1; cursor: help; vertical-align: middle; color: var(--secondary-text-color); }
+.hu-overview button.help[aria-expanded="true"], .hu-overview button.help:hover { color: var(--primary-text-color); border-color: var(--primary-text-color); }
+.hu-overview .tip { margin: 4px 0 10px; padding: 10px 12px; border-radius: 10px; background: var(--hu-chip); font-size: 13px; display: grid; gap: 2px; }
 
 /* chart */
 .hu-overview .chartbox .head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
@@ -982,17 +1133,17 @@ const CSS = `
 .hu-overview .srcbar .nm { display: flex; align-items: baseline; gap: 6px; min-width: 0; overflow-wrap: anywhere; }
 .hu-overview .srcbar .kind { font-size: 11px; color: var(--secondary-text-color); white-space: nowrap; }
 
-.hu-overview .shortcuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 16px; }
-.hu-overview button.shortcut { display: grid; gap: 1px; justify-items: start; text-align: left; padding: 12px 14px; min-height: 76px; border-radius: 14px; border: 1px solid var(--divider-color); background: var(--card-background-color); box-shadow: var(--hu-shadow); transition: transform .12s, border-color .12s; }
-.hu-overview button.shortcut:hover { transform: translateY(-1px); border-color: var(--primary-color); }
-.hu-overview button.shortcut .name { font-size: 13px; font-weight: 600; color: var(--primary-color); }
-.hu-overview button.shortcut .big { font-size: 24px; font-weight: 700; line-height: 1.15; letter-spacing: -.02em; }
-.hu-overview button.shortcut .sub { font-size: 12px; }
+.hu-overview .shortcuts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.hu-overview button.shortcut { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--divider-color); background: var(--card-background-color); box-shadow: var(--hu-shadow); transition: border-color .12s; }
+.hu-overview button.shortcut:hover { border-color: var(--primary-color); }
+.hu-overview button.shortcut .name { font-size: 14px; font-weight: 600; }
+.hu-overview button.shortcut .arrow { color: var(--primary-color); font-size: 15px; transition: transform .12s; }
+.hu-overview button.shortcut:hover .arrow { transform: translateX(2px); }
 @keyframes hu-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes hu-pulse { 0% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 30%, transparent), 0 0 0 18px color-mix(in srgb, var(--hero-tint) 7%, transparent); } 100% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 14%, transparent), 0 0 0 26px transparent; } }
 @keyframes hu-grow { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
 @keyframes hu-glow { 0%, 100% { opacity: .35; } 50% { opacity: .75; } }
-@media (prefers-reduced-motion: reduce) { .hu-overview section, .hu-overview .orb, .hu-overview svg.chart .bar, .hu-overview svg.chart .bar .shine { animation: none !important; } .hu-overview .reach button.cell { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .hu-overview.enter section, .hu-overview .orb, .hu-overview svg.chart .bar, .hu-overview svg.chart .bar .shine { animation: none !important; } .hu-overview .reach button.cell { transition: none; } }
 @media (max-width: 480px) {
   .hu-overview .reach { border-spacing: 4px; margin: 6px -4px 0; width: calc(100% + 8px); }
   .hu-overview .reach th { font-size: 11px; padding: 2px; }
@@ -1009,12 +1160,15 @@ export function mount(container, ctx) {
   let openPaths = {}; // message id -> trace entries, "loading" or "error"
   let timer = null;
   let played = false;
+  let reachHelp = false; // the explanation of the table is open
   let tour = null;
   let tourStarted = false;
   let period = "week";
   let stats = null; // the Activity data of `period`, or false when it could not be loaded
   // The tour lives in its own node, so the page's redraws never wipe it.
   const tourHost = el("div");
+  // The style node is made once: a new one on every redraw made the page flash.
+  const styleNode = el("style", { textContent: CSS });
   const root = el("div", { className: "hu-overview" });
   container.append(root);
 
@@ -1026,6 +1180,17 @@ export function mount(container, ctx) {
   };
 
   // The path of a message: its trace, oldest step first.
+  // The names of people and phones for the hover text; asked once, when the first path opens.
+  let choices = null;
+  async function ensureChoices() {
+    if (choices) return;
+    try {
+      choices = (await hass.callWS({ type: "heads_up/panel_config" })).choices || {};
+    } catch (err) {
+      choices = {};
+    }
+  }
+
   async function togglePath(id) {
     if (openPaths[id]) {
       delete openPaths[id];
@@ -1035,6 +1200,7 @@ export function mount(container, ctx) {
     openPaths[id] = "loading";
     render();
     try {
+      await ensureChoices();
       const result = await hass.callWS({ type: "heads_up/panel_trace", message_id: id });
       openPaths[id] = { entries: result?.entries || [], since: result?.message?.created_at || null };
     } catch (err) {
@@ -1049,38 +1215,16 @@ export function mount(container, ctx) {
     if (value === "loading") box.append(el("div", { className: "sub", textContent: t.path_loading }));
     else if (value === "error") box.append(el("div", { textContent: t.path_failed }));
     else {
-      const lines = pathLines(value.entries, s, fmt, value.since);
-      if (!lines.length) box.append(el("div", { className: "sub", textContent: t.path_none }));
-      for (const line of lines) {
-        const times = line.n > 1 ? ` ×${line.n}` : "";
-        box.append(el("div", {}, [el("span", { className: "sub", textContent: `${fmt.timeAgo(line.time, now(), s)} · ` }), el("span", { textContent: line.text + times })]));
+      const label = (v, c) => (ctx.ui ? ctx.ui.recipientLabel(v, c) : v);
+      const events = pathEvents(value.entries, { t, s, fmt, since: value.since, now: now(), locale: ctx.language, who: (entry) => entryWho(entry, choices || {}, label) });
+      if (!events.length) box.append(el("div", { className: "sub", textContent: t.path_none }));
+      for (const event of events) {
+        const row = el("div", { className: `ev ${event.kind}`, textContent: event.text });
+        if (event.title) row.title = event.title;
+        box.append(row);
       }
     }
     return box;
-  }
-
-  // The introduction tour, inside the page (D-244): shown on the first opening, or when asked for.
-  async function startTour(force) {
-    if (tour) return;
-    try {
-      const mod = await ctx.loadModule("welcome.js");
-      tour = await mod.mount(tourHost, {
-        hass,
-        t: ctx.tableFor(mod),
-        s,
-        ui: ctx.ui,
-        language: ctx.language,
-        force,
-        onClose: () => {
-          tour = null;
-          if (globalThis.location?.search) globalThis.history?.replaceState(null, "", globalThis.location.pathname);
-          load();
-        },
-      });
-    } catch (err) {
-      tour = null; // the tour is a convenience: a failure must not block the page
-    }
-    if (tour) render();
   }
 
   async function act(type, extra, confirmText) {
@@ -1104,13 +1248,9 @@ export function mount(container, ctx) {
   function shortcutRow() {
     const row = el("div", { className: "shortcuts" });
     row.setAttribute("aria-label", t.sc_label);
-    for (const card of shortcutCards(data, t)) {
-      const button = el("button", { type: "button", className: "shortcut" }, [
-        el("span", { className: "name", textContent: card.title }),
-        el("span", { className: "big", textContent: String(card.big) }),
-        el("span", { className: "sub", textContent: card.sub }),
-      ]);
-      button.setAttribute("aria-label", `${fill(t.sc_open, { page: card.title })}: ${card.big}, ${card.sub}`);
+    for (const card of shortcutCards(t)) {
+      const button = el("button", { type: "button", className: "shortcut" }, [el("span", { className: "name", textContent: card.title }), el("span", { className: "arrow", textContent: "→", "aria-hidden": "true" })]);
+      button.setAttribute("aria-label", fill(t.sc_open, { page: card.title }));
       button.addEventListener("click", () => ctx.navigate(card.page));
       row.append(button);
     }
@@ -1227,8 +1367,15 @@ export function mount(container, ctx) {
   function reachCard() {
     if (reach === false) return section(t.reach_title, [el("div", { className: "sub", textContent: t.reach_failed })]);
     if (!reach) return section(t.reach_title, [el("div", { className: "sub", textContent: t.loading })]);
-    const lines = contextLines(reach.context, now(), t, s, fmt, ctx.language);
-    const context = el("div", { className: "context" }, [el("div", { className: "sub", textContent: t.reach_intro }), ...lines.map((line) => el("div", { className: "sub", textContent: line }))]);
+    const lines = [t.reach_intro, ...contextLines(reach.context, now(), t, s, fmt, ctx.language)];
+    const help = el("button", { type: "button", className: "help", textContent: "?", title: t.reach_help });
+    help.setAttribute("aria-label", t.reach_help);
+    help.setAttribute("aria-expanded", String(reachHelp));
+    help.addEventListener("click", () => {
+      reachHelp = !reachHelp;
+      render();
+    });
+    const context = reachHelp ? el("div", { className: "tip", role: "note" }, lines.map((line) => el("div", { textContent: line }))) : "";
     const table = el("table", { className: "reach" });
     const head = el("tr", {}, [el("th", { className: "rowhead", scope: "col" })]);
     for (const severity of reach.severities) head.append(el("th", { className: "col", scope: "col", textContent: s.severity[severity] || severity }));
@@ -1255,7 +1402,7 @@ export function mount(container, ctx) {
       body.append(row);
     }
     table.append(body);
-    const parts = [context, table];
+    const parts = [context, table].filter(Boolean);
     if (selected) {
       const detail = cellDetail(reach.cells[selected.channel][selected.severity], selected.channel, selected.severity, t, s, fmt);
       const box = el("div", { className: "detail" }, [el("div", { className: "t", textContent: detail.title }), el("div", { textContent: detail.sentence })]);
@@ -1264,7 +1411,9 @@ export function mount(container, ctx) {
       for (const line of detail.people) box.append(el("div", { className: "sub", textContent: line }));
       parts.push(box);
     }
-    return section(t.reach_title, parts);
+    const card = section(t.reach_title, parts);
+    card.querySelector("h2").append(help);
+    return card;
   }
 
   // The bars of the last 24 hours, stacked by severity. The bars grow in once, when the page opens;
@@ -1402,7 +1551,8 @@ export function mount(container, ctx) {
     const intro = !played;
     played = true;
     ctx.ui?.lockHeight(root);
-    root.replaceChildren(el("style", { textContent: CSS }), el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }), tourHost);
+    root.classList.toggle("enter", intro);
+    root.replaceChildren(styleNode, el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }), tourHost);
     if (data.first_run) {
       if (!tour) {
         const go = el("button", { type: "button", className: "mini primary", textContent: t.first_run_button });

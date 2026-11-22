@@ -1,5 +1,8 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+
+// Clock times in the tests are UTC, whatever the machine's zone is.
+process.env.TZ = "UTC";
 import {
   BASE_PATH,
   DEFAULT_PAGE,
@@ -223,7 +226,9 @@ import {
   actionRow,
   shortcutCards,
   sourceRows,
-  pathLines,
+  clockText,
+  entryWho,
+  pathEvents,
   statusHeadline,
   statusPills,
   STRINGS as OVERVIEW_STRINGS,
@@ -453,20 +458,13 @@ describe("overview functions", () => {
     expect(OVERVIEW_STRINGS.en.period_2y).toBe("2 years");
   });
 
-  it("builds the four shortcut cards with the page, a number and one line each", () => {
-    const data = {
-      shortcuts: { channels: { total: 6, mail: false }, audiences: { builtin: 6, custom: 2 }, policies: { total: 7, enabled: 5 } },
-      rules: { enabled: 3, showing: 1 },
-    };
-    const cards = shortcutCards(data, t);
-    expect(cards.map((c) => [c.page, c.title, c.big])).toEqual([
-      ["channels", "Channels", 6],
-      ["audiences", "Audiences", 8],
-      ["policies", "Policies", 5],
-      ["rules", "Watch rules", 3],
+  it("builds the four shortcut links with their page and title", () => {
+    expect(shortcutCards(t)).toEqual([
+      { page: "channels", title: "Channels" },
+      { page: "audiences", title: "Audiences" },
+      { page: "policies", title: "Policies" },
+      { page: "rules", title: "Watch rules" },
     ]);
-    expect(cards.map((c) => c.sub)).toEqual(["Mail is not set up", "2 of your own, 6 built in", "5 of 7 on", "1 showing now"]);
-    expect(shortcutCards({ ...data, shortcuts: { ...data.shortcuts, channels: { total: 6, mail: true } } }, t)[0].sub).toBe("Mail is set up");
   });
 
   it("counts messages with the right plural", () => {
@@ -523,30 +521,122 @@ describe("overview functions", () => {
     expect(contextLines(null, 0, t, sh, fmt, "en")).toEqual([]);
   });
 
-  it("shows only the steps since the message appeared, with the time of the latest of identical steps", () => {
+  const T = (hhmm) => `2026-11-21T${hhmm}:00Z`;
+  const ev = (entries, extra = {}) =>
+    pathEvents(entries, {
+      t,
+      s: { ...sh, result: { sent: "sent", skipped: "skipped", held: "held", failed: "failed", cleared: "cleared" } },
+      fmt: { reasonText: (c) => `r:${c}`, channelName: (c) => `ch:${c}` },
+      who: (e) => `who:${e.person || e.recipient}`,
+      now: Date.parse(T("14:00")),
+      locale: "en-GB",
+      ...extra,
+    });
+  const times = (list) => list.map((e) => e.text.match(/\d\d:\d\d/)?.[0]);
+
+  it("lists what happened newest first, one event per moment, with its channels", () => {
     const entries = [
-      { channel: "push", result: "sent", time: "2026-11-21T10:00:00Z" },
-      { channel: "push", result: "sent", time: "2026-11-21T09:00:00Z" },
+      { channel: "", result: "acknowledged", who: "Ben", time: T("13:58") },
+      { channel: "push", result: "sent", origin: "reminder", time: T("13:57") },
+      { channel: "banner", result: "sent", origin: "reminder", time: T("13:57") },
+      { channel: "speak", result: "sent", origin: "reminder", time: T("13:57") },
+      { channel: "banner", result: "sent", origin: "message", time: T("13:47") },
+      { channel: "push", result: "sent", origin: "message", time: T("13:47") },
+    ].reverse();
+    const events = ev(entries);
+    expect(events.map((e) => e.text)).toEqual([
+      "Acknowledged by Ben at 13:58",
+      "Reminder sent at 13:57 (ch:banner, ch:push, ch:speak)",
+      "Sent at 13:47 (ch:banner, ch:push)",
+    ]);
+    expect(events.map((e) => e.kind)).toEqual(["note", "ok", "ok"]);
+  });
+
+  it("says when a send went out silently and which policy made it quiet", () => {
+    const [event] = ev([{ channel: "push", result: "sent", origin: "message", by: "Night quiet", time: T("13:47") }]);
+    expect(event.text).toBe("Sent at 13:47 (ch:push) · silently due to Night quiet");
+    const [mixed] = ev([
+      { channel: "push", result: "sent", origin: "message", by: "Night quiet", time: T("13:47") },
+      { channel: "banner", result: "sent", origin: "message", time: T("13:47") },
+    ].reverse());
+    expect(mixed.text).toBe("Sent at 13:47 (ch:banner, ch:push) · ch:push silently (Night quiet)");
+  });
+
+  it("shows a message held for a summary and the summary that sent it", () => {
+    const events = ev([
+      { channel: "push", result: "summarized", origin: "summary", by: "Evening summary", time: T("20:00") },
+      { channel: "banner", result: "summarized", origin: "summary", by: "Evening summary", time: T("20:00") },
+      { channel: "", result: "held", reason: "summarize", by: "Evening summary", time: T("13:47") },
+    ].reverse(), { now: Date.parse(T("20:30")) });
+    expect(events.map((e) => e.text)).toEqual(["Summary sent at 20:00 (ch:banner, ch:push) · Evening summary", "Held for summary (Evening summary) at 13:47"]);
+    expect(events[1].kind).toBe("hold");
+  });
+
+  it("shows a failed delivery as an event of its own with the reason", () => {
+    const events = ev([
+      { channel: "push", result: "sent", origin: "message", time: T("13:47") },
+      { channel: "mail", result: "failed", reason: "no_mail_service", origin: "message", time: T("13:47") },
+      { channel: "speak", result: "failed", reason: "no_tts_engine", origin: "message", time: T("13:47") },
+    ].reverse());
+    const failed = events.filter((e) => e.kind === "fail");
+    expect(failed.map((e) => e.text)).toEqual(["Failed at 13:47 (ch:mail): r:no_mail_service", "Failed at 13:47 (ch:speak): r:no_tts_engine"]);
+    expect(events.find((e) => e.kind === "ok").text).toBe("Sent at 13:47 (ch:push)");
+  });
+
+  it("shows held and not sent deliveries with the reason and the policy", () => {
+    const events = ev([
+      { channel: "push", result: "held", reason: "quiet_hours", by: "Night", origin: "message", time: T("13:47") },
+      { channel: "mail", result: "skipped", reason: "no_mail_address", origin: "message", time: T("13:47") },
+      { channel: "popup", result: "skipped", reason: "quiet_hours", by: "Night", origin: "message", time: T("13:47") },
+    ].reverse());
+    expect(events.map((e) => e.text).sort()).toEqual([
+      "Held at 13:47 (ch:push) · Night",
+      "Not sent at 13:47 (ch:mail): r:no_mail_address",
+      "Not sent at 13:47 (ch:popup): r:quiet_hours · Night",
+    ]);
+  });
+
+  it("puts who each line was for into the hover text", () => {
+    const [event] = ev([
+      { channel: "push", result: "sent", person: "person.anna", recipient: "device:a1", time: T("13:47") },
+      { channel: "push", result: "sent", person: "person.anna", recipient: "device:a2", time: T("13:47") },
+    ].reverse());
+    expect(event.title).toBe("who:person.anna: sent\nwho:person.anna: sent");
+  });
+
+  it("starts a new event after 90 seconds and for another origin, and ignores timer entries", () => {
+    const events = ev([
+      { channel: "push", result: "sent", origin: "reminder", time: "2026-11-21T13:58:30Z" },
+      { channel: "timer", result: "sent", time: T("13:58") },
+      { channel: "push", result: "sent", origin: "escalation", time: T("13:57") },
+      { channel: "push", result: "sent", origin: "message", time: "2026-11-21T13:47:50Z" },
+      { channel: "banner", result: "sent", origin: "message", time: T("13:47") },
+    ].reverse());
+    expect(events.map((e) => e.text.split(" at ")[0])).toEqual(["Reminder sent", "Escalation sent", "Sent"]);
+  });
+
+  it("shows only the steps since the message appeared", () => {
+    const entries = [
+      { channel: "push", result: "sent", time: T("13:50") },
       { channel: "push", result: "cleared", time: "2026-11-18T10:00:00Z" },
       { channel: "push", result: "sent", time: "2026-11-18T09:00:00Z" },
     ];
-    const lines = pathLines(entries, sh, afmt0, "2026-11-21T08:00:00Z");
-    expect(lines.map((l) => [l.text, l.n, l.time])).toEqual([["ch:push · sent", 2, "2026-11-21T10:00:00Z"]]);
-    expect(pathLines(entries, sh, afmt0)).toHaveLength(2);
+    expect(ev(entries, { since: T("13:00") })).toHaveLength(1);
+    expect(ev(entries)).toHaveLength(3);
+    expect(times(ev(entries, { since: T("13:00") }))).toEqual(["13:50"]);
   });
 
-  it("writes the path of a message oldest first and folds identical steps", () => {
-    const entries = [
-      { channel: "", result: "acknowledged", who: "Anna", time: "3" },
-      { channel: "push", result: "skipped", reason: "quiet_hours", time: "2" },
-      { channel: "push", result: "skipped", reason: "quiet_hours", time: "2" },
-      { channel: "timer", result: "sent", timer: { policy: "Water" }, time: "1" },
-    ];
-    expect(pathLines(entries, sh, fmt).map((l) => [l.text, l.n])).toEqual([
-      ["Water · sent", 1],
-      ["ch:push · skipped: r:quiet_hours", 2],
-      ["acknowledged · Anna", 1],
-    ]);
+  it("adds the date to an event that is not from today", () => {
+    expect(clockText("2026-11-18T10:00:00Z", Date.parse(T("14:00")), "en-GB")).toMatch(/^18 Nov \d\d:\d\d$/);
+    expect(clockText(T("13:47"), Date.parse(T("14:00")), "en-GB")).toBe("13:47");
+  });
+
+  it("names who an entry was for: the person and the phone, the phone, the person, or a dash", () => {
+    const label = (v) => ({ "person.anna": "Anna", a1: "iPhone" })[v] || v;
+    expect(entryWho({ person: "person.anna", recipient: "device:a1" }, {}, label)).toBe("Anna (iPhone)");
+    expect(entryWho({ person: null, recipient: "device:a1" }, {}, label)).toBe("iPhone");
+    expect(entryWho({ person: "person.anna", recipient: "" }, {}, label)).toBe("Anna");
+    expect(entryWho({ person: null, recipient: "" }, {}, label)).toBe("—");
   });
 
   it("draws one bar per hour, stacked by severity with the least severe at the bottom", () => {

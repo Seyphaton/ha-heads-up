@@ -981,3 +981,11 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 
 ### 27.8 Path of a message on the Overview
 - Show path lists the trace entries since the message appeared (`message.created_at` of `heads_up/panel_trace`), not the whole trace of its ID: an ID that is used again keeps its old entries, which belong to earlier messages. Identical steps are written once with a count and the time of the latest one. The Message Log's trace dialog still shows every entry of the ID.
+
+### 27.9 Path as events, shortcuts, table help
+- The trace entry has two more optional fields: `origin` (message, reminder, escalation, deliver, fallback, released, summary) and `person`. Entries of earlier versions have neither. A quiet send is a `sent` entry with `by` set to the policy that made it quiet. A message held for a summary has an entry with an empty channel (result `held`, reason `summarize`, `by` the policy), and each message in a summary gets a `summarized` entry per channel with the origin `summary`. Reminders trace their own reason (before, the reason was the word "reminder").
+- Show path (`pathEvents`) groups the entries since the message appeared into events by origin and a window of 90 seconds, newest first, with the clock time (and the date when it is not today): sends with their channels (in the fixed channel order) and "silently due to <policy>", holds, not sent with the reason and policy, summaries, taken back, acknowledged, dismissed and snoozed. A failed delivery is its own line, per reason, in the error colour. Timer entries are left out. The hover text lists who each line was for (`entryWho`: person and phone).
+- The quick shortcuts are four narrow links (title and an arrow) that open their pages; their numbers and explanatory lines are gone.
+- The explanation of the reach table (what it shows, the time, quiet hours, who is away, summaries) is behind a ? button next to its title.
+- The page no longer flashes when a table cell is selected or the 10-second refresh runs: the style element is created once and the entrance animation plays only on the first draw.
+- Icons: audience rows by kind (`audienceIcon`), recipient rows with the person's initials in a round mark, speaker groups with an icon.

@@ -397,6 +397,14 @@ export const STRINGS = {
 // The items, in the order their policies are created; every policy that fits acts (DESIGN §25.9).
 export const ITEMS = ["critical", "warnings", "digest", "quiet"];
 export const STEPS = ["intro", "channels", "audiences", "policies"];
+export const AUDIENCE_ICONS = {
+  everyone: "mdi:account-group",
+  admins: "mdi:shield-account",
+  at_home: "mdi:home-account",
+  not_home: "mdi:home-export-outline",
+  last_to_leave: "mdi:exit-run",
+  first_home: "mdi:home-import-outline",
+};
 export const BUILTIN_AUDIENCES = ["everyone", "admins", "at_home", "not_home", "last_to_leave", "first_home"];
 const CHANNEL_ORDER = ["banner", "push", "popup", "speak", "persistent", "mail"];
 // The groups of DESIGN §25 each default belongs to.
@@ -512,7 +520,8 @@ const CSS = `
 .hu-tour button.card { text-align: left; min-height: 96px; padding: 10px 12px; border: 1px solid var(--divider-color); border-radius: 14px; background: var(--card-background-color); color: var(--primary-text-color); font: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: transform .12s, box-shadow .12s; }
 .hu-tour button.card:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.18); }
 .hu-tour button.card:hover { border-color: var(--primary-color); }
-.hu-tour button.card .name { font-weight: 600; }
+.hu-tour button.card .name { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.hu-tour button.card .name ha-icon { --mdc-icon-size: 20px; color: var(--primary-color); }
 .hu-tour button.card .person { font-size: 14px; }
 .hu-tour button.card .flip { margin-top: auto; font-size: 12px; color: var(--primary-color); }
 .hu-tour .item { border: 1px solid var(--divider-color); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; background: var(--card-background-color); }
@@ -679,7 +688,7 @@ export async function mount(container, ctx) {
       const back = state.flipped.has(audience.key);
       const card = el("button", { type: "button", className: "card" });
       card.setAttribute("aria-pressed", String(back));
-      card.append(el("span", { className: "name", textContent: t[`aud_${audience.key}`] || audience.key }));
+      card.append(el("span", { className: "name" }, [el("ha-icon", { icon: AUDIENCE_ICONS[audience.key] || "mdi:account-group-outline" }), el("span", { textContent: t[`aud_${audience.key}`] || audience.key })]));
       if (back) {
         card.append(el("span", { textContent: t[`aud_what_${audience.key}`] }), el("span", { className: "hint", textContent: t[`aud_example_${audience.key}`] }));
       } else {

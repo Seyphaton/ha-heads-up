@@ -16,6 +16,10 @@ class TraceEntry:
     result: str
     reason: str | None = None
     by: str | None = None  # the policy that held, dropped, quieted or let it through (2.0)
+    # What caused the delivery: message, reminder, escalation, deliver, fallback, released or
+    # summary. Entries of earlier versions have none. `person` is the person behind a phone.
+    origin: str | None = None
+    person: str | None = None
 
 
 class TraceBuffer:

@@ -225,6 +225,21 @@ export const STRINGS = {
 const PRESENCE = ["at_home", "not_home", "last_to_leave", "first_home", "in_zone", "not_in_zone"];
 const ZONE_KINDS = ["in_zone", "not_in_zone"];
 
+// The icon of an audience by its kind: the built-in ones and the two kinds of your own.
+export const AUDIENCE_ICONS = {
+  everyone: "mdi:account-group",
+  admins: "mdi:shield-account",
+  at_home: "mdi:home-account",
+  not_home: "mdi:home-export-outline",
+  last_to_leave: "mdi:exit-run",
+  first_home: "mdi:home-import-outline",
+  persons: "mdi:account-multiple",
+};
+
+export function audienceIcon(kind) {
+  return AUDIENCE_ICONS[kind] || "mdi:account-group-outline";
+}
+
 export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value ?? ""), template);
 }
@@ -362,7 +377,7 @@ export function mount(container, ctx) {
       const now = off ? t.off : peopleText(a.members.length, t);
       const nowNames = a.members.length ? names(a.members).join(", ") : t.nobody;
       const used = usageText(a.usage, t, ago);
-      const lead = [el("span", { className: "tl-name", textContent: a.name })];
+      const lead = [el("ha-icon", { icon: audienceIcon(a.kind) }), el("span", { className: "tl-name", textContent: a.name })];
       if (!a.builtin) lead.push(el("span", { className: "badge", textContent: t.kinds[a.kind] || a.kind }));
       if (off) lead.push(el("span", { className: "badge", textContent: t.off }));
       const { item } = ui.tableRow({

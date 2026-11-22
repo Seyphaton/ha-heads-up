@@ -823,6 +823,7 @@ class HubEngine:
                 item.recipient,
                 outcome,
                 item.who.person if item.who else None,
+                origin,
             )
             results.append((item, outcome))
         if not startup:
@@ -1294,12 +1295,23 @@ class HubEngine:
                     "skipped",
                     reason,
                     step.policy or None,
+                    "reminder",
+                    target_row.person,
                 )
                 continue
             if target_row.channel == "push" and not self.limiter.push_allowed(
                 step.banner, step.target.key
             ):
-                self._trace(banner.id, "push", target_row.recipient, "skipped", RATE_LIMITED)
+                self._trace(
+                    banner.id,
+                    "push",
+                    target_row.recipient,
+                    "skipped",
+                    RATE_LIMITED,
+                    None,
+                    "reminder",
+                    target_row.person,
+                )
                 limited = Outcome(Result.SKIPPED, RATE_LIMITED)
                 report.append(("push", target_row.recipient, target_row.person, limited))
                 continue
@@ -1310,7 +1322,10 @@ class HubEngine:
                 target_row.channel,
                 target_row.recipient,
                 outcome.result.value,
+                outcome.reason,
+                None,
                 "reminder",
+                target_row.person,
             )
         self._report(banner, "reminder", report)
         self._log("reminder_sent", banner.id, policy.name)
@@ -1451,7 +1466,7 @@ class HubEngine:
                 outcome = Outcome(Result.SKIPPED, RATE_LIMITED)
             else:
                 outcome = await self.channels.get(channel).deliver(step.banner, step.target)
-            self._record(message_id, channel, recipient, outcome, row.person)
+            self._record(message_id, channel, recipient, outcome, row.person, "released")
 
     # Fallback ---------------------------------------------------------------------------
 
@@ -1572,6 +1587,7 @@ class HubEngine:
         if (policy := self._summary_policy(banner)) is None:
             return
         self.ledger.put_held(HeldMessage.from_banner(banner, policy.key, dt_util.utcnow()))
+        self._trace(banner.id, "", "", "held", "summarize", policy.name)
         self._arm_summary(policy)
 
     def _update_held(self, banner: Banner) -> None:
@@ -1733,6 +1749,17 @@ class HubEngine:
             summary_id = str(result.get("id", data["id"]))
             self._trace(summary_id, channel, recipient, "summary", f"{len(members)}")
             self._log("summary_sent", summary_id, f"{channel}|{len(members)}")
+            for member in members:
+                held_by = self.policies.by_key(member.policy)
+                self._trace(
+                    member.message_id,
+                    channel,
+                    recipient,
+                    "summarized",
+                    str(len(members)),
+                    held_by.name if held_by else None,
+                    "summary",
+                )
         for entry in entries:
             if entry.resolved:
                 self.ledger.drop_held(entry.message_id)
@@ -1767,6 +1794,7 @@ class HubEngine:
         recipient: str,
         outcome: Outcome,
         person: str | None = None,
+        origin: str | None = None,
     ) -> None:
         state = State(outcome.result.value)
         self.ledger.put(
@@ -1783,7 +1811,14 @@ class HubEngine:
             )
         )
         self._trace(
-            message_id, channel, recipient, outcome.result.value, outcome.reason, outcome.by
+            message_id,
+            channel,
+            recipient,
+            outcome.result.value,
+            outcome.reason,
+            outcome.by,
+            origin,
+            person,
         )
         by = self.policies.by_name(outcome.by) if outcome.by else None
         self.stats.delivery(
@@ -1810,6 +1845,8 @@ class HubEngine:
         result: str,
         reason: str | None,
         by: str | None = None,
+        origin: str | None = None,
+        person: str | None = None,
     ) -> None:
         self.trace.add(
             TraceEntry(
@@ -1820,6 +1857,8 @@ class HubEngine:
                 result,
                 reason,
                 by,
+                origin,
+                person,
             )
         )
         self._trace_store.async_delay_save(self._trace_data, SAVE_DELAY)

@@ -227,6 +227,11 @@ export const STRINGS = {
 export const PROFILE_CHANNELS = ["banner", "push", "popup", "mail"];
 const DEFAULT_CHANNELS = ["banner", "push", "popup"]; // mail is opt-in per person
 
+// Up to two initials of a name: the round mark in front of a person's row.
+export function initials(name) {
+  return String(name).trim().split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("") || "?";
+}
+
 export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value ?? ""), template);
 }
@@ -348,6 +353,7 @@ export function channelState(profile, channel) {
 
 // The table layout is ui.TABLE_CSS (as Audiences, Severities, Channels); these are this page's parts.
 const PEOPLE_CSS = `
+.hu-page .rec-initial { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: var(--text-primary-color, #fff); font-size: 12px; font-weight: 600; }
 .hu-page .tl-list { margin-bottom: 16px; }
 .hu-page .tl-list.people { --tl-cols: minmax(0, 1.4fr) minmax(0, 1fr) repeat(4, 64px); }
 .hu-page .tl-list.groups { --tl-cols: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
@@ -389,7 +395,7 @@ export function mount(container, ctx) {
     const isOpen = profile?.person === p.person;
     const off = p.enabled === false;
     const states = PROFILE_CHANNELS.map((channel) => channelState(p, channel));
-    const lead = [el("span", { className: "tl-name", textContent: p.name })];
+    const lead = [el("span", { className: "rec-initial", textContent: initials(p.name), "aria-hidden": "true" }), el("span", { className: "tl-name", textContent: p.name })];
     if (off) lead.push(el("span", { className: "badge", textContent: t.disabled }));
     const phones = phonesLabel(p, t);
     const said = (c) => (c.state === "off" ? t.ch_off : c.warn ? t[`ch_warn_${c.warn}`] : t.ch_on);
@@ -519,7 +525,7 @@ export function mount(container, ctx) {
     const key = g.subentry_id || g.name;
     const id = rowId("group", key);
     const isOpen = group?.key === key;
-    const lead = [el("span", { className: "tl-name", textContent: g.name })];
+    const lead = [el("ha-icon", { icon: "mdi:speaker-multiple" }), el("span", { className: "tl-name", textContent: g.name })];
     if (g.used_by.length) lead.push(el("span", { className: "badge", textContent: g.used_by.join(", ") }));
     const { item } = ui.tableRow({
       id,
@@ -546,7 +552,7 @@ export function mount(container, ctx) {
     const id = rowId("group", "new");
     const { item } = ui.tableRow({
       id,
-      lead: [el("span", { className: "tl-name", textContent: t.new_group })],
+      lead: [el("ha-icon", { icon: "mdi:plus-circle-outline" }), el("span", { className: "tl-name", textContent: t.new_group })],
       // Empty cells keep the chevron in the last column.
       cells: [{ node: el("span") }, { node: el("span") }],
       open: true,

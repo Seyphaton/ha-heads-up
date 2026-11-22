@@ -6,6 +6,7 @@ import {
   STRINGS as AUDIENCE_STRINGS,
   toFlowData as audienceData,
   validate as validateAudience,
+  audienceIcon,
 } from "../../custom_components/heads_up/frontend/panel/audiences.js";
 import {
   addDevice,
@@ -14,6 +15,7 @@ import {
   groupData,
   haInZone,
   homeEntities,
+  initials as recipientInitials,
   isDefault,
   profileValues,
   removeDevice,
@@ -731,5 +733,21 @@ describe("checker rows name the phone", () => {
     expect(rowWho({ person: "person.anna", recipient: "person.anna" }, choices, label)).toBe("Anna");
     expect(rowWho({ person: null, recipient: "device:aaaa1111" }, choices, label)).toBe("iPhone");
     expect(rowWho({ person: null, recipient: "" }, choices, label)).toBe("—");
+  });
+});
+
+describe("icons and marks on the Audiences and Recipients rows", () => {
+  it("gives every built-in audience kind and the persons kind its own icon, and a fallback", () => {
+    const kinds = ["everyone", "admins", "at_home", "not_home", "last_to_leave", "first_home", "persons"];
+    const icons = kinds.map((k) => audienceIcon(k));
+    expect(new Set(icons).size).toBe(kinds.length);
+    expect(icons.every((i) => i.startsWith("mdi:"))).toBe(true);
+    expect(audienceIcon("something_new")).toBe("mdi:account-group-outline");
+  });
+
+  it("writes up to two initials for a person's mark", () => {
+    expect(recipientInitials("Anna Berg")).toBe("AB");
+    expect(recipientInitials("sho")).toBe("S");
+    expect(recipientInitials("  ")).toBe("?");
   });
 });
