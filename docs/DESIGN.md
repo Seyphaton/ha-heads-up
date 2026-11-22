@@ -1017,3 +1017,8 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 - The Activity row is one flex row that scrolls sideways (`overflow-x: auto`), each tile at least 140 px wide. The removed numbers: Delivered, Median time to acknowledge, Held by quiet hours (a count).
 - A small key to the pill colours (rise is worse, fall is good, no verdict, pp = percentage points) sits in the chart legend row, to the right of the severities (`pillLegend`).
 - The pill key is a single pill, "Change vs. previous period". A number with no comparison (no history before the period, or none of it) shows a dash pill with the hover "No comparison: …" instead of no pill.
+
+### 27.14 Three cards that open their details
+- Needs attention, Coming up and Last actions are three cards (`summaryModel`: a number, one line, a tone) with the details in one panel below them. A card is a button with `aria-expanded` and `aria-controls`; one panel is open at a time; the same card closes it.
+- The panel's height is animated in script (`from` to `to`, then `auto`) so it works for any content and switching between panels of different heights is smooth; the content slides in from above. A redraw (the page refreshes every 10 seconds, and after a button press) builds the open panel in its final state (`static`), so the animation never replays and the scroll position does not move; the keyboard focus on a card is kept. Reduced motion switches the animation off.
+- Checked in the browser pane: the height eases (175 to 316 px in about 350 ms), switching and closing are smooth, and the scroll offset did not change.

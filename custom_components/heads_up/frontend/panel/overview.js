@@ -98,6 +98,14 @@ export const STRINGS = {
     kpi_before: "Before: {n}",
     legend_pill: "Change vs. previous period",
     kpi_no_change: "No comparison: the period before has none of it, or its history does not exist yet.",
+    sum_attention_none: "All good",
+    sum_attention_sub: "Errors {errors} · Warnings {warnings}",
+    sum_coming_next: "Next {when}",
+    sum_coming_none: "Nothing scheduled",
+    sum_last_new: "Newest {when}",
+    sum_last_none: "Nothing yet",
+    sum_show: "Show details",
+    sum_hide: "Hide details",
     kpi_change: "{sign}{n}% against the period before",
     kpi_none: "no data",
     kpi_scope_24h: "Apart from Notifications, the numbers cover today and yesterday.",
@@ -290,6 +298,14 @@ export const STRINGS = {
     kpi_before: "Davor: {n}",
     legend_pill: "Änderung zum Zeitraum davor",
     kpi_no_change: "Kein Vergleich: Im Zeitraum davor gab es nichts davon, oder es gibt dafür noch keinen Verlauf.",
+    sum_attention_none: "Alles in Ordnung",
+    sum_attention_sub: "Fehler {errors} · Warnungen {warnings}",
+    sum_coming_next: "Als Nächstes {when}",
+    sum_coming_none: "Nichts geplant",
+    sum_last_new: "Neueste {when}",
+    sum_last_none: "Noch nichts",
+    sum_show: "Details zeigen",
+    sum_hide: "Details verbergen",
     kpi_change: "{sign}{n} % gegenüber dem Zeitraum davor",
     kpi_none: "keine Daten",
     kpi_scope_24h: "Außer den Meldungen gelten die Zahlen für heute und gestern.",
@@ -482,6 +498,14 @@ export const STRINGS = {
     kpi_before: "Avant : {n}",
     legend_pill: "Variation par rapport à la période précédente",
     kpi_no_change: "Pas de comparaison : la période précédente n'en a pas, ou son historique n'existe pas encore.",
+    sum_attention_none: "Tout va bien",
+    sum_attention_sub: "Erreurs {errors} · Avertissements {warnings}",
+    sum_coming_next: "Prochain {when}",
+    sum_coming_none: "Rien de prévu",
+    sum_last_new: "Dernier {when}",
+    sum_last_none: "Rien pour l'instant",
+    sum_show: "Afficher les détails",
+    sum_hide: "Masquer les détails",
     kpi_change: "{sign}{n} % par rapport à la période précédente",
     kpi_none: "pas de données",
     kpi_scope_24h: "Hors Notifications, les chiffres couvrent aujourd'hui et hier.",
@@ -674,6 +698,14 @@ export const STRINGS = {
     kpi_before: "Antes: {n}",
     legend_pill: "Cambio frente al periodo anterior",
     kpi_no_change: "Sin comparación: el periodo anterior no tiene nada de esto, o aún no existe su historial.",
+    sum_attention_none: "Todo bien",
+    sum_attention_sub: "Errores {errors} · Avisos {warnings}",
+    sum_coming_next: "Próximo {when}",
+    sum_coming_none: "Nada programado",
+    sum_last_new: "Último {when}",
+    sum_last_none: "Aún nada",
+    sum_show: "Mostrar detalles",
+    sum_hide: "Ocultar detalles",
     kpi_change: "{sign}{n} % frente al periodo anterior",
     kpi_none: "sin datos",
     kpi_scope_24h: "Salvo Notificaciones, las cifras cubren hoy y ayer.",
@@ -1047,6 +1079,38 @@ export function pillLegend(t) {
   return [{ tone: "", text: t.legend_pill }];
 }
 
+// The three cards that open the details below them: a number, one line and a tone each.
+export function summaryModel(data, now, t, s, fmt) {
+  const attention = data.attention || [];
+  const errors = attention.filter((a) => a.level === "error").length;
+  const warnings = attention.length - errors;
+  const coming = data.coming_up || [];
+  const last = data.last_actions || [];
+  return [
+    {
+      key: "attention",
+      title: t.attention,
+      big: attention.length,
+      sub: attention.length ? fill(t.sum_attention_sub, { errors, warnings }) : t.sum_attention_none,
+      tone: errors ? "crit" : attention.length ? "warn" : "ok",
+    },
+    {
+      key: "coming",
+      title: t.coming_title,
+      big: coming.length,
+      sub: coming.length ? fill(t.sum_coming_next, { when: fmt.inTime(coming[0].time, now, s) }) : t.sum_coming_none,
+      tone: "info",
+    },
+    {
+      key: "last",
+      title: t.last_actions,
+      big: last.length,
+      sub: last.length ? fill(t.sum_last_new, { when: fmt.timeAgo(last[0].time, now, s) }) : t.sum_last_none,
+      tone: "",
+    },
+  ];
+}
+
 // How many notifications the period had, for the chart's heading.
 export function notificationTotal(numbers) {
   return numbers?.notifications?.value ?? 0;
@@ -1340,6 +1404,29 @@ const CSS = `
 .hu-overview .path .ev-detail { font-size: 12px; color: var(--secondary-text-color); padding-top: 1px; }
 .hu-overview .path .ev-fail { color: var(--hu-crit); font-weight: 600; }
 .hu-overview .path .ev-fail::before { background: var(--hu-crit); }
+
+/* the three summary cards and the panel under them */
+.hu-overview .summary { margin-bottom: 16px; }
+.hu-overview .sumcards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.hu-overview button.sumcard { position: relative; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; align-items: end; text-align: left; padding: 14px 16px; min-height: 104px; border-radius: 16px; border: 1px solid var(--divider-color); background: var(--card-background-color); box-shadow: var(--hu-shadow); transition: transform .18s, border-color .18s, box-shadow .18s; --tone: var(--secondary-text-color); }
+.hu-overview button.sumcard.tone-crit { --tone: var(--hu-crit); } .hu-overview button.sumcard.tone-warn { --tone: var(--hu-warn); }
+.hu-overview button.sumcard.tone-ok { --tone: var(--hu-ok); } .hu-overview button.sumcard.tone-info { --tone: var(--hu-info); }
+.hu-overview button.sumcard::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 4px 4px 0; background: var(--tone); }
+.hu-overview button.sumcard:hover { transform: translateY(-2px); border-color: var(--primary-color); }
+.hu-overview button.sumcard[aria-expanded="true"] { border-color: var(--primary-color); box-shadow: 0 0 0 1px var(--primary-color), var(--hu-shadow); }
+.hu-overview .sumcard .sumtitle { grid-column: 1 / -1; font-size: 13px; font-weight: 600; color: var(--secondary-text-color); }
+.hu-overview .sumcard .sumbig { font-size: 34px; font-weight: 700; line-height: 1.05; letter-spacing: -.02em; color: var(--tone); }
+.hu-overview .sumcard .sumsub { grid-column: 1; font-size: 12px; color: var(--secondary-text-color); }
+.hu-overview .sumcard .sumchev { grid-row: 2 / span 2; grid-column: 2; width: 10px; height: 10px; border-right: 2px solid var(--secondary-text-color); border-bottom: 2px solid var(--secondary-text-color); transform: rotate(45deg); margin: 0 4px 6px; transition: transform .35s cubic-bezier(.2, .8, .2, 1); }
+.hu-overview .sumcard[aria-expanded="true"] .sumchev { transform: rotate(-135deg); margin-bottom: 2px; }
+.hu-overview .reveal { overflow: hidden; opacity: 0; transition: height .45s cubic-bezier(.2, .8, .2, 1), opacity .3s ease; }
+.hu-overview .reveal.open { opacity: 1; }
+.hu-overview .reveal-inner { padding-top: 14px; }
+.hu-overview .reveal .panel > section { margin-bottom: 0; }
+.hu-overview .reveal.open:not(.static) .panel:not([hidden]) > section { animation: hu-slide .45s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes hu-slide { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+@media (max-width: 560px) { .hu-overview .sumcards { gap: 8px; } .hu-overview button.sumcard { padding: 12px 10px 12px 14px; min-height: 96px; } .hu-overview .sumcard .sumbig { font-size: 28px; } .hu-overview .sumcard .sumchev { display: none; } }
+@media (prefers-reduced-motion: reduce) { .hu-overview .reveal, .hu-overview button.sumcard, .hu-overview .sumchev { transition: none; } .hu-overview .reveal .panel > section { animation: none !important; } }
 @keyframes hu-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes hu-pulse { 0% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 30%, transparent), 0 0 0 18px color-mix(in srgb, var(--hero-tint) 7%, transparent); } 100% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 14%, transparent), 0 0 0 26px transparent; } }
 @keyframes hu-grow { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
@@ -1361,6 +1448,7 @@ export function mount(container, ctx) {
   let openPaths = {}; // message id -> trace entries, "loading" or "error"
   let timer = null;
   let played = false;
+  let openSummary = null; // which of the three cards is open: attention, coming or last
   let reachHelp = false; // the explanation of the table is open
   let tour = null;
   let tourStarted = false;
@@ -1783,6 +1871,77 @@ export function mount(container, ctx) {
   }
 
   // The first launch: the same cards as placeholders, each with one line on what it will show.
+  // The three cards and the panel that slides out below them (D-251). Opening, closing and switching
+  // animate the height of the panel; the page is redrawn every few seconds, so a redraw builds the
+  // open panel in its final state and never replays the animation or moves the scroll position.
+  function summaryBlock() {
+    const model = summaryModel(data, now(), t, s, fmt);
+    const build = { attention: attentionCard, coming: comingCard, last: lastActionsCard };
+    const cards = el("div", { className: "sumcards" });
+    const reveal = el("div", { className: `reveal static${openSummary ? " open" : ""}` });
+    const inner = el("div", { className: "reveal-inner" });
+    reveal.append(inner);
+    reveal.style.height = openSummary ? "auto" : "0px";
+    const panels = {};
+    const buttons = {};
+    for (const card of model) {
+      const panel = el("div", { className: "panel", id: `hu-sum-${card.key}` });
+      panel.dataset.key = card.key;
+      panel.hidden = openSummary !== card.key;
+      try {
+        panel.append(build[card.key]());
+      } catch (err) {
+        console.error("Heads Up overview:", card.key, err);
+        panel.append(section(card.title, [el("div", { className: "sub", textContent: `${t.load_failed} (${(err && err.message) || err})` })]));
+      }
+      panels[card.key] = panel;
+      inner.append(panel);
+      const button = el("button", { type: "button", className: `sumcard tone-${card.tone}` }, [
+        el("span", { className: "sumtitle", textContent: card.title }),
+        el("span", { className: "sumbig", textContent: String(card.big) }),
+        el("span", { className: "sumsub", textContent: card.sub }),
+        el("span", { className: "sumchev", "aria-hidden": "true" }),
+      ]);
+      button.dataset.sum = card.key;
+      button.setAttribute("aria-controls", panel.id);
+      button.setAttribute("aria-expanded", String(openSummary === card.key));
+      button.setAttribute("aria-label", `${card.title}: ${card.big}, ${card.sub}`);
+      button.addEventListener("click", () => toggleSummary(card.key));
+      buttons[card.key] = button;
+      cards.append(button);
+    }
+
+    function toggleSummary(key) {
+      const next = openSummary === key ? null : key;
+      const reduce = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      const from = reveal.getBoundingClientRect().height;
+      openSummary = next;
+      reveal.classList.remove("static");
+      for (const [name, panel] of Object.entries(panels)) panel.hidden = name !== next;
+      for (const [name, button] of Object.entries(buttons)) button.setAttribute("aria-expanded", String(name === next));
+      reveal.classList.toggle("open", next !== null);
+      const to = next === null ? 0 : inner.scrollHeight;
+      if (reduce) {
+        reveal.style.height = next === null ? "0px" : "auto";
+        return;
+      }
+      reveal.style.height = `${from}px`;
+      void reveal.offsetHeight; // the starting height is painted before the end height is set
+      reveal.style.height = `${to}px`;
+      const finish = () => {
+        reveal.removeEventListener("transitionend", onEnd);
+        if (openSummary === next && next !== null) reveal.style.height = "auto";
+      };
+      const onEnd = (event) => {
+        if (event.target === reveal && event.propertyName === "height") finish();
+      };
+      reveal.addEventListener("transitionend", onEnd);
+      setTimeout(finish, 700);
+    }
+
+    return el("div", { className: "summary" }, [cards, reveal]);
+  }
+
   function placeholder(title, text) {
     return section(title, [el("div", { className: "placeholder", textContent: text })]);
   }
@@ -1810,6 +1969,7 @@ export function mount(container, ctx) {
     const intro = !played;
     played = true;
     ctx.ui?.lockHeight(root);
+    const focused = root.getRootNode().activeElement?.dataset?.sum;
     root.classList.toggle("enter", intro);
     root.replaceChildren(styleNode, el("h1", { textContent: t.title, style: "font-size:22px;margin:0 0 16px" }), tourHost);
     if (data.first_run) {
@@ -1833,11 +1993,12 @@ export function mount(container, ctx) {
     root.append(
       guard(t.status, statusCard),
       guard(t.sc_label, shortcutRow),
-      el("div", { className: "pair" }, [guard(t.attention, attentionCard), guard(t.coming_title, comingCard)]),
-      guard(t.last_actions, lastActionsCard),
+      guard(t.attention, summaryBlock),
       guard(t.reach_title, reachCard),
       ...guardList(t.activity, () => activityCards(intro)),
     );
+    // A redraw must not take the keyboard focus from an open card.
+    if (focused) root.querySelector(`[data-sum="${focused}"]`)?.focus({ preventScroll: true });
   }
 
   async function loadStats() {

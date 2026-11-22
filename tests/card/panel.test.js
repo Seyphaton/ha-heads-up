@@ -228,6 +228,7 @@ import {
   actionRow,
   reachText,
   shortcutCards,
+  summaryModel,
   sourceRows,
   clockText,
   entryWho,
@@ -382,6 +383,21 @@ describe("overview functions", () => {
     expect(tone("escalations", 10)).toBe("warning");
     expect(tone("notifications", 50)).toBe("");
     expect(tone("quiet_share", 5)).toBe("");
+  });
+
+  it("builds the three summary cards: a number, one line and a tone each", () => {
+    const f = { inTime: () => "in 7 min", timeAgo: () => "2 min ago" };
+    const data = {
+      attention: [{ level: "error" }, { level: "warning" }, { level: "warning" }],
+      coming_up: [{ time: "T" }, { time: "U" }],
+      last_actions: [{ time: "V" }],
+    };
+    const cards = summaryModel(data, 0, t, sh, f);
+    expect(cards.map((c) => [c.key, c.big, c.tone])).toEqual([["attention", 3, "crit"], ["coming", 2, "info"], ["last", 1, ""]]);
+    expect(cards.map((c) => c.sub)).toEqual(["Errors 1 · Warnings 2", "Next in 7 min", "Newest 2 min ago"]);
+    const quiet = summaryModel({ attention: [{ level: "warning" }], coming_up: [], last_actions: [] }, 0, t, sh, f);
+    expect(quiet.map((c) => [c.big, c.tone, c.sub])).toEqual([[1, "warn", "Errors 0 · Warnings 1"], [0, "info", t.sum_coming_none], [0, "", t.sum_last_none]]);
+    expect(summaryModel({}, 0, t, sh, f)[0]).toMatchObject({ big: 0, tone: "ok", sub: t.sum_attention_none });
   });
 
   it("has one key for the pills: the change against the previous period", () => {
