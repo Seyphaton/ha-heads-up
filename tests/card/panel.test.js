@@ -355,7 +355,8 @@ describe("overview functions", () => {
 
   it("builds the four numbers and a pill for the change", () => {
     const model = kpiModel({ notifications: 12, change: 20, delivered: 80, median_ack_seconds: 210, held_quiet: 3 }, t);
-    expect(model).toMatchObject({ notifications: "12", delivered: "80 %", median: "4 min", held: "3" });
+    expect(model).toMatchObject({ notifications: "12", delivered: "80 %", held: "3" });
+    expect(model.median).toBeUndefined();
     expect(model.change).toEqual({ up: true, text: "+20 %", title: "+20% against the period before" });
     expect(kpiModel({ notifications: 1, change: -5, delivered: null, median_ack_seconds: null, held_quiet: 0 }, t).change.text).toBe("-5 %");
     const none = kpiModel({ notifications: 0, change: null, delivered: null, median_ack_seconds: null, held_quiet: 0 }, t);

@@ -88,7 +88,6 @@ export const STRINGS = {
     period_label: "Period",
     kpi_notifications: "Notifications",
     kpi_delivered: "Delivered",
-    kpi_median: "Median time to acknowledge",
     kpi_held: "Held by quiet hours",
     kpi_change: "{sign}{n}% against the period before",
     kpi_none: "no data",
@@ -272,7 +271,6 @@ export const STRINGS = {
     period_label: "Zeitraum",
     kpi_notifications: "Meldungen",
     kpi_delivered: "Zugestellt",
-    kpi_median: "Mittlere Zeit bis zur Bestätigung",
     kpi_held: "Von der Ruhezeit zurückgehalten",
     kpi_change: "{sign}{n} % gegenüber dem Zeitraum davor",
     kpi_none: "keine Daten",
@@ -456,7 +454,6 @@ export const STRINGS = {
     period_label: "Période",
     kpi_notifications: "Notifications",
     kpi_delivered: "Remis",
-    kpi_median: "Délai médian de confirmation",
     kpi_held: "Retenus par les heures calmes",
     kpi_change: "{sign}{n} % par rapport à la période précédente",
     kpi_none: "pas de données",
@@ -640,7 +637,6 @@ export const STRINGS = {
     period_label: "Periodo",
     kpi_notifications: "Notificaciones",
     kpi_delivered: "Entregadas",
-    kpi_median: "Tiempo mediano hasta confirmar",
     kpi_held: "Retenidas por las horas de silencio",
     kpi_change: "{sign}{n} % frente al periodo anterior",
     kpi_none: "sin datos",
@@ -1018,7 +1014,6 @@ export function kpiModel(numbers, t) {
     // The pill is short ("+16 %"); the full sentence is its hover text and its spoken label.
     change: change === null || change === undefined ? null : { up: change > 0, text: `${change > 0 ? "+" : ""}${change} %`, title: fill(t.kpi_change, { sign: change > 0 ? "+" : "", n: change }) },
     delivered: numbers.delivered === null || numbers.delivered === undefined ? t.kpi_none : `${numbers.delivered} %`,
-    median: durationText(numbers.median_ack_seconds, t),
     held: String(numbers.held_quiet ?? 0),
   };
 }
@@ -1672,7 +1667,7 @@ export function mount(container, ctx) {
     const change = kpi.change ? el("span", { className: `pill ${kpi.change.up ? "warning" : "ok"}`, textContent: kpi.change.text, title: kpi.change.title }) : null;
     if (change) change.setAttribute("aria-label", kpi.change.title);
     first.append(
-      el("div", { className: "kpis" }, [tile(kpi.notifications, t.kpi_notifications, change), tile(kpi.delivered, t.kpi_delivered), tile(kpi.median, t.kpi_median), tile(kpi.held, t.kpi_held)]),
+      el("div", { className: "kpis" }, [tile(kpi.notifications, t.kpi_notifications, change), tile(kpi.delivered, t.kpi_delivered), tile(kpi.held, t.kpi_held)]),
     );
     if (period === "24h") first.append(el("div", { className: "sub", textContent: t.kpi_scope_24h }));
     first.append(chartNode(intro));
