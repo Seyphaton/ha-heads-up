@@ -889,11 +889,15 @@ export function pathEvents(entries, { t, s, fmt, since, who, now, locale, ended 
       const by = same.find((e) => e.by)?.by;
       add("skipped", "note", line(t.ev_not_sent, time, ` (${channels(same.map((e) => e.channel))})${reason ? `: ${reason}` : ""}${by ? ` · ${by}` : ""}`), same);
     }
+    // People who were not reached belong to the send of the same moment: a line under it. Without a send
+    // (nothing arrived) they are a line of their own.
+    const sentEvent = events.find((e) => e.type === "sent" && e.time === time);
     for (const reason of [...new Set(plain.map(reasonOf))]) {
       const same = plain.filter((e) => reasonOf(e) === reason);
       const names = [...new Set(same.map(who).filter((n) => n && n !== "—"))].join(", ");
-      const text = fill(t.ev_not_reached, { channels: channels(same.map((e) => e.channel)), names: names || "—" });
-      add("skipped", "note", line(`${text}${reason ? ` (${reason})` : ""}`, time), same);
+      const text = `${fill(t.ev_not_reached, { channels: channels(same.map((e) => e.channel)), names: names || "—" })}${reason ? ` (${reason})` : ""}`;
+      if (sentEvent) sentEvent.details = [...(sentEvent.details || []), text];
+      else add("skipped", "note", line(text, time), same);
     }
     const failed = rows.filter((e) => e.result === "failed");
     for (const reason of [...new Set(failed.map(reasonOf))]) {
@@ -1274,6 +1278,7 @@ const CSS = `
 .hu-overview .path .ev::before { content: ""; position: absolute; left: 2px; top: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--hu-ok); }
 .hu-overview .path .ev-note::before { background: var(--secondary-text-color); }
 .hu-overview .path .ev-hold::before { background: var(--hu-warn); }
+.hu-overview .path .ev-detail { font-size: 12px; color: var(--secondary-text-color); padding-top: 1px; }
 .hu-overview .path .ev-fail { color: var(--hu-crit); font-weight: 600; }
 .hu-overview .path .ev-fail::before { background: var(--hu-crit); }
 @keyframes hu-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -1360,7 +1365,7 @@ export function mount(container, ctx) {
       if (item) box.append(el("div", { className: "sub", textContent: actionRow(item, now(), t, s, fmt, ctx.language).source }));
       if (!events.length || (item && item.trace_complete === false)) box.append(el("div", { className: "sub", textContent: t.path_none }));
       for (const event of events) {
-        const row = el("div", { className: `ev ev-${event.kind}`, textContent: event.text });
+        const row = el("div", { className: `ev ev-${event.kind}` }, [document.createTextNode(event.text), ...(event.details || []).map((text) => el("div", { className: "ev-detail", textContent: text }))]);
         if (event.title) row.title = event.title;
         box.append(row);
       }

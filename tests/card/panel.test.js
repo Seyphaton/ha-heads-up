@@ -639,7 +639,8 @@ describe("overview functions", () => {
       { channel: "push", result: "skipped", reason: "channel_not_accepted", recipient: "person.wall", origin: "message", time: T("09:31") },
       { channel: "push", result: "skipped", reason: "no_usable_device", recipient: "person.cleo", origin: "message", time: T("09:31") },
     ].reverse());
-    expect(events.map((e) => e.text)).toEqual(["Sent at 09:31 (ch:banner, ch:push)", "Not reached on ch:push: who:person.cleo (r:no_usable_device) at 09:31"]);
+    expect(events.map((e) => e.text)).toEqual(["Sent at 09:31 (ch:banner, ch:push)"]);
+    expect(events[0].details).toEqual(["Not reached on ch:push: who:person.cleo (r:no_usable_device)"]);
     expect(JSON.stringify(events)).not.toContain("guest");
     expect(JSON.stringify(events)).not.toContain("wall");
   });
