@@ -2,7 +2,7 @@
 
 All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions: [SemVer](https://semver.org/). Only releases are listed; the 1.0.0 pre-releases are summarized under 1.0.0.
 
-## [Unreleased]
+## [2.0.0] - 2026-11-22
 
 ### Before you upgrade
 

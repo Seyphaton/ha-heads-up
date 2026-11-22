@@ -1625,3 +1625,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: after a restart or reload the history listed every loaded rule, including rules whose condition was false, as Active; the startup pass is silent, so nothing ended them. Last actions said Active while Watch rules said Not showing.
 - Decision (maintainer, "tag next beta", "and push"): only active banners are listed at the start; the manifest version is `2.0.0-beta.6`; `release/2.0` and the tag `v2.0.0-beta.6` are pushed. `main` is not moved in this step.
 
+## D-254 Release 2.0.0 (2026-11-22, maintainer)
+- Context: `2.0.0-beta.6` is tagged and pushed (D-253). The maintainer asked to create the tag 2.0.0 and push it.
+- Decision (maintainer, "create a new tag 2.0.0 and push"): CHANGELOG `[Unreleased]` becomes `[2.0.0] - 2026-11-22`; the manifest version is `2.0.0`; `release/2.0` is merged into `main` (fast-forward); `release/2.0`, `main` and the tag `v2.0.0` are pushed. Checks before the tag: `make check`, `make hassfest` and `make dev-smoke` green. Not run: the upgrade from a 1.1 setup on the dev instance (RELEASE step 3) and the real-device checks in `docs/OPEN_QUESTIONS.md`, which stay open. The GitHub release is the maintainer's step.
+
