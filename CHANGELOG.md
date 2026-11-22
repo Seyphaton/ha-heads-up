@@ -53,6 +53,10 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - Last actions on the Overview lists the five newest messages, one row each: severity, title and status (Active, Acknowledged, Snoozed, Resolved, Expired, Dismissed, Cleared), then the time, the channels that delivered and who was reached ("To Everyone (3/4 reached, 1 failed)"). Recipients you disabled are left out of the row and listed in the Message Log under "Not sent on purpose". Show path and the Message Log trace read oldest first, say how the message ended and no longer say "taken back" or "nothing was delivered". Top sources lists calls by their ID or tag instead of lumping them together.
 - Activity on the Overview reads a history of the last 24 months, one record of counts per day, stored on disk and kept across restarts. Choose 24 hours, Week, Month, Year or 2 years: notifications with the change against the period before, failed deliveries, critical notifications, escalations, the share held by quiet hours and the share held for a summary, each with its change against the period before, a chart by severity, a weekday-by-hour grid and the top sources. Settings > Activity history shows its size and clears it. Diagnostics list its size and range, not its counts.
 
+### Fixed
+
+- After a restart or reload, Last actions no longer lists a watch rule as Active while it is not showing. A rule whose condition was false at the start came back without an end.
+
 ## [1.0.0] - 2026-11-16
 
 Heads Up turns from a dashboard banner into a notification hub. One `heads_up.notify` call delivers a message on up to six channels, to audiences that follow who is home, with policies for escalation, reminders, quiet hours and summaries. Banners, the card and watch rules from 0.4.0 keep working.

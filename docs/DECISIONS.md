@@ -1621,3 +1621,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer, "2.0.0-beta.5", "yes, everything committed"): the manifest version is `2.0.0-beta.5`; `release/2.0` is merged into `main`; `main`, `release/2.0` and the tag `v2.0.0-beta.5` are pushed. This is a pre-release, not 2.0.0: the CHANGELOG keeps `[Unreleased]`, and the real-device checks stay open. The README images and links point at `main`, so they work from now on.
 - Docs brought up to date in the same step: README (Overview and Activity), setup (Overview, path, introduction), examples (FAQ: three new answers, limitations), the panel's FAQ (32 questions in four languages), CHANGELOG, DESIGN.
 
+## D-253 Release 2.0.0-beta.6 (2026-11-22, maintainer)
+- Context: after a restart or reload the history listed every loaded rule, including rules whose condition was false, as Active; the startup pass is silent, so nothing ended them. Last actions said Active while Watch rules said Not showing.
+- Decision (maintainer, "tag next beta", "and push"): only active banners are listed at the start; the manifest version is `2.0.0-beta.6`; `release/2.0` and the tag `v2.0.0-beta.6` are pushed. `main` is not moved in this step.
+
