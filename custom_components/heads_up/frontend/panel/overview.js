@@ -893,7 +893,7 @@ export function pathEvents(entries, { t, s, fmt, since, who, now, locale, ended 
       const same = plain.filter((e) => reasonOf(e) === reason);
       const names = [...new Set(same.map(who).filter((n) => n && n !== "—"))].join(", ");
       const text = fill(t.ev_not_reached, { channels: channels(same.map((e) => e.channel)), names: names || "—" });
-      add("skipped", "note", line(text, time, reason ? ` (${reason})` : ""), same);
+      add("skipped", "note", line(`${text}${reason ? ` (${reason})` : ""}`, time), same);
     }
     const failed = rows.filter((e) => e.result === "failed");
     for (const reason of [...new Set(failed.map(reasonOf))]) {
@@ -1106,7 +1106,10 @@ export function actionRow(item, now, t, s, fmt, locale) {
   if (item.reminded) chips.push(item.reminded === 1 ? t.chip_reminder_one : fill(t.chip_reminder_many, { n: item.reminded }));
   for (const policy of item.held_by || []) chips.push(fill(t.chip_held_by, { policy }));
   for (const channel of item.failed_on || []) chips.push(fill(t.chip_failed_on, { channel: fmt.channelName(channel, s) }));
-  for (const problem of item.problems || []) chips.push(fmt.reasonText(problem.reason, s));
+  // A reason is shown when someone was not reached, or when no person is involved (a speaker, mail). When
+  // everyone got the message on another channel, Needs attention already names the cause.
+  const r = item.reach;
+  if (!r || r.not_reached?.length || r.failed?.length || !(r.reached?.length || r.held?.length)) for (const problem of item.problems || []) chips.push(fmt.reasonText(problem.reason, s));
   const diff = now - Date.parse(item.time);
   const when = diff >= 24 * 3600000 && locale ? clockText(item.time, now, locale) : fmt.timeAgo(item.time, now, s);
   const status = statusOf(item, t);
@@ -1246,6 +1249,11 @@ const CSS = `
 .hu-overview .act .top { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .hu-overview .act .headline { flex: 1 1 auto; min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hu-overview .act .top .pill { font-size: 11px; padding: 1px 8px; flex: none; }
+@media (max-width: 480px) {
+  .hu-overview .act .top { flex-wrap: wrap; row-gap: 2px; }
+  .hu-overview .act .headline { order: 3; flex: 1 1 100%; white-space: normal; }
+  .hu-overview .act .top > :last-child { margin-left: auto; }
+}
 .hu-overview .act button.link { min-height: 28px; font-size: 12px; padding: 0 2px; flex: none; }
 .hu-overview .act .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: 12px; color: var(--secondary-text-color); }
 .hu-overview .act .meta .pill { font-size: 11px; font-weight: 500; padding: 0 8px; }

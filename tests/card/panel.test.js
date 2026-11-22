@@ -485,9 +485,19 @@ describe("overview functions", () => {
   });
 
   it("lists the chips for policies and problems, and the reasons of the skips that matter", () => {
-    const row = actionRow(item({ escalated: 1, reminded: 3, held_by: ["Night"], failed_on: ["mail"], problems: [{ reason: "no_usable_device", count: 1 }], state: "active" }), 0, t, sh, afmt);
+    const missed = { reached: [], failed: [], held: [], not_reached: ["Cleo"], excluded: [], audiences: [] };
+    const row = actionRow(item({ escalated: 1, reminded: 3, held_by: ["Night"], failed_on: ["mail"], problems: [{ reason: "no_usable_device", count: 1 }], reach: missed, state: "active" }), 0, t, sh, afmt);
     expect(row.chips).toEqual(["Escalated", "3 reminders", "Held by Night", "Failed on ch:mail", "r:no_usable_device"]);
     expect(actionRow(item({ reminded: 1 }), 0, t, sh, afmt).chips).toEqual(["1 reminder"]);
+  });
+
+  it("names a reason only when someone was not reached, not when everyone got it on another channel", () => {
+    const problems = [{ reason: "no_usable_device", count: 2 }];
+    expect(actionRow(item({ problems }), 0, t, sh, afmt).chips).toEqual([]);
+    const missed = { reached: ["Anna"], failed: [], held: [], not_reached: ["Cleo"], excluded: [], audiences: [] };
+    expect(actionRow(item({ problems, reach: missed }), 0, t, sh, afmt).chips).toEqual(["r:no_usable_device"]);
+    const nobody = { reached: [], failed: [], held: [], not_reached: [], excluded: [], audiences: [] };
+    expect(actionRow(item({ problems, reach: nobody }), 0, t, sh, afmt).chips).toEqual(["r:no_usable_device"]);
   });
 
   it("shows the date when the last activity is a day old or more", () => {
@@ -629,7 +639,7 @@ describe("overview functions", () => {
       { channel: "push", result: "skipped", reason: "channel_not_accepted", recipient: "person.wall", origin: "message", time: T("09:31") },
       { channel: "push", result: "skipped", reason: "no_usable_device", recipient: "person.cleo", origin: "message", time: T("09:31") },
     ].reverse());
-    expect(events.map((e) => e.text)).toEqual(["Sent at 09:31 (ch:banner, ch:push)", "Not reached on ch:push: who:person.cleo at 09:31 (r:no_usable_device)"]);
+    expect(events.map((e) => e.text)).toEqual(["Sent at 09:31 (ch:banner, ch:push)", "Not reached on ch:push: who:person.cleo (r:no_usable_device) at 09:31"]);
     expect(JSON.stringify(events)).not.toContain("guest");
     expect(JSON.stringify(events)).not.toContain("wall");
   });
@@ -690,7 +700,7 @@ describe("overview functions", () => {
     ].reverse());
     expect(events.map((e) => e.text).sort()).toEqual([
       "Held at 13:47 (ch:push) · Night",
-      "Not reached on ch:mail: who:person.cleo at 13:47 (r:no_mail_address)",
+      "Not reached on ch:mail: who:person.cleo (r:no_mail_address) at 13:47",
       "Not sent at 13:47 (ch:popup): r:quiet_hours · Night",
     ]);
   });
