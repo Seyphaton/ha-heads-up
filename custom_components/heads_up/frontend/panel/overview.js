@@ -162,6 +162,8 @@ export const STRINGS = {
     ev_silent: "silently due to {policy}",
     ev_silent_plain: "silently",
     ev_channels_silent: "{channels} silently",
+    ev_not_sent_n: "{n} not sent",
+    ev_taken_back_from: "taken back from {channels}",
     first_run: "No policies yet. The introduction explains a few defaults you can switch on.",
     first_run_button: "Restart introduction",
     ph_attention: "Problems with your setup show up here.",
@@ -332,6 +334,8 @@ export const STRINGS = {
     ev_silent: "leise wegen {policy}",
     ev_silent_plain: "leise",
     ev_channels_silent: "{channels} leise",
+    ev_not_sent_n: "{n} nicht gesendet",
+    ev_taken_back_from: "zurückgenommen von {channels}",
     first_run: "Noch keine Richtlinien. Die Einführung erklärt ein paar Standards, die du einschalten kannst.",
     first_run_button: "Einführung neu starten",
     ph_attention: "Probleme mit deiner Einrichtung erscheinen hier.",
@@ -502,6 +506,8 @@ export const STRINGS = {
     ev_silent: "discrètement à cause de {policy}",
     ev_silent_plain: "discrètement",
     ev_channels_silent: "{channels} discrètement",
+    ev_not_sent_n: "{n} non envoyé(s)",
+    ev_taken_back_from: "retiré de {channels}",
     first_run: "Aucune politique pour l'instant. L'introduction explique quelques réglages par défaut que vous pouvez activer.",
     first_run_button: "Relancer l'introduction",
     ph_attention: "Les problèmes de votre configuration apparaissent ici.",
@@ -672,6 +678,8 @@ export const STRINGS = {
     ev_silent: "en silencio por {policy}",
     ev_silent_plain: "en silencio",
     ev_channels_silent: "{channels} en silencio",
+    ev_not_sent_n: "{n} no enviado(s)",
+    ev_taken_back_from: "retirado de {channels}",
     first_run: "Aún no hay políticas. La introducción explica algunos valores por defecto que puedes activar.",
     first_run_button: "Reiniciar la introducción",
     ph_attention: "Los problemas de tu configuración aparecen aquí.",
@@ -791,7 +799,7 @@ export function entryWho(entry, choices, label) {
 // hover text: who each line was for. `who(entry)` names the person and phone of an entry.
 export function pathEvents(entries, { t, s, fmt, since, who, now, locale }) {
   const from = since ? Date.parse(since) : NaN;
-  const list = [...(entries || [])].reverse().filter((e) => (Number.isNaN(from) || Date.parse(e.time) >= from) && e.channel !== "timer");
+  const list = [...(entries || [])].reverse().filter((e) => (Number.isNaN(from) || Date.parse(e.time) >= from) && e.channel !== "timer" && e.reason !== "duplicate");
   const channel = (c) => fmt.channelName(c, s);
   const order = ["banner", "push", "popup", "speak", "persistent", "mail"];
   const rank = (c) => (order.includes(c) ? order.indexOf(c) : order.length);
@@ -799,39 +807,47 @@ export function pathEvents(entries, { t, s, fmt, since, who, now, locale }) {
   const reasonOf = (e) => (e.reason ? fmt.reasonText(e.reason, s) : "");
   const events = [];
   const line = (what, time, rest = "") => `${fill(t.ev_line, { what, time: clockText(time, now, locale) })}${rest}`;
-  const hover = (entriesOf) => entriesOf.map((e) => `${who(e)}: ${s.result[e.result] || e.result}${reasonOf(e) ? ` (${reasonOf(e)})` : ""}`).join("\n");
+  const hover = (rows) => rows.map((e) => `${who(e)}: ${s.result[e.result] || e.result}${reasonOf(e) ? ` (${reasonOf(e)})` : ""}`).join("\n");
   let cluster = null;
   const flush = () => {
     if (!cluster) return;
     const rows = cluster.rows;
     const time = cluster.time;
+    const add = (type, kind, text, group) => events.push({ time, type, kind, text, title: hover(group) });
     const sent = rows.filter((e) => e.result === "sent");
-    const push = (kind, text, group) => events.push({ time, kind, text, title: hover(group) });
+    // A skipped delivery without a policy behind it (a disabled person, a channel the profile does not
+    // accept, no phone) is not an event: it is counted on the send, and the hover says who and why.
+    const skipped = rows.filter((e) => e.result === "skipped");
+    const plain = skipped.filter((e) => !e.by);
+    const byPolicy = skipped.filter((e) => e.by);
     if (sent.length) {
       const quiet = sent.filter((e) => e.by);
       const policies = [...new Set(quiet.map((e) => e.by))].join(", ");
       let rest = "";
       if (quiet.length === sent.length) rest = ` · ${fill(t.ev_silent, { policy: policies })}`;
       else if (quiet.length) rest = ` · ${fill(t.ev_channels_silent, { channels: channels(quiet.map((e) => e.channel)) })} (${policies})`;
-      push("ok", line(t[ORIGIN_TEXT[cluster.origin] || "ev_sent"], time, ` (${channels(sent.map((e) => e.channel))})${rest}`), sent);
+      const missing = new Set(plain.map((e) => `${e.channel}|${e.recipient}`)).size;
+      if (missing) rest += ` · ${fill(t.ev_not_sent_n, { n: missing })}`;
+      add("sent", "ok", line(t[ORIGIN_TEXT[cluster.origin] || "ev_sent"], time, ` (${channels(sent.map((e) => e.channel))})${rest}`), [...sent, ...plain]);
     }
     const summarized = rows.filter((e) => e.result === "summarized");
-    if (summarized.length) push("ok", line(t.ev_summary, time, ` (${channels(summarized.map((e) => e.channel))}) · ${summarized[0].by || ""}`.replace(/ · $/, "")), summarized);
+    if (summarized.length) add("summary", "ok", line(t.ev_summary, time, ` (${channels(summarized.map((e) => e.channel))})${summarized[0].by ? ` · ${summarized[0].by}` : ""}`), summarized);
     const held = rows.filter((e) => e.result === "held");
-    if (held.length) push("hold", line(t.ev_held, time, ` (${channels(held.map((e) => e.channel))})${held[0].by ? ` · ${held[0].by}` : ""}`), held);
-    const skipped = rows.filter((e) => e.result === "skipped");
-    for (const reason of [...new Set(skipped.map(reasonOf))]) {
-      const group = skipped.filter((e) => reasonOf(e) === reason);
-      const by = group.find((e) => e.by)?.by;
-      push("note", line(t.ev_not_sent, time, ` (${channels(group.map((e) => e.channel))})${reason ? `: ${reason}` : ""}${by ? ` · ${by}` : ""}`), group);
+    if (held.length) add("held", "hold", line(t.ev_held, time, ` (${channels(held.map((e) => e.channel))})${held[0].by ? ` · ${held[0].by}` : ""}`), held);
+    for (const group of [byPolicy, sent.length ? [] : plain]) {
+      for (const reason of [...new Set(group.map(reasonOf))]) {
+        const same = group.filter((e) => reasonOf(e) === reason);
+        const by = same.find((e) => e.by)?.by;
+        add("skipped", "note", line(t.ev_not_sent, time, ` (${channels(same.map((e) => e.channel))})${reason ? `: ${reason}` : ""}${by ? ` · ${by}` : ""}`), same);
+      }
     }
     const failed = rows.filter((e) => e.result === "failed");
     for (const reason of [...new Set(failed.map(reasonOf))]) {
-      const group = failed.filter((e) => reasonOf(e) === reason);
-      push("fail", line(t.ev_failed, time, ` (${channels(group.map((e) => e.channel))})${reason ? `: ${reason}` : ""}`), group);
+      const same = failed.filter((e) => reasonOf(e) === reason);
+      add("failed", "fail", line(t.ev_failed, time, ` (${channels(same.map((e) => e.channel))})${reason ? `: ${reason}` : ""}`), same);
     }
     const cleared = rows.filter((e) => e.result === "cleared");
-    if (cleared.length) push("note", line(t.ev_taken_back, time, ` (${channels(cleared.map((e) => e.channel))})`), cleared);
+    if (cleared.length) events.push({ time, type: "cleared", kind: "note", text: "", title: "", channels: channels(cleared.map((e) => e.channel)) });
     cluster = null;
   };
   for (const entry of list) {
@@ -845,7 +861,7 @@ export function pathEvents(entries, { t, s, fmt, since, who, now, locale }) {
         unsnoozed: () => t.ev_unsnoozed,
         held: () => `${t.ev_held_summary}${entry.by ? ` (${entry.by})` : ""}`,
       }[entry.result];
-      if (text) events.push({ time: entry.time, kind: entry.result === "held" ? "hold" : "note", text: line(text(), entry.time), title: "" });
+      if (text) events.push({ time: entry.time, type: entry.result, kind: entry.result === "held" ? "hold" : "note", text: line(text(), entry.time), title: "" });
       continue;
     }
     if (!DELIVERY_RESULTS.includes(entry.result)) continue;
@@ -857,7 +873,18 @@ export function pathEvents(entries, { t, s, fmt, since, who, now, locale }) {
     }
   }
   flush();
-  return events.sort((a, b) => Date.parse(b.time) - Date.parse(a.time));
+  // Taking a message back follows a dismissal or a snooze: say it on that line instead of a line of its own.
+  const merged = [];
+  for (const event of events) {
+    if (event.type !== "cleared") {
+      merged.push(event);
+      continue;
+    }
+    const cause = events.find((e) => ["dismissed", "snoozed"].includes(e.type) && Math.abs(Date.parse(e.time) - Date.parse(event.time)) <= CLUSTER_MS);
+    if (cause) cause.text += ` · ${fill(t.ev_taken_back_from, { channels: event.channels })}`;
+    else merged.push({ ...event, text: line(t.ev_taken_back, event.time, ` (${event.channels})`) });
+  }
+  return merged.sort((a, b) => Date.parse(b.time) - Date.parse(a.time));
 }
 
 // The four small links under the status card: the page each opens.
@@ -1139,6 +1166,12 @@ const CSS = `
 .hu-overview button.shortcut .name { font-size: 14px; font-weight: 600; }
 .hu-overview button.shortcut .arrow { color: var(--primary-color); font-size: 15px; transition: transform .12s; }
 .hu-overview button.shortcut:hover .arrow { transform: translateX(2px); }
+.hu-overview .path .ev { position: relative; padding: 2px 0 2px 18px; font-size: 13px; cursor: default; overflow-wrap: anywhere; }
+.hu-overview .path .ev::before { content: ""; position: absolute; left: 2px; top: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--hu-ok); }
+.hu-overview .path .ev-note::before { background: var(--secondary-text-color); }
+.hu-overview .path .ev-hold::before { background: var(--hu-warn); }
+.hu-overview .path .ev-fail { color: var(--hu-crit); font-weight: 600; }
+.hu-overview .path .ev-fail::before { background: var(--hu-crit); }
 @keyframes hu-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes hu-pulse { 0% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 30%, transparent), 0 0 0 18px color-mix(in srgb, var(--hero-tint) 7%, transparent); } 100% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--hero-tint) 14%, transparent), 0 0 0 26px transparent; } }
 @keyframes hu-grow { from { transform: scaleY(0); opacity: 0; } to { transform: scaleY(1); opacity: 1; } }
@@ -1219,7 +1252,7 @@ export function mount(container, ctx) {
       const events = pathEvents(value.entries, { t, s, fmt, since: value.since, now: now(), locale: ctx.language, who: (entry) => entryWho(entry, choices || {}, label) });
       if (!events.length) box.append(el("div", { className: "sub", textContent: t.path_none }));
       for (const event of events) {
-        const row = el("div", { className: `ev ${event.kind}`, textContent: event.text });
+        const row = el("div", { className: `ev ev-${event.kind}`, textContent: event.text });
         if (event.title) row.title = event.title;
         box.append(row);
       }

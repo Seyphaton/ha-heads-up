@@ -993,3 +993,7 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 ### 27.10 A part that fails, a load that fails
 - `panel_overview` builds `status`, `coming_up` and `last_actions` each in its own guard: a fault is logged ("The Overview part … could not be built") and the part is empty, so the rest of the page loads. The page draws each card in its own guard as well and writes the error to the browser console.
 - The page loads one request at a time; a button pressed meanwhile queues one more load. A load that fails keeps what is on the page and retries after three seconds; only a page that never loaded shows "The overview could not be loaded" (with the error text). A table or Activity request that fails keeps the earlier one.
+
+### 27.11 Path: what is a line
+- A skipped delivery without a policy behind it (a disabled person, a channel the profile does not accept, no phone) is not a line: it is counted on the send ("· 2 not sent") and listed in the hover. A skip by a policy, a hold, a failure and a summary are lines. Skips for the reason `duplicate` (an update that changed nothing) are left out of the path and of the counts of Last actions. A `cleared` entry within 90 seconds of a dismissal or snooze is written on that line ("Dismissed by Philip at 12:25 · taken back from Push"); alone it is "Taken back".
+- The path's kinds are CSS classes `ev-ok`, `ev-note`, `ev-hold` and `ev-fail`: the shell has its own `.note` class with padding, which made the lines far apart. A test checks that the page's CSS defines them.

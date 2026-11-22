@@ -626,7 +626,12 @@ def last_actions(
                     "by": manager._first_name(logged["recipient"] or "") or None,
                     "seconds": max(seconds, 0) if seconds is not None else None,
                 }
-            if channel not in ("", TIMER_CHANNEL) and result in RESULT_KINDS:
+            # An update that changed nothing is skipped as a duplicate: it is not a result to show.
+            if (
+                channel not in ("", TIMER_CHANNEL)
+                and result in RESULT_KINDS
+                and logged["reason"] != "duplicate"
+            ):
                 latest[(channel, logged["recipient"] or "")] = logged
         # One count per recipient on a channel, however often an update sent to it again.
         results: dict[str, int] = {}

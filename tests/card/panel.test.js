@@ -572,6 +572,51 @@ describe("overview functions", () => {
     expect(events[1].kind).toBe("hold");
   });
 
+  it("counts the people who were not reached on the send instead of a line each, and keeps the reasons in the hover", () => {
+    const events = ev([
+      { channel: "banner", result: "sent", origin: "message", time: T("09:31") },
+      { channel: "push", result: "sent", origin: "message", time: T("09:31") },
+      { channel: "push", result: "skipped", reason: "recipient_disabled", recipient: "person.guest", origin: "message", time: T("09:31") },
+      { channel: "push", result: "skipped", reason: "channel_not_accepted", recipient: "person.wall", origin: "message", time: T("09:31") },
+    ].reverse());
+    expect(events).toHaveLength(1);
+    expect(events[0].text).toBe("Sent at 09:31 (ch:banner, ch:push) · 2 not sent");
+    expect(events[0].title).toContain("who:person.guest: skipped (r:recipient_disabled)");
+    expect(events[0].title).toContain("who:person.wall: skipped (r:channel_not_accepted)");
+  });
+
+  it("leaves out an update that was skipped as a duplicate", () => {
+    const events = ev([
+      { channel: "popup", result: "skipped", reason: "duplicate", time: T("13:48") },
+      { channel: "popup", result: "sent", time: T("13:47") },
+    ]);
+    expect(events.map((e) => e.text)).toEqual(["Sent at 13:47 (ch:popup)"]);
+  });
+
+  it("says taking a message back on the dismissal that caused it", () => {
+    const events = ev([
+      { channel: "push", result: "cleared", time: T("12:25") },
+      { channel: "", result: "dismissed", who: "Philip", time: T("12:25") },
+      { channel: "", result: "acknowledged", who: "Philip", time: T("09:32") },
+      { channel: "push", result: "sent", origin: "message", time: T("09:31") },
+    ], { now: Date.parse(T("13:00")) });
+    expect(events.map((e) => e.text)).toEqual([
+      "Dismissed by Philip at 12:25 · taken back from ch:push",
+      "Acknowledged by Philip at 09:32",
+      "Sent at 09:31 (ch:push)",
+    ]);
+    const lone = ev([{ channel: "push", result: "cleared", time: T("12:25") }]);
+    expect(lone.map((e) => e.text)).toEqual(["Taken back at 12:25 (ch:push)"]);
+  });
+
+  it("uses class names that the shell's own styles do not catch (its .note class has padding)", () => {
+    const [event] = ev([{ channel: "push", result: "skipped", reason: "quiet_hours", by: "Night", time: T("13:47") }]);
+    expect(event.kind).toBe("note");
+    const source = readFileSync("custom_components/heads_up/frontend/panel/overview.js", "utf8");
+    expect(source).toContain("className: `ev ev-${event.kind}`");
+    for (const rule of [".path .ev {", ".path .ev-note::before", ".path .ev-hold::before", ".path .ev-fail {"]) expect(source, rule).toContain(rule);
+  });
+
   it("shows a failed delivery as an event of its own with the reason", () => {
     const events = ev([
       { channel: "push", result: "sent", origin: "message", time: T("13:47") },

@@ -782,6 +782,7 @@ async def test_an_updated_message_counts_each_recipient_once(
         await send(hass, entry, id="same", message=f"Update {n}")
     (row,) = (await overview(hass, client))["last_actions"]
     assert row["results"] == {"sent": 2}  # the banner and Anna's phone, not eight sends
+    assert row["problems"] == []  # an update that changed nothing is not a skip to show
 
 
 async def test_an_acknowledgement_of_an_earlier_appearance_is_not_counted(
