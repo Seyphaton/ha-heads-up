@@ -1227,6 +1227,30 @@ export function mount(container, ctx) {
     return box;
   }
 
+  // The introduction tour, inside the page (D-244): shown on the first opening, or when asked for.
+  async function startTour(force) {
+    if (tour) return;
+    try {
+      const mod = await ctx.loadModule("welcome.js");
+      tour = await mod.mount(tourHost, {
+        hass,
+        t: ctx.tableFor(mod),
+        s,
+        ui: ctx.ui,
+        language: ctx.language,
+        force,
+        onClose: () => {
+          tour = null;
+          if (globalThis.location?.search) globalThis.history?.replaceState(null, "", globalThis.location.pathname);
+          load();
+        },
+      });
+    } catch (err) {
+      tour = null; // the tour is a convenience: a failure must not block the page
+    }
+    if (tour) render();
+  }
+
   async function act(type, extra, confirmText) {
     if (confirmText && !window.confirm(confirmText)) return;
     try {
@@ -1547,6 +1571,25 @@ export function mount(container, ctx) {
     return section(title, [el("div", { className: "placeholder", textContent: text })]);
   }
 
+  // One card that fails to draw must not take the page down: it shows what failed instead.
+  const guard = (name, build) => {
+    try {
+      return build();
+    } catch (err) {
+      console.error("Heads Up overview:", name, err);
+      return section(name, [el("div", { className: "sub", textContent: `${t.load_failed} (${(err && err.message) || err})` })]);
+    }
+  };
+
+  const guardList = (name, build) => {
+    try {
+      return build();
+    } catch (err) {
+      console.error("Heads Up overview:", name, err);
+      return [guard(name, () => { throw err; })];
+    }
+  };
+
   function render() {
     const intro = !played;
     played = true;
@@ -1571,39 +1614,69 @@ export function mount(container, ctx) {
       );
       return;
     }
-    root.append(statusCard(), shortcutRow(), el("div", { className: "pair" }, [attentionCard(), comingCard()]), lastActionsCard(), reachCard(), ...activityCards(intro));
+    root.append(
+      guard(t.status, statusCard),
+      guard(t.sc_label, shortcutRow),
+      el("div", { className: "pair" }, [guard(t.attention, attentionCard), guard(t.coming_title, comingCard)]),
+      guard(t.last_actions, lastActionsCard),
+      guard(t.reach_title, reachCard),
+      ...guardList(t.activity, () => activityCards(intro)),
+    );
   }
 
   async function loadStats() {
     try {
       stats = await hass.callWS({ type: "heads_up/panel_stats", period });
     } catch (err) {
-      stats = false;
+      if (!stats) stats = false; // earlier numbers stay rather than turning into an error
     }
     if (data && !data.first_run) render();
   }
 
+  // One load at a time: the 10-second timer and a button press must not run side by side. A load
+  // that fails once (a blip of the connection, Home Assistant still starting) keeps what is on the
+  // page and tries again after three seconds; only a page that never loaded shows the failure.
+  let loading = false;
+  let again = false;
+  let retry = null;
   async function load() {
-    try {
-      data = await hass.callWS({ type: "heads_up/panel_overview" });
-      render();
-      if (!tourStarted) {
-        tourStarted = true;
-        startTour(new URLSearchParams(globalThis.location?.search || "").get("tour") === "1");
-      }
-    } catch (err) {
-      root.replaceChildren(el("div", { textContent: t.load_failed }));
+    if (loading) {
+      again = true; // a button pressed meanwhile: load once more when this one is done
       return;
     }
-    // The table is a dry run per severity: it loads on its own so a slow answer never holds the page.
-    if (!data.first_run) {
+    loading = true;
+    clearTimeout(retry);
+    try {
       try {
-        reach = await hass.callWS({ type: "heads_up/panel_reach" });
+        data = await hass.callWS({ type: "heads_up/panel_overview" });
+        render();
+        if (!tourStarted) {
+          tourStarted = true;
+          startTour(new URLSearchParams(globalThis.location?.search || "").get("tour") === "1");
+        }
       } catch (err) {
-        reach = false;
+        console.error("Heads Up overview:", err);
+        if (!data) root.replaceChildren(el("div", { textContent: `${t.load_failed} ${(err && err.message) || ""}`.trim() }));
+        retry = setTimeout(load, 3000);
+        return;
       }
-      render();
-      await loadStats();
+      // The table is a dry run per severity: it loads on its own so a slow answer never holds the page.
+      if (!data.first_run) {
+        try {
+          reach = await hass.callWS({ type: "heads_up/panel_reach" });
+        } catch (err) {
+          console.error("Heads Up overview table:", err);
+          if (!reach) reach = false; // an earlier table stays rather than turning into an error
+        }
+        render();
+        await loadStats();
+      }
+    } finally {
+      loading = false;
+    }
+    if (again) {
+      again = false;
+      await load();
     }
   }
 
@@ -1616,6 +1689,7 @@ export function mount(container, ctx) {
     },
     destroy() {
       clearInterval(timer);
+      clearTimeout(retry);
       tour?.destroy();
       root.remove();
     },

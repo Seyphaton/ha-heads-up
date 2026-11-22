@@ -6,7 +6,8 @@ checks of "Needs attention" are pure functions over plain data, so each one has 
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+import logging
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
@@ -41,6 +42,8 @@ from .policies.matching import applies
 from .policies.models import Policy, parse_policy, presence_channels
 from .presence import UNKNOWN_STATES, is_home
 from .recipients import area_speakers
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _check_band(data: dict[str, Any]) -> dict[str, str]:
@@ -676,6 +679,16 @@ def last_actions(
     return out[:limit]
 
 
+def _part(name: str, build: Callable[[], Any], fallback: Any) -> Any:
+    """One part of the Overview. A fault in it is logged and the part is empty; the rest of the page
+    still loads."""
+    try:
+        return build()
+    except Exception:
+        _LOGGER.exception("The Overview part %s could not be built", name)
+        return fallback
+
+
 def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[str, Any]:
     items = [_item(manager, b) for b in _messages(manager)]
     counts = {
@@ -697,13 +710,13 @@ def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[st
             "showing": sum(1 for r in rules if r["showing"]),
             "items": rules,
         },
-        "status": status(manager),
-        "coming_up": coming_up(manager),
+        "status": _part("status", lambda: status(manager), {"count": 0, "items": []}),
+        "coming_up": _part("coming_up", lambda: coming_up(manager), []),
         "attention": shown,
         "attention_hidden": hidden,
         "shortcuts": shortcuts(entry, manager),
         "log": hub.log.latest(50) if hub is not None else [],
-        "last_actions": last_actions(manager, entry),
+        "last_actions": _part("last_actions", lambda: last_actions(manager, entry), []),
         "activity": (hub.log if hub is not None else ActivityLog(1)).created_histogram(
             dt_util.utcnow().timestamp()
         ),

@@ -989,3 +989,7 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 - The explanation of the reach table (what it shows, the time, quiet hours, who is away, summaries) is behind a ? button next to its title.
 - The page no longer flashes when a table cell is selected or the 10-second refresh runs: the style element is created once and the entrance animation plays only on the first draw.
 - Icons: audience rows by kind (`audienceIcon`), recipient rows with the person's initials in a round mark, speaker groups with an icon.
+
+### 27.10 A part that fails, a load that fails
+- `panel_overview` builds `status`, `coming_up` and `last_actions` each in its own guard: a fault is logged ("The Overview part … could not be built") and the part is empty, so the rest of the page loads. The page draws each card in its own guard as well and writes the error to the browser console.
+- The page loads one request at a time; a button pressed meanwhile queues one more load. A load that fails keeps what is on the page and retries after three seconds; only a page that never loaded shows "The overview could not be loaded" (with the error text). A table or Activity request that fails keeps the earlier one.

@@ -806,3 +806,28 @@ async def test_an_acknowledgement_of_an_earlier_appearance_is_not_counted(
     await settle(hass, entry)
     (row,) = (await overview(hass, client))["last_actions"]
     assert row["acknowledged"] is None and row["state"] == "active"
+
+
+async def test_a_part_of_the_overview_that_fails_is_empty_and_the_rest_still_loads(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+    monkeypatch: Any,
+    caplog: Any,
+) -> None:
+    from custom_components.heads_up.hub import panel_data
+
+    await make_household(hass, mobile_app_device)
+    await send(hass, entry)
+
+    def broken(*_args: Any, **_kwargs: Any) -> Any:
+        raise RuntimeError("prod data nobody tested")
+
+    monkeypatch.setattr(panel_data, "last_actions", broken)
+    monkeypatch.setattr(panel_data, "coming_up", broken)
+    client = await hass_ws_client(hass)
+    result = await overview(hass, client)
+    assert result["last_actions"] == [] and result["coming_up"] == []
+    assert result["status"]["count"] == 1 and result["active"]["count"] == 1
+    assert "The Overview part last_actions could not be built" in caplog.text

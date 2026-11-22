@@ -692,6 +692,14 @@ describe("overview functions", () => {
     }
   });
 
+  it("defines every function the page calls (a missing startTour made the first load fail)", () => {
+    const source = readFileSync("custom_components/heads_up/frontend/panel/overview.js", "utf8");
+    const defined = new Set([...source.matchAll(/(?:async\s+)?function\s+(\w+)\(/g)].map((m) => m[1]).concat([...source.matchAll(/\bconst\s+(\w+)\s*=/g)].map((m) => m[1])));
+    for (const name of ["startTour", "load", "loadStats", "togglePath", "pathNode", "pathButton", "act", "statusCard", "attentionCard", "comingCard", "lastActionsCard", "reachCard", "activityCards", "shortcutRow", "chartNode", "headed", "render"]) {
+      expect(defined.has(name), name).toBe(true);
+    }
+  });
+
   it("has the same keys in every language", () => {
     for (const strings of [OVERVIEW_STRINGS, MESSAGES_STRINGS]) {
       const keys = Object.keys(strings.en).sort();
