@@ -1601,3 +1601,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: beta.2 was tested on the maintainer's instance; the Last actions, path, checker and layout fixes since the tag are in `release/2.0`.
 - Decision (maintainer, "tag beta.3"): the manifest version is `2.0.0-beta.3`; `release/2.0` and the tag `v2.0.0-beta.3` are pushed. The CHANGELOG keeps `[Unreleased]` (the pre-release notes). The GitHub pre-release is the maintainer's step.
 
+## D-249 Release 2.0.0-beta.4 (2026-11-22, maintainer)
+- Context: beta.3 lost `startTour` in a rewrite: the first load of the Overview failed and the introduction never opened. The path also had lost its CSS.
+- Decision (maintainer, "tag new beta.4 and push"): the manifest version is `2.0.0-beta.4`; `release/2.0` and the tag `v2.0.0-beta.4` are pushed. Beta.3 should not be used. The CHANGELOG keeps `[Unreleased]`.
+
