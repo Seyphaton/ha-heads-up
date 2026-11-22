@@ -96,6 +96,10 @@ export const STRINGS = {
     kpi_quiet_help: "Deliveries that quiet hours held, dropped or sent quietly, of all that could go out. Banners are not counted.",
     kpi_summary_help: "Messages held for a summary, of all messages.",
     kpi_before: "Before: {n}",
+    legend_pill_worse: "rise is worse",
+    legend_pill_better: "fall is good",
+    legend_pill_neutral: "no verdict",
+    legend_pp: "pp = percentage points",
     kpi_change: "{sign}{n}% against the period before",
     kpi_none: "no data",
     kpi_scope_24h: "Apart from Notifications, the numbers cover today and yesterday.",
@@ -286,6 +290,10 @@ export const STRINGS = {
     kpi_quiet_help: "Zustellungen, die die Ruhezeit zurückgehalten, verworfen oder leise gesendet hat, von allen, die hätten rausgehen können. Banner zählen nicht.",
     kpi_summary_help: "Meldungen, die für eine Zusammenfassung zurückgehalten wurden, von allen Meldungen.",
     kpi_before: "Davor: {n}",
+    legend_pill_worse: "Anstieg ist schlechter",
+    legend_pill_better: "Rückgang ist gut",
+    legend_pill_neutral: "ohne Wertung",
+    legend_pp: "pp = Prozentpunkte",
     kpi_change: "{sign}{n} % gegenüber dem Zeitraum davor",
     kpi_none: "keine Daten",
     kpi_scope_24h: "Außer den Meldungen gelten die Zahlen für heute und gestern.",
@@ -476,6 +484,10 @@ export const STRINGS = {
     kpi_quiet_help: "Envois que les heures calmes ont retenus, abandonnés ou envoyés discrètement, sur tous ceux qui pouvaient partir. Les bannières ne comptent pas.",
     kpi_summary_help: "Messages retenus pour un résumé, sur tous les messages.",
     kpi_before: "Avant : {n}",
+    legend_pill_worse: "hausse = pire",
+    legend_pill_better: "baisse = bien",
+    legend_pill_neutral: "sans jugement",
+    legend_pp: "pt = points de pourcentage",
     kpi_change: "{sign}{n} % par rapport à la période précédente",
     kpi_none: "pas de données",
     kpi_scope_24h: "Hors Notifications, les chiffres couvrent aujourd'hui et hier.",
@@ -666,6 +678,10 @@ export const STRINGS = {
     kpi_quiet_help: "Entregas que las horas de silencio retuvieron, descartaron o enviaron en silencio, de todas las que podían salir. Los banners no cuentan.",
     kpi_summary_help: "Mensajes retenidos para un resumen, de todos los mensajes.",
     kpi_before: "Antes: {n}",
+    legend_pill_worse: "subir es peor",
+    legend_pill_better: "bajar es bueno",
+    legend_pill_neutral: "sin juicio",
+    legend_pp: "pp = puntos porcentuales",
     kpi_change: "{sign}{n} % frente al periodo anterior",
     kpi_none: "sin datos",
     kpi_scope_24h: "Salvo Notificaciones, las cifras cubren hoy y ayer.",
@@ -1034,6 +1050,16 @@ export function durationText(seconds, t) {
   return fill(t.dur_h, { h: Math.floor(seconds / 3600), m: Math.round((seconds % 3600) / 60) });
 }
 
+// The key to the pills of the numbers: which colour means what.
+export function pillLegend(t) {
+  return [
+    { tone: "warning", text: t.legend_pill_worse },
+    { tone: "ok", text: t.legend_pill_better },
+    { tone: "", text: t.legend_pill_neutral },
+    { tone: null, text: t.legend_pp },
+  ];
+}
+
 // How many notifications the period had, for the chart's heading.
 export function notificationTotal(numbers) {
   return numbers?.notifications?.value ?? 0;
@@ -1278,6 +1304,8 @@ const CSS = `
 .hu-overview .kpi .pill { margin-top: 6px; font-size: 11px; max-width: 100%; }
 .hu-overview .kpi .name { min-height: 2.4em; }
 .hu-overview .legend { display: flex; gap: 12px; font-size: 12px; color: var(--secondary-text-color); flex-wrap: wrap; margin-top: 8px; }
+.hu-overview .legend .pilllegend.first { margin-left: auto; }
+.hu-overview .legend .pilllegend .pill { font-size: 10px; padding: 0 7px; margin-right: 5px; }
 .hu-overview .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; }
 .hu-overview .heat { display: grid; grid-template-columns: 34px repeat(24, minmax(0, 1fr)); gap: 3px; margin-top: 10px; font-size: 11px; color: var(--secondary-text-color); }
 .hu-overview .heat .c { aspect-ratio: 1; border-radius: 4px; min-height: 10px; background: color-mix(in srgb, var(--primary-color) calc(var(--share) * 100%), var(--hu-chip)); }
@@ -1672,6 +1700,11 @@ export function mount(container, ctx) {
       return el("span", {}, [dot, el("span", { textContent: s.severity[severity] || severity })]);
     }));
     legend.setAttribute("aria-label", t.legend_label);
+    // The key to the pills sits next to the severities, so the colours of both can be read together.
+    pillLegend(t).forEach((item, index) => {
+      const mark = item.tone === null ? "" : el("span", { className: `pill ${item.tone}`.trim(), textContent: "±", "aria-hidden": "true" });
+      legend.append(el("span", { className: `pilllegend${index === 0 ? " first" : ""}` }, [mark, el("span", { textContent: item.text })]));
+    });
     return el("div", { className: "chartbox" }, [
       el("div", { className: "head" }, [
         el("span", { className: "sub", textContent: period === "24h" ? t.chart_title : t[`period_${period}`] }),

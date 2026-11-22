@@ -221,6 +221,7 @@ import {
   durationText,
   fixKey,
   kpiModel,
+  pillLegend,
   notificationTotal,
   matrixModel,
   PERIODS,
@@ -381,6 +382,15 @@ describe("overview functions", () => {
     expect(tone("escalations", 10)).toBe("warning");
     expect(tone("notifications", 50)).toBe("");
     expect(tone("quiet_share", 5)).toBe("");
+  });
+
+  it("has a key to the pill colours: rise is worse, fall is good, no verdict, and what pp means", () => {
+    expect(pillLegend(t).map((i) => [i.tone, i.text])).toEqual([
+      ["warning", "rise is worse"],
+      ["ok", "fall is good"],
+      ["", "no verdict"],
+      [null, "pp = percentage points"],
+    ]);
   });
 
   it("reads the notification total of the period as a number for the chart heading", () => {
