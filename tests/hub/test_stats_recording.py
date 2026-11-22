@@ -191,3 +191,17 @@ async def test_a_call_is_keyed_by_its_own_id_else_its_tag_else_action(
     await send(hass, entry, id="hu_abcdef0123")
     await send(hass, entry, id="hu_test_ab12cd34", tag="test")
     assert today(entry)["src"] == {"id:water_leak": 1, "tag:door": 1, "action": 1, "test": 1}
+
+
+async def test_a_quiet_send_is_counted_as_a_quiet_hours_delivery(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    await hass.config.async_set_time_zone("Europe/Berlin")
+    await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Night", **QUIET)
+    freezer.move_to("2026-11-02 23:00:00+01:00")
+    await send(hass, entry, severity="warning")
+    assert today(entry)["rs"]["push|sent|quiet_hours"] == 1

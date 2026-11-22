@@ -62,8 +62,9 @@ def test_the_24_hour_period_has_24_hourly_buckets_split_by_severity() -> None:
     buckets = result["buckets"]
     assert len(buckets) == 24 and buckets[-1]["total"] == 3
     assert buckets[-1]["by"] == {"critical": 1, "info": 2}
-    assert result["numbers"]["notifications"] == 3
-    assert result["numbers"]["previous"] == 2 and result["numbers"]["change"] == 50
+    assert result["numbers"]["notifications"]["value"] == 3
+    assert result["numbers"]["notifications"]["previous"] == 2
+    assert result["numbers"]["notifications"]["change"] == 50
     assert result["matrix"] is None
 
 
@@ -75,47 +76,86 @@ def test_week_and_month_have_daily_buckets_and_year_and_two_years_monthly_ones()
     reader = StatsReader(stats)
     week = reader.read("week", NOW)
     assert len(week["buckets"]) == 7 and week["buckets"][-1]["start"] == "2026-11-21"
-    assert week["numbers"]["notifications"] == 5
+    assert week["numbers"]["notifications"]["value"] == 5
     assert len(reader.read("month", NOW)["buckets"]) == 30
     year = reader.read("year", NOW)
     assert len(year["buckets"]) == 12 and year["buckets"][-1]["by"] == {"info": 5}
-    assert year["buckets"][-2]["by"] == {"info": 7} and year["numbers"]["notifications"] == 12
+    assert (
+        year["buckets"][-2]["by"] == {"info": 7} and year["numbers"]["notifications"]["value"] == 12
+    )
     two = reader.read("2y", NOW)
-    assert len(two["buckets"]) == 24 and two["numbers"]["previous"] is None
+    assert len(two["buckets"]) == 24 and two["numbers"]["notifications"]["previous"] is None
 
 
 def test_the_change_is_empty_without_a_previous_period_to_compare() -> None:
     stats = {"2026-11-21": {"h": [0] * 24, "sev": {"info": 5}}}
-    assert StatsReader(stats).read("week", NOW)["numbers"]["change"] is None
+    assert StatsReader(stats).read("week", NOW)["numbers"]["notifications"]["change"] is None
 
 
-def test_delivered_is_sent_divided_by_sent_plus_failed_and_ignores_held_and_skipped() -> None:
-    stats = {
-        "2026-11-21": {
-            "h": [0] * 24,
-            "ch": {"push": {"sent": 6, "held": 9, "skipped": 4}, "mail": {"sent": 2, "failed": 2}},
-        }
+def test_failed_critical_and_escalations_are_counted_with_their_change_in_percent() -> None:
+    this = {
+        "h": [0] * 24,
+        "sev": {"critical": 6, "info": 4},
+        "ch": {"push": {"sent": 6, "failed": 3}, "mail": {"failed": 1}},
+        "pol": {"p1": {"escalated": 2}, "p2": {"escalated": 1, "reminded": 9}},
     }
-    numbers = StatsReader(stats).read("week", NOW)["numbers"]
-    assert (numbers["sent"], numbers["failed"], numbers["delivered"]) == (8, 2, 80)
-    assert StatsReader({}).read("week", NOW)["numbers"]["delivered"] is None
-
-
-def test_the_median_time_to_acknowledge_and_the_quiet_holds_come_from_the_period() -> None:
-    stats = {
-        "2026-11-21": {
-            "h": [0] * 24,
-            "ack": {"critical": [0, 0, 0, 5] + [0] * 8, "warning": [0] * 12},
-            "rs": {
-                "push|held|quiet_hours": 3,
-                "mail|held|quiet_hours": 1,
-                "push|skipped|quiet_hours": 9,
-            },
-        }
+    before = {
+        "h": [0] * 24,
+        "sev": {"critical": 4},
+        "ch": {"push": {"failed": 8}},
+        "pol": {"p1": {"escalated": 1}},
     }
+    stats = {"2026-11-21": this, "2026-11-10": before}
     numbers = StatsReader(stats).read("week", NOW)["numbers"]
-    assert numbers["median_ack_seconds"] == 210 and numbers["held_quiet"] == 4
-    assert StatsReader({}).read("week", NOW)["numbers"]["median_ack_seconds"] is None
+    assert numbers["failed"] == {"value": 4, "previous": 8, "change": -50}
+    assert numbers["critical"] == {"value": 6, "previous": 4, "change": 50}
+    assert numbers["escalations"] == {"value": 3, "previous": 1, "change": 200}
+
+
+def test_a_change_is_empty_when_the_period_before_has_none_of_it() -> None:
+    stats = {"2026-11-21": {"h": [0] * 24, "sev": {"critical": 2}}}
+    numbers = StatsReader(stats).read("week", NOW)["numbers"]
+    assert numbers["critical"] == {"value": 2, "previous": 0, "change": None}
+    assert StatsReader(stats).read("2y", NOW)["numbers"]["critical"]["previous"] is None
+
+
+def test_the_quiet_hours_share_counts_what_quiet_hours_touched_of_what_could_go_out() -> None:
+    this = {
+        "h": [0] * 24,
+        "ch": {
+            "banner": {"sent": 50},
+            "push": {"sent": 6, "held": 3, "skipped": 9},
+            "mail": {"sent": 1},
+        },
+        "rs": {
+            "push|held|quiet_hours": 3,
+            "push|sent|quiet_hours": 2,
+            "push|skipped|quiet_hours": 1,
+            "push|skipped|no_usable_device": 8,
+        },
+    }
+    before = {
+        "h": [0] * 24,
+        "ch": {"push": {"sent": 8, "held": 2}},
+        "rs": {"push|held|quiet_hours": 2},
+    }
+    numbers = StatsReader({"2026-11-21": this, "2026-11-10": before}).read("week", NOW)["numbers"]
+    # 3 held + 2 quiet + 1 dropped of (sent 7 + held 3 + dropped 1) deliveries; banners do not count
+    assert numbers["quiet_share"] == {"value": 55, "previous": 20, "change": 35}
+    assert StatsReader({}).read("week", NOW)["numbers"]["quiet_share"]["value"] is None
+
+
+def test_the_summary_share_is_the_messages_held_for_a_summary_of_all_messages() -> None:
+    h = [0] * 24
+    h[9] = 10
+    before_h = [0] * 24
+    before_h[9] = 10
+    stats = {
+        "2026-11-21": {"h": h, "pol": {"digest": {"summarized": 4}}},
+        "2026-11-10": {"h": before_h, "pol": {"digest": {"summarized": 1}}},
+    }
+    share = StatsReader(stats).read("week", NOW)["numbers"]["summary_share"]
+    assert share == {"value": 40, "previous": 10, "change": 30}
 
 
 def test_the_matrix_counts_messages_by_weekday_and_hour() -> None:
@@ -184,4 +224,4 @@ def test_a_period_reads_the_last_days_only() -> None:
         far: {"h": [0] * 24, "sev": {"info": 50}},
         "2026-11-21": {"h": [0] * 24, "sev": {"info": 1}},
     }
-    assert StatsReader(stats).read("month", NOW)["numbers"]["notifications"] == 1
+    assert StatsReader(stats).read("month", NOW)["numbers"]["notifications"]["value"] == 1

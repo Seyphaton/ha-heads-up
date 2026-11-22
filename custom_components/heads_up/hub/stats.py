@@ -200,6 +200,8 @@ class StatsStore:
             return
         day, _ = self._day(now)
         _bump(day.setdefault("ch", {}).setdefault(channel, {}), result)
+        # A send with a policy behind it went out quietly (Quiet hours): count it as such.
+        reason = reason or ("quiet_hours" if result == "sent" and policy else None)
         if reason:
             _bump(day.setdefault("rs", {}), f"{channel}|{result}|{reason}")
         if person:
@@ -272,6 +274,55 @@ def _sum_tables(days: list[dict[str, Any]], key: str) -> dict[str, int]:
 
 def _month_start(today: date, back: int) -> date:
     return months_back(today, back)
+
+
+def _totals(records: list[dict[str, Any]]) -> dict[str, int]:
+    """The sums the numbers of the Activity card are made of, from daily records."""
+    reasons = _sum_tables(records, "rs")
+    channels: dict[str, dict[str, int]] = {}
+    for record in records:
+        for channel, results in (record.get("ch") or {}).items():
+            into = channels.setdefault(channel, {})
+            for result, n in results.items():
+                into[result] = into.get(result, 0) + n
+    quiet = sum(
+        n
+        for key, n in reasons.items()
+        if key.endswith(("|held|quiet_hours", "|skipped|quiet_hours", "|sent|quiet_hours"))
+    )
+    # Deliveries quiet hours could touch: a banner is never touched, and a skip for another reason
+    # (no phone, a disabled person) was never going to go out.
+    attempted = sum(
+        results.get("sent", 0) + results.get("held", 0) + results.get("failed", 0)
+        for channel, results in channels.items()
+        if channel != "banner"
+    )
+    dropped = sum(n for key, n in reasons.items() if key.endswith("|skipped|quiet_hours"))
+    pol = [(d.get("pol") or {}).values() for d in records]
+    return {
+        "failed": sum(results.get("failed", 0) for results in channels.values()),
+        "critical": sum((d.get("sev") or {}).get("critical", 0) for d in records),
+        "escalations": sum(a.get("escalated", 0) for group in pol for a in group),
+        "summarized": sum(a.get("summarized", 0) for group in pol for a in group),
+        "created": sum(sum(d.get("h", [])) for d in records),
+        "quiet": quiet,
+        "basis": attempted + dropped,
+    }
+
+
+def _count(value: int, previous: int | None) -> dict[str, Any]:
+    """A count with the one of the period before and the change in percent (none when there is
+    nothing to compare with)."""
+    change = round((value - previous) * 100 / previous) if previous else None
+    return {"value": value, "previous": previous, "change": change}
+
+
+def _share(part: int, whole: int, before: tuple[int, int] | None) -> dict[str, Any]:
+    """A share in percent with the one of the period before and the change in percentage points."""
+    value = round(part * 100 / whole) if whole else None
+    previous = round(before[0] * 100 / before[1]) if before and before[1] else None
+    change = value - previous if value is not None and previous is not None else None
+    return {"value": value, "previous": previous, "change": change}
 
 
 class StatsReader:
@@ -353,26 +404,35 @@ class StatsReader:
         records = [r for _, r in self._slice(first, last)]
         total = sum(b["total"] for b in buckets)
         previous = sum(b["total"] for b in before)
-        channels = _sum_tables(
-            [
-                {
-                    "x": {
-                        f"{ch}|{res}": n
-                        for ch, results in (r.get("ch") or {}).items()
-                        for res, n in results.items()
-                    }
-                }
-                for r in records
-            ],
-            "x",
-        )
-        sent = sum(n for k, n in channels.items() if k.endswith("|sent"))
-        failed = sum(n for k, n in channels.items() if k.endswith("|failed"))
-        histogram = [0] * (len(EDGES) + 1)
-        for record in records:
-            for counts in (record.get("ack") or {}).values():
-                histogram = [a + b for a, b in zip(histogram, counts, strict=True)]
-        reasons = _sum_tables(records, "rs")
+        # The days before the period, for the change of every number (none for two years).
+        before_days = {
+            "24h": (today - timedelta(days=3), today - timedelta(days=2)),
+            "week": (first - timedelta(days=7), first - timedelta(days=1)),
+            "month": (first - timedelta(days=30), first - timedelta(days=1)),
+            "year": (months_back(first, 12), first - timedelta(days=1)),
+        }.get(period)
+        now_t = _totals(records)
+        then_t = _totals([r for _, r in self._slice(*before_days)]) if before_days else None
+        numbers: dict[str, Any] = {
+            "notifications": _count(total, previous if before else None),
+            "failed": _count(now_t["failed"], then_t["failed"] if then_t else None),
+            "critical": _count(now_t["critical"], then_t["critical"] if then_t else None),
+            "escalations": _count(now_t["escalations"], then_t["escalations"] if then_t else None),
+            "quiet_share": _share(
+                now_t["quiet"],
+                now_t["basis"],
+                (then_t["quiet"], then_t["basis"]) if then_t else None,
+            ),
+            "summary_share": _share(
+                now_t["summarized"],
+                now_t["created"],
+                (then_t["summarized"], then_t["created"]) if then_t else None,
+            ),
+            # The whole days the numbers other than Notifications come from; for 24 hours these are
+            # two days.
+            "from": first.isoformat(),
+            "to": last.isoformat(),
+        }
         matrix = None
         if period != "24h":
             matrix = [[0] * 24 for _ in range(7)]
@@ -383,21 +443,7 @@ class StatsReader:
         return {
             "period": period,
             "buckets": buckets,
-            "numbers": {
-                "notifications": total,
-                "previous": previous if before else None,
-                "change": round((total - previous) * 100 / previous)
-                if before and previous
-                else None,
-                "sent": sent,
-                "failed": failed,
-                "delivered": round(sent * 100 / (sent + failed)) if sent + failed else None,
-                "median_ack_seconds": median_seconds(histogram),
-                "held_quiet": sum(n for k, n in reasons.items() if k.endswith("|held|quiet_hours")),
-                # The whole days the numbers come from; for 24 hours these are two days.
-                "from": first.isoformat(),
-                "to": last.isoformat(),
-            },
+            "numbers": numbers,
             "matrix": matrix,
             "sources": sorted(_sum_tables(records, "src").items(), key=lambda kv: (-kv[1], kv[0])),
         }

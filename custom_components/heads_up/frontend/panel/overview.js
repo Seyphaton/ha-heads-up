@@ -87,8 +87,14 @@ export const STRINGS = {
     period_2y: "2 years",
     period_label: "Period",
     kpi_notifications: "Notifications",
-    kpi_delivered: "Delivered",
-    kpi_held: "Held by quiet hours",
+    kpi_failed: "Failed deliveries",
+    kpi_critical: "Critical notifications",
+    kpi_escalations: "Escalations",
+    kpi_quiet: "Quiet hours share",
+    kpi_summary: "Summary share",
+    kpi_change_pp: "{sign}{n} pp against the period before",
+    kpi_quiet_help: "Deliveries that quiet hours held, dropped or sent quietly, of all that could go out. Banners are not counted.",
+    kpi_summary_help: "Messages held for a summary, of all messages.",
     kpi_change: "{sign}{n}% against the period before",
     kpi_none: "no data",
     kpi_scope_24h: "Apart from Notifications, the numbers cover today and yesterday.",
@@ -270,8 +276,14 @@ export const STRINGS = {
     period_2y: "2 Jahre",
     period_label: "Zeitraum",
     kpi_notifications: "Meldungen",
-    kpi_delivered: "Zugestellt",
-    kpi_held: "Von der Ruhezeit zurückgehalten",
+    kpi_failed: "Fehlgeschlagene Zustellungen",
+    kpi_critical: "Kritische Meldungen",
+    kpi_escalations: "Eskalationen",
+    kpi_quiet: "Anteil Ruhezeit",
+    kpi_summary: "Anteil Zusammenfassungen",
+    kpi_change_pp: "{sign}{n} Prozentpunkte gegenüber dem Zeitraum davor",
+    kpi_quiet_help: "Zustellungen, die die Ruhezeit zurückgehalten, verworfen oder leise gesendet hat, von allen, die hätten rausgehen können. Banner zählen nicht.",
+    kpi_summary_help: "Meldungen, die für eine Zusammenfassung zurückgehalten wurden, von allen Meldungen.",
     kpi_change: "{sign}{n} % gegenüber dem Zeitraum davor",
     kpi_none: "keine Daten",
     kpi_scope_24h: "Außer den Meldungen gelten die Zahlen für heute und gestern.",
@@ -453,8 +465,14 @@ export const STRINGS = {
     period_2y: "2 ans",
     period_label: "Période",
     kpi_notifications: "Notifications",
-    kpi_delivered: "Remis",
-    kpi_held: "Retenus par les heures calmes",
+    kpi_failed: "Envois en échec",
+    kpi_critical: "Notifications critiques",
+    kpi_escalations: "Escalades",
+    kpi_quiet: "Part des heures calmes",
+    kpi_summary: "Part des résumés",
+    kpi_change_pp: "{sign}{n} pt par rapport à la période précédente",
+    kpi_quiet_help: "Envois que les heures calmes ont retenus, abandonnés ou envoyés discrètement, sur tous ceux qui pouvaient partir. Les bannières ne comptent pas.",
+    kpi_summary_help: "Messages retenus pour un résumé, sur tous les messages.",
     kpi_change: "{sign}{n} % par rapport à la période précédente",
     kpi_none: "pas de données",
     kpi_scope_24h: "Hors Notifications, les chiffres couvrent aujourd'hui et hier.",
@@ -636,8 +654,14 @@ export const STRINGS = {
     period_2y: "2 años",
     period_label: "Periodo",
     kpi_notifications: "Notificaciones",
-    kpi_delivered: "Entregadas",
-    kpi_held: "Retenidas por las horas de silencio",
+    kpi_failed: "Entregas fallidas",
+    kpi_critical: "Notificaciones críticas",
+    kpi_escalations: "Escaladas",
+    kpi_quiet: "Parte de horas de silencio",
+    kpi_summary: "Parte de resúmenes",
+    kpi_change_pp: "{sign}{n} pp frente al periodo anterior",
+    kpi_quiet_help: "Entregas que las horas de silencio retuvieron, descartaron o enviaron en silencio, de todas las que podían salir. Los banners no cuentan.",
+    kpi_summary_help: "Mensajes retenidos para un resumen, de todos los mensajes.",
     kpi_change: "{sign}{n} % frente al periodo anterior",
     kpi_none: "sin datos",
     kpi_scope_24h: "Salvo Notificaciones, las cifras cubren hoy y ayer.",
@@ -1006,16 +1030,31 @@ export function durationText(seconds, t) {
   return fill(t.dur_h, { h: Math.floor(seconds / 3600), m: Math.round((seconds % 3600) / 60) });
 }
 
-// The four numbers of the Activity card, as text and a pill for the change.
+// How many notifications the period had, for the chart's heading.
+export function notificationTotal(numbers) {
+  return numbers?.notifications?.value ?? 0;
+}
+
+// The six numbers of the Activity card: a value and a pill with the change against the period
+// before. Counts change in percent, shares in percentage points. `worse` says that more is worse
+// (failures, critical, escalations), so a rise is a warning and a fall is good; the rest is neutral.
 export function kpiModel(numbers, t) {
-  const change = numbers.change;
-  return {
-    notifications: String(numbers.notifications ?? 0),
-    // The pill is short ("+16 %"); the full sentence is its hover text and its spoken label.
-    change: change === null || change === undefined ? null : { up: change > 0, text: `${change > 0 ? "+" : ""}${change} %`, title: fill(t.kpi_change, { sign: change > 0 ? "+" : "", n: change }) },
-    delivered: numbers.delivered === null || numbers.delivered === undefined ? t.kpi_none : `${numbers.delivered} %`,
-    held: String(numbers.held_quiet ?? 0),
+  const sign = (n) => (n > 0 ? "+" : "");
+  const pill = (change, unit, key, worse) => {
+    if (change === null || change === undefined) return null;
+    const tone = change === 0 || !worse ? "" : change > 0 ? "warning" : "ok";
+    return { tone, text: `${sign(change)}${change} ${unit}`, title: fill(t[key], { sign: sign(change), n: change }) };
   };
+  const count = (key, name, worse) => ({ key, name, value: String(numbers[key]?.value ?? 0), pill: pill(numbers[key]?.change, "%", "kpi_change", worse) });
+  const share = (key, name, help) => ({ key, name, help, value: numbers[key]?.value === null || numbers[key]?.value === undefined ? t.kpi_none : `${numbers[key].value} %`, pill: pill(numbers[key]?.change, "pp", "kpi_change_pp", false) });
+  return [
+    count("notifications", t.kpi_notifications, false),
+    count("failed", t.kpi_failed, true),
+    count("critical", t.kpi_critical, true),
+    count("escalations", t.kpi_escalations, true),
+    share("quiet_share", t.kpi_quiet, t.kpi_quiet_help),
+    share("summary_share", t.kpi_summary, t.kpi_summary_help),
+  ];
 }
 
 // The weekday-by-hour grid: each cell's share of the busiest cell (0 to 1), Monday first.
@@ -1224,11 +1263,13 @@ const CSS = `
 .hu-overview .seg button { min-height: 34px; padding: 0 12px; border: none; border-radius: 9px; background: none; color: var(--secondary-text-color); font-size: 14px; }
 .hu-overview .seg button[aria-pressed="true"] { background: var(--card-background-color); color: var(--primary-text-color); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.2); }
 .hu-overview .activity-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
-.hu-overview .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 12px; margin: 12px 0 8px; }
-.hu-overview .kpi { padding: 12px 14px; border-radius: 14px; background: var(--hu-chip); }
+.hu-overview .kpis { display: flex; gap: 12px; margin: 12px 0 8px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 6px; }
+.hu-overview .kpis:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
+.hu-overview .kpi { flex: 1 0 140px; scroll-snap-align: start; padding: 12px 14px; border-radius: 14px; background: var(--hu-chip); }
 .hu-overview .kpi .big { font-size: 28px; font-weight: 700; line-height: 1.1; letter-spacing: -.02em; }
 .hu-overview .kpi .name { font-size: 12px; color: var(--secondary-text-color); margin-top: 2px; }
 .hu-overview .kpi .pill { margin-top: 6px; font-size: 11px; max-width: 100%; }
+.hu-overview .kpi .name { min-height: 2.4em; }
 .hu-overview .legend { display: flex; gap: 12px; font-size: 12px; color: var(--secondary-text-color); flex-wrap: wrap; margin-top: 8px; }
 .hu-overview .legend i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; }
 .hu-overview .heat { display: grid; grid-template-columns: 34px repeat(24, minmax(0, 1fr)); gap: 3px; margin-top: 10px; font-size: 11px; color: var(--secondary-text-color); }
@@ -1584,7 +1625,7 @@ export function mount(container, ctx) {
   // The bars of the last 24 hours, stacked by severity. The bars grow in once, when the page opens;
   // the page refreshes every 10 seconds and must not replay that.
   function chartNode(intro) {
-    const model = chartModel({ buckets: stats.buckets, total: stats.numbers.notifications });
+    const model = chartModel({ buckets: stats.buckets, total: notificationTotal(stats.numbers) });
     const NS = "http://www.w3.org/2000/svg";
     const make = (name, attrs = {}, children = []) => {
       const node = document.createElementNS(NS, name);
@@ -1662,13 +1703,18 @@ export function mount(container, ctx) {
       first.append(el("div", { className: "sub", textContent: t.loading }));
       return [first];
     }
-    const kpi = kpiModel(stats.numbers, t);
-    const tile = (value, name, pill) => el("div", { className: "kpi" }, [el("div", { className: "big", textContent: value }), el("div", { className: "name", textContent: name }), pill || ""]);
-    const change = kpi.change ? el("span", { className: `pill ${kpi.change.up ? "warning" : "ok"}`, textContent: kpi.change.text, title: kpi.change.title }) : null;
-    if (change) change.setAttribute("aria-label", kpi.change.title);
-    first.append(
-      el("div", { className: "kpis" }, [tile(kpi.notifications, t.kpi_notifications, change), tile(kpi.delivered, t.kpi_delivered), tile(kpi.held, t.kpi_held)]),
-    );
+    const tiles = kpiModel(stats.numbers, t).map((kpi) => {
+      const pill = kpi.pill ? el("span", { className: `pill ${kpi.pill.tone}`.trim(), textContent: kpi.pill.text, title: kpi.pill.title }) : "";
+      if (kpi.pill) pill.setAttribute("aria-label", kpi.pill.title);
+      const tile = el("div", { className: "kpi" }, [el("div", { className: "big", textContent: kpi.value }), el("div", { className: "name", textContent: kpi.name }), pill]);
+      if (kpi.help) tile.title = kpi.help;
+      return tile;
+    });
+    // One row; it scrolls sideways on a narrow screen instead of wrapping into several lines.
+    const row = el("div", { className: "kpis" }, tiles);
+    row.setAttribute("role", "group");
+    row.tabIndex = 0;
+    first.append(row);
     if (period === "24h") first.append(el("div", { className: "sub", textContent: t.kpi_scope_24h }));
     first.append(chartNode(intro));
 

@@ -956,13 +956,13 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 
 ### 27.3 Reading (`heads_up/panel_stats`, `heads_up/stats_clear`)
 - `heads_up/panel_stats` (admin-only; `period` is `24h`, `week`, `month`, `year` or `2y`, default `week`) returns `buckets`, `numbers`, `matrix`, `sources` and `info`. Buckets: 24 hourly ones for `24h` (from `hs`, split by severity), 7 and 30 daily ones, 12 and 24 monthly ones. Each has `start`, `total` and `by` severity.
-- `numbers`: `notifications` with `previous` and `change` in percent (empty when there is nothing earlier to compare, always for `2y`), `delivered` (sent divided by sent plus failed over all channels, decision 13), `median_ack_seconds` (the middle of its histogram bucket), `held_quiet` (deliveries held with the reason `quiet_hours`; Drop is not counted) and the dates `from` and `to` the day-based numbers cover. For `24h` they cover today and yesterday, because only the notification count is kept by the hour.
+- `numbers`: six numbers with their change, see §27.13. For `24h` all but Notifications cover whole days (today and yesterday), because only the notification count is kept by the hour.
 - `matrix`: messages by weekday and hour over the period, empty for `24h`. `sources`: the top eight with `kind` (`rule` or `action`) and the rule's current title, none for a deleted rule.
 - `heads_up/stats_clear` (admin-only) deletes the history and returns the empty `info`; the Settings page confirms first.
 - The 24-hour chart of the old page reads memory; the Activity card reads this store, so its counts survive a restart.
 
 ### 27.4 Page and Settings
-- The Overview's Activity card (`overview.js`) has the period switch (24 hours, Week, Month, Year, 2 years; the last is labeled "2 years" because the store covers a rolling 24 months), four number tiles (Notifications with a pill for the change, Delivered, Median time to acknowledge, Held by quiet hours), the stacked chart with a legend, then the cards "When your house talks" (weekday by hour; a note to pick a longer period for 24 hours) and "Top sources". The chart reads the store, not memory, so it survives a restart. There are no Tips.
+- The Overview's Activity card (`overview.js`) has the period switch (24 hours, Week, Month, Year, 2 years; the last is labeled "2 years" because the store covers a rolling 24 months), six number tiles in one scrolling row (§27.13), the stacked chart with a legend, then the cards "When your house talks" (weekday by hour; a note to pick a longer period for 24 hours) and "Top sources". The chart reads the store, not memory, so it survives a restart. There are no Tips.
 - Settings has a block "Activity history": what is stored (days, range, size), a Clear history button with a confirmation, and a line that only counts are kept. Diagnostics list `history` with the number of days, the range and the size in bytes, never the counts.
 - Pure functions tested in vitest: `kpiModel`, `durationText`, `matrixModel`, `sourceRows`, `bucketLabel`, `barTip`, `sizeText`, `historyLine`.
 
@@ -1009,3 +1009,9 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 
 ### 27.12 Activity numbers
 - The Activity card shows three numbers: Notifications (with the change), Delivered and Held by quiet hours. The median time to acknowledge tile is removed (maintainer: not useful). `heads_up/panel_stats` still returns `median_ack_seconds` and the history still records the acknowledgement times, for a later number.
+
+### 27.13 The six numbers
+- `heads_up/panel_stats` returns `numbers` with `notifications`, `failed`, `critical`, `escalations` (each `{value, previous, change}` with `change` in percent, empty when the period before had none of it or there is none) and `quiet_share`, `summary_share` (each `{value, previous, change}` in percent with `change` in percentage points), plus `from` and `to`.
+- Sources: `failed` is the sum of failed deliveries over all channels; `critical` the messages of that severity; `escalations` the policy actions `escalated`; quiet share is (held, dropped and quiet sends with the reason `quiet_hours`) divided by (sent, held and failed deliveries on channels other than the banner, plus the quiet-hours drops); summary share is the policy actions `summarized` divided by the messages created in the same days. A quiet send is recorded with the reason `quiet_hours` from this version on, so older days undercount the quiet share.
+- The period before: for 24 hours the two days before yesterday and today's pair, for a week and a month the same number of days before, for a year the 12 months before, none for 2 years.
+- The Activity row is one flex row that scrolls sideways (`overflow-x: auto`), each tile at least 140 px wide. The removed numbers: Delivered, Median time to acknowledge, Held by quiet hours (a count).

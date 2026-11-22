@@ -221,6 +221,7 @@ import {
   durationText,
   fixKey,
   kpiModel,
+  notificationTotal,
   matrixModel,
   PERIODS,
   actionRow,
@@ -353,15 +354,43 @@ describe("overview functions", () => {
     expect(durationText(null, t)).toBe(t.kpi_none);
   });
 
-  it("builds the four numbers and a pill for the change", () => {
-    const model = kpiModel({ notifications: 12, change: 20, delivered: 80, median_ack_seconds: 210, held_quiet: 3 }, t);
-    expect(model).toMatchObject({ notifications: "12", delivered: "80 %", held: "3" });
-    expect(model.median).toBeUndefined();
-    expect(model.change).toEqual({ up: true, text: "+20 %", title: "+20% against the period before" });
-    expect(kpiModel({ notifications: 1, change: -5, delivered: null, median_ack_seconds: null, held_quiet: 0 }, t).change.text).toBe("-5 %");
-    const none = kpiModel({ notifications: 0, change: null, delivered: null, median_ack_seconds: null, held_quiet: 0 }, t);
-    expect(none.change).toBeNull();
-    expect(none.delivered).toBe(t.kpi_none);
+  it("builds the six numbers with a pill: percent for counts, percentage points for shares", () => {
+    const numbers = {
+      notifications: { value: 121, previous: 104, change: 16 },
+      failed: { value: 4, previous: 8, change: -50 },
+      critical: { value: 6, previous: 6, change: 0 },
+      escalations: { value: 3, previous: 1, change: 200 },
+      quiet_share: { value: 55, previous: 20, change: 35 },
+      summary_share: { value: null, previous: null, change: null },
+    };
+    const tiles = kpiModel(numbers, t);
+    expect(tiles.map((k) => k.key)).toEqual(["notifications", "failed", "critical", "escalations", "quiet_share", "summary_share"]);
+    expect(tiles.map((k) => k.value)).toEqual(["121", "4", "6", "3", "55 %", t.kpi_none]);
+    expect(tiles.map((k) => k.pill?.text ?? null)).toEqual(["+16 %", "-50 %", "0 %", "+200 %", "+35 pp", null]);
+    expect(tiles[0].pill.title).toBe("+16% against the period before");
+    expect(tiles[4].pill.title).toBe("+35 pp against the period before");
+  });
+
+  it("colours a rise of failures, critical messages and escalations as a warning and a fall as good, the rest neutral", () => {
+    const base = { value: 1, previous: 1 };
+    const tone = (key, change) => kpiModel({ [key]: { ...base, change } }, t).find((k) => k.key === key).pill.tone;
+    expect(tone("failed", 50)).toBe("warning");
+    expect(tone("failed", -50)).toBe("ok");
+    expect(tone("critical", 0)).toBe("");
+    expect(tone("escalations", 10)).toBe("warning");
+    expect(tone("notifications", 50)).toBe("");
+    expect(tone("quiet_share", 5)).toBe("");
+  });
+
+  it("reads the notification total of the period as a number for the chart heading", () => {
+    expect(notificationTotal({ notifications: { value: 121, change: 3 } })).toBe(121);
+    expect(notificationTotal({})).toBe(0);
+    expect(notificationTotal(undefined)).toBe(0);
+  });
+
+  it("explains the two shares in a hover text and asks nothing for the counts", () => {
+    const tiles = kpiModel({}, t);
+    expect(tiles.filter((k) => k.help).map((k) => k.key)).toEqual(["quiet_share", "summary_share"]);
   });
 
   it("scales the weekday grid to its busiest cell and hides it without data", () => {
