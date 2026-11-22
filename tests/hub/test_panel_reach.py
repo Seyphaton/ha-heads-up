@@ -263,3 +263,30 @@ async def test_who_is_away_is_named_in_the_context(
     set_person(hass, "person.ben", "not_home", user_id="ben-id")
     client = await hass_ws_client(hass)
     assert (await table(client))["context"]["away"] == ["person.ben"]
+
+
+async def test_a_cell_says_how_the_people_who_are_reached_get_it_not_what_most_people_miss(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)  # Anna and Ben have phones
+    set_person(hass, "person.cleo", "home")
+    set_person(hass, "person.dan", "home")
+    entry.runtime_data.options["mail_service"] = "smtp_house"
+    for who, address in (("person.anna", "anna@example.com"),):
+        hass.config_entries.async_add_subentry(
+            entry,
+            ConfigSubentry(
+                data={"person": who, "mail_address": address, "channels": ["banner", "mail"]},
+                subentry_type="recipient_profile",
+                title=who,
+                unique_id=None,
+            ),
+        )
+    await hass.async_block_till_done()
+    client = await hass_ws_client(hass)
+    mail = cell(await table(client), "mail", "critical")
+    assert mail["total"] == 4 and mail["counts"] == {"shown": 1, "skipped": 3}
+    assert (mail["state"], mail["count"]) == ("shown", 1)  # Anna gets it; three others do not

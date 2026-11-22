@@ -31,6 +31,8 @@ EVERYONE = "everyone"
 SPEAK = "speak"
 # What a cell can say, loudest first: a person reached by two rows counts for the louder one.
 STATES = ("sound", "shown", "quiet", "held", "skipped", "not_set_up")
+# The states in which a person is reached; the cell shows the loudest of them.
+REACHED = ("sound", "shown", "quiet")
 _RANK = {state: len(STATES) - i for i, state in enumerate(STATES)}
 # Columns of the table, most urgent first.
 SEVERITY_ORDER = tuple(reversed(SEVERITIES))
@@ -130,7 +132,13 @@ def _cell(
             "counts": {},
             "who": [],
         }
-    state = max(counts, key=lambda s: (counts[s], _RANK[s]))
+    # The cell answers "what would happen": if anyone is reached it says how, with how many people
+    # (the others are in the hover). Only when nobody is reached does the commonest outcome count.
+    reached = [state for state in counts if state in REACHED]
+    if reached:
+        state = max(reached, key=lambda s: _RANK[s])
+    else:
+        state = max(counts, key=lambda s: (counts[s], _RANK[s]))
     reason = next(e["reason"] for e in entries if e["state"] == state)
     return {
         "state": state,
