@@ -19,6 +19,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §26 new Overview (status card, Coming up, reach table, tour in the page, quick shortcuts, Last actions) | built and tested on `release/2.0` (Phase 18, D-244, D-245); checked in the browser pane at desktop and phone width, light and dark; not on real devices |
 | §27 history store (24 months, Activity cards, Clear history) | built and tested on `release/2.0` (Phase 19, D-246); about 7 KB a day measured on a synthetic busy household; push levels used are not recorded |
 | §28 2.1.0 richer push (icon, color, sender icon, subtitle, progress with live updates) | built (D-255 to D-263) |
+| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store and its model are built and tested; channel, commands, sensor, card and settings are not built |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -1045,3 +1046,20 @@ Status: built 2026-11-23 on `release/2.1`, including editable built-in audiences
 - A built-in audience is edited in place: the override is stored per kind in the entry options and the resolver applies it before it returns the members; Reset removes it. Policies, rules and actions keep their reference (the kind, D-199) and see the change at once.
 - An edit may leave out named people (all six) and may limit the presence audiences to named people. It never changes what the kind means. Open points (name, sensors, how the page marks an edited audience) are listed in D-257.
 
+
+## 29. Personal inbox (Phase 22, D-264, D-268 to D-271)
+
+Status: step 2 built on `release/3.0` (the store and its model); the channel, commands, sensor, card and settings are not built. Plan: `docs/dev/inbox/PLAN.md`.
+
+### 29.1 Store
+- `hub/inbox.py` `InboxStore`, store `heads_up.inbox` (version 1), one store for all people, layout `{"items": {person entity ID: {message ID: item}}}`. Items are in memory; a change schedules one write after `INBOX_SAVE_DELAY` (60 s), made from a copy in the event loop and serialized in a thread (`serialize_in_event_loop=False`, N-117). Stopping the hub and Home Assistant's final write (`EVENT_HOMEASSISTANT_FINAL_WRITE`) save what is waiting at once. The store file is deleted with the integration.
+- Item: `title`, `text`, `severity`, `icon`, `color`, `image` (a reference), `source` (a key), `tag`, `created`, `updated`, `read_at`, `acknowledged_at`, `resolved_at`, `resolved_reason`, `via` (channels), `timeline` (at most `INBOX_MAX_TIMELINE` = 10 entries: the first and the latest nine), `reminders`.
+- Loading drops a row that cannot be read and keeps the others; an unexpected layout is ignored.
+
+### 29.2 Rules
+- The same content again only adds the channel. New title or text, or a higher severity, writes the same item and marks it unread. A different severity clears the acknowledgement. A resolved item that receives the message again is reopened: unread, not resolved, not acknowledged.
+- A reminder or an escalation adds a timeline entry (`reminders` counts reminders) and marks a read item unread only when the caller says so; the setting for that comes with the settings step (D-268, default on).
+- Acknowledged by this person: read. By another person: a timeline entry only. Dismissed by this person: read and resolved. A message that ends resolves every item of it and leaves the read state.
+- Unread count: unread items, resolved ones included. Needs action: open critical items without an acknowledgement.
+- Retention (default 12 months, by `updated`) and a cap of 2000 items per person (`INBOX_MAX_ITEMS`; read and resolved items go first, then read ones, then the oldest). Pruned at load and once a day.
+- A removed person entity loses the inbox after 5 minutes (`INBOX_PURGE_GRACE`), unless the entity comes back.

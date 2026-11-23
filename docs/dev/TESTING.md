@@ -72,6 +72,7 @@
 | `tests/hub/test_panel_reach.py` | the reach table: admin only, shape, push level sound, quiet hours quiet, wait and drop, a band entry covering some people, popup off, no user, no device, disabled person, mail without service, speech without speaker or engine, summary and away context |
 | `tests/hub/test_panel_audiences.py` | the six audiences with members and times, switched-off audience, admin only |
 | `tests/hub/test_stats_store.py` | the history store: records, local day, clock change, 24 months, restart, damaged files, a fault, clear, size of 730 busy days |
+| `tests/hub/test_inbox_store.py` | the inbox store (Phase 22): items and read state, reminders and escalations, acknowledge, dismiss, end, counts, retention, the cap of 2000 per person, damaged rows, delayed write, a removed person, restart |
 | `tests/hub/test_stats_recording.py` | what the engine records: created, rule and action sources, deliveries, quiet holds by policy key, acknowledgement time and avoided escalation, reminders, snoozes, dismissals, ends, summaries, a fault does not stop a delivery |
 | `tests/hub/test_panel_stats.py` | `panel_stats` periods, buckets, the four numbers, matrix, sources, clear history, admin only |
 | `tests/hub/test_panel_registration.py` | no entry by default, entry added and removed with the option without a restart, panel config (element, hashed module, base and version), unload and reload, shell and page served and cached, setup flow toggle (on by default, can be off), options form switch |

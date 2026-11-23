@@ -35,7 +35,7 @@ from .hub.rename import follow_renames
 from .manager import BannerManager
 from .sensor import group_entity_ids
 from .services import async_setup_services
-from .storage import banner_store, stats_store, trace_store
+from .storage import banner_store, inbox_store, stats_store, trace_store
 from .switch import policy_entity_ids
 from .websocket import async_setup_websocket
 
@@ -145,3 +145,4 @@ async def async_remove_entry(hass: HomeAssistant, entry: HeadsUpConfigEntry) -> 
     await remove_ledger(hass)
     await trace_store(hass).async_remove()
     await stats_store(hass).async_remove()
+    await inbox_store(hass).async_remove()

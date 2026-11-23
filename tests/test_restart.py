@@ -4,6 +4,7 @@ from datetime import timedelta
 
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.core import HomeAssistant
+from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
     async_capture_events,
@@ -115,3 +116,21 @@ async def test_removing_entry_deletes_the_activity_history_too(
     await hass.config_entries.async_remove(entry.entry_id)
     await hass.async_block_till_done()
     assert "heads_up.stats" not in hass_storage
+
+
+async def test_removing_entry_deletes_the_inbox_too(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_storage: dict
+) -> None:
+    entry.runtime_data.hub.inbox.upsert(
+        "person.anna",
+        "m",
+        {"title": "T", "text": "Secret text", "severity": "info"},
+        "push",
+        dt_util.utcnow(),
+    )
+    await hass.config_entries.async_unload(entry.entry_id)
+    assert "heads_up.inbox" in hass_storage
+
+    await hass.config_entries.async_remove(entry.entry_id)
+    await hass.async_block_till_done()
+    assert "heads_up.inbox" not in hass_storage

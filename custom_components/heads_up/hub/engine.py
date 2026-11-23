@@ -50,6 +50,7 @@ from .channels import ChannelRegistry, Outcome, Result, Target
 from .channels.persistent import warn_speech
 from .channels.speak import NO_SPEAKER
 from .identity import IdentityMaps, maps_for
+from .inbox import InboxStore
 from .interfaces import AudienceResolver, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, HeldMessage, State
 from .limits import DUPLICATE, RATE_LIMITED, Limiter
@@ -143,6 +144,7 @@ class HubEngine:
         self._trace_store = trace_store(hass)
         self.usage = AudienceUsage(hass)
         self.stats = StatsStore(hass)
+        self.inbox = InboxStore(hass)
         self.resolver = HubResolver(hass, options)
         self.limiter = Limiter(options)
         self.log = ActivityLog(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))
@@ -185,6 +187,7 @@ class HubEngine:
         self.ledger.identity = self.identity
         await self.ledger.async_load()
         await self.stats.async_load()
+        await self.inbox.async_load()
         if self.ledger.migrated:
             _LOGGER.info("Stored deliveries: %d names became keys", self.ledger.migrated)
             await self.ledger.async_save()
@@ -224,6 +227,7 @@ class HubEngine:
         self._unsub_conditions = self.hass.bus.async_listen(
             EVENT_STATE_CHANGED, self._on_condition_entity, event_filter=self._is_condition_entity
         )
+        self.inbox.async_start()
         self._plan_condition_waits()
         if self.policies.watched():
             # A condition may have changed while Home Assistant was stopped: check the holds and
@@ -275,6 +279,7 @@ class HubEngine:
         await self._trace_store.async_save(self._trace_data())
         await self.usage.async_save()
         await self.stats.async_save()
+        await self.inbox.async_stop()
 
     async def async_wait_idle(self) -> None:
         """Wait until the queued deliveries are done (tests, and a clean unload)."""

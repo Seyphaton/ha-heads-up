@@ -16,6 +16,8 @@ from .const import (
     DELIVERIES_KEY,
     DELIVERIES_MINOR_VERSION,
     DELIVERIES_VERSION,
+    INBOX_KEY,
+    INBOX_VERSION,
     STATS_KEY,
     STATS_VERSION,
     STORAGE_KEY,
@@ -51,3 +53,8 @@ def ledger_store(hass: HomeAssistant) -> KeyedStore:
 
 def stats_store(hass: HomeAssistant) -> KeyedStore:
     return KeyedStore(hass, STATS_VERSION, STATS_KEY)
+
+
+def inbox_store(hass: HomeAssistant) -> KeyedStore:
+    # Large and written from a copy, so the file is serialized in a thread (D-270, N-117).
+    return KeyedStore(hass, INBOX_VERSION, INBOX_KEY, serialize_in_event_loop=False)

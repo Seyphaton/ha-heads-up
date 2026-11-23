@@ -128,6 +128,13 @@ STATS_KEY: Final = "heads_up.stats"  # the daily history of the Overview (D-244)
 STATS_VERSION: Final = 1
 STATS_MONTHS: Final = 24  # the store always covers the last 24 months
 STATS_SAVE_DELAY: Final = 60  # seconds; the file is large, so writes are batched longer
+INBOX_KEY: Final = "heads_up.inbox"  # the personal inbox, one store for all people (D-264, D-268)
+INBOX_VERSION: Final = 1
+INBOX_SAVE_DELAY: Final = 60  # seconds, like the history store
+DEFAULT_INBOX_RETENTION_MONTHS: Final = 12  # D-264; a setting comes with the mirror
+INBOX_MAX_ITEMS: Final = 2000  # per person, the oldest go first (D-270)
+INBOX_MAX_TIMELINE: Final = 10  # entries on one item: the first and the latest nine
+INBOX_PURGE_GRACE: Final = 300  # seconds a removed person may come back before the inbox is purged
 TRACE_KEY: Final = "heads_up.trace"  # the delivery trace survives a restart (D-194)
 # Built in, not stored (D-080). Names are the ones calls use.
 # A banner whose audience is empty when it is created is aimed at this person, who does not exist:
