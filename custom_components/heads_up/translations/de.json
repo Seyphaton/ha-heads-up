@@ -492,7 +492,7 @@
         },
         "icon_url": {
           "name": "Absender-Symbol",
-          "description": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png oder https://example.com/logo.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild."
+          "description": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild."
         },
         "subtitle": {
           "name": "Untertitel",
@@ -666,7 +666,7 @@
         },
         "icon_url": {
           "name": "Absender-Symbol",
-          "description": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png oder https://example.com/logo.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild."
+          "description": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild."
         },
         "subtitle": {
           "name": "Untertitel",
@@ -740,7 +740,7 @@
         },
         "icon_url": {
           "name": "Absender-Symbol",
-          "description": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png oder https://example.com/logo.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild."
+          "description": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild."
         },
         "subtitle": {
           "name": "Untertitel",
@@ -938,7 +938,7 @@
             "policy": "Automatisch: jede automatische Richtlinie, die für eine Regelmeldung gilt (Tag rule). Eine Richtlinie: nur diese, auch nach einer Umbenennung. Keine: keine Richtlinie.",
             "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle.",
             "color": "Eine Farbe wie #rrggbb. Banner und Popup nutzen sie statt der Farbe der Dringlichkeit. Beim Push färbt Android die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols. Beispiel: #03a9f4 (blau), #e53935 (rot).",
-            "icon_url": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png oder https://example.com/logo.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild.",
+            "icon_url": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild.",
             "subtitle": "Eine zweite Zeile unter dem Titel in Banner und Popup. Beim Push: auf iOS der Untertitel, auf Android der Betreff, nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist.",
             "progress": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer)."
           }
@@ -997,7 +997,7 @@
             "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
             "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle.",
             "color": "Eine Farbe wie #rrggbb. Banner und Popup nutzen sie statt der Farbe der Dringlichkeit. Beim Push färbt Android die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols. Beispiel: #03a9f4 (blau), #e53935 (rot).",
-            "icon_url": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png oder https://example.com/logo.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild.",
+            "icon_url": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild.",
             "subtitle": "Eine zweite Zeile unter dem Titel in Banner und Popup. Beim Push: auf iOS der Untertitel, auf Android der Betreff, nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist.",
             "progress": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer)."
           }
