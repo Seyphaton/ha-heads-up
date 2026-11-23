@@ -86,7 +86,7 @@ These settings belong to the message, not to one channel. They apply to the bann
 | Lock screen text (`push_lockscreen`) | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
 | Android channel name (`push_channel_id`) | `heads_up` | Prefix of the Android notification channel. |
 | Keep after tap (`push_sticky`) | off | Keeps the notification after a tap (Android). |
-| Use severity icon & color for push notifications (`push_severity_look`) | on | A push uses the icon and color of its severity. A message can set its own `icon` and `color`. Off: a push uses the Home Assistant icon unless the message sets one. The color is sent only when the Severities page holds a `#rrggbb` color. |
+| Use severity icon & color for push notifications (`push_severity_look`) | off | On: a push without its own `icon` or `color` uses those of its severity. A message can always set its own. Off: a push uses the Home Assistant icon unless the message sets one. On iOS an icon makes the push a communication notification, and a message without a title is sent with the title `Heads Up`. The color is sent only when the Severities page holds a `#rrggbb` color. |
 
 See [Push notifications](configuration.md#push).
 

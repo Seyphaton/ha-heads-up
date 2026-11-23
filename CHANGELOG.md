@@ -4,16 +4,12 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
-### Before you upgrade
-
-- Every push now carries an icon and, when the Severities page holds a `#rrggbb` color, a color: the icon and color of its severity. On Android the icon is the status bar icon. On iOS a push with an icon is a communication notification, and a message without a title is sent with the title `Heads Up`. To keep the Home Assistant icon, switch off "Use severity icon & color for push notifications" on the Channels page.
-
 ### Added
 
 - `color`, `subtitle` and `icon_url` (a sender icon) on `notify`, `create_banner`, `push` and watch rules. The banner and the popup show the color, the subtitle under the title and the sender picture in place of the icon. On a push they become the Companion keys for Android and iOS, so one field serves both. The subtitle and the sender icon go out only when the lock screen setting is `full`.
 - `icon` is also the push's status bar icon on Android and its sender icon on iOS.
 - `progress` (an entity, with `min` and `max`) on `notify`, `create_banner` and watch rules: a progress bar on the banner and the popup that follows the entity, and on a push a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later) that is updated in place. Older devices show the plain message.
-- Channels page: "Use severity icon & color for push notifications", on by default.
+- Channels page: "Use severity icon & color for push notifications", off by default. On, a push without its own `icon` or `color` uses those of its severity. On iOS an icon makes the push a communication notification, and a message without a title is sent with the title `Heads Up`.
 - The color field takes `#rrggbb` or the red, green and blue list of the color picker in the action form, and the watch rule form and Test send have a color input with a picker.
 - The watch rule form in the panel edits buttons (up to 3, with text, key, close, red text, unlocked phone and an action) and the tap action. Before, they could only be set in the YAML of the form on the integration page.
 - Test send has every field of `notify` in collapsible sections, including the new look fields, progress, buttons, tap action, snooze choices and a lifetime for the test message. A switch at the top right changes between the Visual editor and the YAML editor, which replaces the separate paste section at the bottom.

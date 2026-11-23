@@ -261,7 +261,7 @@ DEFAULT_OPTIONS: Final = {
     OPT_PUSH_LOCKSCREEN: "full",
     OPT_PUSH_CHANNEL_ID: "heads_up",
     OPT_PUSH_STICKY: False,
-    OPT_PUSH_SEVERITY_LOOK: True,
+    OPT_PUSH_SEVERITY_LOOK: False,  # off: a push looks as before (D-262)
     OPT_SHOW_PANEL: False,
     OPT_POPUP_STYLES: DEFAULT_POPUP_STYLES,
     OPT_SPEAK_MAX_LENGTH: 200,
