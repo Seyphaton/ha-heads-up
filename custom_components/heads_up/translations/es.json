@@ -500,7 +500,7 @@
         },
         "progress": {
           "name": "Progreso",
-          "description": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no menciona imagen ni botones para ella. En lugar de entity_id puedes dar value (un número que fijas tú). interval son los segundos mínimos entre dos push (1 a 300; si falta, el ajuste del canal push). auto_update: false detiene las actualizaciones automáticas: llama de nuevo a la acción con el mismo id para mover la barra."
+          "description": "Una barra de progreso que sigue un número. Claves: entity_id (sigue una entidad) o value (un número que fijas tú), min (0 por defecto), max (100 por defecto), interval, auto_update. El banner y la ventana emergente muestran una barra; el push se convierte en una Live Update (Android 16 y posteriores) o una Live Activity (iOS 17.2 y posteriores). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no lista imagen ni botones para ella. interval es el mínimo de segundos entre dos push (1 a 300; sin valor se aplica el ajuste del canal push). auto_update: false detiene las actualizaciones automáticas: llama de nuevo a la acción con el mismo id para mover la barra.\n\nEjemplo, sigue una entidad:\n```yaml\nentity_id: sensor.printer_progress\nmin: 0\nmax: 100\ninterval: 10\n```\n\nEjemplo, un número que fijas tú:\n```yaml\nvalue: 45\nmin: 0\nmax: 100\n```"
         }
       }
     },
@@ -674,7 +674,7 @@
         },
         "progress": {
           "name": "Progreso",
-          "description": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no menciona imagen ni botones para ella. En lugar de entity_id puedes dar value (un número que fijas tú). interval son los segundos mínimos entre dos push (1 a 300; si falta, el ajuste del canal push). auto_update: false detiene las actualizaciones automáticas: llama de nuevo a la acción con el mismo id para mover la barra."
+          "description": "Una barra de progreso que sigue un número. Claves: entity_id (sigue una entidad) o value (un número que fijas tú), min (0 por defecto), max (100 por defecto), interval, auto_update. El banner y la ventana emergente muestran una barra; el push se convierte en una Live Update (Android 16 y posteriores) o una Live Activity (iOS 17.2 y posteriores). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no lista imagen ni botones para ella. interval es el mínimo de segundos entre dos push (1 a 300; sin valor se aplica el ajuste del canal push). auto_update: false detiene las actualizaciones automáticas: llama de nuevo a la acción con el mismo id para mover la barra.\n\nEjemplo, sigue una entidad:\n```yaml\nentity_id: sensor.printer_progress\nmin: 0\nmax: 100\ninterval: 10\n```\n\nEjemplo, un número que fijas tú:\n```yaml\nvalue: 45\nmin: 0\nmax: 100\n```"
         }
       }
     },
