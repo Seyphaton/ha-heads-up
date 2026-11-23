@@ -500,7 +500,7 @@
         },
         "progress": {
           "name": "Fortschritt",
-          "description": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer)."
+          "description": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer). Auf iOS zeigt die Live Activity Titel, Meldung, Balken und Symbol; die Companion-Dokumentation nennt dafür kein Bild und keine Schaltflächen."
         }
       }
     },
@@ -674,7 +674,7 @@
         },
         "progress": {
           "name": "Fortschritt",
-          "description": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer)."
+          "description": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer). Auf iOS zeigt die Live Activity Titel, Meldung, Balken und Symbol; die Companion-Dokumentation nennt dafür kein Bild und keine Schaltflächen."
         }
       }
     },
@@ -940,7 +940,7 @@
             "color": "Eine Farbe wie #rrggbb. Banner und Popup nutzen sie statt der Farbe der Dringlichkeit. Beim Push färbt Android die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols. Beispiel: #03a9f4 (blau), #e53935 (rot).",
             "icon_url": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild.",
             "subtitle": "Eine zweite Zeile unter dem Titel in Banner und Popup. Beim Push: auf iOS der Untertitel, auf Android der Betreff, nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist.",
-            "progress": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer)."
+            "progress": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer). Auf iOS zeigt die Live Activity Titel, Meldung, Balken und Symbol; die Companion-Dokumentation nennt dafür kein Bild und keine Schaltflächen."
           }
         },
         "reconfigure": {
@@ -999,7 +999,7 @@
             "color": "Eine Farbe wie #rrggbb. Banner und Popup nutzen sie statt der Farbe der Dringlichkeit. Beim Push färbt Android die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols. Beispiel: #03a9f4 (blau), #e53935 (rot).",
             "icon_url": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild.",
             "subtitle": "Eine zweite Zeile unter dem Titel in Banner und Popup. Beim Push: auf iOS der Untertitel, auf Android der Betreff, nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist.",
-            "progress": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer)."
+            "progress": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer). Auf iOS zeigt die Live Activity Titel, Meldung, Balken und Symbol; die Companion-Dokumentation nennt dafür kein Bild und keine Schaltflächen."
           }
         }
       },

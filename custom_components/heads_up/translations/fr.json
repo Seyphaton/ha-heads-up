@@ -500,7 +500,7 @@
         },
         "progress": {
           "name": "Progression",
-          "description": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus)."
+          "description": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus). Sur iOS, la Live Activity montre le titre, le message, la barre et l'icône ; la documentation de Companion ne mentionne ni image ni boutons pour elle."
         }
       }
     },
@@ -674,7 +674,7 @@
         },
         "progress": {
           "name": "Progression",
-          "description": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus)."
+          "description": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus). Sur iOS, la Live Activity montre le titre, le message, la barre et l'icône ; la documentation de Companion ne mentionne ni image ni boutons pour elle."
         }
       }
     },
@@ -940,7 +940,7 @@
             "color": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône. Exemple : #03a9f4 (bleu), #e53935 (rouge).",
             "icon_url": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full. Exemple : /local/icons/doorbell.png. icon est un symbole comme mdi:door, icon_url une image.",
             "subtitle": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full.",
-            "progress": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus)."
+            "progress": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus). Sur iOS, la Live Activity montre le titre, le message, la barre et l'icône ; la documentation de Companion ne mentionne ni image ni boutons pour elle."
           }
         },
         "reconfigure": {
@@ -999,7 +999,7 @@
             "color": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône. Exemple : #03a9f4 (bleu), #e53935 (rouge).",
             "icon_url": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full. Exemple : /local/icons/doorbell.png. icon est un symbole comme mdi:door, icon_url une image.",
             "subtitle": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full.",
-            "progress": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus)."
+            "progress": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus). Sur iOS, la Live Activity montre le titre, le message, la barre et l'icône ; la documentation de Companion ne mentionne ni image ni boutons pour elle."
           }
         }
       },

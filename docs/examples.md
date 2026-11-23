@@ -80,7 +80,7 @@ data:
     state: "on"
 ```
 
-The message ends when the printer stops, and the push is cleared.
+The message ends when the printer stops, and the push is cleared. The iOS Live Activity shows the title, message, bar and icon. It has no image and no buttons, so put those on a message without `progress`.
 
 ### A spoken message
 

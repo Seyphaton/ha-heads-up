@@ -763,7 +763,7 @@ export function mount(container, ctx) {
     const bar = text("progress_entity", t.f_progress, { style: "max-width:100%" });
     bar.querySelector("input")?.setAttribute("list", "hu-entities");
     box.append(bar);
-    if (values.progress_entity.trim()) box.append(text("progress_min", t.f_progress_min, { placeholder: "0" }), text("progress_max", t.f_progress_max, { placeholder: "100" }));
+    box.append(text("progress_min", t.f_progress_min, { placeholder: "0" }), text("progress_max", t.f_progress_max, { placeholder: "100" }));
 
     box.append(el("h3", { className: "sec", textContent: t.sec_who }));
     const audiences = (data.choices.audience_choices || []).filter((a) => a.id !== "everyone");

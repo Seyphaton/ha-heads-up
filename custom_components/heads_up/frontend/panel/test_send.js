@@ -842,7 +842,7 @@ export function mount(container, ctx) {
     const bar = text("progress_entity", t.f_progress);
     bar.querySelector("input")?.setAttribute("list", "hu-entities");
     look.push(bar, el("datalist", { id: "hu-entities" }, Object.keys(hass.states || {}).sort().map((id) => el("option", { value: id }))));
-    if (values.progress_entity.trim()) look.push(text("progress_min", t.f_progress_min, { placeholder: "0" }), text("progress_max", t.f_progress_max, { placeholder: "100" }));
+    look.push(text("progress_min", t.f_progress_min, { placeholder: "0" }), text("progress_max", t.f_progress_max, { placeholder: "100" }));
 
     const buttons = [
       ui.buttonsEditor(s, values.actions, (list) => { values.actions = list; change(); }, { listId: "hu-entities" }),
