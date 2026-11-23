@@ -152,7 +152,7 @@ async def test_the_rule_form_checks_and_trims_the_fields(
     )
     assert good["type"].value == "create_entry"
     (subentry,) = entry.subentries.values()
-    assert subentry.data["color"] == "#03A9F4"
+    assert subentry.data["color"] == "#03a9f4"
     assert subentry.data["subtitle"] == "Front"
     assert subentry.data["icon_url"] == "/a.png"
 
@@ -207,3 +207,29 @@ async def test_with_the_option_off_only_the_message_values_are_sent(
     data = sent(anna)["data"]
     assert data["notification_icon"] == "mdi:door"
     assert "color" not in data
+
+
+@pytest.mark.parametrize(
+    ("given", "stored"),
+    [("#03A9F4", "#03a9f4"), ([3, 169, 244], "#03a9f4"), ((255, 0, 0), "#ff0000")],
+)
+async def test_a_color_is_stored_as_lowercase_hex(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice, given: object, stored: str
+) -> None:
+    await push(hass, entry, color=given)
+    assert sent(anna)["data"]["color"] == stored
+
+
+@pytest.mark.parametrize(
+    "color", [[1, 2], [1, 2, 3, 4], [256, 0, 0], [-1, 0, 0], [1.5, 2, 3], [True, 0, 0], 5]
+)
+async def test_a_bad_color_list_is_rejected(
+    hass: HomeAssistant, entry: MockConfigEntry, color: object
+) -> None:
+    with pytest.raises(vol.Invalid):
+        await hass.services.async_call(
+            DOMAIN,
+            "notify",
+            {"message": "x", "channels": ["banner"], "color": color},
+            blocking=True,
+        )

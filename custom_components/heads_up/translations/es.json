@@ -488,11 +488,11 @@
         },
         "color": {
           "name": "Color",
-          "description": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono."
+          "description": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono. Ejemplo: #03a9f4 (azul), #e53935 (rojo). El formulario de la acción tiene un selector de color."
         },
         "icon_url": {
           "name": "Icono del remitente",
-          "description": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full."
+          "description": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full. Ejemplo: /local/icons/doorbell.png o https://example.com/logo.png. icon es un símbolo como mdi:door e icon_url una imagen."
         },
         "subtitle": {
           "name": "Subtítulo",
@@ -662,11 +662,11 @@
         },
         "color": {
           "name": "Color",
-          "description": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono."
+          "description": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono. Ejemplo: #03a9f4 (azul), #e53935 (rojo). El formulario de la acción tiene un selector de color."
         },
         "icon_url": {
           "name": "Icono del remitente",
-          "description": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full."
+          "description": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full. Ejemplo: /local/icons/doorbell.png o https://example.com/logo.png. icon es un símbolo como mdi:door e icon_url una imagen."
         },
         "subtitle": {
           "name": "Subtítulo",
@@ -736,11 +736,11 @@
         },
         "color": {
           "name": "Color",
-          "description": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono."
+          "description": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono. Ejemplo: #03a9f4 (azul), #e53935 (rojo). El formulario de la acción tiene un selector de color."
         },
         "icon_url": {
           "name": "Icono del remitente",
-          "description": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full."
+          "description": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full. Ejemplo: /local/icons/doorbell.png o https://example.com/logo.png. icon es un símbolo como mdi:door e icon_url una imagen."
         },
         "subtitle": {
           "name": "Subtítulo",
@@ -937,8 +937,8 @@
             "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Automática: cada política automática que se aplica a un mensaje de regla (etiqueta rule). Una política: solo esa, también después de renombrarla. Ninguna: ninguna política.",
             "audience": "Quién ve el aviso: las personas de esta audiencia en el momento en que aparece. Déjalo vacío para usar Personas; sin elección, lo ven todos.",
-            "color": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono.",
-            "icon_url": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full.",
+            "color": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono. Ejemplo: #03a9f4 (azul), #e53935 (rojo).",
+            "icon_url": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full. Ejemplo: /local/icons/doorbell.png o https://example.com/logo.png. icon es un símbolo como mdi:door e icon_url una imagen.",
             "subtitle": "Una segunda línea bajo el título en el banner y la ventana. En un push: el subtítulo en iOS, el asunto en Android, enviado solo si el ajuste de la pantalla de bloqueo es full.",
             "progress": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior)."
           }
@@ -996,8 +996,8 @@
             "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```",
             "audience": "Quién ve el aviso: las personas de esta audiencia en el momento en que aparece. Déjalo vacío para usar Personas; sin elección, lo ven todos.",
-            "color": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono.",
-            "icon_url": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full.",
+            "color": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono. Ejemplo: #03a9f4 (azul), #e53935 (rojo).",
+            "icon_url": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full. Ejemplo: /local/icons/doorbell.png o https://example.com/logo.png. icon es un símbolo como mdi:door e icon_url una imagen.",
             "subtitle": "Una segunda línea bajo el título en el banner y la ventana. En un push: el subtítulo en iOS, el asunto en Android, enviado solo si el ajuste de la pantalla de bloqueo es full.",
             "progress": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior)."
           }

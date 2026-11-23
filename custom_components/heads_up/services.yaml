@@ -28,9 +28,8 @@ create_banner:
       selector:
         text: null
     color: &cl001
-      example: '#03a9f4'
       selector:
-        text: null
+        color_rgb: null
     icon_url: &cl002
       example: /local/icons/door.png
       selector:

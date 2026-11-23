@@ -649,7 +649,7 @@ export function mount(container, ctx) {
     box.append(ui.field(t.f_message, msg), text("title", t.f_title));
     box.append(ui.field(t.f_severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: t.severities[k] })), values.severity, (v) => { values.severity = v; paint(); })));
     box.append(text("icon", t.f_icon), text("image", t.f_image, { style: "max-width:100%" }));
-    box.append(text("subtitle", t.f_subtitle), text("color", t.f_color, { placeholder: "#03a9f4" }), text("icon_url", t.f_icon_url, { style: "max-width:100%" }));
+    box.append(text("subtitle", t.f_subtitle), ui.field(t.f_color, ui.colorInput(values.color, (v) => { values.color = v; paint(); }, { placeholder: "#03a9f4", "aria-label": t.f_color })), text("icon_url", t.f_icon_url, { style: "max-width:100%" }));
     const bar = text("progress_entity", t.f_progress, { style: "max-width:100%" });
     bar.querySelector("input")?.setAttribute("list", "hu-entities");
     box.append(bar);

@@ -157,6 +157,9 @@ export const BASE_CSS = `
 .hu-page textarea { height: auto; min-height: 88px; padding: 10px 12px; max-width: none; resize: vertical; }
 .hu-page input[type=text]:hover, .hu-page input[type=number]:hover, .hu-page input[type=time]:hover, .hu-page select:hover { border-color: var(--primary-text-color); }
 .hu-page section > select, .hu-page fieldset > select { display: block; margin-bottom: 20px; }
+.hu-page .color-input { display: flex; gap: 8px; align-items: center; }
+.hu-page .color-input input[type=text] { flex: 1; max-width: 12em; }
+.hu-page .color-input input[type=color] { flex: none; width: 44px; height: 36px; padding: 0; border: 1px solid var(--divider-color); border-radius: 6px; background: none; cursor: pointer; }
 .hu-page input[type=checkbox], .hu-page input[type=radio] { appearance: none; -webkit-appearance: none; flex: none; width: 22px; height: 22px; margin: 0; border: 2px solid var(--primary-text-color); background: transparent; cursor: pointer; }
 .hu-page input[type=checkbox] { border-radius: 5px; }
 .hu-page input[type=radio] { border-radius: 50%; }
@@ -478,6 +481,24 @@ export function textInput(value, onInput, props = {}) {
   const input = el("input", { type: "text", value: value ?? "", ...props });
   input.addEventListener("input", () => onInput(input.value));
   return input;
+}
+
+// A `#rrggbb` text field with a color picker beside it (D-260). Empty means no color. The text
+// is the value: the picker writes into it, and typing a valid value moves the picker.
+export function colorInput(value, onInput, props = {}) {
+  const valid = (text) => /^#[0-9a-fA-F]{6}$/.test(text);
+  const input = el("input", { type: "text", value: value ?? "", spellcheck: false, autocapitalize: "off", ...props });
+  const picker = el("input", { type: "color", value: valid(value) ? value : "#03a9f4" });
+  picker.setAttribute("aria-label", props["aria-label"] || "Color");
+  picker.addEventListener("input", () => {
+    input.value = picker.value;
+    onInput(input.value);
+  });
+  input.addEventListener("input", () => {
+    if (valid(input.value)) picker.value = input.value;
+    onInput(input.value);
+  });
+  return el("div", { className: "color-input" }, [input, picker]);
 }
 
 export function numberInput(value, onInput, props = {}) {

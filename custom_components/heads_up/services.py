@@ -203,7 +203,24 @@ def _image(value: str) -> str:
 
 IMAGE = vol.All(cv.string, vol.Length(min=1, max=MAX_IMAGE), _image)
 # Push only (D-255). One value for both platforms: a `#rrggbb` hex, because iOS takes no names.
-COLOR = vol.All(cv.string, vol.Match(r"^#[0-9a-fA-F]{6}$"))
+_HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+
+def _color(value: Any) -> str:
+    """`#rrggbb`, or `[red, green, blue]` as the color picker of the action form gives it (D-260).
+    Stored as lowercase `#rrggbb`."""
+    if isinstance(value, (list, tuple)):
+        if len(value) == 3 and all(
+            isinstance(v, int) and not isinstance(v, bool) and 0 <= v <= 255 for v in value
+        ):
+            return "#{:02x}{:02x}{:02x}".format(*value)
+        raise vol.Invalid("a color list is three whole numbers from 0 to 255")
+    if isinstance(value, str) and _HEX_COLOR.match(value):
+        return value.lower()
+    raise vol.Invalid("a color is #rrggbb, for example #03a9f4, or a list of red, green and blue")
+
+
+COLOR = _color
 SUBTITLE = vol.All(cv.string, vol.Length(min=1, max=MAX_TITLE))
 
 
