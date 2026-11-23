@@ -20,6 +20,8 @@ class Audience:
     zone: str | None = None
     # Presence audiences only: the persons the audience is limited to; empty means every person.
     limit: tuple[str, ...] = ()
+    # Persons left out of the audience, whatever else it says (an edited built-in, D-257).
+    exclude: tuple[str, ...] = ()
     # What a stored reference holds: the kind of a built-in audience, the subentry ID of a custom
     # one. The name is for display (D-199).
     key: str = ""

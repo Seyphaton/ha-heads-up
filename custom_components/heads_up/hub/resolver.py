@@ -8,7 +8,7 @@ trace and the panel translate.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
 from homeassistant.config_entries import ConfigSubentry
@@ -21,8 +21,10 @@ from ..const import (
     CHANNEL_MAIL,
     GROUP_SUFFIX,
     HOME_ZONE,
+    LIMITABLE_AUDIENCES,
     MAIL_GLOBAL,
     MAIL_GLOBAL_KEY,
+    OPT_AUDIENCE_EDITS,
     OPT_AUDIENCES_DISABLED,
     OPT_MAIL_ADDRESS,
     OPT_PRESENCE_DEBOUNCE,
@@ -215,6 +217,21 @@ class HubResolver:
             *((a.key, a.name) for a in self._audiences.values()),
         ]
 
+    def audience_edit(self, kind: str) -> dict[str, list[str]]:
+        """The stored edit of a built-in audience: persons left out and persons it is limited to
+        (D-257). Empty lists when it is as shipped."""
+        raw = (self._options.get(OPT_AUDIENCE_EDITS) or {}).get(kind) or {}
+        limit = list(raw.get("limit", ())) if kind in LIMITABLE_AUDIENCES else []
+        return {"exclude": list(raw.get("exclude", ())), "limit": limit}
+
+    def builtin(self, kind: str) -> Audience | None:
+        """A built-in audience with its edit applied, switched on or off alike."""
+        found = next((b for b in BUILTINS.values() if b.key == kind), None)
+        if found is None:
+            return None
+        edit = self.audience_edit(kind)
+        return replace(found, exclude=tuple(edit["exclude"]), limit=tuple(edit["limit"]))
+
     def disabled_audiences(self) -> set[str]:
         """Kinds of the built-in audiences the admin switched off (D-136): not offered, refused
         in calls. The option held names before D-199; both are read."""
@@ -227,9 +244,7 @@ class HubResolver:
         """The audience a reference means: a built-in kind, a subentry ID, or a name written by an
         earlier version (`name:` marks one that matched nothing then)."""
         disabled = self.disabled_audiences()
-        found = self._audiences.get(ref) or next(
-            (b for b in BUILTINS.values() if b.key == ref), None
-        )
+        found = self._audiences.get(ref) or self.builtin(ref)
         if found is None:
             name = dangling_name(ref).casefold()
             found = next(
@@ -240,6 +255,8 @@ class HubResolver:
                 ),
                 None,
             )
+            if found is not None and found.builtin:
+                found = self.builtin(found.key)
         return None if found is None or (found.builtin and found.key in disabled) else found
 
     def is_group_ref(self, ref: str) -> bool:
@@ -328,6 +345,8 @@ class HubResolver:
                     result.skipped.append(Skipped(person, "recipient_disabled"))
                     continue
                 self._presence_member(result, person, kind, audience.zone, severity)
+        if audience.exclude:
+            result.recipients = [r for r in result.recipients if r.key not in audience.exclude]
         return self._without_disabled(result)
 
     def _without_disabled(self, result: Resolution) -> Resolution:

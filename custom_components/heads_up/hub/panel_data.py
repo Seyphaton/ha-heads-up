@@ -34,7 +34,6 @@ from ..const import (
 )
 from ..manager import BannerManager
 from .activity import ActivityLog
-from .audiences import BUILTINS
 from .ledger import State
 from .policies import deliver, escalation, fallback, presence, quiet, reminder, summarize
 from .policies.convert import can_overlap, covered
@@ -955,7 +954,7 @@ async def audiences(hass: HomeAssistant, hub: Any) -> dict[str, Any]:
     out = []
     for key in BUILTIN_AUDIENCES.values():
         # A switched-off audience is listed, so the tour can say so; it still resolves here.
-        audience = next((a for a in BUILTINS.values() if a.key == key), None)
+        audience = resolver.builtin(key)
         if audience is None:
             continue
         found = await resolver.members(audience, "warning")

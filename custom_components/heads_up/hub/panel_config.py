@@ -20,6 +20,7 @@ from ..const import (
     DEFAULT_OPTIONS,
     GROUP_SUBENTRY,
     GROUP_SUFFIX,
+    LIMITABLE_AUDIENCES,
     MAX_MAIL_ADDRESS,
     MAX_SEVERITY_LABEL,
     OPT_MAIL_ADDRESS,
@@ -180,8 +181,10 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
     usage: Callable[..., list[str]] = hub.policies.usage if hub is not None else (lambda *refs: [])
     audiences: list[dict[str, Any]] = []
     if hub is not None:
-        for name, audience in BUILTINS.items():
+        for name, shipped in BUILTINS.items():
+            audience = hub.resolver.builtin(shipped.key) or shipped
             now = await hub.resolver.members(audience, "warning")
+            edit = hub.resolver.audience_edit(audience.key)
             audiences.append(
                 {
                     "name": name,
@@ -190,6 +193,9 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
                     "enabled": audience.key not in hub.resolver.disabled_audiences(),
                     "subentry_id": None,
                     "data": {},
+                    "edit": edit,
+                    "edited": bool(edit["exclude"] or edit["limit"]),
+                    "limitable": audience.kind in LIMITABLE_AUDIENCES,
                     "members": [r.key for r in now.recipients],
                     "used_by": usage(audience.key, name),
                     "key": audience.key,

@@ -17,6 +17,7 @@ from homeassistant.components.websocket_api.decorators import (
     websocket_command,
 )
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import config_validation as cv
 from homeassistant.util import dt as dt_util
 
 from .binary_sensor import audience_entity_id, audience_entity_ids
@@ -24,10 +25,12 @@ from .const import (
     BUILTIN_AUDIENCES,
     DOMAIN,
     GROUP_SUFFIX,
+    LIMITABLE_AUDIENCES,
     MAX_ATTENTION_DISMISSED,
     MAX_PROGRESS_INTERVAL,
     MIN_PROGRESS_INTERVAL,
     OPT_ATTENTION_DISMISSED,
+    OPT_AUDIENCE_EDITS,
     OPT_AUDIENCES_DISABLED,
     OPT_MAIL_ADDRESS,
     OPT_MAIL_SERVICE,
@@ -400,6 +403,61 @@ def ws_audience_enable(
         entry, options={**entry.options, OPT_AUDIENCES_DISABLED: disabled}
     )
     connection.send_result(msg["id"], {"disabled": disabled})
+
+
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/audience_edit",
+        vol.Required("name"): str,
+        vol.Optional("exclude", default=list): [cv.entity_domain("person")],
+        vol.Optional("limit", default=list): [cv.entity_domain("person")],
+    }
+)
+@require_admin
+@callback
+def ws_audience_edit(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Edit a built-in audience in place (D-257): persons left out, and for the presence
+    audiences the persons it is limited to. Empty lists are the shipped audience."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    kind = BUILTIN_AUDIENCES.get(msg["name"])
+    if kind is None:
+        connection.send_error(msg["id"], "not_found", f"{msg['name']} is not a built-in audience")
+        return
+    if msg["limit"] and kind not in LIMITABLE_AUDIENCES:
+        connection.send_error(msg["id"], "invalid_format", f"{msg['name']} cannot be limited")
+        return
+    edits = {k: v for k, v in (entry.options.get(OPT_AUDIENCE_EDITS) or {}).items() if k != kind}
+    exclude = list(dict.fromkeys(msg["exclude"]))
+    limit = list(dict.fromkeys(msg["limit"]))
+    if exclude or limit:
+        edits[kind] = {"exclude": exclude, "limit": limit}
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, OPT_AUDIENCE_EDITS: edits}
+    )
+    connection.send_result(msg["id"], {"exclude": exclude, "limit": limit})
+
+
+@websocket_command({vol.Required("type"): "heads_up/audience_reset", vol.Required("name"): str})
+@require_admin
+@callback
+def ws_audience_reset(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Back to the shipped audience (D-257)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    kind = BUILTIN_AUDIENCES.get(msg["name"])
+    if kind is None:
+        connection.send_error(msg["id"], "not_found", f"{msg['name']} is not a built-in audience")
+        return
+    edits = {k: v for k, v in (entry.options.get(OPT_AUDIENCE_EDITS) or {}).items() if k != kind}
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, OPT_AUDIENCE_EDITS: edits}
+    )
+    connection.send_result(msg["id"], {})
 
 
 @websocket_command({vol.Required("type"): "heads_up/attention_restore"})
@@ -1050,6 +1108,8 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_severity_display,
         ws_panel_overview,
         ws_panel_reach,
+        ws_audience_edit,
+        ws_audience_reset,
         ws_panel_audiences,
         ws_panel_stats,
         ws_stats_clear,
