@@ -1655,3 +1655,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Open for the build: whether the name can change (policies store the kind, the sensors and the Audiences page show the name); whether the six `binary_sensor` entities follow the edit (proposed: yes, one source of truth in the resolver); how the Audiences page marks an edited built-in; parity (CLAUDE.md rule 9): audiences are shared by actions and watch rules, so one change reaches both.
 - Not done: any code. The plan and checklist are written when the maintainer approves the phase.
 
+## D-258 2.1.0: the new push fields reach the card and popup (2026-11-23, maintainer)
+- Context: after steps 1 and 2 the fields `color`, `subtitle` and `icon_url` only changed the push, and the card ignored a message `color`. The maintainer asked which of the built and planned features the banner needs too (CLAUDE.md rule 9, DESIGN §22).
+- Decision (maintainer, answers to AskUserQuestion): the card and the popup also show, in 2.1.0: the message `color` (wins over the severity color, as on the push), the `subtitle` (a second line under the title; not in the compact layout), the `icon_url` (a picture in place of the icon; `/api/` and `/media/` paths are signed like `image`) and the `progress` bar of D-256 (a bar from the entity on every client, no Live Updates needed). `icon` and the severity icon and color already matched (step 2). Nothing is listed as an exception.
+- Build order: step 2b (color, subtitle, icon_url on card and popup), then step 3 with the bar on the card, the popup and the push.
+- Not done: any code for this decision.
+
