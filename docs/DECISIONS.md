@@ -1675,3 +1675,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - Watch rules: for now, everything a banner can do through `notify`: buttons, tap action and every appearance field including progress and live updates. Channels and recipients per rule stay out (a rule shows a banner and policies add push or popup).
 - Not done: any code. Parity (CLAUDE.md rule 9): fields reach actions and rules in the same phase.
 
+## D-261 Release 2.1.0-beta.2 (2026-11-23, maintainer)
+- Context: beta.1 (D-259) was prepared but never tagged or pushed. Since then D-260 is built: the color picker, the examples, buttons and tap action in the watch rule form, Test send with every `notify` field, and the Visual or YAML editor switch on Test send and the watch rule form.
+- Decision (maintainer, "Prepare beta.2"): the manifest version is `2.1.0-beta.2` and the CHANGELOG keeps `[Unreleased]`. Beta.2 replaces beta.1: there is no `v2.1.0-beta.1` tag. This is a pre-release; the real-device checks (Android 16 Live Update, iOS 17.2 Live Activity, the communication-notification look on iOS) and the checks at phone width and in dark mode stay open. D-257 (editable built-in audiences) is not built and not in this beta. Tag, push and the GitHub pre-release only on the maintainer's order (D-020).
+
