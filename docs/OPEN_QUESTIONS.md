@@ -177,3 +177,4 @@
 - Permissions: who may message whom; a per-person "no messages" setting.
 - Replies, lock-screen reply (Companion text input, to verify), quick replies, pictures.
 - Read receipts were declined for the first version.
+- Push badge for the inbox (D-268): not built. The iOS key is `data.push.badge`; a silent update is documented as the message `delete_alert`, but how to set the number with it is not, and the app resets the badge to 0 on launch by default (N-115). Android: no documented key. Needs a device check before it can be planned.

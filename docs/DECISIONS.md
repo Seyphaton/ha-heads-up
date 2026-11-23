@@ -1730,3 +1730,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - One store `heads_up.inbox` for all people, keyed by person. Step 0 measures its size; a change to one store per person is a new decision.
   - The inbox is a normal channel, with no special rules: policies apply to it like to every other channel, and the mirror goes through the same chain. "If someone does not want inbox messages affected by quiet hours or summary, they remove the channel from the policy." This replaces the exemption the phase brief asked to verify and test (Quiet hours and Away must not hold the inbox) and the plan's mirror rule for Summarize (single messages recorded, not the summary). Open: Quiet hours and Summarize have no channel scope today (finding N-116), see the next decision.
   - Push badge: not built in Phase 22 (plan step 7 dropped). Reason: a badge that follows only inbox items, while the unread count shows on a push only when one is sent, is not intuitive. The facts are in N-115 and the open question goes to `docs/OPEN_QUESTIONS.md`.
+
+## D-269 Phase 22: policy channel scope, sensors, titles only (2026-11-23, maintainer)
+- Decisions (maintainer, answers to AskUserQuestion):
+  - Quiet hours and Summarize get an optional `channels` field, like Reminder and Presence have. Empty means all channels, so nothing changes on upgrade (D-262). To keep the inbox out of a policy, leave it out of the list. This is an addition to the policy forms, the panel Policies page, the checker and the docs; it is scheduled as its own step before the inbox channel (Banner is never held by Quiet hours; Summarize still holds the banner, D-105).
+  - One unread sensor per person entity, including people without a Heads Up setup.
+  - Card option `titles_only` (default off) hides message text, for shared screens.
