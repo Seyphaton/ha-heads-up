@@ -650,7 +650,7 @@
         },
         "mail_subject": {
           "name": "Mail-Betreff",
-          "description": "Betreff der Mail dieser Nachricht, statt der Vorlage auf der Seite Kanäle. Platzhalter: {severity}, {title}, {message}, {person}, {person_id}, {id}, {tag}. {person} ist der Name des Empfängers, und jeder Empfänger bekommt eine eigene Mail. Nur mit dem Kanal Mail. Lass das Häkchen aus, um die Vorlage der Seite Kanäle zu nutzen."
+          "description": "Betreff der Mail dieser Nachricht, statt der Vorlage auf der Seite Kanäle. Platzhalter: '{severity}', '{title}', '{message}', '{person}', '{person_id}', '{id}', '{tag}'. '{person}' ist der Name des Empfängers, und jeder Empfänger bekommt eine eigene Mail. Nur mit dem Kanal Mail. Lass das Häkchen aus, um die Vorlage der Seite Kanäle zu nutzen."
         },
         "mail_body": {
           "name": "Mail-Text",
