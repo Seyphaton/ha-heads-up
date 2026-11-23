@@ -18,7 +18,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §25 2.0.0 policies in two lanes | built and tested on `release/2.0` (Phase 17, D-234 to D-242): conversion, matching, band, matrix interactions, Only if, reminder rhythm, checker, panel and help page, watch-rule audience; user docs written; `make check`, `make hassfest` and `make dev-smoke` on a clean instance green; §25.16 verified; not on real devices, not checked at phone width, with the keyboard or a screen reader; promise lines on the long list (D-241) |
 | §26 new Overview (status card, Coming up, reach table, tour in the page, quick shortcuts, Last actions) | built and tested on `release/2.0` (Phase 18, D-244, D-245); checked in the browser pane at desktop and phone width, light and dark; not on real devices |
 | §27 history store (24 months, Activity cards, Clear history) | built and tested on `release/2.0` (Phase 19, D-246); about 7 KB a day measured on a synthetic busy household; push levels used are not recorded |
-| §28 2.1.0 richer push (icon, color, sender icon, subtitle, progress with live updates) | scoped (D-255, D-256), nothing built |
+| §28 2.1.0 richer push (icon, color, sender icon, subtitle, progress with live updates) | scoped (D-255 to D-257), nothing built |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -1025,7 +1025,7 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 - Checked in the browser pane: the height eases (175 to 316 px in about 350 ms), switching and closing are smooth, and the scroll offset did not change.
 - The cards have no coloured stripe at the left; the tone colours the number only.
 
-## 28. 2.1.0: richer push (D-255, D-256)
+## 28. 2.1.0: richer push and editable built-in audiences (D-255 to D-257)
 
 Status: scoped 2026-11-23, nothing built. Plan and checklist are written when the maintainer approves the phase.
 
@@ -1039,3 +1039,8 @@ Status: scoped 2026-11-23, nothing built. Plan and checklist are written when th
 
 ### 28.3 Not in 2.1.0
 - Timeout, persistent, lock screen visibility, vibration, LED, Android Auto, spoken push, badge, `alert_once`, presentation options (D-255).
+
+### 28.4 Edit the built-in audiences (D-257)
+- A built-in audience is edited in place: the override is stored per kind in the entry options and the resolver applies it before it returns the members; Reset removes it. Policies, rules and actions keep their reference (the kind, D-199) and see the change at once.
+- An edit may leave out named people (all six) and may limit the presence audiences to named people. It never changes what the kind means. Open points (name, sensors, how the page marks an edited audience) are listed in D-257.
+
