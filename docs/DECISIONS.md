@@ -1694,3 +1694,26 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - `progress.value` (a number) instead of `entity_id`, for a caller that sets the value itself, for example from a template of its own. Exactly one of `entity_id` and `value`. With `value` there is nothing to follow, so `auto_update` and `interval` mean nothing.
   - Watch rules get `interval` (the form field) and the entity; `value` and `auto_update` are call-only, because a rule has no caller that could update it (listed in DESIGN §22).
 - Built: `OPT_PUSH_PROGRESS_INTERVAL` (`push_progress_interval`, 1 to 300, checked in the panel, the websocket schema and the form), the `PROGRESS` schema (`entity_id` or `value`, `min`, `max`, `interval`, `auto_update`), `_progress_entity` in the manager (tracking only for entity bars that update themselves), the engine skips both push caps for a message with `progress`, the field in the rule form and Test send (fixed value and the switch there only), strings in four languages, docs. Checked on the dev HA (Channels field, `0` blocks Save; Test send YAML). Not checked on a device.\n
+
+## D-264 Personal inbox: concept, read state, retention, privacy (2026-11-23, maintainer)
+- Context: requests for a per-person history that survives a restart, a personal count of what is waiting, one row per message with its chain, and "what was that message again". Planned in `docs/dev/inbox/PLAN.md`; nothing built.
+- Decisions (maintainer, answers to AskUserQuestion):
+  - The inbox is a channel (`inbox`) plus an optional setting "keep a copy of every message to a person in their inbox", per severity, off by default. No behaviour changes on upgrade (D-262).
+  - An item is read when it is opened in the card, marked read (one or all), or acknowledged or dismissed elsewhere. A message that ends while its item is unread stays, marked resolved, and stays unread.
+  - The unread number counts unread items. A separate "needs action" flag marks an unacknowledged critical item and is shown with a colour and a symbol.
+  - Retention is one global setting for all people, in months, default 12.
+  - Surfaces: the card `custom:heads-up-inbox-card`, one unread-count sensor per person, the push badge number (verified against the Companion docs before it is built).
+  - Privacy: each person sees only their own inbox. No `sensitive` flag in this phase; it goes to `docs/OPEN_QUESTIONS.md` with a note in `SECURITY.md` that item text is stored in plain text in `.storage`.
+
+## D-265 Messages to other people: tier 1 with a Sent view (2026-11-23, maintainer)
+- Context: a person can send a short message to another person from the inbox card. Planned in `docs/dev/inbox/PLAN.md` section 9; builds on the inbox (D-264) and is its own phase after it. Nothing built.
+- Decisions (maintainer, answers to AskUserQuestion):
+  - Tier 1 only: a compose dialog in the card, "From <person>" on the item, an admin switch, a rate limit and a length limit. No permission matrix, no per-person opt-out, no replies, no pictures.
+  - A Sent view: the sender keeps a copy of what they sent, in their own inbox store.
+  - No read receipts: the sender never learns whether or when a recipient read a message.
+- Send via (maintainer, answer to "Shouldn't they select a channel?"): the sender picks the channels. Inbox is always on, Phone (push) and Screens (popup) are optional, default Inbox and Phone. Speech and mail are not offered (speech targets areas and speakers, not people; mail needs an address). The recipient's profile decides what they accept (D-088): a channel they do not accept is skipped for them, the inbox item is still made, and the dialog says so. A person without a phone can be addressed, reached by Inbox and Screens.
+- Constraints (maintainer, answers to AskUserQuestion, 2026-11-23): the sender is the person of `connection.user`, never a field of the call, and a user without a person entity cannot send. The severity is always `info` and the sender cannot change it, so a message never breaks through Do Not Disturb. Watch rules have no caller and so no sender, and the `notify` action gets no sender field: person messages exist only through the card command. DESIGN §22 lists this as an exception with this decision number when the phase is built.
+
+## D-266 Inbox card: sizes and designs (2026-11-23, maintainer)
+- Context: mockup `docs/dev/mockups/inbox-card.html`, reviewed over several rounds. The stack, Pulse and Icons ideas were dropped.
+- Decision (maintainer, "DESIGN IS OK"): three small square tiles (number, ring, mosaic), three medium boxes (Tile, Ring, Split), one large list. The list has the switch Inbox, Everything, Sent. The medium Split box has Open and Mark all read. Option names, the default of `show_text` and the build order are in `docs/dev/inbox/PLAN.md` section 4.1.

@@ -167,3 +167,13 @@
 - No percentage fallback for devices without Live Updates or Live Activities (live only).
 - The push channel cannot tell which devices support live updates; unchecked on a real device.
 - iOS sender icon needs a title: what to send for a message without one is open.
+
+## Personal inbox (planned 2026-11-23, D-264, `docs/dev/inbox/PLAN.md`)
+- `sensitive` flag: a message whose text is hidden in the inbox card until tapped, or not stored. Left out of the first inbox phase; item text is stored in plain text in `.storage` and in backups.
+- Titles-only option for the inbox card on a shared wall tablet.
+- Received time per device: needs the Companion app's confirmation event (Android) and an echoed message ID; not planned.
+
+## Messages to other people (D-265)
+- Permissions: who may message whom; a per-person "no messages" setting.
+- Replies, lock-screen reply (Companion text input, to verify), quick replies, pictures.
+- Read receipts were declined for the first version.
