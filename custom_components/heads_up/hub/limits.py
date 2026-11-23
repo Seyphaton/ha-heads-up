@@ -30,7 +30,17 @@ Signature = tuple[Any, ...]
 
 def signature(banner: Banner) -> Signature:
     actions = tuple((a.get("key"), a.get("label")) for a in banner.actions)
-    return (banner.title, banner.message, banner.severity, banner.icon, banner.image, actions)
+    return (
+        banner.title,
+        banner.message,
+        banner.severity,
+        banner.icon,
+        banner.image,
+        banner.color,
+        banner.icon_url,
+        banner.subtitle,
+        actions,
+    )
 
 
 class Limiter:

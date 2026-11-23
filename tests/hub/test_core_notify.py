@@ -352,7 +352,7 @@ async def test_a_policy_is_named_by_its_switch_and_a_close_id_gets_a_suggestion(
             {"message": "x" * 1001, "channels": ["banner"]},
             "message must have at most 1000 characters or entries.",
         ),
-        ({"message": "x", "channels": ["banner"], "colour": 1}, "colour is not a field"),
+        ({"message": "x", "channels": ["banner"], "flavour": 1}, "flavour is not a field"),
     ],
 )
 async def test_an_invalid_call_is_explained_in_a_sentence(

@@ -202,6 +202,9 @@ def _image(value: str) -> str:
 
 
 IMAGE = vol.All(cv.string, vol.Length(min=1, max=MAX_IMAGE), _image)
+# Push only (D-255). One value for both platforms: a `#rrggbb` hex, because iOS takes no names.
+COLOR = vol.All(cv.string, vol.Match(r"^#[0-9a-fA-F]{6}$"))
+SUBTITLE = vol.All(cv.string, vol.Length(min=1, max=MAX_TITLE))
 
 NAME = vol.All(cv.string, vol.Length(min=1, max=100))  # audience, recipient and policy names
 
@@ -362,6 +365,9 @@ _CREATE_FIELDS: dict[Any, Any] = {
     vol.Optional("actions"): ACTIONS_SCHEMA,
     vol.Optional("tap_action"): TAP_ACTION_SCHEMA,
     vol.Optional("image"): IMAGE,
+    vol.Optional("color"): COLOR,
+    vol.Optional("icon_url"): IMAGE,
+    vol.Optional("subtitle"): SUBTITLE,
 }
 
 
@@ -463,6 +469,10 @@ def _shortcut_schema(channel: str) -> VolSchemaType:
     if channel != "speak":  # speech takes speakers, not an audience (D-098)
         fields[vol.Optional("audience")] = NAME
         fields[vol.Optional("image")] = IMAGE
+    if channel == "push":
+        fields[vol.Optional("color")] = COLOR
+        fields[vol.Optional("icon_url")] = IMAGE
+        fields[vol.Optional("subtitle")] = SUBTITLE
     needs = ("recipients",) if channel == "speak" else ("audience", "recipients")
     return vol.All(vol.Schema(fields), cv.has_at_least_one_key(*needs), _exclusive_target)
 
@@ -832,6 +842,9 @@ def _shortcut(channel: str) -> Callable[[ServiceCall], Coroutine[Any, Any, Servi
             tag=data.get("tag"),
             tap_action=data.get("tap_action"),
             image=data.get("image"),
+            color=data.get("color"),
+            icon_url=data.get("icon_url"),
+            subtitle=data.get("subtitle"),
             actions=[dict(a) for a in data.get("actions", [])],
             tts_message=data.get("tts_message"),
             volume=data.get("volume"),

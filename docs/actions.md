@@ -38,8 +38,11 @@ The banner is on the dashboard for the people who are home, and each of them get
 | `message` | text | required | The text, 1–1000 characters. |
 | `title` | text | none | A heading above the message, up to 100 characters. |
 | `severity` | `passive`, `info`, `warning`, `critical` | required | How important the message is. `success`, an earlier name, is accepted and read as `passive`. It sets the color, the default icon and the sort order of the banner; the push level (by default `passive` is quiet, `info` normal, `warning` time-sensitive and `critical` an alarm; set on the Severities page); the popup style; and which policies fit it ([Policies](configuration.md#policies)). |
-| `icon` | icon, for example `mdi:water-alert` | the icon of the severity | Replaces the default icon on the banner and in the popup. A push, speech, mail and the notification bell do not show it. |
+| `icon` | icon, for example `mdi:water-alert` | the icon of the severity | Replaces the default icon on the banner and in the popup. On a push it is the status bar icon on Android. On iOS it is the sender icon, which also needs a title (the title `Heads Up` is used when the message has none). Speech, mail and the notification bell do not show it. |
 | `image` | text | none | A picture shown under the message on the card, in the popup and on the push: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/local/door.jpg`, `/media/local/door.jpg`). Up to 2048 characters. Heads Up does not fetch or check it; a wrong path shows no picture. A picture from another host is loaded by the card, the popup and the phone, so that host learns the viewer's address and when the picture is shown. A path on this Home Assistant avoids that. Paths under `/api/` and `/media/` are signed for the card and the popup. The phone loads the picture itself, so it must reach the URL; camera proxy paths (`/api/camera_proxy/...`) work on Android only. The compact card layout shows no picture. With a lock screen setting other than `full`, the push has no picture (`image_hidden` in the trace). |
+| `color` | text | none | A `#rrggbb` color. On Android it colors the notification. On iOS it is the background of the icon. |
+| `icon_url` | text | none | A sender icon: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/`. On iOS it replaces `icon`. It is sent only when the lock screen setting is `full`. |
+| `subtitle` | text | none | A second line under the title. It is the subtitle on iOS and the subject on Android. It is sent only when the lock screen setting is `full`. |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel, when it should differ from the written message. |
 | `volume` | number from 0 to 1 | none | Sets this volume on a media player before it speaks. Without it the volume stays as it is. Assist satellites and players that cannot set their volume ignore it. The volume is not restored afterwards. |
 | `tap_action` | object with `action` | none | A Home Assistant action that runs when someone taps the banner (the card) or the push. Passed on unchanged. Anyone who sees the banner can trigger it; see [SECURITY.md](../SECURITY.md). |
@@ -321,6 +324,9 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `severity` | `passive`, `info`, `warning`, `critical` | `warning` | As in `notify`, but the default is `warning`. |
 | `icon` | icon | the icon of the severity | As in `notify`. |
 | `image` | text | none | As in `notify`. |
+| `color` | text | none | As in `notify`. |
+| `icon_url` | text | none | As in `notify`. |
+| `subtitle` | text | none | As in `notify`. |
 | `tap_action` | object with `action` | none | As in `notify`. |
 | `timeout` | seconds or duration | setting Default timeout | As in `notify`. |
 | `tag` | text | none | As in `notify`. |
@@ -394,12 +400,15 @@ Shortcut for `notify` with `channels: [push]` and no policies. It needs `audienc
 | `id` | text | none | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, the message is sent once and cannot be cleared. |
 | `title` | text | none | As in `notify`. |
 | `severity` | `passive`, `info`, `warning`, `critical` | `info` | As in `notify`. |
-| `icon` | icon | none | A push does not show an icon, so the field has no effect. |
+| `icon` | icon | the icon of the severity on the card and popup | The icon of the card and popup. On a push it is the status bar icon on Android. On iOS it is the sender icon of the notification, which also needs a title. |
 | `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. |
 | `tag` | text | none | As in `notify`. |
 | `tap_action` | object with `action` | none | As in `notify`. |
 | `image` | text | none | As in `notify`. |
+| `color` | text | none | As in `notify`. |
+| `icon_url` | text | none | As in `notify`. |
+| `subtitle` | text | none | As in `notify`. |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel. |
 | `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
 | `audience` | audience sensor | one of `audience` or `recipients` | The entity ID of an audience sensor, for example `binary_sensor.heads_up_audience_at_home`. Not available for `speak`. |

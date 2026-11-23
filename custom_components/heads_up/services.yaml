@@ -27,6 +27,17 @@ create_banner:
       example: /media/local/door.jpg
       selector:
         text: null
+    color: &cl001
+      example: '#03a9f4'
+      selector:
+        text: null
+    icon_url: &cl002
+      example: /local/icons/door.png
+      selector:
+        text: null
+    subtitle: &cl003
+      selector:
+        text: null
     audience:
       selector:
         entity:
@@ -225,6 +236,9 @@ notify:
           translation_key: severity
     icon: *id005
     image: *id006
+    color: *cl001
+    icon_url: *cl002
+    subtitle: *cl003
     id: *id007
     tag: *id008
     timeout: *id009
@@ -271,6 +285,9 @@ push:
           translation_key: severity
     icon: *id005
     image: *id006
+    color: *cl001
+    icon_url: *cl002
+    subtitle: *cl003
     tts_message: *id016
     recipients:
       example: '["person.anna"]'
