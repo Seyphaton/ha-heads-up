@@ -5,6 +5,24 @@ export const STRINGS = {
     title: "Test send",
     intro: "Try a call before you put it in an automation. The preview shows what would happen now, with the real clock and the real presence. Nothing is sent until you press Send test.",
     content: "Content",
+    mode_label: "Editor",
+    mode_visual: "Visual editor",
+    mode_yaml: "YAML editor",
+    send_title: "Send",
+    look: "Look",
+    f_subtitle: "Subtitle (optional)",
+    f_icon: "Icon (optional, like mdi:door)",
+    f_color: "Color (optional, #rrggbb)",
+    f_icon_url: "Sender icon (optional, a URL or a path)",
+    f_image: "Image (optional, a URL or a path)",
+    f_progress: "Progress bar from an entity (optional)",
+    f_progress_min: "Bar empty at this value (default 0)",
+    f_progress_max: "Bar full at this value (default 100)",
+    f_timeout: "Lifetime in minutes (optional)",
+    timeout_hint: "Without it a test message ends after 10 minutes.",
+    f_snooze_minutes: "Snooze choices in minutes",
+    f_snooze_custom: "Viewers may choose the duration",
+    extra_hint: "Kept from the YAML and not shown in the form: {keys}.",
     f_title: "Title (optional)",
     f_message: "Message",
     f_tts: "Spoken text (optional, speech only)",
@@ -66,7 +84,7 @@ export const STRINGS = {
     send_pasted: "Send test",
     rendered: "The call after the templates are rendered",
     push_level: "push level {level}",
-    send_hint: "Sends one real message with the marker: the title starts with Test, the tag is test, and it ends after 10 minutes. Policies apply.",
+    send_hint: "Sends one real message with the marker: the title starts with Test, the tag is test, and it ends after 10 minutes unless you set a lifetime. Policies apply.",
     sent: "Sent {id}: {summary}",
     what_happened: "What happened",
     outcome_waiting: "Waiting for the delivery…",
@@ -98,6 +116,24 @@ export const STRINGS = {
     title: "Testsenden",
     intro: "Probiere einen Aufruf aus, bevor du ihn in eine Automation übernimmst. Die Vorschau zeigt, was jetzt passieren würde, mit der echten Uhrzeit und der echten Anwesenheit. Gesendet wird erst, wenn du Test senden drückst.",
     content: "Inhalt",
+    mode_label: "Editor",
+    mode_visual: "Visueller Editor",
+    mode_yaml: "YAML-Editor",
+    send_title: "Senden",
+    look: "Aussehen",
+    f_subtitle: "Untertitel (optional)",
+    f_icon: "Symbol (optional, wie mdi:door)",
+    f_color: "Farbe (optional, #rrggbb)",
+    f_icon_url: "Absender-Symbol (optional, eine URL oder ein Pfad)",
+    f_image: "Bild (optional, eine URL oder ein Pfad)",
+    f_progress: "Fortschrittsbalken aus einer Entität (optional)",
+    f_progress_min: "Balken leer bei diesem Wert (Standard 0)",
+    f_progress_max: "Balken voll bei diesem Wert (Standard 100)",
+    f_timeout: "Lebensdauer in Minuten (optional)",
+    timeout_hint: "Ohne Angabe endet eine Testnachricht nach 10 Minuten.",
+    f_snooze_minutes: "Wahl für Später, in Minuten",
+    f_snooze_custom: "Betrachter dürfen die Dauer wählen",
+    extra_hint: "Aus dem YAML übernommen und im Formular nicht gezeigt: {keys}.",
     f_title: "Titel (optional)",
     f_message: "Meldung",
     f_tts: "Gesprochener Text (optional, nur Sprache)",
@@ -159,7 +195,7 @@ export const STRINGS = {
     send_pasted: "Test senden",
     rendered: "Der Aufruf nach dem Rendern der Templates",
     push_level: "Push-Stufe {level}",
-    send_hint: "Sendet eine echte Meldung mit der Markierung: Der Titel beginnt mit Test, der Tag ist test, und sie endet nach 10 Minuten. Richtlinien gelten.",
+    send_hint: "Sendet eine echte Meldung mit der Markierung: Der Titel beginnt mit Test, der Tag ist test, und sie endet nach 10 Minuten, wenn du keine Lebensdauer angibst. Richtlinien gelten.",
     sent: "Gesendet {id}: {summary}",
     what_happened: "Was passiert ist",
     outcome_waiting: "Warte auf die Zustellung…",
@@ -191,6 +227,24 @@ export const STRINGS = {
     title: "Envoi de test",
     intro: "Essayez un appel avant de le mettre dans une automatisation. L'aperçu montre ce qui se passerait maintenant, avec l'heure réelle et la présence réelle. Rien n'est envoyé avant d'appuyer sur Envoyer le test.",
     content: "Contenu",
+    mode_label: "Éditeur",
+    mode_visual: "Éditeur visuel",
+    mode_yaml: "Éditeur YAML",
+    send_title: "Envoyer",
+    look: "Apparence",
+    f_subtitle: "Sous-titre (facultatif)",
+    f_icon: "Icône (facultatif, comme mdi:door)",
+    f_color: "Couleur (facultatif, #rrggbb)",
+    f_icon_url: "Icône de l'expéditeur (facultatif, une URL ou un chemin)",
+    f_image: "Image (facultatif, une URL ou un chemin)",
+    f_progress: "Barre de progression d'une entité (facultatif)",
+    f_progress_min: "Barre vide à cette valeur (0 par défaut)",
+    f_progress_max: "Barre pleine à cette valeur (100 par défaut)",
+    f_timeout: "Durée de vie en minutes (facultatif)",
+    timeout_hint: "Sans cela, un message de test se termine après 10 minutes.",
+    f_snooze_minutes: "Choix de report, en minutes",
+    f_snooze_custom: "Les personnes peuvent choisir la durée",
+    extra_hint: "Repris du YAML et non montré dans le formulaire : {keys}.",
     f_title: "Titre (facultatif)",
     f_message: "Message",
     f_tts: "Texte parlé (facultatif, voix seulement)",
@@ -252,7 +306,7 @@ export const STRINGS = {
     send_pasted: "Envoyer le test",
     rendered: "L'appel après le rendu des modèles",
     push_level: "niveau push {level}",
-    send_hint: "Envoie un vrai message avec le marqueur : le titre commence par Test, l'étiquette est test, et il se termine après 10 minutes. Les politiques s'appliquent.",
+    send_hint: "Envoie un vrai message avec le marqueur : le titre commence par Test, l'étiquette est test, et il se termine après 10 minutes si vous n'indiquez pas de durée. Les politiques s'appliquent.",
     sent: "Envoyé {id} : {summary}",
     what_happened: "Ce qui s'est passé",
     outcome_waiting: "En attente de la livraison…",
@@ -284,6 +338,24 @@ export const STRINGS = {
     title: "Envío de prueba",
     intro: "Prueba una llamada antes de ponerla en una automatización. La vista previa muestra lo que pasaría ahora, con la hora real y la presencia real. No se envía nada hasta que pulses Enviar prueba.",
     content: "Contenido",
+    mode_label: "Editor",
+    mode_visual: "Editor visual",
+    mode_yaml: "Editor YAML",
+    send_title: "Enviar",
+    look: "Aspecto",
+    f_subtitle: "Subtítulo (opcional)",
+    f_icon: "Icono (opcional, como mdi:door)",
+    f_color: "Color (opcional, #rrggbb)",
+    f_icon_url: "Icono del remitente (opcional, una URL o una ruta)",
+    f_image: "Imagen (opcional, una URL o una ruta)",
+    f_progress: "Barra de progreso de una entidad (opcional)",
+    f_progress_min: "Barra vacía con este valor (0 por defecto)",
+    f_progress_max: "Barra llena con este valor (100 por defecto)",
+    f_timeout: "Duración en minutos (opcional)",
+    timeout_hint: "Sin ello, un mensaje de prueba termina a los 10 minutos.",
+    f_snooze_minutes: "Opciones de posponer, en minutos",
+    f_snooze_custom: "Se puede elegir la duración",
+    extra_hint: "Tomado del YAML y no mostrado en el formulario: {keys}.",
     f_title: "Título (opcional)",
     f_message: "Mensaje",
     f_tts: "Texto hablado (opcional, solo voz)",
@@ -345,7 +417,7 @@ export const STRINGS = {
     send_pasted: "Enviar la prueba",
     rendered: "La llamada tras renderizar las plantillas",
     push_level: "nivel push {level}",
-    send_hint: "Envía un mensaje real con la marca: el título empieza por Test, la etiqueta es test y termina a los 10 minutos. Se aplican las políticas.",
+    send_hint: "Envía un mensaje real con la marca: el título empieza por Test, la etiqueta es test y termina a los 10 minutos si no indicas una duración. Se aplican las políticas.",
     sent: "Enviado {id}: {summary}",
     what_happened: "Qué pasó",
     outcome_waiting: "Esperando la entrega…",
@@ -376,6 +448,7 @@ export const STRINGS = {
 };
 
 const SEVERITIES = ["passive", "info", "warning", "critical"];
+const SNOOZE_MINUTES = [5, 15, 30, 60, 120, 240, 480, 1440];
 const CHANNELS = ["banner", "push", "popup", "speak", "persistent", "mail"];
 const NEEDS_TARGET = ["push", "popup", "speak", "mail"];
 
@@ -384,7 +457,13 @@ export function fill(template, params) {
 }
 
 export function blankValues() {
-  return { title: "", message: "", tts_message: "", volume: "", mail_subject: "", mail_body: "", severity: "info", tag: "", channels: ["banner"], policy: [], match_automatic: true, dismiss: "", snooze: "" };
+  return {
+    title: "", message: "", tts_message: "", volume: "", mail_subject: "", mail_body: "", severity: "info", tag: "", channels: ["banner"], policy: [], match_automatic: true, dismiss: "", snooze: "",
+    icon: "", image: "", color: "", subtitle: "", icon_url: "", progress_entity: "", progress_min: "", progress_max: "",
+    timeout: "", snooze_minutes: [], snooze_custom: false, actions: [], tap_action: null, tap_problem: "",
+    // Keys of a call the form has no field for (for example `condition`); kept and sent as they are.
+    extra: {},
+  };
 }
 
 // Entity ID of an audience by the key the form stores ("admins", the id of an own audience) and by
@@ -417,6 +496,29 @@ export function buildCall(values, ids = {}) {
   // message nobody can dismiss.
   if (values.dismiss) data.dismiss = values.dismiss;
   if (values.snooze && values.dismiss !== "off") data.snooze = values.snooze;
+  for (const key of ["icon", "image", "color", "subtitle", "icon_url"]) if (String(values[key] || "").trim()) data[key] = String(values[key]).trim();
+  if (String(values.progress_entity || "").trim()) {
+    data.progress = { entity_id: String(values.progress_entity).trim() };
+    for (const key of ["min", "max"]) {
+      const raw = String(values[`progress_${key}`] ?? "").trim();
+      if (raw !== "" && !Number.isNaN(Number(raw))) data.progress[key] = Number(raw);
+    }
+  }
+  const minutes = Number.parseFloat(String(values.timeout ?? "").replace(",", "."));
+  if (Number.isFinite(minutes) && minutes > 0) data.timeout = { minutes };
+  if ((values.snooze_minutes || []).length) data.snooze_options = values.snooze_minutes.map((m) => ({ minutes: Number(m) }));
+  if (values.snooze_custom) data.snooze_custom = true;
+  const buttons = (values.actions || []).filter((b) => String(b.label || "").trim());
+  if (buttons.length) {
+    data.actions = buttons.map((b) => {
+      const out = { key: b.key, label: String(b.label).trim() };
+      for (const flag of ["dismiss", "destructive", "require_auth"]) if (b[flag]) out[flag] = true;
+      if (b.action) out.action = b.action;
+      return out;
+    });
+  }
+  if (values.tap_action) data.tap_action = values.tap_action;
+  Object.assign(data, values.extra || {});
   const targets = {};
   for (const channel of values.channels) {
     if (channel === "persistent") continue;
@@ -440,6 +542,88 @@ export function buildCall(values, ids = {}) {
   return data;
 }
 
+const MARKER_KEYS = ["id", "dry_run"];
+
+// Minutes of a duration as the call may write it: seconds, or a dict with hours, minutes, seconds.
+function minutesOf(value) {
+  if (value === undefined || value === null || value === "") return "";
+  if (typeof value === "number") return String(Math.round((value / 60) * 100) / 100);
+  if (typeof value === "string") {
+    const parts = value.split(":").map(Number);
+    if (parts.length === 3 && parts.every(Number.isFinite)) return String(parts[0] * 60 + parts[1] + parts[2] / 60);
+    return "";
+  }
+  const total = (Number(value.days) || 0) * 1440 + (Number(value.hours) || 0) * 60 + (Number(value.minutes) || 0) + (Number(value.seconds) || 0) / 60;
+  return total > 0 ? String(Math.round(total * 100) / 100) : "";
+}
+
+const invert = (map) => Object.fromEntries(Object.entries(map || {}).map(([name, id]) => [id, name]));
+
+// The form values of a call in YAML (the reverse of buildCall). What the form has no field for goes
+// to `extra`, so switching between the editors loses nothing.
+export function fromCall(call, ids = {}) {
+  const values = blankValues();
+  const used = new Set(MARKER_KEYS);
+  const take = (key) => {
+    used.add(key);
+    return call[key];
+  };
+  const str = (key) => {
+    const v = take(key);
+    return v === undefined || v === null ? "" : String(v);
+  };
+  for (const key of ["message", "title", "tag", "tts_message", "mail_subject", "mail_body", "icon", "image", "subtitle", "icon_url"]) values[key] = str(key);
+  const severity = take("severity");
+  values.severity = SEVERITIES.includes(severity) ? severity : severity === "success" ? "passive" : "info";
+  const color = take("color");
+  values.color = Array.isArray(color) && color.length === 3 ? `#${color.map((n) => Number(n).toString(16).padStart(2, "0")).join("")}` : color ? String(color) : "";
+  const volume = take("volume");
+  if (volume !== undefined && volume !== null && Number.isFinite(Number(volume))) values.volume = String(Math.round(Number(volume) * 100));
+  const progress = take("progress");
+  if (progress && typeof progress === "object") {
+    values.progress_entity = String(progress.entity_id ?? "");
+    values.progress_min = progress.min === undefined ? "" : String(progress.min);
+    values.progress_max = progress.max === undefined ? "" : String(progress.max);
+  }
+  values.timeout = minutesOf(take("timeout"));
+  const options = take("snooze_options");
+  if (Array.isArray(options)) values.snooze_minutes = options.map(minutesOf).filter(Boolean);
+  values.snooze_custom = Boolean(take("snooze_custom"));
+  const actions = take("actions");
+  if (Array.isArray(actions)) values.actions = actions.map((a) => ({ ...a }));
+  const tap = take("tap_action");
+  values.tap_action = tap && typeof tap === "object" ? { ...tap } : null;
+  for (const key of ["dismiss", "snooze"]) {
+    const v = take(key);
+    values[key] = v === false ? "off" : v ? String(v) : "";
+  }
+  values.match_automatic = take("match_policies_automatically") !== false;
+  const policies = invert(ids.policies);
+  const policy = take("policy");
+  values.policy = (Array.isArray(policy) ? policy : policy ? [policy] : []).map((p) => policies[p] ?? p);
+  const channels = take("channels");
+  values.channels = (Array.isArray(channels) ? channels : channels ? [channels] : []).filter((c) => CHANNELS.includes(c));
+  // Who gets it: the shared `audience` or `recipients` go to every channel that takes people,
+  // `speakers` to speech, and `to` sets a channel by itself.
+  const audiences = invert(ids.audiences);
+  const audience = take("audience");
+  const recipients = take("recipients");
+  const speakers = take("speakers");
+  const to = take("to") || {};
+  const people = values.channels.filter((c) => c !== "speak" && c !== "persistent");
+  for (const channel of people) {
+    if (audience) values[`${channel}_audience`] = audiences[audience] ?? audience;
+    else if (recipients) values[`${channel}_recipients`] = [...recipients];
+  }
+  if (speakers) values.speak_recipients = [...speakers];
+  for (const [channel, target] of Object.entries(to)) {
+    if (target.audience) values[`${channel}_audience`] = audiences[target.audience] ?? target.audience;
+    else if (target.recipients) values[`${channel}_recipients`] = [...target.recipients];
+  }
+  values.extra = Object.fromEntries(Object.entries(call).filter(([key]) => !used.has(key)));
+  return values;
+}
+
 // Problems as a list of { code, channel? }; empty means the call is valid.
 export function validate(values) {
   const found = [];
@@ -451,6 +635,9 @@ export function validate(values) {
     if (!audience && recipients.length === 0) found.push({ code: "target_required", channel });
     else if (audience && recipients.length > 0) found.push({ code: "target_exclusive", channel });
   }
+  for (const b of values.actions || []) if (!String(b.label || "").trim()) found.push({ code: "label_required" });
+  if ((values.actions || []).some((b) => b.dismiss) && values.dismiss === "off") found.push({ code: "dismiss_needs_dismissible" });
+  if (values.tap_problem) found.push({ code: values.tap_problem });
   const banner = values.banner_audience && (values.banner_recipients || []).length > 0;
   if (values.channels.includes("banner") && banner) found.push({ code: "target_exclusive", channel: "banner" });
   return found;
@@ -583,63 +770,142 @@ export function mount(container, ctx) {
     policies: Object.fromEntries((data?.policies || []).filter((p) => p.entity_id).map((p) => [p.name, p.entity_id])),
   });
 
+  // Which sections are open stays as the user left it when the page is drawn again.
+  const open = { content: true, look: false, buttons: false, behaviour: false, call: true, who: true };
+  let mode = "visual"; // or "yaml"
+  const section = (key, title, children) => {
+    const fold = ui.fold(title, el("div", { className: "stack" }, children), open[key]);
+    fold.addEventListener("toggle", () => { open[key] = fold.open; });
+    return fold;
+  };
+
+  function header() {
+    const seg = el("div", { className: "seg", role: "group" });
+    seg.setAttribute("aria-label", t.mode_label);
+    for (const [key, label] of [["visual", t.mode_visual], ["yaml", t.mode_yaml]]) {
+      const button = el("button", { type: "button", textContent: label });
+      button.setAttribute("aria-pressed", String(mode === key));
+      button.addEventListener("click", () => switchMode(key));
+      seg.append(button);
+    }
+    return el("div", { className: "hu-head" }, [el("h1", { textContent: t.title }), seg]);
+  }
+
+  async function switchMode(next) {
+    if (next === mode) return;
+    if (next === "yaml") {
+      pasted.yaml = callYaml(values, ui.toYaml, entityIds());
+      pasted.result = null;
+      pasted.error = "";
+      pasted.notice = "";
+      mode = "yaml";
+      render();
+      return;
+    }
+    try {
+      const reply = await hass.callWS({ type: "heads_up/hub_parse_yaml", yaml: pasted.yaml });
+      Object.assign(values, fromCall(reply.call, entityIds()));
+      mode = "visual";
+      render();
+      runPreview();
+    } catch (err) {
+      pasted.error = err?.message || String(err?.code || "error");
+      root.querySelector("section.hu-pasted")?.replaceWith(pastedNode());
+    }
+  }
+
   function render() {
     ui.lockHeight(root);
-    root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), el("h1", { textContent: t.title }));
-    root.append(el("div", { className: "hint", textContent: t.intro }));
+    root.replaceChildren(el("style", { textContent: ui.BASE_CSS }), header());
+    root.append(el("div", { className: "hint", textContent: mode === "yaml" ? t.yaml_in_hint : t.intro }));
+    if (mode === "yaml") {
+      root.append(pastedNode());
+      return;
+    }
     const change = () => schedule();
+    const text = (key, label, extra = {}) => ui.field(label, ui.textInput(values[key], (v) => { values[key] = v; change(); }, { style: "max-width:100%", ...extra }));
+    const speak = values.channels.includes("speak");
+    const mail = values.channels.includes("mail");
 
-    const content = el("section", {}, [el("h2", { textContent: t.content })]);
-    content.append(ui.field(t.f_title, ui.textInput(values.title, (v) => { values.title = v; change(); })));
-    content.append(ui.field(t.f_message, ui.textInput(values.message, (v) => { values.message = v; change(); }, { style: "max-width:100%" })));
-    if (values.channels.includes("speak")) content.append(ui.field(t.f_tts, ui.textInput(values.tts_message, (v) => { values.tts_message = v; change(); }, { style: "max-width:100%" })));
-    if (values.channels.includes("speak")) content.append(ui.field(t.f_volume, ui.selectInput([{ value: "", label: t.volume_unchanged }, ...VOLUME_STEPS.map((n) => ({ value: String(n), label: `${n} %` }))], String(values.volume || ""), (v) => { values.volume = v; change(); })));
+    const content = [text("title", t.f_title), text("message", t.f_message)];
+    if (speak) content.push(text("tts_message", t.f_tts));
+    if (speak) content.push(ui.field(t.f_volume, ui.selectInput([{ value: "", label: t.volume_unchanged }, ...VOLUME_STEPS.map((n) => ({ value: String(n), label: `${n} %` }))], String(values.volume || ""), (v) => { values.volume = v; change(); })));
+    if (mail) content.push(text("mail_subject", t.f_mail_subject), text("mail_body", t.f_mail_body));
 
-    if (values.channels.includes("mail")) {
-      content.append(ui.field(t.f_mail_subject, ui.textInput(values.mail_subject, (v) => { values.mail_subject = v; change(); }, { style: "max-width:100%" })));
-      content.append(ui.field(t.f_mail_body, ui.textInput(values.mail_body, (v) => { values.mail_body = v; change(); }, { style: "max-width:100%" })));
-    }
+    const look = [
+      text("subtitle", t.f_subtitle),
+      text("icon", t.f_icon),
+      ui.field(t.f_color, ui.colorInput(values.color, (v) => { values.color = v; change(); }, { placeholder: "#03a9f4", "aria-label": t.f_color })),
+      text("icon_url", t.f_icon_url),
+      text("image", t.f_image),
+    ];
+    const bar = text("progress_entity", t.f_progress);
+    bar.querySelector("input")?.setAttribute("list", "hu-entities");
+    look.push(bar, el("datalist", { id: "hu-entities" }, Object.keys(hass.states || {}).sort().map((id) => el("option", { value: id }))));
+    if (values.progress_entity.trim()) look.push(text("progress_min", t.f_progress_min, { placeholder: "0" }), text("progress_max", t.f_progress_max, { placeholder: "100" }));
 
-    const callBox = el("section", {}, [el("h2", { textContent: t.call })]);
-    callBox.append(ui.field(t.severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: s.severity[k] })), values.severity, (v) => { values.severity = v; change(); })));
-    callBox.append(ui.field(t.tag, ui.textInput(values.tag, (v) => { values.tag = v; change(); }), t.tag_hint));
-    callBox.append(ui.chips(t.channels, CHANNELS.map((c) => ({ value: c, label: channelLabel(c) })), values.channels, (list) => { values.channels = list; render(); schedule(); }));
-    callBox.append(ui.checkbox(t.match_automatic, values.match_automatic, (on) => { values.match_automatic = on; change(); }));
-    callBox.append(el("div", { className: "hint", textContent: t.match_automatic_hint }));
-    callBox.append(ui.chips(t.policy, data.policies.map((p) => ({ value: p.name, label: p.name })), values.policy, (list) => { values.policy = list; change(); }));
+    const buttons = [
+      ui.buttonsEditor(s, values.actions, (list) => { values.actions = list; change(); }, { listId: "hu-entities" }),
+      el("h3", { className: "sec", textContent: s.buttons.tap }),
+      el("div", { className: "hint", textContent: s.buttons.tap_hint }),
+      ui.actionEditor(s, values.tap_action, (action, problem) => { values.tap_action = action; values.tap_problem = problem; change(); }, { listId: "hu-entities" }),
+    ];
 
-    const behaviour = el("section", {}, [el("h2", { textContent: t.behaviour })]);
     const whoCan = [{ value: "", label: t.who_default }, { value: "off", label: t.who_off }, { value: "user", label: t.who_user }, { value: "everyone", label: t.who_everyone }];
-    behaviour.append(ui.field(t.dismiss_label, ui.selectInput(whoCan, values.dismiss, (v) => { values.dismiss = v; render(); schedule(); })));
+    const behaviour = [ui.field(t.dismiss_label, ui.selectInput(whoCan, values.dismiss, (v) => { values.dismiss = v; render(); schedule(); }))];
     if (values.dismiss !== "off") {
-      behaviour.append(ui.field(t.snooze_label, ui.selectInput(whoCan, values.snooze, (v) => { values.snooze = v; change(); })));
+      behaviour.push(ui.field(t.snooze_label, ui.selectInput(whoCan, values.snooze, (v) => { values.snooze = v; change(); })));
+      behaviour.push(ui.chips(t.f_snooze_minutes, SNOOZE_MINUTES.map((m) => ({ value: String(m), label: String(m) })), values.snooze_minutes, (list) => { values.snooze_minutes = list; change(); }));
+      behaviour.push(ui.checkbox(t.f_snooze_custom, values.snooze_custom, (on) => { values.snooze_custom = on; change(); }));
     } else {
-      behaviour.append(el("div", { className: "hint", textContent: t.pinned_hint }));
+      behaviour.push(el("div", { className: "hint", textContent: t.pinned_hint }));
     }
-    behaviour.append(el("div", { className: "hint", textContent: t.behaviour_hint }));
+    behaviour.push(ui.field(t.f_timeout, ui.numberInput(values.timeout, (v) => { values.timeout = Number.isNaN(v) ? "" : String(v); change(); }, { min: 0, step: "any" }), t.timeout_hint));
+    behaviour.push(el("div", { className: "hint", textContent: t.behaviour_hint }));
     const unused = behaviourUnused(values.channels);
-    if (unused) behaviour.append(el("div", { className: "hint", textContent: t[unused] }));
+    if (unused) behaviour.push(el("div", { className: "hint", textContent: t[unused] }));
 
-    const who = el("section", {}, [el("h2", { textContent: t.who })]);
+    const call = [
+      ui.field(t.severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: s.severity[k] })), values.severity, (v) => { values.severity = v; change(); })),
+      ui.chips(t.channels, CHANNELS.map((c) => ({ value: c, label: channelLabel(c) })), values.channels, (list) => { values.channels = list; render(); schedule(); }),
+      ui.field(t.tag, ui.textInput(values.tag, (v) => { values.tag = v; change(); }), t.tag_hint),
+      ui.checkbox(t.match_automatic, values.match_automatic, (on) => { values.match_automatic = on; change(); }),
+      el("div", { className: "hint", textContent: t.match_automatic_hint }),
+      ui.chips(t.policy, data.policies.map((p) => ({ value: p.name, label: p.name })), values.policy, (list) => { values.policy = list; change(); }),
+    ];
+
+    const who = [];
     const labels = { audience: t.target_audience, recipients: t.target_recipients, persistent: t.target_persistent };
     for (const channel of values.channels) {
-      who.append(ui.targetBlock(channel, values, data.choices, { ...labels, channel: fill(t.target_channel, { channel: channelLabel(channel) }) }, (mode) => { if (mode) render(); schedule(); }));
+      who.push(ui.targetBlock(channel, values, data.choices, { ...labels, channel: fill(t.target_channel, { channel: channelLabel(channel) }) }, (mode2) => { if (mode2) render(); schedule(); }));
       const chosen = values[`${channel}_audience`];
       const audience = data.audiences.find((a) => a.name === (data.choices.audience_choices || []).find((c) => c.id === chosen)?.name);
       if (audience) {
         const names = audience.members.map((m) => data.choices.persons.find((p) => p.id === m)?.name ?? m);
-        who.append(el("div", { className: "hint", textContent: names.length ? fill(t.audience_now, { names: names.join(", ") }) : t.audience_nobody }));
+        who.push(el("div", { className: "hint", textContent: names.length ? fill(t.audience_now, { names: names.join(", ") }) : t.audience_nobody }));
       }
-      if (channel === "banner") who.append(el("div", { className: "hint", textContent: t.banner_hint }));
+      if (channel === "banner") who.push(el("div", { className: "hint", textContent: t.banner_hint }));
     }
-    root.append(content, callBox, behaviour, who, resultNode(), yamlNode(), pastedNode());
+
+    const extraKeys = Object.keys(values.extra || {});
+    if (extraKeys.length) root.append(el("div", { className: "hint", textContent: fill(t.extra_hint, { keys: extraKeys.join(", ") }) }));
+    root.append(
+      section("content", t.content, content),
+      section("call", t.call, call),
+      section("who", t.who, who),
+      section("look", t.look, look),
+      section("buttons", `${s.buttons.title} · ${s.buttons.tap}`, buttons),
+      section("behaviour", t.behaviour, behaviour),
+      resultNode(),
+      yamlNode(),
+    );
   }
 
   function resultNode() {
     const box = el("section", { className: "hu-result" }, [el("h2", { textContent: t.result })]);
     const problems = validate(values);
     if (problems.length) {
-      box.append(el("div", { className: "hint problems", textContent: problems.map((p) => fill(t.problems[p.code], { channel: p.channel ? channelLabel(p.channel) : "" })).join(" ") }));
+      box.append(el("div", { className: "hint problems", textContent: problems.map((p) => fill(s.buttons.problems[p.code] || t.problems[p.code], { channel: p.channel ? channelLabel(p.channel) : "" })).join(" ") }));
       return box;
     }
     if (!result) {
@@ -704,9 +970,8 @@ export function mount(container, ctx) {
   }
 
   function yamlNode() {
-    const box = el("section", { className: "hu-yaml" }, [el("h2", { textContent: t.yaml })]);
+    const box = el("section", { className: "hu-yaml" }, [el("h2", { textContent: t.send_title })]);
     const valid = validate(values).length === 0;
-    box.append(el("pre", { textContent: callYaml(values, ui.toYaml, entityIds()) }));
     const copy = el("button", { type: "button", textContent: t.copy });
     const status = el("span", { className: "hint", style: "margin-left:8px" });
     status.setAttribute("role", "status");
@@ -730,6 +995,7 @@ export function mount(container, ctx) {
       clear.addEventListener("click", clearTest);
       box.append(clear);
     }
+    box.append(ui.fold(t.yaml, el("pre", { textContent: callYaml(values, ui.toYaml, entityIds()) })));
     return box;
   }
 
@@ -737,14 +1003,13 @@ export function mount(container, ctx) {
   const pasted = { yaml: "", vars: "", result: null, error: "", notice: "" };
 
   function pastedNode() {
-    const box = el("section", { className: "hu-pasted" }, [el("h2", { textContent: t.yaml_in })]);
-    box.append(el("div", { className: "hint", textContent: t.yaml_in_hint }));
+    const box = el("section", { className: "hu-pasted" });
     const area = (key, rows) => {
       const node = el("textarea", { rows, value: pasted[key], spellcheck: false, style: "width:100%;box-sizing:border-box;font-family:monospace" });
       node.addEventListener("input", () => { pasted[key] = node.value; });
       return node;
     };
-    box.append(ui.field(t.yaml, area("yaml", 10)));
+    box.append(ui.field(t.yaml, area("yaml", 18)));
     box.append(ui.field(t.yaml_vars, area("vars", 4), t.yaml_vars_hint));
     const plan = el("button", { type: "button", textContent: t.plan_pasted });
     plan.addEventListener("click", () => runPasted("heads_up/hub_plan_yaml"));

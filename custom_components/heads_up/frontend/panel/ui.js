@@ -157,6 +157,13 @@ export const BASE_CSS = `
 .hu-page textarea { height: auto; min-height: 88px; padding: 10px 12px; max-width: none; resize: vertical; }
 .hu-page input[type=text]:hover, .hu-page input[type=number]:hover, .hu-page input[type=time]:hover, .hu-page select:hover { border-color: var(--primary-text-color); }
 .hu-page section > select, .hu-page fieldset > select { display: block; margin-bottom: 20px; }
+.hu-page .hu-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.hu-page .seg { display: inline-flex; border: 1px solid var(--divider-color); border-radius: 8px; overflow: hidden; }
+.hu-page .seg button { border: 0; border-radius: 0; padding: 8px 14px; background: transparent; color: var(--primary-text-color); cursor: pointer; font: inherit; }
+.hu-page .seg button[aria-pressed=true] { background: var(--primary-color); color: var(--text-primary-color, #fff); }
+.hu-page .stack { display: grid; gap: 6px; padding-bottom: 8px; }
+.hu-page .stack > .field, .hu-page .stack > fieldset, .hu-page .stack > .btn-row, .hu-page .stack > .action-editor { margin: 0; }
+.hu-page .btn-row .field, .hu-page .action-editor .field { margin: 0; }
 .hu-page details.fold { margin: 12px 0; padding: 4px 12px; border: 1px solid var(--divider-color); border-radius: 8px; }
 .hu-page details.fold > summary { padding: 8px 0; font-weight: 600; cursor: pointer; }
 .hu-page .btn-row { display: grid; gap: 8px; padding: 12px; margin: 8px 0; border: 1px solid var(--divider-color); border-radius: 8px; }

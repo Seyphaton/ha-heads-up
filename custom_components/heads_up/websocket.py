@@ -520,6 +520,25 @@ _TEST_CALL: dict[Any, Any] = {
     vol.Optional("speakers"): [str],
     vol.Optional("dismiss"): str,
     vol.Optional("snooze"): str,
+    # The other fields of `notify` (D-260): the schema of the action checks them.
+    **{
+        vol.Optional(key): object
+        for key in (
+            "icon",
+            "image",
+            "color",
+            "icon_url",
+            "subtitle",
+            "progress",
+            "timeout",
+            "actions",
+            "tap_action",
+            "snooze_options",
+            "snooze_custom",
+            "condition",
+            "mode",
+        )
+    },
 }
 
 
@@ -715,6 +734,22 @@ async def ws_hub_plan_yaml(
         connection.send_error(msg["id"], err.code, str(err))
         return
     connection.send_result(msg["id"], {**await manager.hub.preview(message), "call": payload})
+
+
+@websocket_command({vol.Required("type"): "heads_up/hub_parse_yaml", vol.Required("yaml"): str})
+@require_admin
+@callback
+def ws_hub_parse_yaml(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The `notify` input of a call in YAML, templates left as they are, so the visual editor can
+    take over what was typed in the YAML editor (D-260)."""
+    try:
+        call = panel_test.parse_call(msg["yaml"])
+    except panel_test.TestSendError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    connection.send_result(msg["id"], {"call": call})
 
 
 @websocket_command(
@@ -987,6 +1022,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_conversion_items_dismiss,
         ws_hub_test_send,
         ws_hub_plan_yaml,
+        ws_hub_parse_yaml,
         ws_hub_test_send_yaml,
         ws_panel_config,
         ws_channels_set,
