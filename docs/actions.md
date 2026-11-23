@@ -43,6 +43,7 @@ The banner is on the dashboard for the people who are home, and each of them get
 | `color` | text | the severity's color, when it is `#rrggbb` | A `#rrggbb` color. It colors the banner and the popup. On a push, Android colors the notification and iOS uses it as the background of the icon. |
 | `icon_url` | text | none | A sender icon: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/api/` and `/media/` paths are signed for you). The banner and the popup show it in place of the icon, and the icon stays when the picture does not load. On an iOS push it replaces `icon`. A push sends it only when the lock screen setting is `full`. |
 | `subtitle` | text | none | A second line under the title on the banner (not in the compact layout) and in the popup. On a push it is the subtitle on iOS and the subject on Android, sent only when the lock screen setting is `full`. |
+| `progress` | object | none | A progress bar that follows a number: `entity_id`, `min` (default 0) and `max` (default 100). The value is scaled to 0 to 100 percent and values outside the range stop at the ends. The banner and the popup show the bar. The push updates one notification in place: a Live Update on Android 16 and later, a Live Activity on iOS 17.2 and later (not on iPad); older devices show the plain message. Updates are sent at most every 5 seconds. The title is `Heads Up` when the message has none. |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel, when it should differ from the written message. |
 | `volume` | number from 0 to 1 | none | Sets this volume on a media player before it speaks. Without it the volume stays as it is. Assist satellites and players that cannot set their volume ignore it. The volume is not restored afterwards. |
 | `tap_action` | object with `action` | none | A Home Assistant action that runs when someone taps the banner (the card) or the push. Passed on unchanged. Anyone who sees the banner can trigger it; see [SECURITY.md](../SECURITY.md). |
@@ -327,6 +328,7 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `color` | text | none | As in `notify`. |
 | `icon_url` | text | none | As in `notify`. |
 | `subtitle` | text | none | As in `notify`. |
+| `progress` | object | none | As in `notify`. |
 | `tap_action` | object with `action` | none | As in `notify`. |
 | `timeout` | seconds or duration | setting Default timeout | As in `notify`. |
 | `tag` | text | none | As in `notify`. |
@@ -653,6 +655,7 @@ An automation does the same: a trigger that calls `heads_up.create_banner`, or `
 | Subtitle | none | Same as `subtitle` in [the action fields](#heads_upnotify). |
 | Color | none | Same as `color` in [the action fields](#heads_upnotify). |
 | Sender icon | none | Same as `icon_url` in [the action fields](#heads_upnotify). |
+| Progress bar from an entity | none | Same as `progress` in [the action fields](#heads_upnotify): the entity, then the value where the bar is empty (default 0) and full (default 100). |
 | Enabled | on | Off hides the banner without deleting the rule. |
 
 To change or delete a rule, open it from the same page. Changes apply at once; no restart is needed.

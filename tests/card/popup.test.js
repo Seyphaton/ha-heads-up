@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buttonsFor,
   cssColor,
+  clampPercent,
   current,
   imageSource,
   needsSignature,
@@ -131,5 +132,11 @@ describe("message color (D-258)", () => {
   it("accepts only #rrggbb", () => {
     expect(cssColor("#03a9f4")).toBe("#03a9f4");
     for (const bad of ["blue", "#fff", "#gggggg", "", null, undefined, 3]) expect(cssColor(bad)).toBeNull();
+  });
+});
+
+describe("progress value (D-256)", () => {
+  it("is a whole number from 0 to 100", () => {
+    expect([clampPercent(40.4), clampPercent(-5), clampPercent(250), clampPercent(99.6)]).toEqual([40, 0, 100, 100]);
   });
 });

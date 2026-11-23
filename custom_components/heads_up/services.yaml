@@ -38,6 +38,10 @@ create_banner:
     subtitle: &cl003
       selector:
         text: null
+    progress: &cl004
+      example: '{"entity_id": "sensor.printer_progress", "min": 0, "max": 100}'
+      selector:
+        object: null
     audience:
       selector:
         entity:
@@ -235,6 +239,7 @@ notify:
     color: *cl001
     icon_url: *cl002
     subtitle: *cl003
+    progress: *cl004
     id: *id007
     tag: *id008
     timeout: *id009

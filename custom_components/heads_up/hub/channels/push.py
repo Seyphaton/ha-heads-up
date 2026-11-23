@@ -175,6 +175,15 @@ class PushChannel:
             else:
                 note = ";".join(n for n in (note, "subtitle_hidden") if n)
         title, body = self._lockscreen(message)
+        if message.progress_value is not None:
+            # Live Updates (Android 16) and Live Activities (iOS 17.2): the same tag updates the
+            # bar in place, and a title is required (N-113). Older devices show a plain message.
+            data["live_update"] = True
+            data["progress"] = message.progress_value
+            data["progress_max"] = 100
+            if not ios:
+                data["alert_once"] = True  # an update must not ring again
+            title = title or "Heads Up"
         # An iOS sender icon turns the push into a communication notification, which needs a
         # title as the sender name (N-112).
         if ios and not title and ("notification_icon" in data or "icon_url" in data):

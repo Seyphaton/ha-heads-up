@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import logging
 import secrets
+import time
 from collections.abc import Callable, Iterator, Mapping
 from copy import deepcopy
 from datetime import datetime, timedelta
@@ -73,10 +74,13 @@ from .hub.engine import HubEngine
 from .hub.rename import rewrite
 from .hub.transitions import BannerTransition, Kind, Reason, TransitionListener
 from .models import Banner
+from .progress import percent
 from .storage import banner_store
 
 _LOGGER = logging.getLogger(__name__)
 _NO_STATE = {STATE_UNAVAILABLE, STATE_UNKNOWN}
+# Seconds between two progress pushes of one message; iOS throttles frequent updates (N-113).
+PROGRESS_INTERVAL = 5
 # `reason` values of the bus events mapped to transition reasons.
 _REASONS = {
     "action": Reason.CLEARED,
@@ -124,6 +128,9 @@ class BannerManager:
         self._template_trackers: dict[str, TrackTemplateResultInfo] = {}
         # One timer per snooze, by (banner ID, user ID or GLOBAL_SNOOZE_KEY) (DESIGN §21).
         self._snooze_timers: dict[tuple[str, str], CALLBACK_TYPE] = {}
+        # Progress pushes go out at most every PROGRESS_INTERVAL seconds per message (D-256).
+        self._progress_timers: dict[str, CALLBACK_TYPE] = {}
+        self._progress_last: dict[str, float] = {}
 
     async def async_load(self) -> None:
         self._silent = True
@@ -157,6 +164,7 @@ class BannerManager:
                 self._emit(Kind.HIDDEN, banner, Reason.EXPIRED)
                 dropped = True
                 continue
+            banner.progress_value = self._percent(banner.progress)
             self.banners[banner.id] = banner
             self._schedule(banner)
             dropped |= self._restore_snoozes(banner, now)
@@ -192,6 +200,9 @@ class BannerManager:
         for cancel in self._snooze_timers.values():
             cancel()
         self._snooze_timers.clear()
+        for cancel in self._progress_timers.values():
+            cancel()
+        self._progress_timers.clear()
         for banner_id in [*self._for_timers, *self._template_trackers]:
             self._cancel_wait(banner_id)
             self._untrack_template(banner_id)
@@ -263,6 +274,8 @@ class BannerManager:
             color=data.get("color"),
             icon_url=data.get("icon_url"),
             subtitle=data.get("subtitle"),
+            progress=dict(data["progress"]) if data.get("progress") else None,
+            progress_value=self._percent(data.get("progress")),
             actions=[dict(a) for a in data.get("actions", [])],
             condition=condition,
             mode=data.get("mode", "once"),
@@ -605,6 +618,7 @@ class BannerManager:
                 gone = self.rules.pop(banner_id)
                 self._cancel_wait(banner_id)
                 self._cancel_snoozes(banner_id)
+                self._cancel_progress(banner_id)
                 self._untrack_template(banner_id)
                 self._rule_sources.pop(banner_id, None)
                 self._rule_template_entities.pop(banner_id, None)
@@ -710,6 +724,8 @@ class BannerManager:
             color=source.get("color") or None,
             icon_url=source.get("icon_url") or None,
             subtitle=source.get("subtitle") or None,
+            progress=dict(source["progress"]) if source.get("progress") else None,
+            progress_value=self._percent(source.get("progress")),
             snoozable=dismissible and source.get("snoozable", self.options[OPT_DEFAULT_SNOOZABLE]),
             snooze_scope=source.get("snooze_scope") or self.options[OPT_DEFAULT_SNOOZE_SCOPE],
             snooze_options=list(
@@ -919,8 +935,56 @@ class BannerManager:
                 banner.condition is not None and banner.condition.get("entity_id") == entity_id
             ) or entity_id in self._rule_template_entities.get(banner.id, ()):
                 changed |= self._apply_rule(banner)
+        for banner in [*self.banners.values(), *self.rules.values()]:
+            if banner.progress and banner.progress["entity_id"] == entity_id:
+                changed |= self._progress_changed(banner)
         if changed:
             self._changed()
+
+    # Progress bar (D-256) --------------------------------------------------------------
+
+    def _percent(self, spec: Mapping[str, Any] | None) -> int | None:
+        if not spec:
+            return None
+        state = self.hass.states.get(spec["entity_id"])
+        if state is None or state.state in _NO_STATE:
+            return None
+        return percent(state.state, spec)
+
+    def _progress_changed(self, banner: Banner) -> bool:
+        value = self._percent(banner.progress)
+        if value == banner.progress_value:
+            return False
+        banner.progress_value = value
+        last = self._progress_last.get(banner.id)
+        now = time.monotonic()
+        if last is None or now - last >= PROGRESS_INTERVAL or value in (0, 100):
+            self._progress_emit(banner.id)
+        elif banner.id not in self._progress_timers:
+            # The newest value goes out when the interval is over, so the end is never lost.
+            self._progress_timers[banner.id] = async_call_later(
+                self.hass, PROGRESS_INTERVAL - (now - last), partial(self._progress_due, banner.id)
+            )
+        return True
+
+    @callback
+    def _progress_due(self, banner_id: str, _now: datetime) -> None:
+        self._progress_timers.pop(banner_id, None)
+        self._progress_emit(banner_id)
+
+    def _progress_emit(self, banner_id: str) -> None:
+        if cancel := self._progress_timers.pop(banner_id, None):
+            cancel()
+        banner = self.banners.get(banner_id) or self.rules.get(banner_id)
+        if banner is None or not banner.active:
+            return
+        self._progress_last[banner_id] = time.monotonic()
+        self._emit(Kind.PROGRESS, banner)
+
+    def _cancel_progress(self, banner_id: str) -> None:
+        if cancel := self._progress_timers.pop(banner_id, None):
+            cancel()
+        self._progress_last.pop(banner_id, None)
 
     def _refresh_tracking(self) -> None:
         wanted = {
@@ -934,6 +998,7 @@ class BannerManager:
             if b.condition and "entity_id" in b.condition
         }
         wanted |= {e for entities in self._rule_template_entities.values() for e in entities}
+        wanted |= {b.progress["entity_id"] for b in self._all() if b.progress}
         wanted |= {p for b in self._all() for p in b.people}
         if wanted == self.tracked_entities:
             return
@@ -975,6 +1040,7 @@ class BannerManager:
             cancel()
         self._cancel_wait(banner_id)
         self._cancel_snoozes(banner_id)
+        self._cancel_progress(banner_id)
         self._untrack_template(banner_id)
         self._fire(event, banner, **extra)
         reason = extra.get("reason")

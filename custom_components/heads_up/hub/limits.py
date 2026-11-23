@@ -39,6 +39,7 @@ def signature(banner: Banner) -> Signature:
         banner.color,
         banner.icon_url,
         banner.subtitle,
+        banner.progress_value,
         actions,
     )
 

@@ -72,6 +72,9 @@ class Banner:
     color: str | None = None
     icon_url: str | None = None
     subtitle: str | None = None
+    # Progress bar (D-256): {entity_id, min, max} and the current value in percent, 0 to 100.
+    progress: dict[str, Any] | None = None
+    progress_value: int | None = None
     # One message's own mail subject and body templates; empty: the Channels page templates.
     mail_subject: str | None = None
     mail_body: str | None = None
@@ -148,6 +151,7 @@ class Banner:
             "source",
             "mail_subject",
             "mail_body",
+            "progress",
         ):
             del data[key]
         snoozed_until = self.snoozed_for(user_id)

@@ -206,6 +206,25 @@ IMAGE = vol.All(cv.string, vol.Length(min=1, max=MAX_IMAGE), _image)
 COLOR = vol.All(cv.string, vol.Match(r"^#[0-9a-fA-F]{6}$"))
 SUBTITLE = vol.All(cv.string, vol.Length(min=1, max=MAX_TITLE))
 
+
+def _progress_range(value: dict[str, Any]) -> dict[str, Any]:
+    if float(value.get("max", 100)) <= float(value.get("min", 0)):
+        raise vol.Invalid("max must be greater than min", path=["max"])
+    return value
+
+
+# A progress bar bound to an entity (D-256). Values scale from min..max to 0..100 percent.
+PROGRESS = vol.All(
+    vol.Schema(
+        {
+            vol.Required("entity_id"): cv.entity_id,
+            vol.Optional("min"): vol.Coerce(float),
+            vol.Optional("max"): vol.Coerce(float),
+        }
+    ),
+    _progress_range,
+)
+
 NAME = vol.All(cv.string, vol.Length(min=1, max=100))  # audience, recipient and policy names
 
 
@@ -368,6 +387,7 @@ _CREATE_FIELDS: dict[Any, Any] = {
     vol.Optional("color"): COLOR,
     vol.Optional("icon_url"): IMAGE,
     vol.Optional("subtitle"): SUBTITLE,
+    vol.Optional("progress"): PROGRESS,
 }
 
 

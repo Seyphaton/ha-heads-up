@@ -75,7 +75,7 @@ from .hub.flows import (
     RecipientProfileSubentryFlow,
 )
 from .hub.identity import NAME_PREFIX
-from .services import ACTIONS_SCHEMA, COLOR, IMAGE, SUBTITLE, TAP_ACTION_SCHEMA
+from .services import ACTIONS_SCHEMA, COLOR, IMAGE, PROGRESS, SUBTITLE, TAP_ACTION_SCHEMA
 
 
 class HeadsUpConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -294,6 +294,7 @@ _RULE_SCHEMA = vol.Schema(
         vol.Optional("color"): TextSelector(),
         vol.Optional("icon_url"): TextSelector(),
         vol.Optional("subtitle"): TextSelector(),
+        vol.Optional("progress"): ObjectSelector(),
         # `automatic`, `none` or a policy key: a dropdown made when the form opens (D-202).
         vol.Optional("policy"): TextSelector(),
         vol.Required("enabled", default=True): BooleanSelector(),
@@ -350,6 +351,10 @@ def _rule_data(user_input: dict[str, Any]) -> dict[str, Any]:
             data[key] = check(data[key].strip())
         else:
             data.pop(key, None)
+    if data.get("progress"):
+        data["progress"] = PROGRESS(data["progress"])
+    else:
+        data.pop("progress", None)
     # The duration selector gives a dict; the rule stores seconds, none when empty (D-066).
     seconds = _for_seconds(data.pop("for", None))
     if seconds:
@@ -517,7 +522,11 @@ class RuleSubentryFlow(ConfigSubentryFlow):
                     check(value)
                 except vol.Invalid:
                     errors[key] = f"{key}_invalid"
-        for field, schema in (("actions", ACTIONS_SCHEMA), ("tap_action", TAP_ACTION_SCHEMA)):
+        for field, schema in (
+            ("actions", ACTIONS_SCHEMA),
+            ("tap_action", TAP_ACTION_SCHEMA),
+            ("progress", PROGRESS),
+        ):
             if user_input.get(field):
                 try:
                     checked = schema(user_input[field])

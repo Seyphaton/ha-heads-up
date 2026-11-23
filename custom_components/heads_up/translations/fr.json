@@ -488,15 +488,19 @@
         },
         "color": {
           "name": "Couleur",
-          "description": "Une couleur #rrggbb pour le push. Android colore la notification ; iOS l'utilise comme fond de l'icône."
+          "description": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône."
         },
         "icon_url": {
           "name": "Icône de l'expéditeur",
-          "description": "Push uniquement. Une image d'icône sous forme d'URL commençant par http:// ou https://, ou d'un chemin commençant par /. Sur iOS, elle remplace l'icône. Envoyée uniquement si le réglage de l'écran verrouillé est full."
+          "description": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full."
         },
         "subtitle": {
           "name": "Sous-titre",
-          "description": "Push uniquement. Une seconde ligne sous le titre : le sous-titre sur iOS, l'objet sur Android. Envoyé uniquement si le réglage de l'écran verrouillé est full."
+          "description": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full."
+        },
+        "progress": {
+          "name": "Progression",
+          "description": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus)."
         }
       }
     },
@@ -658,15 +662,19 @@
         },
         "color": {
           "name": "Couleur",
-          "description": "Une couleur #rrggbb pour le push. Android colore la notification ; iOS l'utilise comme fond de l'icône."
+          "description": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône."
         },
         "icon_url": {
           "name": "Icône de l'expéditeur",
-          "description": "Push uniquement. Une image d'icône sous forme d'URL commençant par http:// ou https://, ou d'un chemin commençant par /. Sur iOS, elle remplace l'icône. Envoyée uniquement si le réglage de l'écran verrouillé est full."
+          "description": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full."
         },
         "subtitle": {
           "name": "Sous-titre",
-          "description": "Push uniquement. Une seconde ligne sous le titre : le sous-titre sur iOS, l'objet sur Android. Envoyé uniquement si le réglage de l'écran verrouillé est full."
+          "description": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full."
+        },
+        "progress": {
+          "name": "Progression",
+          "description": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus)."
         }
       }
     },
@@ -728,15 +736,15 @@
         },
         "color": {
           "name": "Couleur",
-          "description": "Une couleur #rrggbb pour le push. Android colore la notification ; iOS l'utilise comme fond de l'icône."
+          "description": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône."
         },
         "icon_url": {
           "name": "Icône de l'expéditeur",
-          "description": "Push uniquement. Une image d'icône sous forme d'URL commençant par http:// ou https://, ou d'un chemin commençant par /. Sur iOS, elle remplace l'icône. Envoyée uniquement si le réglage de l'écran verrouillé est full."
+          "description": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full."
         },
         "subtitle": {
           "name": "Sous-titre",
-          "description": "Push uniquement. Une seconde ligne sous le titre : le sous-titre sur iOS, l'objet sur Android. Envoyé uniquement si le réglage de l'écran verrouillé est full."
+          "description": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full."
         }
       }
     },
@@ -904,7 +912,8 @@
             "audience": "Audience",
             "color": "Couleur",
             "icon_url": "Icône de l'expéditeur",
-            "subtitle": "Sous-titre"
+            "subtitle": "Sous-titre",
+            "progress": "Progression"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
@@ -928,9 +937,10 @@
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Automatique : chaque politique automatique qui s'applique à un message de règle (balise rule). Une politique : seulement celle-ci, même après l'avoir renommée. Aucune : aucune politique.",
             "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit.",
-            "color": "Une couleur #rrggbb pour le push. Android colore la notification ; iOS l'utilise comme fond de l'icône.",
-            "icon_url": "Push uniquement. Une image d'icône sous forme d'URL commençant par http:// ou https://, ou d'un chemin commençant par /. Sur iOS, elle remplace l'icône. Envoyée uniquement si le réglage de l'écran verrouillé est full.",
-            "subtitle": "Push uniquement. Une seconde ligne sous le titre : le sous-titre sur iOS, l'objet sur Android. Envoyé uniquement si le réglage de l'écran verrouillé est full."
+            "color": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône.",
+            "icon_url": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full.",
+            "subtitle": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full.",
+            "progress": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus)."
           }
         },
         "reconfigure": {
@@ -962,7 +972,8 @@
             "audience": "Audience",
             "color": "Couleur",
             "icon_url": "Icône de l'expéditeur",
-            "subtitle": "Sous-titre"
+            "subtitle": "Sous-titre",
+            "progress": "Progression"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
@@ -985,9 +996,10 @@
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
             "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit.",
-            "color": "Une couleur #rrggbb pour le push. Android colore la notification ; iOS l'utilise comme fond de l'icône.",
-            "icon_url": "Push uniquement. Une image d'icône sous forme d'URL commençant par http:// ou https://, ou d'un chemin commençant par /. Sur iOS, elle remplace l'icône. Envoyée uniquement si le réglage de l'écran verrouillé est full.",
-            "subtitle": "Push uniquement. Une seconde ligne sous le titre : le sous-titre sur iOS, l'objet sur Android. Envoyé uniquement si le réglage de l'écran verrouillé est full."
+            "color": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône.",
+            "icon_url": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full.",
+            "subtitle": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full.",
+            "progress": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus)."
           }
         }
       },
@@ -1013,7 +1025,8 @@
         "audience_or_people": "Choisissez une audience ou des personnes, pas les deux.",
         "audience_unknown": "Cette audience n'existe pas.",
         "color_invalid": "La couleur doit ressembler à #03a9f4.",
-        "icon_url_invalid": "L'icône de l'expéditeur doit être une URL http(s) ou un chemin commençant par /."
+        "icon_url_invalid": "L'icône de l'expéditeur doit être une URL http(s) ou un chemin commençant par /.",
+        "progress_invalid": "La progression demande un entity_id, et max doit être supérieur à min."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."

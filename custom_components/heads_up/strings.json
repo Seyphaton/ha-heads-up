@@ -488,15 +488,19 @@
         },
         "color": {
           "name": "Color",
-          "description": "A #rrggbb color for the push. Android colors the notification; iOS uses it as the background of the icon."
+          "description": "A #rrggbb color. The banner and popup use it instead of the severity color. On a push, Android colors the notification and iOS uses it as the background of the icon."
         },
         "icon_url": {
           "name": "Sender icon",
-          "description": "Push only. An icon picture as a URL starting with http:// or https://, or a path starting with /. On iOS it replaces the icon. Sent only when the lock screen setting is full."
+          "description": "A sender icon: a URL starting with http:// or https://, or a path starting with /. The banner and popup show it in place of the icon. On an iOS push it replaces the icon. A push sends it only when the lock screen setting is full."
         },
         "subtitle": {
           "name": "Subtitle",
-          "description": "Push only. A second line under the title: the subtitle on iOS, the subject on Android. Sent only when the lock screen setting is full."
+          "description": "A second line under the title on the banner and in the popup. On a push: the subtitle on iOS, the subject on Android, sent only when the lock screen setting is full."
+        },
+        "progress": {
+          "name": "Progress",
+          "description": "A progress bar that follows a number, as YAML: entity_id, min (default 0) and max (default 100). The banner and popup show a bar; the push becomes a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later)."
         }
       }
     },
@@ -658,15 +662,19 @@
         },
         "color": {
           "name": "Color",
-          "description": "A #rrggbb color for the push. Android colors the notification; iOS uses it as the background of the icon."
+          "description": "A #rrggbb color. The banner and popup use it instead of the severity color. On a push, Android colors the notification and iOS uses it as the background of the icon."
         },
         "icon_url": {
           "name": "Sender icon",
-          "description": "Push only. An icon picture as a URL starting with http:// or https://, or a path starting with /. On iOS it replaces the icon. Sent only when the lock screen setting is full."
+          "description": "A sender icon: a URL starting with http:// or https://, or a path starting with /. The banner and popup show it in place of the icon. On an iOS push it replaces the icon. A push sends it only when the lock screen setting is full."
         },
         "subtitle": {
           "name": "Subtitle",
-          "description": "Push only. A second line under the title: the subtitle on iOS, the subject on Android. Sent only when the lock screen setting is full."
+          "description": "A second line under the title on the banner and in the popup. On a push: the subtitle on iOS, the subject on Android, sent only when the lock screen setting is full."
+        },
+        "progress": {
+          "name": "Progress",
+          "description": "A progress bar that follows a number, as YAML: entity_id, min (default 0) and max (default 100). The banner and popup show a bar; the push becomes a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later)."
         }
       }
     },
@@ -728,15 +736,15 @@
         },
         "color": {
           "name": "Color",
-          "description": "A #rrggbb color for the push. Android colors the notification; iOS uses it as the background of the icon."
+          "description": "A #rrggbb color. The banner and popup use it instead of the severity color. On a push, Android colors the notification and iOS uses it as the background of the icon."
         },
         "icon_url": {
           "name": "Sender icon",
-          "description": "Push only. An icon picture as a URL starting with http:// or https://, or a path starting with /. On iOS it replaces the icon. Sent only when the lock screen setting is full."
+          "description": "A sender icon: a URL starting with http:// or https://, or a path starting with /. The banner and popup show it in place of the icon. On an iOS push it replaces the icon. A push sends it only when the lock screen setting is full."
         },
         "subtitle": {
           "name": "Subtitle",
-          "description": "Push only. A second line under the title: the subtitle on iOS, the subject on Android. Sent only when the lock screen setting is full."
+          "description": "A second line under the title on the banner and in the popup. On a push: the subtitle on iOS, the subject on Android, sent only when the lock screen setting is full."
         }
       }
     },
@@ -904,7 +912,8 @@
             "audience": "Audience",
             "color": "Color",
             "icon_url": "Sender icon",
-            "subtitle": "Subtitle"
+            "subtitle": "Subtitle",
+            "progress": "Progress"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -928,9 +937,10 @@
             "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Automatic: every automatic policy that applies to a rule message (tag rule). A policy: only that policy, also after you rename it. None: no policy.",
             "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone.",
-            "color": "A #rrggbb color for the push. Android colors the notification; iOS uses it as the background of the icon.",
-            "icon_url": "Push only. An icon picture as a URL starting with http:// or https://, or a path starting with /. On iOS it replaces the icon. Sent only when the lock screen setting is full.",
-            "subtitle": "Push only. A second line under the title: the subtitle on iOS, the subject on Android. Sent only when the lock screen setting is full."
+            "color": "A #rrggbb color. The banner and popup use it instead of the severity color. On a push, Android colors the notification and iOS uses it as the background of the icon.",
+            "icon_url": "A sender icon: a URL starting with http:// or https://, or a path starting with /. The banner and popup show it in place of the icon. On an iOS push it replaces the icon. A push sends it only when the lock screen setting is full.",
+            "subtitle": "A second line under the title on the banner and in the popup. On a push: the subtitle on iOS, the subject on Android, sent only when the lock screen setting is full.",
+            "progress": "A progress bar that follows a number, as YAML: entity_id, min (default 0) and max (default 100). The banner and popup show a bar; the push becomes a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later)."
           }
         },
         "reconfigure": {
@@ -962,7 +972,8 @@
             "audience": "Audience",
             "color": "Color",
             "icon_url": "Sender icon",
-            "subtitle": "Subtitle"
+            "subtitle": "Subtitle",
+            "progress": "Progress"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -985,9 +996,10 @@
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
             "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone.",
-            "color": "A #rrggbb color for the push. Android colors the notification; iOS uses it as the background of the icon.",
-            "icon_url": "Push only. An icon picture as a URL starting with http:// or https://, or a path starting with /. On iOS it replaces the icon. Sent only when the lock screen setting is full.",
-            "subtitle": "Push only. A second line under the title: the subtitle on iOS, the subject on Android. Sent only when the lock screen setting is full."
+            "color": "A #rrggbb color. The banner and popup use it instead of the severity color. On a push, Android colors the notification and iOS uses it as the background of the icon.",
+            "icon_url": "A sender icon: a URL starting with http:// or https://, or a path starting with /. The banner and popup show it in place of the icon. On an iOS push it replaces the icon. A push sends it only when the lock screen setting is full.",
+            "subtitle": "A second line under the title on the banner and in the popup. On a push: the subtitle on iOS, the subject on Android, sent only when the lock screen setting is full.",
+            "progress": "A progress bar that follows a number, as YAML: entity_id, min (default 0) and max (default 100). The banner and popup show a bar; the push becomes a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later)."
           }
         }
       },
@@ -1013,7 +1025,8 @@
         "audience_or_people": "Choose an audience or people, not both.",
         "audience_unknown": "This audience does not exist.",
         "color_invalid": "The color must look like #03a9f4.",
-        "icon_url_invalid": "The sender icon must be an http(s) URL or a path starting with /."
+        "icon_url_invalid": "The sender icon must be an http(s) URL or a path starting with /.",
+        "progress_invalid": "Progress needs an entity_id, and max must be greater than min."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

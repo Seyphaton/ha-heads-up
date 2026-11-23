@@ -10,10 +10,10 @@ const COLOR = {
 };
 
 export const STRINGS = {
-  en: { dismiss: "Dismiss", snooze: "Snooze", ack: "Acknowledge", close: "Close", critical: "Critical", warning: "Warning", info: "Info", passive: "Passive" },
-  de: { dismiss: "Schließen", snooze: "Später", ack: "Bestätigen", close: "Ausblenden", critical: "Kritisch", warning: "Warnung", info: "Info", passive: "Passiv" },
-  fr: { dismiss: "Fermer", snooze: "Reporter", ack: "Confirmer", close: "Masquer", critical: "Critique", warning: "Avertissement", info: "Info", passive: "Passif" },
-  es: { dismiss: "Descartar", snooze: "Posponer", ack: "Confirmar", close: "Ocultar", critical: "Crítico", warning: "Aviso", info: "Info", passive: "Pasivo" },
+  en: { progress: "Progress", dismiss: "Dismiss", snooze: "Snooze", ack: "Acknowledge", close: "Close", critical: "Critical", warning: "Warning", info: "Info", passive: "Passive" },
+  de: { progress: "Fortschritt", dismiss: "Schließen", snooze: "Später", ack: "Bestätigen", close: "Ausblenden", critical: "Kritisch", warning: "Warnung", info: "Info", passive: "Passiv" },
+  fr: { progress: "Progression", dismiss: "Fermer", snooze: "Reporter", ack: "Confirmer", close: "Masquer", critical: "Critique", warning: "Avertissement", info: "Info", passive: "Passif" },
+  es: { progress: "Progreso", dismiss: "Descartar", snooze: "Posponer", ack: "Confirmar", close: "Ocultar", critical: "Crítico", warning: "Aviso", info: "Info", passive: "Pasivo" },
 };
 
 export function text(language, key) {
@@ -67,6 +67,25 @@ export function cssColor(value) {
   return typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value) ? value : null;
 }
 
+// A bar for a progress value in percent (D-256, D-258).
+// A progress value as a whole number from 0 to 100 (D-256).
+export function clampPercent(value) {
+  return Math.min(100, Math.max(0, Math.round(value)));
+}
+
+export function progressBar(value, language) {
+  const percent = clampPercent(value);
+  const bar = el("div", { className: "progress", role: "progressbar" });
+  bar.setAttribute("aria-label", text(language, "progress"));
+  bar.setAttribute("aria-valuemin", "0");
+  bar.setAttribute("aria-valuemax", "100");
+  bar.setAttribute("aria-valuenow", String(percent));
+  const fill = el("div", { className: "fill" });
+  fill.style.width = `${percent}%`;
+  bar.append(fill);
+  return bar;
+}
+
 export async function imageSource(hass, path, now = Date.now()) {
   if (!needsSignature(path)) return path;
   const known = signedImages.get(path);
@@ -101,6 +120,8 @@ const CSS = `
 .sev { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--c); display: flex; gap: 6px; align-items: center; }
 .title { font-size: 18px; font-weight: 600; margin: 4px 0; overflow-wrap: anywhere; }
 .subtitle { margin: -2px 0 4px; font-size: 14px; color: var(--secondary-text-color, #727272); overflow-wrap: anywhere; }
+.progress { height: 6px; margin: 0 0 12px; border-radius: 3px; overflow: hidden; background: var(--divider-color, #ccc); }
+.progress .fill { height: 100%; background: var(--c); transition: width .3s; }
 .sender { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; }
 .image { display: block; width: 100%; max-height: 200px; margin: 0 0 12px; border-radius: 8px; object-fit: cover; }
 .msg { margin: 4px 0 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -179,6 +200,7 @@ function build(message, language) {
   if (message.title) box.append(el("div", { className: "title", textContent: message.title }));
   if (message.subtitle) box.append(el("div", { className: "subtitle", textContent: message.subtitle }));
   box.append(el("div", { className: "msg", textContent: message.message }));
+  if (Number.isFinite(message.progress_value)) box.append(progressBar(message.progress_value, language));
   if (message.image && state.ha?.hass) {
     const picture = el("img", { className: "image", alt: "", loading: "lazy" });
     imageSource(state.ha.hass, message.image)

@@ -74,6 +74,10 @@ class PopupChannel:
 
         return unsubscribe
 
+    def refresh(self) -> None:
+        """Tell viewers to read the message again, e.g. after its progress value changed."""
+        self._changed()
+
     def _changed(self) -> None:
         # The engine records the row after the channel returns; tell viewers after that.
         self._hass.loop.call_soon(self._notify)
