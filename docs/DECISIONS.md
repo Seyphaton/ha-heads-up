@@ -1666,3 +1666,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: steps 1 to 3 of 2.1.0 are built on `release/2.1` (D-255, D-256, D-258).
 - Decision (maintainer, "BETA 1 release"): the manifest version is `2.1.0-beta.1` and the CHANGELOG keeps `[Unreleased]` (pre-release notes). This is a pre-release, not 2.1.0: the real-device checks (Android 16 Live Update, iOS 17.2 Live Activity, the communication-notification look on iOS) and the panel rule form check stay open. D-257 (editable built-in audiences) is scoped for 2.1.0 and not built, so it is not in beta.1. Tag, push and the GitHub pre-release only on the maintainer's order (D-020).
 
+## D-260 2.1.0: color picker, examples, Test send and watch rule parity (2026-11-23, maintainer)
+- Context: feedback on `2.1.0-beta.1` (D-259): the color field is plain text, the sender icon has no example and its purpose is unclear, Test send and the watch rule form lack fields the `notify` action has.
+- Decisions (maintainer, answers to AskUserQuestion):
+  - Color: a picker plus hex. The action form uses the `color_rgb` selector and converts `[r, g, b]` to `#rrggbb`; typed values must be `#rrggbb`; the panel forms (rule form, Test send) use a color input. Color names are not accepted (iOS takes none). The field help and the docs give examples.
+  - Sender icon (`icon_url`): kept. The help and docs explain `icon` (an `mdi:` glyph) against `icon_url` (a picture) and give examples (`/local/icons/doorbell.png`, `https://example.com/logo.png`).
+  - Test send: every field of `notify` (icon, color, subtitle, sender icon, image, progress, timeout, tag, id, buttons, tap action, dismiss scope and snooze choices), in collapsible sections, compact and structured. A switch at the top right, "Visual editor | YAML editor", replaces the separate YAML section at the bottom of the page; both edit the same call. The dry-run preview takes the same fields.
+  - Watch rules: for now, everything a banner can do through `notify`: buttons, tap action and every appearance field including progress and live updates. Channels and recipients per rule stay out (a rule shows a banner and policies add push or popup).
+- Not done: any code. Parity (CLAUDE.md rule 9): fields reach actions and rules in the same phase.
+
