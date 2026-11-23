@@ -557,6 +557,20 @@ export function chips(legend, options, selected, onChange, scroll = false) {
   return box;
 }
 
+// The entities whose state is a number now, for a progress bar: [{ value, label }] by name. A value
+// that is not in the list (the entity is not numeric at the moment) stays selectable (D-260).
+export function numericEntityOptions(states, current = "") {
+  const options = Object.entries(states || {})
+    .filter(([, state]) => {
+      const raw = String(state?.state ?? "").trim();
+      return raw !== "" && Number.isFinite(Number(raw));
+    })
+    .map(([id, state]) => ({ value: id, label: `${state.attributes?.friendly_name || id} (${id})` }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+  if (current && !options.some((o) => o.value === current)) options.unshift({ value: current, label: current });
+  return options;
+}
+
 // Buttons and tap action (D-260). The pure functions are tested without a DOM; the two editors
 // build on them and are shared by the watch rule form and Test send. Wording comes from the
 // page's `s.buttons`.

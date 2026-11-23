@@ -657,7 +657,7 @@ The panel's Banner watch rules page has the same form with a switch at the top r
 | Subtitle | none | Same as `subtitle` in [the action fields](#heads_upnotify). |
 | Color | none | Same as `color` in [the action fields](#heads_upnotify). |
 | Sender icon | none | Same as `icon_url` in [the action fields](#heads_upnotify). |
-| Progress bar from an entity | none | Same as `progress` in [the action fields](#heads_upnotify): the entity, then the value where the bar is empty (default 0) and full (default 100). |
+| Progress bar from an entity | none | Same as `progress` in [the action fields](#heads_upnotify): the entity, chosen from the entities whose state is a number now, then the value where the bar is empty (default 0) and full (default 100). |
 | Enabled | on | Off hides the banner without deleting the rule. |
 
 To change or delete a rule, open it from the same page. Changes apply at once; no restart is needed.

@@ -6,6 +6,7 @@ import {
   actionProblem,
   buttonProblems,
   buttonsToData,
+  numericEntityOptions,
   slugKey,
 } from "../../custom_components/heads_up/frontend/panel/ui.js";
 
@@ -93,5 +94,27 @@ describe("button list", () => {
   it("sends only the keys that are set", () => {
     expect(buttonsToData([{ key: "a", label: " Open ", destructive: true, dismiss: false }])).toEqual([{ key: "a", label: "Open", destructive: true }]);
     expect(buttonsToData([{ ...ok, action: { action: "url", url_path: "https://a.b" } }])).toEqual([{ key: "ack", label: "Got it", action: { action: "url", url_path: "https://a.b" } }]);
+  });
+});
+
+describe("progress entity choices (D-260)", () => {
+  const states = {
+    "sensor.b_temp": { state: "21.5", attributes: { friendly_name: "Bedroom temperature" } },
+    "sensor.a_count": { state: "3", attributes: {} },
+    "light.lamp": { state: "on", attributes: { friendly_name: "Lamp" } },
+    "sensor.gone": { state: "unavailable", attributes: {} },
+    "sensor.empty": { state: "", attributes: {} },
+    "sensor.neg": { state: "-4", attributes: { friendly_name: "Cold" } },
+  };
+
+  it("lists only entities with a numeric state, sorted by name", () => {
+    expect(numericEntityOptions(states).map((o) => o.value)).toEqual(["sensor.a_count", "sensor.b_temp", "sensor.neg"]);
+    expect(numericEntityOptions(states)[1].label).toBe("Bedroom temperature (sensor.b_temp)");
+  });
+
+  it("keeps the chosen entity selectable when it is not numeric now", () => {
+    expect(numericEntityOptions(states, "sensor.gone")[0]).toEqual({ value: "sensor.gone", label: "sensor.gone" });
+    expect(numericEntityOptions(states, "sensor.a_count").length).toBe(3);
+    expect(numericEntityOptions(undefined)).toEqual([]);
   });
 });

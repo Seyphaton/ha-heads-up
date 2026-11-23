@@ -839,12 +839,11 @@ export function mount(container, ctx) {
       text("icon_url", t.f_icon_url),
       text("image", t.f_image),
     ];
-    const bar = text("progress_entity", t.f_progress);
-    bar.querySelector("input")?.setAttribute("list", "hu-entities");
-    look.push(bar, el("datalist", { id: "hu-entities" }, Object.keys(hass.states || {}).sort().map((id) => el("option", { value: id }))));
+    look.push(ui.field(t.f_progress, ui.selectInput([{ value: "", label: s.common.none }, ...ui.numericEntityOptions(hass.states, values.progress_entity)], values.progress_entity, (v) => { values.progress_entity = v; change(); })));
     look.push(text("progress_min", t.f_progress_min, { placeholder: "0" }), text("progress_max", t.f_progress_max, { placeholder: "100" }));
 
     const buttons = [
+      el("datalist", { id: "hu-entities" }, Object.keys(hass.states || {}).sort().map((id) => el("option", { value: id }))),
       ui.buttonsEditor(s, values.actions, (list) => { values.actions = list; change(); }, { listId: "hu-entities" }),
       el("h3", { className: "sec", textContent: s.buttons.tap }),
       el("div", { className: "hint", textContent: s.buttons.tap_hint }),

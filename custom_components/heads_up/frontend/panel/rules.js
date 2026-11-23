@@ -760,9 +760,7 @@ export function mount(container, ctx) {
     box.append(ui.field(t.f_severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: t.severities[k] })), values.severity, (v) => { values.severity = v; paint(); })));
     box.append(text("icon", t.f_icon), text("image", t.f_image, { style: "max-width:100%" }));
     box.append(text("subtitle", t.f_subtitle), ui.field(t.f_color, ui.colorInput(values.color, (v) => { values.color = v; paint(); }, { placeholder: "#03a9f4", "aria-label": t.f_color })), text("icon_url", t.f_icon_url, { style: "max-width:100%" }));
-    const bar = text("progress_entity", t.f_progress, { style: "max-width:100%" });
-    bar.querySelector("input")?.setAttribute("list", "hu-entities");
-    box.append(bar);
+    box.append(ui.field(t.f_progress, ui.selectInput([{ value: "", label: s.common.none }, ...ui.numericEntityOptions(hass.states, values.progress_entity)], values.progress_entity, (v) => { values.progress_entity = v; paint(); })));
     box.append(text("progress_min", t.f_progress_min, { placeholder: "0" }), text("progress_max", t.f_progress_max, { placeholder: "100" }));
 
     box.append(el("h3", { className: "sec", textContent: t.sec_who }));
