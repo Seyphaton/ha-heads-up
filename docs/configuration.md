@@ -61,6 +61,10 @@ Every device of a person gets the notification. A person with no usable device, 
 | Android channel | `heads_up_<level>`; the level critical uses the channel `alarm_stream`, which plays from the alarm stream. Android keeps the importance a channel had when it was first used. |
 | Tap | A `navigate` tap action opens its `navigation_path`, a `url` tap action its `url_path`. |
 | Image | The message's `image` as `data.image`. Left out when the lock screen setting is not `full` (`image_hidden`). Camera proxy paths work on Android only. |
+| Status bar icon | The message's `icon` as `data.notification_icon`. On Android it is the status bar icon. On iOS it is the sender icon, which needs a title: a message without one is sent with the title `Heads Up`. |
+| Color | The message's `color` as `data.color`. Android colors the notification; iOS uses it as the background of the icon. |
+| Sender icon | The message's `icon_url` as `data.icon_url`. Left out when the lock screen setting is not `full` (`icon_url_hidden`). |
+| Subtitle | The message's `subtitle` as `data.subtitle` on iOS and `data.subject` on Android. Left out when the lock screen setting is not `full` (`subtitle_hidden`). |
 | Buttons | The message's own `actions`, then Snooze when the message is snoozable, then Dismiss when it is dismissible. Android shows at most 3 buttons and iOS 10. Extra buttons are left out (`buttons_clipped:<n>`): Acknowledge and Dismiss are kept first, then the message's own buttons in order, and Snooze goes first. |
 
 The level critical is an alarm on both platforms. On iOS it is the critical alert: it needs the app's permission, plays a sound regardless of silent mode and cannot be replaced, so the hub clears it and sends a new one on an update. On Android it uses the alarm channel, so it sounds in vibrate and silent mode. Do Not Disturb is overridden only if you allow it for that channel in the Android settings.

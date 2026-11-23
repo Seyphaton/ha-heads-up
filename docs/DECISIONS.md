@@ -1639,7 +1639,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - Subtitle: iOS `subtitle`, Android `subject`.
   - Icon and color default to the icon and color of the message's severity (`severity_display`) and a message can override them. A new push channel setting turns the severity default off; it is on by default.
 - Left out (maintainer): timeout (iOS has no sufficient alternative), persistent (dropped), lock screen visibility (the lock screen setting stays the only privacy control), and every alert and device option of the page: vibration pattern, LED color, Android Auto, spoken push, iOS badge and silent badge update, `push.sound: none`, `presentation_options`, `alert_once`, chronometer outside live updates, HTML in the message.
-- Not done: any code. Parity (CLAUDE.md rule 9): every new field ships for actions and for watch rules in the same phase.
+- Build choices (step 1): the status bar icon is the existing message field `icon`, not a new field; `icon_url` and `subtitle` are sent only when the lock screen setting is `full` (like `image`), `icon` and `color` always; `color` takes only `#rrggbb`, because iOS takes no color names; an iOS message with an icon and no title gets the title `Heads Up` (communication notifications need a sender name, N-112). Fields are on `create_banner`, `notify`, `push` and the rule form; the card and popup do not use `color`, `icon_url` and `subtitle`.
+- Parity (CLAUDE.md rule 9): every new field ships for actions and for watch rules in the same phase.
 
 ## D-256 2.1.0: progress and live updates (2026-11-23, maintainer)
 - Context: the page offers `progress` only through Live Updates (Android 16 and later) and Live Activities (iOS 17.2 and later, Home Assistant Core 2026.7.0 and later); a plain notification has no documented progress bar on iOS (N-112, N-113).

@@ -485,6 +485,18 @@
         "image": {
           "name": "Image",
           "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
+        "color": {
+          "name": "Couleur",
+          "description": "Une couleur #rrggbb pour le push. Android colore la notification ; iOS l'utilise comme fond de l'icône."
+        },
+        "icon_url": {
+          "name": "Icône de l'expéditeur",
+          "description": "Push uniquement. Une image d'icône sous forme d'URL commençant par http:// ou https://, ou d'un chemin commençant par /. Sur iOS, elle remplace l'icône. Envoyée uniquement si le réglage de l'écran verrouillé est full."
+        },
+        "subtitle": {
+          "name": "Sous-titre",
+          "description": "Push uniquement. Une seconde ligne sous le titre : le sous-titre sur iOS, l'objet sur Android. Envoyé uniquement si le réglage de l'écran verrouillé est full."
         }
       }
     },
@@ -643,6 +655,18 @@
         "mail_body": {
           "name": "Texte du mail",
           "description": "Texte du mail de ce message, à la place du modèle de la page Canaux. Mêmes variables que l'objet du mail. Seulement avec le canal mail. Laissez la case décochée pour utiliser le modèle de la page Canaux."
+        },
+        "color": {
+          "name": "Couleur",
+          "description": "Une couleur #rrggbb pour le push. Android colore la notification ; iOS l'utilise comme fond de l'icône."
+        },
+        "icon_url": {
+          "name": "Icône de l'expéditeur",
+          "description": "Push uniquement. Une image d'icône sous forme d'URL commençant par http:// ou https://, ou d'un chemin commençant par /. Sur iOS, elle remplace l'icône. Envoyée uniquement si le réglage de l'écran verrouillé est full."
+        },
+        "subtitle": {
+          "name": "Sous-titre",
+          "description": "Push uniquement. Une seconde ligne sous le titre : le sous-titre sur iOS, l'objet sur Android. Envoyé uniquement si le réglage de l'écran verrouillé est full."
         }
       }
     },
@@ -701,6 +725,18 @@
         "audience": {
           "name": "Public",
           "description": "Choisissez un groupe : Everyone, Admins, At home ou un groupe créé sur la page Audiences. Il est calculé à l'envoi, donc At home désigne qui est à la maison à ce moment-là. Indiquez audience ou destinataires."
+        },
+        "color": {
+          "name": "Couleur",
+          "description": "Une couleur #rrggbb pour le push. Android colore la notification ; iOS l'utilise comme fond de l'icône."
+        },
+        "icon_url": {
+          "name": "Icône de l'expéditeur",
+          "description": "Push uniquement. Une image d'icône sous forme d'URL commençant par http:// ou https://, ou d'un chemin commençant par /. Sur iOS, elle remplace l'icône. Envoyée uniquement si le réglage de l'écran verrouillé est full."
+        },
+        "subtitle": {
+          "name": "Sous-titre",
+          "description": "Push uniquement. Une seconde ligne sous le titre : le sous-titre sur iOS, l'objet sur Android. Envoyé uniquement si le réglage de l'écran verrouillé est full."
         }
       }
     },
@@ -865,7 +901,10 @@
             "tap_action": "Action au toucher",
             "image": "Image",
             "policy": "Politique",
-            "audience": "Audience"
+            "audience": "Audience",
+            "color": "Couleur",
+            "icon_url": "Icône de l'expéditeur",
+            "subtitle": "Sous-titre"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
@@ -888,7 +927,10 @@
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Automatique : chaque politique automatique qui s'applique à un message de règle (balise rule). Une politique : seulement celle-ci, même après l'avoir renommée. Aucune : aucune politique.",
-            "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit."
+            "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit.",
+            "color": "Une couleur #rrggbb pour le push. Android colore la notification ; iOS l'utilise comme fond de l'icône.",
+            "icon_url": "Push uniquement. Une image d'icône sous forme d'URL commençant par http:// ou https://, ou d'un chemin commençant par /. Sur iOS, elle remplace l'icône. Envoyée uniquement si le réglage de l'écran verrouillé est full.",
+            "subtitle": "Push uniquement. Une seconde ligne sous le titre : le sous-titre sur iOS, l'objet sur Android. Envoyé uniquement si le réglage de l'écran verrouillé est full."
           }
         },
         "reconfigure": {
@@ -917,7 +959,10 @@
             "actions": "Boutons",
             "tap_action": "Action au toucher",
             "image": "Image",
-            "audience": "Audience"
+            "audience": "Audience",
+            "color": "Couleur",
+            "icon_url": "Icône de l'expéditeur",
+            "subtitle": "Sous-titre"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
@@ -939,7 +984,10 @@
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
-            "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit."
+            "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit.",
+            "color": "Une couleur #rrggbb pour le push. Android colore la notification ; iOS l'utilise comme fond de l'icône.",
+            "icon_url": "Push uniquement. Une image d'icône sous forme d'URL commençant par http:// ou https://, ou d'un chemin commençant par /. Sur iOS, elle remplace l'icône. Envoyée uniquement si le réglage de l'écran verrouillé est full.",
+            "subtitle": "Push uniquement. Une seconde ligne sous le titre : le sous-titre sur iOS, l'objet sur Android. Envoyé uniquement si le réglage de l'écran verrouillé est full."
           }
         }
       },
@@ -963,7 +1011,9 @@
         "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé.",
         "policy_unknown": "Cette politique n'existe pas. Utilisez le nom d'une politique, ou none.",
         "audience_or_people": "Choisissez une audience ou des personnes, pas les deux.",
-        "audience_unknown": "Cette audience n'existe pas."
+        "audience_unknown": "Cette audience n'existe pas.",
+        "color_invalid": "La couleur doit ressembler à #03a9f4.",
+        "icon_url_invalid": "L'icône de l'expéditeur doit être une URL http(s) ou un chemin commençant par /."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."

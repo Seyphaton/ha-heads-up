@@ -485,6 +485,18 @@
         "image": {
           "name": "Bild",
           "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
+        "color": {
+          "name": "Farbe",
+          "description": "Eine Farbe wie #rrggbb für den Push. Android färbt die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols."
+        },
+        "icon_url": {
+          "name": "Absender-Symbol",
+          "description": "Nur Push. Ein Symbolbild als URL mit http:// oder https:// oder als Pfad mit /. Auf iOS ersetzt es das Symbol. Wird nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist."
+        },
+        "subtitle": {
+          "name": "Untertitel",
+          "description": "Nur Push. Eine zweite Zeile unter dem Titel: auf iOS der Untertitel, auf Android der Betreff. Wird nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist."
         }
       }
     },
@@ -643,6 +655,18 @@
         "mail_body": {
           "name": "Mail-Text",
           "description": "Text der Mail dieser Nachricht, statt der Vorlage auf der Seite Kanäle. Dieselben Platzhalter wie beim Mail-Betreff. Nur mit dem Kanal Mail. Lass das Häkchen aus, um die Vorlage der Seite Kanäle zu nutzen."
+        },
+        "color": {
+          "name": "Farbe",
+          "description": "Eine Farbe wie #rrggbb für den Push. Android färbt die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols."
+        },
+        "icon_url": {
+          "name": "Absender-Symbol",
+          "description": "Nur Push. Ein Symbolbild als URL mit http:// oder https:// oder als Pfad mit /. Auf iOS ersetzt es das Symbol. Wird nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist."
+        },
+        "subtitle": {
+          "name": "Untertitel",
+          "description": "Nur Push. Eine zweite Zeile unter dem Titel: auf iOS der Untertitel, auf Android der Betreff. Wird nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist."
         }
       }
     },
@@ -701,6 +725,18 @@
         "audience": {
           "name": "Zielgruppe",
           "description": "Wähle eine Gruppe: Everyone, Admins, At home oder eine, die du auf der Seite Zielgruppen angelegt hast. Sie wird beim Senden bestimmt, At home heißt also, wer dann zu Hause ist. Gib entweder Zielgruppe oder Empfänger an."
+        },
+        "color": {
+          "name": "Farbe",
+          "description": "Eine Farbe wie #rrggbb für den Push. Android färbt die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols."
+        },
+        "icon_url": {
+          "name": "Absender-Symbol",
+          "description": "Nur Push. Ein Symbolbild als URL mit http:// oder https:// oder als Pfad mit /. Auf iOS ersetzt es das Symbol. Wird nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist."
+        },
+        "subtitle": {
+          "name": "Untertitel",
+          "description": "Nur Push. Eine zweite Zeile unter dem Titel: auf iOS der Untertitel, auf Android der Betreff. Wird nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist."
         }
       }
     },
@@ -865,7 +901,10 @@
             "tap_action": "Tipp-Aktion",
             "image": "Bild",
             "policy": "Richtlinie",
-            "audience": "Zielgruppe"
+            "audience": "Zielgruppe",
+            "color": "Farbe",
+            "icon_url": "Absender-Symbol",
+            "subtitle": "Untertitel"
           },
           "data_description": {
             "name": "Wird nur in der Liste der Regeln angezeigt.",
@@ -888,7 +927,10 @@
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Automatisch: jede automatische Richtlinie, die für eine Regelmeldung gilt (Tag rule). Eine Richtlinie: nur diese, auch nach einer Umbenennung. Keine: keine Richtlinie.",
-            "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle."
+            "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle.",
+            "color": "Eine Farbe wie #rrggbb für den Push. Android färbt die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols.",
+            "icon_url": "Nur Push. Ein Symbolbild als URL mit http:// oder https:// oder als Pfad mit /. Auf iOS ersetzt es das Symbol. Wird nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist.",
+            "subtitle": "Nur Push. Eine zweite Zeile unter dem Titel: auf iOS der Untertitel, auf Android der Betreff. Wird nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist."
           }
         },
         "reconfigure": {
@@ -917,7 +959,10 @@
             "actions": "Schaltflächen",
             "tap_action": "Tipp-Aktion",
             "image": "Bild",
-            "audience": "Zielgruppe"
+            "audience": "Zielgruppe",
+            "color": "Farbe",
+            "icon_url": "Absender-Symbol",
+            "subtitle": "Untertitel"
           },
           "data_description": {
             "name": "Wird nur in der Liste der Regeln angezeigt.",
@@ -939,7 +984,10 @@
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
-            "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle."
+            "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle.",
+            "color": "Eine Farbe wie #rrggbb für den Push. Android färbt die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols.",
+            "icon_url": "Nur Push. Ein Symbolbild als URL mit http:// oder https:// oder als Pfad mit /. Auf iOS ersetzt es das Symbol. Wird nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist.",
+            "subtitle": "Nur Push. Eine zweite Zeile unter dem Titel: auf iOS der Untertitel, auf Android der Betreff. Wird nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist."
           }
         }
       },
@@ -963,7 +1011,9 @@
         "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an.",
         "policy_unknown": "Diese Richtlinie gibt es nicht. Nimm den Namen einer Richtlinie oder none.",
         "audience_or_people": "Wähle eine Zielgruppe oder Personen, nicht beides.",
-        "audience_unknown": "Diese Zielgruppe gibt es nicht."
+        "audience_unknown": "Diese Zielgruppe gibt es nicht.",
+        "color_invalid": "Die Farbe muss so aussehen: #03a9f4.",
+        "icon_url_invalid": "Das Absender-Symbol muss eine http(s)-URL oder ein Pfad sein, der mit / beginnt."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."

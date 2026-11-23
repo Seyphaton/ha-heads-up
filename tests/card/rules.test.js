@@ -81,9 +81,16 @@ describe("watch rule form", () => {
 
   it("leaves unset optional fields out", () => {
     const data = toFlowData({ ...blankValues(), name: "A", entity_id: "light.a", message: "x" });
-    for (const key of ["title", "icon", "image", "attribute", "for", "dismiss_scope", "snoozable", "snooze_scope", "snooze_options", "actions"]) {
+    for (const key of ["title", "icon", "image", "color", "icon_url", "subtitle", "attribute", "for", "dismiss_scope", "snoozable", "snooze_scope", "snooze_options", "actions"]) {
       expect(data[key], key).toBeUndefined();
     }
+  });
+
+  it("sends the push appearance fields trimmed and reads them back", () => {
+    const values = { ...blankValues(), name: "A", entity_id: "light.a", message: "x", color: " #03a9f4 ", icon_url: "/local/a.png", subtitle: " Front " };
+    const data = toFlowData(values);
+    expect(data).toMatchObject({ color: "#03a9f4", icon_url: "/local/a.png", subtitle: "Front" });
+    expect(fromRule({ name: "A", data })).toMatchObject({ color: "#03a9f4", icon_url: "/local/a.png", subtitle: "Front" });
   });
 
   it("checks name, message and condition before saving", () => {

@@ -485,6 +485,18 @@
         "image": {
           "name": "Image",
           "description": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
+        "color": {
+          "name": "Color",
+          "description": "A #rrggbb color for the push. Android colors the notification; iOS uses it as the background of the icon."
+        },
+        "icon_url": {
+          "name": "Sender icon",
+          "description": "Push only. An icon picture as a URL starting with http:// or https://, or a path starting with /. On iOS it replaces the icon. Sent only when the lock screen setting is full."
+        },
+        "subtitle": {
+          "name": "Subtitle",
+          "description": "Push only. A second line under the title: the subtitle on iOS, the subject on Android. Sent only when the lock screen setting is full."
         }
       }
     },
@@ -643,6 +655,18 @@
         "mail_body": {
           "name": "Mail text",
           "description": "Text of this message's mail, instead of the template on the Channels page. Same placeholders as Mail subject. Only used with the mail channel. Leave the checkbox unchecked to use the template from the Channels page."
+        },
+        "color": {
+          "name": "Color",
+          "description": "A #rrggbb color for the push. Android colors the notification; iOS uses it as the background of the icon."
+        },
+        "icon_url": {
+          "name": "Sender icon",
+          "description": "Push only. An icon picture as a URL starting with http:// or https://, or a path starting with /. On iOS it replaces the icon. Sent only when the lock screen setting is full."
+        },
+        "subtitle": {
+          "name": "Subtitle",
+          "description": "Push only. A second line under the title: the subtitle on iOS, the subject on Android. Sent only when the lock screen setting is full."
         }
       }
     },
@@ -701,6 +725,18 @@
         "audience": {
           "name": "Audience",
           "description": "Pick a group: Everyone, Admins, At home, or one you made on the Audiences page. It is worked out when the message is sent, so At home means whoever is home then. Give either audience or recipients."
+        },
+        "color": {
+          "name": "Color",
+          "description": "A #rrggbb color for the push. Android colors the notification; iOS uses it as the background of the icon."
+        },
+        "icon_url": {
+          "name": "Sender icon",
+          "description": "Push only. An icon picture as a URL starting with http:// or https://, or a path starting with /. On iOS it replaces the icon. Sent only when the lock screen setting is full."
+        },
+        "subtitle": {
+          "name": "Subtitle",
+          "description": "Push only. A second line under the title: the subtitle on iOS, the subject on Android. Sent only when the lock screen setting is full."
         }
       }
     },
@@ -865,7 +901,10 @@
             "tap_action": "Tap action",
             "image": "Image",
             "policy": "Policy",
-            "audience": "Audience"
+            "audience": "Audience",
+            "color": "Color",
+            "icon_url": "Sender icon",
+            "subtitle": "Subtitle"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -888,7 +927,10 @@
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Automatic: every automatic policy that applies to a rule message (tag rule). A policy: only that policy, also after you rename it. None: no policy.",
-            "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone."
+            "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone.",
+            "color": "A #rrggbb color for the push. Android colors the notification; iOS uses it as the background of the icon.",
+            "icon_url": "Push only. An icon picture as a URL starting with http:// or https://, or a path starting with /. On iOS it replaces the icon. Sent only when the lock screen setting is full.",
+            "subtitle": "Push only. A second line under the title: the subtitle on iOS, the subject on Android. Sent only when the lock screen setting is full."
           }
         },
         "reconfigure": {
@@ -917,7 +959,10 @@
             "actions": "Buttons",
             "tap_action": "Tap action",
             "image": "Image",
-            "audience": "Audience"
+            "audience": "Audience",
+            "color": "Color",
+            "icon_url": "Sender icon",
+            "subtitle": "Subtitle"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -939,7 +984,10 @@
             "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
-            "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone."
+            "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone.",
+            "color": "A #rrggbb color for the push. Android colors the notification; iOS uses it as the background of the icon.",
+            "icon_url": "Push only. An icon picture as a URL starting with http:// or https://, or a path starting with /. On iOS it replaces the icon. Sent only when the lock screen setting is full.",
+            "subtitle": "Push only. A second line under the title: the subtitle on iOS, the subject on Android. Sent only when the lock screen setting is full."
           }
         }
       },
@@ -963,7 +1011,9 @@
         "actions_dismiss_needs_dismissible": "A button with dismiss needs Dismissible to be on.",
         "policy_unknown": "This policy does not exist. Use the name of a policy, or none.",
         "audience_or_people": "Choose an audience or people, not both.",
-        "audience_unknown": "This audience does not exist."
+        "audience_unknown": "This audience does not exist.",
+        "color_invalid": "The color must look like #03a9f4.",
+        "icon_url_invalid": "The sender icon must be an http(s) URL or a path starting with /."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

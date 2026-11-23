@@ -7,6 +7,8 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.heads_up.const import DOMAIN
 
+from ..test_rules import USER, add_rule, rule_id, set_state
+from ..test_rules_flow import WINDOW, _submit
 from .conftest import AddDevice
 from .helpers import FakeDevice, set_person
 from .test_push_payload import push, sent
@@ -126,3 +128,29 @@ async def test_the_push_shortcut_takes_the_fields(
         "Front",
         PICTURE,
     )
+
+
+async def test_a_watch_rule_carries_the_fields(entry: MockConfigEntry, hass: HomeAssistant) -> None:
+    await set_state(hass, "on")
+    sub = add_rule(
+        hass, entry, color="#03a9f4", icon_url=PICTURE, subtitle="Front", icon="mdi:door"
+    )
+    await hass.async_block_till_done()
+    shown = next(b for b in entry.runtime_data.visible(USER) if b["id"] == rule_id(sub))
+    assert (shown["color"], shown["icon_url"], shown["subtitle"]) == ("#03a9f4", PICTURE, "Front")
+
+
+async def test_the_rule_form_checks_and_trims_the_fields(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(WINDOW, "off")
+    bad = await _submit(hass, entry, entity_id=WINDOW, color="blue", icon_url="x")
+    assert bad["errors"] == {"color": "color_invalid", "icon_url": "icon_url_invalid"}
+    good = await _submit(
+        hass, entry, entity_id=WINDOW, color=" #03A9F4 ", subtitle=" Front ", icon_url=" /a.png "
+    )
+    assert good["type"].value == "create_entry"
+    (subentry,) = entry.subentries.values()
+    assert subentry.data["color"] == "#03A9F4"
+    assert subentry.data["subtitle"] == "Front"
+    assert subentry.data["icon_url"] == "/a.png"

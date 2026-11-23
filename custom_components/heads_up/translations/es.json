@@ -485,6 +485,18 @@
         "image": {
           "name": "Imagen",
           "description": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
+        "color": {
+          "name": "Color",
+          "description": "Un color #rrggbb para el push. Android colorea la notificación; iOS lo usa como fondo del icono."
+        },
+        "icon_url": {
+          "name": "Icono del remitente",
+          "description": "Solo push. Una imagen de icono como URL que empieza por http:// o https://, o como ruta que empieza por /. En iOS sustituye al icono. Se envía solo si el ajuste de la pantalla de bloqueo es full."
+        },
+        "subtitle": {
+          "name": "Subtítulo",
+          "description": "Solo push. Una segunda línea bajo el título: el subtítulo en iOS, el asunto en Android. Se envía solo si el ajuste de la pantalla de bloqueo es full."
         }
       }
     },
@@ -643,6 +655,18 @@
         "mail_body": {
           "name": "Texto del correo",
           "description": "Texto del correo de este mensaje, en lugar de la plantilla de la página Canales. Las mismas variables que el asunto del correo. Solo con el canal mail. Deja la casilla sin marcar para usar la plantilla de la página Canales."
+        },
+        "color": {
+          "name": "Color",
+          "description": "Un color #rrggbb para el push. Android colorea la notificación; iOS lo usa como fondo del icono."
+        },
+        "icon_url": {
+          "name": "Icono del remitente",
+          "description": "Solo push. Una imagen de icono como URL que empieza por http:// o https://, o como ruta que empieza por /. En iOS sustituye al icono. Se envía solo si el ajuste de la pantalla de bloqueo es full."
+        },
+        "subtitle": {
+          "name": "Subtítulo",
+          "description": "Solo push. Una segunda línea bajo el título: el subtítulo en iOS, el asunto en Android. Se envía solo si el ajuste de la pantalla de bloqueo es full."
         }
       }
     },
@@ -701,6 +725,18 @@
         "audience": {
           "name": "Audiencia",
           "description": "Elige un grupo: Everyone, Admins, At home o uno creado en la página Audiencias. Se calcula al enviar el mensaje, así que At home significa quien esté en casa entonces. Indica audiencia o destinatarios."
+        },
+        "color": {
+          "name": "Color",
+          "description": "Un color #rrggbb para el push. Android colorea la notificación; iOS lo usa como fondo del icono."
+        },
+        "icon_url": {
+          "name": "Icono del remitente",
+          "description": "Solo push. Una imagen de icono como URL que empieza por http:// o https://, o como ruta que empieza por /. En iOS sustituye al icono. Se envía solo si el ajuste de la pantalla de bloqueo es full."
+        },
+        "subtitle": {
+          "name": "Subtítulo",
+          "description": "Solo push. Una segunda línea bajo el título: el subtítulo en iOS, el asunto en Android. Se envía solo si el ajuste de la pantalla de bloqueo es full."
         }
       }
     },
@@ -865,7 +901,10 @@
             "tap_action": "Acción al tocar",
             "image": "Imagen",
             "policy": "Política",
-            "audience": "Audiencia"
+            "audience": "Audiencia",
+            "color": "Color",
+            "icon_url": "Icono del remitente",
+            "subtitle": "Subtítulo"
           },
           "data_description": {
             "name": "Solo se muestra en la lista de reglas.",
@@ -888,7 +927,10 @@
             "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Automática: cada política automática que se aplica a un mensaje de regla (etiqueta rule). Una política: solo esa, también después de renombrarla. Ninguna: ninguna política.",
-            "audience": "Quién ve el aviso: las personas de esta audiencia en el momento en que aparece. Déjalo vacío para usar Personas; sin elección, lo ven todos."
+            "audience": "Quién ve el aviso: las personas de esta audiencia en el momento en que aparece. Déjalo vacío para usar Personas; sin elección, lo ven todos.",
+            "color": "Un color #rrggbb para el push. Android colorea la notificación; iOS lo usa como fondo del icono.",
+            "icon_url": "Solo push. Una imagen de icono como URL que empieza por http:// o https://, o como ruta que empieza por /. En iOS sustituye al icono. Se envía solo si el ajuste de la pantalla de bloqueo es full.",
+            "subtitle": "Solo push. Una segunda línea bajo el título: el subtítulo en iOS, el asunto en Android. Se envía solo si el ajuste de la pantalla de bloqueo es full."
           }
         },
         "reconfigure": {
@@ -917,7 +959,10 @@
             "actions": "Botones",
             "tap_action": "Acción al tocar",
             "image": "Imagen",
-            "audience": "Audiencia"
+            "audience": "Audiencia",
+            "color": "Color",
+            "icon_url": "Icono del remitente",
+            "subtitle": "Subtítulo"
           },
           "data_description": {
             "name": "Solo se muestra en la lista de reglas.",
@@ -939,7 +984,10 @@
             "actions": "Hasta 3 botones con key, label y, opcionalmente, dismiss y action. «dismiss» requiere «Se puede cerrar».\n\nEjemplo:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Acción de Home Assistant que se ejecuta al tocar el aviso.\n\nEjemplo:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Imagen mostrada bajo el mensaje en la tarjeta, en la ventana emergente y en el push. Una URL http:// o https:// o una ruta que empieza por /. Android e iOS la leen; las rutas del proxy de cámara solo funcionan en Android.\n\nEjemplo:\n```yaml\nimage: /media/local/door.jpg\n```",
-            "audience": "Quién ve el aviso: las personas de esta audiencia en el momento en que aparece. Déjalo vacío para usar Personas; sin elección, lo ven todos."
+            "audience": "Quién ve el aviso: las personas de esta audiencia en el momento en que aparece. Déjalo vacío para usar Personas; sin elección, lo ven todos.",
+            "color": "Un color #rrggbb para el push. Android colorea la notificación; iOS lo usa como fondo del icono.",
+            "icon_url": "Solo push. Una imagen de icono como URL que empieza por http:// o https://, o como ruta que empieza por /. En iOS sustituye al icono. Se envía solo si el ajuste de la pantalla de bloqueo es full.",
+            "subtitle": "Solo push. Una segunda línea bajo el título: el subtítulo en iOS, el asunto en Android. Se envía solo si el ajuste de la pantalla de bloqueo es full."
           }
         }
       },
@@ -963,7 +1011,9 @@
         "actions_dismiss_needs_dismissible": "Un botón con dismiss requiere que «Se puede cerrar» esté activado.",
         "policy_unknown": "Esta política no existe. Usa el nombre de una política, o none.",
         "audience_or_people": "Elige una audiencia o personas, no ambas.",
-        "audience_unknown": "Esta audiencia no existe."
+        "audience_unknown": "Esta audiencia no existe.",
+        "color_invalid": "El color debe tener este aspecto: #03a9f4.",
+        "icon_url_invalid": "El icono del remitente debe ser una URL http(s) o una ruta que empieza por /."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguración se realizó correctamente."

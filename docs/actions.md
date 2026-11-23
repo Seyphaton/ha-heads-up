@@ -650,6 +650,9 @@ An automation does the same: a trigger that calls `heads_up.create_banner`, or `
 | Buttons | none | Up to 3 buttons, as YAML in the same format as `actions` in [the action fields](#heads_upnotify). Pressing one fires the event `heads_up_banner_action`, with `id` starting with `rule_` and `tag` `rule`. A button with `dismiss: true` needs Dismissible. |
 | Tap action | none | A Home Assistant action run when the banner is tapped, same format as `tap_action` in [the action fields](#heads_upnotify). |
 | Image | none | A picture under the message, same format as `image` in [the action fields](#heads_upnotify). |
+| Subtitle | none | Same as `subtitle` in [the action fields](#heads_upnotify). |
+| Color | none | Same as `color` in [the action fields](#heads_upnotify). |
+| Sender icon | none | Same as `icon_url` in [the action fields](#heads_upnotify). |
 | Enabled | on | Off hides the banner without deleting the rule. |
 
 To change or delete a rule, open it from the same page. Changes apply at once; no restart is needed.
