@@ -162,6 +162,21 @@ def parse_call(text: str) -> dict[str, Any]:
     return call
 
 
+def parse_rule(text: str) -> dict[str, Any]:
+    """A watch rule written as YAML: a mapping with the keys of the rule form (D-260). Only the
+    shape is checked here; saving runs the rule flow, which checks the rest."""
+    rule = _load(text, "yaml_invalid")
+    if not isinstance(rule, dict):
+        raise TestSendError("rule_not_found", "The text is not a watch rule")
+    # YAML 1.1 reads an unquoted on or off as a boolean; an entity state means the word.
+    state = rule.get("state")
+    if isinstance(state, bool | str):
+        state = [state]
+    if isinstance(state, list):
+        rule["state"] = [("on" if v else "off") if isinstance(v, bool) else v for v in state]
+    return rule
+
+
 def render_call(hass: HomeAssistant, text: str, variables: str = "") -> dict[str, Any]:
     """The `notify` input of a pasted call with its templates rendered with the given variables,
     for example a sample `trigger`, as Home Assistant would render them before the call."""

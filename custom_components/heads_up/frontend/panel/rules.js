@@ -26,6 +26,11 @@ export const STRINGS = {
     turn_on: "Switch on",
     unsaved_confirm: "You have changes that are not saved. Close anyway?",
     sec_when: "When",
+    mode_label: "Editor",
+    mode_visual: "Visual editor",
+    mode_yaml: "YAML editor",
+    yaml_hint: "The rule as YAML, with the same keys as the form. Switching to the Visual editor reads it into the form; Save checks it like the form does. An unquoted on or off as a state is read as the word.",
+    yaml_error: "The YAML could not be read: {text}",
     sec_what: "What to show",
     sec_who: "Who sees it",
     sec_how: "Behaviour",
@@ -104,6 +109,11 @@ export const STRINGS = {
     turn_on: "Einschalten",
     unsaved_confirm: "Du hast Änderungen, die nicht gespeichert sind. Trotzdem schließen?",
     sec_when: "Wann",
+    mode_label: "Editor",
+    mode_visual: "Visueller Editor",
+    mode_yaml: "YAML-Editor",
+    yaml_hint: "Die Regel als YAML mit denselben Schlüsseln wie das Formular. Der Wechsel zum visuellen Editor liest sie ins Formular; Speichern prüft sie wie das Formular. Ein unquotiertes on oder off als Zustand wird als Wort gelesen.",
+    yaml_error: "Das YAML konnte nicht gelesen werden: {text}",
     sec_what: "Was gezeigt wird",
     sec_who: "Wer es sieht",
     sec_how: "Verhalten",
@@ -182,6 +192,11 @@ export const STRINGS = {
     turn_on: "Activer",
     unsaved_confirm: "Certaines modifications ne sont pas enregistrées. Fermer quand même ?",
     sec_when: "Quand",
+    mode_label: "Éditeur",
+    mode_visual: "Éditeur visuel",
+    mode_yaml: "Éditeur YAML",
+    yaml_hint: "La règle en YAML, avec les mêmes clés que le formulaire. Passer à l'éditeur visuel la lit dans le formulaire ; Enregistrer la vérifie comme le formulaire. Un on ou off sans guillemets comme état est lu comme le mot.",
+    yaml_error: "Le YAML n'a pas pu être lu : {text}",
     sec_what: "Quoi afficher",
     sec_who: "Qui la voit",
     sec_how: "Comportement",
@@ -260,6 +275,11 @@ export const STRINGS = {
     turn_on: "Activar",
     unsaved_confirm: "Hay cambios sin guardar. ¿Cerrar de todos modos?",
     sec_when: "Cuándo",
+    mode_label: "Editor",
+    mode_visual: "Editor visual",
+    mode_yaml: "Editor YAML",
+    yaml_hint: "La regla en YAML, con las mismas claves que el formulario. Pasar al editor visual la lee en el formulario; Guardar la comprueba como el formulario. Un on u off sin comillas como estado se lee como la palabra.",
+    yaml_error: "No se pudo leer el YAML: {text}",
     sec_what: "Qué mostrar",
     sec_who: "Quién lo ve",
     sec_how: "Comportamiento",
@@ -426,6 +446,15 @@ export function toFlowData(values, own) {
   return data;
 }
 
+// The rule as it is stored and as the YAML editor shows it: `for` in seconds and the snooze
+// choices in seconds (the flow takes a duration and minutes). fromRule reads it back.
+export function storedShape(values) {
+  const data = toFlowData(values);
+  if (data.for) data.for = data.for.hours * 3600 + data.for.minutes * 60 + data.for.seconds;
+  if (data.snooze_options) data.snooze_options = data.snooze_options.map((m) => Math.round(Number(m) * 60));
+  return data;
+}
+
 // What can be checked before saving, as { field: code }. The flow checks the rest.
 export function validate(values, existingNames, ownName) {
   const problems = {};
@@ -587,7 +616,7 @@ export function mount(container, ctx) {
   // A dialog over the page; X, Cancel, Escape and a click beside it ask first when something changed.
   function openEditor(own, values) {
     message = "";
-    editing = { own, values, start: JSON.stringify(toFlowData(values, own)) };
+    editing = { own, values, start: JSON.stringify(toFlowData(values, own)), mode: "visual", yaml: "", yamlStart: "" };
     const dialog = el("dialog", { className: "hu-modal" });
     const close = el("button", { type: "button", className: "hu-close" }, [el("ha-icon", { icon: "mdi:close" })]);
     close.setAttribute("aria-label", s.common.cancel);
@@ -617,9 +646,83 @@ export function mount(container, ctx) {
 
   function requestClose() {
     if (!editorDialog) return;
-    const changed = editing && JSON.stringify(toFlowData(editing.values, editing.own)) !== editing.start;
+    const changed = editing && (JSON.stringify(toFlowData(editing.values, editing.own)) !== editing.start || (editing.mode === "yaml" && editing.yaml !== editing.yamlStart));
     if (changed && !window.confirm(t.unsaved_confirm)) return;
     editorDialog.dialog.close();
+  }
+
+  // Visual editor or YAML editor of the same rule, as on Test send (D-260).
+  function modeSwitch() {
+    const seg = el("div", { className: "seg", role: "group" });
+    seg.setAttribute("aria-label", t.mode_label);
+    for (const [key, label] of [["visual", t.mode_visual], ["yaml", t.mode_yaml]]) {
+      const button = el("button", { type: "button", textContent: label });
+      button.setAttribute("aria-pressed", String(editing.mode === key));
+      button.addEventListener("click", () => switchMode(key));
+      seg.append(button);
+    }
+    return el("div", { style: "display:flex;justify-content:flex-end;margin-bottom:12px" }, [seg]);
+  }
+
+  async function parseYaml(yamlText) {
+    const reply = await hass.callWS({ type: "heads_up/rule_parse_yaml", yaml: yamlText });
+    const { name, ...rest } = reply.rule;
+    return fromRule({ name: String(name ?? ""), data: rest });
+  }
+
+  async function switchMode(next) {
+    if (next === editing.mode) return;
+    if (next === "yaml") {
+      editing.yaml = ui.toYaml(storedShape(editing.values));
+      editing.yamlStart = editing.yaml;
+      editing.mode = "yaml";
+      message = "";
+      refreshEditor();
+      return;
+    }
+    try {
+      Object.assign(editing.values, await parseYaml(editing.yaml));
+      editing.mode = "visual";
+      message = "";
+    } catch (err) {
+      message = fill(t.yaml_error, { text: err?.message || String(err?.code || "error") });
+    }
+    refreshEditor();
+  }
+
+  function yamlEditor(box) {
+    const { own } = editing;
+    box.append(el("div", { className: "hint", textContent: t.yaml_hint }));
+    const area = el("textarea", { rows: 22, value: editing.yaml, spellcheck: false, style: "width:100%;box-sizing:border-box;font-family:monospace" });
+    area.addEventListener("input", () => { editing.yaml = area.value; });
+    box.append(ui.field(s.common.yaml, area));
+    const status = el("div", { className: message ? "hint problems" : "hint" });
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    status.textContent = message;
+    const save = el("button", { type: "button", className: "primary", textContent: s.common.save });
+    save.addEventListener("click", saveYaml);
+    const cancel = el("button", { type: "button", textContent: s.common.cancel });
+    cancel.addEventListener("click", requestClose);
+    const buttons = el("div", { className: "row" }, [save, cancel]);
+    if (own) {
+      const del = el("button", { type: "button", className: "danger", textContent: s.common.delete });
+      del.addEventListener("click", remove);
+      buttons.append(del);
+    }
+    box.append(status, buttons);
+    return box;
+  }
+
+  async function saveYaml() {
+    try {
+      Object.assign(editing.values, await parseYaml(editing.yaml));
+    } catch (err) {
+      message = fill(t.yaml_error, { text: err?.message || String(err?.code || "error") });
+      refreshEditor();
+      return;
+    }
+    await saveIt();
   }
 
   function editor() {
@@ -628,6 +731,8 @@ export function mount(container, ctx) {
     const box = el("div", {});
     const again = () => refreshEditor();
     const text = (key, label, extra = {}) => ui.field(label, ui.textInput(values[key], (v) => { values[key] = v; paint(); }, extra));
+    box.append(modeSwitch());
+    if (editing.mode === "yaml") return yamlEditor(box);
     box.append(ui.checkbox(t.f_enabled, values.enabled, (on) => { values.enabled = on; paint(); }));
     box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; paint(); })));
 

@@ -469,3 +469,38 @@ async def test_parsing_a_call_is_for_admins_only(
     client = await hass_ws_client(hass, hass_read_only_access_token)
     reply = await ask(client, "hub_parse_yaml", yaml="message: x")
     assert reply["error"]["code"] == "unauthorized"
+
+
+async def test_a_watch_rule_in_yaml_is_parsed_to_a_mapping(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    client = await hass_ws_client(hass)
+    text = "name: Door\nentity_id: binary_sensor.door\nstate: [on]\nmessage: Door open\nfor: 120\n"
+    reply = await ask(client, "rule_parse_yaml", yaml=text)
+    assert reply["success"], reply
+    assert reply["result"]["rule"] == {
+        "name": "Door",
+        "entity_id": "binary_sensor.door",
+        "state": ["on"],
+        "message": "Door open",
+        "for": 120,
+    }
+    bools = await ask(client, "rule_parse_yaml", yaml="state: [on, off]\nentity_id: a.b")
+    assert bools["result"]["rule"]["state"] == ["on", "off"]
+    single = await ask(client, "rule_parse_yaml", yaml="state: on")
+    assert single["result"]["rule"]["state"] == ["on"]
+    quoted = await ask(client, "rule_parse_yaml", yaml="state: 'home'")
+    assert quoted["result"]["rule"]["state"] == ["home"]
+    assert (await ask(client, "rule_parse_yaml", yaml="a: ["))["error"]["code"] == "yaml_invalid"
+    assert (await ask(client, "rule_parse_yaml", yaml="- a"))["error"]["code"] == "rule_not_found"
+
+
+async def test_parsing_a_rule_is_for_admins_only(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_access_token: str,
+) -> None:
+    client = await hass_ws_client(hass, hass_read_only_access_token)
+    reply = await ask(client, "rule_parse_yaml", yaml="name: x")
+    assert reply["error"]["code"] == "unauthorized"

@@ -752,6 +752,21 @@ def ws_hub_parse_yaml(
     connection.send_result(msg["id"], {"call": call})
 
 
+@websocket_command({vol.Required("type"): "heads_up/rule_parse_yaml", vol.Required("yaml"): str})
+@require_admin
+@callback
+def ws_rule_parse_yaml(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """A watch rule in YAML as a mapping, for the form's YAML editor (D-260)."""
+    try:
+        rule = panel_test.parse_rule(msg["yaml"])
+    except panel_test.TestSendError as err:
+        connection.send_error(msg["id"], err.code, str(err))
+        return
+    connection.send_result(msg["id"], {"rule": rule})
+
+
 @websocket_command(
     {
         vol.Required("type"): "heads_up/hub_test_send_yaml",
@@ -1023,6 +1038,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_hub_test_send,
         ws_hub_plan_yaml,
         ws_hub_parse_yaml,
+        ws_rule_parse_yaml,
         ws_hub_test_send_yaml,
         ws_panel_config,
         ws_channels_set,

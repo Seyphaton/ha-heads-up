@@ -632,6 +632,8 @@ An automation does the same: a trigger that calls `heads_up.create_banner`, or `
 2. Choose "Add watch rule".
 3. Fill in the form and submit.
 
+The panel's Banner watch rules page has the same form with a switch at the top right between the Visual editor and the YAML editor. The YAML editor shows the rule with the keys of the form (`name`, `entity_id`, `state`, `message`, `color`, `actions` and so on, with `for` in seconds); Save checks it like the form does. Switching back to the Visual editor reads the YAML into the form. An unquoted `on` or `off` as a state is read as the word.
+
 | Field | Default | Meaning |
 |---|---|---|
 | Rule name | – | Shown in the list of rules only. |
