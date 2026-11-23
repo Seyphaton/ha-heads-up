@@ -69,7 +69,7 @@ Rules:
 
 ## 6. Steps (one commit each, `make check` before and after)
 
-0. Verify: the user to person mapping the popup uses; whether policies hold a new channel; the iOS badge; store size for 12 months (estimate 0.5 KB per item, about 20 items a day: 3.6 MB per person). Record in `HA_API_NOTES.md`; decide one store or one per person.
+0. Done 2026-11-23 (N-115 to N-118, D-268): verify the user to person mapping the popup uses; whether policies hold a new channel; the iOS badge; store size for 12 months (measured 846 bytes per item, N-118: 6.2 MB per person at 20 items a day over 12 months; the estimate of 0.5 KB was too low). Record in `HA_API_NOTES.md`; decide one store or one per person.
 1. `hub/inbox.py` and the store: model, upsert, read, resolve, retention, load and damaged rows dropped. Unit tests.
 2. The `inbox` channel, engine wiring, constants, trace and ledger rows, checker, reach, Test send. Tests with the fake notify setup.
 3. Read, acknowledge and dismiss hooks from transitions; WebSocket commands with a test per command that no other person's item is returned.

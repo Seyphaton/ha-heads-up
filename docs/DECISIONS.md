@@ -1736,3 +1736,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - Quiet hours and Summarize get an optional `channels` field, like Reminder and Presence have. Empty means all channels, so nothing changes on upgrade (D-262). To keep the inbox out of a policy, leave it out of the list. This is an addition to the policy forms, the panel Policies page, the checker and the docs; it is scheduled as its own step before the inbox channel (Banner is never held by Quiet hours; Summarize still holds the banner, D-105).
   - One unread sensor per person entity, including people without a Heads Up setup.
   - Card option `titles_only` (default off) hides message text, for shared screens.
+
+## D-270 Phase 22: store bound and thread write (2026-11-23, maintainer)
+- Context: step 0 measured the inbox store (N-118: 846 bytes an item, 6.2 MB per person a year at 20 items a day, about 100 ms to serialize 18 MB) and read how `Store` serializes (N-117: in the event loop by default).
+- Decision (maintainer): one store (D-268), retention in months (default 12) and a cap of 2000 items per person, the oldest dropped first (resolved ones before unresolved ones is a build detail to check in the tests). The store is written with `serialize_in_event_loop=False` from a copy of the data, debounced like the stats store. The cap is not a setting in this phase.
