@@ -62,6 +62,11 @@ export function needsSignature(path) {
 
 const signedImages = new Map(); // path -> { src, until }
 
+// A message color is a `#rrggbb` the server checked; anything else is ignored here too.
+export function cssColor(value) {
+  return typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value) ? value : null;
+}
+
 export async function imageSource(hass, path, now = Date.now()) {
   if (!needsSignature(path)) return path;
   const known = signedImages.get(path);
@@ -95,6 +100,8 @@ const CSS = `
 .modal { width: min(480px, calc(100vw - 32px)); max-height: calc(100vh - 32px); overflow: auto; padding: 16px 20px; border-top: 8px solid var(--c); }
 .sev { font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--c); display: flex; gap: 6px; align-items: center; }
 .title { font-size: 18px; font-weight: 600; margin: 4px 0; overflow-wrap: anywhere; }
+.subtitle { margin: -2px 0 4px; font-size: 14px; color: var(--secondary-text-color, #727272); overflow-wrap: anywhere; }
+.sender { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; }
 .image { display: block; width: 100%; max-height: 200px; margin: 0 0 12px; border-radius: 8px; object-fit: cover; }
 .msg { margin: 4px 0 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
@@ -148,15 +155,29 @@ function build(message, language) {
     tabIndex: -1,
   });
   // The color and the word of the Severities page when set (D-222, D-223).
-  box.style.setProperty("--c", message.severity_color || COLOR[message.severity] || COLOR.info);
+  box.style.setProperty("--c", cssColor(message.color) || message.severity_color || COLOR[message.severity] || COLOR.info);
   if (style === "card") box.dataset.pos = cornerOf(message);
   if (style === "modal") box.setAttribute("aria-modal", "true");
   box.setAttribute("aria-label", message.title || message.message);
   const label = el("div", { className: "sev" });
-  if (message.icon) label.append(el("ha-icon", { icon: message.icon }));
+  if (message.icon) {
+    const icon = el("ha-icon", { icon: message.icon });
+    label.append(icon);
+    // A sender picture replaces the icon once it has loaded (D-258).
+    if (message.icon_url && state.ha?.hass) {
+      imageSource(state.ha.hass, message.icon_url)
+        .then((src) => {
+          const sender = el("img", { className: "sender", alt: "" });
+          sender.addEventListener("load", () => icon.replaceWith(sender));
+          sender.src = src;
+        })
+        .catch(() => {});
+    }
+  }
   label.append(el("span", { textContent: message.severity_label || t(message.severity) }));
   box.append(label);
   if (message.title) box.append(el("div", { className: "title", textContent: message.title }));
+  if (message.subtitle) box.append(el("div", { className: "subtitle", textContent: message.subtitle }));
   box.append(el("div", { className: "msg", textContent: message.message }));
   if (message.image && state.ha?.hass) {
     const picture = el("img", { className: "image", alt: "", loading: "lazy" });

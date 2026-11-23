@@ -213,6 +213,12 @@ describe("severity label and color (D-222, D-223)", () => {
     expect(severityColor(banner({ severity: "critical" }), {})).toBe("var(--error-color)");
   });
 
+  it("takes the message's own color before all of them (D-258)", () => {
+    const b = banner({ severity: "critical", severity_color: "#d00000", color: "#03a9f4" });
+    expect(severityColor(b, { critical: "purple" })).toBe("#03a9f4");
+    expect(severityColor(banner({ severity: "critical", color: "nonsense" }), {})).toBe("var(--error-color)");
+  });
+
   it("takes the label of the Severities page, else the translation", () => {
     setLanguage("en");
     expect(severityLabel(banner({ severity: "critical", severity_label: "Alarm" }))).toBe("Alarm");

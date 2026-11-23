@@ -528,10 +528,12 @@ export function emptyView(config) {
   return config.show_empty ? "blank" : "hidden";
 }
 
-// The color of a banner: the card's own `colors` (an older card), else the color of the
-// Severities page that the server sends, else the theme color of the severity (D-222).
+// The color of a banner: the message's own `color` (D-258), else the card's own `colors` (an
+// older card), else the color of the Severities page that the server sends, else the theme color
+// of the severity (D-222).
 export function severityColor(banner, cardColors = {}) {
   const usable = (value) => typeof value === "string" && value.trim() !== "" && validColor(value);
+  if (/^#[0-9a-fA-F]{6}$/.test(banner.color ?? "")) return banner.color; // checked by the server
   const own = cardColors?.[banner.severity];
   if (usable(own)) return own;
   if (usable(banner.severity_color)) return banner.severity_color;
@@ -693,6 +695,8 @@ const STYLE = `
   .c-icon .label { color: var(--accent); }
   .time { color: var(--secondary-text-color); white-space: nowrap; }
   .title { font-weight: 500; }
+  .subtitle { font-size: 0.9em; color: var(--secondary-text-color); }
+  .sender { flex: none; width: 24px; height: 24px; margin-top: 2px; border-radius: 50%; object-fit: cover; }
   .message { white-space: pre-line; }
   .image { display: block; max-width: 100%; max-height: 180px; margin-top: 8px; border-radius: 8px; object-fit: cover; }
   .ack-line { font-size: 12px; color: var(--secondary-text-color); margin-top: 2px; }
@@ -702,6 +706,7 @@ const STYLE = `
   }
   .compact .banner { align-items: center; gap: 8px; padding: 0 0 0 10px; min-height: 40px; }
   .compact .banner ha-icon { margin-top: 0; --mdc-icon-size: 20px; }
+  .compact .sender { margin-top: 0; width: 20px; height: 20px; }
   .compact .text {
     display: flex; align-items: baseline; gap: 8px; white-space: nowrap; overflow: hidden;
   }
@@ -1127,6 +1132,18 @@ class HeadsUpCard extends Base {
     icon.setAttribute("icon", banner.icon);
     icon.setAttribute("aria-hidden", "true");
     node.append(icon);
+    // A sender picture replaces the icon once it has loaded; until then, or if it fails, the icon
+    // stays (D-258).
+    if (banner.icon_url) {
+      imageSource(this._hass, banner.icon_url)
+        .then((src) => {
+          const sender = el("img", "sender");
+          sender.alt = "";
+          sender.addEventListener("load", () => icon.replaceWith(sender));
+          sender.src = src;
+        })
+        .catch(() => {});
+    }
 
     const text = el("div", "text");
     const meta = el("div", "meta");
@@ -1140,6 +1157,7 @@ class HeadsUpCard extends Base {
     }
     text.append(meta);
     if (banner.title) text.append(el("div", "title", banner.title));
+    if (banner.subtitle && cfg.layout !== "compact") text.append(el("div", "subtitle", banner.subtitle));
     text.append(el("div", "message", banner.message));
     if (banner.image && cfg.layout !== "compact") {
       const picture = el("img", "image");
