@@ -157,6 +157,10 @@ export const BASE_CSS = `
 .hu-page textarea { height: auto; min-height: 88px; padding: 10px 12px; max-width: none; resize: vertical; }
 .hu-page input[type=text]:hover, .hu-page input[type=number]:hover, .hu-page input[type=time]:hover, .hu-page select:hover { border-color: var(--primary-text-color); }
 .hu-page section > select, .hu-page fieldset > select { display: block; margin-bottom: 20px; }
+.hu-page details.fold { margin: 12px 0; padding: 4px 12px; border: 1px solid var(--divider-color); border-radius: 8px; }
+.hu-page details.fold > summary { padding: 8px 0; font-weight: 600; cursor: pointer; }
+.hu-page .btn-row { display: grid; gap: 8px; padding: 12px; margin: 8px 0; border: 1px solid var(--divider-color); border-radius: 8px; }
+.hu-page .action-editor { display: grid; gap: 8px; }
 .hu-page .color-input { display: flex; gap: 8px; align-items: center; }
 .hu-page .color-input input[type=text] { flex: 1; max-width: 12em; }
 .hu-page .color-input input[type=color] { flex: none; width: 44px; height: 36px; padding: 0; border: 1px solid var(--divider-color); border-radius: 6px; background: none; cursor: pointer; }
@@ -543,6 +547,216 @@ export function chips(legend, options, selected, onChange, scroll = false) {
       }),
     );
   }
+  return box;
+}
+
+// Buttons and tap action (D-260). The pure functions are tested without a DOM; the two editors
+// build on them and are shared by the watch rule form and Test send. Wording comes from the
+// page's `s.buttons`.
+export const MAX_BUTTONS = 3;
+export const ACTION_KINDS = ["none", "navigate", "url", "more-info", "perform-action", "custom"];
+
+export function slugKey(label, taken = []) {
+  const base =
+    String(label || "")
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9_-]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 30) || "button";
+  let key = base;
+  for (let n = 2; taken.includes(key); n += 1) key = `${base}_${n}`;
+  return key;
+}
+
+// Which editor shape a stored Home Assistant action has. Other action types are kept as they are.
+export function actionKind(action) {
+  if (!action || !action.action) return "none";
+  if (action.action === "navigate") return "navigate";
+  if (action.action === "url") return "url";
+  if (action.action === "more-info") return "more-info";
+  if (action.action === "perform-action") return "perform-action";
+  return "custom";
+}
+
+// The editor fields of a stored action.
+export function actionFields(action) {
+  const a = action || {};
+  return {
+    kind: actionKind(action),
+    path: a.navigation_path ?? "",
+    url: a.url_path ?? "",
+    entity: a.entity ?? "",
+    perform: a.perform_action ?? "",
+    target: a.target?.entity_id ?? "",
+    data: a.data && Object.keys(a.data).length ? JSON.stringify(a.data) : "",
+  };
+}
+
+// The action for the editor fields, or null for none. Keys the editor does not know (for example
+// `confirmation`) stay when the kind did not change. `data` is the JSON text.
+export function actionFromFields(fields, old) {
+  const same = actionKind(old) === fields.kind ? old : {};
+  const keep = (known) => Object.fromEntries(Object.entries(same || {}).filter(([k]) => !known.includes(k)));
+  switch (fields.kind) {
+    case "navigate":
+      return { ...keep(["navigation_path"]), action: "navigate", navigation_path: fields.path.trim() };
+    case "url":
+      return { ...keep(["url_path"]), action: "url", url_path: fields.url.trim() };
+    case "more-info":
+      return { ...keep(["entity"]), action: "more-info", entity: fields.entity.trim() };
+    case "perform-action": {
+      const out = { ...keep(["perform_action", "target", "data"]), action: "perform-action", perform_action: fields.perform.trim() };
+      if (fields.target.trim()) out.target = { entity_id: fields.target.trim() };
+      if (fields.data.trim()) {
+        try {
+          const parsed = JSON.parse(fields.data);
+          if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) out.data = parsed;
+        } catch {
+          // reported by actionProblem
+        }
+      }
+      return out;
+    }
+    case "custom":
+      return old ?? null;
+    default:
+      return null;
+  }
+}
+
+// What is missing in an action, as a code, or "".
+export function actionProblem(fields) {
+  if (fields.kind === "navigate" && !fields.path.trim()) return "action_incomplete";
+  if (fields.kind === "url" && !fields.url.trim()) return "action_incomplete";
+  if (fields.kind === "more-info" && !fields.entity.trim()) return "action_incomplete";
+  if (fields.kind === "perform-action") {
+    if (!fields.perform.trim()) return "action_incomplete";
+    if (fields.data.trim()) {
+      try {
+        const parsed = JSON.parse(fields.data);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return "data_invalid";
+      } catch {
+        return "data_invalid";
+      }
+    }
+  }
+  return "";
+}
+
+// Problems of a button list as [{ index, code }]; the flow checks the rest.
+export function buttonProblems(buttons, dismissible) {
+  const found = [];
+  const keys = new Set();
+  buttons.forEach((b, index) => {
+    if (!String(b.label || "").trim()) found.push({ index, code: "label_required" });
+    if (!/^[a-z0-9_-]+$/.test(b.key || "")) found.push({ index, code: "key_invalid" });
+    else if (keys.has(b.key)) found.push({ index, code: "key_duplicate" });
+    keys.add(b.key);
+    if (b.dismiss && !dismissible) found.push({ index, code: "dismiss_needs_dismissible" });
+    const problem = actionProblem(actionFields(b.action));
+    if (problem) found.push({ index, code: problem });
+  });
+  return found;
+}
+
+// Buttons as the flow wants them: only the keys that are set.
+export function buttonsToData(buttons) {
+  return buttons.map((b) => {
+    const out = { key: b.key, label: String(b.label).trim() };
+    for (const flag of ["dismiss", "destructive", "require_auth"]) if (b[flag]) out[flag] = true;
+    if (b.action) out.action = b.action;
+    return out;
+  });
+}
+
+// One action: a kind and the fields of that kind. `onChange(action)` gets null for none.
+export function actionEditor(s, value, onChange, { listId } = {}) {
+  const t = s.buttons;
+  const fields = actionFields(value);
+  let current = value ?? null;
+  const box = el("div", { className: "action-editor" });
+  const note = el("div", { className: "hint" });
+  const emit = () => {
+    current = actionFromFields(fields, current);
+    note.textContent = actionProblem(fields) ? t.problems[actionProblem(fields)] : "";
+    onChange(current, actionProblem(fields));
+  };
+  const text = (key, label, extra = {}) => ui_field(label, textInput(fields[key], (v) => { fields[key] = v; emit(); }, extra));
+  const draw = () => {
+    box.replaceChildren();
+    box.append(ui_field(t.action, selectInput(ACTION_KINDS.map((k) => ({ value: k, label: t.kinds[k] })), fields.kind, (v) => { fields.kind = v; emit(); draw(); })));
+    if (fields.kind === "navigate") box.append(text("path", t.path, { placeholder: "/lovelace/cameras" }));
+    if (fields.kind === "url") box.append(text("url", t.address, { placeholder: "https://example.org" }));
+    if (fields.kind === "more-info" || fields.kind === "perform-action") {
+      const entity = text(fields.kind === "more-info" ? "entity" : "target", t.entity);
+      if (listId) entity.querySelector("input")?.setAttribute("list", listId);
+      if (fields.kind === "perform-action") box.append(text("perform", t.perform, { placeholder: "light.turn_on" }));
+      box.append(entity);
+      if (fields.kind === "perform-action") box.append(text("data", t.data, { placeholder: '{"brightness": 100}', style: "max-width:100%" }));
+    }
+    if (fields.kind === "custom") box.append(el("div", { className: "hint", textContent: t.custom_note }));
+    box.append(note);
+    note.textContent = actionProblem(fields) ? t.problems[actionProblem(fields)] : "";
+  };
+  draw();
+  return box;
+}
+
+// Up to MAX_BUTTONS rows: text, key, three switches and the action the button runs.
+export function buttonsEditor(s, buttons, onChange, { listId } = {}) {
+  const t = s.buttons;
+  const list = buttons.map((b) => ({ ...b }));
+  const box = el("div", { className: "buttons-editor" });
+  const emit = () => onChange(list.map((b) => ({ ...b })));
+  const draw = () => {
+    box.replaceChildren();
+    list.forEach((b, index) => {
+      const row = el("div", { className: "btn-row" });
+      const label = textInput(b.label, (v) => {
+        const taken = list.filter((_, i) => i !== index).map((x) => x.key);
+        // The key follows the text until it has been changed by hand.
+        if (!b.key || b.key === slugKey(b.label, taken)) {
+          b.key = slugKey(v, taken);
+          key.value = b.key;
+        }
+        b.label = v;
+        emit();
+      }, { maxLength: 40 });
+      const key = textInput(b.key, (v) => { b.key = v; emit(); }, { spellcheck: false, autocapitalize: "off" });
+      row.append(ui_field(t.label, label), ui_field(t.key, key, t.key_hint));
+      row.append(
+        checkbox(t.dismiss, b.dismiss, (on) => { b.dismiss = on; emit(); }),
+        checkbox(t.destructive, b.destructive, (on) => { b.destructive = on; emit(); }),
+        checkbox(t.require_auth, b.require_auth, (on) => { b.require_auth = on; emit(); }),
+        actionEditor(s, b.action, (action) => { b.action = action || undefined; emit(); }, { listId }),
+      );
+      const remove = el("button", { type: "button", className: "danger", textContent: t.remove });
+      remove.addEventListener("click", () => { list.splice(index, 1); emit(); draw(); });
+      row.append(el("div", { className: "row" }, [remove]));
+      box.append(row);
+    });
+    if (list.length < MAX_BUTTONS) {
+      const add = el("button", { type: "button", textContent: t.add });
+      add.addEventListener("click", () => {
+        list.push({ key: slugKey("", list.map((x) => x.key)), label: "" });
+        emit();
+        draw();
+      });
+      box.append(add);
+    } else box.append(el("div", { className: "hint", textContent: t.max }));
+  };
+  draw();
+  return box;
+}
+
+const ui_field = (label, control, hint) => field(label, control, hint);
+
+// A collapsible group: a heading that opens and closes its content (D-260).
+export function fold(title, content, open = false) {
+  const box = el("details", { className: "fold", open });
+  box.append(el("summary", { textContent: title }), content);
   return box;
 }
 

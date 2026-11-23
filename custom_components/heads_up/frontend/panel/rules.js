@@ -68,7 +68,6 @@ export const STRINGS = {
     f_snooze_minutes: "Snooze choices, in minutes",
     f_snooze_custom: "Viewer may choose another duration (at most 24 hours)",
     f_enabled: "Enabled",
-    kept: "Buttons and the tap action stay as they are. Change them in the full form on the integration page.",
     sentence: "Sentence",
     sentence_entity: "Shows “{message}” ({severity}) while {entity} {operator} {value}.",
     sentence_template: "Shows “{message}” ({severity}) while the template is true.",
@@ -147,7 +146,6 @@ export const STRINGS = {
     f_snooze_minutes: "Auswahl zum Zurückstellen, in Minuten",
     f_snooze_custom: "Betrachter darf eine andere Dauer wählen (höchstens 24 Stunden)",
     f_enabled: "Aktiv",
-    kept: "Schaltflächen und Tippaktion bleiben unverändert. Ändere sie im vollständigen Formular auf der Integrationsseite.",
     sentence: "Satz",
     sentence_entity: "Zeigt „{message}“ ({severity}), solange {entity} {operator} {value}.",
     sentence_template: "Zeigt „{message}“ ({severity}), solange die Vorlage wahr ist.",
@@ -226,7 +224,6 @@ export const STRINGS = {
     f_snooze_minutes: "Durées de report, en minutes",
     f_snooze_custom: "Le spectateur peut choisir une autre durée (24 heures au plus)",
     f_enabled: "Activée",
-    kept: "Les boutons et l'action au toucher restent inchangés. Modifiez-les dans le formulaire complet de la page de l'intégration.",
     sentence: "Phrase",
     sentence_entity: "Affiche « {message} » ({severity}) tant que {entity} {operator} {value}.",
     sentence_template: "Affiche « {message} » ({severity}) tant que le modèle est vrai.",
@@ -305,7 +302,6 @@ export const STRINGS = {
     f_snooze_minutes: "Opciones de pospuesta, en minutos",
     f_snooze_custom: "El espectador puede elegir otra duración (como máximo 24 horas)",
     f_enabled: "Activada",
-    kept: "Los botones y la acción al tocar se quedan como están. Cámbialos en el formulario completo de la página de la integración.",
     sentence: "Frase",
     sentence_entity: "Muestra «{message}» ({severity}) mientras {entity} {operator} {value}.",
     sentence_template: "Muestra «{message}» ({severity}) mientras la plantilla sea verdadera.",
@@ -333,7 +329,7 @@ export function fill(template, params) {
 export function blankValues() {
   return {
     name: "", kind: "entity", entity_id: "", operator: "equals", state: "", attribute: "", for_minutes: "", template: "",
-    message: "", title: "", severity: "warning", icon: "", image: "", color: "", icon_url: "", subtitle: "", progress_entity: "", progress_min: "", progress_max: "", who: "everyone", audience: "", people: [],
+    message: "", title: "", severity: "warning", icon: "", image: "", color: "", icon_url: "", subtitle: "", progress_entity: "", progress_min: "", progress_max: "", actions: [], tap_action: null, tap_problem: "", who: "everyone", audience: "", people: [],
     dismissible: false, dismiss_scope: "", snoozable: "", snooze_scope: "", snooze_minutes: [], snooze_custom: false, policy: "", enabled: true,
   };
 }
@@ -364,6 +360,8 @@ export function fromRule(rule) {
     progress_entity: text(d.progress?.entity_id),
     progress_min: text(d.progress?.min),
     progress_max: text(d.progress?.max),
+    actions: (d.actions || []).map((a) => ({ ...a })),
+    tap_action: d.tap_action ? { ...d.tap_action } : null,
     who: d.audience ? "audience" : (d.people || []).length ? "people" : "everyone",
     audience: text(d.audience),
     people: [...(d.people || [])],
@@ -415,9 +413,16 @@ export function toFlowData(values, own) {
   if (values.snooze_custom) data.snooze_custom = true;
   if (values.policy) data.policy = values.policy;
   if (values.who === "audience" && values.audience) data.audience = values.audience;
-  const kept = own?.data || {};
-  if (kept.actions) data.actions = kept.actions;
-  if (kept.tap_action) data.tap_action = kept.tap_action;
+  const buttons = values.actions.filter((b) => String(b.label || "").trim());
+  if (buttons.length) {
+    data.actions = buttons.map((b) => {
+      const out = { key: b.key, label: String(b.label).trim() };
+      for (const flag of ["dismiss", "destructive", "require_auth"]) if (b[flag]) out[flag] = true;
+      if (b.action) out.action = b.action;
+      return out;
+    });
+  }
+  if (values.tap_action) data.tap_action = values.tap_action;
   return data;
 }
 
@@ -508,7 +513,7 @@ export function mount(container, ctx) {
   const personName = (id) => data.choices.persons.find((p) => p.id === id)?.name ?? id;
   const audienceName = (id) => (data.choices.audience_choices || []).find((a) => a.id === id)?.name ?? id;
   const policyName = (id) => (data.policies || []).find((p) => p.subentry_id === id)?.name ?? id;
-  const errorTexts = (codes) => codes.map((c) => t.errors[c] || ui.errorText(c, ctx.language)).join(" ");
+  const errorTexts = (codes) => codes.map((c) => s.buttons.problems[c] || t.errors[c] || ui.errorText(c, ctx.language)).join(" ");
   const whoText = (d) => (d.audience ? audienceName(d.audience) : (d.people || []).length ? d.people.map(personName).join(", ") : t.who_everyone);
 
   // The rules as a table like the other pages: name and state, what it watches, what it shows.
@@ -683,7 +688,13 @@ export function mount(container, ctx) {
     }
     const policies = [{ value: "", label: t.policy_all }, { value: "none", label: t.policy_none }, ...listed];
     box.append(ui.field(t.f_policy, ui.selectInput(policies, values.policy, (v) => { values.policy = v; paint(); }), t.policy_hint));
-    if (own && (own.data.actions || own.data.tap_action)) box.append(el("div", { className: "hint", textContent: t.kept }));
+    const sb = s.buttons;
+    const buttonsBox = el("div", {});
+    buttonsBox.append(ui.buttonsEditor(s, values.actions, (list) => { values.actions = list; paint(); }, { listId: "hu-entities" }));
+    box.append(ui.fold(`${sb.title}${values.actions.length ? ` (${values.actions.length})` : ""}`, buttonsBox, values.actions.length > 0));
+    const tapBox = el("div", {}, [el("div", { className: "hint", textContent: sb.tap_hint })]);
+    tapBox.append(ui.actionEditor(s, values.tap_action, (action, problem) => { values.tap_action = action; values.tap_problem = problem; paint(); }, { listId: "hu-entities" }));
+    box.append(ui.fold(sb.tap, tapBox, Boolean(values.tap_action)));
 
     const words = el("div", {});
     const status = el("div", { className: "hint" });
@@ -702,7 +713,8 @@ export function mount(container, ctx) {
     box.append(el("div", { className: "summary" }, [el("strong", { textContent: t.sentence }), words, status]), buttons);
     if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ name: own.name, ...own.data }), s.common));
     function paint() {
-      const codes = Object.values(validate(values, existing, own?.name));
+      const buttonCodes = ui.buttonProblems(values.actions, values.dismissible).map((p) => p.code);
+      const codes = [...new Set([...Object.values(validate(values, existing, own?.name)), ...buttonCodes, ...(values.tap_problem ? [values.tap_problem] : [])])];
       words.textContent = sentence(values, t);
       save.disabled = codes.length > 0;
       status.className = codes.length || message ? "hint problems" : "hint ok";

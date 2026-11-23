@@ -649,8 +649,8 @@ An automation does the same: a trigger that calls `heads_up.create_banner`, or `
 | People | everyone | Show only to users linked to these person entities. |
 | Dismissible | off | Off: no close button. On: each user can hide the banner. |
 | Dismiss scope | per user | Per user: closing hides it for that user until the condition turns false and true again. Everyone: it hides for all until then. |
-| Buttons | none | Up to 3 buttons, as YAML in the same format as `actions` in [the action fields](#heads_upnotify). Pressing one fires the event `heads_up_banner_action`, with `id` starting with `rule_` and `tag` `rule`. A button with `dismiss: true` needs Dismissible. |
-| Tap action | none | A Home Assistant action run when the banner is tapped, same format as `tap_action` in [the action fields](#heads_upnotify). |
+| Buttons | none | Up to 3 buttons. Each has a text, a key, switches for closing the message, red text and an unlocked phone, and an action to run. Pressing one fires the event `heads_up_banner_action`, with `id` starting with `rule_`. See [Buttons and snooze](#buttons-and-snooze) for the keys. |
+| Tap action | none | What happens when the banner or the push is tapped: open a page of Home Assistant, open a web address, show an entity or run an action (with an entity and JSON data). The same action as `tap_action` in [the action fields](#heads_upnotify). An action of another type, set in the full form on the integration page, stays as it is. |
 | Image | none | A picture under the message, same format as `image` in [the action fields](#heads_upnotify). |
 | Subtitle | none | Same as `subtitle` in [the action fields](#heads_upnotify). |
 | Color | none | Same as `color` in [the action fields](#heads_upnotify). |

@@ -61,7 +61,7 @@ describe("watch rule form", () => {
     expect(fromRule({ name: "T", data: { template: "{{ true }}", message: "x" } }).kind).toBe("template");
   });
 
-  it("sends the flow input with the duration, minutes and the kept buttons", () => {
+  it("sends the flow input with the duration, minutes and the buttons", () => {
     const data = toFlowData(fromRule(rule), rule);
     expect(data).toMatchObject({
       name: "Door", entity_id: "binary_sensor.door", operator: "equals", state: ["on"], message: "Door open",
