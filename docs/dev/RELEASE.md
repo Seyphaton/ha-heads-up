@@ -1,6 +1,6 @@
 # Release
 
-Releases `v0.1.0` to `v0.4.0` follow the steps below (D-020: tags and pushes only with the maintainer's explicit approval). The pre-releases `v1.0.0-alpha.1` to `v1.0.0-alpha.8` were tagged and pushed on the hub branch (D-196); `v1.0.0-alpha.9`, `v1.0.0-alpha.10` and `v1.0.0-beta.1` were tagged and pushed; 1.0.0 is released from `main`. 1.1.0 is built on `release/1.1`; `v1.1.0-beta.1` (D-226), `v1.1.0-beta.2` (D-228) and `v1.1.0-beta.3` (D-233) are tagged and pushed there; "Releasing 1.1.0" is the open runbook. 2.0.0 is built on `release/2.0`, which holds `release/1.1`; `v2.0.0-beta.1` is tagged and pushed there (D-243); `v2.0.0-beta.2` (D-247), `v2.0.0-beta.3` (D-248, broken: no introduction) and `v2.0.0-beta.4` (D-249) and `v2.0.0-beta.5` (D-252) are tagged and pushed; `release/2.0` is merged into `main` (D-252), so `main` carries 2.0.0-beta.5; the GitHub pre-release is the maintainer's step.
+Releases `v0.1.0` to `v0.4.0` follow the steps below (D-020: tags and pushes only with the maintainer's explicit approval). The pre-releases `v1.0.0-alpha.1` to `v1.0.0-alpha.8` were tagged and pushed on the hub branch (D-196); `v1.0.0-alpha.9`, `v1.0.0-alpha.10` and `v1.0.0-beta.1` were tagged and pushed; 1.0.0 is released from `main`. 1.1.0 is built on `release/1.1`; `v1.1.0-beta.1` (D-226), `v1.1.0-beta.2` (D-228) and `v1.1.0-beta.3` (D-233) are tagged and pushed there; "Releasing 1.1.0" is the open runbook. 2.1.0 is built on `release/2.1`; `v2.1.0-beta.2` and `v2.1.0-beta.3` are tagged and pushed (D-261, D-267) and `release/2.1` is merged into `main` (2026-11-23), so `main` carries 2.1.0-beta.3; "Releasing 2.1.0" is the open runbook. 2.0.0 is built on `release/2.0`, which holds `release/1.1`; `v2.0.0-beta.1` is tagged and pushed there (D-243); `v2.0.0-beta.2` (D-247), `v2.0.0-beta.3` (D-248, broken: no introduction) and `v2.0.0-beta.4` (D-249) and `v2.0.0-beta.5` (D-252) are tagged and pushed; `release/2.0` is merged into `main` (D-252), so `main` carries 2.0.0-beta.5; the GitHub pre-release is the maintainer's step.
 
 ## Before the first release (maintainer, on github.com)
 1. CI: open the Actions tab of `Seyphaton/ha-heads-up`. Workflows `CI` (jobs `python`, `python-ha-2026-9`, `card`) and `Validate` (jobs `hacs`, `hassfest`) must be green on `main`. They had never run before the first push.
@@ -50,6 +50,14 @@ State: `release/2.0` was cut from `main` at `c5af204` and holds `release/1.1` (m
 3. `make check`, `make hassfest` and `make dev-smoke` green on a clean instance; an upgrade from a 1.1 setup on the dev instance converts the policies and shows the check list; push the branch and read CI.
 4. Merge `release/2.0` into `main` and push `main`, only on the maintainer's explicit approval. `release/1.1` needs no own merge.
 5. Tag `v2.0.0` on `main`, push the tag, create the GitHub release (not a pre-release) with the 2.0.0 section as notes. The tags `v1.1.0-beta.*` stay as they are.
+
+## Releasing 2.1.0
+State: `release/2.1` was cut from `main` at 2.0.0 and is merged into `main` (2026-11-23, `32a06d7`), so `main` and `release/2.1` have the same tree and manifest `2.1.0-beta.3` (D-267). `v2.1.0-beta.2` and `v2.1.0-beta.3` are tagged and pushed; the GitHub pre-release is the maintainer's step. There are no breaking changes (D-262): the CHANGELOG has no "Before you upgrade" for 2.1.0.
+1. Real-device checks (`docs/OPEN_QUESTIONS.md`): Android 16 Live Update, iOS 17.2 Live Activity, the iOS communication-notification look; the new panel pages at phone width and in dark mode. While they are open, release `2.1.0-beta.N` (manifest version, commit, tag, push, on the maintainer's approval).
+2. Rename `[Unreleased]` in `CHANGELOG.md` to `[2.1.0]` with the date and set `version` in the manifest to `2.1.0`.
+3. `make check`, `make hassfest` and `make dev-smoke` green; push `release/2.1` and read CI.
+4. Merge `release/2.1` into `main` and push `main`, only on the maintainer's explicit approval.
+5. Tag `v2.1.0` on `main`, push the tag, create the GitHub release (not a pre-release) with the 2.1.0 section as notes.
 
 ## Default HACS list (optional)
 Custom-repository installs work without this. For the default list (N-54): the repository is public, the HACS Action and hassfest pass without ignores, a full GitHub release exists. Then fork `hacs/default`, create a branch from `master`, add `Seyphaton/ha-heads-up` to the file `integration` in alphabetical order, and open a pull request from a personal account with the template filled in.
