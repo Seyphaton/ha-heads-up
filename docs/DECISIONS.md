@@ -1629,3 +1629,19 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: `2.0.0-beta.6` is tagged and pushed (D-253). The maintainer asked to create the tag 2.0.0 and push it.
 - Decision (maintainer, "create a new tag 2.0.0 and push"): CHANGELOG `[Unreleased]` becomes `[2.0.0] - 2026-11-22`; the manifest version is `2.0.0`; `release/2.0` is merged into `main` (fast-forward); `release/2.0`, `main` and the tag `v2.0.0` are pushed. Checks before the tag: `make check`, `make hassfest` and `make dev-smoke` green. Not run: the upgrade from a 1.1 setup on the dev instance (RELEASE step 3) and the real-device checks in `docs/OPEN_QUESTIONS.md`, which stay open. The maintainer published the GitHub release on 2026-11-23.
 
+
+## D-255 2.1.0: richer push, scope (2026-11-23, maintainer)
+- Context: the maintainer asked to scope 2.1.0 around a larger push feature set, using the Companion "basic notifications" page as the checklist (read 2026-11-23, HA_API_NOTES N-112). Already built before this: `tag`, `group`, `channel`, `importance`, `push.interruption-level`, the iOS critical sound, `sticky`, `clickAction` and `url`, `actions`, `image`, `clear_notification`.
+- Decision (maintainer, answers to AskUserQuestion): 2.1.0 adds, as one platform-neutral field per feature (the card, the panel, the actions and the rule form never show an Android or iOS variant; the push channel maps the field to the keys of each platform, and a platform that has no equivalent ignores it):
+  - Status bar icon (`notification_icon`, an `mdi:` name): Android status bar icon; iOS sender icon of a communication notification.
+  - Color (`color`): Android accent; iOS background of the icon, with the glyph in `notification_icon_color`.
+  - Sender icon URL (`icon_url`).
+  - Subtitle: iOS `subtitle`, Android `subject`.
+  - Icon and color default to the icon and color of the message's severity (`severity_display`) and a message can override them. A new push channel setting turns the severity default off; it is on by default.
+- Left out (maintainer): timeout (iOS has no sufficient alternative), persistent (dropped), lock screen visibility (the lock screen setting stays the only privacy control), and every alert and device option of the page: vibration pattern, LED color, Android Auto, spoken push, iOS badge and silent badge update, `push.sound: none`, `presentation_options`, `alert_once`, chronometer outside live updates, HTML in the message.
+- Not done: any code. Parity (CLAUDE.md rule 9): every new field ships for actions and for watch rules in the same phase.
+
+## D-256 2.1.0: progress and live updates (2026-11-23, maintainer)
+- Context: the page offers `progress` only through Live Updates (Android 16 and later) and Live Activities (iOS 17.2 and later, Home Assistant Core 2026.7.0 and later); a plain notification has no documented progress bar on iOS (N-112, N-113).
+- Decision (maintainer): shape C, `progress: {entity_id, min, max}` on actions and in the rule form. Heads Up sets `live_update: true`, the tag and the title, scales the entity value to the 0 to max range the app expects (default min 0, max 100) and sends an update when the entity changes. The condition of the message ends it and clears the push. Live only: devices without Live Updates or Live Activities get the plain message and no percentage fallback.
+- Open for the build: the push channel cannot tell which devices support live updates, so the message is sent to all of the person's devices; the iOS-only keys of the page (colors, direction, relevance) are not exposed. An automatic mode (`live: auto`, option D of the session) was offered and not chosen.

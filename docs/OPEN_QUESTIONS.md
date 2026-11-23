@@ -160,3 +160,10 @@
 - "The last critical message was acknowledged N ago" (status card) can now be built from the history; not done.
 - The history writes at most every 60 seconds; a restart can lose the last minute of counts. Check on a busy household whether that is acceptable.
 - Calls that set a new ID for every message are grouped as "Other calls" in Top sources after 60 IDs a day; a different identifier (the automation's entity ID) would need a field in the call.
+
+## 2.1.0 richer push (scoped 2026-11-23, D-255, D-256)
+- Left out on purpose: timeout (a timed `clear_notification` would give iOS the same behaviour; not chosen), persistent, lock screen visibility (Android `secret` hides the whole notification; not chosen), vibration, LED, Android Auto, spoken push, iOS badge, `alert_once`, `presentation_options`.
+- Automatic live mode (`live: auto`, tag, title, chip text and clearing set by Heads Up) was offered on top of the entity-bound progress and not chosen.
+- No percentage fallback for devices without Live Updates or Live Activities (live only).
+- The push channel cannot tell which devices support live updates; unchecked on a real device.
+- iOS sender icon needs a title: what to send for a message without one is open.
