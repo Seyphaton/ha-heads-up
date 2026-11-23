@@ -681,7 +681,7 @@ A separate integration consuming events (events lack recipients and silent trans
 
 ### 23.14 Policy fields and channel settings (D-097)
 - Escalation: `after` (minutes), `notify` (`channels` and `to`, a target per channel), `dismiss_counts`.
-- Quiet hours: `from`, `to`, `days`, `action` (`wait`, `quiet`, `drop`), `critical_passes`. Away: `max_wait`, `critical_passes` (D-192).
+- Quiet hours: `from`, `to`, `days`, `action` (`wait`, `quiet`, `drop`), `critical_passes`, `channels` (optional list from `POLICY_CHANNELS`; empty means every channel except the banner; a policy that does not list a channel leaves its deliveries alone, D-271). Summarize has no channel scope (D-271). Away: `max_wait`, `critical_passes` (D-192).
 - Fallback: `when` (`no_audience`, `failed`, `both`), `notify` as above.
 - Reminder: `every` (minutes), `max`.
 - Away: `max_wait` (default: the message lifetime).

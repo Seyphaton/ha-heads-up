@@ -718,6 +718,8 @@ class PolicySubentryFlow(_HubFlow):
                 data["holds_anyway"] = True
             if user_input.get("quiet_entity"):  # stored only when set (D-213)
                 data["quiet_entity"] = str(user_input["quiet_entity"])
+            if channels:  # stored only when set, so an older policy reads the same (D-262, D-271)
+                data["channels"] = channels
         elif kind == "presence":
             data["max_wait"] = int(user_input.get("max_wait") or 0)
             # Only what differs from the defaults is stored (the 1.0 Away behaviour, D-213).

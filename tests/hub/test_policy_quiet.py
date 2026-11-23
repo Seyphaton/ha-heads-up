@@ -125,6 +125,45 @@ async def test_quiet_sends_a_passive_push(
     assert call.data["data"]["channel"].endswith("passive")
 
 
+async def test_channels_limit_quiet_hours_to_those_channels(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Night", **QUIET, channels=["popup"])
+    freezer.move_to("2026-11-02 23:00:00+01:00")
+    await send(hass, entry, severity="warning")
+    assert pushes(home.anna)[0].data["data"]["importance"] == "default"  # push is not covered
+
+
+async def test_a_covered_channel_is_still_quieted(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Night", **QUIET, channels=["push"])
+    freezer.move_to("2026-11-02 23:00:00+01:00")
+    await send(hass, entry, severity="warning")
+    assert pushes(home.anna)[0].data["data"]["importance"] == "low"
+
+
+async def test_drop_on_other_channels_leaves_the_push_alone(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    home = await make_household(hass, mobile_app_device)
+    await add_policy(hass, entry, "Night", **{**QUIET, "action": "drop"}, channels=["persistent"])
+    freezer.move_to("2026-11-02 23:00:00+01:00")
+    await send(hass, entry, severity="warning")
+    assert len(pushes(home.anna)) == 1
+
+
 async def test_outside_the_window_a_push_is_normal(
     hass: HomeAssistant,
     entry: MockConfigEntry,

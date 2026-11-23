@@ -17,6 +17,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - The watch rule form has the same Visual editor and YAML editor switch.
 - Built-in audiences can be edited in place on the Audiences page: leave out named people, and limit At home, Not home, Last to leave and First home to named people. Reset to default restores the original. Policies, actions, watch rules and the audience sensors follow the edit.
 - Examples for the color, the sender icon and a progress bar in the field help and in the examples page.
+- A Quiet hours policy can be limited to channels (push, popup, speech, Persistent Notification, mail). With none selected it covers every channel except the banner, as before.
 
 ### Fixed
 

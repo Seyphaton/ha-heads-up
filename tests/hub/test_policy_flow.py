@@ -7,7 +7,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-from custom_components.heads_up.hub.policies import escalation, reminder
+from custom_components.heads_up.hub.policies import escalation, quiet, reminder
 
 from .helpers import set_person
 from .test_audiences_flows import run, subentries
@@ -175,6 +175,32 @@ async def test_the_same_quiet_window_for_the_same_messages_is_a_duplicate(
     assert again["errors"]["base"] == "policy_duplicate"
     other = {"name": "Night 3", "type": "quiet_hours", "days": ["sat"]}
     assert (await run(hass, entry, "policy", other))["type"] is FlowResultType.CREATE_ENTRY
+
+
+async def test_quiet_hours_store_the_channels_only_when_some_are_chosen(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    chosen = {"name": "Night", "type": "quiet_hours", "channels": ["push", "popup"]}
+    assert (await run(hass, entry, "policy", chosen))["type"] is FlowResultType.CREATE_ENTRY
+    (sub,) = subentries(entry, "policy")
+    assert sub.data["channels"] == ["push", "popup"]
+
+
+def test_the_quiet_hours_check_refuses_an_unknown_channel() -> None:
+    # The form's selector refuses it first; the check covers a call from the panel.
+    assert quiet.check(
+        {"from_time": "22:00:00", "to_time": "07:00:00", "channels": ["banner"]}
+    ) == {"channels": "channel_unknown"}
+
+
+async def test_the_same_quiet_window_on_other_channels_is_not_a_duplicate(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    await run(hass, entry, "policy", {"name": "Night", "type": "quiet_hours"})
+    only_push = {"name": "Night push", "type": "quiet_hours", "channels": ["push"]}
+    assert (await run(hass, entry, "policy", only_push))["type"] is FlowResultType.CREATE_ENTRY
+    again = {"name": "Night push 2", "type": "quiet_hours", "channels": ["push"]}
+    assert (await run(hass, entry, "policy", again))["errors"]["base"] == "policy_duplicate"
 
 
 async def test_add_presence_with_a_maximum_wait(

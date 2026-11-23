@@ -422,6 +422,7 @@ Between two times of day, or while an entity of your choice is on, deliveries ou
 | Days | every day | The days a window starts on. A window that starts on Friday ends on Saturday morning. |
 | Or quiet while this is on | none | A schedule, input boolean or binary sensor. While it is `on`, quiet hours apply and the times and days are not used. A missing or unavailable entity counts as not quiet, so messages go out, and the Overview shows a warning. |
 | During quiet hours | Send quietly | Send quietly: a push is passive and without sound, speech is skipped, a popup is a corner card. Wait: hold the delivery until the window ends, then send it once. Drop: do not deliver. |
+| Limit to these channels | none selected | Push, popup, speech, Persistent Notification or mail. With none selected the policy covers every channel except the banner. Deliveries on a channel you leave out are not held, quieted or dropped by this policy. |
 | Holds these anyway | off | On: no Get through entry lets messages past this policy. |
 
 - Quiet hours apply to every severity. Critical messages get through only with a Get through entry, such as Critical from the introduction.

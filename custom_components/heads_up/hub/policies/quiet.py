@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from ...const import CHANNEL_BANNER, HOLD_QUIET, WEEKDAYS
+from ...const import CHANNEL_BANNER, HOLD_QUIET, POLICY_CHANNELS, WEEKDAYS
 from . import clock
 from .chain import Hold, Skip, Step
 from .models import Policy
@@ -76,6 +76,8 @@ def entity_window(hass: HomeAssistant, entity_id: str) -> tuple[bool, datetime |
 
 def check(data: dict[str, Any]) -> dict[str, str]:
     errors: dict[str, str] = {}
+    if any(c not in POLICY_CHANNELS for c in data.get("channels") or []):
+        errors["channels"] = "channel_unknown"
     if entity := data.get("quiet_entity"):
         if str(entity).split(".", 1)[0] not in QUIET_ENTITY_DOMAINS:
             errors["quiet_entity"] = "quiet_entity_invalid"
@@ -105,6 +107,9 @@ class QuietHoursStage:
         active: list[tuple[Policy, datetime | None]] = []
         for policy in self._policies.for_message(message):
             if policy.type != "quiet_hours":
+                continue
+            # Empty means every channel but the banner; the inbox and the rest follow the list.
+            if policy.channels and step.channel not in policy.channels:
                 continue
             # A band entry lets the message through for the people it covers (D-224).
             if not policy.holds_anyway and self._policies.passes(message, step.target):

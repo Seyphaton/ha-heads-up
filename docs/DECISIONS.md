@@ -1740,3 +1740,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 ## D-270 Phase 22: store bound and thread write (2026-11-23, maintainer)
 - Context: step 0 measured the inbox store (N-118: 846 bytes an item, 6.2 MB per person a year at 20 items a day, about 100 ms to serialize 18 MB) and read how `Store` serializes (N-117: in the event loop by default).
 - Decision (maintainer): one store (D-268), retention in months (default 12) and a cap of 2000 items per person, the oldest dropped first (resolved ones before unresolved ones is a build detail to check in the tests). The store is written with `serialize_in_event_loop=False` from a copy of the data, debounced like the stats store. The cap is not a setting in this phase.
+
+## D-271 Phase 22: channels on Quiet hours only (2026-11-23, maintainer)
+- Context: D-269 added a `channels` field to Quiet hours and Summarize. Reading the engine showed that Summarize holds a whole message (the banner and every channel) and builds the summary from held messages (`_try_hold`, `_send_summaries`), so a channel scope would need per-delivery hold records.
+- Decision (maintainer, "drop this for now", then "Drop Summarize only"): Quiet hours gets `channels`; Summarize does not. Summarize keeps holding every channel, inbox included, like every channel (D-268); it is narrowed with For and Not for. A per-channel Summarize goes to `docs/OPEN_QUESTIONS.md`. D-269 is amended for Summarize.

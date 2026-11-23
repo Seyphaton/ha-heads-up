@@ -247,6 +247,9 @@ describe("policy editor", () => {
     expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).toMatchObject({ from_time: "22:00:00", to_time: "07:00:00", days: [], action: "quiet" });
     expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).not.toHaveProperty("holds_anyway");
     expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).not.toHaveProperty("quiet_entity");
+    expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night" })).not.toHaveProperty("channels");
+    expect(policyData({ ...blankPolicy("quiet_hours"), name: "Night", channels: ["push"] }).channels).toEqual(["push"]);
+    expect(fromPolicy({ name: "Night", data: { type: "quiet_hours", channels: ["popup"] } }).channels).toEqual(["popup"]);
     expect(policyData({ ...blankPolicy("quiet_hours"), name: "Nap", quiet_entity: "input_boolean.nap" }).quiet_entity).toBe("input_boolean.nap");
     expect(fromPolicy({ name: "Nap", data: { type: "quiet_hours", quiet_entity: "input_boolean.nap" } }).quiet_entity).toBe("input_boolean.nap");
     expect(policyData({ ...blankPolicy("presence"), name: "Back", max_wait: 0 })).toMatchObject({ max_wait: 0, after_wait: "send" });
@@ -308,6 +311,7 @@ describe("policy editor", () => {
     expect(appliesText({ ...blankPolicy("presence"), severities: ["info"] }, t)).toBe("Messages with severity Info");
     expect(sentence(water, t)).toBe("Messages with severity Critical and tag water: if nobody acknowledges within 5 min, it is also sent on Push, Persistent Notification.");
     expect(sentence({ ...blankPolicy("quiet_hours"), days: ["sat", "sun"] }, t)).toBe("Every message: between 22:00 and 07:00 on Saturday, Sunday, deliveries outside the dashboard are sent quietly.");
+    expect(sentence({ ...blankPolicy("quiet_hours"), channels: ["push", "popup"] }, t)).toContain("sent quietly, only on");
     expect(sentence({ ...blankPolicy("quiet_hours"), quiet_entity: "schedule.night", action: "wait" }, t)).toBe("Every message: while schedule.night is on, deliveries outside the dashboard are held until the end.");
     expect(sentence({ ...blankPolicy("reminder"), channels: ["push"] }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times, only on Push.");
     expect(sentence({ ...blankPolicy("presence"), max_wait: 30 }, t)).toBe("Every message: a recipient who is not in Home: push, popup and mail are held until that changes, for at most 30 min, then sent anyway.");

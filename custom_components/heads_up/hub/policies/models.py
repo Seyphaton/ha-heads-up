@@ -33,7 +33,15 @@ DEFAULT_QUIET_TO = "07:00:00"
 DESCRIBED = {
     "escalation": ("after_minutes", "channels"),
     "reminder": ("every_minutes", "max_count", "channels"),
-    "quiet_hours": ("from_time", "to_time", "days", "quiet_entity", "action", "holds_anyway"),
+    "quiet_hours": (
+        "from_time",
+        "to_time",
+        "days",
+        "quiet_entity",
+        "action",
+        "holds_anyway",
+        "channels",
+    ),
     "presence": (
         "channels",
         "zone",
@@ -69,7 +77,9 @@ class Policy:
     only_if: dict[str, Any] | None = None  # D-216: the notify condition shape
     # Escalation and Fallback
     after_minutes: int = 0
-    channels: tuple[str, ...] = ()  # a reminder may limit itself to these; empty means all
+    channels: tuple[
+        str, ...
+    ] = ()  # a reminder or Quiet hours may limit itself to these; empty: all
     # Escalation, Deliver and Fallback: take the channels and the recipients from the policy
     # (default) or from the call (D-181). "failed": only the channels that reached nobody.
     channels_from: str = "policy"
@@ -117,9 +127,10 @@ class Policy:
         if self.type == "reminder":
             return ("every", self.every_minutes)
         if self.type == "quiet_hours":
+            scope = tuple(sorted(self.channels))
             if self.quiet_entity:
-                return ("entity", self.quiet_entity)
-            return ("window", self.from_time, self.to_time, tuple(sorted(self.days)))
+                return ("entity", self.quiet_entity, scope)
+            return ("window", self.from_time, self.to_time, tuple(sorted(self.days)), scope)
         if self.type == "fallback":
             return ("when", self.when)
         if self.type == "summarize":

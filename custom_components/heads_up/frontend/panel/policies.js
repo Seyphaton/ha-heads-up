@@ -44,6 +44,7 @@ export const STRINGS = {
     after: "Escalate after (minutes)",
     channels: "Channels",
     channels_reminder: "Limit to these channels (none selected: all)",
+    channels_quiet: "Limit to these channels (none selected: every channel except the banner)",
     dismiss_acks: "Dismissing counts as acknowledging",
     every: "Repeat every (minutes)",
     max_count: "At most this many reminders",
@@ -107,8 +108,8 @@ export const STRINGS = {
     lane_named_hint: "Used only when an automation or a watch rule names them.",
     x_summary_every: "Summary every {n} min",
     x_summary_at: "Summary at {time}",
-    x_quiet: "{from}–{to}: {action}",
-    x_quiet_entity: "While {entity} is on: {action}",
+    x_quiet: "{from}–{to}: {action}{channels}",
+    x_quiet_entity: "While {entity} is on: {action}{channels}",
     x_act_quiet: "send quietly",
     x_act_wait: "hold until the end",
     x_act_drop: "drop",
@@ -228,7 +229,7 @@ export const STRINGS = {
     s_and: " and ",
     s_escalation: "{applies}: if nobody acknowledges within {n} min, it is also sent on {channels}.",
     s_reminder: "{applies}: while nobody acknowledges, the notification is repeated every {n} min, at most {m} times{channels}.",
-    s_quiet_hours: "{applies}: between {from} and {to}{days}, deliveries outside the dashboard are {action}.",
+    s_quiet_hours: "{applies}: between {from} and {to}{days}, deliveries outside the dashboard are {action}{channels}.",
     s_away: "{applies}: a person who is not home gets it when they arrive{wait}.",
     s_presence_people: "{who} who {where} {zone}: push, popup and mail are {then}",
     s_presence_speak: "speech while {who} of {audience} is in {zone} is {then}",
@@ -264,7 +265,7 @@ export const STRINGS = {
     quiet_entity: "Or quiet while this is on",
     quiet_entity_none: "No entity: use the times",
     quiet_entity_hint: "A schedule, input boolean or binary sensor. While it is on, the times are not used. Held messages go out when it turns off; a missing or unavailable entity is not quiet.",
-    s_quiet_entity: "{applies}: while {entity} is on, deliveries outside the dashboard are {action}.",
+    s_quiet_entity: "{applies}: while {entity} is on, deliveries outside the dashboard are {action}{channels}.",
     s_wait: ", for at most {n} min",
     a_quiet: "sent quietly",
     a_wait: "held until the end",
@@ -290,6 +291,7 @@ export const STRINGS = {
     after: "Eskalieren nach (Minuten)",
     channels: "Kanäle",
     channels_reminder: "Auf diese Kanäle beschränken (keiner gewählt: alle)",
+    channels_quiet: "Auf diese Kanäle beschränken (keiner gewählt: alle außer dem Banner)",
     dismiss_acks: "Ausblenden zählt als Bestätigung",
     every: "Wiederholen alle (Minuten)",
     max_count: "Höchstens so viele Erinnerungen",
@@ -353,8 +355,8 @@ export const STRINGS = {
     lane_named_hint: "Werden nur benutzt, wenn eine Automation oder eine Überwachungsregel sie nennt.",
     x_summary_every: "Zusammenfassung alle {n} Min.",
     x_summary_at: "Zusammenfassung um {time}",
-    x_quiet: "{from}–{to}: {action}",
-    x_quiet_entity: "Solange {entity} an ist: {action}",
+    x_quiet: "{from}–{to}: {action}{channels}",
+    x_quiet_entity: "Solange {entity} an ist: {action}{channels}",
     x_act_quiet: "leise senden",
     x_act_wait: "bis zum Ende zurückhalten",
     x_act_drop: "verwerfen",
@@ -474,7 +476,7 @@ export const STRINGS = {
     s_and: " und ",
     s_escalation: "{applies}: bestätigt niemand innerhalb von {n} Min., wird zusätzlich auf {channels} gesendet.",
     s_reminder: "{applies}: solange niemand bestätigt, wird die Benachrichtigung alle {n} Min. wiederholt, höchstens {m} Mal{channels}.",
-    s_quiet_hours: "{applies}: zwischen {from} und {to}{days} werden Zustellungen außerhalb des Dashboards {action}.",
+    s_quiet_hours: "{applies}: zwischen {from} und {to}{days} werden Zustellungen außerhalb des Dashboards {action}{channels}.",
     s_away: "{applies}: wer nicht zu Hause ist, bekommt sie bei der Ankunft{wait}.",
     s_presence_people: "{who}, der {where} {zone} ist: Push, Popup und Mail werden {then}",
     s_presence_speak: "Sprache, solange {who} von {audience} in {zone} ist, wird {then}",
@@ -510,7 +512,7 @@ export const STRINGS = {
     quiet_entity: "Oder ruhig, solange dies an ist",
     quiet_entity_none: "Keine Entität: Uhrzeiten verwenden",
     quiet_entity_hint: "Ein Zeitplan, ein Eingabe-Schalter oder ein binärer Sensor. Solange er an ist, gelten die Uhrzeiten nicht. Zurückgehaltene Meldungen gehen raus, wenn er aus geht; eine fehlende oder nicht verfügbare Entität ist nicht ruhig.",
-    s_quiet_entity: "{applies}: solange {entity} an ist, werden Zustellungen außerhalb des Dashboards {action}.",
+    s_quiet_entity: "{applies}: solange {entity} an ist, werden Zustellungen außerhalb des Dashboards {action}{channels}.",
     s_wait: ", höchstens {n} Min.",
     a_quiet: "leise gesendet",
     a_wait: "bis zum Ende zurückgehalten",
@@ -536,6 +538,7 @@ export const STRINGS = {
     after: "Escalader après (minutes)",
     channels: "Canaux",
     channels_reminder: "Limiter à ces canaux (aucun choisi : tous)",
+    channels_quiet: "Limiter à ces canaux (aucun choisi : tous sauf la bannière)",
     dismiss_acks: "Masquer vaut acquittement",
     every: "Répéter toutes les (minutes)",
     max_count: "Au plus ce nombre de rappels",
@@ -599,8 +602,8 @@ export const STRINGS = {
     lane_named_hint: "Utilisées seulement quand une automatisation ou une règle de surveillance les nomme.",
     x_summary_every: "Résumé toutes les {n} min",
     x_summary_at: "Résumé à {time}",
-    x_quiet: "{from}–{to} : {action}",
-    x_quiet_entity: "Tant que {entity} est activé : {action}",
+    x_quiet: "{from}–{to} : {action}{channels}",
+    x_quiet_entity: "Tant que {entity} est activé : {action}{channels}",
     x_act_quiet: "envoyer discrètement",
     x_act_wait: "retenir jusqu'à la fin",
     x_act_drop: "abandonner",
@@ -720,7 +723,7 @@ export const STRINGS = {
     s_and: " et ",
     s_escalation: "{applies} : si personne ne confirme en {n} min, il est aussi envoyé sur {channels}.",
     s_reminder: "{applies} : tant que personne ne confirme, la notification est répétée toutes les {n} min, au plus {m} fois{channels}.",
-    s_quiet_hours: "{applies} : entre {from} et {to}{days}, les livraisons hors tableau de bord sont {action}.",
+    s_quiet_hours: "{applies} : entre {from} et {to}{days}, les livraisons hors tableau de bord sont {action}{channels}.",
     s_away: "{applies} : une personne qui n'est pas à la maison le reçoit à son arrivée{wait}.",
     s_presence_people: "{who} qui {where} {zone} : push, popup et courriel sont {then}",
     s_presence_speak: "la voix, tant que {who} de {audience} est dans {zone}, est {then}",
@@ -756,7 +759,7 @@ export const STRINGS = {
     quiet_entity: "Ou calme tant que ceci est allumé",
     quiet_entity_none: "Aucune entité : utiliser les heures",
     quiet_entity_hint: "Un planning, un interrupteur d'entrée ou un capteur binaire. Tant qu'il est allumé, les heures ne servent pas. Les messages retenus partent quand il s'éteint ; une entité absente ou indisponible n'est pas calme.",
-    s_quiet_entity: "{applies} : tant que {entity} est allumé, les livraisons hors tableau de bord sont {action}.",
+    s_quiet_entity: "{applies} : tant que {entity} est allumé, les livraisons hors tableau de bord sont {action}{channels}.",
     s_wait: ", au plus {n} min",
     a_quiet: "envoyées discrètement",
     a_wait: "retenues jusqu'à la fin",
@@ -782,6 +785,7 @@ export const STRINGS = {
     after: "Escalar tras (minutos)",
     channels: "Canales",
     channels_reminder: "Limitar a estos canales (ninguno elegido: todos)",
+    channels_quiet: "Limitar a estos canales (ninguno elegido: todos menos el aviso)",
     dismiss_acks: "Descartar cuenta como confirmar",
     every: "Repetir cada (minutos)",
     max_count: "Como máximo este número de recordatorios",
@@ -845,8 +849,8 @@ export const STRINGS = {
     lane_named_hint: "Solo se usan cuando una automatización o una regla de vigilancia las nombra.",
     x_summary_every: "Resumen cada {n} min",
     x_summary_at: "Resumen a las {time}",
-    x_quiet: "{from}–{to}: {action}",
-    x_quiet_entity: "Mientras {entity} está activado: {action}",
+    x_quiet: "{from}–{to}: {action}{channels}",
+    x_quiet_entity: "Mientras {entity} está activado: {action}{channels}",
     x_act_quiet: "enviar en silencio",
     x_act_wait: "retener hasta el final",
     x_act_drop: "descartar",
@@ -966,7 +970,7 @@ export const STRINGS = {
     s_and: " y ",
     s_escalation: "{applies}: si nadie confirma en {n} min, se envía también por {channels}.",
     s_reminder: "{applies}: mientras nadie confirme, la notificación se repite cada {n} min, como máximo {m} veces{channels}.",
-    s_quiet_hours: "{applies}: entre {from} y {to}{days}, las entregas fuera del panel se {action}.",
+    s_quiet_hours: "{applies}: entre {from} y {to}{days}, las entregas fuera del panel se {action}{channels}.",
     s_away: "{applies}: quien no está en casa lo recibe al llegar{wait}.",
     s_presence_people: "{who} que {where} {zone}: push, ventana y correo se {then}",
     s_presence_speak: "la voz, mientras {who} de {audience} esté en {zone}, se {then}",
@@ -1002,7 +1006,7 @@ export const STRINGS = {
     quiet_entity: "O silencio mientras esto esté encendido",
     quiet_entity_none: "Sin entidad: usar las horas",
     quiet_entity_hint: "Un horario, un interruptor de entrada o un sensor binario. Mientras esté encendido, las horas no se usan. Los mensajes retenidos salen cuando se apaga; una entidad ausente o no disponible no cuenta como silencio.",
-    s_quiet_entity: "{applies}: mientras {entity} esté encendido, las entregas fuera del panel se {action}.",
+    s_quiet_entity: "{applies}: mientras {entity} esté encendido, las entregas fuera del panel se {action}{channels}.",
     s_wait: ", como máximo {n} min",
     a_quiet: "envían en silencio",
     a_wait: "retienen hasta el final",
@@ -1315,6 +1319,7 @@ export function toFlowData(values) {
       Object.assign(data, { from_time: values.from_time, to_time: values.to_time, days: [...values.days], action: values.action });
       if (values.quiet_entity) data.quiet_entity = values.quiet_entity;
       if (values.holds_anyway) data.holds_anyway = true;
+      if (values.channels.length) data.channels = [...values.channels];
       break;
     case "presence": {
       Object.assign(data, { max_wait: values.max_wait || 0, after_wait: values.after_wait || "send" });
@@ -1481,9 +1486,10 @@ function sentenceBase(values, t, audienceName, recipientName) {
     case "reminder":
       return fill(t.s_reminder, { applies, n: values.every_minutes, m: values.max_count, channels: values.channels.length ? fill(t.s_in_channels, { channels }) : "" });
     case "quiet_hours": {
-      if (values.quiet_entity) return fill(t.s_quiet_entity, { applies, entity: values.quiet_entity, action: t[`a_${values.action}`] });
+      const only = values.channels.length ? fill(t.s_in_channels, { channels }) : "";
+      if (values.quiet_entity) return fill(t.s_quiet_entity, { applies, entity: values.quiet_entity, action: t[`a_${values.action}`], channels: only });
       const days = values.days.length ? fill(t.s_days, { days: values.days.map((d) => t.days_names[d]).join(", ") }) : "";
-      return fill(t.s_quiet_hours, { applies, from: String(values.from_time).slice(0, 5), to: String(values.to_time).slice(0, 5), days, action: t[`a_${values.action}`] });
+      return fill(t.s_quiet_hours, { applies, from: String(values.from_time).slice(0, 5), to: String(values.to_time).slice(0, 5), days, action: t[`a_${values.action}`], channels: only });
     }
     case "presence":
       return presenceSentence(values, t, applies);
@@ -1598,7 +1604,8 @@ export function doesText(values, t, labels = {}) {
       break;
     case "quiet_hours": {
       const action = t[`x_act_${values.action}`];
-      text = values.quiet_entity ? fill(t.x_quiet_entity, { entity: values.quiet_entity, action }) : fill(t.x_quiet, { from: String(values.from_time).slice(0, 5), to: String(values.to_time).slice(0, 5), action });
+      const only = values.channels.length ? fill(t.s_in_channels, { channels: channels() }) : "";
+      text = values.quiet_entity ? fill(t.x_quiet_entity, { entity: values.quiet_entity, action, channels: only }) : fill(t.x_quiet, { from: String(values.from_time).slice(0, 5), to: String(values.to_time).slice(0, 5), action, channels: only });
       break;
     }
     case "presence": {
@@ -2061,6 +2068,7 @@ export function mount(container, ctx) {
           does.append(pills(t.days, DAYS.map((d) => ({ value: d, label: t.days_names[d] })), values.days, (list) => { values.days = list; paint(); }));
         }
         does.append(ui.field(t.action, ui.selectInput(["quiet", "wait", "drop"].map((k) => ({ value: k, label: t.actions[k] })), values.action, (v) => { values.action = v; paint(); })));
+        channelChips(t.channels_quiet);
         holdsAnyway();
         break;
       case "presence": {
