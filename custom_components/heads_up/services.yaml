@@ -178,10 +178,6 @@ notify:
       default: true
       selector:
         boolean: null
-    dry_run:
-      default: false
-      selector:
-        boolean: null
     policy:
       selector:
         entity:
@@ -269,6 +265,10 @@ notify:
       selector:
         text:
           multiline: true
+    dry_run:
+      default: false
+      selector:
+        boolean: null
 push:
   fields:
     message: *id003
