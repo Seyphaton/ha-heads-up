@@ -1685,3 +1685,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Checked for other changes on update: every other 2.1 field is new and optional, nothing is sent or shown differently without it; the stored data only gains optional keys.
 - Not done: a new pre-release; beta.2 stays as tagged until the maintainer asks for beta.3.
 
+## D-263 2.1.0: progress updates: no cap, an interval setting, per-message interval, manual updates (2026-11-23, maintainer)
+- Context: progress pushes counted against the per-device push cap (5 a minute) and were skipped, not retried, so a fast bar could lose updates, the final one included. The interval was a fixed 5 seconds, and a bar could only follow an entity.
+- Decisions (maintainer):
+  - A message with `progress` is not held back by the per-device or the total push cap. Identical updates are still ignored (D-123), and the interval below is the limit.
+  - Push channel setting `push_progress_interval`: the least time between two progress pushes of one message, in seconds. Default 5, minimum 1, maximum 300 (one push every 5 minutes); a value outside is refused. On the Channels page under Push and in the documentation.
+  - Per message: `progress.interval` (seconds, same limits) overrides the setting. `progress.auto_update: false` stops the automatic updates: the bar is read from the entity only when the call is made, so the caller updates it by calling `notify` again with the same `id`.
+  - `progress.value` (a number) instead of `entity_id`, for a caller that sets the value itself, for example from a template of its own. Exactly one of `entity_id` and `value`. With `value` there is nothing to follow, so `auto_update` and `interval` mean nothing.
+  - Watch rules get `interval` (the form field) and the entity; `value` and `auto_update` are call-only, because a rule has no caller that could update it (listed in DESIGN §22).
+- Not done: any code at the time of writing.
+

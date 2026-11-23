@@ -554,6 +554,7 @@ How both sources stay equal:
 | panel Test send and trace | yes (message id) | trace yes (`rule_<id>`); Test send previews a call, not a stored rule |
 | buttons stop acting once the message has ended (D-125) | yes | yes (one check in `BannerManager.press`; `tests/test_ended_buttons.py`) |
 | image under the message (D-127) | yes | yes (Image field of the rule form; `tests/hub/test_image.py`) |
+| `progress.value` and `progress.auto_update` (D-263) | yes | exception: a rule has no caller that updates it; it follows its entity (`progress.interval` and the entity are in the rule form) |
 | `heads_up_delivery_failed` (D-128) | yes | yes for the deliveries a policy makes for a rule message, same engine path (no rule-specific test); the banner channel never fires it |
 | Policy field: name one policy or `none` (D-146, D-202) | yes (`policy`, by the entity ID of its switch, D-198) | yes (Policy dropdown of the rule form: Automatic, None or a policy by key; `tests/test_rules_flow.py`) |
 | references survive a rename (D-199) | yes (stored as keys) | yes (stored as keys; `tests/hub/test_identity_rename.py`, `tests/hub/test_identity_property.py`) |
