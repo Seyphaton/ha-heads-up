@@ -4,6 +4,7 @@ import {
   fromRule,
   OPERATORS,
   sentence,
+  storedShape,
   STRINGS,
   toFlowData,
   validate,
@@ -61,7 +62,7 @@ describe("watch rule form", () => {
     expect(fromRule({ name: "T", data: { template: "{{ true }}", message: "x" } }).kind).toBe("template");
   });
 
-  it("sends the flow input with the duration, minutes and the kept buttons", () => {
+  it("sends the flow input with the duration, minutes and the buttons", () => {
     const data = toFlowData(fromRule(rule), rule);
     expect(data).toMatchObject({
       name: "Door", entity_id: "binary_sensor.door", operator: "equals", state: ["on"], message: "Door open",
@@ -81,9 +82,41 @@ describe("watch rule form", () => {
 
   it("leaves unset optional fields out", () => {
     const data = toFlowData({ ...blankValues(), name: "A", entity_id: "light.a", message: "x" });
-    for (const key of ["title", "icon", "image", "attribute", "for", "dismiss_scope", "snoozable", "snooze_scope", "snooze_options", "actions"]) {
+    for (const key of ["title", "icon", "image", "color", "icon_url", "subtitle", "progress", "attribute", "for", "dismiss_scope", "snoozable", "snooze_scope", "snooze_options", "actions"]) {
       expect(data[key], key).toBeUndefined();
     }
+  });
+
+  it("sends the push appearance fields trimmed and reads them back", () => {
+    const values = { ...blankValues(), name: "A", entity_id: "light.a", message: "x", color: " #03a9f4 ", icon_url: "/local/a.png", subtitle: " Front " };
+    const data = toFlowData(values);
+    expect(data).toMatchObject({ color: "#03a9f4", icon_url: "/local/a.png", subtitle: "Front" });
+    expect(fromRule({ name: "A", data })).toMatchObject({ color: "#03a9f4", icon_url: "/local/a.png", subtitle: "Front" });
+  });
+
+  it("sends the progress bar as one object and reads it back", () => {
+    const values = { ...blankValues(), name: "A", entity_id: "light.a", message: "x", progress_entity: " sensor.p ", progress_min: "10", progress_max: "", progress_interval: "20" };
+    const data = toFlowData(values);
+    expect(data.progress).toEqual({ entity_id: "sensor.p", min: 10, interval: 20 });
+    expect(fromRule({ name: "A", data })).toMatchObject({ progress_entity: "sensor.p", progress_min: "10", progress_max: "", progress_interval: "20" });
+    expect(toFlowData({ ...values, progress_entity: "" }).progress).toBeUndefined();
+  });
+
+  it("writes the rule in its stored shape for the YAML editor and reads it back", () => {
+    const values = {
+      ...fromRule(rule),
+      color: "#03a9f4", progress_entity: "sensor.p", progress_max: "80", for_minutes: "2",
+      snooze_minutes: ["15", "60"], actions: [{ key: "ok", label: "Got it", dismiss: true }], tap_action: { action: "url", url_path: "https://a.b" },
+    };
+    const stored = storedShape(values);
+    expect(stored.for).toBe(120);
+    expect(stored.snooze_options).toEqual([900, 3600]);
+    const { name, ...rest } = stored;
+    const back = fromRule({ name, data: rest });
+    for (const key of ["name", "kind", "entity_id", "operator", "state", "for_minutes", "message", "color", "progress_entity", "progress_max", "snooze_minutes", "actions", "tap_action", "enabled"]) {
+      expect(back[key], key).toEqual(values[key]);
+    }
+    expect(storedShape(blankValues()).for).toBeUndefined();
   });
 
   it("checks name, message and condition before saving", () => {

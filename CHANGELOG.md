@@ -2,6 +2,25 @@
 
 All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions: [SemVer](https://semver.org/). Only releases are listed; the 1.0.0 pre-releases are summarized under 1.0.0.
 
+## [Unreleased]
+
+### Added
+
+- `color`, `subtitle` and `icon_url` (a sender icon) on `notify`, `create_banner`, `push` and watch rules. The banner and the popup show the color, the subtitle under the title and the sender picture in place of the icon. On a push they become the Companion keys for Android and iOS, so one field serves both. The subtitle and the sender icon go out only when the lock screen setting is `full`.
+- `icon` is also the push's status bar icon on Android and its sender icon on iOS.
+- `progress` (an entity, with `min` and `max`) on `notify`, `create_banner` and watch rules: a progress bar on the banner and the popup that follows the entity, and on a push a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later) that is updated in place. Older devices show the plain message. The iOS Live Activity has no image and no buttons.
+- Progress updates are not dropped by the push limits per minute. The Channels page has "Seconds between two progress updates" (1 to 300, default 5), a message can set its own `progress.interval`, `progress.value` takes a number instead of an entity, and `progress.auto_update: false` stops the automatic updates so you move the bar by calling the action again with the same `id`.
+- Channels page: "Use severity icon & color for push notifications", off by default. On, a push without its own `icon` or `color` uses those of its severity. On iOS an icon makes the push a communication notification, and a message without a title is sent with the title `Heads Up`.
+- The color field takes `#rrggbb` or the red, green and blue list of the color picker in the action form, and the watch rule form and Test send have a color input with a picker.
+- The watch rule form in the panel edits buttons (up to 3, with text, key, close, red text, unlocked phone and an action) and the tap action. Before, they could only be set in the YAML of the form on the integration page.
+- Test send has every field of `notify` in collapsible sections, including the new look fields, progress, buttons, tap action, snooze choices and a lifetime for the test message. A switch at the top right changes between the Visual editor and the YAML editor, which replaces the separate paste section at the bottom.
+- The watch rule form has the same Visual editor and YAML editor switch.
+- Examples for the color, the sender icon and a progress bar in the field help and in the examples page.
+
+### Fixed
+
+- The help text of the mail subject showed an error in the action form.
+
 ## [2.0.0] - 2026-11-22
 
 ### Before you upgrade

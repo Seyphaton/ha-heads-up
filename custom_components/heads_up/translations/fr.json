@@ -485,6 +485,22 @@
         "image": {
           "name": "Image",
           "description": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
+        "color": {
+          "name": "Couleur",
+          "description": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône. Exemple : #03a9f4 (bleu), #e53935 (rouge). Le formulaire de l'action a un sélecteur de couleur."
+        },
+        "icon_url": {
+          "name": "Icône de l'expéditeur",
+          "description": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full. Exemple : /local/icons/doorbell.png. icon est un symbole comme mdi:door, icon_url une image."
+        },
+        "subtitle": {
+          "name": "Sous-titre",
+          "description": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full."
+        },
+        "progress": {
+          "name": "Progression",
+          "description": "Une barre de progression qui suit un nombre. Clés : entity_id (suit une entité) ou value (un nombre que vous fixez vous-même), min (0 par défaut), max (100 par défaut), interval, auto_update. La bannière et la fenêtre contextuelle montrent une barre ; le push devient une Live Update (Android 16 et suivants) ou une Live Activity (iOS 17.2 et suivants). Sur iOS, la Live Activity montre le titre, le message, la barre et l'icône ; la documentation de Companion ne liste ni image ni boutons pour elle. interval est le nombre minimal de secondes entre deux push (1 à 300 ; sans valeur, le réglage du canal push s'applique). auto_update: false arrête les mises à jour automatiques : appelez de nouveau l'action avec le même id pour déplacer la barre.\n\nExemple, suit une entité :\n```yaml\nentity_id: sensor.printer_progress\nmin: 0\nmax: 100\ninterval: 10\n```\n\nExemple, un nombre que vous fixez vous-même :\n```yaml\nvalue: 45\nmin: 0\nmax: 100\n```"
         }
       }
     },
@@ -638,11 +654,27 @@
         },
         "mail_subject": {
           "name": "Objet du mail",
-          "description": "Objet du mail de ce message, à la place du modèle de la page Canaux. Variables : {severity}, {title}, {message}, {person}, {person_id}, {id}, {tag}. {person} est le nom du destinataire, et chaque destinataire reçoit son propre mail. Seulement avec le canal mail. Laissez la case décochée pour utiliser le modèle de la page Canaux."
+          "description": "Objet du mail de ce message, à la place du modèle de la page Canaux. Variables : severity, title, message, person, person_id, id, tag. person est le nom du destinataire, et chaque destinataire reçoit son propre mail. Seulement avec le canal mail. Laissez la case décochée pour utiliser le modèle de la page Canaux."
         },
         "mail_body": {
           "name": "Texte du mail",
           "description": "Texte du mail de ce message, à la place du modèle de la page Canaux. Mêmes variables que l'objet du mail. Seulement avec le canal mail. Laissez la case décochée pour utiliser le modèle de la page Canaux."
+        },
+        "color": {
+          "name": "Couleur",
+          "description": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône. Exemple : #03a9f4 (bleu), #e53935 (rouge). Le formulaire de l'action a un sélecteur de couleur."
+        },
+        "icon_url": {
+          "name": "Icône de l'expéditeur",
+          "description": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full. Exemple : /local/icons/doorbell.png. icon est un symbole comme mdi:door, icon_url une image."
+        },
+        "subtitle": {
+          "name": "Sous-titre",
+          "description": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full."
+        },
+        "progress": {
+          "name": "Progression",
+          "description": "Une barre de progression qui suit un nombre. Clés : entity_id (suit une entité) ou value (un nombre que vous fixez vous-même), min (0 par défaut), max (100 par défaut), interval, auto_update. La bannière et la fenêtre contextuelle montrent une barre ; le push devient une Live Update (Android 16 et suivants) ou une Live Activity (iOS 17.2 et suivants). Sur iOS, la Live Activity montre le titre, le message, la barre et l'icône ; la documentation de Companion ne liste ni image ni boutons pour elle. interval est le nombre minimal de secondes entre deux push (1 à 300 ; sans valeur, le réglage du canal push s'applique). auto_update: false arrête les mises à jour automatiques : appelez de nouveau l'action avec le même id pour déplacer la barre.\n\nExemple, suit une entité :\n```yaml\nentity_id: sensor.printer_progress\nmin: 0\nmax: 100\ninterval: 10\n```\n\nExemple, un nombre que vous fixez vous-même :\n```yaml\nvalue: 45\nmin: 0\nmax: 100\n```"
         }
       }
     },
@@ -701,6 +733,18 @@
         "audience": {
           "name": "Public",
           "description": "Choisissez un groupe : Everyone, Admins, At home ou un groupe créé sur la page Audiences. Il est calculé à l'envoi, donc At home désigne qui est à la maison à ce moment-là. Indiquez audience ou destinataires."
+        },
+        "color": {
+          "name": "Couleur",
+          "description": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône. Exemple : #03a9f4 (bleu), #e53935 (rouge). Le formulaire de l'action a un sélecteur de couleur."
+        },
+        "icon_url": {
+          "name": "Icône de l'expéditeur",
+          "description": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full. Exemple : /local/icons/doorbell.png. icon est un symbole comme mdi:door, icon_url une image."
+        },
+        "subtitle": {
+          "name": "Sous-titre",
+          "description": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full."
         }
       }
     },
@@ -865,7 +909,11 @@
             "tap_action": "Action au toucher",
             "image": "Image",
             "policy": "Politique",
-            "audience": "Audience"
+            "audience": "Audience",
+            "color": "Couleur",
+            "icon_url": "Icône de l'expéditeur",
+            "subtitle": "Sous-titre",
+            "progress": "Progression"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
@@ -888,7 +936,11 @@
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Automatique : chaque politique automatique qui s'applique à un message de règle (balise rule). Une politique : seulement celle-ci, même après l'avoir renommée. Aucune : aucune politique.",
-            "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit."
+            "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit.",
+            "color": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône. Exemple : #03a9f4 (bleu), #e53935 (rouge).",
+            "icon_url": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full. Exemple : /local/icons/doorbell.png. icon est un symbole comme mdi:door, icon_url une image.",
+            "subtitle": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full.",
+            "progress": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus). Sur iOS, la Live Activity montre le titre, le message, la barre et l'icône ; la documentation de Companion ne mentionne ni image ni boutons pour elle. interval est le nombre minimal de secondes entre deux push (1 à 300 ; sinon le réglage du canal push)."
           }
         },
         "reconfigure": {
@@ -917,7 +969,11 @@
             "actions": "Boutons",
             "tap_action": "Action au toucher",
             "image": "Image",
-            "audience": "Audience"
+            "audience": "Audience",
+            "color": "Couleur",
+            "icon_url": "Icône de l'expéditeur",
+            "subtitle": "Sous-titre",
+            "progress": "Progression"
           },
           "data_description": {
             "name": "Affiché uniquement dans la liste des règles.",
@@ -939,7 +995,11 @@
             "actions": "Jusqu'à 3 boutons avec key, label, et en option dismiss et action. « dismiss » nécessite « Fermable ».\n\nExemple :\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Action Home Assistant exécutée quand on touche la bannière.\n\nExemple :\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Image affichée sous le message dans la carte, la fenêtre et la notification push. Une URL http:// ou https:// ou un chemin commençant par /. Android et iOS la lisent ; les chemins du proxy caméra ne fonctionnent que sur Android.\n\nExemple :\n```yaml\nimage: /media/local/door.jpg\n```",
-            "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit."
+            "audience": "Qui voit la bannière : les personnes de cette audience au moment où la bannière apparaît. Laissez vide pour utiliser Personnes ; sans choix, tout le monde la voit.",
+            "color": "Une couleur #rrggbb. La bannière et la fenêtre l'utilisent à la place de la couleur de la gravité. Pour un push, Android colore la notification et iOS l'utilise comme fond de l'icône. Exemple : #03a9f4 (bleu), #e53935 (rouge).",
+            "icon_url": "Une icône d'expéditeur : une URL commençant par http:// ou https://, ou un chemin commençant par /. La bannière et la fenêtre l'affichent à la place de l'icône. Sur un push iOS, elle remplace l'icône. Un push ne l'envoie que si le réglage de l'écran verrouillé est full. Exemple : /local/icons/doorbell.png. icon est un symbole comme mdi:door, icon_url une image.",
+            "subtitle": "Une seconde ligne sous le titre dans la bannière et la fenêtre. Pour un push : le sous-titre sur iOS, l'objet sur Android, envoyé uniquement si le réglage de l'écran verrouillé est full.",
+            "progress": "Une barre de progression qui suit un nombre, en YAML : entity_id, min (0 par défaut) et max (100 par défaut). La bannière et la fenêtre affichent une barre ; le push devient une Live Update (Android 16 et plus) ou une Live Activity (iOS 17.2 et plus). Sur iOS, la Live Activity montre le titre, le message, la barre et l'icône ; la documentation de Companion ne mentionne ni image ni boutons pour elle. interval est le nombre minimal de secondes entre deux push (1 à 300 ; sinon le réglage du canal push)."
           }
         }
       },
@@ -963,7 +1023,10 @@
         "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé.",
         "policy_unknown": "Cette politique n'existe pas. Utilisez le nom d'une politique, ou none.",
         "audience_or_people": "Choisissez une audience ou des personnes, pas les deux.",
-        "audience_unknown": "Cette audience n'existe pas."
+        "audience_unknown": "Cette audience n'existe pas.",
+        "color_invalid": "La couleur doit ressembler à #03a9f4.",
+        "icon_url_invalid": "L'icône de l'expéditeur doit être une URL http(s) ou un chemin commençant par /.",
+        "progress_invalid": "La progression demande un entity_id, et max doit être supérieur à min."
       },
       "abort": {
         "reconfigure_successful": "La reconfiguration a réussi."

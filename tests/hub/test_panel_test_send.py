@@ -398,3 +398,109 @@ async def test_a_call_with_only_manual_policies_can_be_previewed_and_sent(
     assert plan["success"], plan
     sent = await ask(client, "hub_test_send", **call(match_policies_automatically=False))
     assert sent["success"], sent
+
+
+async def test_the_preview_takes_every_field_of_notify(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    client = await hass_ws_client(hass)
+    fields = {
+        "icon": "mdi:door",
+        "image": "/local/door.jpg",
+        "color": "#03a9f4",
+        "icon_url": "/local/doorbell.png",
+        "subtitle": "Front",
+        "timeout": {"minutes": 5},
+        "actions": [{"key": "ok", "label": "Got it", "dismiss": True}],
+        "tap_action": {"action": "navigate", "navigation_path": "/lovelace/cameras"},
+        "snooze_options": [{"minutes": 10}],
+        "snooze_custom": True,
+    }
+    result = await preview(client, **fields)
+    assert shown(result)[("banner", "")] == "sent"
+    # A field the action refuses is refused here too.
+    reply = await ask(client, "hub_plan", **call(color="blue"))
+    assert not reply["success"]
+
+
+async def test_a_test_send_keeps_the_timeout_of_the_call(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    mobile_app_device: AddDevice,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    client = await hass_ws_client(hass)
+    reply = await ask(client, "hub_test_send", **call(timeout={"minutes": 3}, icon="mdi:door"))
+    assert reply["success"], reply
+    await settle(hass, entry)
+    (banner,) = entry.runtime_data.banners.values()
+    assert (banner.expires_at - banner.created_at).total_seconds() == 180
+    assert banner.icon == "mdi:door"
+
+
+async def test_a_call_in_yaml_is_parsed_without_rendering_templates(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    client = await hass_ws_client(hass)
+    text = (
+        "action: heads_up.notify\ndata:\n  message: '{{ trigger.name }} is open'\n"
+        "  severity: info\n  channels: [banner]\n"
+    )
+    reply = await ask(client, "hub_parse_yaml", yaml=text)
+    assert reply["success"], reply
+    assert reply["result"]["call"]["message"] == "{{ trigger.name }} is open"
+    bad = await ask(client, "hub_parse_yaml", yaml="a: [")
+    assert bad["error"]["code"] == "yaml_invalid"
+    other = await ask(client, "hub_parse_yaml", yaml="action: light.turn_on\ndata: {}")
+    assert other["error"]["code"] == "not_notify"
+
+
+async def test_parsing_a_call_is_for_admins_only(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_access_token: str,
+) -> None:
+    client = await hass_ws_client(hass, hass_read_only_access_token)
+    reply = await ask(client, "hub_parse_yaml", yaml="message: x")
+    assert reply["error"]["code"] == "unauthorized"
+
+
+async def test_a_watch_rule_in_yaml_is_parsed_to_a_mapping(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    client = await hass_ws_client(hass)
+    text = "name: Door\nentity_id: binary_sensor.door\nstate: [on]\nmessage: Door open\nfor: 120\n"
+    reply = await ask(client, "rule_parse_yaml", yaml=text)
+    assert reply["success"], reply
+    assert reply["result"]["rule"] == {
+        "name": "Door",
+        "entity_id": "binary_sensor.door",
+        "state": ["on"],
+        "message": "Door open",
+        "for": 120,
+    }
+    bools = await ask(client, "rule_parse_yaml", yaml="state: [on, off]\nentity_id: a.b")
+    assert bools["result"]["rule"]["state"] == ["on", "off"]
+    single = await ask(client, "rule_parse_yaml", yaml="state: on")
+    assert single["result"]["rule"]["state"] == ["on"]
+    quoted = await ask(client, "rule_parse_yaml", yaml="state: 'home'")
+    assert quoted["result"]["rule"]["state"] == ["home"]
+    assert (await ask(client, "rule_parse_yaml", yaml="a: ["))["error"]["code"] == "yaml_invalid"
+    assert (await ask(client, "rule_parse_yaml", yaml="- a"))["error"]["code"] == "rule_not_found"
+
+
+async def test_parsing_a_rule_is_for_admins_only(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_access_token: str,
+) -> None:
+    client = await hass_ws_client(hass, hass_read_only_access_token)
+    reply = await ask(client, "rule_parse_yaml", yaml="name: x")
+    assert reply["error"]["code"] == "unauthorized"

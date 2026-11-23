@@ -485,6 +485,22 @@
         "image": {
           "name": "Bild",
           "description": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
+        "color": {
+          "name": "Farbe",
+          "description": "Eine Farbe wie #rrggbb. Banner und Popup nutzen sie statt der Farbe der Dringlichkeit. Beim Push färbt Android die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols. Beispiel: #03a9f4 (blau), #e53935 (rot). Das Formular der Aktion hat eine Farbauswahl."
+        },
+        "icon_url": {
+          "name": "Absender-Symbol",
+          "description": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild."
+        },
+        "subtitle": {
+          "name": "Untertitel",
+          "description": "Eine zweite Zeile unter dem Titel in Banner und Popup. Beim Push: auf iOS der Untertitel, auf Android der Betreff, nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist."
+        },
+        "progress": {
+          "name": "Fortschritt",
+          "description": "Ein Fortschrittsbalken, der einer Zahl folgt. Schlüssel: entity_id (folgt einer Entität) oder value (eine Zahl, die du selbst setzt), min (Standard 0), max (Standard 100), interval, auto_update. Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer). Auf iOS zeigt die Live Activity Titel, Meldung, Balken und Symbol; die Companion-Dokumentation nennt dafür kein Bild und keine Schaltflächen. interval ist die kürzeste Zeit in Sekunden zwischen zwei Pushs (1 bis 300; ohne Angabe gilt die Einstellung des Push-Kanals). auto_update: false stoppt die automatischen Updates: Rufe die Aktion mit derselben id erneut auf, um den Balken zu bewegen.\n\nBeispiel, folgt einer Entität:\n```yaml\nentity_id: sensor.printer_progress\nmin: 0\nmax: 100\ninterval: 10\n```\n\nBeispiel, eine Zahl, die du selbst setzt:\n```yaml\nvalue: 45\nmin: 0\nmax: 100\n```"
         }
       }
     },
@@ -638,11 +654,27 @@
         },
         "mail_subject": {
           "name": "Mail-Betreff",
-          "description": "Betreff der Mail dieser Nachricht, statt der Vorlage auf der Seite Kanäle. Platzhalter: {severity}, {title}, {message}, {person}, {person_id}, {id}, {tag}. {person} ist der Name des Empfängers, und jeder Empfänger bekommt eine eigene Mail. Nur mit dem Kanal Mail. Lass das Häkchen aus, um die Vorlage der Seite Kanäle zu nutzen."
+          "description": "Betreff der Mail dieser Nachricht, statt der Vorlage auf der Seite Kanäle. Platzhalter: severity, title, message, person, person_id, id, tag. person ist der Name des Empfängers, und jeder Empfänger bekommt eine eigene Mail. Nur mit dem Kanal Mail. Lass das Häkchen aus, um die Vorlage der Seite Kanäle zu nutzen."
         },
         "mail_body": {
           "name": "Mail-Text",
           "description": "Text der Mail dieser Nachricht, statt der Vorlage auf der Seite Kanäle. Dieselben Platzhalter wie beim Mail-Betreff. Nur mit dem Kanal Mail. Lass das Häkchen aus, um die Vorlage der Seite Kanäle zu nutzen."
+        },
+        "color": {
+          "name": "Farbe",
+          "description": "Eine Farbe wie #rrggbb. Banner und Popup nutzen sie statt der Farbe der Dringlichkeit. Beim Push färbt Android die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols. Beispiel: #03a9f4 (blau), #e53935 (rot). Das Formular der Aktion hat eine Farbauswahl."
+        },
+        "icon_url": {
+          "name": "Absender-Symbol",
+          "description": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild."
+        },
+        "subtitle": {
+          "name": "Untertitel",
+          "description": "Eine zweite Zeile unter dem Titel in Banner und Popup. Beim Push: auf iOS der Untertitel, auf Android der Betreff, nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist."
+        },
+        "progress": {
+          "name": "Fortschritt",
+          "description": "Ein Fortschrittsbalken, der einer Zahl folgt. Schlüssel: entity_id (folgt einer Entität) oder value (eine Zahl, die du selbst setzt), min (Standard 0), max (Standard 100), interval, auto_update. Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer). Auf iOS zeigt die Live Activity Titel, Meldung, Balken und Symbol; die Companion-Dokumentation nennt dafür kein Bild und keine Schaltflächen. interval ist die kürzeste Zeit in Sekunden zwischen zwei Pushs (1 bis 300; ohne Angabe gilt die Einstellung des Push-Kanals). auto_update: false stoppt die automatischen Updates: Rufe die Aktion mit derselben id erneut auf, um den Balken zu bewegen.\n\nBeispiel, folgt einer Entität:\n```yaml\nentity_id: sensor.printer_progress\nmin: 0\nmax: 100\ninterval: 10\n```\n\nBeispiel, eine Zahl, die du selbst setzt:\n```yaml\nvalue: 45\nmin: 0\nmax: 100\n```"
         }
       }
     },
@@ -701,6 +733,18 @@
         "audience": {
           "name": "Zielgruppe",
           "description": "Wähle eine Gruppe: Everyone, Admins, At home oder eine, die du auf der Seite Zielgruppen angelegt hast. Sie wird beim Senden bestimmt, At home heißt also, wer dann zu Hause ist. Gib entweder Zielgruppe oder Empfänger an."
+        },
+        "color": {
+          "name": "Farbe",
+          "description": "Eine Farbe wie #rrggbb. Banner und Popup nutzen sie statt der Farbe der Dringlichkeit. Beim Push färbt Android die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols. Beispiel: #03a9f4 (blau), #e53935 (rot). Das Formular der Aktion hat eine Farbauswahl."
+        },
+        "icon_url": {
+          "name": "Absender-Symbol",
+          "description": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild."
+        },
+        "subtitle": {
+          "name": "Untertitel",
+          "description": "Eine zweite Zeile unter dem Titel in Banner und Popup. Beim Push: auf iOS der Untertitel, auf Android der Betreff, nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist."
         }
       }
     },
@@ -865,7 +909,11 @@
             "tap_action": "Tipp-Aktion",
             "image": "Bild",
             "policy": "Richtlinie",
-            "audience": "Zielgruppe"
+            "audience": "Zielgruppe",
+            "color": "Farbe",
+            "icon_url": "Absender-Symbol",
+            "subtitle": "Untertitel",
+            "progress": "Fortschritt"
           },
           "data_description": {
             "name": "Wird nur in der Liste der Regeln angezeigt.",
@@ -888,7 +936,11 @@
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Automatisch: jede automatische Richtlinie, die für eine Regelmeldung gilt (Tag rule). Eine Richtlinie: nur diese, auch nach einer Umbenennung. Keine: keine Richtlinie.",
-            "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle."
+            "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle.",
+            "color": "Eine Farbe wie #rrggbb. Banner und Popup nutzen sie statt der Farbe der Dringlichkeit. Beim Push färbt Android die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols. Beispiel: #03a9f4 (blau), #e53935 (rot).",
+            "icon_url": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild.",
+            "subtitle": "Eine zweite Zeile unter dem Titel in Banner und Popup. Beim Push: auf iOS der Untertitel, auf Android der Betreff, nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist.",
+            "progress": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer). Auf iOS zeigt die Live Activity Titel, Meldung, Balken und Symbol; die Companion-Dokumentation nennt dafür kein Bild und keine Schaltflächen. interval ist die kürzeste Zeit in Sekunden zwischen zwei Pushs (1 bis 300; ohne Angabe gilt die Einstellung des Push-Kanals)."
           }
         },
         "reconfigure": {
@@ -917,7 +969,11 @@
             "actions": "Schaltflächen",
             "tap_action": "Tipp-Aktion",
             "image": "Bild",
-            "audience": "Zielgruppe"
+            "audience": "Zielgruppe",
+            "color": "Farbe",
+            "icon_url": "Absender-Symbol",
+            "subtitle": "Untertitel",
+            "progress": "Fortschritt"
           },
           "data_description": {
             "name": "Wird nur in der Liste der Regeln angezeigt.",
@@ -939,7 +995,11 @@
             "actions": "Bis zu 3 Schaltflächen mit key, label sowie optional dismiss und action. „dismiss“ braucht „Schließbar“.\n\nBeispiel:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home-Assistant-Aktion, die beim Antippen des Banners ausgeführt wird.\n\nBeispiel:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Bild unter der Nachricht auf der Karte, im Popup und im Push. Eine URL mit http:// oder https:// oder ein Pfad, der mit / beginnt. Android und iOS lesen es; Kamera-Proxy-Pfade funktionieren nur auf Android.\n\nBeispiel:\n```yaml\nimage: /media/local/door.jpg\n```",
-            "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle."
+            "audience": "Wer das Banner sieht: die Personen dieser Zielgruppe in dem Moment, in dem das Banner erscheint. Leer lassen, um Personen zu nutzen; ohne Auswahl sehen es alle.",
+            "color": "Eine Farbe wie #rrggbb. Banner und Popup nutzen sie statt der Farbe der Dringlichkeit. Beim Push färbt Android die Benachrichtigung ein; iOS nutzt sie als Hintergrund des Symbols. Beispiel: #03a9f4 (blau), #e53935 (rot).",
+            "icon_url": "Ein Absender-Symbol: eine URL mit http:// oder https:// oder ein Pfad mit /. Banner und Popup zeigen es statt des Symbols. Auf iOS ersetzt es beim Push das Symbol. Ein Push sendet es nur, wenn die Sperrbildschirm-Einstellung „full“ ist. Beispiel: /local/icons/doorbell.png. icon ist ein Symbol wie mdi:door, icon_url ein Bild.",
+            "subtitle": "Eine zweite Zeile unter dem Titel in Banner und Popup. Beim Push: auf iOS der Untertitel, auf Android der Betreff, nur gesendet, wenn die Sperrbildschirm-Einstellung „full“ ist.",
+            "progress": "Ein Fortschrittsbalken, der einer Zahl folgt, als YAML: entity_id, min (Standard 0) und max (Standard 100). Banner und Popup zeigen einen Balken; der Push wird zu einem Live Update (Android 16 und neuer) oder einer Live Activity (iOS 17.2 und neuer). Auf iOS zeigt die Live Activity Titel, Meldung, Balken und Symbol; die Companion-Dokumentation nennt dafür kein Bild und keine Schaltflächen. interval ist die kürzeste Zeit in Sekunden zwischen zwei Pushs (1 bis 300; ohne Angabe gilt die Einstellung des Push-Kanals)."
           }
         }
       },
@@ -963,7 +1023,10 @@
         "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an.",
         "policy_unknown": "Diese Richtlinie gibt es nicht. Nimm den Namen einer Richtlinie oder none.",
         "audience_or_people": "Wähle eine Zielgruppe oder Personen, nicht beides.",
-        "audience_unknown": "Diese Zielgruppe gibt es nicht."
+        "audience_unknown": "Diese Zielgruppe gibt es nicht.",
+        "color_invalid": "Die Farbe muss so aussehen: #03a9f4.",
+        "icon_url_invalid": "Das Absender-Symbol muss eine http(s)-URL oder ein Pfad sein, der mit / beginnt.",
+        "progress_invalid": "Der Fortschritt braucht eine entity_id, und max muss größer als min sein."
       },
       "abort": {
         "reconfigure_successful": "Die Neukonfiguration war erfolgreich."

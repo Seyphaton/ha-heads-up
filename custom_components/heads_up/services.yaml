@@ -27,6 +27,20 @@ create_banner:
       example: /media/local/door.jpg
       selector:
         text: null
+    color: &cl001
+      selector:
+        color_rgb: null
+    icon_url: &cl002
+      example: /local/icons/door.png
+      selector:
+        text: null
+    subtitle: &cl003
+      selector:
+        text: null
+    progress: &cl004
+      example: '{"entity_id": "sensor.printer_progress", "min": 0, "max": 100, "interval": 10}'
+      selector:
+        object: null
     audience:
       selector:
         entity:
@@ -167,10 +181,6 @@ notify:
       default: true
       selector:
         boolean: null
-    dry_run:
-      default: false
-      selector:
-        boolean: null
     policy:
       selector:
         entity:
@@ -225,6 +235,10 @@ notify:
           translation_key: severity
     icon: *id005
     image: *id006
+    color: *cl001
+    icon_url: *cl002
+    subtitle: *cl003
+    progress: *cl004
     id: *id007
     tag: *id008
     timeout: *id009
@@ -255,6 +269,10 @@ notify:
       selector:
         text:
           multiline: true
+    dry_run:
+      default: false
+      selector:
+        boolean: null
 push:
   fields:
     message: *id003
@@ -271,6 +289,9 @@ push:
           translation_key: severity
     icon: *id005
     image: *id006
+    color: *cl001
+    icon_url: *cl002
+    subtitle: *cl003
     tts_message: *id016
     recipients:
       example: '["person.anna"]'

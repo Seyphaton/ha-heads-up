@@ -86,6 +86,8 @@ These settings belong to the message, not to one channel. They apply to the bann
 | Lock screen text (`push_lockscreen`) | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
 | Android channel name (`push_channel_id`) | `heads_up` | Prefix of the Android notification channel. |
 | Keep after tap (`push_sticky`) | off | Keeps the notification after a tap (Android). |
+| Use severity icon & color for push notifications (`push_severity_look`) | off | On: a push without its own `icon` or `color` uses those of its severity. A message can always set its own. Off: a push uses the Home Assistant icon unless the message sets one. On iOS an icon makes the push a communication notification, and a message without a title is sent with the title `Heads Up`. The color is sent only when the Severities page holds a `#rrggbb` color. |
+| Seconds between two progress updates (`push_progress_interval`) | 5 | The least time between two pushes of one message with a progress bar: 1 to 300 seconds, a whole number. A message sets its own with `progress.interval`. The newest value always goes out when the time is over, and 0 and 100 go out at once. Progress pushes are not held back by the push limits per minute. |
 
 See [Push notifications](configuration.md#push).
 

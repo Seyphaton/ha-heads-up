@@ -485,6 +485,22 @@
         "image": {
           "name": "Image",
           "description": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```"
+        },
+        "color": {
+          "name": "Color",
+          "description": "A #rrggbb color. The banner and popup use it instead of the severity color. On a push, Android colors the notification and iOS uses it as the background of the icon. Example: #03a9f4 (blue), #e53935 (red). The action form has a color picker."
+        },
+        "icon_url": {
+          "name": "Sender icon",
+          "description": "A sender icon: a URL starting with http:// or https://, or a path starting with /. The banner and popup show it in place of the icon. On an iOS push it replaces the icon. A push sends it only when the lock screen setting is full. Example: /local/icons/doorbell.png. icon is a symbol such as mdi:door; icon_url is a picture."
+        },
+        "subtitle": {
+          "name": "Subtitle",
+          "description": "A second line under the title on the banner and in the popup. On a push: the subtitle on iOS, the subject on Android, sent only when the lock screen setting is full."
+        },
+        "progress": {
+          "name": "Progress",
+          "description": "A progress bar that follows a number. Keys: entity_id (follow an entity) or value (a number you set yourself), min (default 0), max (default 100), interval, auto_update. The banner and popup show a bar; the push becomes a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later). On iOS the Live Activity shows the title, message, bar and icon; the Companion documentation lists no image or buttons for it. interval is the least seconds between two pushes (1 to 300; the push channel setting when absent). auto_update: false stops the automatic updates: call the action again with the same id to move the bar.\n\nExample, follows an entity:\n```yaml\nentity_id: sensor.printer_progress\nmin: 0\nmax: 100\ninterval: 10\n```\n\nExample, a number you set yourself:\n```yaml\nvalue: 45\nmin: 0\nmax: 100\n```"
         }
       }
     },
@@ -638,11 +654,27 @@
         },
         "mail_subject": {
           "name": "Mail subject",
-          "description": "Subject of this message's mail, instead of the template on the Channels page. Placeholders: {severity}, {title}, {message}, {person}, {person_id}, {id}, {tag}. {person} is the name of the recipient, and each recipient gets their own mail. Only used with the mail channel. Leave the checkbox unchecked to use the template from the Channels page."
+          "description": "Subject of this message's mail, instead of the template on the Channels page. Placeholders: severity, title, message, person, person_id, id, tag. person is the name of the recipient, and each recipient gets their own mail. Only used with the mail channel. Leave the checkbox unchecked to use the template from the Channels page."
         },
         "mail_body": {
           "name": "Mail text",
           "description": "Text of this message's mail, instead of the template on the Channels page. Same placeholders as Mail subject. Only used with the mail channel. Leave the checkbox unchecked to use the template from the Channels page."
+        },
+        "color": {
+          "name": "Color",
+          "description": "A #rrggbb color. The banner and popup use it instead of the severity color. On a push, Android colors the notification and iOS uses it as the background of the icon. Example: #03a9f4 (blue), #e53935 (red). The action form has a color picker."
+        },
+        "icon_url": {
+          "name": "Sender icon",
+          "description": "A sender icon: a URL starting with http:// or https://, or a path starting with /. The banner and popup show it in place of the icon. On an iOS push it replaces the icon. A push sends it only when the lock screen setting is full. Example: /local/icons/doorbell.png. icon is a symbol such as mdi:door; icon_url is a picture."
+        },
+        "subtitle": {
+          "name": "Subtitle",
+          "description": "A second line under the title on the banner and in the popup. On a push: the subtitle on iOS, the subject on Android, sent only when the lock screen setting is full."
+        },
+        "progress": {
+          "name": "Progress",
+          "description": "A progress bar that follows a number. Keys: entity_id (follow an entity) or value (a number you set yourself), min (default 0), max (default 100), interval, auto_update. The banner and popup show a bar; the push becomes a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later). On iOS the Live Activity shows the title, message, bar and icon; the Companion documentation lists no image or buttons for it. interval is the least seconds between two pushes (1 to 300; the push channel setting when absent). auto_update: false stops the automatic updates: call the action again with the same id to move the bar.\n\nExample, follows an entity:\n```yaml\nentity_id: sensor.printer_progress\nmin: 0\nmax: 100\ninterval: 10\n```\n\nExample, a number you set yourself:\n```yaml\nvalue: 45\nmin: 0\nmax: 100\n```"
         }
       }
     },
@@ -701,6 +733,18 @@
         "audience": {
           "name": "Audience",
           "description": "Pick a group: Everyone, Admins, At home, or one you made on the Audiences page. It is worked out when the message is sent, so At home means whoever is home then. Give either audience or recipients."
+        },
+        "color": {
+          "name": "Color",
+          "description": "A #rrggbb color. The banner and popup use it instead of the severity color. On a push, Android colors the notification and iOS uses it as the background of the icon. Example: #03a9f4 (blue), #e53935 (red). The action form has a color picker."
+        },
+        "icon_url": {
+          "name": "Sender icon",
+          "description": "A sender icon: a URL starting with http:// or https://, or a path starting with /. The banner and popup show it in place of the icon. On an iOS push it replaces the icon. A push sends it only when the lock screen setting is full. Example: /local/icons/doorbell.png. icon is a symbol such as mdi:door; icon_url is a picture."
+        },
+        "subtitle": {
+          "name": "Subtitle",
+          "description": "A second line under the title on the banner and in the popup. On a push: the subtitle on iOS, the subject on Android, sent only when the lock screen setting is full."
         }
       }
     },
@@ -865,7 +909,11 @@
             "tap_action": "Tap action",
             "image": "Image",
             "policy": "Policy",
-            "audience": "Audience"
+            "audience": "Audience",
+            "color": "Color",
+            "icon_url": "Sender icon",
+            "subtitle": "Subtitle",
+            "progress": "Progress"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -888,7 +936,11 @@
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
             "policy": "Automatic: every automatic policy that applies to a rule message (tag rule). A policy: only that policy, also after you rename it. None: no policy.",
-            "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone."
+            "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone.",
+            "color": "A #rrggbb color. The banner and popup use it instead of the severity color. On a push, Android colors the notification and iOS uses it as the background of the icon. Example: #03a9f4 (blue), #e53935 (red).",
+            "icon_url": "A sender icon: a URL starting with http:// or https://, or a path starting with /. The banner and popup show it in place of the icon. On an iOS push it replaces the icon. A push sends it only when the lock screen setting is full. Example: /local/icons/doorbell.png. icon is a symbol such as mdi:door; icon_url is a picture.",
+            "subtitle": "A second line under the title on the banner and in the popup. On a push: the subtitle on iOS, the subject on Android, sent only when the lock screen setting is full.",
+            "progress": "A progress bar that follows a number, as YAML: entity_id, min (default 0) and max (default 100). The banner and popup show a bar; the push becomes a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later). On iOS the Live Activity shows the title, message, bar and icon; the Companion documentation lists no image or buttons for it. interval is the least seconds between two pushes (1 to 300; the push channel setting when absent)."
           }
         },
         "reconfigure": {
@@ -917,7 +969,11 @@
             "actions": "Buttons",
             "tap_action": "Tap action",
             "image": "Image",
-            "audience": "Audience"
+            "audience": "Audience",
+            "color": "Color",
+            "icon_url": "Sender icon",
+            "subtitle": "Subtitle",
+            "progress": "Progress"
           },
           "data_description": {
             "name": "Shown in the list of rules only.",
@@ -939,7 +995,11 @@
             "actions": "Up to 3 buttons with key, label, optional dismiss and action. Dismiss needs Dismissible.\n\nExample:\n```yaml\n- key: ack\n  label: Got it\n  dismiss: true\n```",
             "tap_action": "Home Assistant action run when the banner is tapped.\n\nExample:\n```yaml\naction: navigate\nnavigation_path: /lovelace/0\n```",
             "image": "Picture shown under the message on the card, in the popup and on the push. A URL starting with http:// or https://, or a path starting with /. Android and iOS both read it; camera proxy paths work on Android only.\n\nExample:\n```yaml\nimage: /media/local/door.jpg\n```",
-            "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone."
+            "audience": "Who sees the banner: the people of this audience at the moment the banner appears. Leave empty to use People, or nobody chosen for everyone.",
+            "color": "A #rrggbb color. The banner and popup use it instead of the severity color. On a push, Android colors the notification and iOS uses it as the background of the icon. Example: #03a9f4 (blue), #e53935 (red).",
+            "icon_url": "A sender icon: a URL starting with http:// or https://, or a path starting with /. The banner and popup show it in place of the icon. On an iOS push it replaces the icon. A push sends it only when the lock screen setting is full. Example: /local/icons/doorbell.png. icon is a symbol such as mdi:door; icon_url is a picture.",
+            "subtitle": "A second line under the title on the banner and in the popup. On a push: the subtitle on iOS, the subject on Android, sent only when the lock screen setting is full.",
+            "progress": "A progress bar that follows a number, as YAML: entity_id, min (default 0) and max (default 100). The banner and popup show a bar; the push becomes a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later). On iOS the Live Activity shows the title, message, bar and icon; the Companion documentation lists no image or buttons for it. interval is the least seconds between two pushes (1 to 300; the push channel setting when absent)."
           }
         }
       },
@@ -963,7 +1023,10 @@
         "actions_dismiss_needs_dismissible": "A button with dismiss needs Dismissible to be on.",
         "policy_unknown": "This policy does not exist. Use the name of a policy, or none.",
         "audience_or_people": "Choose an audience or people, not both.",
-        "audience_unknown": "This audience does not exist."
+        "audience_unknown": "This audience does not exist.",
+        "color_invalid": "The color must look like #03a9f4.",
+        "icon_url_invalid": "The sender icon must be an http(s) URL or a path starting with /.",
+        "progress_invalid": "Progress needs an entity_id, and max must be greater than min."
       },
       "abort": {
         "reconfigure_successful": "Re-configuration was successful."

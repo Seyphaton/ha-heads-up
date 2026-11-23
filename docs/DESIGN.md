@@ -18,6 +18,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §25 2.0.0 policies in two lanes | built and tested on `release/2.0` (Phase 17, D-234 to D-242): conversion, matching, band, matrix interactions, Only if, reminder rhythm, checker, panel and help page, watch-rule audience; user docs written; `make check`, `make hassfest` and `make dev-smoke` on a clean instance green; §25.16 verified; not on real devices, not checked at phone width, with the keyboard or a screen reader; promise lines on the long list (D-241) |
 | §26 new Overview (status card, Coming up, reach table, tour in the page, quick shortcuts, Last actions) | built and tested on `release/2.0` (Phase 18, D-244, D-245); checked in the browser pane at desktop and phone width, light and dark; not on real devices |
 | §27 history store (24 months, Activity cards, Clear history) | built and tested on `release/2.0` (Phase 19, D-246); about 7 KB a day measured on a synthetic busy household; push levels used are not recorded |
+| §28 2.1.0 richer push (icon, color, sender icon, subtitle, progress with live updates) | scoped (D-255 to D-257), nothing built |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -553,6 +554,7 @@ How both sources stay equal:
 | panel Test send and trace | yes (message id) | trace yes (`rule_<id>`); Test send previews a call, not a stored rule |
 | buttons stop acting once the message has ended (D-125) | yes | yes (one check in `BannerManager.press`; `tests/test_ended_buttons.py`) |
 | image under the message (D-127) | yes | yes (Image field of the rule form; `tests/hub/test_image.py`) |
+| `progress.value` and `progress.auto_update` (D-263) | yes | exception: a rule has no caller that updates it; it follows its entity (`progress.interval` and the entity are in the rule form) |
 | `heads_up_delivery_failed` (D-128) | yes | yes for the deliveries a policy makes for a rule message, same engine path (no rule-specific test); the banner channel never fires it |
 | Policy field: name one policy or `none` (D-146, D-202) | yes (`policy`, by the entity ID of its switch, D-198) | yes (Policy dropdown of the rule form: Automatic, None or a policy by key; `tests/test_rules_flow.py`) |
 | references survive a rename (D-199) | yes (stored as keys) | yes (stored as keys; `tests/hub/test_identity_rename.py`, `tests/hub/test_identity_property.py`) |
@@ -925,7 +927,7 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 - `heads_up/panel_audiences` (admin-only) returns `people` (entity, name, `home`) and the six built-in audiences in the tour's order (everyone, admins, at_home, not_home, last_to_leave, first_home), each with `enabled`, `members` and `skipped` (entity and reason, as `hub_preview_audience`) and `at` (the time for Last to leave and First home, else `null`). A switched-off audience is listed with `enabled: false`.
 
 ### 26.4 Overview page (`frontend/panel/overview.js`)
-- Order (as of 2.0.0-beta.5, §27.14): status card, quick shortcuts, the three cards Needs attention, Coming up and Last actions with the panel that opens under them, the reach table, Activity, When your house talks, Top sources. The Active tile with its badges and the Watch rules tile are gone; messages below critical and warning show in Last actions and the Message Log.
+- Order (§27.14): status card, quick shortcuts, the three cards Needs attention, Coming up and Last actions with the panel that opens under them, Activity, When your house talks, Top sources, and the reach table last. The Active tile with its badges and the Watch rules tile are gone; messages below critical and warning show in Last actions and the Message Log.
 - Status card: headline for none, one or many; one row per item with Acknowledge (when the engine allows it), Snooze 1 h (warning rows that are snoozable), Clear, and Show path (the trace from `heads_up/panel_trace`, oldest first, identical steps folded). Last actions rows with a message unfold the same path.
 - Reach table: `heads_up/panel_reach`, loaded after the overview so a slow dry run never holds the page. A cell is a button with its word (Sound, Shown, Quiet, Waits, Skipped, Not set up) and "n of total" when people differ; a click shows one sentence, the reason and each person's state. The context lines (time, quiet hours, away, summaries) come from `context`.
 - First launch (no policy yet): the restart hint with its button, then placeholders for Needs attention, Coming up, Activity and Last actions with one explaining line each. A card with data replaces its placeholder. The tour itself moves into the page in 18.5.
@@ -1023,3 +1025,23 @@ Plan and verified facts: `docs/dev/overview-redesign/PLAN.md`. This section reco
 - The panel's height is animated in script (`from` to `to`, then `auto`) so it works for any content and switching between panels of different heights is smooth; the content slides in from above. A redraw (the page refreshes every 10 seconds, and after a button press) builds the open panel in its final state (`static`), so the animation never replays and the scroll position does not move; the keyboard focus on a card is kept. Reduced motion switches the animation off.
 - Checked in the browser pane: the height eases (175 to 316 px in about 350 ms), switching and closing are smooth, and the scroll offset did not change.
 - The cards have no coloured stripe at the left; the tone colours the number only.
+
+## 28. 2.1.0: richer push and editable built-in audiences (D-255 to D-257)
+
+Status: scoped 2026-11-23, nothing built. Plan and checklist are written when the maintainer approves the phase.
+
+### 28.1 Fields
+- One neutral field per feature, mapped by the push channel (`hub/channels/push.py`): `notification_icon`, `color`, `icon_url`, `subtitle` (Android receives it as `subject`), `progress`. Actions (`notify`, `create_banner`, `push`) and the watch rule form carry the same fields (§22, rule 9).
+- `notification_icon` and `color` default to the severity's icon and color (§21 severity display). A push channel option turns the default off (default on). A message value wins.
+- iOS: a custom sender icon makes a communication notification and needs a title; a message with an icon and no title gets the generic title (to check in the build).
+
+### 28.2 Progress and live updates
+- `progress: {entity_id, min, max}`; the value is scaled to 0..max. Heads Up sets `live_update`, the tag and the title, updates when the entity changes and clears the push when the message ends. Devices without Live Updates or Live Activities show the plain message.
+
+### 28.3 Not in 2.1.0
+- Timeout, persistent, lock screen visibility, vibration, LED, Android Auto, spoken push, badge, `alert_once`, presentation options (D-255).
+
+### 28.4 Edit the built-in audiences (D-257)
+- A built-in audience is edited in place: the override is stored per kind in the entry options and the resolver applies it before it returns the members; Reset removes it. Policies, rules and actions keep their reference (the kind, D-199) and see the change at once.
+- An edit may leave out named people (all six) and may limit the presence audiences to named people. It never changes what the kind means. Open points (name, sensors, how the page marks an edited audience) are listed in D-257.
+

@@ -8,6 +8,7 @@ import {
   controlsFor,
   customSnoozeSeconds,
   severityColor,
+  clampPercent,
   severityLabel,
   emptyView,
   imageSource,
@@ -211,6 +212,12 @@ describe("severity label and color (D-222, D-223)", () => {
     expect(severityColor(b, { critical: "purple" })).toBe("purple");
     expect(severityColor(b, {})).toBe("#d00000");
     expect(severityColor(banner({ severity: "critical" }), {})).toBe("var(--error-color)");
+  });
+
+  it("takes the message's own color before all of them (D-258)", () => {
+    const b = banner({ severity: "critical", severity_color: "#d00000", color: "#03a9f4" });
+    expect(severityColor(b, { critical: "purple" })).toBe("#03a9f4");
+    expect(severityColor(banner({ severity: "critical", color: "nonsense" }), {})).toBe("var(--error-color)");
   });
 
   it("takes the label of the Severities page, else the translation", () => {
@@ -657,5 +664,11 @@ describe("severity names", () => {
   it("reads success in a card's colors as passive", () => {
     expect(normalizeConfig({ colors: { success: "#00ff00" } }).colors).toEqual({ passive: "#00ff00" });
     expect(normalizeConfig({ severity: ["success", "info"] }).severity).toEqual(["passive", "info"]);
+  });
+});
+
+describe("progress value (D-256)", () => {
+  it("is a whole number from 0 to 100", () => {
+    expect([clampPercent(12.5), clampPercent(-1), clampPercent(101)]).toEqual([13, 0, 100]);
   });
 });

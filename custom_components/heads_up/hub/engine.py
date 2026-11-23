@@ -691,6 +691,14 @@ class HubEngine:
         elif kind is Kind.ACKNOWLEDGED:
             self._stop_timers(banner.id, "acknowledged")
             self.note(banner.id, "", transition.user_id or "", "acknowledged", "ok")
+        elif kind is Kind.PROGRESS:
+            # Only the push follows the bar; speech, popup and mail would repeat the message.
+            if banner.active and not self.is_held(banner.id):
+                planned = [p for p in await self.plan(banner) if p.channel == "push"]
+                await self._send(banner, planned, update=True, origin="message")
+                # An open popup reads the live message, so it only needs the nudge.
+                if refresh := getattr(self.channels.get("popup"), "refresh", None):
+                    refresh()
         elif kind is Kind.SEVERITY_CHANGED:
             self._restart_timers(banner)
         elif kind is Kind.SNOOZED:
@@ -875,7 +883,12 @@ class HubEngine:
             return None
         if update and self.limiter.duplicate(banner, item.channel, item.recipient):
             return DUPLICATE
-        if item.channel == "push" and not self.limiter.push_allowed(banner, target.key):
+        # A progress bar has its own interval (D-263); the caps would drop updates, the last too.
+        if (
+            item.channel == "push"
+            and banner.progress is None
+            and not self.limiter.push_allowed(banner, target.key)
+        ):
             return RATE_LIMITED
         return None
 

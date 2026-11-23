@@ -23,6 +23,7 @@ class Kind(StrEnum):
     UNSNOOZED = "unsnoozed"  # reason "elapsed" when the timer ended it
     SEVERITY_CHANGED = "severity_changed"
     ACKNOWLEDGED = "acknowledged"  # emitted from H4a and H8
+    PROGRESS = "progress"  # only the progress value changed (D-256): the push is updated
 
 
 class Reason(StrEnum):

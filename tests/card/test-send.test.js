@@ -5,6 +5,7 @@ import {
   audienceIds,
   buildCall,
   callYaml,
+  fromCall,
   laterText,
   outcomeDone,
   behaviourUnused,
@@ -294,5 +295,81 @@ describe("test send behaviour hint", () => {
     expect(behaviourUnused(["banner", "push"])).toBeNull();
     expect(behaviourUnused(["persistent"])).toBeNull();
     expect(behaviourUnused([])).toBeNull();
+  });
+});
+
+describe("every field of notify (D-260)", () => {
+  const base = { ...blankValues(), message: "Door open", severity: "warning", channels: ["banner"] };
+
+  it("writes the new fields only when they are set", () => {
+    expect(Object.keys(buildCall(base)).sort()).toEqual(["channels", "message", "severity"]);
+    const call = buildCall({
+      ...base, icon: "mdi:door", image: "/local/a.jpg", color: " #03a9f4 ", subtitle: "Front", icon_url: "/local/b.png",
+      progress_entity: "sensor.p", progress_min: "10", progress_max: "", timeout: "5",
+      snooze_minutes: ["15", "60"], snooze_custom: true,
+      actions: [{ key: "ok", label: "Got it", dismiss: true }, { key: "x", label: " " }],
+      tap_action: { action: "navigate", navigation_path: "/a" },
+    });
+    expect(call).toMatchObject({
+      icon: "mdi:door", image: "/local/a.jpg", color: "#03a9f4", subtitle: "Front", icon_url: "/local/b.png",
+      progress: { entity_id: "sensor.p", min: 10 }, timeout: { minutes: 5 },
+      snooze_options: [{ minutes: 15 }, { minutes: 60 }], snooze_custom: true,
+      actions: [{ key: "ok", label: "Got it", dismiss: true }], tap_action: { action: "navigate", navigation_path: "/a" },
+    });
+  });
+
+  it("writes the progress bar with an interval, without automatic updates, or with a fixed value", () => {
+    const bar = { ...base, progress_entity: "sensor.p", progress_interval: "10", progress_auto: false };
+    expect(buildCall(bar).progress).toEqual({ entity_id: "sensor.p", interval: 10, auto_update: false });
+    expect(buildCall({ ...base, progress_entity: "sensor.p" }).progress).toEqual({ entity_id: "sensor.p" });
+    const fixed = { ...base, progress_value: "45", progress_max: "80", progress_interval: "10", progress_auto: false };
+    expect(buildCall(fixed).progress).toEqual({ value: 45, max: 80 });
+    const back = fromCall({ message: "x", progress: { entity_id: "sensor.p", interval: 10, auto_update: false } });
+    expect([back.progress_entity, back.progress_interval, back.progress_auto]).toEqual(["sensor.p", "10", false]);
+    expect(fromCall({ message: "x", progress: { value: 7 } }).progress_value).toBe("7");
+    expect(validate({ ...base, progress_entity: "sensor.p", progress_value: "5" }).map((p) => p.code)).toContain("progress_both");
+  });
+
+  it("keeps the keys the form has no field for", () => {
+    const call = buildCall({ ...base, extra: { condition: { entity_id: "a.b", state: "on" } } });
+    expect(call.condition).toEqual({ entity_id: "a.b", state: "on" });
+  });
+
+  it("reads a call back into the form and writes the same call again", () => {
+    const ids = { audiences: { admins: "binary_sensor.heads_up_audience_admins" }, policies: { Night: "switch.heads_up_policy_night" } };
+    const original = {
+      message: "Door open", title: "Door", severity: "warning", channels: ["banner", "push"], color: "#03a9f4", icon: "mdi:door",
+      subtitle: "Front", icon_url: "/local/b.png", progress: { entity_id: "sensor.p", max: 80 }, timeout: { minutes: 5 },
+      snooze_options: [{ minutes: 15 }], snooze_custom: true, dismiss: "everyone", tag: "door",
+      actions: [{ key: "ok", label: "Got it", destructive: true }], tap_action: { action: "url", url_path: "https://a.b" },
+      audience: "binary_sensor.heads_up_audience_admins", policy: "switch.heads_up_policy_night", match_policies_automatically: false,
+      condition: { entity_id: "a.b", state: "on" },
+    };
+    const values = fromCall(original, ids);
+    expect(values.audience).toBeUndefined();
+    expect(values.push_audience).toBe("admins");
+    expect(values.policy).toEqual(["Night"]);
+    expect(values.extra).toEqual({ condition: { entity_id: "a.b", state: "on" } });
+    expect(buildCall(values, ids)).toEqual(original);
+  });
+
+  it("takes the color list of the color picker, an unwritten severity and a timeout in seconds", () => {
+    expect(fromCall({ message: "x", color: [3, 169, 244], severity: "success", timeout: 90 }).color).toBe("#03a9f4");
+    expect(fromCall({ message: "x", severity: "success" }).severity).toBe("passive");
+    expect(fromCall({ message: "x", timeout: 90 }).timeout).toBe("1.5");
+    expect(fromCall({ message: "x", timeout: { hours: 1, minutes: 30 } }).timeout).toBe("90");
+  });
+
+  it("puts to, speakers and per-channel targets on their channels and drops the marker keys", () => {
+    const values = fromCall({ message: "x", channels: ["push", "speak"], to: { push: { recipients: ["person.anna"] } }, speakers: ["media_player.k"], id: "abc", dry_run: true });
+    expect(values.push_recipients).toEqual(["person.anna"]);
+    expect(values.speak_recipients).toEqual(["media_player.k"]);
+    expect(values.extra).toEqual({});
+  });
+
+  it("finds a button without text, a dismiss that cannot happen and a half-filled tap action", () => {
+    expect(validate({ ...base, actions: [{ key: "a", label: "" }] }).map((p) => p.code)).toContain("label_required");
+    expect(validate({ ...base, dismiss: "off", actions: [{ key: "a", label: "x", dismiss: true }] }).map((p) => p.code)).toContain("dismiss_needs_dismissible");
+    expect(validate({ ...base, tap_problem: "action_incomplete" }).map((p) => p.code)).toContain("action_incomplete");
   });
 });

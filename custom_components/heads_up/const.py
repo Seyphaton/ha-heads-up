@@ -179,6 +179,11 @@ OPT_PUSH_LEVELS: Final = "push_levels"  # severity to level
 OPT_PUSH_LOCKSCREEN: Final = "push_lockscreen"  # full, title_only, generic
 OPT_PUSH_CHANNEL_ID: Final = "push_channel_id"  # Android notification channel prefix
 OPT_PUSH_STICKY: Final = "push_sticky"
+OPT_PUSH_SEVERITY_LOOK: Final = "push_severity_look"  # D-255: severity icon and color on a push
+# Least seconds between two progress pushes of one message (D-263).
+OPT_PUSH_PROGRESS_INTERVAL: Final = "push_progress_interval"
+MIN_PROGRESS_INTERVAL: Final = 1
+MAX_PROGRESS_INTERVAL: Final = 300
 PUSH_LEVELS: Final = ("passive", "normal", "time-sensitive", "critical")
 PUSH_LOCKSCREEN: Final = ("full", "title_only", "generic")
 DEFAULT_PUSH_LEVELS: Final = {
@@ -260,6 +265,8 @@ DEFAULT_OPTIONS: Final = {
     OPT_PUSH_LOCKSCREEN: "full",
     OPT_PUSH_CHANNEL_ID: "heads_up",
     OPT_PUSH_STICKY: False,
+    OPT_PUSH_SEVERITY_LOOK: False,  # off: a push looks as before (D-262)
+    OPT_PUSH_PROGRESS_INTERVAL: 5,
     OPT_SHOW_PANEL: False,
     OPT_POPUP_STYLES: DEFAULT_POPUP_STYLES,
     OPT_SPEAK_MAX_LENGTH: 200,

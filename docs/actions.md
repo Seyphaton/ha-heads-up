@@ -38,8 +38,12 @@ The banner is on the dashboard for the people who are home, and each of them get
 | `message` | text | required | The text, 1–1000 characters. |
 | `title` | text | none | A heading above the message, up to 100 characters. |
 | `severity` | `passive`, `info`, `warning`, `critical` | required | How important the message is. `success`, an earlier name, is accepted and read as `passive`. It sets the color, the default icon and the sort order of the banner; the push level (by default `passive` is quiet, `info` normal, `warning` time-sensitive and `critical` an alarm; set on the Severities page); the popup style; and which policies fit it ([Policies](configuration.md#policies)). |
-| `icon` | icon, for example `mdi:water-alert` | the icon of the severity | Replaces the default icon on the banner and in the popup. A push, speech, mail and the notification bell do not show it. |
+| `icon` | icon, for example `mdi:water-alert` | the icon of the severity | Replaces the default icon on the banner and in the popup. On a push it is the status bar icon on Android. With the push setting "Use severity icon & color" on (it is off by default) a push without `icon` uses the icon of its severity. On iOS it is the sender icon, which also needs a title (the title `Heads Up` is used when the message has none). Speech, mail and the notification bell do not show it. |
 | `image` | text | none | A picture shown under the message on the card, in the popup and on the push: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/local/door.jpg`, `/media/local/door.jpg`). Up to 2048 characters. Heads Up does not fetch or check it; a wrong path shows no picture. A picture from another host is loaded by the card, the popup and the phone, so that host learns the viewer's address and when the picture is shown. A path on this Home Assistant avoids that. Paths under `/api/` and `/media/` are signed for the card and the popup. The phone loads the picture itself, so it must reach the URL; camera proxy paths (`/api/camera_proxy/...`) work on Android only. The compact card layout shows no picture. With a lock screen setting other than `full`, the push has no picture (`image_hidden` in the trace). |
+| `color` | color | the severity's color, when it is `#rrggbb` | A color as `#rrggbb` (`#03a9f4`) or, from the color picker of the action form, a list of red, green and blue (`[3, 169, 244]`). Names such as `red` are not accepted. It is stored as `#rrggbb`. It colors the banner and the popup. On a push, Android colors the notification and iOS uses it as the background of the icon. |
+| `icon_url` | text | none | A sender icon: an `http://` or `https://` URL, or a path on this Home Assistant starting with `/` (`/api/` and `/media/` paths are signed for you). The banner and the popup show it in place of the icon, and the icon stays when the picture does not load. On an iOS push it replaces `icon`. A push sends it only when the lock screen setting is `full`. |
+| `subtitle` | text | none | A second line under the title on the banner (not in the compact layout) and in the popup. On a push it is the subtitle on iOS and the subject on Android, sent only when the lock screen setting is `full`. |
+| `progress` | object | none | A progress bar: `entity_id` (it follows that entity) or `value` (a number you set yourself), `min` (default 0) and `max` (default 100), `interval` and `auto_update`. The value is scaled to 0 to 100 percent and values outside the range stop at the ends. `interval` is the least seconds between two pushes of this message, 1 to 300; without it the push channel setting applies (default 5). `auto_update: false` stops the automatic updates: the bar is read from the entity when the call is made, so call `notify` again with the same `id` to move it. `value` and `auto_update` work only in a call. The banner and the popup show the bar. The push updates one notification in place: a Live Update on Android 16 and later, a Live Activity on iOS 17.2 and later (not on iPad); older devices show the plain message. The iOS Live Activity shows the title, message, bar and icon; the Companion documentation lists no image or buttons for it, so `image` and `actions` reach the banner and the popup but not the Live Activity. Progress pushes are not held back by the push limits per minute. The title is `Heads Up` when the message has none. |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel, when it should differ from the written message. |
 | `volume` | number from 0 to 1 | none | Sets this volume on a media player before it speaks. Without it the volume stays as it is. Assist satellites and players that cannot set their volume ignore it. The volume is not restored afterwards. |
 | `tap_action` | object with `action` | none | A Home Assistant action that runs when someone taps the banner (the card) or the push. Passed on unchanged. Anyone who sees the banner can trigger it; see [SECURITY.md](../SECURITY.md). |
@@ -321,6 +325,10 @@ The shortcut for a message that only shows a banner. It equals `heads_up.notify`
 | `severity` | `passive`, `info`, `warning`, `critical` | `warning` | As in `notify`, but the default is `warning`. |
 | `icon` | icon | the icon of the severity | As in `notify`. |
 | `image` | text | none | As in `notify`. |
+| `color` | text | none | As in `notify`. |
+| `icon_url` | text | none | As in `notify`. |
+| `subtitle` | text | none | As in `notify`. |
+| `progress` | object | none | As in `notify`. |
 | `tap_action` | object with `action` | none | As in `notify`. |
 | `timeout` | seconds or duration | setting Default timeout | As in `notify`. |
 | `tag` | text | none | As in `notify`. |
@@ -394,12 +402,15 @@ Shortcut for `notify` with `channels: [push]` and no policies. It needs `audienc
 | `id` | text | none | Set a fixed `id` to replace the earlier message with the same `id` and to clear it later. Without an `id`, the message is sent once and cannot be cleared. |
 | `title` | text | none | As in `notify`. |
 | `severity` | `passive`, `info`, `warning`, `critical` | `info` | As in `notify`. |
-| `icon` | icon | none | A push does not show an icon, so the field has no effect. |
+| `icon` | icon | the icon of the severity on the card and popup | The icon of the card and popup. On a push it is the status bar icon on Android. On iOS it is the sender icon of the notification, which also needs a title. |
 | `timeout` | seconds or duration | setting Default timeout | Only used when `id` is set. |
 | `actions` | list of up to 3 buttons | none | As in `notify`. |
 | `tag` | text | none | As in `notify`. |
 | `tap_action` | object with `action` | none | As in `notify`. |
 | `image` | text | none | As in `notify`. |
+| `color` | text | none | As in `notify`. |
+| `icon_url` | text | none | As in `notify`. |
+| `subtitle` | text | none | As in `notify`. |
 | `tts_message` | text | the title if set, otherwise the message | The text for the speak channel. |
 | `recipients` | list | one of `audience` or `recipients` | Persons, phones, speakers or groups, depending on the channel. |
 | `audience` | audience sensor | one of `audience` or `recipients` | The entity ID of an audience sensor, for example `binary_sensor.heads_up_audience_at_home`. Not available for `speak`. |
@@ -621,6 +632,8 @@ An automation does the same: a trigger that calls `heads_up.create_banner`, or `
 2. Choose "Add watch rule".
 3. Fill in the form and submit.
 
+The panel's Banner watch rules page has the same form with a switch at the top right between the Visual editor and the YAML editor. The YAML editor shows the rule with the keys of the form (`name`, `entity_id`, `state`, `message`, `color`, `actions` and so on, with `for` in seconds); Save checks it like the form does. Switching back to the Visual editor reads the YAML into the form. An unquoted `on` or `off` as a state is read as the word.
+
 | Field | Default | Meaning |
 |---|---|---|
 | Rule name | – | Shown in the list of rules only. |
@@ -638,9 +651,13 @@ An automation does the same: a trigger that calls `heads_up.create_banner`, or `
 | People | everyone | Show only to users linked to these person entities. |
 | Dismissible | off | Off: no close button. On: each user can hide the banner. |
 | Dismiss scope | per user | Per user: closing hides it for that user until the condition turns false and true again. Everyone: it hides for all until then. |
-| Buttons | none | Up to 3 buttons, as YAML in the same format as `actions` in [the action fields](#heads_upnotify). Pressing one fires the event `heads_up_banner_action`, with `id` starting with `rule_` and `tag` `rule`. A button with `dismiss: true` needs Dismissible. |
-| Tap action | none | A Home Assistant action run when the banner is tapped, same format as `tap_action` in [the action fields](#heads_upnotify). |
+| Buttons | none | Up to 3 buttons. Each has a text, a key, switches for closing the message, red text and an unlocked phone, and an action to run. Pressing one fires the event `heads_up_banner_action`, with `id` starting with `rule_`. See [Buttons and snooze](#buttons-and-snooze) for the keys. |
+| Tap action | none | What happens when the banner or the push is tapped: open a page of Home Assistant, open a web address, show an entity or run an action (with an entity and JSON data). The same action as `tap_action` in [the action fields](#heads_upnotify). An action of another type, set in the full form on the integration page, stays as it is. |
 | Image | none | A picture under the message, same format as `image` in [the action fields](#heads_upnotify). |
+| Subtitle | none | Same as `subtitle` in [the action fields](#heads_upnotify). |
+| Color | none | Same as `color` in [the action fields](#heads_upnotify). |
+| Sender icon | none | Same as `icon_url` in [the action fields](#heads_upnotify). |
+| Progress bar from an entity | none | Same as `progress` in [the action fields](#heads_upnotify): the entity, chosen from the entities whose state is a number now, then the value where the bar is empty (default 0) and full (default 100), and the seconds between two updates (1 to 300). A rule has no `value` and no `auto_update`. |
 | Enabled | on | Off hides the banner without deleting the rule. |
 
 To change or delete a rule, open it from the same page. Changes apply at once; no restart is needed.

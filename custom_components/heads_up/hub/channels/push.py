@@ -10,6 +10,7 @@ button id carries message, recipient and action; nothing else in the event is tr
 from __future__ import annotations
 
 import logging
+import re
 import time
 from typing import TYPE_CHECKING, Any
 
@@ -17,16 +18,21 @@ from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceNotFound
 
 from ...const import (
+    DEFAULT_ICONS,
     DEFAULT_OPTIONS,
     OPT_INSTALL_TOKEN,
     OPT_PUSH_CHANNEL_ID,
     OPT_PUSH_LEVELS,
     OPT_PUSH_LOCKSCREEN,
+    OPT_PUSH_SEVERITY_LOOK,
     OPT_PUSH_STICKY,
+    OPT_SEVERITY_DISPLAY,
 )
 from ...models import Banner
 from ..recipients import notify_service, registration_data
 from .base import Capabilities, Outcome, Result, Target
+
+_HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 if TYPE_CHECKING:
     from ...manager import BannerManager
@@ -149,11 +155,57 @@ class PushChannel:
                 data["image"] = message.image
             else:
                 note = ";".join(n for n in (note, "image_hidden") if n)
+        full = self._opt(OPT_PUSH_LOCKSCREEN) == "full"
+        # Companion keys, one neutral field each (D-255, N-112). The icon and the color are not
+        # text, so they go out under every lock screen mode; the sender icon URL and the subtitle
+        # can show what the lock screen setting hides, so they follow `image`.
+        icon, color = self._look(message)
+        if icon:
+            data["notification_icon"] = icon
+        if color:
+            data["color"] = color
+        if message.icon_url:
+            if full:
+                data["icon_url"] = message.icon_url
+            else:
+                note = ";".join(n for n in (note, "icon_url_hidden") if n)
+        if message.subtitle:
+            if full:
+                data["subtitle" if ios else "subject"] = message.subtitle
+            else:
+                note = ";".join(n for n in (note, "subtitle_hidden") if n)
         title, body = self._lockscreen(message)
+        if message.progress_value is not None:
+            # Live Updates (Android 16) and Live Activities (iOS 17.2): the same tag updates the
+            # bar in place, and a title is required (N-113). Older devices show a plain message.
+            data["live_update"] = True
+            data["progress"] = message.progress_value
+            data["progress_max"] = 100
+            if not ios:
+                data["alert_once"] = True  # an update must not ring again
+            title = title or "Heads Up"
+        # An iOS sender icon turns the push into a communication notification, which needs a
+        # title as the sender name (N-112).
+        if ios and not title and ("notification_icon" in data or "icon_url" in data):
+            title = "Heads Up"
         out: dict[str, Any] = {"message": body, "data": data}
         if title:
             out["title"] = title
         return out, note
+
+    def _look(self, message: Banner) -> tuple[str | None, str | None]:
+        """Icon and color of the push: the message's own, else the severity's when the option is
+        on (D-255). The color needs `#rrggbb`: iOS takes no names and the card's theme variables
+        have no value here, so a severity without a hex color sends none."""
+        icon, color = message.icon, message.color
+        if self._opt(OPT_PUSH_SEVERITY_LOOK):
+            shown = (self._manager.options.get(OPT_SEVERITY_DISPLAY) or {}).get(
+                message.severity
+            ) or {}
+            icon = icon or shown.get("icon") or DEFAULT_ICONS[message.severity]
+            if not color and _HEX.match(shown.get("color") or ""):
+                color = shown["color"]
+        return icon, color
 
     def _lockscreen(self, message: Banner) -> tuple[str | None, str]:
         mode = self._opt(OPT_PUSH_LOCKSCREEN)

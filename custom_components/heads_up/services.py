@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import difflib
 import logging
+import math
 import re
 import secrets
 from collections.abc import Callable, Coroutine
@@ -32,10 +33,12 @@ from .const import (
     MAX_FOR_SECONDS,
     MAX_IMAGE,
     MAX_MESSAGE,
+    MAX_PROGRESS_INTERVAL,
     MAX_SNOOZE_OPTIONS,
     MAX_SNOOZE_SECONDS,
     MAX_TIMEOUT_DAYS,
     MAX_TITLE,
+    MIN_PROGRESS_INTERVAL,
     MIN_SNOOZE_SECONDS,
     MODES,
     POLICY_AUTOMATIC,
@@ -202,6 +205,60 @@ def _image(value: str) -> str:
 
 
 IMAGE = vol.All(cv.string, vol.Length(min=1, max=MAX_IMAGE), _image)
+# Push only (D-255). One value for both platforms: a `#rrggbb` hex, because iOS takes no names.
+_HEX_COLOR = re.compile(r"^#[0-9a-fA-F]{6}$")
+
+
+def _color(value: Any) -> str:
+    """`#rrggbb`, or `[red, green, blue]` as the color picker of the action form gives it (D-260).
+    Stored as lowercase `#rrggbb`."""
+    if isinstance(value, (list, tuple)):
+        if len(value) == 3 and all(
+            isinstance(v, int) and not isinstance(v, bool) and 0 <= v <= 255 for v in value
+        ):
+            return "#{:02x}{:02x}{:02x}".format(*value)
+        raise vol.Invalid("a color list is three whole numbers from 0 to 255")
+    if isinstance(value, str) and _HEX_COLOR.match(value):
+        return value.lower()
+    raise vol.Invalid("a color is #rrggbb, for example #03a9f4, or a list of red, green and blue")
+
+
+COLOR = _color
+SUBTITLE = vol.All(cv.string, vol.Length(min=1, max=MAX_TITLE))
+
+
+def _finite(value: float) -> float:
+    if not math.isfinite(value):
+        raise vol.Invalid("the value must be a number")
+    return value
+
+
+def _progress_shape(value: dict[str, Any]) -> dict[str, Any]:
+    if ("entity_id" in value) == ("value" in value):
+        raise vol.Invalid("give either entity_id or value", path=["entity_id"])
+    if float(value.get("max", 100)) <= float(value.get("min", 0)):
+        raise vol.Invalid("max must be greater than min", path=["max"])
+    return value
+
+
+# A progress bar (D-256, D-263). Values scale from min..max to 0..100 percent. It follows an entity
+# or takes a number the caller gives; `interval` is the least seconds between two pushes (the push
+# channel setting when absent); `auto_update: false` reads the entity only when the call is made.
+PROGRESS = vol.All(
+    vol.Schema(
+        {
+            vol.Optional("entity_id"): cv.entity_id,
+            vol.Optional("value"): vol.All(vol.Coerce(float), _finite),
+            vol.Optional("min"): vol.Coerce(float),
+            vol.Optional("max"): vol.Coerce(float),
+            vol.Optional("interval"): vol.All(
+                vol.Coerce(float), vol.Range(min=MIN_PROGRESS_INTERVAL, max=MAX_PROGRESS_INTERVAL)
+            ),
+            vol.Optional("auto_update"): cv.boolean,
+        }
+    ),
+    _progress_shape,
+)
 
 NAME = vol.All(cv.string, vol.Length(min=1, max=100))  # audience, recipient and policy names
 
@@ -362,6 +419,10 @@ _CREATE_FIELDS: dict[Any, Any] = {
     vol.Optional("actions"): ACTIONS_SCHEMA,
     vol.Optional("tap_action"): TAP_ACTION_SCHEMA,
     vol.Optional("image"): IMAGE,
+    vol.Optional("color"): COLOR,
+    vol.Optional("icon_url"): IMAGE,
+    vol.Optional("subtitle"): SUBTITLE,
+    vol.Optional("progress"): PROGRESS,
 }
 
 
@@ -463,6 +524,10 @@ def _shortcut_schema(channel: str) -> VolSchemaType:
     if channel != "speak":  # speech takes speakers, not an audience (D-098)
         fields[vol.Optional("audience")] = NAME
         fields[vol.Optional("image")] = IMAGE
+    if channel == "push":
+        fields[vol.Optional("color")] = COLOR
+        fields[vol.Optional("icon_url")] = IMAGE
+        fields[vol.Optional("subtitle")] = SUBTITLE
     needs = ("recipients",) if channel == "speak" else ("audience", "recipients")
     return vol.All(vol.Schema(fields), cv.has_at_least_one_key(*needs), _exclusive_target)
 
@@ -832,6 +897,9 @@ def _shortcut(channel: str) -> Callable[[ServiceCall], Coroutine[Any, Any, Servi
             tag=data.get("tag"),
             tap_action=data.get("tap_action"),
             image=data.get("image"),
+            color=data.get("color"),
+            icon_url=data.get("icon_url"),
+            subtitle=data.get("subtitle"),
             actions=[dict(a) for a in data.get("actions", [])],
             tts_message=data.get("tts_message"),
             volume=data.get("volume"),

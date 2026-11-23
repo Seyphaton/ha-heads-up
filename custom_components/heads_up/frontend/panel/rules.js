@@ -26,6 +26,11 @@ export const STRINGS = {
     turn_on: "Switch on",
     unsaved_confirm: "You have changes that are not saved. Close anyway?",
     sec_when: "When",
+    mode_label: "Editor",
+    mode_visual: "Visual editor",
+    mode_yaml: "YAML editor",
+    yaml_hint: "The rule as YAML, with the same keys as the form. Switching to the Visual editor reads it into the form; Save checks it like the form does. An unquoted on or off as a state is read as the word.",
+    yaml_error: "The YAML could not be read: {text}",
     sec_what: "What to show",
     sec_who: "Who sees it",
     sec_how: "Behaviour",
@@ -43,6 +48,13 @@ export const STRINGS = {
     f_severity: "Severity",
     f_icon: "Icon (optional, like mdi:door)",
     f_image: "Image (optional, a URL or a path)",
+    f_subtitle: "Subtitle (optional)",
+    f_color: "Color (optional, #rrggbb)",
+    f_icon_url: "Sender icon (optional, a URL or a path)",
+    f_progress: "Progress bar from an entity (optional)",
+    f_progress_min: "Bar empty at this value (default 0)",
+    f_progress_max: "Bar full at this value (default 100)",
+    f_progress_interval: "Seconds between two updates (1 to 300, empty: the Channels setting)",
     f_people: "People",
     f_dismissible: "Viewers can dismiss it",
     f_policy: "Policy",
@@ -62,7 +74,6 @@ export const STRINGS = {
     f_snooze_minutes: "Snooze choices, in minutes",
     f_snooze_custom: "Viewer may choose another duration (at most 24 hours)",
     f_enabled: "Enabled",
-    kept: "Buttons and the tap action stay as they are. Change them in the full form on the integration page.",
     sentence: "Sentence",
     sentence_entity: "Shows “{message}” ({severity}) while {entity} {operator} {value}.",
     sentence_template: "Shows “{message}” ({severity}) while the template is true.",
@@ -74,7 +85,7 @@ export const STRINGS = {
     severities: {"passive": "Passive", "info": "Info", "warning": "Warning", "critical": "Critical"},
     saved: "Saved.",
     failed: "Could not save. Try again.",
-    errors: {"entity_not_found": "This entity does not exist.", "message_required": "Enter a message.", "message_too_long": "The message can have up to 1000 characters.", "message_template_invalid": "The message contains an invalid template.", "title_too_long": "The title can have up to 100 characters.", "state_count": "Above and below need one number, between needs two.", "state_not_numeric": "Enter numbers only for this condition.", "state_required": "Enter at least one value.", "for_too_long": "Use 24 hours or less.", "snoozable_needs_dismissible": "Snoozable needs Dismissible to be on.", "entity_and_template": "Use an entity or a template, not both.", "entity_or_template_required": "Choose an entity or enter a template.", "template_invalid": "The template is not valid.", "actions_invalid": "The buttons are not valid. Each needs a key and a label, up to 3.", "tap_action_invalid": "The tap action needs an action key.", "image_invalid": "The image must be an http(s) URL or a path starting with /.", "actions_dismiss_needs_dismissible": "A button with dismiss needs Dismissible to be on.", "policy_unknown": "This policy does not exist. Use the name of a policy, or none.", "name_required": "Enter a name.", "name_exists": "This name is already used."},
+    errors: {"entity_not_found": "This entity does not exist.", "message_required": "Enter a message.", "message_too_long": "The message can have up to 1000 characters.", "message_template_invalid": "The message contains an invalid template.", "title_too_long": "The title can have up to 100 characters.", "state_count": "Above and below need one number, between needs two.", "state_not_numeric": "Enter numbers only for this condition.", "state_required": "Enter at least one value.", "for_too_long": "Use 24 hours or less.", "snoozable_needs_dismissible": "Snoozable needs Dismissible to be on.", "entity_and_template": "Use an entity or a template, not both.", "entity_or_template_required": "Choose an entity or enter a template.", "template_invalid": "The template is not valid.", "actions_invalid": "The buttons are not valid. Each needs a key and a label, up to 3.", "tap_action_invalid": "The tap action needs an action key.", "image_invalid": "The image must be an http(s) URL or a path starting with /.", "color_invalid": "The color must look like #03a9f4.", "progress_invalid": "Progress needs an entity, and max must be greater than min.", "icon_url_invalid": "The sender icon must be an http(s) URL or a path starting with /.", "actions_dismiss_needs_dismissible": "A button with dismiss needs Dismissible to be on.", "policy_unknown": "This policy does not exist. Use the name of a policy, or none.", "name_required": "Enter a name.", "name_exists": "This name is already used."},
   },
   de: {
     title: "Überwachungsregeln",
@@ -99,6 +110,11 @@ export const STRINGS = {
     turn_on: "Einschalten",
     unsaved_confirm: "Du hast Änderungen, die nicht gespeichert sind. Trotzdem schließen?",
     sec_when: "Wann",
+    mode_label: "Editor",
+    mode_visual: "Visueller Editor",
+    mode_yaml: "YAML-Editor",
+    yaml_hint: "Die Regel als YAML mit denselben Schlüsseln wie das Formular. Der Wechsel zum visuellen Editor liest sie ins Formular; Speichern prüft sie wie das Formular. Ein unquotiertes on oder off als Zustand wird als Wort gelesen.",
+    yaml_error: "Das YAML konnte nicht gelesen werden: {text}",
     sec_what: "Was gezeigt wird",
     sec_who: "Wer es sieht",
     sec_how: "Verhalten",
@@ -116,6 +132,13 @@ export const STRINGS = {
     f_severity: "Schweregrad",
     f_icon: "Symbol (optional, etwa mdi:door)",
     f_image: "Bild (optional, eine URL oder ein Pfad)",
+    f_subtitle: "Untertitel (optional)",
+    f_color: "Farbe (optional, #rrggbb)",
+    f_icon_url: "Absender-Symbol (optional, eine URL oder ein Pfad)",
+    f_progress: "Fortschrittsbalken aus einer Entität (optional)",
+    f_progress_min: "Balken leer bei diesem Wert (Standard 0)",
+    f_progress_max: "Balken voll bei diesem Wert (Standard 100)",
+    f_progress_interval: "Sekunden zwischen zwei Updates (1 bis 300, leer: Einstellung der Kanäle)",
     f_people: "Personen",
     f_dismissible: "Betrachter können es ausblenden",
     f_policy: "Richtlinie",
@@ -135,7 +158,6 @@ export const STRINGS = {
     f_snooze_minutes: "Auswahl zum Zurückstellen, in Minuten",
     f_snooze_custom: "Betrachter darf eine andere Dauer wählen (höchstens 24 Stunden)",
     f_enabled: "Aktiv",
-    kept: "Schaltflächen und Tippaktion bleiben unverändert. Ändere sie im vollständigen Formular auf der Integrationsseite.",
     sentence: "Satz",
     sentence_entity: "Zeigt „{message}“ ({severity}), solange {entity} {operator} {value}.",
     sentence_template: "Zeigt „{message}“ ({severity}), solange die Vorlage wahr ist.",
@@ -147,7 +169,7 @@ export const STRINGS = {
     severities: {"passive": "Passiv", "info": "Info", "warning": "Warnung", "critical": "Kritisch"},
     saved: "Gespeichert.",
     failed: "Speichern fehlgeschlagen. Versuche es erneut.",
-    errors: {"entity_not_found": "Diese Entität existiert nicht.", "message_required": "Gib eine Nachricht ein.", "message_too_long": "Die Nachricht darf bis zu 1000 Zeichen haben.", "message_template_invalid": "Die Nachricht enthält eine ungültige Vorlage.", "title_too_long": "Der Titel darf bis zu 100 Zeichen haben.", "state_count": "„Über“ und „Unter“ brauchen eine Zahl, „Zwischen“ braucht zwei.", "state_not_numeric": "Gib für diese Bedingung nur Zahlen ein.", "state_required": "Gib mindestens einen Wert ein.", "for_too_long": "Verwende 24 Stunden oder weniger.", "snoozable_needs_dismissible": "„Zurückstellbar“ benötigt, dass „Schließbar“ an ist.", "entity_and_template": "Verwende eine Entität oder eine Vorlage, nicht beides.", "entity_or_template_required": "Wähle eine Entität oder gib eine Vorlage ein.", "template_invalid": "Die Vorlage ist ungültig.", "actions_invalid": "Die Schaltflächen sind ungültig. Jede braucht key und label, höchstens 3.", "tap_action_invalid": "Die Tipp-Aktion braucht einen action-Schlüssel.", "image_invalid": "Das Bild muss eine http(s)-URL oder ein Pfad sein, der mit / beginnt.", "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an.", "policy_unknown": "Diese Richtlinie gibt es nicht. Nimm den Namen einer Richtlinie oder none.", "name_required": "Gib einen Namen ein.", "name_exists": "Dieser Name wird schon verwendet."},
+    errors: {"entity_not_found": "Diese Entität existiert nicht.", "message_required": "Gib eine Nachricht ein.", "message_too_long": "Die Nachricht darf bis zu 1000 Zeichen haben.", "message_template_invalid": "Die Nachricht enthält eine ungültige Vorlage.", "title_too_long": "Der Titel darf bis zu 100 Zeichen haben.", "state_count": "„Über“ und „Unter“ brauchen eine Zahl, „Zwischen“ braucht zwei.", "state_not_numeric": "Gib für diese Bedingung nur Zahlen ein.", "state_required": "Gib mindestens einen Wert ein.", "for_too_long": "Verwende 24 Stunden oder weniger.", "snoozable_needs_dismissible": "„Zurückstellbar“ benötigt, dass „Schließbar“ an ist.", "entity_and_template": "Verwende eine Entität oder eine Vorlage, nicht beides.", "entity_or_template_required": "Wähle eine Entität oder gib eine Vorlage ein.", "template_invalid": "Die Vorlage ist ungültig.", "actions_invalid": "Die Schaltflächen sind ungültig. Jede braucht key und label, höchstens 3.", "tap_action_invalid": "Die Tipp-Aktion braucht einen action-Schlüssel.", "image_invalid": "Das Bild muss eine http(s)-URL oder ein Pfad sein, der mit / beginnt.", "color_invalid": "Die Farbe muss so aussehen: #03a9f4.", "progress_invalid": "Der Fortschritt braucht eine Entität, und max muss größer als min sein.", "icon_url_invalid": "Das Absender-Symbol muss eine http(s)-URL oder ein Pfad sein, der mit / beginnt.", "actions_dismiss_needs_dismissible": "Eine Schaltfläche mit dismiss braucht „Schließbar“ an.", "policy_unknown": "Diese Richtlinie gibt es nicht. Nimm den Namen einer Richtlinie oder none.", "name_required": "Gib einen Namen ein.", "name_exists": "Dieser Name wird schon verwendet."},
   },
   fr: {
     title: "Règles de surveillance",
@@ -172,6 +194,11 @@ export const STRINGS = {
     turn_on: "Activer",
     unsaved_confirm: "Certaines modifications ne sont pas enregistrées. Fermer quand même ?",
     sec_when: "Quand",
+    mode_label: "Éditeur",
+    mode_visual: "Éditeur visuel",
+    mode_yaml: "Éditeur YAML",
+    yaml_hint: "La règle en YAML, avec les mêmes clés que le formulaire. Passer à l'éditeur visuel la lit dans le formulaire ; Enregistrer la vérifie comme le formulaire. Un on ou off sans guillemets comme état est lu comme le mot.",
+    yaml_error: "Le YAML n'a pas pu être lu : {text}",
     sec_what: "Quoi afficher",
     sec_who: "Qui la voit",
     sec_how: "Comportement",
@@ -189,6 +216,13 @@ export const STRINGS = {
     f_severity: "Gravité",
     f_icon: "Icône (facultatif, comme mdi:door)",
     f_image: "Image (facultatif, une URL ou un chemin)",
+    f_subtitle: "Sous-titre (facultatif)",
+    f_color: "Couleur (facultatif, #rrggbb)",
+    f_icon_url: "Icône de l'expéditeur (facultatif, une URL ou un chemin)",
+    f_progress: "Barre de progression d'une entité (facultatif)",
+    f_progress_min: "Barre vide à cette valeur (0 par défaut)",
+    f_progress_max: "Barre pleine à cette valeur (100 par défaut)",
+    f_progress_interval: "Secondes entre deux mises à jour (1 à 300, vide : réglage des canaux)",
     f_people: "Personnes",
     f_dismissible: "Les spectateurs peuvent la masquer",
     f_policy: "Politique",
@@ -208,7 +242,6 @@ export const STRINGS = {
     f_snooze_minutes: "Durées de report, en minutes",
     f_snooze_custom: "Le spectateur peut choisir une autre durée (24 heures au plus)",
     f_enabled: "Activée",
-    kept: "Les boutons et l'action au toucher restent inchangés. Modifiez-les dans le formulaire complet de la page de l'intégration.",
     sentence: "Phrase",
     sentence_entity: "Affiche « {message} » ({severity}) tant que {entity} {operator} {value}.",
     sentence_template: "Affiche « {message} » ({severity}) tant que le modèle est vrai.",
@@ -220,7 +253,7 @@ export const STRINGS = {
     severities: {"passive": "Passif", "info": "Info", "warning": "Avertissement", "critical": "Critique"},
     saved: "Enregistré.",
     failed: "Échec de l'enregistrement. Réessayez.",
-    errors: {"entity_not_found": "Cette entité n'existe pas.", "message_required": "Saisissez un message.", "message_too_long": "Le message peut contenir jusqu'à 1000 caractères.", "message_template_invalid": "Le message contient un modèle non valide.", "title_too_long": "Le titre peut contenir jusqu'à 100 caractères.", "state_count": "« Supérieur » et « Inférieur » demandent un nombre, « Entre » en demande deux.", "state_not_numeric": "Saisissez uniquement des nombres pour cette condition.", "state_required": "Saisissez au moins une valeur.", "for_too_long": "Utilisez 24 heures ou moins.", "snoozable_needs_dismissible": "« Reportable » nécessite que « Fermable » soit activé.", "entity_and_template": "Utilisez une entité ou un modèle, pas les deux.", "entity_or_template_required": "Choisissez une entité ou saisissez un modèle.", "template_invalid": "Le modèle n'est pas valide.", "actions_invalid": "Les boutons ne sont pas valides. Chacun a besoin d'une key et d'un label, 3 au maximum.", "tap_action_invalid": "L'action au toucher a besoin d'une clé action.", "image_invalid": "L'image doit être une URL http(s) ou un chemin commençant par /.", "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé.", "policy_unknown": "Cette politique n'existe pas. Utilisez le nom d'une politique, ou none.", "name_required": "Saisissez un nom.", "name_exists": "Ce nom est déjà utilisé."},
+    errors: {"entity_not_found": "Cette entité n'existe pas.", "message_required": "Saisissez un message.", "message_too_long": "Le message peut contenir jusqu'à 1000 caractères.", "message_template_invalid": "Le message contient un modèle non valide.", "title_too_long": "Le titre peut contenir jusqu'à 100 caractères.", "state_count": "« Supérieur » et « Inférieur » demandent un nombre, « Entre » en demande deux.", "state_not_numeric": "Saisissez uniquement des nombres pour cette condition.", "state_required": "Saisissez au moins une valeur.", "for_too_long": "Utilisez 24 heures ou moins.", "snoozable_needs_dismissible": "« Reportable » nécessite que « Fermable » soit activé.", "entity_and_template": "Utilisez une entité ou un modèle, pas les deux.", "entity_or_template_required": "Choisissez une entité ou saisissez un modèle.", "template_invalid": "Le modèle n'est pas valide.", "actions_invalid": "Les boutons ne sont pas valides. Chacun a besoin d'une key et d'un label, 3 au maximum.", "tap_action_invalid": "L'action au toucher a besoin d'une clé action.", "image_invalid": "L'image doit être une URL http(s) ou un chemin commençant par /.", "color_invalid": "La couleur doit ressembler à #03a9f4.", "progress_invalid": "La progression demande une entité, et max doit être supérieur à min.", "icon_url_invalid": "L'icône de l'expéditeur doit être une URL http(s) ou un chemin commençant par /.", "actions_dismiss_needs_dismissible": "Un bouton avec dismiss nécessite que « Fermable » soit activé.", "policy_unknown": "Cette politique n'existe pas. Utilisez le nom d'une politique, ou none.", "name_required": "Saisissez un nom.", "name_exists": "Ce nom est déjà utilisé."},
   },
   es: {
     title: "Reglas de vigilancia",
@@ -245,6 +278,11 @@ export const STRINGS = {
     turn_on: "Activar",
     unsaved_confirm: "Hay cambios sin guardar. ¿Cerrar de todos modos?",
     sec_when: "Cuándo",
+    mode_label: "Editor",
+    mode_visual: "Editor visual",
+    mode_yaml: "Editor YAML",
+    yaml_hint: "La regla en YAML, con las mismas claves que el formulario. Pasar al editor visual la lee en el formulario; Guardar la comprueba como el formulario. Un on u off sin comillas como estado se lee como la palabra.",
+    yaml_error: "No se pudo leer el YAML: {text}",
     sec_what: "Qué mostrar",
     sec_who: "Quién lo ve",
     sec_how: "Comportamiento",
@@ -262,6 +300,13 @@ export const STRINGS = {
     f_severity: "Gravedad",
     f_icon: "Icono (opcional, como mdi:door)",
     f_image: "Imagen (opcional, una URL o una ruta)",
+    f_subtitle: "Subtítulo (opcional)",
+    f_color: "Color (opcional, #rrggbb)",
+    f_icon_url: "Icono del remitente (opcional, una URL o una ruta)",
+    f_progress: "Barra de progreso de una entidad (opcional)",
+    f_progress_min: "Barra vacía con este valor (0 por defecto)",
+    f_progress_max: "Barra llena con este valor (100 por defecto)",
+    f_progress_interval: "Segundos entre dos actualizaciones (1 a 300, vacío: ajuste de canales)",
     f_people: "Personas",
     f_dismissible: "Quien lo ve puede descartarlo",
     f_policy: "Política",
@@ -281,7 +326,6 @@ export const STRINGS = {
     f_snooze_minutes: "Opciones de pospuesta, en minutos",
     f_snooze_custom: "El espectador puede elegir otra duración (como máximo 24 horas)",
     f_enabled: "Activada",
-    kept: "Los botones y la acción al tocar se quedan como están. Cámbialos en el formulario completo de la página de la integración.",
     sentence: "Frase",
     sentence_entity: "Muestra «{message}» ({severity}) mientras {entity} {operator} {value}.",
     sentence_template: "Muestra «{message}» ({severity}) mientras la plantilla sea verdadera.",
@@ -293,7 +337,7 @@ export const STRINGS = {
     severities: {"passive": "Pasivo", "info": "Info", "warning": "Aviso", "critical": "Crítico"},
     saved: "Guardado.",
     failed: "No se pudo guardar. Inténtalo de nuevo.",
-    errors: {"entity_not_found": "Esta entidad no existe.", "message_required": "Introduce un mensaje.", "message_too_long": "El mensaje puede tener hasta 1000 caracteres.", "message_template_invalid": "El mensaje contiene una plantilla no válida.", "title_too_long": "El título puede tener hasta 100 caracteres.", "state_count": "«Por encima» y «Por debajo» necesitan un número, «Entre» necesita dos.", "state_not_numeric": "Introduce solo números para esta condición.", "state_required": "Introduce al menos un valor.", "for_too_long": "Usa 24 horas o menos.", "snoozable_needs_dismissible": "«Se puede posponer» requiere que «Se puede cerrar» esté activado.", "entity_and_template": "Usa una entidad o una plantilla, no ambas.", "entity_or_template_required": "Elige una entidad o introduce una plantilla.", "template_invalid": "La plantilla no es válida.", "actions_invalid": "Los botones no son válidos. Cada uno necesita key y label, como máximo 3.", "tap_action_invalid": "La acción al tocar necesita una clave action.", "image_invalid": "La imagen debe ser una URL http(s) o una ruta que empieza por /.", "actions_dismiss_needs_dismissible": "Un botón con dismiss requiere que «Se puede cerrar» esté activado.", "policy_unknown": "Esta política no existe. Usa el nombre de una política, o none.", "name_required": "Introduce un nombre.", "name_exists": "Este nombre ya se usa."},
+    errors: {"entity_not_found": "Esta entidad no existe.", "message_required": "Introduce un mensaje.", "message_too_long": "El mensaje puede tener hasta 1000 caracteres.", "message_template_invalid": "El mensaje contiene una plantilla no válida.", "title_too_long": "El título puede tener hasta 100 caracteres.", "state_count": "«Por encima» y «Por debajo» necesitan un número, «Entre» necesita dos.", "state_not_numeric": "Introduce solo números para esta condición.", "state_required": "Introduce al menos un valor.", "for_too_long": "Usa 24 horas o menos.", "snoozable_needs_dismissible": "«Se puede posponer» requiere que «Se puede cerrar» esté activado.", "entity_and_template": "Usa una entidad o una plantilla, no ambas.", "entity_or_template_required": "Elige una entidad o introduce una plantilla.", "template_invalid": "La plantilla no es válida.", "actions_invalid": "Los botones no son válidos. Cada uno necesita key y label, como máximo 3.", "tap_action_invalid": "La acción al tocar necesita una clave action.", "image_invalid": "La imagen debe ser una URL http(s) o una ruta que empieza por /.", "color_invalid": "El color debe tener este aspecto: #03a9f4.", "progress_invalid": "El progreso necesita una entidad, y max debe ser mayor que min.", "icon_url_invalid": "El icono del remitente debe ser una URL http(s) o una ruta que empieza por /.", "actions_dismiss_needs_dismissible": "Un botón con dismiss requiere que «Se puede cerrar» esté activado.", "policy_unknown": "Esta política no existe. Usa el nombre de una política, o none.", "name_required": "Introduce un nombre.", "name_exists": "Este nombre ya se usa."},
   },
 };
 
@@ -309,7 +353,7 @@ export function fill(template, params) {
 export function blankValues() {
   return {
     name: "", kind: "entity", entity_id: "", operator: "equals", state: "", attribute: "", for_minutes: "", template: "",
-    message: "", title: "", severity: "warning", icon: "", image: "", who: "everyone", audience: "", people: [],
+    message: "", title: "", severity: "warning", icon: "", image: "", color: "", icon_url: "", subtitle: "", progress_entity: "", progress_min: "", progress_max: "", progress_interval: "", actions: [], tap_action: null, tap_problem: "", who: "everyone", audience: "", people: [],
     dismissible: false, dismiss_scope: "", snoozable: "", snooze_scope: "", snooze_minutes: [], snooze_custom: false, policy: "", enabled: true,
   };
 }
@@ -334,6 +378,15 @@ export function fromRule(rule) {
     severity: d.severity || "warning",
     icon: text(d.icon),
     image: text(d.image),
+    color: text(d.color),
+    icon_url: text(d.icon_url),
+    subtitle: text(d.subtitle),
+    progress_entity: text(d.progress?.entity_id),
+    progress_min: text(d.progress?.min),
+    progress_max: text(d.progress?.max),
+    progress_interval: text(d.progress?.interval),
+    actions: (d.actions || []).map((a) => ({ ...a })),
+    tap_action: d.tap_action ? { ...d.tap_action } : null,
     who: d.audience ? "audience" : (d.people || []).length ? "people" : "everyone",
     audience: text(d.audience),
     people: [...(d.people || [])],
@@ -373,7 +426,11 @@ export function toFlowData(values, own) {
   }
   const minutes = Number(values.for_minutes);
   if (values.for_minutes !== "" && minutes > 0) data.for = { hours: Math.floor(minutes / 60), minutes: Math.floor(minutes % 60), seconds: Math.round((minutes % 1) * 60) };
-  for (const key of ["title", "icon", "image"]) if (values[key].trim()) data[key] = values[key].trim();
+  for (const key of ["title", "icon", "image", "color", "icon_url", "subtitle"]) if (values[key].trim()) data[key] = values[key].trim();
+  if (values.progress_entity.trim()) {
+    data.progress = { entity_id: values.progress_entity.trim() };
+    for (const key of ["min", "max", "interval"]) if (values[`progress_${key}`].trim() !== "" && !Number.isNaN(Number(values[`progress_${key}`]))) data.progress[key] = Number(values[`progress_${key}`]);
+  }
   if (values.dismiss_scope) data.dismiss_scope = values.dismiss_scope;
   if (values.snoozable) data.snoozable = values.snoozable === "on";
   if (values.snooze_scope) data.snooze_scope = values.snooze_scope;
@@ -381,9 +438,25 @@ export function toFlowData(values, own) {
   if (values.snooze_custom) data.snooze_custom = true;
   if (values.policy) data.policy = values.policy;
   if (values.who === "audience" && values.audience) data.audience = values.audience;
-  const kept = own?.data || {};
-  if (kept.actions) data.actions = kept.actions;
-  if (kept.tap_action) data.tap_action = kept.tap_action;
+  const buttons = values.actions.filter((b) => String(b.label || "").trim());
+  if (buttons.length) {
+    data.actions = buttons.map((b) => {
+      const out = { key: b.key, label: String(b.label).trim() };
+      for (const flag of ["dismiss", "destructive", "require_auth"]) if (b[flag]) out[flag] = true;
+      if (b.action) out.action = b.action;
+      return out;
+    });
+  }
+  if (values.tap_action) data.tap_action = values.tap_action;
+  return data;
+}
+
+// The rule as it is stored and as the YAML editor shows it: `for` in seconds and the snooze
+// choices in seconds (the flow takes a duration and minutes). fromRule reads it back.
+export function storedShape(values) {
+  const data = toFlowData(values);
+  if (data.for) data.for = data.for.hours * 3600 + data.for.minutes * 60 + data.for.seconds;
+  if (data.snooze_options) data.snooze_options = data.snooze_options.map((m) => Math.round(Number(m) * 60));
   return data;
 }
 
@@ -474,7 +547,7 @@ export function mount(container, ctx) {
   const personName = (id) => data.choices.persons.find((p) => p.id === id)?.name ?? id;
   const audienceName = (id) => (data.choices.audience_choices || []).find((a) => a.id === id)?.name ?? id;
   const policyName = (id) => (data.policies || []).find((p) => p.subentry_id === id)?.name ?? id;
-  const errorTexts = (codes) => codes.map((c) => t.errors[c] || ui.errorText(c, ctx.language)).join(" ");
+  const errorTexts = (codes) => codes.map((c) => s.buttons.problems[c] || t.errors[c] || ui.errorText(c, ctx.language)).join(" ");
   const whoText = (d) => (d.audience ? audienceName(d.audience) : (d.people || []).length ? d.people.map(personName).join(", ") : t.who_everyone);
 
   // The rules as a table like the other pages: name and state, what it watches, what it shows.
@@ -548,7 +621,7 @@ export function mount(container, ctx) {
   // A dialog over the page; X, Cancel, Escape and a click beside it ask first when something changed.
   function openEditor(own, values) {
     message = "";
-    editing = { own, values, start: JSON.stringify(toFlowData(values, own)) };
+    editing = { own, values, start: JSON.stringify(toFlowData(values, own)), mode: "visual", yaml: "", yamlStart: "" };
     const dialog = el("dialog", { className: "hu-modal" });
     const close = el("button", { type: "button", className: "hu-close" }, [el("ha-icon", { icon: "mdi:close" })]);
     close.setAttribute("aria-label", s.common.cancel);
@@ -578,9 +651,83 @@ export function mount(container, ctx) {
 
   function requestClose() {
     if (!editorDialog) return;
-    const changed = editing && JSON.stringify(toFlowData(editing.values, editing.own)) !== editing.start;
+    const changed = editing && (JSON.stringify(toFlowData(editing.values, editing.own)) !== editing.start || (editing.mode === "yaml" && editing.yaml !== editing.yamlStart));
     if (changed && !window.confirm(t.unsaved_confirm)) return;
     editorDialog.dialog.close();
+  }
+
+  // Visual editor or YAML editor of the same rule, as on Test send (D-260).
+  function modeSwitch() {
+    const seg = el("div", { className: "seg", role: "group" });
+    seg.setAttribute("aria-label", t.mode_label);
+    for (const [key, label] of [["visual", t.mode_visual], ["yaml", t.mode_yaml]]) {
+      const button = el("button", { type: "button", textContent: label });
+      button.setAttribute("aria-pressed", String(editing.mode === key));
+      button.addEventListener("click", () => switchMode(key));
+      seg.append(button);
+    }
+    return el("div", { style: "display:flex;justify-content:flex-end;margin-bottom:12px" }, [seg]);
+  }
+
+  async function parseYaml(yamlText) {
+    const reply = await hass.callWS({ type: "heads_up/rule_parse_yaml", yaml: yamlText });
+    const { name, ...rest } = reply.rule;
+    return fromRule({ name: String(name ?? ""), data: rest });
+  }
+
+  async function switchMode(next) {
+    if (next === editing.mode) return;
+    if (next === "yaml") {
+      editing.yaml = ui.toYaml(storedShape(editing.values));
+      editing.yamlStart = editing.yaml;
+      editing.mode = "yaml";
+      message = "";
+      refreshEditor();
+      return;
+    }
+    try {
+      Object.assign(editing.values, await parseYaml(editing.yaml));
+      editing.mode = "visual";
+      message = "";
+    } catch (err) {
+      message = fill(t.yaml_error, { text: err?.message || String(err?.code || "error") });
+    }
+    refreshEditor();
+  }
+
+  function yamlEditor(box) {
+    const { own } = editing;
+    box.append(el("div", { className: "hint", textContent: t.yaml_hint }));
+    const area = el("textarea", { rows: 22, value: editing.yaml, spellcheck: false, style: "width:100%;box-sizing:border-box;font-family:monospace" });
+    area.addEventListener("input", () => { editing.yaml = area.value; });
+    box.append(ui.field(s.common.yaml, area));
+    const status = el("div", { className: message ? "hint problems" : "hint" });
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    status.textContent = message;
+    const save = el("button", { type: "button", className: "primary", textContent: s.common.save });
+    save.addEventListener("click", saveYaml);
+    const cancel = el("button", { type: "button", textContent: s.common.cancel });
+    cancel.addEventListener("click", requestClose);
+    const buttons = el("div", { className: "row" }, [save, cancel]);
+    if (own) {
+      const del = el("button", { type: "button", className: "danger", textContent: s.common.delete });
+      del.addEventListener("click", remove);
+      buttons.append(del);
+    }
+    box.append(status, buttons);
+    return box;
+  }
+
+  async function saveYaml() {
+    try {
+      Object.assign(editing.values, await parseYaml(editing.yaml));
+    } catch (err) {
+      message = fill(t.yaml_error, { text: err?.message || String(err?.code || "error") });
+      refreshEditor();
+      return;
+    }
+    await saveIt();
   }
 
   function editor() {
@@ -589,6 +736,8 @@ export function mount(container, ctx) {
     const box = el("div", {});
     const again = () => refreshEditor();
     const text = (key, label, extra = {}) => ui.field(label, ui.textInput(values[key], (v) => { values[key] = v; paint(); }, extra));
+    box.append(modeSwitch());
+    if (editing.mode === "yaml") return yamlEditor(box);
     box.append(ui.checkbox(t.f_enabled, values.enabled, (on) => { values.enabled = on; paint(); }));
     box.append(ui.field(s.common.name, ui.textInput(values.name, (v) => { values.name = v; paint(); })));
 
@@ -615,6 +764,9 @@ export function mount(container, ctx) {
     box.append(ui.field(t.f_message, msg), text("title", t.f_title));
     box.append(ui.field(t.f_severity, ui.selectInput(SEVERITIES.map((k) => ({ value: k, label: t.severities[k] })), values.severity, (v) => { values.severity = v; paint(); })));
     box.append(text("icon", t.f_icon), text("image", t.f_image, { style: "max-width:100%" }));
+    box.append(text("subtitle", t.f_subtitle), ui.field(t.f_color, ui.colorInput(values.color, (v) => { values.color = v; paint(); }, { placeholder: "#03a9f4", "aria-label": t.f_color })), text("icon_url", t.f_icon_url, { style: "max-width:100%" }));
+    box.append(ui.field(t.f_progress, ui.selectInput([{ value: "", label: s.common.none }, ...ui.numericEntityOptions(hass.states, values.progress_entity)], values.progress_entity, (v) => { values.progress_entity = v; paint(); })));
+    box.append(text("progress_min", t.f_progress_min, { placeholder: "0" }), text("progress_max", t.f_progress_max, { placeholder: "100" }), text("progress_interval", t.f_progress_interval, { placeholder: "5" }));
 
     box.append(el("h3", { className: "sec", textContent: t.sec_who }));
     const audiences = (data.choices.audience_choices || []).filter((a) => a.id !== "everyone");
@@ -644,7 +796,13 @@ export function mount(container, ctx) {
     }
     const policies = [{ value: "", label: t.policy_all }, { value: "none", label: t.policy_none }, ...listed];
     box.append(ui.field(t.f_policy, ui.selectInput(policies, values.policy, (v) => { values.policy = v; paint(); }), t.policy_hint));
-    if (own && (own.data.actions || own.data.tap_action)) box.append(el("div", { className: "hint", textContent: t.kept }));
+    const sb = s.buttons;
+    const buttonsBox = el("div", {});
+    buttonsBox.append(ui.buttonsEditor(s, values.actions, (list) => { values.actions = list; paint(); }, { listId: "hu-entities" }));
+    box.append(ui.fold(`${sb.title}${values.actions.length ? ` (${values.actions.length})` : ""}`, buttonsBox, values.actions.length > 0));
+    const tapBox = el("div", {}, [el("div", { className: "hint", textContent: sb.tap_hint })]);
+    tapBox.append(ui.actionEditor(s, values.tap_action, (action, problem) => { values.tap_action = action; values.tap_problem = problem; paint(); }, { listId: "hu-entities" }));
+    box.append(ui.fold(sb.tap, tapBox, Boolean(values.tap_action)));
 
     const words = el("div", {});
     const status = el("div", { className: "hint" });
@@ -663,7 +821,8 @@ export function mount(container, ctx) {
     box.append(el("div", { className: "summary" }, [el("strong", { textContent: t.sentence }), words, status]), buttons);
     if (own) box.append(el("div", { className: "hint", textContent: s.common.yaml }), ui.yamlBlock(ui.toYaml({ name: own.name, ...own.data }), s.common));
     function paint() {
-      const codes = Object.values(validate(values, existing, own?.name));
+      const buttonCodes = ui.buttonProblems(values.actions, values.dismissible).map((p) => p.code);
+      const codes = [...new Set([...Object.values(validate(values, existing, own?.name)), ...buttonCodes, ...(values.tap_problem ? [values.tap_problem] : [])])];
       words.textContent = sentence(values, t);
       save.disabled = codes.length > 0;
       status.className = codes.length || message ? "hint problems" : "hint ok";

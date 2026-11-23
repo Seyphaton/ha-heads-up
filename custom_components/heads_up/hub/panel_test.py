@@ -81,6 +81,13 @@ async def banner_from(hub: HubEngine, data: dict[str, Any]) -> Banner:
         created_at=now,
         updated_at=now,
         title=data.get("title"),
+        icon=data.get("icon"),
+        image=data.get("image"),
+        color=data.get("color"),
+        icon_url=data.get("icon_url"),
+        subtitle=data.get("subtitle"),
+        actions=[dict(a) for a in data.get("actions", [])],
+        tap_action=data.get("tap_action"),
         tag=data.get("tag"),
         channels=list(data["channels"]),
         targets={k: dict(v) for k, v in data.get("to", {}).items()},
@@ -100,7 +107,8 @@ def marked(payload: dict[str, Any]) -> dict[str, Any]:
         "id": f"{TEST_ID_PREFIX}{secrets.token_hex(4)}",
         "title": f"{TEST_TITLE}: {title}" if title else TEST_TITLE,
         "tag": TEST_TAG,
-        "timeout": {"minutes": TEST_TIMEOUT_MINUTES},
+        # A timeout the call sets is kept: the short life is only the default (D-260).
+        "timeout": payload.get("timeout") or {"minutes": TEST_TIMEOUT_MINUTES},
     }
 
 
@@ -137,10 +145,9 @@ def _load(text: str, code: str) -> Any:
         raise TestSendError(code, str(err)) from err
 
 
-def render_call(hass: HomeAssistant, text: str, variables: str = "") -> dict[str, Any]:
-    """The `notify` input of a pasted call. It may be the data alone or a whole action step
-    (`action: heads_up.notify` with `data`). Templates are rendered with the given variables,
-    for example a sample `trigger`, as Home Assistant would render them before the call."""
+def parse_call(text: str) -> dict[str, Any]:
+    """The `notify` input of a call in YAML, templates not rendered. It may be the data alone or
+    a whole action step (`action: heads_up.notify` with `data`)."""
     call = _load(text, "yaml_invalid")
     if isinstance(call, list) and len(call) == 1:
         call = call[0]
@@ -150,6 +157,30 @@ def render_call(hass: HomeAssistant, text: str, variables: str = "") -> dict[str
         if call.get("action", call.get("service")) != f"{DOMAIN}.notify":
             raise TestSendError("not_notify", "Only heads_up.notify can be tested")
         call = call.get("data") or {}
+    if not isinstance(call, dict):
+        raise TestSendError("call_not_found", "The text is not a call")
+    return call
+
+
+def parse_rule(text: str) -> dict[str, Any]:
+    """A watch rule written as YAML: a mapping with the keys of the rule form (D-260). Only the
+    shape is checked here; saving runs the rule flow, which checks the rest."""
+    rule = _load(text, "yaml_invalid")
+    if not isinstance(rule, dict):
+        raise TestSendError("rule_not_found", "The text is not a watch rule")
+    # YAML 1.1 reads an unquoted on or off as a boolean; an entity state means the word.
+    state = rule.get("state")
+    if isinstance(state, bool | str):
+        state = [state]
+    if isinstance(state, list):
+        rule["state"] = [("on" if v else "off") if isinstance(v, bool) else v for v in state]
+    return rule
+
+
+def render_call(hass: HomeAssistant, text: str, variables: str = "") -> dict[str, Any]:
+    """The `notify` input of a pasted call with its templates rendered with the given variables,
+    for example a sample `trigger`, as Home Assistant would render them before the call."""
+    call = parse_call(text)
     scope = _load(variables, "variables_invalid") if variables.strip() else {}
     if not isinstance(scope, dict):
         raise TestSendError("variables_invalid", "The sample values are not a mapping")

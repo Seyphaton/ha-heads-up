@@ -60,6 +60,7 @@ export const STRINGS = {
   dismiss: "Dismiss",
   snooze: "Snooze",
   acknowledge: "Acknowledge",
+  progress: "Progress",
   acknowledged: "Acknowledged",
   acknowledged_by: "Acknowledged by {name}",
   acknowledged_one_other: "Acknowledged by {name} and 1 other",
@@ -132,6 +133,7 @@ export const TRANSLATIONS = {
     "acknowledged": "Bestätigt",
     "acknowledged_by": "Bestätigt von {name}",
     "acknowledged_one_other": "Bestätigt von {name} und 1 weiterer Person",
+    "progress": "Fortschritt",
     "acknowledged_others": "Bestätigt von {name} und {n} weiteren",
     "snooze_choices": "Zurückstellen für",
     "snooze_other": "Andere…",
@@ -202,6 +204,7 @@ export const TRANSLATIONS = {
     "acknowledged": "Confirmé",
     "acknowledged_by": "Confirmé par {name}",
     "acknowledged_one_other": "Confirmé par {name} et 1 autre",
+    "progress": "Progression",
     "acknowledged_others": "Confirmé par {name} et {n} autres",
     "snooze_choices": "Reporter de",
     "snooze_other": "Autre…",
@@ -272,6 +275,7 @@ export const TRANSLATIONS = {
     "acknowledged": "Confirmado",
     "acknowledged_by": "Confirmado por {name}",
     "acknowledged_one_other": "Confirmado por {name} y 1 más",
+    "progress": "Progreso",
     "acknowledged_others": "Confirmado por {name} y {n} más",
     "snooze_choices": "Posponer",
     "snooze_other": "Otro…",
@@ -528,10 +532,12 @@ export function emptyView(config) {
   return config.show_empty ? "blank" : "hidden";
 }
 
-// The color of a banner: the card's own `colors` (an older card), else the color of the
-// Severities page that the server sends, else the theme color of the severity (D-222).
+// The color of a banner: the message's own `color` (D-258), else the card's own `colors` (an
+// older card), else the color of the Severities page that the server sends, else the theme color
+// of the severity (D-222).
 export function severityColor(banner, cardColors = {}) {
   const usable = (value) => typeof value === "string" && value.trim() !== "" && validColor(value);
+  if (/^#[0-9a-fA-F]{6}$/.test(banner.color ?? "")) return banner.color; // checked by the server
   const own = cardColors?.[banner.severity];
   if (usable(own)) return own;
   if (usable(banner.severity_color)) return banner.severity_color;
@@ -693,6 +699,10 @@ const STYLE = `
   .c-icon .label { color: var(--accent); }
   .time { color: var(--secondary-text-color); white-space: nowrap; }
   .title { font-weight: 500; }
+  .progress { height: 6px; margin-top: 8px; border-radius: 3px; overflow: hidden; background: var(--divider-color); }
+  .progress .fill { height: 100%; background: var(--accent); transition: width 0.3s; }
+  .subtitle { font-size: 0.9em; color: var(--secondary-text-color); }
+  .sender { flex: none; width: 24px; height: 24px; margin-top: 2px; border-radius: 50%; object-fit: cover; }
   .message { white-space: pre-line; }
   .image { display: block; max-width: 100%; max-height: 180px; margin-top: 8px; border-radius: 8px; object-fit: cover; }
   .ack-line { font-size: 12px; color: var(--secondary-text-color); margin-top: 2px; }
@@ -702,6 +712,7 @@ const STYLE = `
   }
   .compact .banner { align-items: center; gap: 8px; padding: 0 0 0 10px; min-height: 40px; }
   .compact .banner ha-icon { margin-top: 0; --mdc-icon-size: 20px; }
+  .compact .sender { margin-top: 0; width: 20px; height: 20px; }
   .compact .text {
     display: flex; align-items: baseline; gap: 8px; white-space: nowrap; overflow: hidden;
   }
@@ -755,6 +766,26 @@ function el(tag, className, text) {
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
+}
+
+// A bar for a progress value in percent (D-256, D-258); the value is clamped to 0..100.
+// A progress value as a whole number from 0 to 100 (D-256).
+export function clampPercent(value) {
+  return Math.min(100, Math.max(0, Math.round(value)));
+}
+
+export function progressBar(value) {
+  const percent = clampPercent(value);
+  const bar = el("div", "progress");
+  bar.setAttribute("role", "progressbar");
+  bar.setAttribute("aria-label", STRINGS.progress);
+  bar.setAttribute("aria-valuemin", "0");
+  bar.setAttribute("aria-valuemax", "100");
+  bar.setAttribute("aria-valuenow", String(percent));
+  const fill = el("div", "fill");
+  fill.style.width = `${percent}%`;
+  bar.append(fill);
+  return bar;
 }
 
 function validColor(value) {
@@ -1127,6 +1158,18 @@ class HeadsUpCard extends Base {
     icon.setAttribute("icon", banner.icon);
     icon.setAttribute("aria-hidden", "true");
     node.append(icon);
+    // A sender picture replaces the icon once it has loaded; until then, or if it fails, the icon
+    // stays (D-258).
+    if (banner.icon_url) {
+      imageSource(this._hass, banner.icon_url)
+        .then((src) => {
+          const sender = el("img", "sender");
+          sender.alt = "";
+          sender.addEventListener("load", () => icon.replaceWith(sender));
+          sender.src = src;
+        })
+        .catch(() => {});
+    }
 
     const text = el("div", "text");
     const meta = el("div", "meta");
@@ -1140,7 +1183,9 @@ class HeadsUpCard extends Base {
     }
     text.append(meta);
     if (banner.title) text.append(el("div", "title", banner.title));
+    if (banner.subtitle && cfg.layout !== "compact") text.append(el("div", "subtitle", banner.subtitle));
     text.append(el("div", "message", banner.message));
+    if (Number.isFinite(banner.progress_value) && cfg.layout !== "compact") text.append(progressBar(banner.progress_value));
     if (banner.image && cfg.layout !== "compact") {
       const picture = el("img", "image");
       picture.alt = "";

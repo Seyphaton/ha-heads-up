@@ -37,6 +37,68 @@ data:
 
 The shortcut `heads_up.push` does the same with `audience` and no `channels`. See [Push notifications](configuration.md#push).
 
+### A push with its own look
+
+The push takes the icon and color of its severity. Set `icon`, `color`, `subtitle` and `icon_url` to change them for one message. `icon` is a symbol such as `mdi:door`: the status bar icon on Android and the sender symbol on iOS. `icon_url` is a picture, such as a logo, that replaces the symbol on the banner, the popup and an iOS push. `color` is `#rrggbb`; the action form in Home Assistant offers a color picker.
+
+```yaml
+action: heads_up.notify
+data:
+  id: front_door
+  title: Front door
+  subtitle: Doorbell
+  message: Someone is at the door.
+  severity: info
+  channels: [push]
+  audience: binary_sensor.heads_up_audience_at_home
+  icon: mdi:doorbell
+  color: "#03a9f4"
+  icon_url: /local/icons/doorbell.png
+```
+
+The subtitle and `icon_url` go out on a push only when the lock screen setting is `full`.
+
+### A progress bar
+
+The bar follows a number and shows on the banner, in the popup and on the push. The push is updated in place: a Live Update on Android 16 and later and a Live Activity on iOS 17.2 and later. `min` and `max` scale the value to 0 to 100 percent (defaults 0 and 100).
+
+```yaml
+action: heads_up.notify
+data:
+  id: print_job
+  title: 3D print
+  message: Printing the bracket
+  severity: info
+  channels: [banner, push]
+  audience: binary_sensor.heads_up_audience_at_home
+  progress:
+    entity_id: sensor.printer_progress
+    min: 0
+    max: 100
+  condition:
+    entity_id: binary_sensor.printer_printing
+    state: "on"
+```
+
+The message ends when the printer stops, and the push is cleared. The push is updated at most every 5 seconds; `interval` under `progress` (1 to 300) or the push channel setting changes that.
+
+To move the bar yourself, give a number instead of an entity and call the action again with the same `id`:
+
+```yaml
+action: heads_up.notify
+data:
+  id: backup
+  title: Backup
+  message: Copying files
+  severity: info
+  channels: [banner, push]
+  audience: binary_sensor.heads_up_audience_at_home
+  progress:
+    value: 45
+```
+
+`auto_update: false` next to an `entity_id` does the same with the entity's value at the time of the call. The iOS Live Activity shows the title, message, bar and icon. It has no image and no buttons, so put those on a message without `progress`.
+
 ### A spoken message
 
 ```yaml

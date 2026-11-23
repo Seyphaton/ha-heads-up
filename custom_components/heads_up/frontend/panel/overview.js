@@ -1993,8 +1993,8 @@ export function mount(container, ctx) {
       guard(t.status, statusCard),
       guard(t.sc_label, shortcutRow),
       guard(t.attention, summaryBlock),
-      guard(t.reach_title, reachCard),
       ...guardList(t.activity, () => activityCards(intro)),
+      guard(t.reach_title, reachCard),
     );
     // A redraw must not take the keyboard focus from an open card.
     if (focused) root.querySelector(`[data-sum="${focused}"]`)?.focus({ preventScroll: true });
