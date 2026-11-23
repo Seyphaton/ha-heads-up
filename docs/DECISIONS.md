@@ -1627,5 +1627,5 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 
 ## D-254 Release 2.0.0 (2026-11-22, maintainer)
 - Context: `2.0.0-beta.6` is tagged and pushed (D-253). The maintainer asked to create the tag 2.0.0 and push it.
-- Decision (maintainer, "create a new tag 2.0.0 and push"): CHANGELOG `[Unreleased]` becomes `[2.0.0] - 2026-11-22`; the manifest version is `2.0.0`; `release/2.0` is merged into `main` (fast-forward); `release/2.0`, `main` and the tag `v2.0.0` are pushed. Checks before the tag: `make check`, `make hassfest` and `make dev-smoke` green. Not run: the upgrade from a 1.1 setup on the dev instance (RELEASE step 3) and the real-device checks in `docs/OPEN_QUESTIONS.md`, which stay open. The GitHub release is the maintainer's step.
+- Decision (maintainer, "create a new tag 2.0.0 and push"): CHANGELOG `[Unreleased]` becomes `[2.0.0] - 2026-11-22`; the manifest version is `2.0.0`; `release/2.0` is merged into `main` (fast-forward); `release/2.0`, `main` and the tag `v2.0.0` are pushed. Checks before the tag: `make check`, `make hassfest` and `make dev-smoke` green. Not run: the upgrade from a 1.1 setup on the dev instance (RELEASE step 3) and the real-device checks in `docs/OPEN_QUESTIONS.md`, which stay open. The maintainer published the GitHub release on 2026-11-23.
 
