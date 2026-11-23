@@ -475,6 +475,7 @@ def ws_severity_display(
         vol.Optional("popup_styles"): {str: str},
         vol.Optional("push_lockscreen"): str,
         vol.Optional("push_sticky"): bool,
+        vol.Optional("push_severity_look"): bool,
         vol.Optional("push_channel_id"): str,
         vol.Optional("speak_language"): vol.All(str, vol.Length(max=20)),
         vol.Optional("mail_service"): str,

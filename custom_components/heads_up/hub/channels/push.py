@@ -10,6 +10,7 @@ button id carries message, recipient and action; nothing else in the event is tr
 from __future__ import annotations
 
 import logging
+import re
 import time
 from typing import TYPE_CHECKING, Any
 
@@ -17,16 +18,21 @@ from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError, ServiceNotFound
 
 from ...const import (
+    DEFAULT_ICONS,
     DEFAULT_OPTIONS,
     OPT_INSTALL_TOKEN,
     OPT_PUSH_CHANNEL_ID,
     OPT_PUSH_LEVELS,
     OPT_PUSH_LOCKSCREEN,
+    OPT_PUSH_SEVERITY_LOOK,
     OPT_PUSH_STICKY,
+    OPT_SEVERITY_DISPLAY,
 )
 from ...models import Banner
 from ..recipients import notify_service, registration_data
 from .base import Capabilities, Outcome, Result, Target
+
+_HEX = re.compile(r"^#[0-9a-fA-F]{6}$")
 
 if TYPE_CHECKING:
     from ...manager import BannerManager
@@ -153,10 +159,11 @@ class PushChannel:
         # Companion keys, one neutral field each (D-255, N-112). The icon and the color are not
         # text, so they go out under every lock screen mode; the sender icon URL and the subtitle
         # can show what the lock screen setting hides, so they follow `image`.
-        if message.icon:
-            data["notification_icon"] = message.icon
-        if message.color:
-            data["color"] = message.color
+        icon, color = self._look(message)
+        if icon:
+            data["notification_icon"] = icon
+        if color:
+            data["color"] = color
         if message.icon_url:
             if full:
                 data["icon_url"] = message.icon_url
@@ -176,6 +183,20 @@ class PushChannel:
         if title:
             out["title"] = title
         return out, note
+
+    def _look(self, message: Banner) -> tuple[str | None, str | None]:
+        """Icon and color of the push: the message's own, else the severity's when the option is
+        on (D-255). The color needs `#rrggbb`: iOS takes no names and the card's theme variables
+        have no value here, so a severity without a hex color sends none."""
+        icon, color = message.icon, message.color
+        if self._opt(OPT_PUSH_SEVERITY_LOOK):
+            shown = (self._manager.options.get(OPT_SEVERITY_DISPLAY) or {}).get(
+                message.severity
+            ) or {}
+            icon = icon or shown.get("icon") or DEFAULT_ICONS[message.severity]
+            if not color and _HEX.match(shown.get("color") or ""):
+                color = shown["color"]
+        return icon, color
 
     def _lockscreen(self, message: Banner) -> tuple[str | None, str]:
         mode = self._opt(OPT_PUSH_LOCKSCREEN)

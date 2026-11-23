@@ -30,6 +30,7 @@ The panel's Channels page sets the options below, except the push level and the 
 | `push_lockscreen` | `full` | `full` shows title and text. `title_only` shows the title and a fixed line. `generic` shows "Heads Up" and a fixed line. |
 | `push_channel_id` | `heads_up` | Prefix of the Android notification channel. |
 | `push_sticky` | off | Keeps the notification after a tap (Android). |
+| `push_severity_look` | on | A push uses the icon and color of its severity. Off: only the `icon` and `color` of the message. |
 | `popup_styles` | corner card (bottom right) for passive, info and warning, centered window for critical | Per severity: `card` (bottom right), `card_bottom_left`, `card_top_right`, `card_top_left`, `modal` (centered window) or `off`. The Channels page words them as the corner or the centered window. |
 | `speak_language` | the Home Assistant language | Language of the spoken text. The Channels page offers the languages of the text-to-speech engine that speech uses; without a chosen or single engine you type a code such as `en-US`. Assist satellites speak in the language of their own voice assistant. |
 | `mail_service`, `mail_global_address`, `mail_subject`, `mail_body` | none, none, `{severity}: {title}`, `{message}` | The mail channel, see Mail below. |
@@ -61,8 +62,8 @@ Every device of a person gets the notification. A person with no usable device, 
 | Android channel | `heads_up_<level>`; the level critical uses the channel `alarm_stream`, which plays from the alarm stream. Android keeps the importance a channel had when it was first used. |
 | Tap | A `navigate` tap action opens its `navigation_path`, a `url` tap action its `url_path`. |
 | Image | The message's `image` as `data.image`. Left out when the lock screen setting is not `full` (`image_hidden`). Camera proxy paths work on Android only. |
-| Status bar icon | The message's `icon` as `data.notification_icon`. On Android it is the status bar icon. On iOS it is the sender icon, which needs a title: a message without one is sent with the title `Heads Up`. |
-| Color | The message's `color` as `data.color`. Android colors the notification; iOS uses it as the background of the icon. |
+| Status bar icon | The message's `icon`, else the icon of its severity (`push_severity_look`), as `data.notification_icon`. On Android it is the status bar icon. On iOS it is the sender icon, which needs a title: a message without one is sent with the title `Heads Up`. |
+| Color | The message's `color`, else a `#rrggbb` color of its severity from the Severities page, as `data.color`. Android colors the notification; iOS uses it as the background of the icon. |
 | Sender icon | The message's `icon_url` as `data.icon_url`. Left out when the lock screen setting is not `full` (`icon_url_hidden`). |
 | Subtitle | The message's `subtitle` as `data.subtitle` on iOS and `data.subject` on Android. Left out when the lock screen setting is not `full` (`subtitle_hidden`). |
 | Buttons | The message's own `actions`, then Snooze when the message is snoozable, then Dismiss when it is dismissible. Android shows at most 3 buttons and iOS 10. Extra buttons are left out (`buttons_clipped:<n>`): Acknowledge and Dismiss are kept first, then the message's own buttons in order, and Snooze goes first. |

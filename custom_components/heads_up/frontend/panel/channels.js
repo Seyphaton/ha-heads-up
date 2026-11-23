@@ -42,6 +42,8 @@ export const STRINGS = {
     lockscreens: { full: "Title and text", title_only: "Title only", generic: "Generic text" },
     buttons_note: "Buttons: Snooze and Dismiss. Acknowledge is added when an escalation or reminder policy applies.",
     sticky: "Keep the notification after a tap (Android)",
+    severity_look: "Use severity icon & color for push notifications",
+    severity_look_note: "Uses the severity's icon and color for each push notification. A message can set its own color and icon. Turned off, a push uses the Home Assistant icon.",
     channel_id: "Android channel name",
     channel_id_note: "Android keeps the first importance of a channel, so each level has its own channel named <name>_<level>.",
     language: "Spoken language",
@@ -108,6 +110,8 @@ export const STRINGS = {
     lockscreens: { full: "Titel und Text", title_only: "Nur Titel", generic: "Allgemeiner Text" },
     buttons_note: "Schaltflächen: Später und Schließen. Bestätigen kommt hinzu, wenn eine Eskalations- oder Erinnerungsrichtlinie gilt.",
     sticky: "Benachrichtigung nach einem Tippen behalten (Android)",
+    severity_look: "Symbol und Farbe der Dringlichkeit für Push verwenden",
+    severity_look_note: "Verwendet für jede Push-Benachrichtigung Symbol und Farbe der Dringlichkeit. Eine Nachricht kann eine eigene Farbe und ein eigenes Symbol setzen. Ausgeschaltet nutzt ein Push das Home-Assistant-Symbol.",
     channel_id: "Android-Kanalname",
     channel_id_note: "Android behält die erste Wichtigkeit eines Kanals, darum hat jede Stufe einen eigenen Kanal namens <Name>_<Stufe>.",
     language: "Gesprochene Sprache",
@@ -174,6 +178,8 @@ export const STRINGS = {
     lockscreens: { full: "Titre et texte", title_only: "Titre seulement", generic: "Texte générique" },
     buttons_note: "Boutons : Reporter et Fermer. Confirmer s'ajoute quand une politique d'escalade ou de rappel s'applique.",
     sticky: "Garder la notification après un appui (Android)",
+    severity_look: "Utiliser l'icône et la couleur de la gravité pour les push",
+    severity_look_note: "Utilise l'icône et la couleur de la gravité pour chaque notification push. Un message peut définir sa propre couleur et sa propre icône. Désactivé, un push utilise l'icône de Home Assistant.",
     channel_id: "Nom du canal Android",
     channel_id_note: "Android garde la première importance d'un canal, donc chaque niveau a son propre canal nommé <nom>_<niveau>.",
     language: "Langue parlée",
@@ -240,6 +246,8 @@ export const STRINGS = {
     lockscreens: { full: "Título y texto", title_only: "Solo el título", generic: "Texto genérico" },
     buttons_note: "Botones: Posponer y Descartar. Confirmar se añade cuando se aplica una política de escalado o recordatorio.",
     sticky: "Mantener la notificación tras tocarla (Android)",
+    severity_look: "Usar el icono y el color de la gravedad en los push",
+    severity_look_note: "Usa el icono y el color de la gravedad en cada notificación push. Un mensaje puede definir su propio color e icono. Desactivado, un push usa el icono de Home Assistant.",
     channel_id: "Nombre del canal de Android",
     channel_id_note: "Android conserva la primera importancia de un canal, así que cada nivel tiene su propio canal llamado <nombre>_<nivel>.",
     language: "Idioma hablado",
@@ -275,7 +283,7 @@ const LOCKSCREENS = ["full", "title_only", "generic"];
 // The channels the page lists, the settings each one owns and its icon.
 const CHANNELS = [
   { key: "banner", icon: "mdi:card-text-outline", keys: [], settings: ["default_snooze_options"] },
-  { key: "push", icon: "mdi:cellphone-message", keys: ["push_lockscreen", "push_channel_id", "push_sticky"], settings: ["quick_snooze_minutes"] },
+  { key: "push", icon: "mdi:cellphone-message", keys: ["push_lockscreen", "push_channel_id", "push_sticky", "push_severity_look"], settings: ["quick_snooze_minutes"] },
   { key: "popup", icon: "mdi:dock-window", keys: [], settings: ["quick_snooze_minutes"] },
   { key: "speech", icon: "mdi:account-voice", keys: ["speak_language"], settings: [] },
   { key: "persistent", icon: "mdi:bell-outline", keys: [], settings: [] },
@@ -503,6 +511,7 @@ export function mount(container, ctx) {
       box.append(ui.field(t.lockscreen, ui.selectInput(LOCKSCREENS.map((l) => ({ value: l, label: t.lockscreens[l] })), values.push_lockscreen, (v) => { values.push_lockscreen = v; paint(); })));
       box.append(ui.field(t.channel_id, ui.textInput(values.push_channel_id, (v) => { values.push_channel_id = v; paint(); }, { spellcheck: false, autocapitalize: "off" })));
       box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.sticky, values.push_sticky, (on) => { values.push_sticky = on; paint(); })]));
+      box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.severity_look, values.push_severity_look, (on) => { values.push_severity_look = on; paint(); })]), hint(t.severity_look_note));
       box.append(hint(t.channel_id_note), hint(t.buttons_note));
     } else if (key === "speech") {
       if (languages?.length) {

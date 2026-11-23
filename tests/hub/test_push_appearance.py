@@ -36,6 +36,7 @@ async def test_icon_and_color_become_the_companion_keys(
 async def test_a_push_without_them_has_no_such_keys(
     hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
 ) -> None:
+    entry.runtime_data.options["push_severity_look"] = False
     await push(hass, entry)
     data = sent(anna)["data"]
     assert not {"notification_icon", "color", "icon_url", "subtitle", "subject"} & set(data)
@@ -154,3 +155,55 @@ async def test_the_rule_form_checks_and_trims_the_fields(
     assert subentry.data["color"] == "#03A9F4"
     assert subentry.data["subtitle"] == "Front"
     assert subentry.data["icon_url"] == "/a.png"
+
+
+async def test_a_push_uses_the_icon_of_its_severity_by_default(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    await push(hass, entry, severity="critical")
+    data = sent(anna)["data"]
+    assert data["notification_icon"] == "mdi:alert-octagon"
+    assert "color" not in data  # the built-in severity colors are theme variables, no hex
+
+
+async def test_the_icon_and_hex_color_of_the_severities_page_are_used(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    entry.runtime_data.options["severity_display"] = {
+        "warning": {"icon": "mdi:lamp", "color": "#ff9800"}
+    }
+    await push(hass, entry, severity="warning")
+    data = sent(anna)["data"]
+    assert (data["notification_icon"], data["color"]) == ("mdi:lamp", "#ff9800")
+
+
+async def test_a_severity_color_that_is_not_hex_is_not_sent(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    entry.runtime_data.options["severity_display"] = {"warning": {"color": "var(--x)"}}
+    await push(hass, entry, severity="warning")
+    assert "color" not in sent(anna)["data"]
+
+
+async def test_the_message_icon_and_color_win_over_the_severity(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    entry.runtime_data.options["severity_display"] = {
+        "warning": {"icon": "mdi:lamp", "color": "#ff9800"}
+    }
+    await push(hass, entry, severity="warning", icon="mdi:door", color="#112233")
+    data = sent(anna)["data"]
+    assert (data["notification_icon"], data["color"]) == ("mdi:door", "#112233")
+
+
+async def test_with_the_option_off_only_the_message_values_are_sent(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    entry.runtime_data.options["push_severity_look"] = False
+    entry.runtime_data.options["severity_display"] = {
+        "warning": {"icon": "mdi:lamp", "color": "#ff9800"}
+    }
+    await push(hass, entry, severity="warning", icon="mdi:door")
+    data = sent(anna)["data"]
+    assert data["notification_icon"] == "mdi:door"
+    assert "color" not in data

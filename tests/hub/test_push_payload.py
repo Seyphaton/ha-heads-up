@@ -55,6 +55,7 @@ async def test_a_push_has_title_message_and_one_tag_per_message(
 async def test_a_message_without_a_title_sends_none(
     hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
 ) -> None:
+    entry.runtime_data.options["push_severity_look"] = False  # an icon would add a title on iOS
     await push(hass, entry)
     assert "title" not in sent(anna)
 
