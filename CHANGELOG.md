@@ -2,6 +2,23 @@
 
 All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions: [SemVer](https://semver.org/). Only releases are listed; the 1.0.0 pre-releases are summarized under 1.0.0.
 
+## [Unreleased]
+
+### Before you upgrade
+
+- Every push now carries an icon and, when the Severities page holds a `#rrggbb` color, a color: the icon and color of its severity. On Android the icon is the status bar icon. On iOS a push with an icon is a communication notification, and a message without a title is sent with the title `Heads Up`. To keep the Home Assistant icon, switch off "Use severity icon & color for push notifications" on the Channels page.
+
+### Added
+
+- `color`, `subtitle` and `icon_url` (a sender icon) on `notify`, `create_banner`, `push` and watch rules. The banner and the popup show the color, the subtitle under the title and the sender picture in place of the icon. On a push they become the Companion keys for Android and iOS, so one field serves both. The subtitle and the sender icon go out only when the lock screen setting is `full`.
+- `icon` is also the push's status bar icon on Android and its sender icon on iOS.
+- `progress` (an entity, with `min` and `max`) on `notify`, `create_banner` and watch rules: a progress bar on the banner and the popup that follows the entity, and on a push a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later) that is updated in place. Older devices show the plain message.
+- Channels page: "Use severity icon & color for push notifications", on by default.
+
+### Fixed
+
+- The help text of the mail subject showed an error in the action form.
+
 ## [2.0.0] - 2026-11-22
 
 ### Before you upgrade

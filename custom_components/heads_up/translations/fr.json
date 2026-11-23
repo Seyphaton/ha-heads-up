@@ -654,7 +654,7 @@
         },
         "mail_subject": {
           "name": "Objet du mail",
-          "description": "Objet du mail de ce message, à la place du modèle de la page Canaux. Variables : '{severity}', '{title}', '{message}', '{person}', '{person_id}', '{id}', '{tag}'. '{person}' est le nom du destinataire, et chaque destinataire reçoit son propre mail. Seulement avec le canal mail. Laissez la case décochée pour utiliser le modèle de la page Canaux."
+          "description": "Objet du mail de ce message, à la place du modèle de la page Canaux. Variables : severity, title, message, person, person_id, id, tag. person est le nom du destinataire, et chaque destinataire reçoit son propre mail. Seulement avec le canal mail. Laissez la case décochée pour utiliser le modèle de la page Canaux."
         },
         "mail_body": {
           "name": "Texte du mail",

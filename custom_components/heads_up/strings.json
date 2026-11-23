@@ -654,7 +654,7 @@
         },
         "mail_subject": {
           "name": "Mail subject",
-          "description": "Subject of this message's mail, instead of the template on the Channels page. Placeholders: '{severity}', '{title}', '{message}', '{person}', '{person_id}', '{id}', '{tag}'. '{person}' is the name of the recipient, and each recipient gets their own mail. Only used with the mail channel. Leave the checkbox unchecked to use the template from the Channels page."
+          "description": "Subject of this message's mail, instead of the template on the Channels page. Placeholders: severity, title, message, person, person_id, id, tag. person is the name of the recipient, and each recipient gets their own mail. Only used with the mail channel. Leave the checkbox unchecked to use the template from the Channels page."
         },
         "mail_body": {
           "name": "Mail text",
