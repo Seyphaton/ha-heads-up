@@ -52,17 +52,17 @@ The banner is on the dashboard for the people who are home, and each of them get
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
-| `channels` | list of channels | required | One or more of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, each at most once. |
+| `channels` | list of channels | required | One or more of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, `inbox`, each at most once. |
 | `dry_run` | boolean | `false` | `true`: nothing is sent, stored or recorded. The response is the plan: what each channel and recipient would get now, with the policies applied. See Response. |
 | `match_policies_automatically` | boolean | `true` | `true`: policies that match the severity or tags of the message apply automatically. `false`: only the manual policies in `policy` apply, and none if there is no manual policy. Manual policies always apply. |
 | `policy` | list of policy switches | none | Manual policies: they apply next to the automatic policies that match the severity and tag, whatever their own severities and tags say. Name a policy by the entity ID of its switch, for example `switch.heads_up_policy_quiet_hours`. The ID stays when you rename the policy. The policy editor shows it. A policy name as text is refused. A disabled policy is never used. In YAML `policy: none` does the same as `disable_automatic_policies: true` without a manual policy. |
-| `recipients` | list of persons | none | Who gets the message on every channel that takes people: banner, push, popup and mail. Give either `recipients` or `audience`. |
+| `recipients` | list of persons | none | Who gets the message on every channel that takes people: banner, push, popup, mail and inbox. Give either `recipients` or `audience`. |
 | `audience` | audience sensor | none | A group that gets the message on the same channels. Name it by the entity ID of its sensor, for example `binary_sensor.heads_up_audience_at_home`; the audience editor shows it. An audience name as text is refused. The group is worked out when the message is sent. |
 | `speakers` | list | none | Speakers, Assist satellites, speaker groups or areas for `speak`. Name a group by the entity ID of its sensor, for example `sensor.heads_up_group_ground_floor`, and an area by its area ID. Both stay when you rename the group or the area. Speech takes no audience. |
 
-`recipients` or `audience` gives the same people on every channel that takes people: banner, push, popup and mail. `speakers` is the target of speech. Give either `recipients` or `audience`, never both.
+`recipients` or `audience` gives the same people on every channel that takes people: banner, push, popup, mail and inbox. `speakers` is the target of speech. Give either `recipients` or `audience`, never both.
 
-- `push`, `popup` and `mail` need `recipients` or `audience`. Audience and recipient names are described in [Audiences and recipients](configuration.md#audiences).
+- `push`, `popup`, `mail` and `inbox` need `recipients` or `audience`. Audience and recipient names are described in [Audiences and recipients](configuration.md#audiences).
 - `speak` needs `speakers` (speakers, groups or areas). It takes no audience.
 - `persistent` takes no target. The notification bell is shared, so everyone sees the entry (see [Persistent notifications](configuration.md#persistent-notification)).
 - `banner` needs none. Without `recipients` or `audience`, every user sees the banner; with them, only those people see it. Recipients limit the banner to the users linked to those persons. An audience does the same with the persons it has when the call is made; a person who joins the audience later does not see a banner that already exists, and an empty audience gives a banner nobody sees.
@@ -486,7 +486,7 @@ Removes messages from every channel: the banner, the push on the phones, the pop
 | `id` | text | none | The `id` of the message to remove. |
 | `tag` | text | none | Removes messages with this tag. |
 | `severity` | list of `passive`, `info`, `warning`, `critical` | none | Removes messages with one of these severities. |
-| `channels` | list of `banner`, `push`, `popup`, `speak`, `persistent`, `mail` | none | Removes messages whose call named at least one of these channels. A channel a policy added is not counted. |
+| `channels` | list of `banner`, `push`, `popup`, `speak`, `persistent`, `mail`, `inbox` | none | Removes messages whose call named at least one of these channels. A channel a policy added is not counted. |
 | `all` | boolean | `false` | `true` removes every message. It cannot be combined with another field. |
 
 Fill in at least one field, or set `all: true`. A call without any is refused and removes nothing, so a template that comes out empty cannot clear everything.

@@ -36,6 +36,7 @@ class Target:
     quiet: bool = False  # set by a Quiet hours policy (H4b): passive, no sound
     quiet_by: str = ""  # the Quiet hours policy that made it quiet
     ack_button: bool = False  # set when an escalation or reminder policy applies (H4a)
+    origin: str = "message"  # message, escalation, reminder, fallback or summary (the chain step)
 
 
 @dataclass(frozen=True, slots=True)

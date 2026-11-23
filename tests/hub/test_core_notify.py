@@ -346,7 +346,7 @@ async def test_a_policy_is_named_by_its_switch_and_a_close_id_gets_a_suggestion(
         ({"message": "x"}, "The field channels is required."),
         (
             {"message": "x", "channels": ["fax"]},
-            "channels[0] must be one of: banner, mail, persistent, popup, push, speak.",
+            "channels[0] must be one of: banner, inbox, mail, persistent, popup, push, speak.",
         ),
         (
             {"message": "x" * 1001, "channels": ["banner"]},

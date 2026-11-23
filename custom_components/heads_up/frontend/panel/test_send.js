@@ -465,8 +465,8 @@ export const STRINGS = {
 
 const SEVERITIES = ["passive", "info", "warning", "critical"];
 const SNOOZE_MINUTES = [5, 15, 30, 60, 120, 240, 480, 1440];
-const CHANNELS = ["banner", "push", "popup", "speak", "persistent", "mail"];
-const NEEDS_TARGET = ["push", "popup", "speak", "mail"];
+const CHANNELS = ["banner", "push", "popup", "speak", "persistent", "mail", "inbox"];
+const NEEDS_TARGET = ["push", "popup", "speak", "mail", "inbox"];
 
 export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value ?? ""), template);

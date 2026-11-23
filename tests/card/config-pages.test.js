@@ -35,6 +35,7 @@ describe("Channels overview", () => {
     expect(summaryText("speech", { speak_language: "" }, t)).toBe("Home Assistant language");
     expect(summaryText("mail", { mail_service: "" }, t)).toBe("Off");
     expect(summaryText("persistent", {}, t)).toBe("No settings");
+    expect(summaryText("inbox", {}, t)).toBe("No settings");
     expect(summaryText("mail", { mail_service: "smtp", mail_global_address: "a@example.org" }, t)).toBe("notify.smtp · global address a@example.org");
   });
 

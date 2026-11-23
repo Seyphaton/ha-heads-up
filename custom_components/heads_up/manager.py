@@ -1064,7 +1064,13 @@ class BannerManager:
             reason = Reason.EXPIRED
         elif event == EVENT_DISMISSED:
             reason = Reason.DISMISSED_GLOBAL
-        self._emit(Kind.HIDDEN, banner, _REASONS.get(reason or "", Reason.CLEARED))
+        self._emit(
+            Kind.HIDDEN,
+            banner,
+            _REASONS.get(reason or "", Reason.CLEARED),
+            # Who dismissed it for everyone: the inbox reads that person's item (D-264).
+            extra.get("user_id") if event == EVENT_DISMISSED else None,
+        )
 
     def _start_wait(self, banner: Banner) -> None:
         assert banner.condition is not None

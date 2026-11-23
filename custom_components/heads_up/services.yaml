@@ -154,6 +154,7 @@ clear_notifications:
           - speak
           - persistent
           - mail
+          - inbox
           multiple: true
     all:
       default: false
@@ -175,6 +176,7 @@ notify:
           - speak
           - persistent
           - mail
+          - inbox
           multiple: true
           translation_key: channel
     match_policies_automatically:

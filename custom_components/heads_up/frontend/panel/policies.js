@@ -40,7 +40,7 @@ export const STRINGS = {
     severities: "Severities (none selected: any)",
     tags: "Tags, comma separated (empty: any)",
     severity_names: { passive: "Passive", info: "Info", warning: "Warning", critical: "Critical" },
-    channel_names: { push: "Push", popup: "Popup", speak: "Speak", persistent: "Persistent Notification", mail: "Mail" },
+    channel_names: { push: "Push", popup: "Popup", speak: "Speak", persistent: "Persistent Notification", mail: "Mail", inbox: "Inbox" },
     after: "Escalate after (minutes)",
     channels: "Channels",
     channels_reminder: "Limit to these channels (none selected: all)",
@@ -287,7 +287,7 @@ export const STRINGS = {
     severities: "Schweregrade (keiner gewählt: alle)",
     tags: "Tags, durch Komma getrennt (leer: alle)",
     severity_names: { passive: "Passiv", info: "Info", warning: "Warnung", critical: "Kritisch" },
-    channel_names: { push: "Push", popup: "Popup", speak: "Sprache", persistent: "Persistente Benachrichtigung", mail: "E-Mail" },
+    channel_names: { push: "Push", popup: "Popup", speak: "Sprache", persistent: "Persistente Benachrichtigung", mail: "E-Mail", inbox: "Posteingang" },
     after: "Eskalieren nach (Minuten)",
     channels: "Kanäle",
     channels_reminder: "Auf diese Kanäle beschränken (keiner gewählt: alle)",
@@ -534,7 +534,7 @@ export const STRINGS = {
     severities: "Gravités (aucune choisie : toutes)",
     tags: "Étiquettes, séparées par des virgules (vide : toutes)",
     severity_names: { passive: "Passif", info: "Info", warning: "Avertissement", critical: "Critique" },
-    channel_names: { push: "Push", popup: "Fenêtre", speak: "Voix", persistent: "Notification persistante", mail: "Courriel" },
+    channel_names: { push: "Push", popup: "Fenêtre", speak: "Voix", persistent: "Notification persistante", mail: "Courriel", inbox: "Boîte de réception" },
     after: "Escalader après (minutes)",
     channels: "Canaux",
     channels_reminder: "Limiter à ces canaux (aucun choisi : tous)",
@@ -781,7 +781,7 @@ export const STRINGS = {
     severities: "Gravedades (ninguna elegida: todas)",
     tags: "Etiquetas, separadas por comas (vacío: todas)",
     severity_names: { passive: "Pasivo", info: "Info", warning: "Aviso", critical: "Crítico" },
-    channel_names: { push: "Push", popup: "Ventana", speak: "Voz", persistent: "Notificación persistente", mail: "Correo" },
+    channel_names: { push: "Push", popup: "Ventana", speak: "Voz", persistent: "Notificación persistente", mail: "Correo", inbox: "Bandeja de entrada" },
     after: "Escalar tras (minutos)",
     channels: "Canales",
     channels_reminder: "Limitar a estos canales (ninguno elegido: todos)",
@@ -1122,8 +1122,8 @@ const PRESENCE_CHANNELS = ["push", "popup", "mail", "speak"];
 const PEOPLE_CHANNELS = ["push", "popup", "mail"];
 const SEVERITIES = ["passive", "info", "warning", "critical"];
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
-const POLICY_CHANNELS = ["push", "popup", "speak", "persistent", "mail"];
-const TARGET_CHANNELS = ["push", "popup", "speak", "mail"];
+const POLICY_CHANNELS = ["push", "popup", "speak", "persistent", "mail", "inbox"];
+const TARGET_CHANNELS = ["push", "popup", "speak", "mail", "inbox"];
 
 export function fill(template, params) {
   return Object.entries(params).reduce((text, [key, value]) => text.replace(`{${key}}`, value ?? ""), template);
@@ -1181,6 +1181,8 @@ export function blankValues(type = "escalation") {
     push_recipients: [],
     popup_audience: "",
     popup_recipients: [],
+    inbox_audience: "",
+    inbox_recipients: [],
     speak_recipients: [],
     people_audience: "",
     people_recipients: [],

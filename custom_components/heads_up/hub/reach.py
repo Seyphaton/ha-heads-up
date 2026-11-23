@@ -195,7 +195,7 @@ async def reach(hass: HomeAssistant, hub: HubEngine, options: Mapping[str, Any])
     now = dt_util.utcnow()
     speakers = speaker_entities(hass)
     targets: dict[str, dict[str, Any]] = {
-        channel: {"audience": EVERYONE} for channel in ("push", "popup", "mail")
+        channel: {"audience": EVERYONE} for channel in ("push", "popup", "mail", "inbox")
     }
     targets[SPEAK] = {"recipients": speakers}
     cells: dict[str, dict[str, Any]] = {channel: {} for channel in CHANNELS}

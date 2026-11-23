@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from ...const import CHANNEL_BANNER, HOLD_QUIET, POLICY_CHANNELS, WEEKDAYS
+from ...const import CHANNEL_BANNER, CHANNEL_INBOX, HOLD_QUIET, POLICY_CHANNELS, WEEKDAYS
 from . import clock
 from .chain import Hold, Skip, Step
 from .models import Policy
@@ -140,5 +140,9 @@ class QuietHoursStage:
             last = max(waits, key=lambda w: w[1] or datetime.max.replace(tzinfo=UTC))[0].name
             return Hold("quiet_hours", HOLD_QUIET, dt_util.as_utc(until) if until else None, last)
         if "quiet" in actions:
+            if step.channel == CHANNEL_INBOX:
+                return (
+                    step  # quiet means no sound; an inbox item has none (wait and drop still apply)
+                )
             return replace(step, target=replace(step.target, quiet=True, quiet_by=first("quiet")))
         return step

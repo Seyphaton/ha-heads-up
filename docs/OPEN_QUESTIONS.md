@@ -179,3 +179,4 @@
 - Read receipts were declined for the first version.
 - Push badge for the inbox (D-268): not built. The iOS key is `data.push.badge`; a silent update is documented as the message `delete_alert`, but how to set the number with it is not, and the app resets the badge to 0 on launch by default (N-115). Android: no documented key. Needs a device check before it can be planned.
 - Summarize by channel (D-271): Summarize holds whole messages (banner and every channel). A `channels` scope needs per-delivery hold records, so a household can keep the inbox or the banner out of a summary. Today only For and Not for narrow it.
+- Inbox opt-out per person and Presence for the inbox (D-272): a person cannot switch the inbox off, and Presence cannot be set to hold it. Both need a profile field or a channel choice on the Presence policy.

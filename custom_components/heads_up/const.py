@@ -60,13 +60,15 @@ OPT_DISABLE_ENDED_BUTTONS: Final = "disable_ended_buttons"  # D-125
 CHANNEL_BANNER: Final = "banner"
 CHANNEL_PERSISTENT: Final = "persistent"
 CHANNEL_MAIL: Final = "mail"
-CHANNELS: Final = ("banner", "push", "popup", "speak", "persistent", "mail")
+CHANNEL_INBOX: Final = "inbox"
+CHANNELS: Final = ("banner", "push", "popup", "speak", "persistent", "mail", "inbox")
 TARGET_CHANNELS: Final = (
     "banner",
     "push",
     "popup",
     "speak",
     "mail",
+    "inbox",
 )  # channels that accept a target
 SOURCE_ACTION: Final = "action"
 SOURCE_RULE: Final = "rule"
@@ -118,6 +120,7 @@ POLICY_CHANNELS: Final = (
     "speak",
     "persistent",
     "mail",
+    "inbox",
 )  # an escalation can add these
 TIMER_CHANNEL: Final = "timer"  # ledger rows of this channel hold escalation and reminder due times
 GROUP_SUFFIX: Final = " (group)"  # how a recipient group is named in calls
@@ -128,6 +131,9 @@ STATS_KEY: Final = "heads_up.stats"  # the daily history of the Overview (D-244)
 STATS_VERSION: Final = 1
 STATS_MONTHS: Final = 24  # the store always covers the last 24 months
 STATS_SAVE_DELAY: Final = 60  # seconds; the file is large, so writes are batched longer
+OPT_INBOX_REMINDER_UNREAD: Final = (
+    "inbox_reminder_unread"  # D-268; default on, set on the Settings page
+)
 INBOX_KEY: Final = "heads_up.inbox"  # the personal inbox, one store for all people (D-264, D-268)
 INBOX_VERSION: Final = 1
 INBOX_SAVE_DELAY: Final = 60  # seconds, like the history store

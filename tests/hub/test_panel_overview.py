@@ -458,7 +458,7 @@ async def test_the_shortcut_cards_count_audiences_policies_and_channels(
     shortcuts = (await overview(hass, client))["shortcuts"]
     assert shortcuts["audiences"] == {"builtin": 6, "custom": 1}
     assert shortcuts["policies"] == {"total": 2, "enabled": 1}
-    assert shortcuts["channels"] == {"total": 6, "mail": False}
+    assert shortcuts["channels"] == {"total": 7, "mail": False}
 
 
 def test_the_hourly_history_counts_created_messages_by_severity() -> None:

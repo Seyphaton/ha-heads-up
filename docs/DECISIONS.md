@@ -1744,3 +1744,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 ## D-271 Phase 22: channels on Quiet hours only (2026-11-23, maintainer)
 - Context: D-269 added a `channels` field to Quiet hours and Summarize. Reading the engine showed that Summarize holds a whole message (the banner and every channel) and builds the summary from held messages (`_try_hold`, `_send_summaries`), so a channel scope would need per-delivery hold records.
 - Decision (maintainer, "drop this for now", then "Drop Summarize only"): Quiet hours gets `channels`; Summarize does not. Summarize keeps holding every channel, inbox included, like every channel (D-268); it is narrowed with For and Not for. A per-channel Summarize goes to `docs/OPEN_QUESTIONS.md`. D-269 is amended for Summarize.
+
+## D-272 Phase 22 step 3: choices made while building the inbox channel (2026-11-24, to confirm)
+- Context: building the `inbox` channel (D-264, D-268) needed three choices the gate did not cover. They are the smallest option in each case and are listed here for the maintainer to confirm or change.
+- Choices:
+  - The inbox is not in `PROFILE_CHANNELS`: every person accepts it, so it needs no phone and no profile entry, and stored profiles from before the channel existed need no migration. A person cannot switch it off; a per-person opt-out is an open question (`docs/OPEN_QUESTIONS.md`).
+  - Presence does not cover the inbox: its default stays push, popup and mail for people and speech for the household. The inbox follows Quiet hours (Wait and Drop; channel scope, D-271), Summarize (whole messages) and every other policy as a normal channel (D-268).
+  - Quiet hours with the action Send quietly do not mark the inbox quiet. Quiet means no sound, and an item has none; Wait and Drop still apply.
+- Also built, from D-264: a reminder or an escalation to a person who already has the item adds a timeline entry and, when `inbox_reminder_unread` is on (default), marks it unread (D-268). A dismissal for everyone reads the dismisser's item. Items of messages that are no longer active are resolved at start.

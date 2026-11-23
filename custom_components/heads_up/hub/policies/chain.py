@@ -8,7 +8,7 @@ built yet pass everything, and H4b and H4c replace theirs.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import Protocol
 
@@ -67,6 +67,9 @@ class Chain:
         self.stages[stage.name] = stage
 
     def run(self, step: Step, skip: tuple[str, ...] = ()) -> Step | Skip | Hold:
+        # The channel learns why it is asked (a reminder adds a timeline entry to an inbox item).
+        if step.target.origin != step.origin:
+            step = replace(step, target=replace(step.target, origin=step.origin))
         for name in STAGE_ORDER:
             if name in skip:
                 continue

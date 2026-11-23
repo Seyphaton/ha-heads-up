@@ -916,7 +916,7 @@ export function pathEvents(entries, { t, s, fmt, since, who, now, locale, ended 
   const from = since ? Date.parse(since) : NaN;
   const list = [...(entries || [])].reverse().filter((e) => (Number.isNaN(from) || Date.parse(e.time) >= from) && e.channel !== "timer" && e.reason !== "duplicate");
   const channel = (c) => fmt.channelName(c, s);
-  const order = ["banner", "push", "popup", "speak", "persistent", "mail"];
+  const order = ["banner", "push", "popup", "speak", "persistent", "mail", "inbox"];
   const rank = (c) => (order.includes(c) ? order.indexOf(c) : order.length);
   const channels = (names) => [...new Set(names)].sort((a, b) => rank(a) - rank(b)).map(channel).join(", ");
   const reasonOf = (e) => (e.reason ? fmt.reasonText(e.reason, s) : "");

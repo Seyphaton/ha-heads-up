@@ -304,7 +304,7 @@ def _check_notify(data: dict[str, Any]) -> dict[str, Any]:
     for field_name in ("mail_subject", "mail_body"):
         if field_name in data and "mail" not in channels:
             raise vol.Invalid(f"{field_name} needs mail in channels", path=[field_name])
-    for channel in ("push", "popup", "speak", "mail"):
+    for channel in ("push", "popup", "speak", "mail", "inbox"):
         if channel in channels and channel not in to:
             hint = "speakers" if channel == "speak" else "recipients or audience"
             raise vol.Invalid(f"{channel} needs a target: give {hint} or to.{channel}", path=["to"])

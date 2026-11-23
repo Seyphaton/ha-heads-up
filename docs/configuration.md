@@ -6,11 +6,11 @@ Create and edit them in the panel (Configuration group: Channels, Audiences, Rec
 
 ## Channels
 
-The panel's Channels page lists banner, push, popup, speech, Persistent Notification and mail with a summary of their settings; select a channel to change it. The Persistent Notification row only says that the channel has no settings.
+The panel's Channels page lists banner, push, popup, speech, Persistent Notification, mail and inbox with a summary of their settings; select a channel to change it. The Persistent Notification and Inbox rows only say that the channel has no settings.
 
 <img src="images/channels.png" width="600" alt="The Channels page: one row per channel with a summary of its settings, and a button to the Severities page">
 
-A call names its channels in `channels`. Push, popup and mail take `recipients` or `audience`, speech takes `speakers`. The banner takes `recipients` or `audience` too, or shows to everyone without them. The Persistent Notification takes no target.
+A call names its channels in `channels`. Push, popup, mail and inbox take `recipients` or `audience`, speech takes `speakers`. The banner takes `recipients` or `audience` too, or shows to everyone without them. The Persistent Notification takes no target.
 
 | Channel | Target in `notify` | Shortcut action |
 |---|---|---|
@@ -211,6 +211,33 @@ A single message can use its own subject and body with the `mail_subject` and `m
 A mail cannot be taken back: clearing, dismissing or ending the message sends nothing and removes nothing. An update does not send the mail again (`already_sent`). Speech cooldown and buttons do not apply; images and buttons are not sent. A failed call or a missing address fires `heads_up_delivery_failed` (see [Actions](actions.md#events)). A Quiet hours policy with the action Drop or Wait applies to mail.
 
 Delivery is the notify service's job: Heads Up knows only whether the call returned an error. After a mail went through the SMTP integration's notify service, the SMTP integration raises a repair that the service is deprecated and due to be removed in Home Assistant 2027.3. Mail was not tested with a real mail server.
+
+### Inbox
+
+The inbox channel keeps a copy of a message for each person it reaches. The copy is an item: title, text, severity, time, the channels that delivered it and a short timeline. Items are stored, so they survive a restart. Use `heads_up.notify` with `channels: [inbox]` and `recipients` or `audience`.
+
+```yaml
+action: heads_up.notify
+data:
+  id: washer_done
+  title: Washing machine
+  message: The washing machine is done.
+  severity: info
+  channels: [inbox]
+  recipients: [person.anna]
+```
+
+The person needs no phone and no Home Assistant user.
+
+- One item per message and person. The same message again, with the same text, adds nothing. New text or a higher severity updates the item and marks it unread.
+- A reminder or an escalation that reaches a person who already has the item adds a timeline entry. It does not make a second item. A reminder marks a read item unread again.
+- An item is read when the person acknowledges the message or dismisses it for themselves. When the message ends, the item stays and is marked resolved, with the reason (cleared, expired, condition or dismissed). It stays unread until the person reads it.
+- A dismissal for everyone resolves every item of the message. A snooze changes nothing.
+- When Home Assistant starts, items of messages that are no longer active are marked resolved.
+- Items older than 12 months are removed, and a person keeps at most 2000 items, the oldest read and resolved ones first. A person who is removed from Home Assistant loses their items after 5 minutes. Removing the integration deletes them.
+- Policies treat the inbox like every other channel. A Quiet hours policy with the action Wait holds it, Drop skips it, and Summarize holds it. To keep the inbox out of Quiet hours, choose the other channels under Limit to these channels. The Presence policy covers push, popup, mail and speech, not the inbox.
+- Send quietly changes nothing for the inbox: an item has no sound.
+- The inbox has no rate limit and takes no buttons.
 
 ## Severities
 

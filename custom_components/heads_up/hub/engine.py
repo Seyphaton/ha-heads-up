@@ -123,6 +123,13 @@ def source_key(banner: Banner) -> str:
     return f"tag:{banner.tag[:64]}" if banner.tag else "action"
 
 
+# How the reason a message ended is kept on an inbox item (the rest is `cleared`).
+INBOX_REASONS = {
+    str(Reason.EXPIRED): "expired",
+    str(Reason.CONDITION): "condition",
+    str(Reason.DISMISSED_GLOBAL): "dismissed",
+}
+
 # The log kinds that are an action of a policy, and how the history counts them.
 POLICY_LOG_ACTIONS = {
     "escalation_sent": "escalated",
@@ -213,6 +220,7 @@ class HubEngine:
             # listing it would mark it Active, as nothing will ever end it (silent startup).
             if (loaded := self.lookup(message_id)) is not None and loaded.active:
                 self.recent.seen(message_id, self._info(loaded))
+        self._resolve_gone_inbox_items()
         await self._restore_bell()
         self._restore_timers()
         # Arrival releases the deliveries held by Away.
@@ -555,6 +563,7 @@ class HubEngine:
             return
         banner = transition.banner
         self._remember(transition)
+        self._inbox_transition(transition)
         if self._ready.is_set():
             # Decided here, in the same call that created the message, so a viewer is never shown a
             # message that is about to be held (D-105).
@@ -648,6 +657,37 @@ class HubEngine:
                 self.stats.ended(
                     now, str(transition.reason), (now - banner.created_at).total_seconds()
                 )
+
+    def _inbox_transition(self, transition: BannerTransition) -> None:
+        """What happens to the inbox items of a message: acknowledged, dismissed or ended. The
+        channel cannot know why it is asked to clear, so the transitions say it (D-264)."""
+        if transition.silent:
+            return
+        banner, kind, reason = transition.banner, transition.kind, transition.reason
+        now = dt_util.utcnow()
+        people = self.resolver.persons_of_user(transition.user_id) if transition.user_id else []
+        if kind is Kind.ACKNOWLEDGED:
+            for person in people or [""]:
+                self.inbox.acknowledged(banner.id, person, now)
+        elif kind is Kind.HIDDEN and reason == Reason.DISMISSED:
+            for person in people:
+                self.inbox.dismissed(banner.id, person, now)
+        elif transition.ends_message:
+            if reason == Reason.DISMISSED_GLOBAL:
+                for person in people:
+                    self.inbox.mark_read(person, banner.id, now)
+            self.inbox.resolve(banner.id, INBOX_REASONS.get(str(reason), "cleared"), now)
+
+    def _resolve_gone_inbox_items(self) -> None:
+        """A message that ended while Home Assistant was stopped: its items are resolved."""
+        now = dt_util.utcnow()
+        for person in self.inbox.people():
+            for item in self.inbox.items(person):
+                if item.resolved_at is not None:
+                    continue
+                banner = self.lookup(item.message_id)
+                if banner is None or not banner.active:
+                    self.inbox.resolve(item.message_id, "cleared", now)
 
     def _pending_escalations(self, message_id: str) -> int:
         """Escalations still waiting to fire: an acknowledgement is about to stop them."""

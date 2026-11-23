@@ -209,7 +209,7 @@ export function recipientName(value, label, t) {
 
 // The trace entries of one message (newest first) as groups: one per channel, result and reason
 // within a minute, with the recipients listed once. Five skipped persons become one line.
-export const DELIVERY_CHANNELS = ["banner", "push", "popup", "speak", "persistent", "mail"];
+export const DELIVERY_CHANNELS = ["banner", "push", "popup", "speak", "persistent", "mail", "inbox"];
 const deliveryChannel = (channel) => DELIVERY_CHANNELS.includes(channel);
 
 export function groupEntries(entries, label, t, windowMs = 60000) {

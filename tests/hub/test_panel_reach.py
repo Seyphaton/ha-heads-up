@@ -36,7 +36,7 @@ async def test_the_command_is_for_admins_only(
     assert (await client.receive_json())["error"]["code"] == "unauthorized"
 
 
-async def test_the_table_has_six_channels_and_four_severities_most_urgent_first(
+async def test_the_table_has_seven_channels_and_four_severities_most_urgent_first(
     hass: HomeAssistant,
     entry: MockConfigEntry,
     hass_ws_client: WebSocketGenerator,
@@ -46,10 +46,12 @@ async def test_the_table_has_six_channels_and_four_severities_most_urgent_first(
     client = await hass_ws_client(hass)
     result = await table(client)
     assert result["severities"] == ["critical", "warning", "info", "passive"]
-    assert result["channels"] == ["banner", "push", "popup", "speak", "persistent", "mail"]
+    assert result["channels"] == ["banner", "push", "popup", "speak", "persistent", "mail", "inbox"]
     assert all(len(result["cells"][c]) == 4 for c in result["channels"])
     banner = cell(result, "banner", "info")
     assert banner["state"] == "shown" and banner["total"] == 1
+    inbox = cell(result, "inbox", "info")
+    assert inbox["state"] == "shown" and inbox["count"] == inbox["total"] == 2
     push = cell(result, "push", "info")
     assert push["state"] == "shown" and push["count"] == push["total"] == 2
     assert sorted(w["name"] for w in push["who"]) == ["person.anna", "person.ben"]

@@ -19,7 +19,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §26 new Overview (status card, Coming up, reach table, tour in the page, quick shortcuts, Last actions) | built and tested on `release/2.0` (Phase 18, D-244, D-245); checked in the browser pane at desktop and phone width, light and dark; not on real devices |
 | §27 history store (24 months, Activity cards, Clear history) | built and tested on `release/2.0` (Phase 19, D-246); about 7 KB a day measured on a synthetic busy household; push levels used are not recorded |
 | §28 2.1.0 richer push (icon, color, sender icon, subtitle, progress with live updates) | built (D-255 to D-263) |
-| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store and its model are built and tested; channel, commands, sensor, card and settings are not built |
+| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store, the `inbox` channel and its lifecycle hooks are built and tested; commands, sensor, card and settings are not built |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -562,6 +562,7 @@ How both sources stay equal:
 | a switched-off recipient gets nothing (D-147) | yes (named persons are dropped from the banner's people; all dropped means nobody) | yes (the rule's `people` are filtered when the rule is built and again when a profile changes, D-161; `tests/hub/test_recipient_disabled.py`) |
 | viewer-chosen snooze duration `snooze_custom` (D-219) | yes (`notify`, `create_banner`; `tests/test_snooze.py`) | yes (rule form field; `tests/test_snooze.py`) |
 | `heads_up_banner_unsnoozed` with `reason`, also when a snooze runs out (D-221) | yes | yes (one `BannerManager._snooze_elapsed`; a rule's snoozes are not kept over a restart, D-069) |
+| `inbox` channel (D-264, D-268) | yes (`notify` with `channels: [inbox]`) | exception: a rule has no channels (D-100); its messages reach the inbox through a Deliver, Escalation or Fallback policy (`tests/hub/test_inbox_channel.py`: a rule message through Deliver, and a rule that triggers again reopens the same item); the mirror setting (planned, D-264) will cover both sources the same way |
 
 Audit for the hub (H10, 2026-11-02), extended 2026-11-05: every banner feature above is in both columns or carries an exception with a decision number.
 
@@ -621,6 +622,8 @@ Automations hard-code notify services, speaker entities, quiet-hour templates an
 | popup | yes | persons only in the first version |
 | speak | no | recipient groups, media players, Assist satellites, areas |
 | persistent | no | none (targets everyone) |
+| mail | yes | persons (D-129) |
+| inbox | yes | persons; a person needs no phone, no Home Assistant user and no accepted-channel entry (D-264, D-268) |
 
 ### 23.6 Policies (D-097)
 A policy is one rule: type, When, Then. All policies that apply to a message (by severity and tag) are active together.
@@ -1049,7 +1052,7 @@ Status: built 2026-11-23 on `release/2.1`, including editable built-in audiences
 
 ## 29. Personal inbox (Phase 22, D-264, D-268 to D-271)
 
-Status: step 2 built on `release/3.0` (the store and its model); the channel, commands, sensor, card and settings are not built. Plan: `docs/dev/inbox/PLAN.md`.
+Status: steps 2 and 3 built on `release/3.0` (the store, and the channel with the lifecycle hooks); the WebSocket commands, sensor, card and settings are not built. Plan: `docs/dev/inbox/PLAN.md`.
 
 ### 29.1 Store
 - `hub/inbox.py` `InboxStore`, store `heads_up.inbox` (version 1), one store for all people, layout `{"items": {person entity ID: {message ID: item}}}`. Items are in memory; a change schedules one write after `INBOX_SAVE_DELAY` (60 s), made from a copy in the event loop and serialized in a thread (`serialize_in_event_loop=False`, N-117). Stopping the hub and Home Assistant's final write (`EVENT_HOMEASSISTANT_FINAL_WRITE`) save what is waiting at once. The store file is deleted with the integration.
@@ -1063,3 +1066,10 @@ Status: step 2 built on `release/3.0` (the store and its model); the channel, co
 - Unread count: unread items, resolved ones included. Needs action: open critical items without an acknowledgement.
 - Retention (default 12 months, by `updated`) and a cap of 2000 items per person (`INBOX_MAX_ITEMS`; read and resolved items go first, then read ones, then the oldest). Pruned at load and once a day.
 - A removed person entity loses the inbox after 5 minutes (`INBOX_PURGE_GRACE`), unless the entity comes back.
+
+### 29.3 Channel
+- `hub/channels/inbox.py` `InboxChannel`: `deliver` and `update` upsert the item of `target.person`; `clear` does nothing, because it does not say why it is called (a snooze clears too). The channel is in `CHANNELS`, `TARGET_CHANNELS` and `POLICY_CHANNELS`, so an escalation, Deliver and Fallback can add it. It is not in `PROFILE_CHANNELS`: every person accepts it (`HubResolver._expand_person`), so a person needs no phone and no profile entry. Opt-out per person is an open question.
+- `Target.origin` (message, escalation, reminder, fallback or summary) is set by `Chain.run`. A reminder or an escalation that reaches a person who already has the item calls `InboxStore.add_event`; `OPT_INBOX_REMINDER_UNREAD` (default true) decides whether that marks a read item unread. The Settings page entry comes with the settings step.
+- The engine applies the lifecycle from the transitions (`HubEngine._inbox_transition`): acknowledged, dismissed by a user, ended (reasons `cleared`, `expired`, `condition`, `dismissed`). A dismissal for everyone also reads the dismisser's item (the transition carries the user). At start, items of messages that are not active are resolved (`_resolve_gone_inbox_items`).
+- Policies: the inbox follows every policy like any channel (D-268). Quiet hours can name channels (D-271); Presence covers push, popup, mail and speech (not the inbox); Summarize holds whole messages, so the inbox too.
+- Not rate limited (`Limiter.push_allowed` is push only); `NOT_REPEATED_ON_UPDATE` does not list it. The Overview reach table has an Inbox row (state `shown`).

@@ -10,6 +10,7 @@ Open a private security advisory on the GitHub repository.
 
 - Administrators can see every banner with the card option `show_all`.
 - Banners are stored in plain text in `.storage/heads_up.banners`. Anyone with access to the Home Assistant files or backups can read them.
+- Inbox items are stored in plain text in `.storage/heads_up.inbox`: title, text and the channels that delivered them, for every person who received a message on the inbox channel. Anyone with access to the Home Assistant files or backups can read them. Items are removed after 12 months, and with the integration.
 - The activity history in `.storage/heads_up.stats` holds counts per day, rule, policy and person (the person's entity ID). It holds no titles, texts or addresses. Settings > Activity history clears it.
 - Do not put passwords, codes or other secrets in banners.
 

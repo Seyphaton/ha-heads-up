@@ -18,6 +18,7 @@ from homeassistant.helpers import area_registry as ar
 from ..const import (
     BANNER_NOBODY,
     BUILTIN_AUDIENCES,
+    CHANNEL_INBOX,
     CHANNEL_MAIL,
     GROUP_SUFFIX,
     HOME_ZONE,
@@ -451,8 +452,8 @@ class HubResolver:
         profile = self.profile(person)
         if not profile.enabled:
             out.skipped.append(Skipped(person, "recipient_disabled"))
-        elif channel not in profile.channels:
-            out.skipped.append(Skipped(person, "channel_not_accepted"))
+        elif channel != CHANNEL_INBOX and channel not in profile.channels:
+            out.skipped.append(Skipped(person, "channel_not_accepted"))  # the inbox needs no phone
         elif channel == CHANNEL_MAIL and not profile.mail_address:
             out.skipped.append(Skipped(person, "no_mail_address"))
         elif channel != "push":

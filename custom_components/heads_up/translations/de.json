@@ -209,7 +209,8 @@
         "popup": "Popup",
         "speak": "Sprechen",
         "persistent": "Dauerhafte Benachrichtigung",
-        "mail": "E-Mail"
+        "mail": "E-Mail",
+        "inbox": "Posteingang"
       }
     },
     "audience_kind": {
