@@ -178,6 +178,9 @@ export const BASE_CSS = `
 .hu-page input[type=radio]:checked { border-color: var(--primary-color); background: radial-gradient(var(--primary-color) 0 45%, transparent 50%); }
 .hu-page h2 { margin-bottom: 12px; }
 .hu-page fieldset { border: 1px solid var(--hu-line); border-radius: 8px; margin: 0 0 20px; padding: 12px 16px; }
+.hu-page details.multi { border: 1px solid var(--hu-line); border-radius: 4px; padding: 0 12px; }
+.hu-page details.multi > summary { padding: 10px 0; cursor: pointer; }
+.hu-page details.multi .multi-list { max-height: 200px; overflow: auto; padding-bottom: 8px; }
 .hu-page fieldset.scroll { max-height: 200px; overflow: auto; }
 .hu-page legend { padding: 0 6px; color: var(--secondary-text-color); font-size: 13px; }
 .hu-page button { min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--hu-line); background: transparent; color: var(--primary-text-color); font: inherit; cursor: pointer; }
@@ -555,6 +558,32 @@ export function chips(legend, options, selected, onChange, scroll = false) {
     );
   }
   return box;
+}
+
+// A multiple choice as a dropdown: the closed box lists the chosen labels (or `empty`), the open one
+// holds the checkboxes. Takes one line instead of one per option.
+export function multiSelect(legend, options, selected, onChange, empty = "") {
+  const box = el("details", { className: "multi" });
+  const summary = el("summary", {});
+  const chosen = new Set(selected || []);
+  const sync = () => {
+    const names = options.filter((o) => chosen.has(o.value)).map((o) => o.label);
+    summary.textContent = names.length ? names.join(", ") : empty;
+  };
+  sync();
+  const list = el("div", { className: "multi-list" });
+  for (const option of options) {
+    list.append(
+      checkbox(option.label, chosen.has(option.value), (on) => {
+        if (on) chosen.add(option.value);
+        else chosen.delete(option.value);
+        sync();
+        onChange(options.map((o) => o.value).filter((v) => chosen.has(v)).concat([...chosen].filter((v) => !options.some((o) => o.value === v))));
+      }),
+    );
+  }
+  box.append(summary, list);
+  return field(legend, box);
 }
 
 // The entities whose state is a number now, for a progress bar: [{ value, label }] by name. A value

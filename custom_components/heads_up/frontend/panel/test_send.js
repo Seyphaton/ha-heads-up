@@ -38,6 +38,7 @@ export const STRINGS = {
     tag: "Tag (optional)",
     channels: "Channels",
     policy: "Manual policy",
+    policy_none: "None",
     match_automatic: "Match policies automatically",
     match_automatic_hint: "On: policies that match the severity or tags of the message apply automatically. Off: only the manual policies apply, and none if you pick no manual policy. Manual policies always apply.",
     who: "Who, per channel",
@@ -152,6 +153,7 @@ export const STRINGS = {
     tag: "Tag (optional)",
     channels: "Kanäle",
     policy: "Manuelle Richtlinie",
+    policy_none: "Keine",
     match_automatic: "Richtlinien automatisch zuordnen",
     match_automatic_hint: "An: Richtlinien, die zu Schweregrad oder Tags der Meldung passen, gelten automatisch. Aus: Es gelten nur die manuellen Richtlinien, ohne manuelle Richtlinie keine. Manuelle Richtlinien gelten immer.",
     who: "Wer, je Kanal",
@@ -266,6 +268,7 @@ export const STRINGS = {
     tag: "Étiquette (facultatif)",
     channels: "Canaux",
     policy: "Politique manuelle",
+    policy_none: "Aucune",
     match_automatic: "Associer les politiques automatiquement",
     match_automatic_hint: "Activé : les politiques qui correspondent à la gravité ou aux étiquettes du message s'appliquent automatiquement. Désactivé : seules les politiques manuelles s'appliquent, et aucune si vous n'en choisissez pas. Les politiques manuelles s'appliquent toujours.",
     who: "Qui, par canal",
@@ -380,6 +383,7 @@ export const STRINGS = {
     tag: "Etiqueta (opcional)",
     channels: "Canales",
     policy: "Política manual",
+    policy_none: "Ninguna",
     match_automatic: "Asignar políticas automáticamente",
     match_automatic_hint: "Activado: las políticas que coinciden con la gravedad o las etiquetas del mensaje se aplican automáticamente. Desactivado: solo se aplican las políticas manuales, y ninguna si no eliges ninguna. Las políticas manuales siempre se aplican.",
     who: "Quién, por canal",
@@ -899,7 +903,7 @@ export function mount(container, ctx) {
       ui.field(t.tag, ui.textInput(values.tag, (v) => { values.tag = v; change(); }), t.tag_hint),
       ui.checkbox(t.match_automatic, values.match_automatic, (on) => { values.match_automatic = on; change(); }),
       el("div", { className: "hint", textContent: t.match_automatic_hint }),
-      ui.chips(t.policy, data.policies.map((p) => ({ value: p.name, label: p.name })), values.policy, (list) => { values.policy = list; change(); }),
+      ui.multiSelect(t.policy, data.policies.map((p) => ({ value: p.name, label: p.name })), values.policy, (list) => { values.policy = list; change(); }, t.policy_none),
     ];
 
     const who = [];
