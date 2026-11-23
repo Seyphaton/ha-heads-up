@@ -58,6 +58,7 @@ from .const import (
     OPT_DISABLE_ENDED_BUTTONS,
     OPT_EVICT,
     OPT_MAX_BANNERS,
+    OPT_PUSH_PROGRESS_INTERVAL,
     OPT_QUICK_SNOOZE,
     OPT_SEVERITY_DISPLAY,
     RULE_ID_PREFIX,
@@ -79,8 +80,16 @@ from .storage import banner_store
 
 _LOGGER = logging.getLogger(__name__)
 _NO_STATE = {STATE_UNAVAILABLE, STATE_UNKNOWN}
-# Seconds between two progress pushes of one message; iOS throttles frequent updates (N-113).
-PROGRESS_INTERVAL = 5
+
+
+def _progress_entity(banner: Banner) -> str | None:
+    """The entity a progress bar follows by itself, if it does (D-263)."""
+    progress = banner.progress
+    if not progress or not progress.get("auto_update", True):
+        return None
+    return str(progress["entity_id"]) if "entity_id" in progress else None
+
+
 # `reason` values of the bus events mapped to transition reasons.
 _REASONS = {
     "action": Reason.CLEARED,
@@ -936,7 +945,7 @@ class BannerManager:
             ) or entity_id in self._rule_template_entities.get(banner.id, ()):
                 changed |= self._apply_rule(banner)
         for banner in [*self.banners.values(), *self.rules.values()]:
-            if banner.progress and banner.progress["entity_id"] == entity_id:
+            if _progress_entity(banner) == entity_id:
                 changed |= self._progress_changed(banner)
         if changed:
             self._changed()
@@ -946,6 +955,8 @@ class BannerManager:
     def _percent(self, spec: Mapping[str, Any] | None) -> int | None:
         if not spec:
             return None
+        if "value" in spec:  # a number the caller gives (D-263)
+            return percent(str(spec["value"]), spec)
         state = self.hass.states.get(spec["entity_id"])
         if state is None or state.state in _NO_STATE:
             return None
@@ -958,12 +969,17 @@ class BannerManager:
         banner.progress_value = value
         last = self._progress_last.get(banner.id)
         now = time.monotonic()
-        if last is None or now - last >= PROGRESS_INTERVAL or value in (0, 100):
+        # The message's own interval, else the push channel setting (D-263).
+        assert banner.progress is not None
+        interval = float(
+            banner.progress.get("interval") or self.options[OPT_PUSH_PROGRESS_INTERVAL]
+        )
+        if last is None or now - last >= interval or value in (0, 100):
             self._progress_emit(banner.id)
         elif banner.id not in self._progress_timers:
             # The newest value goes out when the interval is over, so the end is never lost.
             self._progress_timers[banner.id] = async_call_later(
-                self.hass, PROGRESS_INTERVAL - (now - last), partial(self._progress_due, banner.id)
+                self.hass, interval - (now - last), partial(self._progress_due, banner.id)
             )
         return True
 
@@ -998,7 +1014,7 @@ class BannerManager:
             if b.condition and "entity_id" in b.condition
         }
         wanted |= {e for entities in self._rule_template_entities.values() for e in entities}
-        wanted |= {b.progress["entity_id"] for b in self._all() if b.progress}
+        wanted |= {e for b in self._all() if (e := _progress_entity(b))}
         wanted |= {p for b in self._all() for p in b.people}
         if wanted == self.tracked_entities:
             return

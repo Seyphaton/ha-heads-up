@@ -15,6 +15,7 @@ from custom_components.heads_up.progress import percent
 from ..test_rules import USER, add_rule, rule_id
 from .conftest import AddDevice
 from .helpers import FakeDevice, set_person, settle
+from .test_panel_editors import ask
 from .test_push_payload import push, sent
 
 SENSOR = "sensor.printer_progress"
@@ -209,3 +210,112 @@ async def test_an_open_popup_is_refreshed_when_the_value_changes(
     popup.subscribe(lambda: seen.append(popup.messages_for("anna-id")[0]["progress_value"]))
     await tick(hass, entry, "55")
     assert seen == [55]
+
+
+async def test_the_interval_comes_from_the_push_setting(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    entry.runtime_data.options["push_progress_interval"] = 60
+    hass.states.async_set(SENSOR, "10")
+    await push(hass, entry, progress=SPEC)
+    await tick(hass, entry, "20")
+    await tick(hass, entry, "30")
+    assert len(anna.calls) == 2
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=30))
+    await settle(hass, entry)
+    assert len(anna.calls) == 2  # not yet
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=61))
+    await settle(hass, entry)
+    assert len(anna.calls) == 3 and sent(anna)["data"]["progress"] == 30
+
+
+async def test_a_message_can_set_its_own_interval(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    entry.runtime_data.options["push_progress_interval"] = 300
+    hass.states.async_set(SENSOR, "10")
+    await push(hass, entry, progress={**SPEC, "interval": 1})
+    await tick(hass, entry, "20")
+    await tick(hass, entry, "30")
+    async_fire_time_changed(hass, dt_util.utcnow() + timedelta(seconds=2))
+    await settle(hass, entry)
+    assert len(anna.calls) == 3 and sent(anna)["data"]["progress"] == 30
+
+
+async def test_without_auto_update_the_bar_moves_only_when_the_call_is_made(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    hass.states.async_set(SENSOR, "10")
+    await push(hass, entry, progress={**SPEC, "auto_update": False})
+    assert sent(anna)["data"]["progress"] == 10
+    assert SENSOR not in entry.runtime_data.tracked_entities
+    await tick(hass, entry, "70")
+    assert len(anna.calls) == 1
+    await push(hass, entry, progress={**SPEC, "auto_update": False})  # the manual update
+    assert len(anna.calls) == 2 and sent(anna)["data"]["progress"] == 70
+
+
+async def test_a_fixed_value_needs_no_entity(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    await push(hass, entry, progress={"value": 40, "max": 80})
+    assert sent(anna)["data"]["progress"] == 50
+    assert not entry.runtime_data.tracked_entities
+    await push(hass, entry, progress={"value": 80, "max": 80})
+    assert sent(anna)["data"]["progress"] == 100
+
+
+async def test_progress_updates_are_not_held_back_by_the_push_cap(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    entry.runtime_data.options["rate_per_device_per_minute"] = 1
+    entry.runtime_data.hub.limiter.configure(entry.runtime_data.options)
+    for value in (10, 20, 30, 40):
+        await push(hass, entry, progress={"value": value})
+    assert [c.data["data"]["progress"] for c in anna.calls] == [10, 20, 30, 40]
+
+
+async def test_a_message_without_progress_is_still_capped(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    entry.runtime_data.options["rate_per_device_per_minute"] = 1
+    entry.runtime_data.hub.limiter.configure(entry.runtime_data.options)
+    await push(hass, entry, id="a", message="one")
+    await push(hass, entry, id="b", message="two")
+    assert len(anna.calls) == 1
+
+
+@pytest.mark.parametrize(
+    "progress",
+    [
+        {"entity_id": SENSOR, "interval": 0},
+        {"entity_id": SENSOR, "interval": 301},
+        {"entity_id": SENSOR, "value": 5},
+        {"value": float("inf")},
+        {"min": 0},
+    ],
+)
+async def test_a_bad_progress_is_rejected_with_the_new_keys(
+    hass: HomeAssistant, entry: MockConfigEntry, progress: dict[str, Any]
+) -> None:
+    with pytest.raises(vol.Invalid):
+        await hass.services.async_call(
+            DOMAIN,
+            "notify",
+            {"message": "x", "severity": "info", "channels": ["banner"], "progress": progress},
+            blocking=True,
+        )
+
+
+async def test_the_channel_setting_takes_one_to_three_hundred_seconds(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: Any
+) -> None:
+    client = await hass_ws_client(hass)
+    for good in (1, 5, 300):
+        reply = await ask(client, "channels_set", push_progress_interval=good)
+        assert reply["success"], reply
+        assert entry.options["push_progress_interval"] == good
+    for bad in (0, 301, -5):
+        reply = await ask(client, "channels_set", push_progress_interval=bad)
+        assert not reply["success"]
+    assert entry.options["push_progress_interval"] == 300

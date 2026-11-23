@@ -883,7 +883,12 @@ class HubEngine:
             return None
         if update and self.limiter.duplicate(banner, item.channel, item.recipient):
             return DUPLICATE
-        if item.channel == "push" and not self.limiter.push_allowed(banner, target.key):
+        # A progress bar has its own interval (D-263); the caps would drop updates, the last too.
+        if (
+            item.channel == "push"
+            and banner.progress is None
+            and not self.limiter.push_allowed(banner, target.key)
+        ):
             return RATE_LIMITED
         return None
 

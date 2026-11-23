@@ -54,6 +54,7 @@ export const STRINGS = {
     f_progress: "Progress bar from an entity (optional)",
     f_progress_min: "Bar empty at this value (default 0)",
     f_progress_max: "Bar full at this value (default 100)",
+    f_progress_interval: "Seconds between two updates (1 to 300, empty: the Channels setting)",
     f_people: "People",
     f_dismissible: "Viewers can dismiss it",
     f_policy: "Policy",
@@ -137,6 +138,7 @@ export const STRINGS = {
     f_progress: "Fortschrittsbalken aus einer Entität (optional)",
     f_progress_min: "Balken leer bei diesem Wert (Standard 0)",
     f_progress_max: "Balken voll bei diesem Wert (Standard 100)",
+    f_progress_interval: "Sekunden zwischen zwei Updates (1 bis 300, leer: Einstellung der Kanäle)",
     f_people: "Personen",
     f_dismissible: "Betrachter können es ausblenden",
     f_policy: "Richtlinie",
@@ -220,6 +222,7 @@ export const STRINGS = {
     f_progress: "Barre de progression d'une entité (facultatif)",
     f_progress_min: "Barre vide à cette valeur (0 par défaut)",
     f_progress_max: "Barre pleine à cette valeur (100 par défaut)",
+    f_progress_interval: "Secondes entre deux mises à jour (1 à 300, vide : réglage des canaux)",
     f_people: "Personnes",
     f_dismissible: "Les spectateurs peuvent la masquer",
     f_policy: "Politique",
@@ -303,6 +306,7 @@ export const STRINGS = {
     f_progress: "Barra de progreso de una entidad (opcional)",
     f_progress_min: "Barra vacía con este valor (0 por defecto)",
     f_progress_max: "Barra llena con este valor (100 por defecto)",
+    f_progress_interval: "Segundos entre dos actualizaciones (1 a 300, vacío: ajuste de canales)",
     f_people: "Personas",
     f_dismissible: "Quien lo ve puede descartarlo",
     f_policy: "Política",
@@ -349,7 +353,7 @@ export function fill(template, params) {
 export function blankValues() {
   return {
     name: "", kind: "entity", entity_id: "", operator: "equals", state: "", attribute: "", for_minutes: "", template: "",
-    message: "", title: "", severity: "warning", icon: "", image: "", color: "", icon_url: "", subtitle: "", progress_entity: "", progress_min: "", progress_max: "", actions: [], tap_action: null, tap_problem: "", who: "everyone", audience: "", people: [],
+    message: "", title: "", severity: "warning", icon: "", image: "", color: "", icon_url: "", subtitle: "", progress_entity: "", progress_min: "", progress_max: "", progress_interval: "", actions: [], tap_action: null, tap_problem: "", who: "everyone", audience: "", people: [],
     dismissible: false, dismiss_scope: "", snoozable: "", snooze_scope: "", snooze_minutes: [], snooze_custom: false, policy: "", enabled: true,
   };
 }
@@ -380,6 +384,7 @@ export function fromRule(rule) {
     progress_entity: text(d.progress?.entity_id),
     progress_min: text(d.progress?.min),
     progress_max: text(d.progress?.max),
+    progress_interval: text(d.progress?.interval),
     actions: (d.actions || []).map((a) => ({ ...a })),
     tap_action: d.tap_action ? { ...d.tap_action } : null,
     who: d.audience ? "audience" : (d.people || []).length ? "people" : "everyone",
@@ -424,7 +429,7 @@ export function toFlowData(values, own) {
   for (const key of ["title", "icon", "image", "color", "icon_url", "subtitle"]) if (values[key].trim()) data[key] = values[key].trim();
   if (values.progress_entity.trim()) {
     data.progress = { entity_id: values.progress_entity.trim() };
-    for (const key of ["min", "max"]) if (values[`progress_${key}`].trim() !== "" && !Number.isNaN(Number(values[`progress_${key}`]))) data.progress[key] = Number(values[`progress_${key}`]);
+    for (const key of ["min", "max", "interval"]) if (values[`progress_${key}`].trim() !== "" && !Number.isNaN(Number(values[`progress_${key}`]))) data.progress[key] = Number(values[`progress_${key}`]);
   }
   if (values.dismiss_scope) data.dismiss_scope = values.dismiss_scope;
   if (values.snoozable) data.snoozable = values.snoozable === "on";
@@ -761,7 +766,7 @@ export function mount(container, ctx) {
     box.append(text("icon", t.f_icon), text("image", t.f_image, { style: "max-width:100%" }));
     box.append(text("subtitle", t.f_subtitle), ui.field(t.f_color, ui.colorInput(values.color, (v) => { values.color = v; paint(); }, { placeholder: "#03a9f4", "aria-label": t.f_color })), text("icon_url", t.f_icon_url, { style: "max-width:100%" }));
     box.append(ui.field(t.f_progress, ui.selectInput([{ value: "", label: s.common.none }, ...ui.numericEntityOptions(hass.states, values.progress_entity)], values.progress_entity, (v) => { values.progress_entity = v; paint(); })));
-    box.append(text("progress_min", t.f_progress_min, { placeholder: "0" }), text("progress_max", t.f_progress_max, { placeholder: "100" }));
+    box.append(text("progress_min", t.f_progress_min, { placeholder: "0" }), text("progress_max", t.f_progress_max, { placeholder: "100" }), text("progress_interval", t.f_progress_interval, { placeholder: "5" }));
 
     box.append(el("h3", { className: "sec", textContent: t.sec_who }));
     const audiences = (data.choices.audience_choices || []).filter((a) => a.id !== "everyone");

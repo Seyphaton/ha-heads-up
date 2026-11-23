@@ -25,6 +25,8 @@ from .const import (
     DOMAIN,
     GROUP_SUFFIX,
     MAX_ATTENTION_DISMISSED,
+    MAX_PROGRESS_INTERVAL,
+    MIN_PROGRESS_INTERVAL,
     OPT_ATTENTION_DISMISSED,
     OPT_AUDIENCES_DISABLED,
     OPT_MAIL_ADDRESS,
@@ -476,6 +478,9 @@ def ws_severity_display(
         vol.Optional("push_lockscreen"): str,
         vol.Optional("push_sticky"): bool,
         vol.Optional("push_severity_look"): bool,
+        vol.Optional("push_progress_interval"): vol.All(
+            vol.Coerce(int), vol.Range(min=MIN_PROGRESS_INTERVAL, max=MAX_PROGRESS_INTERVAL)
+        ),
         vol.Optional("push_channel_id"): str,
         vol.Optional("speak_language"): vol.All(str, vol.Length(max=20)),
         vol.Optional("mail_service"): str,

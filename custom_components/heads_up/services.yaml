@@ -38,7 +38,7 @@ create_banner:
       selector:
         text: null
     progress: &cl004
-      example: '{"entity_id": "sensor.printer_progress", "min": 0, "max": 100}'
+      example: '{"entity_id": "sensor.printer_progress", "min": 0, "max": 100, "interval": 10}'
       selector:
         object: null
     audience:

@@ -108,8 +108,8 @@ describe("progress entity choices (D-260)", () => {
   };
 
   it("lists only entities with a numeric state, sorted by name", () => {
-    expect(numericEntityOptions(states).map((o) => o.value)).toEqual(["sensor.a_count", "sensor.b_temp", "sensor.neg"]);
-    expect(numericEntityOptions(states)[1].label).toBe("Bedroom temperature (sensor.b_temp)");
+    expect(numericEntityOptions(states).map((o) => o.value)).toEqual(["sensor.b_temp", "sensor.neg", "sensor.a_count"]);
+    expect(numericEntityOptions(states)[0].label).toBe("Bedroom temperature (sensor.b_temp)");
   });
 
   it("keeps the chosen entity selectable when it is not numeric now", () => {

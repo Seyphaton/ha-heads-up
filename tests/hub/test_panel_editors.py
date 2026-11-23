@@ -178,6 +178,7 @@ async def test_the_config_has_the_entry_id_and_the_channel_settings(
         "push_lockscreen": "full",
         "push_sticky": False,
         "push_severity_look": False,
+        "push_progress_interval": 5,
         "push_channel_id": "heads_up",
         "speak_language": "",
         "mail_service": "",

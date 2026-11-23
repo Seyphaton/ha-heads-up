@@ -80,7 +80,24 @@ data:
     state: "on"
 ```
 
-The message ends when the printer stops, and the push is cleared. The iOS Live Activity shows the title, message, bar and icon. It has no image and no buttons, so put those on a message without `progress`.
+The message ends when the printer stops, and the push is cleared. The push is updated at most every 5 seconds; `interval` under `progress` (1 to 300) or the push channel setting changes that.
+
+To move the bar yourself, give a number instead of an entity and call the action again with the same `id`:
+
+```yaml
+action: heads_up.notify
+data:
+  id: backup
+  title: Backup
+  message: Copying files
+  severity: info
+  channels: [banner, push]
+  audience: binary_sensor.heads_up_audience_at_home
+  progress:
+    value: 45
+```
+
+`auto_update: false` next to an `entity_id` does the same with the entity's value at the time of the call. The iOS Live Activity shows the title, message, bar and icon. It has no image and no buttons, so put those on a message without `progress`.
 
 ### A spoken message
 

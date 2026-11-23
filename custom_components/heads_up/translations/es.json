@@ -500,7 +500,7 @@
         },
         "progress": {
           "name": "Progreso",
-          "description": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no menciona imagen ni botones para ella."
+          "description": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no menciona imagen ni botones para ella. En lugar de entity_id puedes dar value (un número que fijas tú). interval son los segundos mínimos entre dos push (1 a 300; si falta, el ajuste del canal push). auto_update: false detiene las actualizaciones automáticas: llama de nuevo a la acción con el mismo id para mover la barra."
         }
       }
     },
@@ -674,7 +674,7 @@
         },
         "progress": {
           "name": "Progreso",
-          "description": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no menciona imagen ni botones para ella."
+          "description": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no menciona imagen ni botones para ella. En lugar de entity_id puedes dar value (un número que fijas tú). interval son los segundos mínimos entre dos push (1 a 300; si falta, el ajuste del canal push). auto_update: false detiene las actualizaciones automáticas: llama de nuevo a la acción con el mismo id para mover la barra."
         }
       }
     },
@@ -940,7 +940,7 @@
             "color": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono. Ejemplo: #03a9f4 (azul), #e53935 (rojo).",
             "icon_url": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full. Ejemplo: /local/icons/doorbell.png. icon es un símbolo como mdi:door e icon_url una imagen.",
             "subtitle": "Una segunda línea bajo el título en el banner y la ventana. En un push: el subtítulo en iOS, el asunto en Android, enviado solo si el ajuste de la pantalla de bloqueo es full.",
-            "progress": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no menciona imagen ni botones para ella."
+            "progress": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no menciona imagen ni botones para ella. interval son los segundos mínimos entre dos push (1 a 300; si falta, el ajuste del canal push)."
           }
         },
         "reconfigure": {
@@ -999,7 +999,7 @@
             "color": "Un color #rrggbb. El banner y la ventana lo usan en lugar del color de la gravedad. En un push, Android colorea la notificación e iOS lo usa como fondo del icono. Ejemplo: #03a9f4 (azul), #e53935 (rojo).",
             "icon_url": "Un icono de remitente: una URL que empieza por http:// o https://, o una ruta que empieza por /. El banner y la ventana lo muestran en lugar del icono. En un push de iOS sustituye al icono. Un push lo envía solo si el ajuste de la pantalla de bloqueo es full. Ejemplo: /local/icons/doorbell.png. icon es un símbolo como mdi:door e icon_url una imagen.",
             "subtitle": "Una segunda línea bajo el título en el banner y la ventana. En un push: el subtítulo en iOS, el asunto en Android, enviado solo si el ajuste de la pantalla de bloqueo es full.",
-            "progress": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no menciona imagen ni botones para ella."
+            "progress": "Una barra de progreso que sigue a un número, en YAML: entity_id, min (0 por defecto) y max (100 por defecto). El banner y la ventana muestran una barra; el push pasa a ser una Live Update (Android 16 o posterior) o una Live Activity (iOS 17.2 o posterior). En iOS la Live Activity muestra el título, el mensaje, la barra y el icono; la documentación de Companion no menciona imagen ni botones para ella. interval son los segundos mínimos entre dos push (1 a 300; si falta, el ajuste del canal push)."
           }
         }
       },

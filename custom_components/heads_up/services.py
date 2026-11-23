@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import difflib
 import logging
+import math
 import re
 import secrets
 from collections.abc import Callable, Coroutine
@@ -32,10 +33,12 @@ from .const import (
     MAX_FOR_SECONDS,
     MAX_IMAGE,
     MAX_MESSAGE,
+    MAX_PROGRESS_INTERVAL,
     MAX_SNOOZE_OPTIONS,
     MAX_SNOOZE_SECONDS,
     MAX_TIMEOUT_DAYS,
     MAX_TITLE,
+    MIN_PROGRESS_INTERVAL,
     MIN_SNOOZE_SECONDS,
     MODES,
     POLICY_AUTOMATIC,
@@ -224,22 +227,37 @@ COLOR = _color
 SUBTITLE = vol.All(cv.string, vol.Length(min=1, max=MAX_TITLE))
 
 
-def _progress_range(value: dict[str, Any]) -> dict[str, Any]:
+def _finite(value: float) -> float:
+    if not math.isfinite(value):
+        raise vol.Invalid("the value must be a number")
+    return value
+
+
+def _progress_shape(value: dict[str, Any]) -> dict[str, Any]:
+    if ("entity_id" in value) == ("value" in value):
+        raise vol.Invalid("give either entity_id or value", path=["entity_id"])
     if float(value.get("max", 100)) <= float(value.get("min", 0)):
         raise vol.Invalid("max must be greater than min", path=["max"])
     return value
 
 
-# A progress bar bound to an entity (D-256). Values scale from min..max to 0..100 percent.
+# A progress bar (D-256, D-263). Values scale from min..max to 0..100 percent. It follows an entity
+# or takes a number the caller gives; `interval` is the least seconds between two pushes (the push
+# channel setting when absent); `auto_update: false` reads the entity only when the call is made.
 PROGRESS = vol.All(
     vol.Schema(
         {
-            vol.Required("entity_id"): cv.entity_id,
+            vol.Optional("entity_id"): cv.entity_id,
+            vol.Optional("value"): vol.All(vol.Coerce(float), _finite),
             vol.Optional("min"): vol.Coerce(float),
             vol.Optional("max"): vol.Coerce(float),
+            vol.Optional("interval"): vol.All(
+                vol.Coerce(float), vol.Range(min=MIN_PROGRESS_INTERVAL, max=MAX_PROGRESS_INTERVAL)
+            ),
+            vol.Optional("auto_update"): cv.boolean,
         }
     ),
-    _progress_range,
+    _progress_shape,
 )
 
 NAME = vol.All(cv.string, vol.Length(min=1, max=100))  # audience, recipient and policy names

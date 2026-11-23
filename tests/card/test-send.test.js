@@ -318,6 +318,18 @@ describe("every field of notify (D-260)", () => {
     });
   });
 
+  it("writes the progress bar with an interval, without automatic updates, or with a fixed value", () => {
+    const bar = { ...base, progress_entity: "sensor.p", progress_interval: "10", progress_auto: false };
+    expect(buildCall(bar).progress).toEqual({ entity_id: "sensor.p", interval: 10, auto_update: false });
+    expect(buildCall({ ...base, progress_entity: "sensor.p" }).progress).toEqual({ entity_id: "sensor.p" });
+    const fixed = { ...base, progress_value: "45", progress_max: "80", progress_interval: "10", progress_auto: false };
+    expect(buildCall(fixed).progress).toEqual({ value: 45, max: 80 });
+    const back = fromCall({ message: "x", progress: { entity_id: "sensor.p", interval: 10, auto_update: false } });
+    expect([back.progress_entity, back.progress_interval, back.progress_auto]).toEqual(["sensor.p", "10", false]);
+    expect(fromCall({ message: "x", progress: { value: 7 } }).progress_value).toBe("7");
+    expect(validate({ ...base, progress_entity: "sensor.p", progress_value: "5" }).map((p) => p.code)).toContain("progress_both");
+  });
+
   it("keeps the keys the form has no field for", () => {
     const call = buildCall({ ...base, extra: { condition: { entity_id: "a.b", state: "on" } } });
     expect(call.condition).toEqual({ entity_id: "a.b", state: "on" });

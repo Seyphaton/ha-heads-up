@@ -18,6 +18,9 @@ export const STRINGS = {
     f_progress: "Progress bar from an entity (optional)",
     f_progress_min: "Bar empty at this value (default 0)",
     f_progress_max: "Bar full at this value (default 100)",
+    f_progress_value: "Fixed value (instead of an entity)",
+    f_progress_interval: "Seconds between two updates (1 to 300, empty: the Channels setting)",
+    f_progress_auto: "Update the bar by itself while the entity changes",
     f_timeout: "Lifetime in minutes (optional)",
     timeout_hint: "Without it a test message ends after 10 minutes.",
     f_snooze_minutes: "Snooze choices in minutes",
@@ -95,7 +98,7 @@ export const STRINGS = {
     preview_failed: "The preview is not available: {text}",
     send_failed: "Sending failed: {text}",
     valid: "The call is valid.",
-    problems: { message_required: "Enter a message.", channels_required: "Choose at least one channel.", target_required: "{channel} needs a target.", target_exclusive: "{channel}: give either an audience or recipients." },
+    problems: { progress_both: "Choose an entity or a fixed value for the progress bar, not both.", message_required: "Enter a message.", channels_required: "Choose at least one channel.", target_required: "{channel} needs a target.", target_exclusive: "{channel}: give either an audience or recipients." },
     tag_hint: "A label for the message, for example water or laundry. Policies can apply to chosen tags, a card can show only banners with one tag, and clearing can remove every message with a tag. Leave it empty for none. This tag decides which policies the preview applies; the test message itself always gets the tag test.",
     behaviour_none: "Nothing here applies: mail and speech cannot be taken back, dismissed or snoozed.",
     behaviour_some: "Mail and speech ignore these choices; the other channels use them.",
@@ -129,6 +132,9 @@ export const STRINGS = {
     f_progress: "Fortschrittsbalken aus einer Entität (optional)",
     f_progress_min: "Balken leer bei diesem Wert (Standard 0)",
     f_progress_max: "Balken voll bei diesem Wert (Standard 100)",
+    f_progress_value: "Fester Wert (statt einer Entität)",
+    f_progress_interval: "Sekunden zwischen zwei Updates (1 bis 300, leer: Einstellung der Kanäle)",
+    f_progress_auto: "Den Balken selbst aktualisieren, solange sich die Entität ändert",
     f_timeout: "Lebensdauer in Minuten (optional)",
     timeout_hint: "Ohne Angabe endet eine Testnachricht nach 10 Minuten.",
     f_snooze_minutes: "Wahl für Später, in Minuten",
@@ -206,7 +212,7 @@ export const STRINGS = {
     preview_failed: "Die Vorschau ist nicht verfügbar: {text}",
     send_failed: "Senden fehlgeschlagen: {text}",
     valid: "Der Aufruf ist gültig.",
-    problems: { message_required: "Gib eine Meldung ein.", channels_required: "Wähle mindestens einen Kanal.", target_required: "{channel} braucht ein Ziel.", target_exclusive: "{channel}: gib entweder eine Zielgruppe oder Empfänger an." },
+    problems: { progress_both: "Wähle für den Fortschrittsbalken eine Entität oder einen festen Wert, nicht beides.", message_required: "Gib eine Meldung ein.", channels_required: "Wähle mindestens einen Kanal.", target_required: "{channel} braucht ein Ziel.", target_exclusive: "{channel}: gib entweder eine Zielgruppe oder Empfänger an." },
     tag_hint: "Ein Etikett für die Meldung, zum Beispiel water oder laundry. Richtlinien können für bestimmte Tags gelten, eine Karte kann nur Banner mit einem Tag zeigen, und beim Entfernen lassen sich alle Meldungen mit einem Tag entfernen. Leer lassen für keins. Dieser Tag bestimmt, welche Richtlinien die Vorschau anwendet; die Testmeldung selbst bekommt immer den Tag test.",
     behaviour_none: "Hier gilt nichts: E-Mail und Sprache lassen sich nicht zurücknehmen, ausblenden oder zurückstellen.",
     behaviour_some: "E-Mail und Sprache ignorieren diese Auswahl; die anderen Kanäle nutzen sie.",
@@ -240,6 +246,9 @@ export const STRINGS = {
     f_progress: "Barre de progression d'une entité (facultatif)",
     f_progress_min: "Barre vide à cette valeur (0 par défaut)",
     f_progress_max: "Barre pleine à cette valeur (100 par défaut)",
+    f_progress_value: "Valeur fixe (au lieu d'une entité)",
+    f_progress_interval: "Secondes entre deux mises à jour (1 à 300, vide : réglage des canaux)",
+    f_progress_auto: "Mettre la barre à jour seule tant que l'entité change",
     f_timeout: "Durée de vie en minutes (facultatif)",
     timeout_hint: "Sans cela, un message de test se termine après 10 minutes.",
     f_snooze_minutes: "Choix de report, en minutes",
@@ -317,7 +326,7 @@ export const STRINGS = {
     preview_failed: "L'aperçu n'est pas disponible : {text}",
     send_failed: "Échec de l'envoi : {text}",
     valid: "L'appel est valide.",
-    problems: { message_required: "Saisissez un message.", channels_required: "Choisissez au moins un canal.", target_required: "{channel} a besoin d'une cible.", target_exclusive: "{channel} : indiquez soit une audience soit des destinataires." },
+    problems: { progress_both: "Choisissez pour la barre une entité ou une valeur fixe, pas les deux.", message_required: "Saisissez un message.", channels_required: "Choisissez au moins un canal.", target_required: "{channel} a besoin d'une cible.", target_exclusive: "{channel} : indiquez soit une audience soit des destinataires." },
     tag_hint: "Un libellé pour le message, par exemple water ou laundry. Des politiques peuvent s'appliquer à certaines étiquettes, une carte peut n'afficher que les bannières d'une étiquette, et la suppression peut retirer tous les messages d'une étiquette. Laissez vide pour aucune. Cette étiquette décide des politiques que l'aperçu applique ; le message de test reçoit toujours l'étiquette test.",
     behaviour_none: "Rien ne s'applique ici : un courriel et la voix ne peuvent pas être repris, masqués ni reportés.",
     behaviour_some: "Le courriel et la voix ignorent ces choix ; les autres canaux les utilisent.",
@@ -351,6 +360,9 @@ export const STRINGS = {
     f_progress: "Barra de progreso de una entidad (opcional)",
     f_progress_min: "Barra vacía con este valor (0 por defecto)",
     f_progress_max: "Barra llena con este valor (100 por defecto)",
+    f_progress_value: "Valor fijo (en lugar de una entidad)",
+    f_progress_interval: "Segundos entre dos actualizaciones (1 a 300, vacío: ajuste de canales)",
+    f_progress_auto: "Actualizar la barra sola mientras cambie la entidad",
     f_timeout: "Duración en minutos (opcional)",
     timeout_hint: "Sin ello, un mensaje de prueba termina a los 10 minutos.",
     f_snooze_minutes: "Opciones de posponer, en minutos",
@@ -428,7 +440,7 @@ export const STRINGS = {
     preview_failed: "La vista previa no está disponible: {text}",
     send_failed: "Falló el envío: {text}",
     valid: "La llamada es válida.",
-    problems: { message_required: "Introduce un mensaje.", channels_required: "Elige al menos un canal.", target_required: "{channel} necesita un destino.", target_exclusive: "{channel}: indica una audiencia o destinatarios." },
+    problems: { progress_both: "Elige para la barra una entidad o un valor fijo, no ambos.", message_required: "Introduce un mensaje.", channels_required: "Elige al menos un canal.", target_required: "{channel} necesita un destino.", target_exclusive: "{channel}: indica una audiencia o destinatarios." },
     tag_hint: "Un rótulo para el mensaje, por ejemplo water o laundry. Las políticas pueden aplicarse a ciertas etiquetas, una tarjeta puede mostrar solo avisos con una etiqueta, y al borrar se pueden quitar todos los mensajes con una etiqueta. Déjalo vacío para ninguna. Esta etiqueta decide qué políticas aplica la vista previa; el mensaje de prueba siempre recibe la etiqueta test.",
     behaviour_none: "Aquí no se aplica nada: el correo y la voz no se pueden retirar, descartar ni posponer.",
     behaviour_some: "El correo y la voz ignoran estas opciones; los demás canales las usan.",
@@ -459,7 +471,7 @@ export function fill(template, params) {
 export function blankValues() {
   return {
     title: "", message: "", tts_message: "", volume: "", mail_subject: "", mail_body: "", severity: "info", tag: "", channels: ["banner"], policy: [], match_automatic: true, dismiss: "", snooze: "",
-    icon: "", image: "", color: "", subtitle: "", icon_url: "", progress_entity: "", progress_min: "", progress_max: "",
+    icon: "", image: "", color: "", subtitle: "", icon_url: "", progress_entity: "", progress_value: "", progress_min: "", progress_max: "", progress_interval: "", progress_auto: true,
     timeout: "", snooze_minutes: [], snooze_custom: false, actions: [], tap_action: null, tap_problem: "",
     // Keys of a call the form has no field for (for example `condition`); kept and sent as they are.
     extra: {},
@@ -497,11 +509,18 @@ export function buildCall(values, ids = {}) {
   if (values.dismiss) data.dismiss = values.dismiss;
   if (values.snooze && values.dismiss !== "off") data.snooze = values.snooze;
   for (const key of ["icon", "image", "color", "subtitle", "icon_url"]) if (String(values[key] || "").trim()) data[key] = String(values[key]).trim();
-  if (String(values.progress_entity || "").trim()) {
-    data.progress = { entity_id: String(values.progress_entity).trim() };
+  const fixed = String(values.progress_value ?? "").trim();
+  if (String(values.progress_entity || "").trim() || fixed !== "") {
+    // A fixed value replaces the entity (D-263).
+    data.progress = fixed !== "" && !Number.isNaN(Number(fixed)) ? { value: Number(fixed) } : { entity_id: String(values.progress_entity).trim() };
     for (const key of ["min", "max"]) {
       const raw = String(values[`progress_${key}`] ?? "").trim();
       if (raw !== "" && !Number.isNaN(Number(raw))) data.progress[key] = Number(raw);
+    }
+    if (data.progress.entity_id) {
+      const every = String(values.progress_interval ?? "").trim();
+      if (every !== "" && !Number.isNaN(Number(every))) data.progress.interval = Number(every);
+      if (values.progress_auto === false) data.progress.auto_update = false;
     }
   }
   const minutes = Number.parseFloat(String(values.timeout ?? "").replace(",", "."));
@@ -582,8 +601,11 @@ export function fromCall(call, ids = {}) {
   const progress = take("progress");
   if (progress && typeof progress === "object") {
     values.progress_entity = String(progress.entity_id ?? "");
+    values.progress_value = progress.value === undefined ? "" : String(progress.value);
     values.progress_min = progress.min === undefined ? "" : String(progress.min);
     values.progress_max = progress.max === undefined ? "" : String(progress.max);
+    values.progress_interval = progress.interval === undefined ? "" : String(progress.interval);
+    values.progress_auto = progress.auto_update !== false;
   }
   values.timeout = minutesOf(take("timeout"));
   const options = take("snooze_options");
@@ -638,6 +660,7 @@ export function validate(values) {
   for (const b of values.actions || []) if (!String(b.label || "").trim()) found.push({ code: "label_required" });
   if ((values.actions || []).some((b) => b.dismiss) && values.dismiss === "off") found.push({ code: "dismiss_needs_dismissible" });
   if (values.tap_problem) found.push({ code: values.tap_problem });
+  if (String(values.progress_entity || "").trim() && String(values.progress_value ?? "").trim() !== "") found.push({ code: "progress_both" });
   const banner = values.banner_audience && (values.banner_recipients || []).length > 0;
   if (values.channels.includes("banner") && banner) found.push({ code: "target_exclusive", channel: "banner" });
   return found;
@@ -840,7 +863,13 @@ export function mount(container, ctx) {
       text("image", t.f_image),
     ];
     look.push(ui.field(t.f_progress, ui.selectInput([{ value: "", label: s.common.none }, ...ui.numericEntityOptions(hass.states, values.progress_entity)], values.progress_entity, (v) => { values.progress_entity = v; change(); })));
-    look.push(text("progress_min", t.f_progress_min, { placeholder: "0" }), text("progress_max", t.f_progress_max, { placeholder: "100" }));
+    look.push(
+      text("progress_value", t.f_progress_value, { placeholder: "45" }),
+      text("progress_min", t.f_progress_min, { placeholder: "0" }),
+      text("progress_max", t.f_progress_max, { placeholder: "100" }),
+      text("progress_interval", t.f_progress_interval, { placeholder: "5" }),
+      ui.checkbox(t.f_progress_auto, values.progress_auto, (on) => { values.progress_auto = on; change(); }),
+    );
 
     const buttons = [
       el("datalist", { id: "hu-entities" }, Object.keys(hass.states || {}).sort().map((id) => el("option", { value: id }))),

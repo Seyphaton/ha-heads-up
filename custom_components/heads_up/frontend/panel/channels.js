@@ -53,6 +53,9 @@ export const STRINGS = {
     failed: "Could not save. Try again.",
     valid: "No problems.",
     bad_channel_id: "The channel name uses lower-case letters, digits and underscores, up to 40 characters.",
+    progress_interval: "Seconds between two progress updates (1 to 300)",
+    progress_interval_note: "Least time between two pushes of one message with a progress bar. A message can set its own with progress.interval. The Companion app and iOS throttle frequent updates; 5 seconds is a safe start.",
+    bad_progress_interval: "The progress interval is a whole number of seconds from 1 to 300.",
     mail: "Mail",
     persistent: "Persistent Notification",
     persistent_summary: "No settings",
@@ -121,6 +124,9 @@ export const STRINGS = {
     failed: "Speichern fehlgeschlagen. Versuche es erneut.",
     valid: "Keine Probleme.",
     bad_channel_id: "Der Kanalname besteht aus Kleinbuchstaben, Ziffern und Unterstrichen, höchstens 40 Zeichen.",
+    progress_interval: "Sekunden zwischen zwei Fortschrittsmeldungen (1 bis 300)",
+    progress_interval_note: "Kürzeste Zeit zwischen zwei Pushs einer Nachricht mit Fortschrittsbalken. Eine Nachricht kann mit progress.interval eine eigene festlegen. Die Companion-App und iOS drosseln häufige Updates; 5 Sekunden sind ein sicherer Anfang.",
+    bad_progress_interval: "Das Fortschrittsintervall ist eine ganze Zahl von Sekunden von 1 bis 300.",
     mail: "E-Mail",
     persistent: "Persistente Benachrichtigung",
     persistent_summary: "Keine Einstellungen",
@@ -189,6 +195,9 @@ export const STRINGS = {
     failed: "Enregistrement impossible. Réessayez.",
     valid: "Aucun problème.",
     bad_channel_id: "Le nom du canal utilise des minuscules, des chiffres et des tirets bas, 40 caractères au plus.",
+    progress_interval: "Secondes entre deux mises à jour de progression (1 à 300)",
+    progress_interval_note: "Délai minimal entre deux push d'un message avec barre de progression. Un message peut définir le sien avec progress.interval. L'app Companion et iOS limitent les mises à jour fréquentes ; 5 secondes est un bon départ.",
+    bad_progress_interval: "L'intervalle de progression est un nombre entier de secondes de 1 à 300.",
     mail: "Courriel",
     persistent: "Notification persistante",
     persistent_summary: "Aucun réglage",
@@ -257,6 +266,9 @@ export const STRINGS = {
     failed: "No se pudo guardar. Inténtalo de nuevo.",
     valid: "Sin problemas.",
     bad_channel_id: "El nombre del canal usa minúsculas, dígitos y guiones bajos, hasta 40 caracteres.",
+    progress_interval: "Segundos entre dos actualizaciones de progreso (1 a 300)",
+    progress_interval_note: "Tiempo mínimo entre dos push de un mensaje con barra de progreso. Un mensaje puede fijar el suyo con progress.interval. La app Companion e iOS limitan las actualizaciones frecuentes; 5 segundos es un buen comienzo.",
+    bad_progress_interval: "El intervalo de progreso es un número entero de segundos de 1 a 300.",
     mail: "Correo",
     persistent: "Notificación persistente",
     persistent_summary: "Sin ajustes",
@@ -283,7 +295,7 @@ const LOCKSCREENS = ["full", "title_only", "generic"];
 // The channels the page lists, the settings each one owns and its icon.
 const CHANNELS = [
   { key: "banner", icon: "mdi:card-text-outline", keys: [], settings: ["default_snooze_options"] },
-  { key: "push", icon: "mdi:cellphone-message", keys: ["push_lockscreen", "push_channel_id", "push_sticky", "push_severity_look"], settings: ["quick_snooze_minutes"] },
+  { key: "push", icon: "mdi:cellphone-message", keys: ["push_lockscreen", "push_channel_id", "push_sticky", "push_severity_look", "push_progress_interval"], settings: ["quick_snooze_minutes"] },
   { key: "popup", icon: "mdi:dock-window", keys: [], settings: ["quick_snooze_minutes"] },
   { key: "speech", icon: "mdi:account-voice", keys: ["speak_language"], settings: [] },
   { key: "persistent", icon: "mdi:bell-outline", keys: [], settings: [] },
@@ -402,9 +414,16 @@ export function validMailTemplate(text, limit) {
   return [...value.matchAll(/\{(\w*)\}/g)].every((m) => MAIL_PLACEHOLDERS.includes(m[1]));
 }
 
+// Seconds between two progress pushes: a whole number from 1 to 300 (D-263).
+export function validProgressInterval(value) {
+  const n = Number(value);
+  return value !== "" && value !== null && Number.isInteger(n) && n >= 1 && n <= 300;
+}
+
 export function problems(values) {
   const found = [];
   if (!validChannelId(values.push_channel_id)) found.push("bad_channel_id");
+  if (values.push_progress_interval !== undefined && !validProgressInterval(values.push_progress_interval)) found.push("bad_progress_interval");
   if (values.mail_subject !== undefined && !validMailTemplate(values.mail_subject, 200)) found.push("bad_mail_subject");
   if (values.mail_body !== undefined && !validMailTemplate(values.mail_body, 2000)) found.push("bad_mail_body");
   if (String(values.mail_global_address ?? "").trim().length > 254) found.push("bad_mail_address");
@@ -512,6 +531,7 @@ export function mount(container, ctx) {
       box.append(ui.field(t.channel_id, ui.textInput(values.push_channel_id, (v) => { values.push_channel_id = v; paint(); }, { spellcheck: false, autocapitalize: "off" })));
       box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.sticky, values.push_sticky, (on) => { values.push_sticky = on; paint(); })]));
       box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.severity_look, values.push_severity_look, (on) => { values.push_severity_look = on; paint(); })]), hint(t.severity_look_note));
+      box.append(ui.field(t.progress_interval, ui.numberInput(values.push_progress_interval, (v) => { values.push_progress_interval = Number.isNaN(v) ? "" : v; paint(); }, { min: 1, max: 300, step: 1 })), hint(t.progress_interval_note));
       box.append(hint(t.channel_id_note), hint(t.buttons_note));
     } else if (key === "speech") {
       if (languages?.length) {

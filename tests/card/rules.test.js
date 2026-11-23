@@ -95,10 +95,10 @@ describe("watch rule form", () => {
   });
 
   it("sends the progress bar as one object and reads it back", () => {
-    const values = { ...blankValues(), name: "A", entity_id: "light.a", message: "x", progress_entity: " sensor.p ", progress_min: "10", progress_max: "" };
+    const values = { ...blankValues(), name: "A", entity_id: "light.a", message: "x", progress_entity: " sensor.p ", progress_min: "10", progress_max: "", progress_interval: "20" };
     const data = toFlowData(values);
-    expect(data.progress).toEqual({ entity_id: "sensor.p", min: 10 });
-    expect(fromRule({ name: "A", data })).toMatchObject({ progress_entity: "sensor.p", progress_min: "10", progress_max: "" });
+    expect(data.progress).toEqual({ entity_id: "sensor.p", min: 10, interval: 20 });
+    expect(fromRule({ name: "A", data })).toMatchObject({ progress_entity: "sensor.p", progress_min: "10", progress_max: "", progress_interval: "20" });
     expect(toFlowData({ ...values, progress_entity: "" }).progress).toBeUndefined();
   });
 
