@@ -15,6 +15,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - The watch rule form in the panel edits buttons (up to 3, with text, key, close, red text, unlocked phone and an action) and the tap action. Before, they could only be set in the YAML of the form on the integration page.
 - Test send has every field of `notify` in collapsible sections, including the new look fields, progress, buttons, tap action, snooze choices and a lifetime for the test message. A switch at the top right changes between the Visual editor and the YAML editor, which replaces the separate paste section at the bottom.
 - The watch rule form has the same Visual editor and YAML editor switch.
+- Built-in audiences can be edited in place on the Audiences page: leave out named people, and limit At home, Not home, Last to leave and First home to named people. Reset to default restores the original. Policies, actions, watch rules and the audience sensors follow the edit.
 - Examples for the color, the sender icon and a progress bar in the field help and in the examples page.
 
 ### Fixed

@@ -137,6 +137,10 @@ BANNER_NOBODY: Final = "person.heads_up_nobody"
 OPT_ATTENTION_DISMISSED: Final = "attention_dismissed"
 # Built-in audiences the admin switched off, as a list of names in the entry options (D-136).
 OPT_AUDIENCES_DISABLED: Final = "audiences_disabled"
+# Edits of the built-in audiences, by kind: {"exclude": [person...], "limit": [person...]} (D-257).
+OPT_AUDIENCE_EDITS: Final = "audience_edits"
+# The built-in audiences whose members can be limited to named people.
+LIMITABLE_AUDIENCES: Final = ("at_home", "not_home", "last_to_leave", "first_home")
 MAX_ATTENTION_DISMISSED: Final = 200
 BUILTIN_AUDIENCES: Final = {
     "Everyone": "everyone",

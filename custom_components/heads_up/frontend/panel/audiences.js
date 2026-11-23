@@ -51,6 +51,12 @@ export const STRINGS = {
     off_failed: "Could not change this audience. Try again.",
     off: "Off",
     off_hint: "Switched off: calls and policies cannot use it.",
+    edited: "Edited",
+    edit_title: "Who it reaches",
+    exclude_label: "Leave out these people",
+    exclude_hint: "They never get a message sent to this audience, whatever else it says.",
+    reset: "Reset to default",
+    edit_failed: "Could not save the edit. Try again.",
     kinds: KINDS.en,
     tips: {
       everyone: "Every person in Home Assistant, wherever they are. Use it for messages the whole household should get.",
@@ -104,6 +110,12 @@ export const STRINGS = {
     off_failed: "Diese Zielgruppe konnte nicht geändert werden. Versuche es erneut.",
     off: "Aus",
     off_hint: "Ausgeschaltet: Aufrufe und Richtlinien können sie nicht nutzen.",
+    edited: "Geändert",
+    edit_title: "Wen sie erreicht",
+    exclude_label: "Diese Personen auslassen",
+    exclude_hint: "Sie bekommen nie eine Meldung an diese Zielgruppe, was sonst auch gilt.",
+    reset: "Auf Standard zurücksetzen",
+    edit_failed: "Die Änderung konnte nicht gespeichert werden. Versuche es erneut.",
     kinds: KINDS.de,
     tips: {
       everyone: "Alle Personen in Home Assistant, wo auch immer sie sind. Für Meldungen, die der ganze Haushalt bekommen soll.",
@@ -157,6 +169,12 @@ export const STRINGS = {
     off_failed: "Cette audience n'a pas pu être modifiée. Réessayez.",
     off: "Désactivée",
     off_hint: "Désactivée : les appels et les politiques ne peuvent pas l'utiliser.",
+    edited: "Modifiée",
+    edit_title: "Qui elle atteint",
+    exclude_label: "Exclure ces personnes",
+    exclude_hint: "Elles ne reçoivent jamais de message adressé à cette audience, quoi qu'elle dise d'autre.",
+    reset: "Rétablir par défaut",
+    edit_failed: "Impossible d'enregistrer la modification. Réessayez.",
     kinds: KINDS.fr,
     tips: {
       everyone: "Toutes les personnes de Home Assistant, où qu'elles soient. Pour les messages que tout le foyer doit recevoir.",
@@ -210,6 +228,12 @@ export const STRINGS = {
     off_failed: "No se pudo cambiar esta audiencia. Inténtalo de nuevo.",
     off: "Desactivada",
     off_hint: "Desactivada: las llamadas y las políticas no pueden usarla.",
+    edited: "Modificada",
+    edit_title: "A quién llega",
+    exclude_label: "Dejar fuera a estas personas",
+    exclude_hint: "Nunca reciben un mensaje dirigido a esta audiencia, diga lo que diga lo demás.",
+    reset: "Restablecer",
+    edit_failed: "No se pudo guardar el cambio. Inténtalo de nuevo.",
     kinds: KINDS.es,
     tips: {
       everyone: "Todas las personas de Home Assistant, estén donde estén. Para mensajes que debe recibir todo el hogar.",
@@ -290,6 +314,7 @@ const PAGE_CSS = `
 .hu-page .aud-pill .aud-copy { min-height: 32px; padding: 0 10px; font-size: 13px; }
 .hu-page .aud-details .tl-actions { margin-top: 14px; }
 .hu-page .aud-switch { min-height: 44px; }
+.hu-page .aud-edit { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
 `;
 
 export function blankValues() {
@@ -353,6 +378,55 @@ export function mount(container, ctx) {
   const names = (keys) => keys.map((k) => data.choices.persons.find((p) => p.id === k)?.name ?? k);
   const ago = (iso) => (iso ? ctx.fmt.timeAgo(iso, Date.now(), s) : "");
 
+  const edits = {}; // unsaved edits of the built-in audiences, by key
+
+  async function saveEdit(audience, key) {
+    const edit = edits[key];
+    try {
+      await hass.callWS({ type: "heads_up/audience_edit", name: audience.name, exclude: edit.exclude, limit: audience.limitable ? edit.limit : [] });
+      message = "";
+    } catch (err) {
+      message = t.edit_failed;
+    }
+    delete edits[key];
+    await load();
+  }
+
+  async function resetEdit(audience, key) {
+    try {
+      await hass.callWS({ type: "heads_up/audience_reset", name: audience.name });
+      message = "";
+    } catch (err) {
+      message = t.edit_failed;
+    }
+    delete edits[key];
+    await load();
+  }
+
+  // The edit of a built-in audience: people left out and, for the presence audiences, the people
+  // it is limited to. Its meaning (who counts as home, who left last) does not change (D-257).
+  function editNode(a, key) {
+    const edit = (edits[key] ||= { exclude: [...(a.edit?.exclude || [])], limit: [...(a.edit?.limit || [])] });
+    const people = data.choices.persons.map((p) => ({ value: p.id, label: p.name }));
+    const box = el("div", { className: "aud-edit" }, [el("div", { className: "aud-label", textContent: t.edit_title })]);
+    box.append(ui.multiSelect(t.exclude_label, people, edit.exclude, (list) => { edit.exclude = list; }, t.nobody));
+    box.append(el("span", { className: "hint", textContent: t.exclude_hint }));
+    if (a.limitable) {
+      box.append(ui.multiSelect(t.limit_label, people, edit.limit, (list) => { edit.limit = list; }, s.common.none));
+      box.append(el("span", { className: "hint", textContent: t.limit_hint }));
+    }
+    const save = el("button", { type: "button", className: "primary", textContent: s.common.save });
+    save.addEventListener("click", () => saveEdit(a, key));
+    const row = el("div", { className: "tl-actions" }, [save]);
+    if (a.edited) {
+      const reset = el("button", { type: "button", textContent: t.reset });
+      reset.addEventListener("click", () => resetEdit(a, key));
+      row.append(reset);
+    }
+    box.append(row);
+    return box;
+  }
+
   async function toggle(audience, enabled) {
     try {
       await hass.callWS({ type: "heads_up/audience_enable", name: audience.name, enabled });
@@ -380,6 +454,7 @@ export function mount(container, ctx) {
       const lead = [el("ha-icon", { icon: audienceIcon(a.kind) }), el("span", { className: "tl-name", textContent: a.name })];
       if (!a.builtin) lead.push(el("span", { className: "badge", textContent: t.kinds[a.kind] || a.kind }));
       if (off) lead.push(el("span", { className: "badge", textContent: t.off }));
+      if (a.edited) lead.push(el("span", { className: "badge", textContent: t.edited }));
       const { item } = ui.tableRow({
         id,
         lead,
@@ -439,6 +514,7 @@ export function mount(container, ctx) {
       });
       body.append(el("div", { className: "aud-sensor" }, [el("span", { className: "aud-label", textContent: t.sensor_label }), el("span", { className: "aud-pill" }, [el("code", { textContent: a.entity_id }), copy])]));
     }
+    if (a.builtin) body.append(editNode(a, key));
     const actions = el("div", { className: "tl-actions" });
     if (count) {
       const log = el("button", { type: "button", textContent: t.show_log });
