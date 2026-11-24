@@ -2,8 +2,8 @@
 // Plain ES module, no build step (D-021). Item text is caller-supplied and is only ever written
 // with textContent. The card shows the inbox of the logged-in user; there is no person option.
 
-export const SIZES = ["small", "medium", "large"];
-export const DESIGNS = { small: ["number", "ring", "mosaic"], medium: ["tile", "ring", "split"], large: [] };
+export const SIZES = ["compact", "small", "medium", "large"];
+export const DESIGNS = { small: ["number", "ring", "mosaic"], medium: ["tile", "ring", "split"], large: [], compact: [] };
 // Read by scripts/docs_check.py to keep docs/configuration.md in step with the card.
 export const CONFIG_KEYS = ["size", "design", "titles_only"];
 const SEVERITIES = ["critical", "warning", "info", "passive"];
@@ -83,6 +83,7 @@ const ENGLISH = {
     size: "Size",
     design: "Design",
     titles_only: "Show titles only, never the text",
+    size_compact: "Compact tile",
     size_small: "Small tile",
     size_medium: "Medium card",
     size_large: "Large list",
@@ -155,6 +156,7 @@ export const TRANSLATIONS = {
       size: "Größe",
       design: "Darstellung",
       titles_only: "Nur Titel zeigen, nie den Text",
+      size_compact: "Kompakte Kachel",
       size_small: "Kleine Kachel",
       size_medium: "Mittlere Karte",
       size_large: "Große Liste",
@@ -223,6 +225,7 @@ export const TRANSLATIONS = {
       size: "Taille",
       design: "Présentation",
       titles_only: "Afficher seulement les titres, jamais le texte",
+      size_compact: "Tuile compacte",
       size_small: "Petite tuile",
       size_medium: "Carte moyenne",
       size_large: "Grande liste",
@@ -291,6 +294,7 @@ export const TRANSLATIONS = {
       size: "Tamaño",
       design: "Diseño",
       titles_only: "Mostrar solo los títulos, nunca el texto",
+      size_compact: "Ficha compacta",
       size_small: "Ficha pequeña",
       size_medium: "Tarjeta mediana",
       size_large: "Lista grande",
@@ -363,6 +367,18 @@ const needsFirst = (items) => [...items].sort((a, b) => Number(b.needs_action) -
 
 export function topItem(items) {
   return needsFirst(items.filter((i) => i.needs_action || i.unread))[0] ?? null;
+}
+
+// The compact tile (D-277): title of the message that matters most, else "Inbox".
+export function compactTile(state, items, strings = STRINGS) {
+  const kind = summaryKind(state);
+  const top = kind === "clear" ? null : topItem(items);
+  return {
+    kind,
+    severity: top ? top.severity : null,
+    title: top?.title || strings.inbox,
+    sub: summaryText(state, strings),
+  };
 }
 
 export function ringSegments(counts, radius, gap = RING_GAP) {
@@ -498,6 +514,10 @@ ha-card { overflow: hidden; }
 .sub { color: var(--secondary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .crit .sub, .sub.crit { color: var(--error-color); font-weight: 600; }
 
+.cmp { display: flex; align-items: center; gap: 14px; padding: 12px 16px; min-height: 56px; }
+.cmp .tx { flex: 1; min-width: 0; }
+.cmp .t1 { font-weight: 600; font-size: 16px; text-transform: none; letter-spacing: 0; color: var(--primary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmp .sub { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tileA { display: flex; align-items: center; gap: 14px; padding: 16px 18px; }
 .tileA .tx { flex: 1; min-width: 0; }
 .tileA .big { font-size: 34px; line-height: 1; }
@@ -662,6 +682,7 @@ class HeadsUpInboxCard extends Base {
 
   getGridOptions() {
     const size = this._config?.size ?? "large";
+    if (size === "compact") return { columns: 6, rows: 1, min_columns: 3, min_rows: 1 };
     if (size === "small") return { columns: 3, rows: 2, min_columns: 3, min_rows: 2 };
     if (size === "medium") return { columns: 12, rows: "auto", min_columns: 6 };
     return { columns: 12, rows: "auto", min_columns: 6 };
@@ -879,6 +900,7 @@ class HeadsUpInboxCard extends Base {
 
   _badge() {
     const { design, size } = this._config;
+    if (size === "compact") return this._compact();
     if (size === "small") return { number: this._number(), ring: this._smallRing(), mosaic: this._mosaic() }[design];
     return { tile: this._tileA(), ring: this._ringB(), split: this._split() }[design];
   }
@@ -897,6 +919,22 @@ class HeadsUpInboxCard extends Base {
 
   _label() {
     return `${STRINGS.inbox}: ${summaryText(this._stateNumbers(), STRINGS)}`;
+  }
+
+  _compact() {
+    const n = this._stateNumbers();
+    const tile = compactTile(n, this._items());
+    const color = tile.kind === "needs" ? SEVERITY_COLOR.critical : tile.severity ? severityColor(tile.severity) : null;
+    return this._opens(
+      h("div", { class: `cmp ${tile.kind === "needs" ? "crit-bg" : ""}` }, [
+        h("div", { class: `tile ${tile.kind === "clear" ? "ok" : ""}`, style: color ? `--c:${color}` : null }, [
+          icon(tile.kind === "clear" ? "mdi:check" : "mdi:bell"),
+          tile.kind === "needs" ? h("span", { class: "pip" }) : null,
+        ]),
+        h("div", { class: "tx" }, [h("div", { class: "t1", text: tile.title }), h("div", { class: "sub", text: tile.sub })]),
+      ]),
+      this._label(),
+    );
   }
 
   _tileA() {

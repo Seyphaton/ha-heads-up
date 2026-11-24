@@ -262,7 +262,7 @@ design: split
 
 | Card option | Type | Default | Meaning |
 |---|---|---|---|
-| `size` | `small`, `medium` or `large` | `large` | Small is a square tile for a grid of tiles. Medium is a wide card. Large is the list itself. |
+| `size` | `compact`, `small`, `medium` or `large` | `large` | Compact is one row: an icon, the title of the message that matters most and a line with the count. Small is a square tile for a grid of tiles. Medium is a wide card. Large is the list itself. |
 | `design` | `number`, `ring` or `mosaic` for small; `tile`, `ring` or `split` for medium | the first of its size | How the count looks. Not for the large list. Number shows the count big. Ring splits it by severity. Mosaic shows the icons of up to four unread items, and +N from five on. Tile and ring show the latest unread title. Split has the buttons Open and Mark all read. |
 | `titles_only` | boolean | `false` | `true`: the card never shows the text of a message, only its title. Use it on a screen that others can see. |
 

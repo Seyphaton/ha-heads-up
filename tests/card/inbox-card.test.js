@@ -22,6 +22,7 @@ import {
   summaryKind,
   summaryText,
   timelineText,
+  compactTile,
   topItem,
   visibleText,
   whenFrontendReady,
@@ -349,5 +350,37 @@ describe("registration", () => {
     let now = 0;
     await whenFrontendReady(() => new Map(), (fn) => { now += 5000; fn(); }, 10000, () => now);
     expect(now).toBeGreaterThanOrEqual(10000);
+  });
+});
+
+describe("compact tile (D-277)", () => {
+  it("is a size without designs", () => {
+    expect(normalizeConfig({ size: "compact" })).toEqual({ size: "compact", design: "", titles_only: false });
+    expect(() => normalizeConfig({ size: "compact", design: "tile" })).toThrow(/design/);
+  });
+
+  it("is quiet and green with nothing waiting", () => {
+    expect(compactTile({ unread: 0, needs_action: 0 }, [])).toEqual({
+      kind: "clear",
+      severity: null,
+      title: STRINGS.inbox,
+      sub: summaryText({ unread: 0, needs_action: 0 }, STRINGS),
+    });
+  });
+
+  it("shows the newest unread title and takes its severity", () => {
+    const items = [item({ title: "Window open", severity: "warning" })];
+    const tile = compactTile({ unread: 1, needs_action: 0 }, items);
+    expect(tile).toMatchObject({ kind: "unread", severity: "warning", title: "Window open" });
+  });
+
+  it("puts a message that needs action first", () => {
+    const items = [item({ title: "Info" }), item({ title: "Smoke", severity: "critical", needs_action: true })];
+    expect(compactTile({ unread: 2, needs_action: 1 }, items)).toMatchObject({ kind: "needs", title: "Smoke", severity: "critical" });
+  });
+
+  it("falls back to the inbox title when the unread message has none", () => {
+    const tile = compactTile({ unread: 1, needs_action: 0 }, [item({ title: "" })]);
+    expect(tile.title).toBe(STRINGS.inbox);
   });
 });

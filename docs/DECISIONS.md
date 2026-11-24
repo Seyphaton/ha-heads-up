@@ -1808,3 +1808,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer, "do it at the same position where you also show critical messages in the first card"): the Overview payload has `live_activities`, every active non-rule message with a progress bar. The status card lists them first, each with Dismiss (`heads_up/panel_clear`, which clears the push tag on every device). They are not in `status`, so the count and the green state do not change.
 - Unverified on real devices: that `clear_notification` ends an iOS Live Activity (HA companion docs say it does; no device was available).
 - Same day (maintainer): the severity boxes of the form start with all four checked, the last checked box cannot be unchecked (hint: switch the policy off), and four checked are stored as an empty list. A policy cannot be left with no severity.
+
+## D-277 Inbox card: size `compact` (2026-11-24, maintainer)
+- Context: the maintainer showed a row-shaped tile (icon on the left, title and one line below) and asked for cards in that form factor.
+- Decision (maintainer, "Inbox card only", "like the screenshot"): a fourth size `compact` of the inbox card, no designs. Icon coloured by the severity of the message that matters most (needs action first, then unread; green check when nothing waits), title of that message or "Inbox", second line the summary. Taps open the dialog. Grid options 6 columns, 1 row, minimum 3 columns. The banner card gets no such size.
+- Same text rules as the other sizes: `titles_only` has no effect because no message text is shown.
