@@ -90,6 +90,17 @@ data:
 
 The banner appears in the card without a reload, and everyone with a Companion app gets a push. When the message ends, both are taken back. All card options are in [Actions, watch rules and card](actions.md#the-card).
 
+## Add the inbox card
+
+The inbox is a list of messages for one person, kept across restarts. A message reaches it with the channel `inbox`; see [Inbox](configuration.md#inbox). To show it on a dashboard, add the card the same way as the banner card, with the type `custom:heads-up-inbox-card`:
+
+```yaml
+type: custom:heads-up-inbox-card
+size: large
+```
+
+The card shows the inbox of the user who is looking. A user whose Home Assistant account is not linked to a person sees a short hint. The sizes `compact`, `small` and `medium` open the list in a window when you select them; [the options](configuration.md#inbox) list the designs.
+
 ## The panel
 
 The panel is an administrator page in the sidebar. Without it you cannot use Test send, the Message Log with the delivery trace, the Overview, the introduction, the Channels settings or the Help pages. Audiences, recipients, policies, watch rules and the other settings stay editable under Settings > Devices & services > Heads Up. Calls, the card and the messages work the same with or without the panel.
@@ -142,7 +153,7 @@ The panel polls every 10 seconds, so pages do not update the moment something ha
 The first time an administrator opens the panel, the Overview shows a tour of four steps above its cards. While the tour has not been seen, a visit to any other page opens the Overview. The Restart introduction button on Settings opens it again.
 
 1. Introduction: Channels decide where a message shows up, Audiences decide who gets it, Policies decide when.
-2. Channels: the six channels with what was found. Two settings are here: the notify service for mail with an optional global address, and the text-to-speech engine when Home Assistant has more than one. Mail is only set up here; none of the default policies sends mail. The settings are saved when you leave the step with Next or Back, so they stay if you stop the tour later.
+2. Channels: the channels with what was found. Three settings are here: the switch to add a section with all notifications to the inbox, the switch to let people send short messages to each other (both off by default), and the settings below. the notify service for mail with an optional global address, and the text-to-speech engine when Home Assistant has more than one. Mail is only set up here; none of the default policies sends mail. The settings are saved when you leave the step with Next or Back, so they stay if you stop the tour later.
 3. Audiences: the six built-in audiences with the people in them now and whether each is home or away. Last to leave and First home show when it happened. Select a card to read what the audience means, with an example.
 4. Policies: the three groups, Keep it calm, Always gets through and Make sure it arrives, and four default policies, each marked with its group. Create says how many policies it makes. Critical messages makes three, or four when you choose speakers. Policies are created only in this step; Skip the tour and Not now create none.
 
@@ -172,6 +183,8 @@ From 0.4.0 or earlier to 1.0.0: the field `wait_for_condition` and the response 
 From an earlier 1.0.0 pre-release to 1.0.0: Heads Up stores policies, audiences and groups by an ID instead of by name, so a rename changes nothing that runs. The first start after the update converts the watch rules, the policy targets, the stored messages and the timers, keeps every due time, and writes a backup of the old data to `.storage/heads_up.migration_v2` first. The backup is written once and never overwritten. A group or an area written as text in a call fails now: name a group by the entity ID of its sensor (`sensor.heads_up_group_ground_floor`) and an area by its area ID. The speakers field of the action offers the group sensors.
 
 From 1.0.0 to 1.1.0: Away policies become Presence policies. They behave as before, except that a person the call names in `recipients` is held too. The first start after the update writes a backup of the policies to `.storage/heads_up.migration_v2_2` first. The severity `success` is renamed to `passive` in the settings, policies, watch rules and stored messages; calls that send `success` keep working. Your push levels stay as they were.
+
+From 2.x to 3.0.0: the policy form no longer has Not for severities and From watch rule. The first start converts the policies that used them, writes a backup of the policies to `.storage/heads_up.migration_v3_2` first, and keeps what each policy did. A sensor `sensor.heads_up_inbox_<person>` appears for each person, and a store `heads_up.inbox` is created. The speech settings and the two push rate limits moved from the Settings page and the Configure screen to the Speech and Push rows of the Channels page; their values are kept. Messages between people and the all notifications section of the inbox are off until an administrator switches them on, so nothing changes in what people receive.
 
 From 1.x to 2.0.0: policies no longer run in a list order or a mode. Every policy that fits a message acts. The first start converts your policies so that they do what they did:
 

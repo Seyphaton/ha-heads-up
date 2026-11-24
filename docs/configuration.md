@@ -271,11 +271,17 @@ With the switch Let people send short messages to each other on (Channels page, 
 
 The inbox card shows the inbox of the user who is looking at the dashboard. It has no person option: a user sees their own items, an administrator too. A user whose Home Assistant account is not linked to a person sees a short hint instead.
 
+<img src="images/inbox-card.png" width="450" alt="The large inbox card: a critical water leak marked Needs action, a message from Ben with his initial, a warning, an info and a passive message, with the tabs Inbox and Sent and the filters All and Unread">
+
 ```yaml
 type: custom:heads-up-inbox-card
 size: medium
 design: split
 ```
+
+<img src="images/inbox-card-sizes.png" width="450" alt="The compact, small and medium sizes of the inbox card: three small tiles, compact tiles in red, yellow, blue and green, and three medium cards">
+
+The color of a tile follows the message that matters most: red for a critical message that needs action, then yellow for a warning, blue for info and green when nothing is waiting.
 
 | Card option | Type | Default | Meaning |
 |---|---|---|---|

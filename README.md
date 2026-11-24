@@ -14,9 +14,13 @@ Heads Up is the notification hub for Home Assistant. Your automation makes one c
 5. **Acknowledge once, resolved everywhere.** Dismiss it on one phone and reminders and escalations stop for everyone. When a message ends, it is withdrawn from every channel.
 6. **New Dashboard Banners.** You can now show notifications via banners on each dashboard directly, fully linked to all other channels, including button, live activity and picture support.
 7. **One look, every platform.** Live activities, severities, icons, colors, buttons and pictures are set once and applied the same on push, banner and popup, on Android and iOS.
-8. **Know why it didn't arrive.** The Message Log traces each channel and gives a reason for every skipped delivery, such as "skipped: quiet hours". A test table shows what would happen before you ship.
+8. **A personal inbox.** Each person gets a list that survives restarts, with an unread count, a sensor per person and a card in four sizes. With one more setting the inbox also holds a copy of every notification, whatever the channel.
+9. **Messages between people.** People write short messages to each other from the inbox card. The recipient's profile and your policies still decide what is delivered, and the sender never learns whether a message was read.
+10. **Know why it didn't arrive.** The Message Log traces each channel and gives a reason for every skipped delivery, such as "skipped: quiet hours". A test table shows what would happen before you ship.
 
 <p><img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/push-image-buttons.png" width="330" alt="An iPhone push for Front door, Person detected at 14:32, with a camera picture and the buttons Lights on, Sound alarm and Ignore"> <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/popup-image.png" width="470" alt="A Heads Up popup over a dashboard: a warning for Front door, Person detected at 14:32, with a camera picture and the buttons Lights on, Sound alarm and Dismiss"></p>
+
+<p><img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/inbox-card-sizes.png" width="250" alt="The inbox card as small tiles (a number, a ring, a mosaic), compact one-line tiles in red, yellow, blue and green, and three medium cards"> <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/inbox-card.png" width="250" alt="The inbox card as a list: a critical water leak that needs action, a message from Ben with his initial, a warning, an info and a passive message"> <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/push-person-message.png" width="330" alt="An iPhone push of a message from one person to another: the sender's name as the title, the message text and the Home Assistant icon"></p>
 
 ![Your automation makes one call, and Heads Up delivers it by the channels, audiences and policies you set: where the message shows up (banner, push, popup, speech, mail, Persistent Notification), who gets it (everyone, admins, whoever is home, the last one to leave, one person) and when (quiet at night, repeat until acknowledged, escalate, evening summary, send on arrival).](https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/where-who-when.svg)
 
@@ -80,6 +84,8 @@ To try a call by hand, use Developer tools > Actions (named Tools in Home Assist
 - **Acknowledge, dismiss and snooze:** Acknowledging a message on a phone, the card or a popup stops its escalations and reminders for everyone. Dismissing hides it for one person or for everyone, as the message says. Snoozing hides it for a set time.
 - **Watch rule:** A banner that shows while an entity is in a state, with no automation. It leaves when the state ends.
 - **Overview:** The panel's first page. It shows what needs you now, what is about to happen and what happened last, and a table that runs a test message through your policies. Its Activity cards count messages, failed deliveries, critical messages, escalations and how often quiet hours and summaries took over, with the change against the period before, for up to two years. They store counts only.
+- **Inbox:** A list of messages for one person, kept across restarts. The inbox card shows the inbox of the user who is looking, and `sensor.heads_up_inbox_<person>` counts the unread items. A message gets there with the channel `inbox`.
+- **Message between people:** A short text one person sends to others from the inbox card. It goes to the inbox and, if the sender picks them, to push, popup and mail. An administrator switches the feature on; it is off by default.
 - **Message Log:** The trace of each message under Test & Logs. When something did not arrive, it tells you why.
 
 ## Documentation
@@ -88,6 +94,7 @@ To try a call by hand, use Developer tools > Actions (named Tools in Home Assist
 - [Actions, watch rules and card](https://github.com/Seyphaton/ha-heads-up/blob/main/docs/actions.md): every action field, watch rules and the card options.
 - [Configuration](https://github.com/Seyphaton/ha-heads-up/blob/main/docs/configuration.md): channels, audiences, recipients and policies.
 - [Settings](https://github.com/Seyphaton/ha-heads-up/blob/main/docs/settings.md): every setting and global default, with its limits.
+- [Inbox and messages between people](https://github.com/Seyphaton/ha-heads-up/blob/main/docs/configuration.md#inbox): the inbox channel, the card and its sizes, messages between people.
 - [Examples and FAQ](https://github.com/Seyphaton/ha-heads-up/blob/main/docs/examples.md): working examples, common questions, troubleshooting and limitations.
 - [Security](https://github.com/Seyphaton/ha-heads-up/blob/main/SECURITY.md) and [Changelog](https://github.com/Seyphaton/ha-heads-up/blob/main/CHANGELOG.md).
 

@@ -311,6 +311,21 @@ data:
   recipients: [person.anna]
 ```
 
+### A message in a person's inbox
+
+The channel `inbox` keeps the message in the inbox of each person it names, with a timeline and an unread count. It needs no phone. See [Inbox](configuration.md#inbox).
+
+```yaml
+action: heads_up.notify
+data:
+  id: washer
+  title: Washing machine
+  message: The cycle has finished.
+  severity: info
+  channels: [inbox, push]
+  recipients: [person.anna]
+```
+
 ## From outside Home Assistant
 
 Any program that can call the Home Assistant API can use the actions. Create a long-lived access token in your Home Assistant user profile; see the [REST API documentation](https://developers.home-assistant.io/docs/api/rest/).
@@ -421,6 +436,10 @@ Add a Quiet hours policy. During the window it can send quietly, hold the messag
 ### What if someone is not home?
 
 A Presence policy holds the message for a person until they arrive, as long as the message is still there, or drops it. It applies to every severity; leave Critical out of the severities to let critical messages through. A Fallback policy sends the message to someone else when neither the call nor a Deliver policy reached anyone.
+
+### How do people send each other messages?
+
+An administrator switches on "Let people send short messages to each other" on the Inbox row of the Channels page. After that, any person with a linked Home Assistant user writes from the pen button of the inbox card: choose people, choose Push notification, Popup on screens or Mail, write the text and send. The message is plain text, always has the severity Info and goes to the inbox of each recipient. The sender keeps a copy in the Sent tab and never learns whether it was read. See [Messages between people](configuration.md#messages-between-people).
 
 ### Do critical messages get special treatment?
 
@@ -567,6 +586,13 @@ See [Popups](configuration.md#popup).
 ### An entry is missing in the notification bell
 
 Open the message in the Message Log. `service_not_found` or `send_failed` means Home Assistant's `persistent_notification` service failed. If you dismissed the entry in the bell, Heads Up does not know: the next update of the message creates it again, and so does a restart of Home Assistant, which empties the bell. A rule message reaches the bell only through an escalation or fallback policy. See [Persistent notifications](configuration.md#persistent-notification).
+
+### The inbox card has no pen button, or sending fails
+
+- The pen button shows only while "Let people send short messages to each other" is on (Channels page, Inbox row), the card option `hide_send_button` is off, and your Home Assistant user is linked to a person. Sending needs exactly one person: with several linked persons, which only a person defined in YAML allows, sending is refused with `ambiguous_person`.
+- `rate_limited`: one person can send 10 messages per minute.
+- `mail_off`: Mail was chosen but no mail service is set on the Channels page.
+- A person who does not accept a channel, or has no address for mail, is listed as not delivered after sending; the inbox item is still made.
 
 ### Mail is not sent
 

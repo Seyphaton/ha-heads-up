@@ -6,7 +6,7 @@ Settings are the defaults and limits of the integration. A field you leave out o
 
 - Settings > Devices & services > Heads Up > Configure.
 - The Settings page of the panel (see below). It shows the same entries in the same order and wording, and a change in one shows in the other.
-- The channel settings are only on the panel's Channels page: push (levels, lock screen text, Android channel, rate limits), popup styles, speech (language, longest text, repeat pause, engine, volume), mail and the inbox. The Configure screen does not show them. The Channels page checks them and shows an error under the field, for example for a mail placeholder that does not exist.
+- The channel settings are only on the panel's Channels page: push (levels, lock screen text, Android channel, rate limits), popup styles, speech (language, longest text, repeat pause, engine, volume), mail and the inbox (months to keep, reminders, a section with all notifications, messages between people). The Configure screen does not show them. The Channels page checks them and shows an error under the field, for example for a mail placeholder that does not exist.
 
 A change applies at once. Message defaults apply to messages created afterwards; they do not change messages that already exist.
 
