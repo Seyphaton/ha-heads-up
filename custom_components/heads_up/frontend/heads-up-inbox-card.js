@@ -558,16 +558,19 @@ export function rowLine(item, states, strings) {
   return item.sender ? fill(strings.from_name, { name: personName(states, item.sender) }) : "";
 }
 
-// The picture of the person who wrote a received message: an http(s) address or a path of this
-// instance, else none and the row shows the Heads Up icon (D-285).
-export function rowPicture(item, states) {
-  if (item.sent || !item.sender) return null;
-  const picture = states?.[item.sender]?.attributes?.entity_picture;
-  return typeof picture === "string" && /^(\/|https?:\/\/)/.test(picture) ? picture : null;
+// The avatar of a message between people: the picture of the person who wrote it (a received
+// message) or of its one recipient (a sent one), else the first letter of their name. Any other
+// message has none and keeps the icon of its severity (D-285).
+export function rowAvatar(item, states) {
+  const who = item.sent ? (item.recipients?.length === 1 ? item.recipients[0] : null) : item.sender;
+  if (!who) return null;
+  const picture = states?.[who]?.attributes?.entity_picture;
+  const first = Array.from(personName(states, who).trim())[0];
+  return {
+    picture: typeof picture === "string" && /^(\/|https?:\/\/)/.test(picture) ? picture : null,
+    initial: first ? first.toUpperCase() : "?",
+  };
 }
-
-// The icon of a message between people, in the tile and as the fallback of the picture.
-export const PERSON_ICON = "mdi:message-alert";
 
 export function canSend(draft) {
   const text = (draft.text ?? "").trim();
@@ -761,7 +764,9 @@ ha-card.small { height: 100%; }
 .link[disabled] { opacity: .4; cursor: default; }
 .day { padding: 10px 20px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--secondary-text-color); font-weight: 600; }
 .list { padding: 0 8px 10px; }
-.item { border-radius: 16px; }
+.item { border-radius: 16px; position: relative; }
+.item + .item::before { content: ""; position: absolute; top: 0; inset-inline: 12px; height: 1px; background: var(--divider-color); }
+.item.open::before, .item.open + .item::before { display: none; }
 .item.open { background: var(--secondary-background-color); }
 .row { display: flex; gap: 12px; padding: 10px; align-items: center; }
 .row .tile { width: 40px; height: 40px; border-radius: 12px; --mdc-icon-size: 20px; }
@@ -787,8 +792,8 @@ ha-card.small { height: 100%; }
 .empty .tile { margin: 0 auto 10px; width: 56px; height: 56px; --mdc-icon-size: 28px; }
 .note { padding: 16px; color: var(--secondary-text-color); }
 .more { display: block; margin: 0 auto 12px; }
-.tile.pic { overflow: hidden; }
-.tile.pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tile.ini { overflow: hidden; --c: var(--primary-color); font-size: 18px; font-weight: 700; }
+.tile.ini img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .row .from { font-size: 12px; color: var(--secondary-text-color); font-weight: 600; }
 .cf { padding-bottom: 16px; }
 .cf .lbl { padding: 10px 16px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--secondary-text-color); font-weight: 600; }
@@ -1518,21 +1523,18 @@ class HeadsUpInboxCard extends Base {
     return h("div", { class: `item ${item.unread ? "" : "read"} ${open ? "open" : ""} ${item.needs_action ? "needs" : ""}` }, [row, detail]);
   }
 
-  // A message between people shows the sender's picture, else the Heads Up icon; any other item
-  // the icon of its severity.
+  // A message between people shows the person's picture, else their initial; any other item the
+  // icon of its severity.
   _rowTile(item) {
-    const person = item.sender || item.sent;
-    const picture = rowPicture(item, this._hass?.states);
-    const fallback = icon(person ? PERSON_ICON : severityIcon(item.severity, item.icon));
-    const tile = h("div", { class: `tile ${picture ? "pic" : ""}`, style: `--c:${severityColor(item.severity)}` }, [fallback]);
-    if (picture) {
+    const avatar = rowAvatar(item, this._hass?.states);
+    const style = `--c:${severityColor(item.severity)}`;
+    if (!avatar) return h("div", { class: "tile", style }, [icon(severityIcon(item.severity, item.icon))]);
+    const tile = h("div", { class: "tile ini", style }, [h("span", { text: avatar.initial })]);
+    if (avatar.picture) {
       const image = h("img", { alt: "", loading: "lazy", hidden: true });
-      image.addEventListener("load", () => {
-        image.removeAttribute("hidden");
-        fallback.remove();
-      });
+      image.addEventListener("load", () => image.removeAttribute("hidden"));
       image.addEventListener("error", () => image.remove());
-      image.src = picture;
+      image.src = avatar.picture;
       tile.append(image);
     }
     return tile;

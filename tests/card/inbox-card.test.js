@@ -4,7 +4,7 @@ import {
   canSend,
   composeHints,
   personName,
-  rowPicture,
+  rowAvatar,
   rowLine,
   sendError,
   showCompose,
@@ -485,25 +485,33 @@ describe("compose rules", () => {
   });
 });
 
-describe("sender picture (D-285)", () => {
+describe("avatar of a person message (D-285)", () => {
   const states = {
     "person.anna": { attributes: { friendly_name: "Anna", entity_picture: "/api/image/serve/a/512x512" } },
-    "person.ben": { attributes: { friendly_name: "Ben" } },
+    "person.ben": { attributes: { friendly_name: "ben meyer" } },
+    "person.x": { attributes: { friendly_name: "Xavier", entity_picture: "javascript:alert(1)" } },
   };
   it("is the picture of the person who wrote the message", () => {
-    expect(rowPicture(item({ sender: "person.anna" }), states)).toBe("/api/image/serve/a/512x512");
+    expect(rowAvatar(item({ sender: "person.anna" }), states)).toEqual({ picture: "/api/image/serve/a/512x512", initial: "A" });
   });
-  it("is none without a sender, without a picture and for a sent item", () => {
-    expect(rowPicture(item({ sender: null }), states)).toBe(null);
-    expect(rowPicture(item({ sender: "person.ben" }), states)).toBe(null);
-    expect(rowPicture(item({ sent: true, sender: "person.anna" }), states)).toBe(null);
+  it("is the initial of the name when the person has no picture", () => {
+    expect(rowAvatar(item({ sender: "person.ben" }), states)).toEqual({ picture: null, initial: "B" });
   });
-  it("takes only a path or an http address", () => {
-    const odd = { "person.x": { attributes: { entity_picture: "javascript:alert(1)" } } };
-    expect(rowPicture(item({ sender: "person.x" }), odd)).toBe(null);
+  it("takes only a path or an http address as a picture", () => {
+    expect(rowAvatar(item({ sender: "person.x" }), states)).toEqual({ picture: null, initial: "X" });
   });
-  it("gives a message from a person the Heads Up icon, whatever its severity", () => {
-    expect(severityIcon("info", "mdi:message-alert")).toBe("mdi:message-alert");
+  it("is none for a message without a sender, so the severity icon stays", () => {
+    expect(rowAvatar(item({ sender: null }), states)).toBe(null);
+  });
+  it("shows the one recipient of a sent item, and none for several", () => {
+    expect(rowAvatar(item({ sent: true, recipients: ["person.anna"] }), states)).toEqual({
+      picture: "/api/image/serve/a/512x512",
+      initial: "A",
+    });
+    expect(rowAvatar(item({ sent: true, recipients: ["person.anna", "person.ben"] }), states)).toBe(null);
+  });
+  it("falls back to the id when the person is gone", () => {
+    expect(rowAvatar(item({ sender: "person.zoe" }), states)).toEqual({ picture: null, initial: "Z" });
   });
 });
 
