@@ -489,13 +489,13 @@ export function topItem(items) {
 }
 
 // The compact tile (D-277): title of the message that matters most, else "Inbox".
-export function compactTile(state, items, strings = STRINGS) {
+export function compactTile(state, items, strings = STRINGS, states = null) {
   const kind = summaryKind(state);
   const top = kind === "clear" ? null : topItem(items);
   return {
     kind,
     severity: top ? top.severity : null,
-    title: top?.title || strings.inbox,
+    title: (top && tileTitle(top, states, strings)) || strings.inbox,
     sub: summaryText(state, strings),
   };
 }
@@ -570,6 +570,12 @@ export function rowAvatar(item, states) {
     picture: typeof picture === "string" && /^(\/|https?:\/\/)/.test(picture) ? picture : null,
     initial: first ? first.toUpperCase() : "?",
   };
+}
+
+// The title of a tile: the title of the message, or "From <name>" for a message between people
+// without one, and never its text (a tile shows no text).
+export function tileTitle(item, states, strings) {
+  return item.title || (item.sender ? rowLine(item, states, strings) : "");
 }
 
 // The title of a row: its own title; a message between people without one says who it is from or to
@@ -1298,7 +1304,7 @@ class HeadsUpInboxCard extends Base {
 
   _compact() {
     const n = this._stateNumbers();
-    const tile = compactTile(n, this._items());
+    const tile = compactTile(n, this._items(), STRINGS, this._hass?.states);
     const color = tile.kind === "needs" ? SEVERITY_COLOR.critical : tile.severity ? severityColor(tile.severity) : null;
     return this._opens(
       h("div", { class: `cmp ${tile.kind === "needs" ? "crit-bg" : ""}` }, [
@@ -1316,7 +1322,7 @@ class HeadsUpInboxCard extends Base {
     const n = this._stateNumbers();
     const kind = summaryKind(n);
     const top = topItem(this._items());
-    const sub = kind === "unread" && top ? `${summaryText(n, STRINGS)} · ${top.title}` : summaryText(n, STRINGS);
+    const sub = kind === "unread" && top ? [summaryText(n, STRINGS), tileTitle(top, this._hass?.states, STRINGS)].filter(Boolean).join(" · ") : summaryText(n, STRINGS);
     return this._opens(
       h("div", { class: `tileA ${kind === "needs" ? "crit crit-bg" : ""}` }, [
         this._tileIcon(kind),
@@ -1389,7 +1395,7 @@ class HeadsUpInboxCard extends Base {
       h("div", { class: "rp" }, [
         h("div", { class: "t1", text: STRINGS.inbox }),
         h("div", { class: "hl", text: summaryText(n, STRINGS) }),
-        h("div", { class: "sub", text: top ? top.title : STRINGS.nothing_waiting }),
+        h("div", { class: "sub", text: top ? tileTitle(top, this._hass?.states, STRINGS) : STRINGS.nothing_waiting }),
         h("div", { class: "btns" }, [
           h("button", { class: "btn", "data-key": "open", onclick: () => this._openDialog(), text: STRINGS.open }),
           h("button", { class: "btn ghost", "data-key": "read-all", disabled: n.unread ? null : true, onclick: () => this._markAll(), text: STRINGS.mark_all_read }),

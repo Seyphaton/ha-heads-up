@@ -6,6 +6,7 @@ import {
   personName,
   rowAvatar,
   rowTitle,
+  tileTitle,
   rowLine,
   sendError,
   showCompose,
@@ -545,5 +546,19 @@ describe("row title of a message without a title", () => {
     expect(rowTitle(item({ title: "Washer" }), states, STRINGS)).toBe("Washer");
     expect(rowTitle(item({ title: "", text: "Hello" }), states, STRINGS)).toBe("Hello");
     expect(rowTitle(item({ title: "", text: "Hello" }), states, STRINGS, "")).toBe("");
+  });
+});
+
+describe("tiles name the sender of a message without a title", () => {
+  const states = { "person.ben": { attributes: { friendly_name: "Ben" } } };
+  const fromBen = item({ title: "", sender: "person.ben" });
+  it("gives From <name> and never the text", () => {
+    expect(tileTitle(fromBen, states, STRINGS)).toBe("From Ben");
+    expect(tileTitle(item({ title: "Washer" }), states, STRINGS)).toBe("Washer");
+    expect(tileTitle(item({ title: "" }), states, STRINGS)).toBe("");
+  });
+  it("is the title of the compact tile", () => {
+    const tile = compactTile({ unread: 1, needs_action: 0 }, [fromBen], STRINGS, states);
+    expect(tile.title).toBe("From Ben");
   });
 });
