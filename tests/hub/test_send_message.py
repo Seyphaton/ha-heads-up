@@ -404,3 +404,43 @@ async def test_a_restart_does_not_resolve_person_messages_or_sent_items(
     for person, key in ((READER, mid), (ADMIN, f"{SENT_PREFIX}{mid}")):
         item = inbox.get(person, key)
         assert item is not None and item.resolved_at is None
+
+
+# The setting (step 5) -----------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("options", [{}])
+async def test_the_switch_is_a_channel_setting_off_by_default_and_for_administrators(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_access_token: str,
+) -> None:
+    admin = await hass_ws_client(hass)
+    assert (await ask(admin, "panel_config"))["result"]["channels"]["inbox_messages"] is False
+    assert (await ask(admin, "welcome_get"))["result"]["inbox_messages"] is False
+    assert (await ask(admin, "channels_set", inbox_messages="yes"))["error"]["code"] == (
+        "invalid_format"
+    )
+    assert (await ask(admin, "channels_set", inbox_messages=True))["success"]
+    await hass.async_block_till_done()
+    assert entry.options["inbox_messages"] is True
+    reader = await hass_ws_client(hass, hass_read_only_access_token)
+    reply = await ask(reader, "channels_set", inbox_messages=False)
+    assert reply["error"]["code"] == "unauthorized"
+    assert entry.options["inbox_messages"] is True
+
+
+async def test_the_panel_message_log_lists_the_message_without_its_text(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    mid = (await send(client, to=[READER], text="a secret plan"))["result"]["id"]
+    await hass.async_block_till_done()
+    reply = await ask(client, "panel_messages")
+    assert "a secret plan" not in str(reply)
+    assert mid in str(reply)  # it is listed, only the text is left out

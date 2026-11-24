@@ -27,6 +27,8 @@ export const STRINGS = {
     ch_mail: "One mail per person through a notify service you choose.",
     ch_inbox: "A list per person that survives a restart. Messages sent to the inbox channel are kept; the switch below also keeps the other channels' notifications.",
     inbox_all: "Show all notifications in the personal inbox, independent of the channel",
+    inbox_messages: "Let people send short messages to each other",
+    inbox_messages_hint: "People can write short messages to each other from the inbox card. Off by default.",
     inbox_hint: "Saves a copy of every notification per person in the tab All notifications, for example one received by mail or spoken on a speaker. The text is stored in plain text, in backups too. Off: only messages sent to the inbox are kept.",
     found_push: "App devices found: {n}",
     found_speak: "Speakers and satellites found: {n}",
@@ -126,6 +128,8 @@ export const STRINGS = {
     ch_mail: "Eine E-Mail pro Person über einen Benachrichtigungsdienst deiner Wahl.",
     ch_inbox: "Eine Liste pro Person, die einen Neustart übersteht. Nachrichten an den Kanal Posteingang werden gespeichert; der Schalter unten speichert auch die Benachrichtigungen der anderen Kanäle.",
     inbox_all: "Alle Benachrichtigungen im persönlichen Posteingang zeigen, unabhängig vom Kanal",
+    inbox_messages: "Personen dürfen sich gegenseitig kurze Nachrichten schicken",
+    inbox_messages_hint: "Personen können sich über die Posteingangs-Karte kurze Nachrichten schreiben. Standardmäßig aus.",
     inbox_hint: "Speichert pro Person eine Kopie jeder Benachrichtigung im Reiter Alle Benachrichtigungen, zum Beispiel eine per E-Mail empfangene oder über einen Lautsprecher gesprochene. Der Text wird im Klartext gespeichert, auch in Sicherungen. Aus: Nur Nachrichten an den Posteingang werden gespeichert.",
     found_push: "Gefundene App-Geräte: {n}",
     found_speak: "Gefundene Lautsprecher und Satelliten: {n}",
@@ -225,6 +229,8 @@ export const STRINGS = {
     ch_mail: "Un mail par personne via un service de notification de votre choix.",
     ch_inbox: "Une liste par personne qui survit à un redémarrage. Les messages envoyés au canal boîte de réception sont conservés ; l'interrupteur ci-dessous conserve aussi les notifications des autres canaux.",
     inbox_all: "Afficher toutes les notifications dans la boîte de réception personnelle, quel que soit le canal",
+    inbox_messages: "Permettre aux personnes de s'envoyer de courts messages",
+    inbox_messages_hint: "Les personnes peuvent s'écrire de courts messages depuis la carte de boîte de réception. Désactivé par défaut.",
     inbox_hint: "Enregistre pour chaque personne une copie de chaque notification dans l'onglet Toutes les notifications, par exemple une notification reçue par courriel ou dite sur un haut-parleur. Le texte est stocké en clair, aussi dans les sauvegardes. Désactivé : seuls les messages envoyés à la boîte de réception sont conservés.",
     found_push: "Appareils d'app trouvés : {n}",
     found_speak: "Haut-parleurs et satellites trouvés : {n}",
@@ -324,6 +330,8 @@ export const STRINGS = {
     ch_mail: "Un correo por persona mediante un servicio de notificación que elijas.",
     ch_inbox: "Una lista por persona que sobrevive a un reinicio. Los mensajes enviados al canal bandeja de entrada se guardan; el interruptor de abajo guarda también las notificaciones de los demás canales.",
     inbox_all: "Mostrar todas las notificaciones en la bandeja de entrada personal, sin importar el canal",
+    inbox_messages: "Permitir que las personas se envíen mensajes cortos",
+    inbox_messages_hint: "Las personas pueden escribirse mensajes cortos desde la tarjeta de la bandeja de entrada. Desactivado por defecto.",
     inbox_hint: "Guarda para cada persona una copia de cada notificación en la pestaña Todas las notificaciones, por ejemplo una recibida por correo o dicha en un altavoz. El texto se guarda en texto plano, también en las copias de seguridad. Desactivado: solo se guardan los mensajes enviados a la bandeja de entrada.",
     found_push: "Dispositivos de la app encontrados: {n}",
     found_speak: "Altavoces y satélites encontrados: {n}",
@@ -453,6 +461,7 @@ export function channelChanges(state, saved) {
   if (state.mailService !== saved.mailService) own.mail_service = state.mailService;
   if (state.mailAddress !== saved.mailAddress) own.mail_global_address = state.mailAddress;
   if (state.inboxAll !== saved.inboxAll) own.inbox_all_notifications = state.inboxAll;
+  if (state.inboxMessages !== saved.inboxMessages) own.inbox_messages = state.inboxMessages;
   if (state.ttsEngine !== saved.ttsEngine) own.speak_tts_entity = state.ttsEngine;
   return Object.keys(own).length ? [{ type: "heads_up/channels_set", ...own }] : [];
 }
@@ -557,7 +566,7 @@ export async function mount(container, ctx) {
   const config = await hass.callWS({ type: "heads_up/panel_config" }).catch(() => null);
   const summary = setupSummary(config);
   const audiences = await hass.callWS({ type: "heads_up/panel_audiences" }).catch(() => null);
-  const saved = { mailService: data.mail_service || "", mailAddress: data.mail_global_address || "", ttsEngine: data.tts_engine || "", inboxAll: Boolean(data.inbox_all_notifications) };
+  const saved = { mailService: data.mail_service || "", mailAddress: data.mail_global_address || "", ttsEngine: data.tts_engine || "", inboxAll: Boolean(data.inbox_all_notifications), inboxMessages: Boolean(data.inbox_messages) };
   const state = {
     on: Object.fromEntries(ITEMS.map((id) => [id, true])),
     audience: data.default_audience,
@@ -600,7 +609,7 @@ export async function mount(container, ctx) {
         return false;
       }
     }
-    Object.assign(saved, { mailService: state.mailService, mailAddress: state.mailAddress, ttsEngine: state.ttsEngine, inboxAll: state.inboxAll });
+    Object.assign(saved, { mailService: state.mailService, mailAddress: state.mailAddress, ttsEngine: state.ttsEngine, inboxAll: state.inboxAll, inboxMessages: state.inboxMessages });
     return true;
   }
   const go = async (step) => {
@@ -672,6 +681,10 @@ export async function mount(container, ctx) {
           el("div", { className: "setting" }, [
             ui.checkbox(t.inbox_all, state.inboxAll, (on) => { state.inboxAll = on; }),
             el("div", { className: "hint", textContent: t.inbox_hint }),
+          ]),
+          el("div", { className: "setting" }, [
+            ui.checkbox(t.inbox_messages, state.inboxMessages, (on) => { state.inboxMessages = on; }),
+            el("div", { className: "hint", textContent: t.inbox_messages_hint }),
           ]),
         );
       }

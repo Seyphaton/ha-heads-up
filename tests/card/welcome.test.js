@@ -173,6 +173,22 @@ describe("welcome", () => {
     expect(channelChanges({ ...saved }, { ...saved, inboxAll: true })).toEqual([{ type: "heads_up/channels_set", inbox_all_notifications: false }]);
   });
 
+  it("saves the messages switch through channels_set, on and off", () => {
+    expect(channelChanges({ ...saved, inboxMessages: true }, { ...saved, inboxMessages: false })).toEqual([
+      { type: "heads_up/channels_set", inbox_messages: true },
+    ]);
+    expect(channelChanges({ ...saved, inboxMessages: false }, { ...saved, inboxMessages: true })).toEqual([
+      { type: "heads_up/channels_set", inbox_messages: false },
+    ]);
+  });
+
+  it("has the words of the messages switch in every language", () => {
+    for (const code of ["en", "de", "fr", "es"]) {
+      expect(STRINGS[code].inbox_messages, code).toBeTruthy();
+      expect(STRINGS[code].inbox_messages_hint, code).toBeTruthy();
+    }
+  });
+
   it("puts the inbox among the channels the tour shows, with words in every language", () => {
     for (const code of ["en", "de", "fr", "es"]) {
       expect(STRINGS[code].ch_inbox, code).toBeTruthy();

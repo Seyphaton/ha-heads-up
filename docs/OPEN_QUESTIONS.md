@@ -169,6 +169,9 @@
 - iOS sender icon needs a title: what to send for a message without one is open.
 
 ## Personal inbox (built 2026-11-24, D-264 to D-276, `docs/dev/inbox/PLAN.md`)
+- Messages between people, later tiers (D-265): a permission matrix (who may write to whom), a per-person opt-out, replies and a lock-screen reply, pictures in a message, the sender's picture in the card (the row shows "From <name>" only), a `sensitive` flag. A user linked to several persons cannot send (D-283); a choice of "send as" would lift that.
+- Messages between people: whether a push or a popup of a person message should say who wrote it is open; only the inbox item and the card say "From <name>" (the push and popup text were not changed).
+- Not checked on real devices: push and popup of a person message, German, French and Spanish on screen, Android.
 - `sensitive` flag: a message whose text is hidden in the inbox card until tapped, or not stored. Left out of Phase 22; item text is stored in plain text in `.storage` and in backups (`SECURITY.md`). The card option `titles_only` covers a shared screen.
 - Received time per device: needs the Companion app's confirmation event (Android) and an echoed message ID; not planned.
 - Speech in All notifications is listed for the people at home when it is said (D-276). That is a guess: someone at home in another room counts, someone who is home but whose presence is unknown does not. A better answer needs to know who was near the speaker.

@@ -70,6 +70,9 @@ export const STRINGS = {
     inbox_reminder_note: "On: a reminder or an escalation that reaches a person who already has the item brings it back to the unread count. Off: it only adds a line to the timeline.",
     inbox_all: "Show all notifications in the personal inbox, independent of the channel",
     inbox_all_note: "Saves a copy of every notification per person in the tab All notifications of the inbox, for example one received by mail or spoken on a speaker (listed for the people at home). A copy is history: it is read and not counted. The text of every notification is stored in plain text, in backups too. Off: only messages sent to the inbox are kept.",
+    inbox_messages: "Let people send short messages to each other",
+    inbox_messages_note: "Any person can write to other people from the inbox card. A message is plain text up to 1000 characters, always has the severity Info, and goes to the inbox and, if the sender picks them, to push and popup. Each person can send 10 messages per minute. What each recipient accepts and your policies still apply.",
+    inbox_summary_messages: " · messages between people",
     inbox_info: "{items} items for {people} people, the oldest from {oldest}.",
     inbox_empty: "No inbox items are stored.",
     inbox_clear: "Clear inbox",
@@ -186,6 +189,9 @@ export const STRINGS = {
     inbox_reminder_note: "An: Eine Erinnerung oder Eskalation, die eine Person erreicht, die den Eintrag schon hat, setzt ihn wieder auf ungelesen. Aus: Sie fügt nur eine Zeile zum Verlauf hinzu.",
     inbox_all: "Alle Benachrichtigungen im persönlichen Posteingang zeigen, unabhängig vom Kanal",
     inbox_all_note: "Speichert pro Person eine Kopie jeder Benachrichtigung im Reiter Alle Benachrichtigungen des Posteingangs, zum Beispiel eine per E-Mail empfangene oder über einen Lautsprecher gesprochene (aufgelistet für die Personen, die zu Hause sind). Eine Kopie ist Verlauf: Sie ist gelesen und wird nicht gezählt. Der Text jeder Benachrichtigung wird im Klartext gespeichert, auch in Sicherungen. Aus: Nur Nachrichten an den Posteingang werden gespeichert.",
+    inbox_messages: "Personen dürfen sich gegenseitig kurze Nachrichten schicken",
+    inbox_messages_note: "Jede Person kann über die Posteingangs-Karte anderen Personen schreiben. Eine Nachricht ist reiner Text mit bis zu 1000 Zeichen, hat immer die Wichtigkeit Info und geht in den Posteingang und, wenn der Absender sie wählt, an Push und Popup. Jede Person kann 10 Nachrichten pro Minute senden. Was jeder Empfänger annimmt und deine Richtlinien gelten weiterhin.",
+    inbox_summary_messages: " · Nachrichten zwischen Personen",
     inbox_info: "{items} Einträge für {people} Personen, der älteste vom {oldest}.",
     inbox_empty: "Es sind keine Einträge gespeichert.",
     inbox_clear: "Posteingang leeren",
@@ -302,6 +308,9 @@ export const STRINGS = {
     inbox_reminder_note: "Activé : un rappel ou une escalade qui atteint une personne ayant déjà l'élément le remet dans les non lus. Désactivé : il ajoute seulement une ligne à la chronologie.",
     inbox_all: "Afficher toutes les notifications dans la boîte de réception personnelle, quel que soit le canal",
     inbox_all_note: "Enregistre pour chaque personne une copie de chaque notification dans l'onglet Toutes les notifications de la boîte de réception, par exemple une notification reçue par courriel ou dite sur un haut-parleur (listée pour les personnes à la maison). Une copie est un historique : elle est lue et non comptée. Le texte de chaque notification est stocké en clair, aussi dans les sauvegardes. Désactivé : seuls les messages envoyés à la boîte de réception sont conservés.",
+    inbox_messages: "Permettre aux personnes de s'envoyer de courts messages",
+    inbox_messages_note: "Chaque personne peut écrire aux autres depuis la carte de boîte de réception. Un message est du texte brut de 1000 caractères au plus, a toujours la gravité Info et va dans la boîte de réception et, si l'expéditeur les choisit, en push et en popup. Chaque personne peut envoyer 10 messages par minute. Ce que chaque destinataire accepte et vos politiques restent appliqués.",
+    inbox_summary_messages: " · messages entre personnes",
     inbox_info: "{items} éléments pour {people} personnes, le plus ancien du {oldest}.",
     inbox_empty: "Aucun élément n'est stocké.",
     inbox_clear: "Vider la boîte de réception",
@@ -418,6 +427,9 @@ export const STRINGS = {
     inbox_reminder_note: "Activado: un recordatorio o un escalado que llega a una persona que ya tiene el elemento lo devuelve a los no leídos. Desactivado: solo añade una línea a la cronología.",
     inbox_all: "Mostrar todas las notificaciones en la bandeja de entrada personal, sin importar el canal",
     inbox_all_note: "Guarda para cada persona una copia de cada notificación en la pestaña Todas las notificaciones de la bandeja de entrada, por ejemplo una recibida por correo o dicha en un altavoz (listada para las personas en casa). Una copia es historial: está leída y no se cuenta. El texto de cada notificación se guarda en texto plano, también en las copias de seguridad. Desactivado: solo se guardan los mensajes enviados a la bandeja de entrada.",
+    inbox_messages: "Permitir que las personas se envíen mensajes cortos",
+    inbox_messages_note: "Cualquier persona puede escribir a otras desde la tarjeta de la bandeja de entrada. Un mensaje es texto sin formato de hasta 1000 caracteres, siempre tiene la gravedad Info y va a la bandeja de entrada y, si el remitente los elige, a push y popup. Cada persona puede enviar 10 mensajes por minuto. Lo que acepta cada destinatario y tus políticas siguen aplicándose.",
+    inbox_summary_messages: " · mensajes entre personas",
     inbox_info: "{items} elementos de {people} personas, el más antiguo del {oldest}.",
     inbox_empty: "No hay elementos guardados.",
     inbox_clear: "Vaciar la bandeja de entrada",
@@ -480,7 +492,7 @@ const CHANNELS = [
   { key: "speech", icon: "mdi:account-voice", keys: ["speak_language", "speak_max_length", "speak_cooldown_seconds", "speak_tts_entity", "speak_restore_volume", "speak_severity_volume", "speak_volume_bands"], settings: [] },
   { key: "persistent", icon: "mdi:bell-outline", keys: [], settings: [] },
   { key: "mail", icon: "mdi:email-outline", keys: ["mail_service", "mail_global_address", "mail_subject", "mail_body"], settings: [] },
-  { key: "inbox", icon: "mdi:inbox-outline", keys: ["inbox_retention_months", "inbox_reminder_unread", "inbox_all_notifications"], settings: [] },
+  { key: "inbox", icon: "mdi:inbox-outline", keys: ["inbox_retention_months", "inbox_reminder_unread", "inbox_all_notifications", "inbox_messages"], settings: [] },
 ];
 
 // The two snooze settings these rows show are stored with the other settings (heads_up/settings_set).
@@ -549,7 +561,10 @@ export function summaryText(key, values, t, language, settings = {}) {
     return code ? languageName(code, language) : t.ha_language;
   }
   if (key === "persistent") return t.persistent_summary;
-  if (key === "inbox") return fill(values.inbox_all_notifications ? t.inbox_summary_all : t.inbox_summary, { months: values.inbox_retention_months });
+  if (key === "inbox") {
+    const base = fill(values.inbox_all_notifications ? t.inbox_summary_all : t.inbox_summary, { months: values.inbox_retention_months });
+    return values.inbox_messages ? base + t.inbox_summary_messages : base;
+  }
   if (!values.mail_service) return t.mail_off;
   const address = String(values.mail_global_address || "").trim();
   return [`notify.${values.mail_service}`, address ? fill(t.global_to, { a: address }) : ""].filter(Boolean).join(" · ");
@@ -812,6 +827,7 @@ export function mount(container, ctx) {
       box.append(hint(t.inbox_intro));
       box.append(ui.field(t.inbox_retention, ui.numberInput(values.inbox_retention_months, (v) => { values.inbox_retention_months = Number.isNaN(v) ? "" : v; paint(); }, { min: 1, max: 36, step: 1 }), t.inbox_retention_note));
       box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.inbox_all, values.inbox_all_notifications, (on) => { values.inbox_all_notifications = on; paint(); })]), hint(t.inbox_all_note));
+      box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.inbox_messages, values.inbox_messages, (on) => { values.inbox_messages = on; paint(); })]), hint(t.inbox_messages_note));
       box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.inbox_reminder, values.inbox_reminder_unread, (on) => { values.inbox_reminder_unread = on; paint(); })]), hint(t.inbox_reminder_note));
       // What is stored, and a button that deletes every person's items after a confirmation.
       const info = el("div", { className: "hint", textContent: inboxLine(data.inbox, t) });

@@ -37,6 +37,7 @@ describe("Channels overview", () => {
     expect(summaryText("persistent", {}, t)).toBe("No settings");
     expect(summaryText("inbox", { inbox_retention_months: 12 }, t)).toBe("Kept for 12 months");
     expect(summaryText("inbox", { inbox_retention_months: 6, inbox_all_notifications: true }, t)).toBe("Kept for 6 months · all notifications");
+    expect(summaryText("inbox", { inbox_retention_months: 12, inbox_messages: true }, t)).toBe("Kept for 12 months · messages between people");
     expect(summaryText("mail", { mail_service: "smtp", mail_global_address: "a@example.org" }, t)).toBe("notify.smtp · global address a@example.org");
   });
 

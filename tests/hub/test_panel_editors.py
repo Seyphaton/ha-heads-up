@@ -191,6 +191,7 @@ async def test_the_config_has_the_entry_id_and_the_channel_settings(
         "inbox_retention_months": 12,
         "inbox_reminder_unread": True,
         "inbox_all_notifications": False,
+        "inbox_messages": False,
         "speak_max_length": 200,
         "speak_cooldown_seconds": 60,
         "speak_tts_entity": "",

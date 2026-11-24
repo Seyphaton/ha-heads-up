@@ -232,6 +232,7 @@ The settings are on the Inbox row of the Channels page. They are not on the Sett
 | Setting | Default | Meaning |
 |---|---|---|
 | Months to keep inbox items | 12 (1–36) | Items older than this are removed, once a day and when you shorten the value. |
+| Let people send short messages to each other | off | Turns on messages between people (see [Messages between people](#messages-between-people)). |
 | Show all notifications in the personal inbox, independent of the channel | off | Saves a copy of every notification per person in the tab All notifications (see below). Off: only messages sent to the inbox channel are kept. |
 | A reminder marks a read item unread again | on | On: a reminder or an escalation that reaches a person who already has the item brings it back to the unread count. Off: it only adds a line to the timeline. |
 
@@ -250,7 +251,21 @@ The person needs no phone and no Home Assistant user. A person's recipient profi
 - If the message also goes to the inbox channel, the real item stays and the copy only adds the channel. A real delivery turns a copy into a real item. When a person is at the limit of 2000 items, copies go first.
 - Policies treat the inbox like every other channel. A Quiet hours policy with the action Wait holds it, Drop skips it, and Summarize holds it. To keep the inbox out of Quiet hours or Presence, choose the other channels under Limit to these channels. A Presence policy holds the inbox item of a person who is away and releases it when they arrive, like a push.
 - Send quietly changes nothing for the inbox: an item has no sound.
-- The inbox has no rate limit and takes no buttons.
+- The inbox channel has no rate limit and takes no buttons. Messages between people have their own limit.
+
+### Messages between people
+
+With the switch Let people send short messages to each other on (Channels page, Inbox row; off by default), any person can write to other people from the inbox card. The sender is the person linked to the Home Assistant user who is logged in. A user who is linked to no person, or to more than one, cannot send. Nobody can name another sender: the card has no sender field and the actions `notify` and `create_banner` have none.
+
+- The text is plain text, 1 to 1000 characters. The severity is always Info, so a message does not get through Do Not Disturb.
+- The sender picks the channels: inbox (always), phone (push) and screens (popup). Speech and mail are not offered. The recipient's accepted channels decide: a channel a person does not accept is skipped for them, the inbox item is still made, and the dialog says so. Quiet hours and the other policies apply as for any message.
+- You can write to yourself. You get an inbox item and a Sent entry.
+- The sender keeps a copy in the Sent tab: the text, the people it went to and the time. A sent entry has no unread dot and no count. Delete removes it for the sender only.
+- The sender never learns whether or when a recipient read the message. The card, the sensor and the WebSocket results of the sender carry no read state of recipients.
+- Each person can send 10 messages per minute. The eleventh fails with a wait time. A call with several recipients counts once.
+- A message between people does not end: the item stays in the inbox until the recipient deletes it or the retention removes it.
+- Message text is stored in plain text for the sender and each recipient, like every inbox item. The Message Log and the diagnostics hold no text.
+- With the switch off, the command is refused and the card shows no compose button and no Sent tab.
 
 The inbox card shows the inbox of the user who is looking at the dashboard. It has no person option: a user sees their own items, an administrator too. A user whose Home Assistant account is not linked to a person sees a short hint instead.
 
@@ -271,7 +286,8 @@ design: split
 - The banner card can open the same window with a small button: see `show_inbox_button` in [the card options](actions.md#options). It works without an inbox card on the dashboard.
 - The list shows the items that need action first, then the latest change first, grouped by day. The filter switches between All and Unread. Mark all read marks every unread item.
 - Expanding a row marks the item read and shows its text, a picture if the message had one, and its timeline. Delete removes the item from your inbox.
-- The tabs Inbox and All notifications show only while the switch Show all notifications in the personal inbox is on (see [Inbox](#inbox)); All notifications adds the copies of the notifications from other channels. With the switch off the card shows the inbox alone.
+- With messages between people on, the large card has a pen button in its header and the dialog of every size has the same button. It opens a form: choose people (you are in the list), choose Phone and Screens, write the text, Send. A note under a person says which chosen channel they do not accept. After sending, the dialog lists what was not delivered. Messages from a person show "From <name>"; the Sent tab shows "To <names>". `hide_send_button` hides the button.
+- The tab row shows when there are at least two tabs: All notifications appears while the switch Show all notifications in the personal inbox is on (see [Inbox](#inbox)) and adds the copies of the notifications from other channels, and Sent appears while messages between people are on. With both switches off the card shows the inbox alone.
 - A critical item nobody acknowledged is marked Needs action with a symbol and a text, not only a color. An item whose message has ended shows Ended.
 - The colors are the theme colors of the severities. The list loads 50 items and offers Show more.
 - The card follows the language of your Home Assistant user.

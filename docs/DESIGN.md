@@ -19,7 +19,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §26 new Overview (status card, Coming up, reach table, tour in the page, quick shortcuts, Last actions) | built and tested on `release/2.0` (Phase 18, D-244, D-245); checked in the browser pane at desktop and phone width, light and dark; not on real devices |
 | §27 history store (24 months, Activity cards, Clear history) | built and tested on `release/2.0` (Phase 19, D-246); about 7 KB a day measured on a synthetic busy household; push levels used are not recorded |
 | §28 2.1.0 richer push (icon, color, sender icon, subtitle, progress with live updates) | built (D-255 to D-263) |
-| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store, the `inbox` channel, its lifecycle hooks, the WebSocket commands, the sensor, the card, the settings and All notifications are built and tested; Phase 23 is not built |
+| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store, the `inbox` channel, its lifecycle hooks, the WebSocket commands, the sensor, the card, the settings and All notifications are built and tested; Phase 23 (messages between people, §29.10) is built and tested |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -556,6 +556,7 @@ How both sources stay equal:
 | buttons stop acting once the message has ended (D-125) | yes | yes (one check in `BannerManager.press`; `tests/test_ended_buttons.py`) |
 | image under the message (D-127) | yes | yes (Image field of the rule form; `tests/hub/test_image.py`) |
 | `progress.value` and `progress.auto_update` (D-263) | yes | exception: a rule has no caller that updates it; it follows its entity (`progress.interval` and the entity are in the rule form) |
+| message from a person (`heads_up/send_message`, `sender`, source `person`, D-265, D-279) | yes, through the card command only; `notify` and `create_banner` have no sender field | exception: a rule has no caller and so no sender |
 | `heads_up_delivery_failed` (D-128) | yes | yes for the deliveries a policy makes for a rule message, same engine path (no rule-specific test); the banner channel never fires it |
 | Policy field: name one policy or `none` (D-146, D-202) | yes (`policy`, by the entity ID of its switch, D-198) | yes (Policy dropdown of the rule form: Automatic, None or a policy by key; `tests/test_rules_flow.py`) |
 | references survive a rename (D-199) | yes (stored as keys) | yes (stored as keys; `tests/hub/test_identity_rename.py`, `tests/hub/test_identity_property.py`) |
@@ -1053,7 +1054,7 @@ Status: built 2026-11-23 on `release/2.1`, including editable built-in audiences
 
 ## 29. Personal inbox (Phase 22, D-264, D-268 to D-271)
 
-Status: built on `release/3.0`: the store, the channel with the lifecycle hooks, the WebSocket commands, the sensor, the card, the settings and All notifications. Phase 23 (messages to other people) is not built. Plan: `docs/dev/inbox/PLAN.md`.
+Status: built on `release/3.0`: the store, the channel with the lifecycle hooks, the WebSocket commands, the sensor, the card, the settings and All notifications. Phase 23 (messages between people, §29.10) is built. Plan: `docs/dev/inbox/PLAN.md`.
 
 ### 29.1 Store
 - `hub/inbox.py` `InboxStore`, store `heads_up.inbox` (version 1), one store for all people, layout `{"items": {person entity ID: {message ID: item}}}`. Items are in memory; a change schedules one write after `INBOX_SAVE_DELAY` (60 s), made from a copy in the event loop and serialized in a thread (`serialize_in_event_loop=False`, N-117). Stopping the hub and Home Assistant's final write (`EVENT_HOMEASSISTANT_FINAL_WRITE`) save what is waiting at once. The store file is deleted with the integration.
@@ -1094,7 +1095,7 @@ Status: built on `release/3.0`: the store, the channel with the lifecycle hooks,
 - The tabs Inbox and All notifications exist only while `all_notifications` is on in the state (`visibleScope`). The small tiles size their content by the smaller side of their box (`container-type: size`, `cqmin`), so a grid cell that is wider than tall or very narrow does not clip them; the medium card has `rows: auto`.
 - Any element can ask for the inbox with the window event `heads-up-open-inbox`: the module keeps one hidden card that opens the dialog and removes itself on close. The banner card's optional Open inbox button (`show_inbox_button`, default off) fires it.
 - After a rebuild the control that had the focus gets it back (`data-key`, a second try on the next frame because `ha-card` lays out one frame late).
-- Not in this phase: the view Sent and the pen button (Phase 23).
+- The view Sent, the pen button and the compose dialog are Phase 23 (§29.10).
 - Checked in the browser pane at phone width, light and dark, with the keyboard; vitest covers the pure functions.
 
 ### 29.7 Settings
@@ -1108,3 +1109,13 @@ Status: built on `release/3.0`: the store, the channel with the lifecycle hooks,
 
 ### 29.9 Where channel settings live (D-276)
 - The speech settings (`speak_max_length`, `speak_cooldown_seconds`, `speak_tts_entity`, `speak_restore_volume`, `speak_severity_volume`, `speak_volume_bands`) and the push rate limits (`rate_per_device_per_minute`, `rate_total_per_minute`) are channel settings too: in `CHANNEL_KEYS`, written by `heads_up/channels_set` (ranges in `panel_config.CHANNEL_RANGES`, bands and severity volumes checked by `settings.check_bands` and `settings.check_severity_volume`), shown on the Speech and Push rows of the Channels page, and no longer in `hub/settings.SECTIONS`, so not on the Settings page or the Configure screen. Option names and stored values did not change. Tour step 2 saves the engine with `channels_set`.
+
+### 29.10 Messages between people (Phase 23, D-265, D-279, D-283, D-284)
+- Setting `inbox_messages` (bool, default off, a channel setting on the Inbox row; `channels_set`, `welcome_get`, tour step 2). `OPT_INBOX_MESSAGES`, limits `MESSAGE_RATE_LIMIT` (10 per `MESSAGE_RATE_WINDOW` 60 s), `MESSAGE_MAX_RECIPIENTS` (20), `MESSAGE_CHANNELS` (inbox, push, popup).
+- `heads_up/send_message` (any logged-in user; `to` person entity IDs, `text`, `channels`, no other key): `hub/messages.py` `send` creates a banner record with source `person` (`SOURCE_PERSON`), `Banner.sender` (person entity ID), severity `info`, no banner channel, the targets of the chosen channels, then the same `hub.plan` path as `notify`, so profiles and policies decide. Errors: `messages_off`, `no_person`, `ambiguous_person`, `unknown_recipient`, `rate_limited`, `invalid_format`. The result is `{id, channels, skipped}`.
+- The sender is `persons_of_user(connection.user.id)` with exactly one person. No schema of an action accepts `sender` or the source `person`. `MessageLimiter` (`HubEngine.message_limiter`) keeps a rolling window per sender.
+- Store: `InboxItem.sender`, `sent` and `recipients`. A Sent item lives under the sender with the key `sent:<message id>`, so a message to oneself keeps both rows and no message-ID lookup finds it. It has no read state (`unread` is false), is never counted, is skipped by Mark all read, reminders, acknowledgements and the end of the message, and sorts first when the cap of 2000 is exceeded. `to_client` carries `sender`, `sent` and `recipients` and never a recipient's read state.
+- A message with source `person` never ends: no resolve on timeout, clear or restart (`_inbox_transition`, `_resolve_gone_inbox_items`); a dismissed popup only reads the item. `HubEngine._info` leaves title and text out of the Message Log (`recent`).
+- `heads_up/inbox_list` takes `view` `sent` and every list and subscribe state carries `messages`. `heads_up/inbox_recipients` (for the compose dialog; refused while messages are off) returns `{person, name, channels, me}` for people with an enabled profile, with the channels of a message they accept and Push removed when they have no usable device.
+- Card: option `hide_send_button`; tabs `visibleTabs` (inbox, all, sent); compose view in the dialog (`_composeView`), pure functions `showCompose`, `canSend`, `composeHints`, `rowLine`, `sendError`, `personName`. No pictures of the sender yet.
+- Tests: `tests/hub/test_inbox_messages_store.py`, `tests/hub/test_send_message.py`, `tests/card/inbox-card.test.js`, `tests/card/welcome.test.js`.

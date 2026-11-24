@@ -603,9 +603,12 @@ class HubEngine:
         return None
 
     def _info(self, banner: Banner) -> dict[str, Any]:
+        # The text of a message between people is private: the Message Log lists it without text
+        # (D-279), the panel being open to every administrator.
+        private = banner.source == SOURCE_PERSON
         return {
-            "title": banner.title,
-            "message": banner.message,
+            "title": None if private else banner.title,
+            "message": "" if private else banner.message,
             "severity": banner.severity,
             "channels": list(banner.channels),
             "source": banner.source,

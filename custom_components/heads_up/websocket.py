@@ -253,6 +253,7 @@ def ws_welcome_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
             "mail_service": str(entry.options.get(OPT_MAIL_SERVICE) or ""),
             "mail_global_address": str(entry.options.get(OPT_MAIL_ADDRESS) or ""),
             "inbox_all_notifications": bool(entry.options.get(OPT_INBOX_ALL, False)),
+            "inbox_messages": bool(entry.options.get(OPT_INBOX_MESSAGES, False)),
         },
     )
 
@@ -574,6 +575,7 @@ def ws_severity_display(
         vol.Optional("inbox_retention_months"): vol.All(int, vol.Range(min=1, max=36)),
         vol.Optional("inbox_reminder_unread"): bool,
         vol.Optional("inbox_all_notifications"): bool,
+        vol.Optional("inbox_messages"): bool,
         **{
             vol.Optional(key): vol.All(int, vol.Range(min=low, max=high))
             for key, (low, high) in panel_config.CHANNEL_RANGES.items()
