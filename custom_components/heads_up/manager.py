@@ -302,6 +302,7 @@ class BannerManager:
             mail_subject=data.get("mail_subject"),
             mail_body=data.get("mail_body"),
             source=data.get("source", SOURCE_ACTION),
+            sender=data.get("sender"),
             # Kept across an update with the same severity; a new severity starts again (D-081).
             acknowledged_by=(
                 list(existing.acknowledged_by)

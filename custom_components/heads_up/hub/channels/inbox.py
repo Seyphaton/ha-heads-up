@@ -37,6 +37,7 @@ def item_fields(message: Banner) -> dict[str, str | None]:
         "image": message.image,
         "source": source_key(message),
         "tag": message.tag,
+        "sender": message.sender,
     }
 
 

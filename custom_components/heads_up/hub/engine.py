@@ -40,6 +40,7 @@ from ..const import (
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
     SAVE_DELAY,
+    SOURCE_PERSON,
     SOURCE_RULE,
     SOURCE_SUMMARY,
     SUMMARY_LIFETIME_HOURS,
@@ -60,6 +61,7 @@ from .inbox import InboxStore
 from .interfaces import AudienceResolver, RecipientResolver
 from .ledger import Delivery, DeliveryLedger, HeldMessage, State
 from .limits import DUPLICATE, RATE_LIMITED, Limiter
+from .messages import MessageLimiter
 from .policies import PolicyBook, escalation, fallback, only_if, reminder, summarize
 from .policies.chain import Chain, Hold, Skip, Step
 from .policies.models import Policy
@@ -123,6 +125,8 @@ def source_key(banner: Banner) -> str:
     by the ID its author chose, else by its tag, else just `action`; Test send is `test`."""
     if banner.source == SOURCE_RULE:
         return banner.id
+    if banner.source == SOURCE_PERSON:
+        return "person"
     if banner.id.startswith(TEST_ID_PREFIX):
         return "test"
     if not AUTO_ID.match(banner.id):
@@ -162,6 +166,7 @@ class HubEngine:
         self.usage = AudienceUsage(hass)
         self.stats = StatsStore(hass)
         self.inbox = InboxStore(hass)
+        self.message_limiter = MessageLimiter()
         self.inbox.retention_months = int(
             options.get(OPT_INBOX_RETENTION_MONTHS, DEFAULT_INBOX_RETENTION_MONTHS)
         )

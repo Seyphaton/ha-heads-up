@@ -27,12 +27,16 @@ from .const import (
     GROUP_SUFFIX,
     LIMITABLE_AUDIENCES,
     MAX_ATTENTION_DISMISSED,
+    MAX_MESSAGE,
     MAX_PROGRESS_INTERVAL,
+    MESSAGE_CHANNELS,
+    MESSAGE_MAX_RECIPIENTS,
     MIN_PROGRESS_INTERVAL,
     OPT_ATTENTION_DISMISSED,
     OPT_AUDIENCE_EDITS,
     OPT_AUDIENCES_DISABLED,
     OPT_INBOX_ALL,
+    OPT_INBOX_MESSAGES,
     OPT_MAIL_ADDRESS,
     OPT_MAIL_SERVICE,
     OPT_SPEAK_TTS_ENTITY,
@@ -40,7 +44,7 @@ from .const import (
     canonical_severity,
 )
 from .frontend import async_popup_url
-from .hub import checker, panel_config, panel_data, panel_test, reach, settings, welcome
+from .hub import checker, messages, panel_config, panel_data, panel_test, reach, settings, welcome
 from .hub.engine import HubEngine
 from .hub.identity import GROUP_PREFIX
 from .hub.migration import fold_back
@@ -1269,6 +1273,59 @@ def ws_inbox_delete(hass: HomeAssistant, connection: ActiveConnection, msg: dict
     connection.send_result(msg["id"])
 
 
+MESSAGE_ERRORS = {
+    "messages_off": "Messages between people are switched off",
+    "no_person": "Your user is not linked to a person",
+    "ambiguous_person": "Your user is linked to more than one person",
+}
+
+
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/send_message",
+        vol.Required("to"): vol.All(
+            [vol.Match(r"^person\.[a-z0-9_]+$")], vol.Length(min=1, max=MESSAGE_MAX_RECIPIENTS)
+        ),
+        vol.Required("text"): vol.All(str, vol.Length(max=MAX_MESSAGE)),
+        vol.Optional("channels", default=["inbox", "push"]): vol.All(
+            [vol.In(MESSAGE_CHANNELS)], vol.Length(max=len(MESSAGE_CHANNELS))
+        ),
+    }
+)
+@async_response
+async def ws_send_message(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """A message from the caller to other people, for any logged-in user. The sender is the
+    person of the connection's user and never a field of the call (D-265, D-279)."""
+    if (found := _inbox(hass, connection, msg["id"])) is None:
+        return
+    hub, persons = found
+    manager = _manager(hass, connection, msg["id"])
+    if manager is None:
+        return
+    if not manager.options.get(OPT_INBOX_MESSAGES):
+        connection.send_error(msg["id"], "messages_off", MESSAGE_ERRORS["messages_off"])
+        return
+    if len(persons) != 1:
+        code = "no_person" if not persons else "ambiguous_person"
+        connection.send_error(msg["id"], code, MESSAGE_ERRORS[code])
+        return
+    text = msg["text"].strip()
+    if not text:
+        connection.send_error(msg["id"], "invalid_format", "The message is empty")
+        return
+    if unknown := [p for p in msg["to"] if hass.states.get(p) is None]:
+        connection.send_error(msg["id"], "unknown_recipient", f"No such person: {unknown[0]}")
+        return
+    if wait := hub.message_limiter.take(persons[0]):
+        connection.send_error(msg["id"], "rate_limited", f"Too many messages; wait {wait} seconds")
+        return
+    connection.send_result(
+        msg["id"], await messages.send(manager, hub, persons[0], msg["to"], text, msg["channels"])
+    )
+
+
 @websocket_command({vol.Required("type"): "heads_up/inbox_clear"})
 @callback
 def ws_inbox_clear(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
@@ -1320,6 +1377,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_welcome_apply,
         ws_popup_config,
         ws_popup_subscribe,
+        ws_send_message,
         ws_inbox_list,
         ws_inbox_subscribe,
         ws_inbox_read,

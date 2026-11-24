@@ -73,6 +73,7 @@ TARGET_CHANNELS: Final = (
 SOURCE_ACTION: Final = "action"
 SOURCE_RULE: Final = "rule"
 SOURCE_SUMMARY: Final = "summary"  # a summary the hub made itself (H4c)
+SOURCE_PERSON: Final = "person"  # a message one person sent to others (Phase 23, D-265)
 SUMMARY_PREFIX: Final = "summary:"  # ledger message id of a Summarize policy timer
 SUMMARY_LIFETIME_HOURS: Final = 24
 SUMMARY_MAX_LISTED: Final = 10
@@ -140,6 +141,12 @@ INBOX_SAVE_DELAY: Final = 60  # seconds, like the history store
 DEFAULT_INBOX_RETENTION_MONTHS: Final = 12  # D-264
 OPT_INBOX_RETENTION_MONTHS: Final = "inbox_retention_months"  # 1 to 36
 OPT_INBOX_ALL: Final = "inbox_all_notifications"  # a copy of every notification (D-276)
+OPT_INBOX_MESSAGES: Final = "inbox_messages"  # people may message each other (D-279)
+# Messages between people: calls per sender in a rolling window, recipients per call (D-279).
+MESSAGE_RATE_LIMIT: Final = 10
+MESSAGE_RATE_WINDOW: Final = 60
+MESSAGE_MAX_RECIPIENTS: Final = 20
+MESSAGE_CHANNELS: Final = ("inbox", "push", "popup")
 INBOX_MAX_ITEMS: Final = 2000  # per person, the oldest go first (D-270)
 INBOX_MAX_TIMELINE: Final = 10  # entries on one item: the first and the latest nine
 INBOX_PURGE_GRACE: Final = 300  # seconds a removed person may come back before the inbox is purged
@@ -307,6 +314,7 @@ DEFAULT_OPTIONS: Final = {
     OPT_INBOX_RETENTION_MONTHS: DEFAULT_INBOX_RETENTION_MONTHS,
     OPT_INBOX_REMINDER_UNREAD: True,
     OPT_INBOX_ALL: False,
+    OPT_INBOX_MESSAGES: False,
     OPT_RATE_PER_DEVICE: 5,
     OPT_RATE_TOTAL: 60,
     OPT_DEDUPE_SECONDS: 30,

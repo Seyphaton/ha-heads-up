@@ -1828,3 +1828,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - Message to yourself: treated like any recipient, one inbox item (and push or popup if chosen) plus a Sent entry. The rate limit counts it.
   - Compose button: medium and large cards show it in the header; compact and small tiles have none and open the dialog, which carries the button in its header. New card option `hide_send_button` (default off, so the button shows); it hides the button in the card and in the dialog (wall tablets).
   - Switch: admin setting `inbox_messages`, default off, on the Inbox row of the Channels page; tour step 2 offers it beside All notifications, off by default. Off: `heads_up/send_message` is refused and the card shows no compose button and no Sent tab.
+
+## D-283 Phase 23 step 2: build choices for `send_message` (2026-11-24, to confirm)
+- Context: step 0 found that a Home Assistant user can be linked to several persons (N-120).
+- Choices (Claude, for the maintainer to confirm):
+  - A user linked to more than one person cannot send (`ambiguous_person`): "From" would be a guess, and the sender must never be a field of the call.
+  - Error codes: `messages_off`, `no_person`, `ambiguous_person`, `unknown_recipient`, `rate_limited`, `invalid_format` (schema, empty text, speech or mail channel, a severity or title or sender field).
+  - At most 20 recipients per call; the same person twice counts once; `inbox` is always added to the chosen channels.
+  - The result is `{id, channels, skipped}`; `skipped` lists `{person, channel, reason}`, for example `channel_not_accepted`. A delivery held by a policy (quiet hours) shows only in the `channels` counts.
+  - The message is a banner record with source `person` and no banner channel, so the usual timeout ends it and then marks the recipient's item resolved (step 3 decides how the card shows that for person messages).

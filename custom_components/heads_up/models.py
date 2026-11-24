@@ -66,6 +66,8 @@ class Banner:
     volume: float | None = None
     acknowledged_by: list[str] = field(default_factory=list)
     source: str = SOURCE_ACTION
+    # Person entity ID of who sent it (Phase 23); only `send_message` sets it, from the connection.
+    sender: str | None = None
     # Picture under the message: an http(s) URL or a path starting with `/` (D-127).
     image: str | None = None
     # Push only (D-255): `#rrggbb`, a sender icon URL and a subtitle. `icon` is the status bar icon.
@@ -149,6 +151,7 @@ class Banner:
             "volume",
             "acknowledged_by",
             "source",
+            "sender",
             "mail_subject",
             "mail_body",
             "progress",
