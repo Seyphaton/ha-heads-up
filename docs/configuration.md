@@ -359,7 +359,7 @@ How policies work together opens in a window from the Policies page and is also 
 A policy attaches to messages automatically or manually, chosen in the editor under Which messages.
 
 - Automatically: a message gets the policy when it fits all of these. An empty list matches everything.
-  - Severities and tags: the severity is in the first list and the tag in the second. A message without a tag matches only a policy whose tag list is empty. Messages from watch rules have the tag `rule`.
+  - Severities and tags: the severity is checked in the first list and the tag is in the second. All four severities are checked for a new policy, and the last checked one cannot be unchecked; to stop a policy, switch it off. A message without a tag matches only a policy whose tag list is empty. Messages from watch rules have the tag `rule`.
   - Not for tags: a message with one of these tags never gets the policy, even when the lists above match. The editor warns when Not for repeats a tag from the lists above.
 - Manually: the policy has no lists and never attaches by itself. Only a call or a watch rule that names it in the `policy` field gets it. Get through entries can be manual too.
 
