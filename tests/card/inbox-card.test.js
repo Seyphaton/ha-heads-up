@@ -258,7 +258,7 @@ describe("the views Inbox and Everything", () => {
   it("has words for the view and the hint in every language", () => {
     for (const code of ["en", "de", "fr", "es"]) {
       setLanguage(code);
-      expect(STRINGS.everything).toBeTruthy();
+      expect(STRINGS.all_notifications).toBeTruthy();
       expect(STRINGS.copy_hint).toBeTruthy();
     }
   });

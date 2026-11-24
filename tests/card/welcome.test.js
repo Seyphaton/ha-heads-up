@@ -155,7 +155,7 @@ describe("welcome", () => {
     expect(ITEM_LANES).toEqual({ critical: ["through", "arrive"], warnings: ["arrive"], digest: ["calm"], quiet: ["calm"] });
   });
 
-  const saved = { mailService: "", mailAddress: "", ttsEngine: "" };
+  const saved = { mailService: "", mailAddress: "", ttsEngine: "", inboxAll: false };
 
   it("saves nothing when step 2 was left untouched", () => {
     expect(channelChanges({ ...saved }, saved)).toEqual([]);
@@ -166,6 +166,19 @@ describe("welcome", () => {
     expect(channelChanges({ ...saved, mailService: "smtp_house", mailAddress: "a@example.com" }, saved)).toEqual([
       { type: "heads_up/channels_set", mail_service: "smtp_house", mail_global_address: "a@example.com" },
     ]);
+  });
+
+  it("saves the All notifications switch of the inbox through channels_set, on and off", () => {
+    expect(channelChanges({ ...saved, inboxAll: true }, saved)).toEqual([{ type: "heads_up/channels_set", inbox_all_notifications: true }]);
+    expect(channelChanges({ ...saved }, { ...saved, inboxAll: true })).toEqual([{ type: "heads_up/channels_set", inbox_all_notifications: false }]);
+  });
+
+  it("puts the inbox among the channels the tour shows, with words in every language", () => {
+    for (const code of ["en", "de", "fr", "es"]) {
+      expect(STRINGS[code].ch_inbox, code).toBeTruthy();
+      expect(STRINGS[code].inbox_all, code).toBeTruthy();
+      expect(STRINGS[code].inbox_hint, code).toBeTruthy();
+    }
   });
 
   it("saves the speech engine through settings_set, and clears it with an empty value", () => {

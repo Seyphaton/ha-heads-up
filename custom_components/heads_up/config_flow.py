@@ -220,15 +220,6 @@ def _option_field(key: str, kind: str, current: dict[str, Any]) -> tuple[Any, An
             else vol.Optional(key)
         )
         return field, DurationSelector(DurationSelectorConfig(enable_day=True))
-    if kind == "severities":
-        return (
-            _required(key, list(current[key])),
-            SelectSelector(
-                SelectSelectorConfig(
-                    options=list(reversed(SEVERITIES)), multiple=True, translation_key="severity"
-                )
-            ),
-        )
     if kind == "minutes":
         return (
             _required(key, [str(s // 60) for s in current[key]]),

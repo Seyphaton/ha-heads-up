@@ -1,4 +1,4 @@
-"""The mirror: a copy of what other channels delivered, in the inbox, as history (D-275)."""
+"""All notifications: a copy of what other channels delivered, in the inbox, as history (D-276)."""
 
 from typing import Any
 
@@ -19,6 +19,7 @@ from .policy_support import (
     REMINDER,
     add_policy,
     make_household,
+    move,
     send,
     wait,
 )
@@ -29,7 +30,7 @@ BEN = "person.ben"
 
 @pytest.fixture
 def options() -> dict[str, Any]:
-    return {"inbox_mirror": ["warning", "critical"], "presence_debounce_seconds": 0}
+    return {"inbox_all_notifications": True, "presence_debounce_seconds": 0}
 
 
 def inbox(entry: MockConfigEntry) -> Any:
@@ -49,7 +50,7 @@ async def push_to_anna(hass: HomeAssistant, entry: MockConfigEntry, **kw: Any) -
 # Which messages --------------------------------------------------------------------------
 
 
-async def test_a_push_of_a_chosen_severity_leaves_a_copy_that_is_history(
+async def test_a_push_leaves_a_copy_that_is_history(
     hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
 ) -> None:
     await make_household(hass, mobile_app_device)
@@ -59,14 +60,6 @@ async def test_a_push_of_a_chosen_severity_leaves_a_copy_that_is_history(
     assert (item.title, item.text, item.severity) == ("Leak", "Water in the cellar", "warning")
     assert item.via == ["push"] and item.read_at is not None and item.unread is False
     assert inbox(entry).get(BEN, "m") is None
-
-
-async def test_a_severity_that_was_not_chosen_leaves_nothing(
-    hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
-) -> None:
-    await make_household(hass, mobile_app_device)
-    await push_to_anna(hass, entry, severity="info")
-    assert inbox(entry).people() == []
 
 
 @pytest.mark.parametrize("options", [{}], ids=["default"])
@@ -332,7 +325,7 @@ async def ask(client: Any, kind: str, **data: Any) -> dict[str, Any]:
     return dict(await client.receive_json())
 
 
-async def test_the_list_has_the_views_inbox_and_everything_and_says_whether_the_mirror_is_on(
+async def test_the_list_has_the_views_inbox_and_all_notifications_and_says_whether_the_switch_is_on(
     hass: HomeAssistant,
     entry: MockConfigEntry,
     hass_ws_client: WebSocketGenerator,
@@ -352,17 +345,17 @@ async def test_the_list_has_the_views_inbox_and_everything_and_says_whether_the_
         ANNA, "real", {"title": "R", "text": "r", "severity": "info"}, "inbox", dt_util.utcnow()
     )
     client = await hass_ws_client(hass)
-    both = (await ask(client, "list", view="everything"))["result"]
+    both = (await ask(client, "list", view="all"))["result"]
     only = (await ask(client, "list", view="inbox"))["result"]
     default = (await ask(client, "list"))["result"]
     assert sorted(i["message_id"] for i in both["items"]) == ["copy", "real"] and both["total"] == 2
     assert [i["message_id"] for i in only["items"]] == ["real"] and only["total"] == 1
     assert default["total"] == 1
     assert next(i for i in both["items"] if i["message_id"] == "copy")["copy"] is True
-    assert both["mirror"] is True and both["unread"] == 1 and both["needs_action"] == 0
+    assert both["all_notifications"] is True and both["unread"] == 1 and both["needs_action"] == 0
 
 
-async def test_the_subscription_carries_copies_and_the_mirror_flag(
+async def test_the_subscription_carries_copies_and_the_switch(
     hass: HomeAssistant,
     entry: MockConfigEntry,
     hass_ws_client: WebSocketGenerator,
@@ -381,31 +374,137 @@ async def test_the_subscription_carries_copies_and_the_mirror_flag(
     await client.send_json_auto_id({"type": "heads_up/inbox_subscribe"})
     assert (await client.receive_json())["success"]
     event = (await client.receive_json())["event"]
-    assert event["mirror"] is True and [i["message_id"] for i in event["items"]] == ["copy"]
+    assert event["all_notifications"] is True and [i["message_id"] for i in event["items"]] == [
+        "copy"
+    ]
     assert event["unread"] == 0
 
 
 # The setting -------------------------------------------------------------------------------
 
 
-async def test_the_setting_is_a_list_of_severities_that_is_empty_by_default(
+async def test_the_setting_is_a_channel_setting_that_takes_a_boolean(
     hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
 ) -> None:
-    from .test_panel_settings import ask as ask_settings
-
     client = await hass_ws_client(hass)
-    result = (await ask_settings(client, "settings_get"))["result"]
-    section = next(s for s in result["layout"] if s["name"] == "inbox")
-    mirror = next(e for e in section["entries"] if e["key"] == "inbox_mirror")
-    assert mirror["kind"] == "severities" and mirror["choices"] == [
-        "critical",
-        "warning",
-        "info",
-        "passive",
-    ]
-    assert (await ask_settings(client, "settings_set", inbox_mirror=["info"]))["success"]
+
+    async def call(**data: Any) -> dict[str, Any]:
+        await client.send_json_auto_id(data)
+        return dict(await client.receive_json())
+
+    config = (await call(type="heads_up/panel_config"))["result"]
+    assert config["channels"]["inbox_all_notifications"] is True  # this module's options
+    assert (await call(type="heads_up/channels_set", inbox_all_notifications=False))["success"]
     await hass.async_block_till_done()
-    assert entry.options["inbox_mirror"] == ["info"]
-    for bad in (["loud"], "info", [1]):
-        reply = await ask_settings(client, "settings_set", inbox_mirror=bad)
-        assert not reply["success"] and reply["error"]["code"] == "invalid_format", bad
+    assert entry.options["inbox_all_notifications"] is False
+    reply = await call(type="heads_up/channels_set", inbox_all_notifications="yes")
+    assert not reply["success"] and reply["error"]["code"] == "invalid_format"
+
+
+async def test_switching_it_off_stops_new_copies(
+    hass: HomeAssistant, entry: MockConfigEntry, mobile_app_device: AddDevice
+) -> None:
+    await make_household(hass, mobile_app_device)
+    hass.config_entries.async_update_entry(
+        entry, options={**entry.options, "inbox_all_notifications": False}
+    )
+    await hass.async_block_till_done()
+    await push_to_anna(hass, entry)
+    assert inbox(entry).people() == []
+
+
+# Speech: for the people at home when it is spoken (D-276) ----------------------------------
+
+
+@pytest.fixture(autouse=True)
+def fake_media_source(monkeypatch: pytest.MonkeyPatch) -> None:
+    from custom_components.heads_up.hub.channels import speak
+
+    monkeypatch.setattr(speak, "media_source_id", lambda hass, text, engine, lang: f"tts://{text}")
+
+
+async def say(hass: HomeAssistant, entry: MockConfigEntry, speakers: Any, **kw: Any) -> None:
+    await send(
+        hass,
+        entry,
+        severity="warning",
+        channels=["speak"],
+        to={"speak": {"recipients": [speakers.plain_player]}},
+        **kw,
+    )
+
+
+async def test_a_spoken_message_is_listed_for_the_people_at_home(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    fake_speakers: Any,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    move(hass, BEN, "not_home")
+    await say(hass, entry, fake_speakers)
+    assert fake_speakers.play_media
+    item = inbox(entry).get(ANNA, "m")
+    assert item is not None and item.copy and item.via == ["speak"] and item.unread is False
+    assert inbox(entry).get(BEN, "m") is None
+
+
+async def test_a_person_whose_presence_is_unknown_does_not_count_as_home(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    fake_speakers: Any,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    move(hass, ANNA, "unknown")
+    move(hass, BEN, "home")
+    await say(hass, entry, fake_speakers)
+    assert inbox(entry).people() == [BEN]
+
+
+async def test_speech_that_nobody_heard_leaves_nothing(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    fake_speakers: Any,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    move(hass, ANNA, "not_home")
+    move(hass, BEN, "not_home")
+    await say(hass, entry, fake_speakers)
+    assert inbox(entry).people() == []
+
+
+async def test_speech_that_was_skipped_leaves_nothing(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    fake_speakers: Any,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    await say(hass, entry, fake_speakers)  # said
+    await say(hass, entry, fake_speakers, id="again")  # the same text within the pause: skipped
+    assert len(fake_speakers.play_media) == 1
+    assert inbox(entry).get(ANNA, "m") is not None and inbox(entry).get(ANNA, "again") is None
+
+
+async def test_speech_and_push_share_one_entry_with_both_channels(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    mobile_app_device: AddDevice,
+    fake_speakers: Any,
+) -> None:
+    await make_household(hass, mobile_app_device)
+    move(hass, BEN, "not_home")
+    await send(
+        hass,
+        entry,
+        severity="warning",
+        channels=["push", "speak"],
+        to={
+            "push": {"recipients": [ANNA]},
+            "speak": {"recipients": [fake_speakers.plain_player]},
+        },
+    )
+    (item,) = inbox(entry).items(ANNA)
+    assert item.copy and sorted(item.via) == ["push", "speak"]

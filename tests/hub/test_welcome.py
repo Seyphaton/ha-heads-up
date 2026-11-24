@@ -302,6 +302,7 @@ async def test_welcome_get_returns_what_step_two_of_the_tour_needs(
     assert "smtp_house" in result["notify_services"]
     assert result["mail_service"] == "smtp_house"
     assert result["mail_global_address"] == "house@example.com"
+    assert result["inbox_all_notifications"] is False
 
 
 async def test_the_tour_saves_the_mail_service_and_address_through_channels_set(
@@ -329,3 +330,13 @@ async def test_the_tour_cannot_save_an_unknown_mail_service_or_a_too_long_addres
     long = await ask(client, "channels_set", mail_global_address="a" * 250 + "@example.com")
     assert long["error"]["code"] == "invalid_format"
     assert not entry.options.get("mail_service")
+
+
+async def test_the_tour_saves_the_all_notifications_switch_through_channels_set(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    client = await hass_ws_client(hass)
+    reply = await ask(client, "channels_set", inbox_all_notifications=True)
+    assert reply["success"]
+    await hass.async_block_till_done()
+    assert (await ask(client, "welcome_get"))["result"]["inbox_all_notifications"] is True

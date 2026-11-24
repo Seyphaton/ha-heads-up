@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { countText, initials, peopleText, STRINGS as AUD, usageText } from "../../custom_components/heads_up/frontend/panel/audiences.js";
-import { languageName, languageOptions, settingChanges, settingProblems, STRINGS as CH, stylesText, summaryText } from "../../custom_components/heads_up/frontend/panel/channels.js";
+import { inboxLine, languageName, languageOptions, problems, settingChanges, settingProblems, STRINGS as CH, stylesText, summaryText, validRetention } from "../../custom_components/heads_up/frontend/panel/channels.js";
 import { byAudience, STRINGS as MSG } from "../../custom_components/heads_up/frontend/panel/messages.js";
 
 const sameKeys = (strings) => {
@@ -35,7 +35,8 @@ describe("Channels overview", () => {
     expect(summaryText("speech", { speak_language: "" }, t)).toBe("Home Assistant language");
     expect(summaryText("mail", { mail_service: "" }, t)).toBe("Off");
     expect(summaryText("persistent", {}, t)).toBe("No settings");
-    expect(summaryText("inbox", {}, t)).toBe("No settings");
+    expect(summaryText("inbox", { inbox_retention_months: 12 }, t)).toBe("Kept for 12 months");
+    expect(summaryText("inbox", { inbox_retention_months: 6, inbox_all_notifications: true }, t)).toBe("Kept for 6 months · all notifications");
     expect(summaryText("mail", { mail_service: "smtp", mail_global_address: "a@example.org" }, t)).toBe("notify.smtp · global address a@example.org");
   });
 
@@ -85,4 +86,30 @@ describe("Recipients phones", () => {
   });
 
   it("has the same keys in every language", () => sameKeys(REC));
+});
+
+
+describe("the Inbox row of the Channels page", () => {
+  const t = CH.en;
+
+  it("takes a retention of one to thirty-six whole months", () => {
+    for (const ok of [1, 12, 36, "6"]) expect(validRetention(ok)).toBe(true);
+    for (const bad of [0, 37, 1.5, "", null, NaN]) expect(validRetention(bad)).toBe(false);
+    expect(problems({ push_channel_id: "heads_up", inbox_retention_months: 0 })).toContain("bad_retention");
+    expect(problems({ push_channel_id: "heads_up", inbox_retention_months: 12 })).not.toContain("bad_retention");
+  });
+
+  it("words what is stored without any text", () => {
+    expect(inboxLine({ items: 12, people: 2, oldest: "2026-10-01T08:00:00+00:00" }, t)).toBe("12 items for 2 people, the oldest from 2026-10-01.");
+    expect(inboxLine({ items: 0, people: 0, oldest: null }, t)).toBe(t.inbox_empty);
+    expect(inboxLine(null, t)).toBe(t.inbox_empty);
+  });
+
+  it("has the same texts in every language", () => {
+    for (const code of ["de", "fr", "es"]) {
+      for (const key of ["inbox_retention", "inbox_all", "inbox_all_note", "inbox_clear", "inbox_confirm", "bad_retention", "inbox_summary", "inbox_summary_all"]) {
+        expect(CH[code][key], `${code} ${key}`).toBeTruthy();
+      }
+    }
+  });
 });

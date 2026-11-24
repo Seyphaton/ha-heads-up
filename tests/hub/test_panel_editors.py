@@ -186,6 +186,9 @@ async def test_the_config_has_the_entry_id_and_the_channel_settings(
         "mail_global_address": "",
         "mail_subject": "{severity}: {title}",
         "mail_body": "{message}",
+        "inbox_retention_months": 12,
+        "inbox_reminder_unread": True,
+        "inbox_all_notifications": False,
     }
 
 

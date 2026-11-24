@@ -19,7 +19,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §26 new Overview (status card, Coming up, reach table, tour in the page, quick shortcuts, Last actions) | built and tested on `release/2.0` (Phase 18, D-244, D-245); checked in the browser pane at desktop and phone width, light and dark; not on real devices |
 | §27 history store (24 months, Activity cards, Clear history) | built and tested on `release/2.0` (Phase 19, D-246); about 7 KB a day measured on a synthetic busy household; push levels used are not recorded |
 | §28 2.1.0 richer push (icon, color, sender icon, subtitle, progress with live updates) | built (D-255 to D-263) |
-| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store, the `inbox` channel, its lifecycle hooks, the WebSocket commands, the sensor, the card, the settings and the mirror are built and tested; Phase 23 is not built |
+| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store, the `inbox` channel, its lifecycle hooks, the WebSocket commands, the sensor, the card, the settings and All notifications are built and tested; Phase 23 is not built |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -563,7 +563,7 @@ How both sources stay equal:
 | viewer-chosen snooze duration `snooze_custom` (D-219) | yes (`notify`, `create_banner`; `tests/test_snooze.py`) | yes (rule form field; `tests/test_snooze.py`) |
 | `heads_up_banner_unsnoozed` with `reason`, also when a snooze runs out (D-221) | yes | yes (one `BannerManager._snooze_elapsed`; a rule's snoozes are not kept over a restart, D-069) |
 | `inbox` channel (D-264, D-268) | yes (`notify` with `channels: [inbox]`) | exception: a rule has no channels (D-100); its messages reach the inbox through a Deliver, Escalation or Fallback policy (`tests/hub/test_inbox_channel.py`: a rule message through Deliver, and a rule that triggers again reopens the same item) |
-| inbox mirror: a copy of what other channels delivered (D-264, D-275) | yes | yes: one `HubEngine._mirror` after every delivery of a banner (`tests/hub/test_inbox_mirror.py`: a rule message leaves a copy for the people of its banner) |
+| inbox All notifications: a copy of what other channels delivered (D-264, D-276) | yes | yes: one `HubEngine._mirror` after every delivery of a banner (`tests/hub/test_inbox_all.py`: a rule message leaves a copy for the people of its banner) |
 
 Audit for the hub (H10, 2026-11-02), extended 2026-11-05: every banner feature above is in both columns or carries an exception with a decision number.
 
@@ -1053,7 +1053,7 @@ Status: built 2026-11-23 on `release/2.1`, including editable built-in audiences
 
 ## 29. Personal inbox (Phase 22, D-264, D-268 to D-271)
 
-Status: built on `release/3.0`: the store, the channel with the lifecycle hooks, the WebSocket commands, the sensor, the card, the settings and the mirror. Phase 23 (messages to other people) is not built. Plan: `docs/dev/inbox/PLAN.md`.
+Status: built on `release/3.0`: the store, the channel with the lifecycle hooks, the WebSocket commands, the sensor, the card, the settings and All notifications. Phase 23 (messages to other people) is not built. Plan: `docs/dev/inbox/PLAN.md`.
 
 ### 29.1 Store
 - `hub/inbox.py` `InboxStore`, store `heads_up.inbox` (version 1), one store for all people, layout `{"items": {person entity ID: {message ID: item}}}`. Items are in memory; a change schedules one write after `INBOX_SAVE_DELAY` (60 s), made from a copy in the event loop and serialized in a thread (`serialize_in_event_loop=False`, N-117). Stopping the hub and Home Assistant's final write (`EVENT_HOMEASSISTANT_FINAL_WRITE`) save what is waiting at once. The store file is deleted with the integration.
@@ -1088,18 +1088,18 @@ Status: built on `release/3.0`: the store, the channel with the lifecycle hooks,
 - Tests: `tests/hub/test_inbox_sensor.py`.
 
 ### 29.7 Settings
-- Section `inbox` of `hub/settings.SECTIONS` (options screen and panel Settings page, D-122), between speech volume and limits: `inbox_retention_months` (int 1 to 36, default 12; `InboxStore.set_retention` prunes at once when it shrinks and the engine reads it at start) and `inbox_reminder_unread` (bool, default true, read by the channel at each reminder).
-- The panel adds, under that section, a line with what is stored (`InboxStore.info`: items, people, oldest day; also in `settings_get` as `inbox`) and Clear inbox, which calls the admin command `heads_up/inbox_clear_all` (every person's items; `count` and the new `info` come back). Diagnostics carry the same counts per person entity ID and no text.
+- The inbox settings are channel settings (`CHANNEL_KEYS` in `hub/panel_config.py`, written by `heads_up/channels_set`, shown on the Inbox row of the Channels page; D-276): `inbox_retention_months` (int 1 to 36, default 12; `InboxStore.set_retention` prunes at once when it shrinks and the engine reads it at start), `inbox_reminder_unread` (bool, default true, read by the channel at each reminder) and `inbox_all_notifications` (bool, default false, §29.8). They are not in `hub/settings.SECTIONS`, so neither the Settings page nor the Configure screen has them.
+- The Inbox row also shows what is stored (`InboxStore.info`: items, people, oldest day; `heads_up/panel_config` carries it as `inbox`) and Clear inbox, which calls the admin command `heads_up/inbox_clear_all` (every person's items; `count` and the new `info` come back). Tour step 2 offers `inbox_all_notifications` and saves it with `channels_set`. Diagnostics carry the counts per person entity ID and no text.
 
 ### 29.6 Card
 - `custom:heads-up-inbox-card`, module `frontend/heads-up-inbox-card.js` (registered by `frontend.py` like the main card; its own element definition and editor, `whenFrontendReady`, no import from the main card). Options `size`, `design`, `titles_only` (D-274); `CONFIG_KEYS` is compared with the "Card option" table of `docs/configuration.md` by `scripts/docs_check.py`.
 - Data: `heads_up/inbox_subscribe` (state and first page, `resubscribe: false` and its own retry like the main card), `inbox_read`, `inbox_read_all`, `inbox_delete`, `inbox_list` for Show more. The person is never a parameter.
 - Sizes and designs follow D-266 and the mockup: small `number`, `ring`, `mosaic`; medium `tile`, `ring`, `split`; large is the list. A tile or a medium card opens the same list in a dialog appended to `document.body` (Escape and the close button close it, Tab stays inside, focus returns to the opener). Expanding a row reads it; opening or rendering never does.
 - After a rebuild the control that had the focus gets it back (`data-key`, a second try on the next frame because `ha-card` lays out one frame late).
-- Not in this phase: the views Everything and Sent, the pen button (Phase 23), and the mirror copies (they come with the settings step).
+- Not in this phase: the view Sent and the pen button (Phase 23).
 - Checked in the browser pane at phone width, light and dark, with the keyboard; vitest covers the pure functions.
 
-### 29.8 Mirror (D-275)
-- Setting `inbox_mirror` (list of severities, default empty; kind `severities` in `hub/settings.SECTIONS`, a multi-select on the options screen and checkboxes on the Settings page). `HubEngine._mirror` runs at the end of `_send` for every origin that reaches a person (message, escalation, fallback, summary; not reminders) and `_release` calls `_mirror_one` for a held delivery that was sent. It keeps a copy for each person whose push, popup or mail was SENT, and for the people of a SENT banner (`_banner_persons`: the persons it names, else every person state with a `user_id`). Speech and the Persistent Notification are not mirrored.
+### 29.8 All notifications (D-275, D-276)
+- Setting `inbox_all_notifications` (bool, default off; a channel setting, §29.7). `HubEngine._mirror` runs at the end of `_send` for every origin that reaches a person (message, escalation, fallback, summary; not reminders), and `_release` calls `_mirror_one` for a held delivery that was sent. It keeps a copy for each person whose push, popup or mail was SENT, for the people of a SENT banner (`_banner_persons`: the persons it names, else every person state with a `user_id`), and, for SENT speech, for the persons who are at home at that moment (`_persons_at_home`: `in_zone` Home as the At home audience tests it, with a person's home entity; unknown presence does not count). The Persistent Notification is not kept.
 - `InboxStore.upsert(..., copy=True)`: a new item with `copy: true` and `read_at` set; next to a real item only the channel is added to `via`; a later real delivery promotes the copy (`copy` false, unread). A copy is never counted (`unread`, `needs_action`, `counts_of`), never gets reminder events, and is dropped first at the cap. Copies skip the policy chain: they record what the real channels delivered.
-- No copy for a person whose profile lacks the inbox or is disabled. `heads_up/inbox_list` takes `view` (`inbox`, the default, or `everything`); the list and the subscription carry `mirror` (whether the setting names a severity) and `copy` on each item. The card has the switch Inbox | Everything and says how to turn the mirror on when it is off.
+- No copy for a person whose profile lacks the inbox or is disabled. `heads_up/inbox_list` takes `view` (`inbox`, the default, or `all`); the list and the subscription carry `all_notifications` (whether the switch is on) and `copy` on each item. The card has the tabs Inbox and All notifications and says how to turn the switch on when it is off.

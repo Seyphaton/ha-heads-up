@@ -22,20 +22,35 @@ def put(entry: MockConfigEntry, person: str, mid: str, days_ago: int = 0, **kw: 
     entry.runtime_data.hub.inbox.upsert(person, mid, fields, "inbox", now)
 
 
-# The settings ----------------------------------------------------------------------------
+# The settings: on the Inbox row of the Channels page (D-276) -----------------------------
 
 
-async def test_the_defaults_are_twelve_months_and_a_reminder_that_brings_items_back(
+async def channels(client: Any, **data: Any) -> dict[str, Any]:
+    await client.send_json_auto_id({"type": "heads_up/channels_set", **data})
+    return dict(await client.receive_json())
+
+
+async def test_the_inbox_settings_are_channel_settings_with_their_defaults(
     hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
 ) -> None:
     client = await hass_ws_client(hass)
+    config = (await ask(client, "panel_config"))["result"]
+    assert config["channels"]["inbox_retention_months"] == 12
+    assert config["channels"]["inbox_reminder_unread"] is True
+    assert config["channels"]["inbox_all_notifications"] is False
+    assert config["inbox"] == {"items": 0, "people": 0, "oldest": None}
+
+
+async def test_they_are_not_on_the_settings_page_or_the_options_screen(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    from custom_components.heads_up.hub import settings
+
+    client = await hass_ws_client(hass)
     result = (await ask(client, "settings_get"))["result"]
-    assert result["options"]["inbox_retention_months"] == 12
-    assert result["options"]["inbox_reminder_unread"] is True
-    section = next(s for s in result["layout"] if s["name"] == "inbox")
-    kinds = {e["key"]: e for e in section["entries"]}
-    assert kinds["inbox_retention_months"]["range"] == [1, 36]
-    assert kinds["inbox_reminder_unread"]["kind"] == "bool"
+    assert "inbox" not in [s["name"] for s in result["layout"]]
+    assert not any(key.startswith("inbox_") for key in result["options"])
+    assert all(name != "inbox" for name, _ in settings.SECTIONS)
 
 
 async def test_the_retention_is_one_to_thirty_six_months(
@@ -43,10 +58,10 @@ async def test_the_retention_is_one_to_thirty_six_months(
 ) -> None:
     client = await hass_ws_client(hass)
     for bad in (0, 37, -1):
-        reply = await ask(client, "settings_set", inbox_retention_months=bad)
+        reply = await channels(client, inbox_retention_months=bad)
         assert not reply["success"] and reply["error"]["code"] == "invalid_format", bad
     for good in (1, 36):
-        assert (await ask(client, "settings_set", inbox_retention_months=good))["success"]
+        assert (await channels(client, inbox_retention_months=good))["success"]
 
 
 async def test_a_shorter_retention_removes_older_items_at_once(
@@ -55,7 +70,7 @@ async def test_a_shorter_retention_removes_older_items_at_once(
     put(entry, ANNA, "old", days_ago=100)
     put(entry, ANNA, "new", days_ago=5)
     client = await hass_ws_client(hass)
-    assert (await ask(client, "settings_set", inbox_retention_months=1))["success"]
+    assert (await channels(client, inbox_retention_months=1))["success"]
     await hass.async_block_till_done()
     assert [i.message_id for i in entry.runtime_data.hub.inbox.items(ANNA)] == ["new"]
     assert entry.runtime_data.hub.inbox.retention_months == 1
@@ -80,7 +95,7 @@ async def test_the_reminder_toggle_is_used_by_the_channel(
     hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
 ) -> None:
     client = await hass_ws_client(hass)
-    assert (await ask(client, "settings_set", inbox_reminder_unread=False))["success"]
+    assert (await channels(client, inbox_reminder_unread=False))["success"]
     await hass.async_block_till_done()
     assert entry.runtime_data.options["inbox_reminder_unread"] is False
     put(entry, ANNA, "a")
@@ -102,6 +117,28 @@ async def test_the_reminder_toggle_is_used_by_the_channel(
     await channel.deliver(message, Target(ANNA, "person", ANNA, origin="reminder"))
     item = inbox.get(ANNA, "a")
     assert item is not None and item.read_at is not None  # a reminder did not bring it back
+
+
+async def test_the_all_notifications_switch_takes_a_boolean(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
+) -> None:
+    client = await hass_ws_client(hass)
+    assert (await channels(client, inbox_all_notifications=True))["success"]
+    await hass.async_block_till_done()
+    assert entry.runtime_data.hub.inbox_all is True
+    reply = await channels(client, inbox_all_notifications="yes")
+    assert not reply["success"] and reply["error"]["code"] == "invalid_format"
+
+
+async def test_the_settings_are_for_administrators_only(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_access_token: str,
+) -> None:
+    client = await hass_ws_client(hass, hass_read_only_access_token)
+    reply = await channels(client, inbox_all_notifications=True)
+    assert reply["error"]["code"] == "unauthorized"
 
 
 # Clear inbox ------------------------------------------------------------------------------
@@ -132,14 +169,14 @@ async def test_clear_inbox_removes_every_persons_items_and_reports_the_new_state
     assert entry.runtime_data.hub.inbox.people() == []
 
 
-async def test_the_settings_show_how_much_is_stored_without_any_text(
+async def test_the_channels_page_shows_how_much_is_stored_without_any_text(
     hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
 ) -> None:
     put(entry, ANNA, "a", days_ago=3)
     put(entry, BEN, "b")
     put(entry, BEN, "c")
     client = await hass_ws_client(hass)
-    reply = await ask(client, "settings_get")
+    reply = await ask(client, "panel_config")
     info = reply["result"]["inbox"]
     assert info["items"] == 3 and info["people"] == 2 and info["oldest"]
     assert "Secret" not in repr(reply)

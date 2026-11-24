@@ -6,7 +6,7 @@ Create and edit them in the panel (Configuration group: Channels, Audiences, Rec
 
 ## Channels
 
-The panel's Channels page lists banner, push, popup, speech, Persistent Notification, mail and inbox with a summary of their settings; select a channel to change it. The Persistent Notification and Inbox rows only say that the channel has no settings.
+The panel's Channels page lists banner, push, popup, speech, Persistent Notification, mail and inbox with a summary of their settings; select a channel to change it. The Persistent Notification row only says that the channel has no settings.
 
 <img src="images/channels.png" width="600" alt="The Channels page: one row per channel with a summary of its settings, and a button to the Severities page">
 
@@ -227,16 +227,26 @@ data:
   recipients: [person.anna]
 ```
 
+The settings are on the Inbox row of the Channels page. They are not on the Settings page and not on the Configure screen of Home Assistant.
+
+| Setting | Default | Meaning |
+|---|---|---|
+| Months to keep inbox items | 12 (1–36) | Items older than this are removed, once a day and when you shorten the value. |
+| Show all notifications in the personal inbox, independent of the channel | off | Saves a copy of every notification per person in the tab All notifications (see below). Off: only messages sent to the inbox channel are kept. |
+| A reminder marks a read item unread again | on | On: a reminder or an escalation that reaches a person who already has the item brings it back to the unread count. Off: it only adds a line to the timeline. |
+
+The row also shows how many items are stored for how many people, with the oldest day, and a button, Clear inbox. Clear inbox deletes the items of every person after a confirmation. It does not touch messages. The introduction offers the switch All notifications in its step about channels.
+
 The person needs no phone and no Home Assistant user. A person's recipient profile can switch the inbox off; then the item is skipped for them (`channel_not_accepted`).
 
 - One item per message and person. The same message again, with the same text, adds nothing. New text or a higher severity updates the item and marks it unread.
-- A reminder or an escalation that reaches a person who already has the item adds a timeline entry. It does not make a second item. A reminder marks a read item unread again unless the setting A reminder marks a read item unread again is off (see [Settings](settings.md#inbox)).
+- A reminder or an escalation that reaches a person who already has the item adds a timeline entry. It does not make a second item. A reminder marks a read item unread again unless the setting A reminder marks a read item unread again on the Inbox row is off.
 - An item is read when the person acknowledges the message or dismisses it for themselves. When the message ends, the item stays and is marked resolved, with the reason (cleared, expired, condition or dismissed). It stays unread until the person reads it.
 - A dismissal for everyone resolves every item of the message. A snooze changes nothing.
 - When Home Assistant starts, items of messages that are no longer active are marked resolved.
-- Items older than the retention (12 months by default, 1 to 36 in Settings) are removed, and a person keeps at most 2000 items, the oldest read and resolved ones first. A person who is removed from Home Assistant loses their items after 5 minutes. Removing the integration deletes them.
-- The mirror (Settings, Keep a copy of messages of these severities, empty by default) leaves a copy in the inbox of every person that push, popup, mail or the banner delivered to. A banner counts for the persons it names, or for every person with a Home Assistant user when it names none. Speech and the Persistent Notification are not mirrored.
-- A copy is history: it is read when it is made, never counted in the sensor or the card, never needs action, and shows in the view Everything of the card with the channels that delivered it. A held delivery makes its copy when it is sent. A copy is not made for a person who switched the inbox off or whose recipient is disabled.
+- Items older than the retention (12 months by default, 1 to 36 on the Inbox row) are removed, and a person keeps at most 2000 items, the oldest read and resolved ones first. A person who is removed from Home Assistant loses their items after 5 minutes. Removing the integration deletes them.
+- The switch Show all notifications in the personal inbox, independent of the channel (Channels page, Inbox row; off by default) keeps a copy for each person that push, popup, mail, the banner or a speaker delivered to. A banner counts for the persons it names, or for every person with a Home Assistant user when it names none. A spoken message has no person, so it counts for the people who are at home when it is said (unknown presence does not count). The Persistent Notification is shared and is not kept.
+- A copy is history: it is read when it is made, never counted in the sensor or the card, never needs action, and shows in the tab All notifications of the card with the channels that delivered it. A held delivery makes its copy when it is sent. A copy is not made for a person who switched the inbox off or whose recipient is disabled.
 - If the message also goes to the inbox channel, the real item stays and the copy only adds the channel. A real delivery turns a copy into a real item. When a person is at the limit of 2000 items, copies go first.
 - Policies treat the inbox like every other channel. A Quiet hours policy with the action Wait holds it, Drop skips it, and Summarize holds it. To keep the inbox out of Quiet hours or Presence, choose the other channels under Limit to these channels. A Presence policy holds the inbox item of a person who is away and releases it when they arrive, like a push.
 - Send quietly changes nothing for the inbox: an item has no sound.
@@ -259,7 +269,7 @@ design: split
 - Selecting a tile or a medium card opens the list in a window. The large card is the list.
 - The list shows the items that need action first, then the latest change first, grouped by day. The filter switches between All and Unread. Mark all read marks every unread item.
 - Expanding a row marks the item read and shows its text, a picture if the message had one, and its timeline. Delete removes the item from your inbox.
-- The switch at the top shows Inbox or Everything. Everything adds the copies that the mirror makes (see [Inbox](#inbox)); without the mirror it says how to switch it on.
+- The switch at the top shows the tabs Inbox and All notifications. All notifications adds the copies of the notifications from other channels (see [Inbox](#inbox)); while the switch is off it says how to turn it on.
 - A critical item nobody acknowledged is marked Needs action with a symbol and a text, not only a color. An item whose message has ended shows Ended.
 - The colors are the theme colors of the severities. The list loads 50 items and offers Show more.
 - The card follows the language of your Home Assistant user.

@@ -110,19 +110,6 @@
               "speak_volume_bands": "Jusqu'à 4 plages, chacune avec un début, une fin et un volume en pour cent. Une plage de 22:00 à 07:00 passe minuit. Les plages ne doivent pas se chevaucher. En dehors de toute plage, le volume ne change pas."
             }
           },
-          "inbox": {
-            "name": "Boîte de réception",
-            "data": {
-              "inbox_retention_months": "Mois de conservation des éléments de la boîte de réception",
-              "inbox_reminder_unread": "Un rappel remet un élément lu en non lu",
-              "inbox_mirror": "Garder une copie des messages de ces gravités"
-            },
-            "data_description": {
-              "inbox_retention_months": "1–36. Les éléments plus anciens sont supprimés, et chaque personne garde au plus 2000 éléments. Le texte d'un élément est stocké en clair, aussi dans les sauvegardes.",
-              "inbox_reminder_unread": "Activé : un rappel ou une escalade qui atteint une personne ayant déjà l'élément le remet dans les non lus. Désactivé : il ajoute seulement une ligne à la chronologie.",
-              "inbox_mirror": "Les messages par push, fenêtre, courriel et bannière qui atteignent une personne laissent une copie dans sa boîte de réception. Une copie est un historique : elle est lue, non comptée et n'apparaît que dans la vue Tout de la carte. Vide : aucune copie. Le texte de chacun de ces messages est stocké en clair, aussi dans les sauvegardes."
-            }
-          },
           "limits": {
             "name": "Limites",
             "data": {

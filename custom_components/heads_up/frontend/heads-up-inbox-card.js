@@ -27,8 +27,8 @@ const PAGE = 50;
 
 const ENGLISH = {
   inbox: "Inbox",
-  everything: "Everything",
-  copy_hint: "Only messages sent to the inbox are kept. Turn on the copies in the Heads Up settings to see messages from push, popup, mail and the banner here too.",
+  all_notifications: "All notifications",
+  copy_hint: "Only messages sent to the inbox are kept. Switch on “Show all notifications in the personal inbox” in the settings of the Inbox channel to see notifications from other channels here too.",
   unread_n: "{n} unread",
   needs_n: "{n} needs action",
   all_caught_up: "All caught up",
@@ -100,8 +100,8 @@ export const STRINGS = structuredClone(ENGLISH);
 export const TRANSLATIONS = {
   de: {
     inbox: "Posteingang",
-    everything: "Alles",
-    copy_hint: "Es werden nur Nachrichten an den Posteingang gespeichert. Schalte die Kopien in den Heads-Up-Einstellungen ein, um hier auch Nachrichten von Push, Popup, E-Mail und Banner zu sehen.",
+    all_notifications: "Alle Benachrichtigungen",
+    copy_hint: "Es werden nur Nachrichten an den Posteingang gespeichert. Schalte „Alle Benachrichtigungen im persönlichen Posteingang zeigen“ in den Einstellungen des Kanals Posteingang ein, um hier auch Benachrichtigungen anderer Kanäle zu sehen.",
     unread_n: "{n} ungelesen",
     needs_n: "{n} braucht Aktion",
     all_caught_up: "Alles gelesen",
@@ -169,8 +169,8 @@ export const TRANSLATIONS = {
   },
   fr: {
     inbox: "Boîte de réception",
-    everything: "Tout",
-    copy_hint: "Seuls les messages envoyés à la boîte de réception sont conservés. Activez les copies dans les réglages de Heads Up pour voir aussi ici les messages du push, de la fenêtre, du courriel et de la bannière.",
+    all_notifications: "Toutes les notifications",
+    copy_hint: "Seuls les messages envoyés à la boîte de réception sont conservés. Activez « Afficher toutes les notifications dans la boîte de réception personnelle » dans les réglages du canal Boîte de réception pour voir ici aussi les notifications des autres canaux.",
     unread_n: "{n} non lu(s)",
     needs_n: "{n} à traiter",
     all_caught_up: "Tout est lu",
@@ -238,8 +238,8 @@ export const TRANSLATIONS = {
   },
   es: {
     inbox: "Bandeja de entrada",
-    everything: "Todo",
-    copy_hint: "Solo se guardan los mensajes enviados a la bandeja de entrada. Activa las copias en los ajustes de Heads Up para ver aquí también los mensajes de push, ventana, correo y aviso.",
+    all_notifications: "Todas las notificaciones",
+    copy_hint: "Solo se guardan los mensajes enviados a la bandeja de entrada. Activa «Mostrar todas las notificaciones en la bandeja de entrada personal» en los ajustes del canal Bandeja de entrada para ver aquí también las notificaciones de otros canales.",
     unread_n: "{n} sin leer",
     needs_n: "{n} requiere acción",
     all_caught_up: "Todo leído",
@@ -604,7 +604,7 @@ class HeadsUpInboxCard extends Base {
   constructor() {
     super();
     this._config = null;
-    this._state = { items: [], unread: 0, needs_action: 0, unread_critical: 0, has_person: true, more: false, mirror: false };
+    this._state = { items: [], unread: 0, needs_action: 0, unread_critical: 0, has_person: true, more: false, all_notifications: false };
     this._scope = "inbox";
     this._extra = [];
     this._filter = "all";
@@ -751,7 +751,7 @@ class HeadsUpInboxCard extends Base {
     const all = this._scope === "all";
     const result = await this._call({
       type: "heads_up/inbox_list",
-      view: all ? "everything" : "inbox",
+      view: all ? "all" : "inbox",
       limit: PAGE,
       offset: scopeItems(this._items(), this._scope).length,
     });
@@ -1015,7 +1015,7 @@ class HeadsUpInboxCard extends Base {
     ]);
     const seg = h("div", { class: "seg", role: "group", "aria-label": s.inbox }, [
       ["inbox", s.inbox],
-      ["all", s.everything],
+      ["all", s.all_notifications],
     ].map(([scope, label]) =>
       h("button", { class: "pill", "data-key": `scope:${scope}`, "aria-pressed": String(this._scope === scope), onclick: () => { this._scope = scope; this._render(); }, text: label }),
     ));
@@ -1039,7 +1039,7 @@ class HeadsUpInboxCard extends Base {
       ]);
     }
     const more = this._state.more ? h("button", { class: "link more", "data-key": "more", onclick: () => this._showMore(), text: s.show_more }) : null;
-    const hint = this._scope === "all" && !this._state.mirror ? h("div", { class: "note", text: s.copy_hint }) : null;
+    const hint = this._scope === "all" && !this._state.all_notifications ? h("div", { class: "note", text: s.copy_hint }) : null;
     return h("div", {}, [head, h("div", { class: "tools" }, [seg]), tools, hint, body, more]);
   }
 

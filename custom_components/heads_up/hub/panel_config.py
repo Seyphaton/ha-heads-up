@@ -23,6 +23,9 @@ from ..const import (
     LIMITABLE_AUDIENCES,
     MAX_MAIL_ADDRESS,
     MAX_SEVERITY_LABEL,
+    OPT_INBOX_ALL,
+    OPT_INBOX_REMINDER_UNREAD,
+    OPT_INBOX_RETENTION_MONTHS,
     OPT_MAIL_ADDRESS,
     OPT_MAIL_BODY,
     OPT_MAIL_SERVICE,
@@ -82,6 +85,9 @@ CHANNEL_KEYS = (
     OPT_MAIL_ADDRESS,
     OPT_MAIL_SUBJECT,
     OPT_MAIL_BODY,
+    OPT_INBOX_RETENTION_MONTHS,
+    OPT_INBOX_REMINDER_UNREAD,
+    OPT_INBOX_ALL,
 )
 
 
@@ -312,6 +318,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
         # The check list after the 2.0 conversion (DESIGN §25.7).
         "conversion_items": list(entry.options.get(OPT_CONVERSION_ITEMS) or []),
         "channels": channel_settings(manager),
+        "inbox": hub.inbox.info() if hub is not None else None,
         "choices": {
             "persons": [
                 {"id": s.entity_id, "name": s.attributes.get("friendly_name") or s.entity_id}

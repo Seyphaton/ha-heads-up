@@ -57,9 +57,6 @@ async def test_get_returns_every_option_the_layout_and_the_token(
         "rate_per_device_per_minute": 5,
         "rate_total_per_minute": 60,
         "dedupe_seconds": 30,
-        "inbox_retention_months": 12,
-        "inbox_reminder_unread": True,
-        "inbox_mirror": [],
         "trace_entries": 500,
         "recent_messages": 100,
     }
@@ -72,7 +69,6 @@ async def test_get_returns_every_option_the_layout_and_the_token(
         "presence",
         "speech",
         "speech_volume",
-        "inbox",
         "limits",
         "history",
     ]

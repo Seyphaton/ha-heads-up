@@ -25,6 +25,9 @@ export const STRINGS = {
     ch_speak: "Spoken on speakers and Assist satellites.",
     ch_persistent: "The entry in Home Assistant's bell menu. One list shared by everyone.",
     ch_mail: "One mail per person through a notify service you choose.",
+    ch_inbox: "A list per person that survives a restart. Messages sent to the inbox channel are kept; the switch below also keeps the other channels' notifications.",
+    inbox_all: "Show all notifications in the personal inbox, independent of the channel",
+    inbox_hint: "Saves a copy of every notification per person in the tab All notifications, for example one received by mail or spoken on a speaker. The text is stored in plain text, in backups too. Off: only messages sent to the inbox are kept.",
     found_push: "App devices found: {n}",
     found_speak: "Speakers and satellites found: {n}",
     found_none: "none yet",
@@ -48,7 +51,7 @@ export const STRINGS = {
     failed: "Could not create the policies. Try again.",
     policies_title: "Policies: when to be loud or quiet",
     recipients_title: "Audiences: who gets it",
-    intro_where_text: "Channels decide where a message shows up: a banner, a push, a popup, speech, mail or the bell.",
+    intro_where_text: "Channels decide where a message shows up: a banner, a push, a popup, speech, mail, the bell or the inbox.",
     intro_who_text: "Audiences decide who gets it: everyone, the admins, whoever is home or the person who left last.",
     intro_when_text: "Policies decide when: stay quiet at night, repeat what nobody acknowledged, hold small things for one summary.",
     intro_foot: "Policies are created only in the last step. The channel settings of step 2 are saved when you leave it. You can come back from Settings.",
@@ -122,6 +125,9 @@ export const STRINGS = {
     ch_speak: "Gesprochen auf Lautsprechern und Assist-Satelliten.",
     ch_persistent: "Der Eintrag im Glockenmenü von Home Assistant. Eine Liste für alle.",
     ch_mail: "Eine E-Mail pro Person über einen Benachrichtigungsdienst deiner Wahl.",
+    ch_inbox: "Eine Liste pro Person, die einen Neustart übersteht. Nachrichten an den Kanal Posteingang werden gespeichert; der Schalter unten speichert auch die Benachrichtigungen der anderen Kanäle.",
+    inbox_all: "Alle Benachrichtigungen im persönlichen Posteingang zeigen, unabhängig vom Kanal",
+    inbox_hint: "Speichert pro Person eine Kopie jeder Benachrichtigung im Reiter Alle Benachrichtigungen, zum Beispiel eine per E-Mail empfangene oder über einen Lautsprecher gesprochene. Der Text wird im Klartext gespeichert, auch in Sicherungen. Aus: Nur Nachrichten an den Posteingang werden gespeichert.",
     found_push: "Gefundene App-Geräte: {n}",
     found_speak: "Gefundene Lautsprecher und Satelliten: {n}",
     found_none: "noch keine",
@@ -145,7 +151,7 @@ export const STRINGS = {
     failed: "Die Richtlinien konnten nicht erstellt werden. Versuche es erneut.",
     policies_title: "Richtlinien: wann laut, wann leise",
     recipients_title: "Zielgruppen: wer sie bekommt",
-    intro_where_text: "Kanäle bestimmen, wo eine Meldung erscheint: Banner, Push, Popup, Sprache, E-Mail oder die Glocke.",
+    intro_where_text: "Kanäle bestimmen, wo eine Meldung erscheint: Banner, Push, Popup, Sprache, E-Mail, die Glocke oder der Posteingang.",
     intro_who_text: "Zielgruppen bestimmen, wer sie bekommt: alle, die Admins, wer zu Hause ist oder wer zuletzt gegangen ist.",
     intro_when_text: "Richtlinien bestimmen, wann: nachts leise bleiben, wiederholen, was niemand bestätigt hat, Kleinkram zu einer Zusammenfassung sammeln.",
     intro_foot: "Richtlinien werden erst im letzten Schritt angelegt. Die Kanaleinstellungen aus Schritt 2 werden beim Verlassen des Schritts gespeichert. Du kannst über die Einstellungen zurückkommen.",
@@ -219,6 +225,9 @@ export const STRINGS = {
     ch_speak: "Dit sur des haut-parleurs et des satellites Assist.",
     ch_persistent: "L'entrée du menu cloche de Home Assistant. Une liste partagée par tous.",
     ch_mail: "Un mail par personne via un service de notification de votre choix.",
+    ch_inbox: "Une liste par personne qui survit à un redémarrage. Les messages envoyés au canal boîte de réception sont conservés ; l'interrupteur ci-dessous conserve aussi les notifications des autres canaux.",
+    inbox_all: "Afficher toutes les notifications dans la boîte de réception personnelle, quel que soit le canal",
+    inbox_hint: "Enregistre pour chaque personne une copie de chaque notification dans l'onglet Toutes les notifications, par exemple une notification reçue par courriel ou dite sur un haut-parleur. Le texte est stocké en clair, aussi dans les sauvegardes. Désactivé : seuls les messages envoyés à la boîte de réception sont conservés.",
     found_push: "Appareils d'app trouvés : {n}",
     found_speak: "Haut-parleurs et satellites trouvés : {n}",
     found_none: "aucun pour l'instant",
@@ -242,7 +251,7 @@ export const STRINGS = {
     failed: "Les politiques n'ont pas pu être créées. Réessayez.",
     policies_title: "Politiques : quand être fort ou discret",
     recipients_title: "Audiences : qui le reçoit",
-    intro_where_text: "Les canaux décident où un message apparaît : bannière, push, fenêtre, voix, courriel ou la cloche.",
+    intro_where_text: "Les canaux décident où un message apparaît : bannière, push, fenêtre, voix, courriel, la cloche ou la boîte de réception.",
     intro_who_text: "Les audiences décident qui le reçoit : tout le monde, les admins, ceux qui sont là ou la dernière personne partie.",
     intro_when_text: "Les politiques décident quand : rester calme la nuit, répéter ce que personne n'a confirmé, regrouper les petites choses en un résumé.",
     intro_foot: "Les politiques ne sont créées qu'à la dernière étape. Les réglages de canaux de l'étape 2 sont enregistrés quand vous la quittez. Vous pouvez revenir depuis les Réglages.",
@@ -316,6 +325,9 @@ export const STRINGS = {
     ch_speak: "Dicho en altavoces y satélites de Assist.",
     ch_persistent: "La entrada del menú de la campana de Home Assistant. Una lista compartida por todos.",
     ch_mail: "Un correo por persona mediante un servicio de notificación que elijas.",
+    ch_inbox: "Una lista por persona que sobrevive a un reinicio. Los mensajes enviados al canal bandeja de entrada se guardan; el interruptor de abajo guarda también las notificaciones de los demás canales.",
+    inbox_all: "Mostrar todas las notificaciones en la bandeja de entrada personal, sin importar el canal",
+    inbox_hint: "Guarda para cada persona una copia de cada notificación en la pestaña Todas las notificaciones, por ejemplo una recibida por correo o dicha en un altavoz. El texto se guarda en texto plano, también en las copias de seguridad. Desactivado: solo se guardan los mensajes enviados a la bandeja de entrada.",
     found_push: "Dispositivos de la app encontrados: {n}",
     found_speak: "Altavoces y satélites encontrados: {n}",
     found_none: "ninguno por ahora",
@@ -339,7 +351,7 @@ export const STRINGS = {
     failed: "No se pudieron crear las políticas. Inténtalo de nuevo.",
     policies_title: "Políticas: cuándo ser fuerte o discreto",
     recipients_title: "Audiencias: quién lo recibe",
-    intro_where_text: "Los canales deciden dónde aparece un mensaje: banner, push, ventana, voz, correo o la campana.",
+    intro_where_text: "Los canales deciden dónde aparece un mensaje: banner, push, ventana, voz, correo, la campana o la bandeja de entrada.",
     intro_who_text: "Las audiencias deciden quién lo recibe: todos, los admins, quien está en casa o quien salió el último.",
     intro_when_text: "Las políticas deciden cuándo: callar de noche, repetir lo que nadie confirmó, juntar lo pequeño en un resumen.",
     intro_foot: "Las políticas se crean solo en el último paso. Los ajustes de canales del paso 2 se guardan al salir de él. Puedes volver desde Ajustes.",
@@ -406,7 +418,7 @@ export const AUDIENCE_ICONS = {
   first_home: "mdi:home-import-outline",
 };
 export const BUILTIN_AUDIENCES = ["everyone", "admins", "at_home", "not_home", "last_to_leave", "first_home"];
-const CHANNEL_ORDER = ["banner", "push", "popup", "speak", "persistent", "mail"];
+const CHANNEL_ORDER = ["banner", "push", "popup", "speak", "persistent", "mail", "inbox"];
 // The groups of DESIGN §25 each default belongs to.
 export const ITEM_LANES = { critical: ["through", "arrive"], warnings: ["arrive"], digest: ["calm"], quiet: ["calm"] };
 
@@ -446,6 +458,7 @@ export function channelChanges(state, saved) {
   if (state.mailService !== saved.mailService) mail.mail_service = state.mailService;
   if (state.mailAddress !== saved.mailAddress) mail.mail_global_address = state.mailAddress;
   if (Object.keys(mail).length) calls.push({ type: "heads_up/channels_set", ...mail });
+  if (state.inboxAll !== saved.inboxAll) calls.push({ type: "heads_up/channels_set", inbox_all_notifications: state.inboxAll });
   if (state.ttsEngine !== saved.ttsEngine) calls.push({ type: "heads_up/settings_set", speak_tts_entity: state.ttsEngine });
   return calls;
 }
@@ -551,7 +564,7 @@ export async function mount(container, ctx) {
   const config = await hass.callWS({ type: "heads_up/panel_config" }).catch(() => null);
   const summary = setupSummary(config);
   const audiences = await hass.callWS({ type: "heads_up/panel_audiences" }).catch(() => null);
-  const saved = { mailService: data.mail_service || "", mailAddress: data.mail_global_address || "", ttsEngine: data.tts_engine || "" };
+  const saved = { mailService: data.mail_service || "", mailAddress: data.mail_global_address || "", ttsEngine: data.tts_engine || "", inboxAll: Boolean(data.inbox_all_notifications) };
   const state = {
     on: Object.fromEntries(ITEMS.map((id) => [id, true])),
     audience: data.default_audience,
@@ -594,7 +607,7 @@ export async function mount(container, ctx) {
         return false;
       }
     }
-    Object.assign(saved, { mailService: state.mailService, mailAddress: state.mailAddress, ttsEngine: state.ttsEngine });
+    Object.assign(saved, { mailService: state.mailService, mailAddress: state.mailAddress, ttsEngine: state.ttsEngine, inboxAll: state.inboxAll });
     return true;
   }
   const go = async (step) => {
@@ -658,6 +671,14 @@ export async function mount(container, ctx) {
             ui.field(t.mail_service, ui.selectInput(options, state.mailService, (v) => { state.mailService = v; })),
             ui.field(t.mail_address, ui.textInput(state.mailAddress, (v) => { state.mailAddress = v.trim(); }, { maxLength: 254 })),
             el("div", { className: "hint", textContent: t.mail_hint }),
+          ]),
+        );
+      }
+      if (channel === "inbox") {
+        box.append(
+          el("div", { className: "setting" }, [
+            ui.checkbox(t.inbox_all, state.inboxAll, (on) => { state.inboxAll = on; }),
+            el("div", { className: "hint", textContent: t.inbox_hint }),
           ]),
         );
       }

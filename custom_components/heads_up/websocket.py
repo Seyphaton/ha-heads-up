@@ -32,6 +32,7 @@ from .const import (
     OPT_ATTENTION_DISMISSED,
     OPT_AUDIENCE_EDITS,
     OPT_AUDIENCES_DISABLED,
+    OPT_INBOX_ALL,
     OPT_MAIL_ADDRESS,
     OPT_MAIL_SERVICE,
     OPT_SPEAK_TTS_ENTITY,
@@ -182,7 +183,6 @@ def ws_settings_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict
             "layout": settings.layout(),
             "install_token": settings.token(manager),
             "welcome_seen": bool(entry.options.get(welcome.OPT_WELCOME_SEEN, False)),
-            "inbox": manager.hub.inbox.info() if manager.hub else None,
         },
     )
 
@@ -247,6 +247,7 @@ def ws_welcome_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict[
             "notify_services": panel_config.notify_services(hass),
             "mail_service": str(entry.options.get(OPT_MAIL_SERVICE) or ""),
             "mail_global_address": str(entry.options.get(OPT_MAIL_ADDRESS) or ""),
+            "inbox_all_notifications": bool(entry.options.get(OPT_INBOX_ALL, False)),
         },
     )
 
@@ -565,6 +566,9 @@ def ws_severity_display(
         vol.Optional("mail_global_address"): str,
         vol.Optional("mail_subject"): str,
         vol.Optional("mail_body"): str,
+        vol.Optional("inbox_retention_months"): vol.All(int, vol.Range(min=1, max=36)),
+        vol.Optional("inbox_reminder_unread"): bool,
+        vol.Optional("inbox_all_notifications"): bool,
     }
 )
 @require_admin
@@ -1126,7 +1130,7 @@ def _inbox_state(hub: HubEngine, persons: list[str], limit: int = INBOX_PAGE) ->
     items, total = inbox.items_of(persons, limit=limit)
     return {
         "has_person": bool(persons),
-        "mirror": bool(hub.mirror_severities),
+        "all_notifications": hub.inbox_all,
         "items": [i.to_client() for i in items],
         "total": total,
         "more": total > len(items),
@@ -1140,7 +1144,7 @@ def _inbox_state(hub: HubEngine, persons: list[str], limit: int = INBOX_PAGE) ->
         vol.Optional("limit", default=50): vol.All(int, vol.Range(min=1, max=INBOX_PAGE)),
         vol.Optional("offset", default=0): vol.All(int, vol.Range(min=0)),
         vol.Optional("unread_only", default=False): bool,
-        vol.Optional("view", default="inbox"): vol.In(("inbox", "everything")),
+        vol.Optional("view", default="inbox"): vol.In(("inbox", "all")),
     }
 )
 @callback
@@ -1153,7 +1157,7 @@ def ws_inbox_list(hass: HomeAssistant, connection: ActiveConnection, msg: dict[s
     items, total = inbox.items_of(
         persons,
         unread_only=msg["unread_only"],
-        copies=msg["view"] == "everything",
+        copies=msg["view"] == "all",
         limit=msg["limit"],
         offset=msg["offset"],
     )
@@ -1161,7 +1165,7 @@ def ws_inbox_list(hass: HomeAssistant, connection: ActiveConnection, msg: dict[s
         msg["id"],
         {
             "has_person": bool(persons),
-            "mirror": bool(hub.mirror_severities),
+            "all_notifications": hub.inbox_all,
             "items": [i.to_client() for i in items],
             "total": total,
             "more": msg["offset"] + len(items) < total,

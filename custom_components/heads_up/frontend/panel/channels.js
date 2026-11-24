@@ -61,8 +61,22 @@ export const STRINGS = {
     persistent_summary: "No settings",
     persistent_none: "No configuration is available for this channel. It adds the message to Home Assistant's notification list, the bell in the sidebar, and needs no target.",
     inbox: "Inbox",
-    inbox_summary: "No settings",
-    inbox_none: "Keeps a copy of the message in the inbox of each person it reaches, a list that survives a restart. The channel has no settings of its own.",
+    inbox_summary: "Kept for {months} months",
+    inbox_summary_all: "Kept for {months} months · all notifications",
+    inbox_intro: "Items of the inbox channel: one per message and person, kept across restarts. The inbox card and the sensor of each person show them.",
+    inbox_retention: "Months to keep inbox items",
+    inbox_retention_note: "1–36. Older items are removed, and each person keeps at most 2000 items. The text of an item is stored in plain text, in backups too.",
+    inbox_reminder: "A reminder marks a read item unread again",
+    inbox_reminder_note: "On: a reminder or an escalation that reaches a person who already has the item brings it back to the unread count. Off: it only adds a line to the timeline.",
+    inbox_all: "Show all notifications in the personal inbox, independent of the channel",
+    inbox_all_note: "Saves a copy of every notification per person in the tab All notifications of the inbox, for example one received by mail or spoken on a speaker (listed for the people at home). A copy is history: it is read and not counted. The text of every notification is stored in plain text, in backups too. Off: only messages sent to the inbox are kept.",
+    inbox_info: "{items} items for {people} people, the oldest from {oldest}.",
+    inbox_empty: "No inbox items are stored.",
+    inbox_clear: "Clear inbox",
+    inbox_confirm: "Delete every item of every person's inbox? This cannot be undone.",
+    inbox_cleared: "The inbox was cleared.",
+    inbox_failed: "Could not clear the inbox: {error}",
+    bad_retention: "The retention is a whole number of months from 1 to 36.",
     mail_intro: "Mail calls a notify service once per recipient with a subject and a body. A person's address is set under Recipients, where Mail must be switched on for them.",
     mail_service: "Notify service",
     mail_service_none: "None (mail is off)",
@@ -135,8 +149,22 @@ export const STRINGS = {
     persistent_summary: "Keine Einstellungen",
     persistent_none: "Für diesen Kanal gibt es keine Einstellungen. Er legt die Nachricht in die Benachrichtigungsliste von Home Assistant, die Glocke in der Seitenleiste, und braucht kein Ziel.",
     inbox: "Posteingang",
-    inbox_summary: "Keine Einstellungen",
-    inbox_none: "Legt eine Kopie der Nachricht in den Posteingang jeder erreichten Person, eine Liste, die einen Neustart übersteht. Der Kanal hat keine eigenen Einstellungen.",
+    inbox_summary: "{months} Monate aufbewahrt",
+    inbox_summary_all: "{months} Monate aufbewahrt · alle Benachrichtigungen",
+    inbox_intro: "Einträge des Kanals Posteingang: einer je Nachricht und Person, über Neustarts hinweg gespeichert. Die Posteingangs-Karte und der Sensor jeder Person zeigen sie.",
+    inbox_retention: "Monate, die Einträge im Posteingang bleiben",
+    inbox_retention_note: "1–36. Ältere Einträge werden entfernt, und jede Person behält höchstens 2000 Einträge. Der Text eines Eintrags wird im Klartext gespeichert, auch in Sicherungen.",
+    inbox_reminder: "Eine Erinnerung markiert einen gelesenen Eintrag wieder als ungelesen",
+    inbox_reminder_note: "An: Eine Erinnerung oder Eskalation, die eine Person erreicht, die den Eintrag schon hat, setzt ihn wieder auf ungelesen. Aus: Sie fügt nur eine Zeile zum Verlauf hinzu.",
+    inbox_all: "Alle Benachrichtigungen im persönlichen Posteingang zeigen, unabhängig vom Kanal",
+    inbox_all_note: "Speichert pro Person eine Kopie jeder Benachrichtigung im Reiter Alle Benachrichtigungen des Posteingangs, zum Beispiel eine per E-Mail empfangene oder über einen Lautsprecher gesprochene (aufgelistet für die Personen, die zu Hause sind). Eine Kopie ist Verlauf: Sie ist gelesen und wird nicht gezählt. Der Text jeder Benachrichtigung wird im Klartext gespeichert, auch in Sicherungen. Aus: Nur Nachrichten an den Posteingang werden gespeichert.",
+    inbox_info: "{items} Einträge für {people} Personen, der älteste vom {oldest}.",
+    inbox_empty: "Es sind keine Einträge gespeichert.",
+    inbox_clear: "Posteingang leeren",
+    inbox_confirm: "Alle Einträge im Posteingang aller Personen löschen? Das lässt sich nicht rückgängig machen.",
+    inbox_cleared: "Der Posteingang wurde geleert.",
+    inbox_failed: "Der Posteingang konnte nicht geleert werden: {error}",
+    bad_retention: "Die Aufbewahrung ist eine ganze Zahl von Monaten von 1 bis 36.",
     mail_intro: "E-Mail ruft einen Benachrichtigungsdienst einmal pro Empfänger mit Betreff und Text auf. Die Adresse einer Person stellst du unter Empfänger ein; dort muss E-Mail für sie aktiviert sein.",
     mail_service: "Benachrichtigungsdienst",
     mail_service_none: "Keiner (E-Mail ist aus)",
@@ -209,8 +237,22 @@ export const STRINGS = {
     persistent_summary: "Aucun réglage",
     persistent_none: "Ce canal n'a aucun réglage. Il ajoute le message à la liste des notifications de Home Assistant, la cloche dans la barre latérale, et n'a besoin d'aucun destinataire.",
     inbox: "Boîte de réception",
-    inbox_summary: "Aucun réglage",
-    inbox_none: "Garde une copie du message dans la boîte de réception de chaque personne atteinte, une liste qui survit à un redémarrage. Le canal n'a pas de réglage propre.",
+    inbox_summary: "Conservé {months} mois",
+    inbox_summary_all: "Conservé {months} mois · toutes les notifications",
+    inbox_intro: "Éléments du canal boîte de réception : un par message et par personne, conservés après un redémarrage. La carte de la boîte de réception et le capteur de chaque personne les affichent.",
+    inbox_retention: "Mois de conservation des éléments de la boîte de réception",
+    inbox_retention_note: "1–36. Les éléments plus anciens sont supprimés, et chaque personne garde au plus 2000 éléments. Le texte d'un élément est stocké en clair, aussi dans les sauvegardes.",
+    inbox_reminder: "Un rappel remet un élément lu en non lu",
+    inbox_reminder_note: "Activé : un rappel ou une escalade qui atteint une personne ayant déjà l'élément le remet dans les non lus. Désactivé : il ajoute seulement une ligne à la chronologie.",
+    inbox_all: "Afficher toutes les notifications dans la boîte de réception personnelle, quel que soit le canal",
+    inbox_all_note: "Enregistre pour chaque personne une copie de chaque notification dans l'onglet Toutes les notifications de la boîte de réception, par exemple une notification reçue par courriel ou dite sur un haut-parleur (listée pour les personnes à la maison). Une copie est un historique : elle est lue et non comptée. Le texte de chaque notification est stocké en clair, aussi dans les sauvegardes. Désactivé : seuls les messages envoyés à la boîte de réception sont conservés.",
+    inbox_info: "{items} éléments pour {people} personnes, le plus ancien du {oldest}.",
+    inbox_empty: "Aucun élément n'est stocké.",
+    inbox_clear: "Vider la boîte de réception",
+    inbox_confirm: "Supprimer tous les éléments de la boîte de réception de chaque personne ? Cette action est irréversible.",
+    inbox_cleared: "La boîte de réception a été vidée.",
+    inbox_failed: "Impossible de vider la boîte de réception : {error}",
+    bad_retention: "La conservation est un nombre entier de mois de 1 à 36.",
     mail_intro: "Le courriel appelle un service de notification une fois par destinataire avec un objet et un corps. L'adresse d'une personne se règle sous Destinataires, où Courriel doit être activé pour elle.",
     mail_service: "Service de notification",
     mail_service_none: "Aucun (courriel désactivé)",
@@ -283,8 +325,22 @@ export const STRINGS = {
     persistent_summary: "Sin ajustes",
     persistent_none: "Este canal no tiene ajustes. Añade el mensaje a la lista de notificaciones de Home Assistant, la campana de la barra lateral, y no necesita destino.",
     inbox: "Bandeja de entrada",
-    inbox_summary: "Sin ajustes",
-    inbox_none: "Guarda una copia del mensaje en la bandeja de entrada de cada persona a la que llega, una lista que sobrevive a un reinicio. El canal no tiene ajustes propios.",
+    inbox_summary: "Se conserva {months} meses",
+    inbox_summary_all: "Se conserva {months} meses · todas las notificaciones",
+    inbox_intro: "Elementos del canal bandeja de entrada: uno por mensaje y persona, conservados tras un reinicio. La tarjeta de la bandeja de entrada y el sensor de cada persona los muestran.",
+    inbox_retention: "Meses que se conservan los elementos de la bandeja",
+    inbox_retention_note: "1–36. Los elementos más antiguos se eliminan y cada persona conserva como máximo 2000. El texto de un elemento se guarda en texto plano, también en las copias de seguridad.",
+    inbox_reminder: "Un recordatorio vuelve a marcar como sin leer un elemento leído",
+    inbox_reminder_note: "Activado: un recordatorio o un escalado que llega a una persona que ya tiene el elemento lo devuelve a los no leídos. Desactivado: solo añade una línea a la cronología.",
+    inbox_all: "Mostrar todas las notificaciones en la bandeja de entrada personal, sin importar el canal",
+    inbox_all_note: "Guarda para cada persona una copia de cada notificación en la pestaña Todas las notificaciones de la bandeja de entrada, por ejemplo una recibida por correo o dicha en un altavoz (listada para las personas en casa). Una copia es historial: está leída y no se cuenta. El texto de cada notificación se guarda en texto plano, también en las copias de seguridad. Desactivado: solo se guardan los mensajes enviados a la bandeja de entrada.",
+    inbox_info: "{items} elementos de {people} personas, el más antiguo del {oldest}.",
+    inbox_empty: "No hay elementos guardados.",
+    inbox_clear: "Vaciar la bandeja de entrada",
+    inbox_confirm: "¿Eliminar todos los elementos de la bandeja de entrada de cada persona? No se puede deshacer.",
+    inbox_cleared: "La bandeja de entrada se vació.",
+    inbox_failed: "No se pudo vaciar la bandeja de entrada: {error}",
+    bad_retention: "La conservación es un número entero de meses de 1 a 36.",
     mail_intro: "El correo llama a un servicio de notificación una vez por destinatario con asunto y cuerpo. La dirección de una persona se define en Destinatarios, donde Correo debe estar activado para ella.",
     mail_service: "Servicio de notificación",
     mail_service_none: "Ninguno (correo desactivado)",
@@ -312,7 +368,7 @@ const CHANNELS = [
   { key: "speech", icon: "mdi:account-voice", keys: ["speak_language"], settings: [] },
   { key: "persistent", icon: "mdi:bell-outline", keys: [], settings: [] },
   { key: "mail", icon: "mdi:email-outline", keys: ["mail_service", "mail_global_address", "mail_subject", "mail_body"], settings: [] },
-  { key: "inbox", icon: "mdi:inbox-outline", keys: [], settings: [] },
+  { key: "inbox", icon: "mdi:inbox-outline", keys: ["inbox_retention_months", "inbox_reminder_unread", "inbox_all_notifications"], settings: [] },
 ];
 
 // The two snooze settings these rows show are stored with the other settings (heads_up/settings_set).
@@ -381,7 +437,7 @@ export function summaryText(key, values, t, language, settings = {}) {
     return code ? languageName(code, language) : t.ha_language;
   }
   if (key === "persistent") return t.persistent_summary;
-  if (key === "inbox") return t.inbox_summary;
+  if (key === "inbox") return fill(values.inbox_all_notifications ? t.inbox_summary_all : t.inbox_summary, { months: values.inbox_retention_months });
   if (!values.mail_service) return t.mail_off;
   const address = String(values.mail_global_address || "").trim();
   return [`notify.${values.mail_service}`, address ? fill(t.global_to, { a: address }) : ""].filter(Boolean).join(" · ");
@@ -434,8 +490,21 @@ export function validProgressInterval(value) {
   return value !== "" && value !== null && Number.isInteger(n) && n >= 1 && n <= 300;
 }
 
+// Months to keep inbox items: a whole number from 1 to 36.
+export function validRetention(value) {
+  const n = Number(value);
+  return value !== "" && value !== null && Number.isInteger(n) && n >= 1 && n <= 36;
+}
+
+// What the inbox store holds, in a sentence: counts and the oldest day, never a text.
+export function inboxLine(info, t) {
+  if (!info || !info.items) return t.inbox_empty;
+  return fill(t.inbox_info, { items: info.items, people: info.people, oldest: String(info.oldest || "").slice(0, 10) });
+}
+
 export function problems(values) {
   const found = [];
+  if (values.inbox_retention_months !== undefined && !validRetention(values.inbox_retention_months)) found.push("bad_retention");
   if (!validChannelId(values.push_channel_id)) found.push("bad_channel_id");
   if (values.push_progress_interval !== undefined && !validProgressInterval(values.push_progress_interval)) found.push("bad_progress_interval");
   if (values.mail_subject !== undefined && !validMailTemplate(values.mail_subject, 200)) found.push("bad_mail_subject");
@@ -535,8 +604,31 @@ export function mount(container, ctx) {
       box.append(el("div", { className: "tl-wide" }, [el("div", { className: "ch-sub", textContent: t.styles_label }), styles, el("div", { className: "ch-go" }, [el("span", { className: "hint", textContent: t.styles_hint }), go])]));
       return box;
     }
-    if (key === "inbox" || key === "persistent") {
-      box.append(hint(key === "inbox" ? t.inbox_none : t.persistent_none));
+    if (key === "persistent") {
+      box.append(hint(t.persistent_none));
+      return box;
+    }
+    if (key === "inbox") {
+      box.append(hint(t.inbox_intro));
+      box.append(ui.field(t.inbox_retention, ui.numberInput(values.inbox_retention_months, (v) => { values.inbox_retention_months = Number.isNaN(v) ? "" : v; paint(); }, { min: 1, max: 36, step: 1 }), t.inbox_retention_note));
+      box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.inbox_all, values.inbox_all_notifications, (on) => { values.inbox_all_notifications = on; paint(); })]), hint(t.inbox_all_note));
+      box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.inbox_reminder, values.inbox_reminder_unread, (on) => { values.inbox_reminder_unread = on; paint(); })]), hint(t.inbox_reminder_note));
+      // What is stored, and a button that deletes every person's items after a confirmation.
+      const info = el("div", { className: "hint", textContent: inboxLine(data.inbox, t) });
+      const done = el("div", { className: "hint", role: "status" });
+      const clear = el("button", { type: "button", textContent: t.inbox_clear });
+      clear.addEventListener("click", async () => {
+        if (!window.confirm(t.inbox_confirm)) return;
+        try {
+          const result = await hass.callWS({ type: "heads_up/inbox_clear_all" });
+          data.inbox = result.info;
+          info.textContent = inboxLine(data.inbox, t);
+          done.textContent = t.inbox_cleared;
+        } catch (err) {
+          done.textContent = fill(t.inbox_failed, { error: (err && err.message) || String(err) });
+        }
+      });
+      box.append(el("div", { className: "tl-wide" }, [info, clear, done]));
       return box;
     }
     if (key === "push") {

@@ -110,19 +110,6 @@
               "speak_volume_bands": "Hasta 4 franjas, cada una con inicio, fin y un volumen en por ciento. Una franja de 22:00 a 07:00 pasa la medianoche. Las franjas no deben solaparse. Fuera de toda franja el volumen no cambia."
             }
           },
-          "inbox": {
-            "name": "Bandeja de entrada",
-            "data": {
-              "inbox_retention_months": "Meses que se conservan los elementos de la bandeja",
-              "inbox_reminder_unread": "Un recordatorio vuelve a marcar como sin leer un elemento leído",
-              "inbox_mirror": "Guardar una copia de los mensajes de estas gravedades"
-            },
-            "data_description": {
-              "inbox_retention_months": "1–36. Los elementos más antiguos se eliminan y cada persona conserva como máximo 2000. El texto de un elemento se guarda en texto plano, también en las copias de seguridad.",
-              "inbox_reminder_unread": "Activado: un recordatorio o un escalado que llega a una persona que ya tiene el elemento lo devuelve a los no leídos. Desactivado: solo añade una línea a la cronología.",
-              "inbox_mirror": "Los mensajes por push, ventana, correo y aviso que llegan a una persona dejan una copia en su bandeja de entrada. Una copia es historial: está leída, no se cuenta y solo aparece en la vista Todo de la tarjeta. Vacío: sin copias. El texto de cada uno de esos mensajes se guarda en texto plano, también en las copias de seguridad."
-            }
-          },
           "limits": {
             "name": "Límites",
             "data": {

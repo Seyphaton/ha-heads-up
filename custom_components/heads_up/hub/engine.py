@@ -33,7 +33,8 @@ from ..const import (
     GLOBAL_SNOOZE_KEY,
     HOLD_AWAY,
     HOLD_QUIET,
-    OPT_INBOX_MIRROR,
+    HOME_ZONE,
+    OPT_INBOX_ALL,
     OPT_INBOX_RETENTION_MONTHS,
     OPT_PRESENCE_DEBOUNCE,
     OPT_RECENT_MESSAGES,
@@ -64,6 +65,7 @@ from .policies.chain import Chain, Hold, Skip, Step
 from .policies.models import Policy
 from .policies.presence import PresenceStage
 from .policies.quiet import QuietHoursStage
+from .presence import in_zone
 from .resolver import HubResolver, Recipient
 from .stats import StatsStore
 from .trace import TraceBuffer, TraceEntry
@@ -902,8 +904,9 @@ class HubEngine:
         return results
 
     @property
-    def mirror_severities(self) -> list[str]:
-        return list(self._options.get(OPT_INBOX_MIRROR) or ())
+    def inbox_all(self) -> bool:
+        """Whether every notification leaves a copy in the inbox of the people it reached."""
+        return bool(self._options.get(OPT_INBOX_ALL))
 
     # The mirror: a copy of what other channels delivered, as history (D-275) -------------------
 
@@ -911,7 +914,7 @@ class HubEngine:
         """Keep a copy in the inbox of every person another channel just delivered to, when the
         message's severity is one the setting names. Policies already acted on the real
         channels; the copy records what was delivered."""
-        if banner.severity not in (self._options.get(OPT_INBOX_MIRROR) or ()):
+        if not self.inbox_all:
             return
         for person, channels in self._reached(banner, results).items():
             for channel in channels:
@@ -929,7 +932,22 @@ class HubEngine:
             elif item.channel == CHANNEL_BANNER:
                 for person in self._banner_persons(banner):
                     reached.setdefault(person, []).append(CHANNEL_BANNER)
+            elif item.channel == "speak":
+                # Speech has no person: it counts for the people at home while it is said (D-276).
+                for person in self._persons_at_home():
+                    reached.setdefault(person, []).append("speak")
         return {p: list(dict.fromkeys(c)) for p, c in reached.items()}
+
+    def _persons_at_home(self) -> list[str]:
+        """Who is home now, as the At home audience says it; unknown presence does not count."""
+        return [
+            s.entity_id
+            for s in self.hass.states.async_all("person")
+            if in_zone(
+                self.hass, s.entity_id, HOME_ZONE, self.resolver.zone_entity(s.entity_id, HOME_ZONE)
+            )
+            is True
+        ]
 
     def _banner_persons(self, banner: Banner) -> list[str]:
         """Who sees a banner: the persons it names, or everyone who has a Home Assistant user."""
@@ -940,7 +958,7 @@ class HubEngine:
         ]
 
     def _mirror_one(self, banner: Banner, channel: str, person: str) -> None:
-        if banner.severity not in (self._options.get(OPT_INBOX_MIRROR) or ()):
+        if not self.inbox_all:
             return
         profile = self.resolver.profile(person)
         if not profile.enabled or CHANNEL_INBOX not in profile.channels:
