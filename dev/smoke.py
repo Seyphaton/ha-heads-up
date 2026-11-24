@@ -20,6 +20,8 @@ Run after `make dev-up` + `make dev-onboard`:
   uv run python dev/smoke.py inbox    # the inbox channel and its own-items-only commands (Phase 22)
   (restart the container)
   uv run python dev/smoke.py inbox_verify
+  uv run python dev/smoke.py messages   # messages between people, two users (Phase 23)
+  uv run python dev/smoke.py messages_verify
 """
 
 import asyncio
@@ -487,6 +489,62 @@ async def inbox_verify() -> None:
         print("the inbox survived the restart, ended with the message, and was cleaned up")
 
 
+async def ws_call(ws: WS, **data: Any) -> dict[str, Any]:
+    msg_id = await ws.send(data)
+    return dict(await ws.recv(msg_id))
+
+
+async def messages() -> None:
+    """A message from the regular user to the administrator, with the switch on (Phase 23)."""
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        ws_admin, ws_user = await connect(s, admin), await connect(s, user)
+        off = await ws_call(ws_user, type="heads_up/send_message", to=["person.x"], text="hi")
+        assert off["error"]["code"] in ("messages_off", "unknown_recipient"), off
+        assert (await ws_call(ws_admin, type="heads_up/channels_set", inbox_messages=True))[
+            "success"
+        ]
+        people = (await ws_call(ws_user, type="heads_up/inbox_recipients"))["result"]["recipients"]
+        me = next(p["person"] for p in people if p["me"])
+        other = next(p["person"] for p in people if not p["me"])
+        reply = await ws_call(
+            ws_user,
+            type="heads_up/send_message",
+            to=[other],
+            text="Smoke message",
+            channels=["inbox"],
+        )
+        assert reply["success"], reply
+        print("send_message:", reply["result"])
+        await asyncio.sleep(0.5)
+        got = (await inbox_list(ws_admin))["items"]
+        mine = [i for i in got if i["text"] == "Smoke message"]
+        assert len(mine) == 1 and mine[0]["sender"] == me and mine[0]["unread"], got
+        sent = (await inbox_list(ws_user, view="sent"))["items"]
+        assert [i["text"] for i in sent] == ["Smoke message"] and sent[0]["unread"] is False, sent
+        assert (await inbox_list(ws_admin, view="sent"))["items"] == []
+        forged = await ws_call(
+            ws_user, type="heads_up/send_message", to=[other], text="x", sender=other
+        )
+        assert forged["error"]["code"] == "invalid_format", forged
+        print("sender from the connection, Sent copy for the sender only, no forged sender")
+
+
+async def messages_verify() -> None:
+    """After the restart: the message and the Sent copy are still there; then clean up."""
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        ws_admin, ws_user = await connect(s, admin), await connect(s, user)
+        assert [i["text"] for i in (await inbox_list(ws_admin))["items"]] == ["Smoke message"]
+        assert len((await inbox_list(ws_user, view="sent"))["items"]) == 1
+        for ws in (ws_admin, ws_user):
+            assert (await ws_call(ws, type="heads_up/inbox_clear"))["success"]
+        assert (await ws_call(ws_admin, type="heads_up/channels_set", inbox_messages=False))[
+            "success"
+        ]
+        print("messages survived the restart and were cleaned up; the switch is off again")
+
+
 SMOKE_POLICY = "Smoke reminder"
 SMOKE_POLICY_ID = "switch.heads_up_policy_smoke_reminder"  # a call names a policy by its switch
 
@@ -895,5 +953,7 @@ asyncio.run(
         "hub_e2e_verify": hub_e2e_verify,
         "inbox": inbox,
         "inbox_verify": inbox_verify,
+        "messages": messages,
+        "messages_verify": messages_verify,
     }[sys.argv[1]]()
 )

@@ -169,6 +169,7 @@
 - iOS sender icon needs a title: what to send for a message without one is open.
 
 ## Personal inbox (built 2026-11-24, D-264 to D-276, `docs/dev/inbox/PLAN.md`)
+- `make dev-smoke` stops at the `lanes` phase on `release/3.0` (the checker row of the Smoke alarms Get through entry is `sent` without `through`); found 2026-11-24 during Phase 23, not caused by it; check whether the policy form change of D-280 and D-281 broke the phase's flow data.
 - Messages between people, later tiers (D-265): a permission matrix (who may write to whom), a per-person opt-out, replies and a lock-screen reply, pictures in a message, the sender's picture in the card (the row shows "From <name>" only), a `sensitive` flag. A user linked to several persons cannot send (D-283); a choice of "send as" would lift that.
 - Messages between people: whether a push or a popup of a person message should say who wrote it is open; only the inbox item and the card say "From <name>" (the push and popup text were not changed).
 - Not checked on real devices: push and popup of a person message, German, French and Spanish on screen, Android.
