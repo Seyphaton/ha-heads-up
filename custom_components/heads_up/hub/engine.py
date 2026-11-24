@@ -25,6 +25,7 @@ from homeassistant.util import dt as dt_util
 from ..const import (
     BANNER_NOBODY,
     CHANNEL_BANNER,
+    CHANNEL_INBOX,
     CHANNEL_PERSISTENT,
     DEFAULT_INBOX_RETENTION_MONTHS,
     DEFAULT_OPTIONS,
@@ -32,6 +33,7 @@ from ..const import (
     GLOBAL_SNOOZE_KEY,
     HOLD_AWAY,
     HOLD_QUIET,
+    OPT_INBOX_MIRROR,
     OPT_INBOX_RETENTION_MONTHS,
     OPT_PRESENCE_DEBOUNCE,
     OPT_RECENT_MESSAGES,
@@ -49,6 +51,7 @@ from ..models import Banner
 from ..storage import trace_store
 from .activity import Activity, ActivityLog, RecentMessages
 from .channels import ChannelRegistry, Outcome, Result, Target
+from .channels.inbox import item_fields
 from .channels.persistent import warn_speech
 from .channels.speak import NO_SPEAKER
 from .identity import IdentityMaps, maps_for
@@ -124,6 +127,9 @@ def source_key(banner: Banner) -> str:
         return f"id:{banner.id[:64]}"
     return f"tag:{banner.tag[:64]}" if banner.tag else "action"
 
+
+# The channels that deliver to a person and so leave a copy (the banner too, by its people).
+MIRROR_CHANNELS = ("push", "popup", "mail")
 
 # How the reason a message ended is kept on an inbox item (the rest is `cleared`).
 INBOX_REASONS = {
@@ -892,7 +898,56 @@ class HubEngine:
                 origin,
                 [(i.channel, i.recipient, i.who.person if i.who else None, o) for i, o in results],
             )
+            self._mirror(banner, results)
         return results
+
+    @property
+    def mirror_severities(self) -> list[str]:
+        return list(self._options.get(OPT_INBOX_MIRROR) or ())
+
+    # The mirror: a copy of what other channels delivered, as history (D-275) -------------------
+
+    def _mirror(self, banner: Banner, results: list[tuple[Planned, Outcome]]) -> None:
+        """Keep a copy in the inbox of every person another channel just delivered to, when the
+        message's severity is one the setting names. Policies already acted on the real
+        channels; the copy records what was delivered."""
+        if banner.severity not in (self._options.get(OPT_INBOX_MIRROR) or ()):
+            return
+        for person, channels in self._reached(banner, results).items():
+            for channel in channels:
+                self._mirror_one(banner, channel, person)
+
+    def _reached(
+        self, banner: Banner, results: list[tuple[Planned, Outcome]]
+    ) -> dict[str, list[str]]:
+        reached: dict[str, list[str]] = {}
+        for item, outcome in results:
+            if outcome.result is not Result.SENT:
+                continue
+            if item.channel in MIRROR_CHANNELS and item.who is not None and item.who.person:
+                reached.setdefault(item.who.person, []).append(item.channel)
+            elif item.channel == CHANNEL_BANNER:
+                for person in self._banner_persons(banner):
+                    reached.setdefault(person, []).append(CHANNEL_BANNER)
+        return {p: list(dict.fromkeys(c)) for p, c in reached.items()}
+
+    def _banner_persons(self, banner: Banner) -> list[str]:
+        """Who sees a banner: the persons it names, or everyone who has a Home Assistant user."""
+        if banner.people:
+            return [p for p in banner.people if p.startswith("person.") and p != BANNER_NOBODY]
+        return [
+            s.entity_id for s in self.hass.states.async_all("person") if s.attributes.get("user_id")
+        ]
+
+    def _mirror_one(self, banner: Banner, channel: str, person: str) -> None:
+        if banner.severity not in (self._options.get(OPT_INBOX_MIRROR) or ()):
+            return
+        profile = self.resolver.profile(person)
+        if not profile.enabled or CHANNEL_INBOX not in profile.channels:
+            return  # switched off, or a disabled recipient (D-147, D-273)
+        self.inbox.upsert(
+            person, banner.id, item_fields(banner), channel, dt_util.utcnow(), copy=True
+        )
 
     def _report(
         self, banner: Banner, origin: str, rows: list[tuple[str, str, str | None, Outcome]]
@@ -1531,6 +1586,8 @@ class HubEngine:
                 outcome = Outcome(Result.SKIPPED, RATE_LIMITED)
             else:
                 outcome = await self.channels.get(channel).deliver(step.banner, step.target)
+                if outcome.result is Result.SENT and row.person and channel in MIRROR_CHANNELS:
+                    self._mirror_one(banner, channel, row.person)  # a held delivery, now sent
             self._record(message_id, channel, recipient, outcome, row.person, "released")
 
     # Fallback ---------------------------------------------------------------------------

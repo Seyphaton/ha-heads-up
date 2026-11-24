@@ -19,7 +19,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §26 new Overview (status card, Coming up, reach table, tour in the page, quick shortcuts, Last actions) | built and tested on `release/2.0` (Phase 18, D-244, D-245); checked in the browser pane at desktop and phone width, light and dark; not on real devices |
 | §27 history store (24 months, Activity cards, Clear history) | built and tested on `release/2.0` (Phase 19, D-246); about 7 KB a day measured on a synthetic busy household; push levels used are not recorded |
 | §28 2.1.0 richer push (icon, color, sender icon, subtitle, progress with live updates) | built (D-255 to D-263) |
-| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store, the `inbox` channel, its lifecycle hooks, the WebSocket commands, the sensor and the card are built and tested; the settings are not built |
+| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store, the `inbox` channel, its lifecycle hooks, the WebSocket commands, the sensor, the card, the settings and the mirror are built and tested; Phase 23 is not built |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -562,7 +562,8 @@ How both sources stay equal:
 | a switched-off recipient gets nothing (D-147) | yes (named persons are dropped from the banner's people; all dropped means nobody) | yes (the rule's `people` are filtered when the rule is built and again when a profile changes, D-161; `tests/hub/test_recipient_disabled.py`) |
 | viewer-chosen snooze duration `snooze_custom` (D-219) | yes (`notify`, `create_banner`; `tests/test_snooze.py`) | yes (rule form field; `tests/test_snooze.py`) |
 | `heads_up_banner_unsnoozed` with `reason`, also when a snooze runs out (D-221) | yes | yes (one `BannerManager._snooze_elapsed`; a rule's snoozes are not kept over a restart, D-069) |
-| `inbox` channel (D-264, D-268) | yes (`notify` with `channels: [inbox]`) | exception: a rule has no channels (D-100); its messages reach the inbox through a Deliver, Escalation or Fallback policy (`tests/hub/test_inbox_channel.py`: a rule message through Deliver, and a rule that triggers again reopens the same item); the mirror setting (planned, D-264) will cover both sources the same way |
+| `inbox` channel (D-264, D-268) | yes (`notify` with `channels: [inbox]`) | exception: a rule has no channels (D-100); its messages reach the inbox through a Deliver, Escalation or Fallback policy (`tests/hub/test_inbox_channel.py`: a rule message through Deliver, and a rule that triggers again reopens the same item) |
+| inbox mirror: a copy of what other channels delivered (D-264, D-275) | yes | yes: one `HubEngine._mirror` after every delivery of a banner (`tests/hub/test_inbox_mirror.py`: a rule message leaves a copy for the people of its banner) |
 
 Audit for the hub (H10, 2026-11-02), extended 2026-11-05: every banner feature above is in both columns or carries an exception with a decision number.
 
@@ -1052,7 +1053,7 @@ Status: built 2026-11-23 on `release/2.1`, including editable built-in audiences
 
 ## 29. Personal inbox (Phase 22, D-264, D-268 to D-271)
 
-Status: built on `release/3.0`: the store, the channel with the lifecycle hooks, the WebSocket commands, the sensor and the card; the settings (mirror, retention, reminder toggle, Clear inbox) are not built. Plan: `docs/dev/inbox/PLAN.md`.
+Status: built on `release/3.0`: the store, the channel with the lifecycle hooks, the WebSocket commands, the sensor, the card, the settings and the mirror. Phase 23 (messages to other people) is not built. Plan: `docs/dev/inbox/PLAN.md`.
 
 ### 29.1 Store
 - `hub/inbox.py` `InboxStore`, store `heads_up.inbox` (version 1), one store for all people, layout `{"items": {person entity ID: {message ID: item}}}`. Items are in memory; a change schedules one write after `INBOX_SAVE_DELAY` (60 s), made from a copy in the event loop and serialized in a thread (`serialize_in_event_loop=False`, N-117). Stopping the hub and Home Assistant's final write (`EVENT_HOMEASSISTANT_FINAL_WRITE`) save what is waiting at once. The store file is deleted with the integration.
@@ -1097,3 +1098,8 @@ Status: built on `release/3.0`: the store, the channel with the lifecycle hooks,
 - After a rebuild the control that had the focus gets it back (`data-key`, a second try on the next frame because `ha-card` lays out one frame late).
 - Not in this phase: the views Everything and Sent, the pen button (Phase 23), and the mirror copies (they come with the settings step).
 - Checked in the browser pane at phone width, light and dark, with the keyboard; vitest covers the pure functions.
+
+### 29.8 Mirror (D-275)
+- Setting `inbox_mirror` (list of severities, default empty; kind `severities` in `hub/settings.SECTIONS`, a multi-select on the options screen and checkboxes on the Settings page). `HubEngine._mirror` runs at the end of `_send` for every origin that reaches a person (message, escalation, fallback, summary; not reminders) and `_release` calls `_mirror_one` for a held delivery that was sent. It keeps a copy for each person whose push, popup or mail was SENT, and for the people of a SENT banner (`_banner_persons`: the persons it names, else every person state with a `user_id`). Speech and the Persistent Notification are not mirrored.
+- `InboxStore.upsert(..., copy=True)`: a new item with `copy: true` and `read_at` set; next to a real item only the channel is added to `via`; a later real delivery promotes the copy (`copy` false, unread). A copy is never counted (`unread`, `needs_action`, `counts_of`), never gets reminder events, and is dropped first at the cap. Copies skip the policy chain: they record what the real channels delivered.
+- No copy for a person whose profile lacks the inbox or is disabled. `heads_up/inbox_list` takes `view` (`inbox`, the default, or `everything`); the list and the subscription carry `mirror` (whether the setting names a severity) and `copy` on each item. The card has the switch Inbox | Everything and says how to turn the mirror on when it is off.

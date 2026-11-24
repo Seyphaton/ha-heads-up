@@ -27,6 +27,8 @@ const PAGE = 50;
 
 const ENGLISH = {
   inbox: "Inbox",
+  everything: "Everything",
+  copy_hint: "Only messages sent to the inbox are kept. Turn on the copies in the Heads Up settings to see messages from push, popup, mail and the banner here too.",
   unread_n: "{n} unread",
   needs_n: "{n} needs action",
   all_caught_up: "All caught up",
@@ -98,6 +100,8 @@ export const STRINGS = structuredClone(ENGLISH);
 export const TRANSLATIONS = {
   de: {
     inbox: "Posteingang",
+    everything: "Alles",
+    copy_hint: "Es werden nur Nachrichten an den Posteingang gespeichert. Schalte die Kopien in den Heads-Up-Einstellungen ein, um hier auch Nachrichten von Push, Popup, E-Mail und Banner zu sehen.",
     unread_n: "{n} ungelesen",
     needs_n: "{n} braucht Aktion",
     all_caught_up: "Alles gelesen",
@@ -165,6 +169,8 @@ export const TRANSLATIONS = {
   },
   fr: {
     inbox: "Boîte de réception",
+    everything: "Tout",
+    copy_hint: "Seuls les messages envoyés à la boîte de réception sont conservés. Activez les copies dans les réglages de Heads Up pour voir aussi ici les messages du push, de la fenêtre, du courriel et de la bannière.",
     unread_n: "{n} non lu(s)",
     needs_n: "{n} à traiter",
     all_caught_up: "Tout est lu",
@@ -232,6 +238,8 @@ export const TRANSLATIONS = {
   },
   es: {
     inbox: "Bandeja de entrada",
+    everything: "Todo",
+    copy_hint: "Solo se guardan los mensajes enviados a la bandeja de entrada. Activa las copias en los ajustes de Heads Up para ver aquí también los mensajes de push, ventana, correo y aviso.",
     unread_n: "{n} sin leer",
     needs_n: "{n} requiere acción",
     all_caught_up: "Todo leído",
@@ -380,6 +388,11 @@ export function mosaicTiles(items) {
   const unread = needsFirst(items.filter((i) => i.unread));
   if (unread.length <= MOSAIC_CELLS) return unread.map((item) => ({ item }));
   return [...unread.slice(0, MOSAIC_CELLS - 1).map((item) => ({ item })), { more: unread.length - (MOSAIC_CELLS - 1) }];
+}
+
+// The view Inbox shows the real items, the view Everything also the copies (D-275).
+export function scopeItems(items, scope) {
+  return scope === "all" ? items : items.filter((i) => !i.copy);
 }
 
 export function filterItems(items, filter) {
@@ -591,7 +604,8 @@ class HeadsUpInboxCard extends Base {
   constructor() {
     super();
     this._config = null;
-    this._state = { items: [], unread: 0, needs_action: 0, unread_critical: 0, has_person: true, more: false };
+    this._state = { items: [], unread: 0, needs_action: 0, unread_critical: 0, has_person: true, more: false, mirror: false };
+    this._scope = "inbox";
     this._extra = [];
     this._filter = "all";
     this._open = new Set();
@@ -734,7 +748,13 @@ class HeadsUpInboxCard extends Base {
   }
 
   async _showMore() {
-    const result = await this._call({ type: "heads_up/inbox_list", limit: PAGE, offset: this._items().length });
+    const all = this._scope === "all";
+    const result = await this._call({
+      type: "heads_up/inbox_list",
+      view: all ? "everything" : "inbox",
+      limit: PAGE,
+      offset: scopeItems(this._items(), this._scope).length,
+    });
     if (!result) return;
     this._extra = mergePages(this._extra, result.items);
     this._state = { ...this._state, more: result.more };
@@ -987,12 +1007,18 @@ class HeadsUpInboxCard extends Base {
   _listView(dialog) {
     const s = STRINGS;
     const n = this._stateNumbers();
-    const items = filterItems(this._items(), this._filter);
+    const items = filterItems(scopeItems(this._items(), this._scope), this._filter);
     const head = h("div", { class: "head" }, [
       h("div", { class: "ttl", text: s.inbox }),
       n.unread ? h("span", { class: `badge ${n.needs_action ? "crit" : ""}`, text: String(n.unread), "aria-label": fill(s.unread_n, { n: n.unread }) }) : null,
       dialog ? h("button", { class: "x", "data-key": "close", "aria-label": s.close, onclick: () => this._closeDialog() }, [icon("mdi:close")]) : null,
     ]);
+    const seg = h("div", { class: "seg", role: "group", "aria-label": s.inbox }, [
+      ["inbox", s.inbox],
+      ["all", s.everything],
+    ].map(([scope, label]) =>
+      h("button", { class: "pill", "data-key": `scope:${scope}`, "aria-pressed": String(this._scope === scope), onclick: () => { this._scope = scope; this._render(); }, text: label }),
+    ));
     const tools = h("div", { class: "tools" }, [
       ...["all", "unread"].map((f) =>
         h("button", { class: "pill", "data-key": `filter:${f}`, "aria-pressed": String(this._filter === f), onclick: () => { this._filter = f; this._render(); }, text: s[`filter_${f}`] }),
@@ -1013,7 +1039,8 @@ class HeadsUpInboxCard extends Base {
       ]);
     }
     const more = this._state.more ? h("button", { class: "link more", "data-key": "more", onclick: () => this._showMore(), text: s.show_more }) : null;
-    return h("div", {}, [head, tools, body, more]);
+    const hint = this._scope === "all" && !this._state.mirror ? h("div", { class: "note", text: s.copy_hint }) : null;
+    return h("div", {}, [head, h("div", { class: "tools" }, [seg]), tools, hint, body, more]);
   }
 
   _dayLabel(group) {
@@ -1027,7 +1054,9 @@ class HeadsUpInboxCard extends Base {
     const s = STRINGS;
     const open = this._open.has(item.message_id);
     const text = visibleText(item, this._config);
+    const via = item.copy ? item.via.map((c) => h("span", { class: "chip", text: s.channels[c] ?? c })) : [];
     const chips = [
+      ...via,
       item.needs_action ? h("span", { class: "chip crit" }, [icon("mdi:alert"), document.createTextNode(s.chip_needs_action)]) : null,
       item.resolved ? h("span", { class: "chip", text: s.chip_resolved }) : null,
     ].filter(Boolean);
@@ -1040,7 +1069,7 @@ class HeadsUpInboxCard extends Base {
       ]),
       h("div", { class: "rt" }, [
         h("span", { text: formatClock(item.updated, this._language) }),
-        item.unread ? h("span", { class: "dot", role: "img", "aria-label": s.unread_label }) : null,
+        item.unread && !item.copy ? h("span", { class: "dot", role: "img", "aria-label": s.unread_label }) : null,
       ]),
     ]);
     const detail = open ? this._detail(item, text) : null;

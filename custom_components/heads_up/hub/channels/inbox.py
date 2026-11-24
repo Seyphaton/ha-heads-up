@@ -24,6 +24,22 @@ if TYPE_CHECKING:
 CHANNEL = "inbox"
 
 
+def item_fields(message: Banner) -> dict[str, str | None]:
+    """What an inbox item keeps of a message; the mirror uses the same (D-275)."""
+    from ..engine import source_key  # the engine imports the channels
+
+    return {
+        "title": message.title or "",
+        "text": message.message,
+        "severity": message.severity,
+        "icon": message.icon,
+        "color": message.color,
+        "image": message.image,
+        "source": source_key(message),
+        "tag": message.tag,
+    }
+
+
 class InboxChannel:
     name = CHANNEL
     available = True
@@ -37,11 +53,10 @@ class InboxChannel:
         person = target.person
         if person is None:
             return Outcome(Result.SKIPPED, "no_person")
-        from ..engine import source_key  # the engine imports the channels
-
         inbox = self._hub.inbox
         now = dt_util.utcnow()
-        if target.origin in ("reminder", "escalation") and inbox.get(person, message.id):
+        existing = inbox.get(person, message.id)
+        if target.origin in ("reminder", "escalation") and existing and not existing.copy:
             # The person already has it: one more entry in the timeline, never a second row.
             inbox.add_event(
                 person,
@@ -52,22 +67,7 @@ class InboxChannel:
                 bool(self._manager.options.get(OPT_INBOX_REMINDER_UNREAD, True)),
             )
             return Outcome(Result.SENT)
-        inbox.upsert(
-            person,
-            message.id,
-            {
-                "title": message.title or "",
-                "text": message.message,
-                "severity": message.severity,
-                "icon": message.icon,
-                "color": message.color,
-                "image": message.image,
-                "source": source_key(message),
-                "tag": message.tag,
-            },
-            CHANNEL,
-            now,
-        )
+        inbox.upsert(person, message.id, item_fields(message), CHANNEL, now)
         return Outcome(Result.SENT)
 
     async def update(self, message: Banner, target: Target) -> Outcome:

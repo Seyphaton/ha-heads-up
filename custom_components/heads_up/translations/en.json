@@ -114,11 +114,13 @@
             "name": "Inbox",
             "data": {
               "inbox_retention_months": "Months to keep inbox items",
-              "inbox_reminder_unread": "A reminder marks a read item unread again"
+              "inbox_reminder_unread": "A reminder marks a read item unread again",
+              "inbox_mirror": "Keep a copy of messages of these severities"
             },
             "data_description": {
               "inbox_retention_months": "1–36. Older items are removed, and each person keeps at most 2000 items. The text of an item is stored in plain text, in backups too.",
-              "inbox_reminder_unread": "On: a reminder or an escalation that reaches a person who already has the item brings it back to the unread count. Off: it only adds a line to the timeline."
+              "inbox_reminder_unread": "On: a reminder or an escalation that reaches a person who already has the item brings it back to the unread count. Off: it only adds a line to the timeline.",
+              "inbox_mirror": "Messages on push, popup, mail and the banner that reach a person leave a copy in their inbox. A copy is history: it is read, not counted, and shows only in the view Everything of the card. Empty: no copies. The text of every such message is stored in plain text, in backups too."
             }
           },
           "limits": {

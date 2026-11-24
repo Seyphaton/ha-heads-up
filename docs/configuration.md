@@ -235,6 +235,9 @@ The person needs no phone and no Home Assistant user. A person's recipient profi
 - A dismissal for everyone resolves every item of the message. A snooze changes nothing.
 - When Home Assistant starts, items of messages that are no longer active are marked resolved.
 - Items older than the retention (12 months by default, 1 to 36 in Settings) are removed, and a person keeps at most 2000 items, the oldest read and resolved ones first. A person who is removed from Home Assistant loses their items after 5 minutes. Removing the integration deletes them.
+- The mirror (Settings, Keep a copy of messages of these severities, empty by default) leaves a copy in the inbox of every person that push, popup, mail or the banner delivered to. A banner counts for the persons it names, or for every person with a Home Assistant user when it names none. Speech and the Persistent Notification are not mirrored.
+- A copy is history: it is read when it is made, never counted in the sensor or the card, never needs action, and shows in the view Everything of the card with the channels that delivered it. A held delivery makes its copy when it is sent. A copy is not made for a person who switched the inbox off or whose recipient is disabled.
+- If the message also goes to the inbox channel, the real item stays and the copy only adds the channel. A real delivery turns a copy into a real item. When a person is at the limit of 2000 items, copies go first.
 - Policies treat the inbox like every other channel. A Quiet hours policy with the action Wait holds it, Drop skips it, and Summarize holds it. To keep the inbox out of Quiet hours or Presence, choose the other channels under Limit to these channels. A Presence policy holds the inbox item of a person who is away and releases it when they arrive, like a push.
 - Send quietly changes nothing for the inbox: an item has no sound.
 - The inbox has no rate limit and takes no buttons.
@@ -256,6 +259,7 @@ design: split
 - Selecting a tile or a medium card opens the list in a window. The large card is the list.
 - The list shows the items that need action first, then the latest change first, grouped by day. The filter switches between All and Unread. Mark all read marks every unread item.
 - Expanding a row marks the item read and shows its text, a picture if the message had one, and its timeline. Delete removes the item from your inbox.
+- The switch at the top shows Inbox or Everything. Everything adds the copies that the mirror makes (see [Inbox](#inbox)); without the mirror it says how to switch it on.
 - A critical item nobody acknowledged is marked Needs action with a symbol and a text, not only a color. An item whose message has ended shows Ended.
 - The colors are the theme colors of the severities. The list loads 50 items and offers Show more.
 - The card follows the language of your Home Assistant user.

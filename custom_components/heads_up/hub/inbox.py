@@ -69,6 +69,7 @@ class InboxItem:
     via: list[str] = field(default_factory=list)
     timeline: list[dict[str, str]] = field(default_factory=list)
     reminders: int = 0
+    copy: bool = False  # history of what another channel delivered (D-275): read, never counted
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -89,6 +90,7 @@ class InboxItem:
             "via": list(self.via),
             "timeline": [dict(entry) for entry in self.timeline],
             "reminders": self.reminders,
+            "copy": self.copy,
         }
 
     @classmethod
@@ -132,6 +134,7 @@ class InboxItem:
             via=via,
             timeline=timeline[-INBOX_MAX_TIMELINE:],
             reminders=reminders if isinstance(reminders, int) and reminders >= 0 else 0,
+            copy=data.get("copy") is True,
             icon=text_or_none("icon"),
             color=text_or_none("color"),
             image=text_or_none("image"),
@@ -147,7 +150,8 @@ class InboxItem:
     def needs_action(self) -> bool:
         """An open critical item nobody acknowledged (D-264)."""
         return (
-            self.severity == "critical"
+            not self.copy
+            and self.severity == "critical"
             and self.acknowledged_at is None
             and self.resolved_at is None
         )
@@ -176,6 +180,7 @@ class InboxItem:
             "via": list(self.via),
             "timeline": [dict(entry) for entry in self.timeline],
             "reminders": self.reminders,
+            "copy": self.copy,
         }
 
 
@@ -333,9 +338,13 @@ class InboxStore:
         data: Mapping[str, Any],
         channel: str | None,
         now: datetime,
+        *,
+        copy: bool = False,
     ) -> InboxItem:
         """The message reached this person. New text or a higher severity makes it unread; the
-        same content again only adds the channel."""
+        same content again only adds the channel. A `copy` is history of what another channel
+        delivered (D-275): it is read when it is made, and next to a real item it only adds its
+        channel; a real delivery turns a copy into a real item."""
         rows = self._items.setdefault(person, {})
         item = rows.get(message_id)
         title, text, severity = str(data["title"]), str(data["text"]), str(data["severity"])
@@ -349,6 +358,7 @@ class InboxStore:
                 severity=severity,
                 created=now,
                 updated=now,
+                read_at=now if copy else None,
                 via=[channel] if channel else [],
                 timeline=[_entry("sent", now, channel)],
                 icon=shown["icon"],
@@ -356,10 +366,21 @@ class InboxStore:
                 image=shown["image"],
                 source=shown["source"],
                 tag=shown["tag"],
+                copy=copy,
             )
             rows[message_id] = item
             self._changed()
             return item
+        if copy and not item.copy:
+            # A real item exists: the copy only says that another channel delivered it too.
+            if channel and channel not in item.via:
+                item.via.append(channel)
+                self._changed()
+            return item
+        promoted = item.copy and not copy
+        if promoted:
+            item.copy = False
+            item.read_at = None
         reopened = item.resolved_at is not None
         higher = SEVERITIES.index(severity) > SEVERITIES.index(item.severity)
         edited = (item.title, item.text) != (title, text)
@@ -373,11 +394,14 @@ class InboxStore:
         if reopened:
             item.resolved_at = item.resolved_reason = None
             item.acknowledged_at = None
-            item.read_at = None
+            item.read_at = now if item.copy else None
             item.updated = now
             self._log(item, "sent", now, channel)
+        elif promoted:
+            item.updated = now
+            self._log(item, "updated", now, channel)
         elif edited or higher:
-            item.read_at = None
+            item.read_at = now if item.copy else None
             item.updated = now
             self._log(item, "updated", now, channel)
         self._changed()
@@ -395,8 +419,8 @@ class InboxStore:
         """A reminder or an escalation: one more timeline entry, never a second row. With
         `reminder_unread` it brings a read item back to the unread count."""
         item = self.get(person, message_id)
-        if item is None:
-            return
+        if item is None or item.copy:
+            return  # a copy is history: nothing reminds about it
         if kind == "reminder":
             item.reminders += 1
         self._log(item, kind, now, channel)
@@ -530,10 +554,12 @@ class InboxStore:
                     rows.values(),
                     key=lambda i: (
                         0
-                        if i.read_at is not None and i.resolved_at is not None
+                        if i.copy
                         else 1
+                        if i.read_at is not None and i.resolved_at is not None
+                        else 2
                         if i.read_at is not None
-                        else 2,
+                        else 3,
                         i.updated,
                     ),
                 )
@@ -591,15 +617,17 @@ class InboxStore:
         persons: list[str],
         *,
         unread_only: bool = False,
+        copies: bool = True,
         limit: int | None = None,
         offset: int = 0,
     ) -> tuple[list[InboxItem], int]:
         """The latest change first, and how many there are in all. A message that reached two
-        persons of one user is listed once."""
+        persons of one user is listed once. `copies=False` is the view Inbox, the default the view
+        Everything."""
         found: dict[str, InboxItem] = {}
         for person in persons:
             for item in self._items.get(person, {}).values():
-                if unread_only and not item.unread:
+                if (unread_only and not item.unread) or (item.copy and not copies):
                     continue
                 known = found.get(item.message_id)
                 if known is None or item.updated > known.updated:

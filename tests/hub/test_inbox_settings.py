@@ -88,7 +88,6 @@ async def test_the_reminder_toggle_is_used_by_the_channel(
     inbox.mark_read(ANNA, "a", dt_util.utcnow())
     channel = entry.runtime_data.hub.channels.get("inbox")
     from custom_components.heads_up.hub.channels.base import Target
-
     from custom_components.heads_up.models import Banner
 
     message = Banner(

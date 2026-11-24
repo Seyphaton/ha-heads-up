@@ -23,7 +23,7 @@ Every block has a heading of its own. Save is enabled only when something change
 | Presence | The presence delay for Last to leave, First home and the Presence policy. |
 | Speech | Longest spoken text, repeat pause and the text-to-speech engine. |
 | Speech volume | Putting the volume back after speaking, a volume per severity and up to 4 time bands. |
-| Inbox | Months to keep items, the reminder switch, what is stored (items, people, the oldest day) and a button, Clear inbox, that deletes every person's items after a confirmation. |
+| Inbox | Months to keep items, the reminder switch, the severities to keep a copy of, what is stored (items, people, the oldest day) and a button, Clear inbox, that deletes every person's items after a confirmation. |
 | Limits | Maximum number of stored messages, evicting when full, pushes per device per minute, deliveries per minute for all devices, seconds in which identical updates are ignored. |
 | History | Trace entries kept and recent messages kept. |
 | Identity | The install token, read only. Only in the panel; the options screen shows it at the top. |
@@ -41,7 +41,7 @@ Every block has a heading of its own. Save is enabled only when something change
 | Message timeout | 24 hours unless you set `timeout`. `timeout: 0` keeps the message until it is cleared. |
 | Message count | 50 stored messages. When the limit is reached, the message with the lowest severity is removed, the oldest first. Critical messages are never removed this way, and creating a message fails when none can be. |
 | Snooze | Choices of 15 minutes, 1 hour and 4 hours when a message is snoozable. Messages are not snoozable by default. |
-| Inbox | Items are kept for 12 months, at most 2000 per person. A reminder marks a read item unread again. |
+| Inbox | Items are kept for 12 months, at most 2000 per person. A reminder marks a read item unread again. No copies of other channels' messages are kept. |
 | History | The delivery trace keeps 500 entries and is kept across restarts. The Message Log lists the last 100 messages; after a restart it lists only the messages that have not ended. |
 
 ## Panel
@@ -137,6 +137,7 @@ See [Mail](configuration.md#mail).
 | Setting | Default | Meaning |
 |---|---|---|
 | Months to keep inbox items (`inbox_retention_months`) | 12 (1–36) | Items older than this are removed, once a day and when you shorten the value. Each person also keeps at most 2000 items; the oldest read and resolved items go first. |
+| Keep a copy of messages of these severities (`inbox_mirror`) | none | The severities whose messages leave a copy in a person's inbox when push, popup, mail or the banner delivered them. A copy is history: read, not counted, shown in the view Everything of the inbox card. The text of every copied message is stored in plain text, in backups too. |
 | A reminder marks a read item unread again (`inbox_reminder_unread`) | on | On: a reminder or an escalation that reaches a person who already has the item brings it back to the unread count. Off: it only adds a line to the item's timeline. |
 
 The Settings page of the panel also shows how many items are stored for how many people, with the oldest day, and a button, Clear inbox. Clear inbox deletes the items of every person after a confirmation. It does not touch messages. The text of an item is stored in plain text, in backups too. See [Inbox](configuration.md#inbox).

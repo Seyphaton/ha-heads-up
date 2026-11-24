@@ -1121,10 +1121,12 @@ def _inbox(
     return manager.hub, manager.hub.resolver.persons_of_user(connection.user.id)
 
 
-def _inbox_state(inbox: Any, persons: list[str], limit: int = INBOX_PAGE) -> dict[str, Any]:
+def _inbox_state(hub: HubEngine, persons: list[str], limit: int = INBOX_PAGE) -> dict[str, Any]:
+    inbox = hub.inbox
     items, total = inbox.items_of(persons, limit=limit)
     return {
         "has_person": bool(persons),
+        "mirror": bool(hub.mirror_severities),
         "items": [i.to_client() for i in items],
         "total": total,
         "more": total > len(items),
@@ -1138,6 +1140,7 @@ def _inbox_state(inbox: Any, persons: list[str], limit: int = INBOX_PAGE) -> dic
         vol.Optional("limit", default=50): vol.All(int, vol.Range(min=1, max=INBOX_PAGE)),
         vol.Optional("offset", default=0): vol.All(int, vol.Range(min=0)),
         vol.Optional("unread_only", default=False): bool,
+        vol.Optional("view", default="inbox"): vol.In(("inbox", "everything")),
     }
 )
 @callback
@@ -1148,12 +1151,17 @@ def ws_inbox_list(hass: HomeAssistant, connection: ActiveConnection, msg: dict[s
     hub, persons = found
     inbox = hub.inbox
     items, total = inbox.items_of(
-        persons, unread_only=msg["unread_only"], limit=msg["limit"], offset=msg["offset"]
+        persons,
+        unread_only=msg["unread_only"],
+        copies=msg["view"] == "everything",
+        limit=msg["limit"],
+        offset=msg["offset"],
     )
     connection.send_result(
         msg["id"],
         {
             "has_person": bool(persons),
+            "mirror": bool(hub.mirror_severities),
             "items": [i.to_client() for i in items],
             "total": total,
             "more": msg["offset"] + len(items) < total,
@@ -1178,7 +1186,7 @@ def ws_inbox_subscribe(
     @callback
     def forward() -> None:
         # Persons are looked up each time: a person may be linked to the user later.
-        state = _inbox_state(inbox, hub.resolver.persons_of_user(user_id))
+        state = _inbox_state(hub, hub.resolver.persons_of_user(user_id))
         digest = repr(state)
         if last and last[0] == digest:
             return  # a change of somebody else's items

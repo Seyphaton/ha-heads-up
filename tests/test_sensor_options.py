@@ -69,6 +69,7 @@ async def test_options_flow_sets_defaults_for_new_banners(
         "disable_ended_buttons": True,
         "inbox_retention_months": 12,
         "inbox_reminder_unread": True,
+        "inbox_mirror": [],
         "rate_per_device_per_minute": 5,
         "rate_total_per_minute": 60,
         "dedupe_seconds": 30,

@@ -12,6 +12,7 @@ import {
   needsSignature,
   normalizeConfig,
   retryDelay,
+  scopeItems,
   ringSegments,
   setLanguage,
   severityColor,
@@ -235,6 +236,30 @@ describe("the list", () => {
     expect(STRINGS.reasons.cleared).toBeTruthy();
     for (const reason of ["cleared", "expired", "condition", "dismissed"]) {
       expect(STRINGS.reasons[reason]).toBeTruthy();
+    }
+  });
+});
+
+describe("the views Inbox and Everything", () => {
+  const items = [item({ message_id: "real" }), item({ message_id: "copy", copy: true, unread: false })];
+
+  it("shows only real items in Inbox and everything in Everything", () => {
+    expect(scopeItems(items, "inbox").map((i) => i.message_id)).toEqual(["real"]);
+    expect(scopeItems(items, "all").map((i) => i.message_id)).toEqual(["real", "copy"]);
+  });
+
+  it("never counts a copy as unread or as needing action in the mosaic and the tile", () => {
+    const copy = item({ message_id: "c", copy: true, unread: false, needs_action: false });
+    expect(mosaicTiles([copy])).toEqual([]);
+    expect(topItem([copy])).toBeNull();
+    expect(severityCounts([copy])).toEqual([]);
+  });
+
+  it("has words for the view and the hint in every language", () => {
+    for (const code of ["en", "de", "fr", "es"]) {
+      setLanguage(code);
+      expect(STRINGS.everything).toBeTruthy();
+      expect(STRINGS.copy_hint).toBeTruthy();
     }
   });
 });

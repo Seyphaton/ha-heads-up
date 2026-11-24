@@ -1769,3 +1769,15 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - No `show_text` option (plan section 4.1 proposed it): the mockup shows the latest unread title on the medium cards, and `titles_only` is the one privacy option.
 - Left out of this card in Phase 22: the views Everything (needs the mirror setting, which comes with the settings step) and Sent, and the pen button (Phase 23). The filter All or Unread, Mark all read, expanding a row (which reads it), Delete and Show more are in.
 - Behaviour: "opened" means a row is expanded, never that the card rendered (plan 4.1). The card always shows the viewing user's own inbox (the commands take no person). A user without a person entity sees an empty card with a hint.
+
+## D-275 Inbox mirror: what a copy is (2026-11-24, build choices for D-264 and D-268, to confirm)
+- Context: D-264 decided the setting "keep a copy of every message to a person in their inbox", per severity, off by default. The plan said the mirror is an implicit inbox delivery through the same chain. The mockup (D-266) says a copy is history: never unread, not in the count, shown in the view Everything with how it reached the person.
+- Choices (the smallest that fits both; change on request):
+  - Setting `inbox_mirror`: a list of severities, default empty (nothing changes on upgrade, D-262). On the Settings page and the options screen.
+  - A copy is an inbox item with `copy: true`, read when it is made, never needing action, never counted (sensor, `unread`, `needs_action`). Its `via` lists the channels that reached the person.
+  - A copy is made when another channel actually delivered to the person: push, popup and mail by their recipient, and the banner for the persons it names or, without names, for every person with a Home Assistant user. Speech has no person and the Persistent Notification is shared, so neither is mirrored. A delivery that a policy holds or drops makes no copy; a held one makes its copy when it is sent. Copies do not go through the policy chain themselves (they record what was delivered), so Quiet hours, Presence and Summarize act on the real channels only.
+  - A person who switched the inbox off in their profile, and a disabled recipient, get no copies (D-147, D-273).
+  - If the message also goes to the inbox channel, the real unread item stays and the copy only adds the channel to its `via`; a copy turns into a real item when the inbox channel delivers later.
+  - A copy that is made for a reminder is not: reminders add nothing. An escalation or a fallback that reaches a new person makes a copy for them.
+  - When the cap of 2000 is reached, copies go first.
+- The card gets the view Everything (copies and real items) next to Inbox; without the mirror it says how to switch it on (D-266).

@@ -20,6 +20,7 @@ from ..const import (
     OPT_DEFAULT_TIMEOUT,
     OPT_DISABLE_ENDED_BUTTONS,
     OPT_EVICT,
+    OPT_INBOX_MIRROR,
     OPT_INBOX_REMINDER_UNREAD,
     OPT_INBOX_RETENTION_MONTHS,
     OPT_INSTALL_TOKEN,
@@ -75,7 +76,11 @@ SECTIONS: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
     ),
     (
         "inbox",
-        ((OPT_INBOX_RETENTION_MONTHS, "int"), (OPT_INBOX_REMINDER_UNREAD, "bool")),
+        (
+            (OPT_INBOX_RETENTION_MONTHS, "int"),
+            (OPT_INBOX_REMINDER_UNREAD, "bool"),
+            (OPT_INBOX_MIRROR, "severities"),
+        ),
     ),
     (
         "limits",
@@ -193,6 +198,8 @@ def layout() -> list[dict[str, Any]]:
                 entry["choices"] = list(CHOICES[key])
             if kind == "minutes":
                 entry["choices"] = list(SNOOZE_PRESET_MINUTES)
+            if kind == "severities":
+                entry["choices"] = list(reversed(SEVERITIES))  # the most urgent first
             if kind == "duration":
                 entry["range"] = [0, MAX_TIMEOUT_SECONDS]
             entries.append(entry)
@@ -211,6 +218,7 @@ def schema_fields() -> dict[Any, Any]:
         int, vol.Range(min=0, max=MAX_TIMEOUT_SECONDS)
     )
     fields[vol.Optional(OPT_DEFAULT_SNOOZE_OPTIONS)] = [vol.In(SNOOZE_PRESET_MINUTES)]
+    fields[vol.Optional(OPT_INBOX_MIRROR)] = [vol.In(SEVERITIES)]
     fields[vol.Optional(OPT_SPEAK_TTS_ENTITY)] = vol.Any("", vol.Match(r"^tts\.[a-z0-9_]+$"))
     fields[vol.Optional(OPT_SPEAK_VOLUME_BANDS)] = check_bands
     fields[vol.Optional(OPT_SPEAK_SEVERITY_VOLUME)] = check_severity_volume
