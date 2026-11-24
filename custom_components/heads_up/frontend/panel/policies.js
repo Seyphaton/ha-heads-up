@@ -37,7 +37,8 @@ export const STRINGS = {
     types: TYPE_NAMES.en,
     disabled: "disabled",
     applies: "Applies to",
-    severities: "Severities (none selected: any)",
+    severities: "Applies to severities",
+    sev_last: "Keep at least one severity. To stop this policy, switch the policy off.",
     tags: "Tags, comma separated (empty: any)",
     severity_names: { passive: "Passive", info: "Info", warning: "Warning", critical: "Critical" },
     channel_names: { push: "Push", popup: "Popup", speak: "Speak", persistent: "Persistent Notification", mail: "Mail" },
@@ -282,7 +283,8 @@ export const STRINGS = {
     types: TYPE_NAMES.de,
     disabled: "deaktiviert",
     applies: "Gilt für",
-    severities: "Schweregrade (keiner gewählt: alle)",
+    severities: "Gilt für Schweregrade",
+    sev_last: "Lass mindestens einen Schweregrad an. Um diese Richtlinie anzuhalten, schalte die Richtlinie aus.",
     tags: "Tags, durch Komma getrennt (leer: alle)",
     severity_names: { passive: "Passiv", info: "Info", warning: "Warnung", critical: "Kritisch" },
     channel_names: { push: "Push", popup: "Popup", speak: "Sprache", persistent: "Persistente Benachrichtigung", mail: "E-Mail" },
@@ -527,7 +529,8 @@ export const STRINGS = {
     types: TYPE_NAMES.fr,
     disabled: "désactivée",
     applies: "S'applique à",
-    severities: "Gravités (aucune choisie : toutes)",
+    severities: "S'applique aux gravités",
+    sev_last: "Gardez au moins une gravité. Pour arrêter cette politique, désactivez-la.",
     tags: "Étiquettes, séparées par des virgules (vide : toutes)",
     severity_names: { passive: "Passif", info: "Info", warning: "Avertissement", critical: "Critique" },
     channel_names: { push: "Push", popup: "Fenêtre", speak: "Voix", persistent: "Notification persistante", mail: "Courriel" },
@@ -772,7 +775,8 @@ export const STRINGS = {
     types: TYPE_NAMES.es,
     disabled: "desactivada",
     applies: "Se aplica a",
-    severities: "Gravedades (ninguna elegida: todas)",
+    severities: "Se aplica a las gravedades",
+    sev_last: "Deja al menos una gravedad. Para detener esta política, desactívala.",
     tags: "Etiquetas, separadas por comas (vacío: todas)",
     severity_names: { passive: "Pasivo", info: "Info", warning: "Aviso", critical: "Crítico" },
     channel_names: { push: "Push", popup: "Ventana", speak: "Voz", persistent: "Notificación persistente", mail: "Correo" },
@@ -1556,6 +1560,14 @@ export function whichText(values, t) {
   return parts.join(" · ");
 }
 
+// The severity boxes of the form: all four are checked when nothing is stored (stored empty means
+// any), and the last one cannot be unchecked. Four checked are stored as empty again.
+export function severityChoice(picked) {
+  const list = SEVERITIES.filter((k) => picked.includes(k));
+  if (!list.length) return { refused: true, list: null };
+  return { refused: false, list: list.length === SEVERITIES.length ? [] : list };
+}
+
 // What Not for repeats from For: those messages never get the policy, so the editor warns.
 export function notOverlap(values, t) {
   const tags = splitTags(values.not_tags).filter((x) => splitTags(values.tags).includes(x)).map((x) => `#${x}`);
@@ -1649,6 +1661,7 @@ export function mount(container, ctx) {
   let message = "";
   let checked = null; // the last answer of the checker
   let openKey = null; // the policy whose row is open
+  let sevRefused = false; // the last click tried to uncheck the last severity
   let checkDialog = null; // the open "Test policies" dialog
   const ask = { severity: "warning", tag: "", rule: "", at: "", home: {}, ack: "", channels: ["banner", "push"], audience: "" };
   const root = el("div", { className: "hu-page" });
@@ -1828,6 +1841,7 @@ export function mount(container, ctx) {
 
   function openEditor(own, values) {
     message = "";
+    sevRefused = false;
     editing = { own, values, start: JSON.stringify(toFlowData(values)) };
     const { dialog, body } = modal(own ? `${t.editing}: ${own.name}` : t.new, "", own ? TYPE_ICONS[values.type] || "mdi:tune" : "mdi:plus", requestCloseEditor);
     editorDialog = { dialog, body };
@@ -2116,7 +2130,18 @@ export function mount(container, ctx) {
     if (values.apply === "manual") {
       when.append(el("div", { className: "hint", textContent: t.manual_how }), ui.yamlBlock(`policy: ${own?.entity_id || String(values.name).trim() || "…"}`, s.common), el("div", { className: "hint", textContent: t.manual_note }));
     } else {
-      when.append(pills(t.severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.severities, (list) => { values.severities = list; paint(); }));
+      const shown = values.severities.length ? values.severities : SEVERITIES;
+      when.append(pills(t.severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), shown, (list) => {
+        const choice = severityChoice(list);
+        sevRefused = choice.refused;
+        if (!choice.refused) values.severities = choice.list;
+        again();
+      }));
+      if (sevRefused) {
+        const hint = el("div", { className: "hint problems", textContent: t.sev_last });
+        hint.setAttribute("role", "alert");
+        when.append(hint);
+      }
       when.append(ui.field(t.tags, ui.textInput(values.tags, (v) => { values.tags = v; paint(); })));
       when.append(ui.field(t.not_tags, ui.textInput(values.not_tags, (v) => { values.not_tags = v; paint(); })));
       const clash = el("div", { className: "hint problems" });

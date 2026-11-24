@@ -32,6 +32,7 @@ import {
   laneOf,
   whichText,
   notOverlap,
+  severityChoice,
   holdsWarning,
   doesText,
   leftOut,
@@ -573,6 +574,12 @@ describe("2.0 policy fields", () => {
     const t = POLICY_STRINGS.en;
     expect(notOverlap({ ...blankPolicy("quiet_hours"), tags: "a, b", not_tags: "b" }, t)).toEqual(["#b"]);
     expect(notOverlap({ ...blankPolicy("quiet_hours"), tags: "a", not_tags: "b" }, t)).toEqual([]);
+  });
+
+  it("the severity boxes store all four as any and refuse an empty choice", () => {
+    expect(severityChoice(["passive", "info", "warning", "critical"])).toEqual({ refused: false, list: [] });
+    expect(severityChoice(["critical", "info"])).toEqual({ refused: false, list: ["info", "critical"] });
+    expect(severityChoice([])).toEqual({ refused: true, list: null });
   });
 
   it("the caution under Ignore 'get through' policies names what happens to critical messages", () => {

@@ -21,7 +21,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ### Changed
 
 - Quiet hours and Summarize: "Holds these anyway" is now "Ignore 'get through' policies" under its own sub heading, with a red caution that says what happens to critical messages. In Quiet hours the entity picker sits below the times and days.
-- The policy form no longer has Not for severities and From watch rule. Leave a severity out of For instead. A policy for one watch rule now applies to the tag `rule`; to send one rule's messages through a policy, name the policy in the rule's policy field. The update moves your existing policies over and keeps a backup of them.
+- The policy form shows all four severities checked for a new policy, and the last one cannot be unchecked: switch the policy off instead. The policy form no longer has Not for severities and From watch rule. Leave a severity out of For instead. A policy for one watch rule now applies to the tag `rule`; to send one rule's messages through a policy, name the policy in the rule's policy field. The update moves your existing policies over and keeps a backup of them.
 
 ### Fixed
 
