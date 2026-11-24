@@ -168,10 +168,12 @@
 - The push channel cannot tell which devices support live updates; unchecked on a real device.
 - iOS sender icon needs a title: what to send for a message without one is open.
 
-## Personal inbox (planned 2026-11-23, D-264, `docs/dev/inbox/PLAN.md`)
-- `sensitive` flag: a message whose text is hidden in the inbox card until tapped, or not stored. Left out of the first inbox phase; item text is stored in plain text in `.storage` and in backups.
-- Titles-only option for the inbox card on a shared wall tablet.
+## Personal inbox (built 2026-11-24, D-264 to D-276, `docs/dev/inbox/PLAN.md`)
+- `sensitive` flag: a message whose text is hidden in the inbox card until tapped, or not stored. Left out of Phase 22; item text is stored in plain text in `.storage` and in backups (`SECURITY.md`). The card option `titles_only` covers a shared screen.
 - Received time per device: needs the Companion app's confirmation event (Android) and an echoed message ID; not planned.
+- Speech in All notifications is listed for the people at home when it is said (D-276). That is a guess: someone at home in another room counts, someone who is home but whose presence is unknown does not. A better answer needs to know who was near the speaker.
+- Copies skip the policy chain (D-275): Quiet hours, Presence and Summarize act on the real channels only. Whether the copy should also follow them is open.
+- Not checked on real devices or in other languages on screen: the inbox card on a real dashboard grid and in the card picker, speech copies with a real speaker, Android.
 
 ## Messages to other people (D-265)
 - Permissions: who may message whom; a per-person "no messages" setting.

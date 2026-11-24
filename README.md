@@ -67,7 +67,7 @@ To try a call by hand, use Developer tools > Actions (named Tools in Home Assist
 
 ## Glossary
 
-- **Channels:** Where a message shows up: `banner`, `push`, `popup`, `speak`, `mail` and `persistent`. A message lists its channels, for example `channels: [banner, push, popup]`. `heads_up.clear_notifications` removes the banner, the pushes, the popup and the Persistent Notification. Speech and mail cannot be taken back.
+- **Channels:** Where a message shows up: `banner`, `push`, `popup`, `speak`, `mail`, `persistent` and `inbox`. A message lists its channels, for example `channels: [banner, push, popup]`. `heads_up.clear_notifications` removes the banner, the pushes, the popup and the Persistent Notification. Speech and mail cannot be taken back. An inbox item stays and is marked as ended.
 - **Banner:** A message in the Heads Up card on a dashboard. It stays until a person dismisses it, its condition stops matching or its timeout passes. It can carry up to 3 buttons, a picture, a snooze and a progress bar.
 - **Severity:** One of critical, warning, info or passive. The panel's Severities page sets the label, icon, color, push level and popup style of each one for every card, popup and phone.
 
