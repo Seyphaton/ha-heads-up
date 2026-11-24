@@ -68,11 +68,9 @@ class Policy:
     tags: frozenset[str] = frozenset()  # empty means any
     enabled: bool = True
     apply: str = "auto"  # auto: by severity and tag; manual: only when a call names the policy
-    # Which messages, 2.0 (DESIGN §25.3): Not for wins over For; `rules` are watch-rule subentry
-    # IDs (empty: any source); `links` are written only by the conversion from 1.x (§25.6).
-    not_severities: frozenset[str] = frozenset()
+    # Which messages (DESIGN §25.3): Not for tags wins over For; `links` are written only by the
+    # conversion from 1.x (§25.6). Not for severities and From watch rule are gone (D-280).
     not_tags: frozenset[str] = frozenset()
-    rules: frozenset[str] = frozenset()
     links: tuple[str, ...] = ()
     only_if: dict[str, Any] | None = None  # D-216: the notify condition shape
     # Escalation and Fallback
@@ -171,9 +169,7 @@ class Policy:
             "apply": self.apply,
             "severities": sorted(self.severities),
             "tags": sorted(self.tags),
-            "not_severities": sorted(self.not_severities),
             "not_tags": sorted(self.not_tags),
-            "rules": sorted(self.rules),
         }
         for name in DESCRIBED.get(self.type, ()):
             value = getattr(self, name)
@@ -201,9 +197,7 @@ def policy_from_data(name: str, subentry_id: str, data: Mapping[str, Any]) -> Po
         tags=frozenset(data.get("tags") or ()),
         enabled=bool(data.get("enabled", True)),
         apply="manual" if data.get("apply") == "manual" else "auto",
-        not_severities=frozenset(data.get("not_severities") or ()),
         not_tags=frozenset(data.get("not_tags") or ()),
-        rules=frozenset(data.get("rules") or ()),
         links=tuple(data.get("links") or ()),
         only_if=dict(data["only_if"]) if isinstance(data.get("only_if"), Mapping) else None,
         after_minutes=int(data.get("after_minutes", 0)),

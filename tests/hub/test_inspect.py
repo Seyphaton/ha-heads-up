@@ -88,7 +88,7 @@ async def test_a_policy_switch_shows_what_the_policy_does(
     assert night["type"] == "quiet_hours" and night["severities"] == ["info"]
     assert night["tags"] == ["digest"] and night["from_time"] == "22:00:00"
     assert night["action"] == "quiet" and night["holds_anyway"] is False
-    assert night["not_tags"] == ["x"] and night["not_severities"] == []
+    assert night["not_tags"] == ["x"]
     nag = states["nag"]
     assert nag["every_minutes"] == 10 and nag["max_count"] == 2
     assert "order" not in night  # no list order in 2.0 (D-224)

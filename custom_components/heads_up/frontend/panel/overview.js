@@ -7,6 +7,8 @@ export const STRINGS = {
     status_title_clear: "All clear",
     status_sub_clear: "No warning or critical notification is active.",
     status_sub_active: "Acknowledge, snooze or clear them here.",
+    live_dismiss: "Dismiss",
+    live_meta: "Live activity · {n}%",
     status_clear: "All clear. No warning or critical notification is active.",
     status_one: "1 notification needs you",
     status_many: "{n} notifications need you",
@@ -207,6 +209,8 @@ export const STRINGS = {
     status_title_clear: "Alles ruhig",
     status_sub_clear: "Keine Warnung und keine kritische Meldung ist aktiv.",
     status_sub_active: "Bestätige, stelle zurück oder entferne sie hier.",
+    live_dismiss: "Beenden",
+    live_meta: "Live-Aktivität · {n} %",
     status_clear: "Alles ruhig. Keine Warnung und keine kritische Meldung ist aktiv.",
     status_one: "1 Meldung braucht dich",
     status_many: "{n} Meldungen brauchen dich",
@@ -407,6 +411,8 @@ export const STRINGS = {
     status_title_clear: "Tout est calme",
     status_sub_clear: "Aucun avertissement ni message critique n'est actif.",
     status_sub_active: "Acquittez, reportez ou retirez-les ici.",
+    live_dismiss: "Terminer",
+    live_meta: "Activité en direct · {n} %",
     status_clear: "Tout est calme. Aucun avertissement ni message critique n'est actif.",
     status_one: "1 notification a besoin de vous",
     status_many: "{n} notifications ont besoin de vous",
@@ -607,6 +613,8 @@ export const STRINGS = {
     status_title_clear: "Todo en calma",
     status_sub_clear: "Ningún aviso ni mensaje crítico está activo.",
     status_sub_active: "Confírmalos, pospónlos o retíralos aquí.",
+    live_dismiss: "Terminar",
+    live_meta: "Actividad en directo · {n} %",
     status_clear: "Todo en calma. Ningún aviso ni mensaje crítico está activo.",
     status_one: "1 notificación te necesita",
     status_many: "{n} notificaciones te necesitan",
@@ -824,6 +832,11 @@ export function countText(n, t) {
 export function statusHeadline(count, t) {
   if (count === 0) return t.status_clear;
   return count === 1 ? t.status_one : fill(t.status_many, { n: count });
+}
+
+// "Live activity · 60%": the line under a running job.
+export function liveMeta(item, t) {
+  return fill(t.live_meta, { n: item.progress });
 }
 
 // The pills under the status title: "1 Critical · 2 Warning" from the listed messages.
@@ -1284,6 +1297,7 @@ const CSS = `
 .hu-overview .alert { display: grid; grid-template-columns: auto 1fr auto; gap: 4px 12px; align-items: center; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--divider-color); background: var(--card-background-color); }
 .hu-overview .alert .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--hu-warn); }
 .hu-overview .alert.critical .dot { background: var(--hu-crit); }
+.hu-overview .alert.live .dot { background: var(--hu-info); }
 .hu-overview .alert .name { font-weight: 600; overflow-wrap: anywhere; }
 .hu-overview .alert .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .hu-overview .alert .path { grid-column: 1 / -1; }
@@ -1573,6 +1587,17 @@ export function mount(container, ctx) {
     return row;
   }
 
+  // A job with a progress bar. A push-only one has no button on the phone, so it ends here.
+  function liveRow(item) {
+    const end = el("button", { type: "button", className: "mini", textContent: t.live_dismiss });
+    end.addEventListener("click", () => act("heads_up/panel_clear", { message_id: item.id }));
+    return el("div", { className: "alert live" }, [
+      el("span", { className: "dot", "aria-hidden": "true" }),
+      el("div", {}, [el("div", { className: "name", textContent: fmt.messageTitle(item) }), el("div", { className: "sub", textContent: liveMeta(item, t) })]),
+      el("div", { className: "acts" }, [end]),
+    ]);
+  }
+
   function statusCard() {
     const status = data.status;
     const active = status.count > 0;
@@ -1587,8 +1612,11 @@ export function mount(container, ctx) {
         el("div", { className: "sub", textContent: active ? t.status_sub_active : t.status_sub_clear }),
       ]),
     );
-    if (!active) return box;
+    const live = data.live_activities || [];
+    if (!active && !live.length) return box;
     const items = el("div", { className: "items" });
+    // Running jobs first: not in the count above, so a green page stays green (D-282).
+    for (const item of live) items.append(liveRow(item));
     for (const item of status.items) {
       const buttons = el("div", { className: "acts" });
       const mini = (text, onClick, extra = "") => {

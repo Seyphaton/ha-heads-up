@@ -82,7 +82,7 @@ class HeadsUpConfigFlow(ConfigFlow, domain=DOMAIN):
     """Create the single Heads Up entry."""
 
     VERSION = 3  # 2: keys, not names (D-200); 3: policies in two lanes (D-224)
-    MINOR_VERSION = 1
+    MINOR_VERSION = 2  # 3.2: no Not for severities, no From watch rule (D-280)
 
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         # Duplicate entries are prevented by "single_config_entry" in manifest.json.

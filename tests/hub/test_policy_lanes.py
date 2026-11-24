@@ -13,6 +13,7 @@ from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
 from custom_components.heads_up.const import DOMAIN, SEVERITIES
 from custom_components.heads_up.hub.channels.base import Target
+from custom_components.heads_up.hub.migration import fold_filters
 from custom_components.heads_up.hub.policies import PolicyBook
 from custom_components.heads_up.hub.policies.convert import StoredPolicy, convert_v3
 from custom_components.heads_up.hub.policies.models import Policy, policy_from_data
@@ -64,18 +65,11 @@ def test_every_fitting_policy_acts() -> None:
     assert names(book, message()) == {"fast", "slow", "night"}
 
 
-def test_not_for_wins_over_for() -> None:
-    book = Book(policy("night", "quiet_hours", not_tags=["digest"], not_severities=["critical"]))
+def test_not_for_tags_wins_over_for() -> None:
+    book = Book(policy("night", "quiet_hours", not_tags=["digest"]))
     assert names(book, message(tag="digest")) == set()
-    assert names(book, message("critical")) == set()
+    assert names(book, message("critical")) == {"night"}
     assert names(book, message(tag="doorbell")) == {"night"}
-
-
-def test_from_watch_rule_fits_only_messages_of_that_rule() -> None:
-    book = Book(policy("leak", "deliver", rules=["abc"]))
-    assert names(book, message(id="rule_abc", tag="rule")) == {"leak"}
-    assert names(book, message(id="rule_other", tag="rule")) == set()
-    assert names(book, message(id="from_an_automation")) == set()
 
 
 def test_a_link_holds_back_only_while_the_linked_policy_is_on_and_fits() -> None:
@@ -208,13 +202,18 @@ def test_converted_links_reproduce_only_the_first_for_every_message_and_switch_s
             ]
             # Converted with the switches as stored at the update (Not for is written then).
             result = convert_v3(stored, {"policy_mode": "first", "policy_order": order})
+            # 3.2 then writes Not for severities as For (D-280).
+            folded = fold_filters(
+                {
+                    p.subentry_id: {
+                        **result.updates.get(p.subentry_id, p.data),
+                        "enabled": p.data["enabled"],
+                    }
+                    for p in stored
+                }
+            )
             converted = [
-                policy_from_data(
-                    p.title,
-                    p.subentry_id,
-                    {**result.updates.get(p.subentry_id, p.data), "enabled": p.data["enabled"]},
-                )
-                for p in stored
+                policy_from_data(p.title, p.subentry_id, folded[p.subentry_id]) for p in stored
             ]
             book = Book(*[p for p in converted if p is not None and p.type != "get_through"])
             for severity, tag in product(SEVERITIES, (None, "digest", "doorbell", "other")):
@@ -247,7 +246,7 @@ async def test_a_2_4_entry_moves_to_the_lanes_at_start(hass: HomeAssistant) -> N
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
-    assert (entry.version, entry.minor_version) == (3, 1)
+    assert (entry.version, entry.minor_version) == (3, 2)
     data = {s.title: dict(s.data) for s in entry.subentries.values()}
     assert data["Night quiet"]["not_tags"] == ["digest"]
     assert data["Critical"]["type"] == "get_through"

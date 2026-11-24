@@ -224,6 +224,7 @@ import {
   entryWho,
   pathEvents,
   statusHeadline,
+  liveMeta,
   statusPills,
   STRINGS as OVERVIEW_STRINGS,
 } from "../../custom_components/heads_up/frontend/panel/overview.js";
@@ -325,6 +326,7 @@ describe("overview functions", () => {
   const t = OVERVIEW_STRINGS.en;
 
   it("words the status headline for none, one and many", () => {
+    expect(liveMeta({ progress: 60 }, t)).toBe("Live activity · 60%");
     expect(statusHeadline(0, t)).toBe(t.status_clear);
     expect(statusHeadline(1, t)).toBe(t.status_one);
     expect(statusHeadline(3, t)).toBe("3 notifications need you");

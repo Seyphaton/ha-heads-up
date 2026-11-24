@@ -767,7 +767,7 @@ Built in Phase 17; promise lines are on the long list (§25.11, D-241). The desi
 Definitions:
 - A policy fits a message when For (severities, tags, watch rules), Not for (severities, tags), its links and Only if all match. An unknown Only if counts as whatever delivers more (D-216).
 - For and Not for: a list that is empty does not restrict. A message has one severity and at most one tag (`matching.applies`). Not for wins over For.
-- "From watch rule": a list of rule subentry IDs; it fits a message whose ID is `rule_<subentry id>` (`RULE_ID_PREFIX`). Messages of every rule still carry the tag `rule` (D-100), so a policy for all rules uses that tag.
+- "From watch rule" (removed in 3.2, D-280; the entry becomes the tag `rule`): a list of rule subentry IDs; it fits a message whose ID is `rule_<subentry id>` (`RULE_ID_PREFIX`). Messages of every rule still carry the tag `rule` (D-100), so a policy for all rules uses that tag.
 - A second policy of the same type with the same For, Not for, From watch rule and trigger is refused by the form, as in 1.x (`matching.duplicate_of`, D-235).
 - A held delivery is not a failure and never triggers a Fallback (1.0).
 - A Fallback delivery passes the same holds as its message; it is never louder (D-235). A band entry covering a speaker lets it speak at night.
@@ -778,7 +778,7 @@ New fields on every policy subentry:
 
 | Field | Type | Default | Effect |
 |---|---|---|---|
-| `not_severities` | list | `[]` | Not for these severities |
+| `not_severities` | list | `[]` | Removed in 3.2 (D-280): the severities leave `severities` |
 | `not_tags` | list | `[]` | Not for these tags |
 | `rules` | list | `[]` | For messages of these watch rules (subentry IDs); empty: no restriction |
 | `links` | list | `[]` | Written only by the conversion: subentry IDs; the policy does not fit a message that a linked policy fits while that policy is enabled |
@@ -860,7 +860,7 @@ Lane, band and new labels in the four languages; type names and existing labels 
 | covers | Covers | Gilt für | Concerne | Afecta a |
 | covers everyone | Everyone it reaches | Alle, die sie erreicht | Tous ceux qu'il atteint | Todos a quienes llega |
 | covers only | Only these | Nur diese | Seulement ceux-ci | Solo estos |
-| holds anyway | Holds these anyway | Hält sie trotzdem | Les retient quand même | Los retiene igualmente |
+| holds anyway | Ignore 'get through' policies (D-281; was Holds these anyway) | Richtlinien „Kommt durch“ ignorieren | Ignorer les politiques « Laisser passer » | Ignorar las políticas «Dejar pasar» |
 | not for | Not for | Nicht für | Sauf pour | Excepto para |
 | from rule | From watch rule | Von Überwachungsregel | Depuis la règle de surveillance | Desde la regla de vigilancia |
 | faster while | Faster while | Öfter, solange | Plus souvent tant que | Más a menudo mientras |

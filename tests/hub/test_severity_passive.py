@@ -67,7 +67,7 @@ async def test_the_upgrade_renames_success_in_options_policies_and_rules(
     entry.add_to_hass(hass)
     await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
-    assert (entry.version, entry.minor_version) == (3, 1)
+    assert (entry.version, entry.minor_version) == (3, 2)
     assert entry.options["push_levels"] == {"passive": "normal", "info": "passive"}
     assert entry.options["popup_styles"] == {"passive": "off"}
     assert entry.options["severity_display"] == {"passive": {"label": "Done"}}
@@ -85,7 +85,7 @@ async def test_an_upgrade_through_every_step_also_renames_success(hass: HomeAssi
     entry.add_to_hass(hass)
     await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
-    assert (entry.version, entry.minor_version) == (3, 1)
+    assert (entry.version, entry.minor_version) == (3, 2)
     assert entry.options["popup_styles"] == {
         "critical": "modal",
         "info": "card",

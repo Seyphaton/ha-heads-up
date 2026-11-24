@@ -183,7 +183,7 @@ async def test_not_for_critical_lets_critical_pass_presence(
 ) -> None:
     home = await make_household(hass, mobile_app_device)
     await family(hass, entry)
-    await add_policy(hass, entry, "Away", **{**AWAY, "not_severities": ["critical"]})
+    await add_policy(hass, entry, "Away", **{**AWAY, "severities": ["passive", "info", "warning"]})
     away(hass, "person.ben", "ben-id")
     await send(hass, entry, severity="critical", to={"push": {"audience": "Family"}})
     assert len(pushes(home.ben)) == 1

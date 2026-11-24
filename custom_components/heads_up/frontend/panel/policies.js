@@ -37,7 +37,8 @@ export const STRINGS = {
     types: TYPE_NAMES.en,
     disabled: "disabled",
     applies: "Applies to",
-    severities: "Severities (none selected: any)",
+    severities: "Applies to severities",
+    sev_last: "Keep at least one severity. To stop this policy, switch the policy off.",
     tags: "Tags, comma separated (empty: any)",
     severity_names: { passive: "Passive", info: "Info", warning: "Warning", critical: "Critical" },
     channel_names: { push: "Push", popup: "Popup", speak: "Speak", persistent: "Persistent Notification", mail: "Mail", inbox: "Inbox" },
@@ -141,9 +142,7 @@ export const STRINGS = {
     lane_empty: "None yet.",
     turn_off: "Switch off",
     turn_on: "Switch on",
-    not_severities: "Not for severities",
     not_tags: "Not for tags, comma separated",
-    rules: "From watch rule (none selected: any source)",
     only_if: "Only if",
     only_if_hint: "The policy acts only while this is true. If the state cannot be read, for example because the device is offline, policies that hold or quiet messages do nothing, and policies that send still send.",
     oi_entity: "Entity",
@@ -153,9 +152,11 @@ export const STRINGS = {
     faster_every: "Then repeat every (minutes)",
     alongside: "Runs alongside other reminders",
     alongside_hint: "Off: reminders on the same channel share the shortest rhythm, each with its own count.",
-    holds_anyway: "Holds these anyway",
+    holds_heading: "Interaction with 'Get through' policies",
+    holds_anyway: "Ignore 'get through' policies",
     holds_anyway_hint: "No Always gets through entry can get messages past this policy.",
-    holds_anyway_warning: "This also holds back critical messages, for example smoke or leak alarms.",
+    holds_anyway_warning: "Caution: Critical messages will also be {what}. Only enable this if you are aware of the impact.",
+    holds_what: { quiet: "sent quietly", wait: "held", drop: "dropped", summarize: "summarized" },
     covers: "Covers",
     covers_everyone: "Everyone it reaches",
     covers_only: "Only these",
@@ -171,7 +172,6 @@ export const STRINGS = {
     s_faster: " While {entity} is {state}: every {n} min.",
     s_alongside: " Runs alongside other reminders.",
     s_holds_anyway: " Nothing gets past it, not even Always gets through.",
-    s_rules: " Only messages of the watch rules {names}.",
     links_note: "Leaves out {what} while {other} is switched on.",
     overlap_calm: "Where it and {names} both fit, the calmer counts.",
     overlap_send: "Also acts on the same messages: {names}.",
@@ -284,7 +284,8 @@ export const STRINGS = {
     types: TYPE_NAMES.de,
     disabled: "deaktiviert",
     applies: "Gilt für",
-    severities: "Schweregrade (keiner gewählt: alle)",
+    severities: "Gilt für Schweregrade",
+    sev_last: "Lass mindestens einen Schweregrad an. Um diese Richtlinie anzuhalten, schalte die Richtlinie aus.",
     tags: "Tags, durch Komma getrennt (leer: alle)",
     severity_names: { passive: "Passiv", info: "Info", warning: "Warnung", critical: "Kritisch" },
     channel_names: { push: "Push", popup: "Popup", speak: "Sprache", persistent: "Persistente Benachrichtigung", mail: "E-Mail", inbox: "Posteingang" },
@@ -388,9 +389,7 @@ export const STRINGS = {
     lane_empty: "Noch keine.",
     turn_off: "Ausschalten",
     turn_on: "Einschalten",
-    not_severities: "Nicht für Stufen",
     not_tags: "Nicht für Tags, durch Komma getrennt",
-    rules: "Von Überwachungsregel (keine gewählt: jede Quelle)",
     only_if: "Nur wenn",
     only_if_hint: "Die Richtlinie wirkt nur, solange das zutrifft. Lässt sich der Zustand nicht lesen, zum Beispiel weil das Gerät offline ist, tun Richtlinien, die zurückhalten oder leise schalten, nichts, und sendende Richtlinien senden trotzdem.",
     oi_entity: "Entität",
@@ -400,9 +399,11 @@ export const STRINGS = {
     faster_every: "Dann alle (Minuten) wiederholen",
     alongside: "Läuft neben anderen Erinnerungen",
     alongside_hint: "Aus: Erinnerungen auf demselben Kanal teilen sich den kürzesten Rhythmus, jede mit eigener Zählung.",
-    holds_anyway: "Hält sie trotzdem",
+    holds_heading: "Zusammenspiel mit „Kommt durch“-Richtlinien",
+    holds_anyway: "Richtlinien „Kommt durch“ ignorieren",
     holds_anyway_hint: "Kein Eintrag von Kommt immer durch bringt Meldungen an dieser Richtlinie vorbei.",
-    holds_anyway_warning: "Damit werden auch kritische Meldungen zurückgehalten, zum Beispiel Rauch- oder Wasseralarme.",
+    holds_anyway_warning: "Achtung: Auch kritische Meldungen werden {what}. Aktiviere das nur, wenn du die Folgen kennst.",
+    holds_what: { quiet: "leise gesendet", wait: "zurückgehalten", drop: "verworfen", summarize: "zusammengefasst" },
     covers: "Gilt für",
     covers_everyone: "Alle, die sie erreicht",
     covers_only: "Nur diese",
@@ -418,7 +419,6 @@ export const STRINGS = {
     s_faster: " Solange {entity} {state} ist: alle {n} Min.",
     s_alongside: " Läuft neben anderen Erinnerungen.",
     s_holds_anyway: " Nichts kommt vorbei, auch nicht Kommt immer durch.",
-    s_rules: " Nur Meldungen der Überwachungsregeln {names}.",
     links_note: "Lässt {what} aus, solange {other} eingeschaltet ist.",
     overlap_calm: "Wo sie und {names} beide passen, zählt die ruhigere.",
     overlap_send: "Wirkt auch auf dieselben Meldungen: {names}.",
@@ -531,7 +531,8 @@ export const STRINGS = {
     types: TYPE_NAMES.fr,
     disabled: "désactivée",
     applies: "S'applique à",
-    severities: "Gravités (aucune choisie : toutes)",
+    severities: "S'applique aux gravités",
+    sev_last: "Gardez au moins une gravité. Pour arrêter cette politique, désactivez-la.",
     tags: "Étiquettes, séparées par des virgules (vide : toutes)",
     severity_names: { passive: "Passif", info: "Info", warning: "Avertissement", critical: "Critique" },
     channel_names: { push: "Push", popup: "Fenêtre", speak: "Voix", persistent: "Notification persistante", mail: "Courriel", inbox: "Boîte de réception" },
@@ -635,9 +636,7 @@ export const STRINGS = {
     lane_empty: "Aucune pour l'instant.",
     turn_off: "Désactiver",
     turn_on: "Activer",
-    not_severities: "Sauf pour les niveaux",
     not_tags: "Sauf pour les étiquettes, séparées par des virgules",
-    rules: "Depuis la règle de surveillance (aucune : toute source)",
     only_if: "Seulement si",
     only_if_hint: "La règle n'agit que tant que c'est vrai. Si l'état ne peut pas être lu, par exemple parce que l'appareil est hors ligne, les règles qui retiennent ou mettent en sourdine ne font rien, et les règles qui envoient envoient quand même.",
     oi_entity: "Entité",
@@ -647,9 +646,11 @@ export const STRINGS = {
     faster_every: "Puis répéter toutes les (minutes)",
     alongside: "Fonctionne à côté des autres rappels",
     alongside_hint: "Désactivé : les rappels d'un même canal partagent le rythme le plus court, chacun avec son propre compte.",
-    holds_anyway: "Les retient quand même",
+    holds_heading: "Interaction avec les politiques « Laisser passer »",
+    holds_anyway: "Ignorer les politiques « Laisser passer »",
     holds_anyway_hint: "Aucune entrée Passe toujours ne fait passer les messages au-delà de cette règle.",
-    holds_anyway_warning: "Cela retient aussi les messages critiques, par exemple les alarmes de fumée ou de fuite.",
+    holds_anyway_warning: "Attention : les messages critiques seront aussi {what}. N'activez ceci que si vous en connaissez l'effet.",
+    holds_what: { quiet: "envoyés discrètement", wait: "retenus", drop: "abandonnés", summarize: "résumés" },
     covers: "Concerne",
     covers_everyone: "Tous ceux qu'il atteint",
     covers_only: "Seulement ceux-ci",
@@ -665,7 +666,6 @@ export const STRINGS = {
     s_faster: " Tant que {entity} est {state} : toutes les {n} min.",
     s_alongside: " Fonctionne à côté des autres rappels.",
     s_holds_anyway: " Rien ne passe, pas même Passe toujours.",
-    s_rules: " Seulement les messages des règles de surveillance {names}.",
     links_note: "Laisse de côté {what} tant que {other} est activée.",
     overlap_calm: "Là où elle et {names} correspondent toutes deux, la plus calme compte.",
     overlap_send: "Agit aussi sur les mêmes messages : {names}.",
@@ -778,7 +778,8 @@ export const STRINGS = {
     types: TYPE_NAMES.es,
     disabled: "desactivada",
     applies: "Se aplica a",
-    severities: "Gravedades (ninguna elegida: todas)",
+    severities: "Se aplica a las gravedades",
+    sev_last: "Deja al menos una gravedad. Para detener esta política, desactívala.",
     tags: "Etiquetas, separadas por comas (vacío: todas)",
     severity_names: { passive: "Pasivo", info: "Info", warning: "Aviso", critical: "Crítico" },
     channel_names: { push: "Push", popup: "Ventana", speak: "Voz", persistent: "Notificación persistente", mail: "Correo", inbox: "Bandeja de entrada" },
@@ -882,9 +883,7 @@ export const STRINGS = {
     lane_empty: "Ninguna todavía.",
     turn_off: "Desactivar",
     turn_on: "Activar",
-    not_severities: "Excepto niveles",
     not_tags: "Excepto etiquetas, separadas por comas",
-    rules: "Desde la regla de vigilancia (ninguna: cualquier origen)",
     only_if: "Solo si",
     only_if_hint: "La regla solo actúa mientras esto se cumple. Si no se puede leer el estado, por ejemplo porque el dispositivo está desconectado, las reglas que retienen o silencian no hacen nada y las que envían siguen enviando.",
     oi_entity: "Entidad",
@@ -894,9 +893,11 @@ export const STRINGS = {
     faster_every: "Entonces repetir cada (minutos)",
     alongside: "Funciona junto a otros recordatorios",
     alongside_hint: "Desactivado: los recordatorios de un mismo canal comparten el ritmo más corto, cada uno con su propio recuento.",
-    holds_anyway: "Los retiene igualmente",
+    holds_heading: "Interacción con las políticas «Dejar pasar»",
+    holds_anyway: "Ignorar las políticas «Dejar pasar»",
     holds_anyway_hint: "Ninguna entrada Siempre pasa deja pasar mensajes más allá de esta regla.",
-    holds_anyway_warning: "Esto también retiene los mensajes críticos, por ejemplo alarmas de humo o de fugas.",
+    holds_anyway_warning: "Atención: los mensajes críticos también se {what}. Actívalo solo si conoces el efecto.",
+    holds_what: { quiet: "enviarán en silencio", wait: "retendrán", drop: "descartarán", summarize: "resumirán" },
     covers: "Afecta a",
     covers_everyone: "Todos a quienes llega",
     covers_only: "Solo estos",
@@ -912,7 +913,6 @@ export const STRINGS = {
     s_faster: " Mientras {entity} esté en {state}: cada {n} min.",
     s_alongside: " Funciona junto a otros recordatorios.",
     s_holds_anyway: " No pasa nada, ni siquiera Siempre pasa.",
-    s_rules: " Solo mensajes de las reglas de vigilancia {names}.",
     links_note: "Deja fuera {what} mientras {other} está activada.",
     overlap_calm: "Donde ella y {names} encajan, cuenta la más tranquila.",
     overlap_send: "También actúa en los mismos mensajes: {names}.",
@@ -1045,6 +1045,8 @@ const CSS = `
 .hu-page .pol-pill { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 2px 2px 2px 10px; border-radius: 8px; background: var(--card-background-color); border: 1px solid var(--divider-color); }
 .hu-page .pol-pill code { font-size: 12px; overflow-wrap: anywhere; }
 .hu-page .pol-switch-hint { margin-top: 6px; }
+.hu-page .pol-sub { margin: 18px 0 6px; padding-top: 12px; border-top: 1px solid var(--divider-color); font-size: 14px; font-weight: 600; color: var(--primary-text-color); }
+.hu-page .pol-caution { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0 12px; color: var(--error-color, #db4437); }
 .hu-page .pol-warn { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0 12px; padding: 8px 12px; border-radius: 8px; color: var(--warning-color, #ffa600); background: color-mix(in srgb, var(--warning-color, #ffa600) 12%, transparent); border: 1px solid color-mix(in srgb, var(--warning-color, #ffa600) 40%, transparent); font-size: 14px; --mdc-icon-size: 18px; }
 .hu-page .pol-pill .pol-copy { min-height: 32px; padding: 0 10px; font-size: 13px; }
 .hu-page .cl-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--divider-color); --mdc-icon-size: 20px; }
@@ -1135,9 +1137,7 @@ export function blankValues(type = "escalation") {
     type,
     severities: [],
     tags: "",
-    not_severities: [],
     not_tags: "",
-    rules: [],
     links: [],
     enabled: true,
     apply: "auto",
@@ -1228,7 +1228,7 @@ export function fromPolicy(policy) {
   const oldAway = data.type === "away"; // a 1.0 Away policy reads as Presence (D-214)
   const values = { ...blankValues(oldAway ? "presence" : data.type), name: policy.name };
   if (oldAway) values.after_wait = "drop";
-  for (const key of ["severities", "not_severities", "channels", "days", "rules", "links", "covers_audiences", "covers_recipients"]) values[key] = [...(data[key] || [])];
+  for (const key of ["severities", "channels", "days", "links", "covers_audiences", "covers_recipients"]) values[key] = [...(data[key] || [])];
   values.tags = (data.tags || []).join(", ");
   values.not_tags = (data.not_tags || []).join(", ");
   values.apply = data.apply === "manual" ? "manual" : "auto";
@@ -1280,9 +1280,7 @@ export function toFlowData(values) {
     enabled: Boolean(values.enabled),
   };
   if (!manual) {
-    if (values.not_severities.length) data.not_severities = [...values.not_severities];
     if (splitTags(values.not_tags).length) data.not_tags = splitTags(values.not_tags);
-    if (values.rules.length) data.rules = [...values.rules];
   }
   if (values.oi_entity && values.oi_state) data.only_if = { entity_id: values.oi_entity, state: values.oi_state };
   else if (values.only_if_raw) data.only_if = values.only_if_raw;
@@ -1448,7 +1446,6 @@ export function appliesText(values, t) {
 export function sentence(values, t, labels = {}) {
   const audienceName = labels.audience || ((v) => v);
   const recipientName = labels.recipient || ((v) => v);
-  const ruleName = labels.rule || ((v) => v);
   let text = sentenceBase(values, t, audienceName, recipientName);
   // Recipients taken from the call are said once, after the sentence (D-181).
   if (["escalation", "fallback", "deliver"].includes(values.type)) {
@@ -1460,16 +1457,21 @@ export function sentence(values, t, labels = {}) {
       if (who) text = `${text}${fill(t.s_recipients_policy, { who })}`;
     }
   }
-  return text + tails(values, t, ruleName);
+  return text + tails(values, t);
 }
 
-// What 2.0 adds to every sentence: Not for, From watch rule, Only if, and the type's extras.
-function tails(values, t, ruleName) {
+// The red caution under "Ignore 'get through' policies": what happens to critical messages then.
+export function holdsWarning(values, t) {
+  const what = t.holds_what[values.type === "summarize" ? "summarize" : values.action] || t.holds_what.quiet;
+  return fill(t.holds_anyway_warning, { what });
+}
+
+// What 2.0 adds to every sentence: Not for tags, Only if, and the type's extras.
+function tails(values, t) {
   let out = "";
   if (values.apply !== "manual") {
-    const not = [...values.not_severities.map((x) => t.severity_names[x]), ...splitTags(values.not_tags).map((x) => `#${x}`)];
+    const not = splitTags(values.not_tags).map((x) => `#${x}`);
     if (not.length) out += fill(t.s_not_for, { list: not.join(", ") });
-    if (values.rules.length) out += fill(t.s_rules, { names: values.rules.map(ruleName).join(", ") });
   }
   if (values.oi_entity && values.oi_state) out += fill(t.s_only_if, { entity: values.oi_entity, state: values.oi_state });
   if (values.type === "reminder" && values.fw_entity && values.fw_state) out += fill(t.s_faster, { entity: values.fw_entity, state: values.fw_state, n: values.fw_every });
@@ -1553,25 +1555,31 @@ const TYPE_ICONS = {
 const LANE_ICONS = { calm: "mdi:weather-night", band: "mdi:bell-ring-outline", arrive: "mdi:send-outline", named: "mdi:at" };
 const RESULT_ICONS = { sent: "mdi:check-circle-outline", quiet: "mdi:bell-sleep-outline", held: "mdi:pause-circle-outline", skipped: "mdi:minus-circle-outline", failed: "mdi:alert-circle-outline" };
 
-// The "Which messages" column: For, Not for and From watch rule in a few words.
-export function whichText(values, t, ruleName = (v) => v) {
+// The "Which messages" column: For and Not for tags in a few words.
+export function whichText(values, t) {
   if (values.apply === "manual") return t.w_named;
   const parts = [];
   if (values.severities.length) parts.push(fill(t.w_severity, { list: values.severities.map((x) => t.severity_names[x]).join(", ") }));
   const tags = splitTags(values.tags);
   if (tags.length) parts.push(fill(t.w_tag, { list: tags.join(", ") }));
   if (!parts.length) parts.push(t.w_all);
-  const not = [...values.not_severities.map((x) => t.severity_names[x]), ...splitTags(values.not_tags).map((x) => `#${x}`)];
+  const not = splitTags(values.not_tags).map((x) => `#${x}`);
   if (not.length) parts.push(fill(t.w_not, { list: not.join(", ") }));
-  if (values.rules.length) parts.push(values.rules.map(ruleName).join(", "));
   return parts.join(" · ");
+}
+
+// The severity boxes of the form: all four are checked when nothing is stored (stored empty means
+// any), and the last one cannot be unchecked. Four checked are stored as empty again.
+export function severityChoice(picked) {
+  const list = SEVERITIES.filter((k) => picked.includes(k));
+  if (!list.length) return { refused: true, list: null };
+  return { refused: false, list: list.length === SEVERITIES.length ? [] : list };
 }
 
 // What Not for repeats from For: those messages never get the policy, so the editor warns.
 export function notOverlap(values, t) {
-  const severities = values.not_severities.filter((x) => values.severities.includes(x)).map((x) => t.severity_names[x]);
   const tags = splitTags(values.not_tags).filter((x) => splitTags(values.tags).includes(x)).map((x) => `#${x}`);
-  return [...severities, ...tags];
+  return tags;
 }
 
 // "messages with severity Warning, Critical or messages with the tag digest": what a policy leaves out.
@@ -1662,6 +1670,7 @@ export function mount(container, ctx) {
   let message = "";
   let checked = null; // the last answer of the checker
   let openKey = null; // the policy whose row is open
+  let sevRefused = false; // the last click tried to uncheck the last severity
   let checkDialog = null; // the open "Test policies" dialog
   const ask = { severity: "warning", tag: "", rule: "", at: "", home: {}, ack: "", channels: ["banner", "push"], audience: "" };
   const root = el("div", { className: "hu-page" });
@@ -1674,8 +1683,7 @@ export function mount(container, ctx) {
       .map((l) => fill(t.links_note, { what: takenBy(l, t), other: `“${l.name}”` }))
       .join(" ");
   const policyName = (id) => (data.policies.find((p) => p.subentry_id === id) || {}).name || id;
-  const ruleName = (id) => (data.rules.find((r) => r.subentry_id === id) || {}).name || id;
-  const labels = () => ({ audience: (v) => ui.audienceLabel(v, data.choices), recipient: (v) => ui.recipientLabel(v, data.choices), rule: ruleName });
+  const labels = () => ({ audience: (v) => ui.audienceLabel(v, data.choices), recipient: (v) => ui.recipientLabel(v, data.choices) });
 
   // The lanes as tables like the other configuration pages: an icon and the name, which messages,
   // what it does. A row opens its details: the sentence, the switch ID, the policies it skips for, and
@@ -1709,7 +1717,7 @@ export function mount(container, ctx) {
     const isOpen = openKey === policy.subentry_id;
     const lead = [el("ha-icon", { icon: TYPE_ICONS[values.type] || "mdi:tune" }), el("span", { className: "tl-name", textContent: policy.name })];
     if (!values.enabled) lead.push(el("span", { className: "badge", textContent: t.disabled }));
-    const messages = whichText(values, t, ruleName);
+    const messages = whichText(values, t);
     const does = doesText(values, t, labels());
     const { item } = ui.tableRow({
       id,
@@ -1740,7 +1748,7 @@ export function mount(container, ctx) {
     const does = full.startsWith(lead) ? full.slice(lead.length) : full;
     if (values.links.length) body.append(el("div", { className: "pol-note" }, [el("ha-icon", { icon: "mdi:link-variant" }), el("span", { textContent: linkText(values.links) })]));
     const pairs = [
-      [t.d_messages, whichText(values, t, ruleName)],
+      [t.d_messages, whichText(values, t)],
       [t.d_does, does.charAt(0).toUpperCase() + does.slice(1)],
       [t.type, t.types[values.type]],
     ];
@@ -1842,6 +1850,7 @@ export function mount(container, ctx) {
 
   function openEditor(own, values) {
     message = "";
+    sevRefused = false;
     editing = { own, values, start: JSON.stringify(toFlowData(values)) };
     const { dialog, body } = modal(own ? `${t.editing}: ${own.name}` : t.new, "", own ? TYPE_ICONS[values.type] || "mdi:tune" : "mdi:plus", requestCloseEditor);
     editorDialog = { dialog, body };
@@ -2037,10 +2046,11 @@ export function mount(container, ctx) {
       else peopleBlocks();
     };
     const holdsAnyway = () => {
+      does.append(el("h4", { className: "pol-sub", textContent: t.holds_heading }));
       does.append(ui.checkbox(t.holds_anyway, values.holds_anyway, (on) => { values.holds_anyway = on; again(); }));
       does.append(el("div", { className: "hint", textContent: t.holds_anyway_hint }));
       if (values.holds_anyway) {
-        const warn = el("div", { className: "pol-warn" }, [el("ha-icon", { icon: "mdi:alert-outline" }), el("span", { textContent: t.holds_anyway_warning })]);
+        const warn = el("div", { className: "pol-caution" }, [el("ha-icon", { icon: "mdi:alert-outline" }), el("span", { textContent: holdsWarning(values, t) })]);
         warn.setAttribute("role", "alert");
         does.append(warn);
       }
@@ -2063,12 +2073,12 @@ export function mount(container, ctx) {
         does.append(el("div", { className: "hint", textContent: t.ack_note }));
         break;
       case "quiet_hours":
-        does.append(ui.field(t.quiet_entity, ui.selectInput([{ value: "", label: t.quiet_entity_none }, ...quietEntities(hass, values.quiet_entity).map((id) => ({ value: id, label: id }))], values.quiet_entity, (v) => { values.quiet_entity = v; again(); }), t.quiet_entity_hint));
         if (!values.quiet_entity) {
           does.append(ui.field(t.from, ui.timeInput(values.from_time, (v) => { values.from_time = v; paint(); })));
           does.append(ui.field(t.to, ui.timeInput(values.to_time, (v) => { values.to_time = v; paint(); })));
           does.append(pills(t.days, DAYS.map((d) => ({ value: d, label: t.days_names[d] })), values.days, (list) => { values.days = list; paint(); }));
         }
+        does.append(ui.field(t.quiet_entity, ui.selectInput([{ value: "", label: t.quiet_entity_none }, ...quietEntities(hass, values.quiet_entity).map((id) => ({ value: id, label: id }))], values.quiet_entity, (v) => { values.quiet_entity = v; again(); }), t.quiet_entity_hint));
         does.append(ui.field(t.action, ui.selectInput(["quiet", "wait", "drop"].map((k) => ({ value: k, label: t.actions[k] })), values.action, (v) => { values.action = v; paint(); })));
         channelChips(t.channels_quiet);
         holdsAnyway();
@@ -2120,7 +2130,7 @@ export function mount(container, ctx) {
         does.append(el("div", { className: "hint", textContent: t.summarize_note }));
     }
 
-    // Which messages: automatic (For, Not for, From watch rule) or manual (named in a call).
+    // Which messages: automatic (For, Not for tags) or manual (named in a call).
     const radio = (value, label, hint) => {
       const input = el("input", { type: "radio", name: "apply", checked: values.apply === value });
       input.addEventListener("change", () => { values.apply = value; again(); });
@@ -2130,9 +2140,19 @@ export function mount(container, ctx) {
     if (values.apply === "manual") {
       when.append(el("div", { className: "hint", textContent: t.manual_how }), ui.yamlBlock(`policy: ${own?.entity_id || String(values.name).trim() || "…"}`, s.common), el("div", { className: "hint", textContent: t.manual_note }));
     } else {
-      when.append(pills(t.severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.severities, (list) => { values.severities = list; paint(); }));
+      const shown = values.severities.length ? values.severities : SEVERITIES;
+      when.append(pills(t.severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), shown, (list) => {
+        const choice = severityChoice(list);
+        sevRefused = choice.refused;
+        if (!choice.refused) values.severities = choice.list;
+        again();
+      }));
+      if (sevRefused) {
+        const hint = el("div", { className: "hint problems", textContent: t.sev_last });
+        hint.setAttribute("role", "alert");
+        when.append(hint);
+      }
       when.append(ui.field(t.tags, ui.textInput(values.tags, (v) => { values.tags = v; paint(); })));
-      when.append(pills(t.not_severities, SEVERITIES.map((k) => ({ value: k, label: t.severity_names[k] })), values.not_severities, (list) => { values.not_severities = list; paint(); }));
       when.append(ui.field(t.not_tags, ui.textInput(values.not_tags, (v) => { values.not_tags = v; paint(); })));
       const clash = el("div", { className: "hint problems" });
       clash.setAttribute("role", "status");
@@ -2144,7 +2164,6 @@ export function mount(container, ctx) {
       paintClash();
       noteUpdaters.push(paintClash);
       when.append(clash);
-      if (data.rules.length) when.append(pills(t.rules, data.rules.map((r) => ({ value: r.subentry_id, label: r.name })), values.rules, (list) => { values.rules = list; paint(); }));
       if (values.links.length) when.append(el("div", { className: "hint", textContent: linkText(values.links) }));
       const note = el("div", { className: "hint" });
       const paintNote = () => {
