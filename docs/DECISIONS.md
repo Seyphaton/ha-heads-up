@@ -1729,3 +1729,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Migration (entry version 3.2, `fold_filters`): a severity in Not for leaves For, and an empty For becomes the other severities (all four are stored as empty). A policy left with no severity is switched off. A policy that links to one with Not for severities loses those severities too, because a link looked at For alone and so still blocked them; the equivalence test of DESIGN §25.6 runs on the folded data. From watch rule becomes the tag `rule` on a policy without tags, so it stays on watch-rule messages; per rule, the rule's own policy field does the job. The policy subentries are backed up first (`heads_up.migration_v3_2`).
 - The 1.x conversion still writes `not_severities` and the check list still reports them; the 3.2 step runs right after it. "Change" on a check list item adds those severities back to For.
 - Checker: the rule source stays (a watch-rule message has the tag `rule`).
+
+## D-281 Quiet hours and Summarize: "Ignore 'get through' policies" (2026-11-24, maintainer)
+- Context: "Holds these anyway" was not clear to the maintainer, and the amber warning did not say what happens to critical messages.
+- Decision (maintainer, "On 1. OK"): the setting sits under the sub heading "Interaction with 'Get through' policies", the checkbox is "Ignore 'get through' policies", and when it is on a red text says: "Caution: Critical messages will also be {held, sent quietly, summarized or dropped}. Only enable this if you are aware of the impact." The word follows the policy's action; Summarize says summarized. The stored key `holds_anyway` does not change.
+- In the Quiet hours form the entity picker sits below Quiet from, Quiet until and Days.
