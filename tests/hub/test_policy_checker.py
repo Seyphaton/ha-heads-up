@@ -131,19 +131,6 @@ async def test_a_band_entry_that_is_off_is_named(
     assert reply["result"]["band_off"] == ["Critical"]
 
 
-async def test_a_watch_rule_source_fits_from_watch_rule(
-    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
-) -> None:
-    await add_policy(
-        hass, entry, "Leak rule", type="reminder", rules=["abc"], every_minutes=5, max_count=1
-    )
-    client = await hass_ws_client(hass)
-    reply = await check(client, severity="warning", rule="abc", channels=["banner"])
-    assert [p["name"] for p in reply["result"]["policies"]] == ["Leak rule"]
-    reply = await check(client, severity="warning", channels=["banner"])
-    assert reply["result"]["policies"] == []
-
-
 async def test_the_panel_may_name_the_audience_by_its_key(
     hass: HomeAssistant,
     entry: MockConfigEntry,

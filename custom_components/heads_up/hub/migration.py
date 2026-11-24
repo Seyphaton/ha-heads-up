@@ -28,6 +28,7 @@ from ..const import (
     POLICY_SUBENTRY,
     PUSH_LEVELS_1_0,
     RULE_SUBENTRY,
+    SEVERITIES,
     STORAGE_KEY,
     TRACE_KEY,
     TYPE_AWAY_OLD,
@@ -41,13 +42,16 @@ _LOGGER = logging.getLogger(__name__)
 # 3.1: policies in two lanes, no order and no mode (D-224, DESIGN §25.6). A 1.x release refuses
 # version 3 (HA_API_NOTES N-109); there is no way back but a backup (D-234).
 ENTRY_VERSION = 3
-ENTRY_MINOR_VERSION = 1
+LANES_MINOR_VERSION = 1
+# 3.2: Not for severities and From watch rule are gone from policies (D-280).
+ENTRY_MINOR_VERSION = 2
 # 2.2: Away became Presence (D-214); 2.3: push levels kept (D-230); 2.4: success is passive (D-231)
 V2_LAST_MINOR_VERSION = 4
 PUSH_LEVELS_MINOR_VERSION = 3
 PRESENCE_MINOR_VERSION = 2
 BACKUP_KEY = "heads_up.migration_v2"
 PRESENCE_BACKUP_KEY = "heads_up.migration_v2_2"
+FILTERS_BACKUP_KEY = "heads_up.migration_v3_2"
 OLD_STORE_VERSIONS = {STORAGE_KEY: 1, DELIVERIES_KEY: 1, TRACE_KEY: 1}
 
 
@@ -117,8 +121,10 @@ def presence_from_away(data: dict[str, Any]) -> dict[str, Any]:
     return {**data, "type": "presence", "after_wait": data.get("after_wait") or "drop"}
 
 
-async def _write_presence_backup(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    store: Store[dict[str, Any]] = Store(hass, 1, PRESENCE_BACKUP_KEY)
+async def _write_presence_backup(
+    hass: HomeAssistant, entry: ConfigEntry, key: str = PRESENCE_BACKUP_KEY
+) -> None:
+    store: Store[dict[str, Any]] = Store(hass, 1, key)
     if await store.async_load() is not None:
         return
     await store.async_save(
@@ -177,6 +183,8 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if entry.version == 2:
         await _migrate_minor(hass, entry)
         migrate_lanes(hass, entry)
+    if entry.version == 3 and entry.minor_version < ENTRY_MINOR_VERSION:
+        await migrate_filters(hass, entry)
     return True
 
 
@@ -232,7 +240,7 @@ def migrate_lanes(hass: HomeAssistant, entry: ConfigEntry) -> None:
             ConfigSubentry(data=data, subentry_type=POLICY_SUBENTRY, title=title, unique_id=None),  # type: ignore[arg-type]
         )
     hass.config_entries.async_update_entry(
-        entry, options=result.options, version=ENTRY_VERSION, minor_version=ENTRY_MINOR_VERSION
+        entry, options=result.options, version=ENTRY_VERSION, minor_version=LANES_MINOR_VERSION
     )
     _LOGGER.info(
         "%s: policies moved to the lanes (%d changed, %d added, %d to check)",
@@ -241,6 +249,65 @@ def migrate_lanes(hass: HomeAssistant, entry: ConfigEntry) -> None:
         len(result.added),
         len(result.items),
     )
+
+
+def fold_filters(policies: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Policy data without Not for severities and From watch rule, by subentry ID (D-280).
+
+    A severity in Not for leaves For: an empty For meant every severity, so it becomes the others.
+    A policy that links to one with Not for severities loses those severities too, because the
+    link used to look at For alone and still blocked them. A policy left with no severity cannot
+    act, so it is switched off. From watch rule becomes the tag `rule` when the policy has no tag,
+    so it keeps to watch-rule messages; the rules themselves are named in a rule's own policy
+    field."""
+    out = {sid: dict(data) for sid, data in policies.items()}
+    dropped: dict[str, set[str]] = {}
+    for sid, data in out.items():
+        excluded = set(data.pop("not_severities", None) or ())
+        if excluded:
+            wanted = set(data.get("severities") or SEVERITIES)
+            dropped[sid] = excluded & wanted
+            data["severities"] = _left(wanted - excluded)
+        if data.pop("rules", None) and not data.get("tags"):
+            data["tags"] = ["rule"]
+    for data in out.values():
+        gone = set().union(*(dropped.get(link, set()) for link in data.get("links") or ()))
+        if gone:
+            data["severities"] = _left(set(data.get("severities") or SEVERITIES) - gone)
+    for data in out.values():
+        if data.get("severities") == []:
+            data.pop("severities")
+            data["enabled"] = False
+    return out
+
+
+def _left(severities: set[str]) -> list[str]:
+    """The severities in their usual order; all four is stored as an empty list (any)."""
+    kept = [s for s in SEVERITIES if s in severities]
+    return [] if len(kept) == len(SEVERITIES) else kept
+
+
+def fold_back(current: list[str], values: list[str]) -> list[str]:
+    """For with `values` added again (the check list takes back what the conversion left out)."""
+    return _left({*current, *values})
+
+
+async def migrate_filters(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """3.1 to 3.2: see `fold_filters`. The policy subentries are backed up first."""
+    await _write_presence_backup(hass, entry, FILTERS_BACKUP_KEY)
+    policies = {
+        s.subentry_id: dict(s.data)
+        for s in entry.subentries.values()
+        if s.subentry_type == POLICY_SUBENTRY
+    }
+    folded = fold_filters(policies)
+    changed = 0
+    for sub in list(entry.subentries.values()):
+        if (new := folded.get(sub.subentry_id)) is not None and new != dict(sub.data):
+            hass.config_entries.async_update_subentry(entry, sub, data=new)
+            changed += 1
+    hass.config_entries.async_update_entry(entry, minor_version=ENTRY_MINOR_VERSION)
+    _LOGGER.info("%s: %d policies lost Not for severities or From watch rule", DOMAIN, changed)
 
 
 # Options that hold one value per severity.

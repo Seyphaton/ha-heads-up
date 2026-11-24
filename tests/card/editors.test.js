@@ -519,10 +519,10 @@ describe("the lanes and the overlap note", () => {
 
 describe("2.0 policy fields", () => {
   it("sends Not for, From watch rule and Only if, and reads them back", () => {
-    const values = { ...blankPolicy("quiet_hours"), name: "Night", not_severities: ["critical"], not_tags: "digest", rules: ["r1"], oi_entity: "input_boolean.guests", oi_state: "off", holds_anyway: true };
+    const values = { ...blankPolicy("quiet_hours"), name: "Night", not_tags: "digest", oi_entity: "input_boolean.guests", oi_state: "off", holds_anyway: true };
     const data = policyData(values);
-    expect(data).toMatchObject({ not_severities: ["critical"], not_tags: ["digest"], rules: ["r1"], only_if: { entity_id: "input_boolean.guests", state: "off" }, holds_anyway: true });
-    expect(fromPolicy({ name: "Night", data })).toMatchObject({ not_severities: ["critical"], not_tags: "digest", rules: ["r1"], oi_entity: "input_boolean.guests", oi_state: "off", holds_anyway: true });
+    expect(data).toMatchObject({ not_tags: ["digest"], only_if: { entity_id: "input_boolean.guests", state: "off" }, holds_anyway: true });
+    expect(fromPolicy({ name: "Night", data })).toMatchObject({ not_tags: "digest", oi_entity: "input_boolean.guests", oi_state: "off", holds_anyway: true });
   });
 
   it("keeps an Only if it cannot edit as it is", () => {
@@ -575,8 +575,8 @@ describe("2.0 policy fields", () => {
 
   it("warns when Not for repeats something from For", () => {
     const t = POLICY_STRINGS.en;
-    expect(notOverlap({ ...blankPolicy("quiet_hours"), severities: ["passive"], not_severities: ["passive", "info"], tags: "a, b", not_tags: "b" }, t)).toEqual(["Passive", "#b"]);
-    expect(notOverlap({ ...blankPolicy("quiet_hours"), severities: ["info"], not_severities: ["critical"] }, t)).toEqual([]);
+    expect(notOverlap({ ...blankPolicy("quiet_hours"), tags: "a, b", not_tags: "b" }, t)).toEqual(["#b"]);
+    expect(notOverlap({ ...blankPolicy("quiet_hours"), tags: "a", not_tags: "b" }, t)).toEqual([]);
   });
 
   it("says Which messages in a few words", () => {

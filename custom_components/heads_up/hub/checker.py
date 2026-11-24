@@ -62,7 +62,7 @@ async def check(
 def _would_fit(hub: HubEngine, entry: Policy, message: Banner) -> bool:
     from .policies.matching import matches
 
-    return entry.apply == "auto" and matches(entry, message.severity, message.tag, message.id)
+    return entry.apply == "auto" and matches(entry, message.severity, message.tag)
 
 
 async def _escalation_step(

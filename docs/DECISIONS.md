@@ -1781,3 +1781,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - A copy that is made for a reminder is not: reminders add nothing. An escalation or a fallback that reaches a new person makes a copy for them.
   - When the cap of 2000 is reached, copies go first.
 - The card gets the view Everything (copies and real items) next to Inbox; without the mirror it says how to switch it on (D-266).
+
+## D-280 Policies lose Not for severities and From watch rule (2026-11-24, maintainer)
+- Context: after 2.1.0-beta.3 the maintainer found two filters on the policy form that repeat other fields. Not for severities says the same as For with the other severities. From watch rule came with design AB (D-224) from design D; the maintainer had approved the design as a whole, not this field. Numbers D-280 to D-282 are reserved on `main` for these fixes because `release/3.0` uses D-268 to D-275.
+- Decision (maintainer, "migrate and remove the backend as well"): both fields are removed from the form, the model, the matching, the checker and the strings. Not for tags stays.
+- Migration (entry version 3.2, `fold_filters`): a severity in Not for leaves For, and an empty For becomes the other severities (all four are stored as empty). A policy left with no severity is switched off. A policy that links to one with Not for severities loses those severities too, because a link looked at For alone and so still blocked them; the equivalence test of DESIGN §25.6 runs on the folded data. From watch rule becomes the tag `rule` on a policy without tags, so it stays on watch-rule messages; per rule, the rule's own policy field does the job. The policy subentries are backed up first (`heads_up.migration_v3_2`).
+- The 1.x conversion still writes `not_severities` and the check list still reports them; the 3.2 step runs right after it. "Change" on a check list item adds those severities back to For.
+- Checker: the rule source stays (a watch-rule message has the tag `rule`).

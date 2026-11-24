@@ -65,13 +65,14 @@ async def test_away_policies_become_presence_with_their_1_0_behaviour(
     freezer.move_to(CAPTURED)
     entry, _ = await upgrade(hass, hass_storage, mobile_app_device)
     data = policy_data(entry)
-    assert (entry.version, entry.minor_version) == (3, 1)
-    # 3.1 adds Not for critical: 1.0 Away let critical messages pass (D-224).
+    assert (entry.version, entry.minor_version) == (3, 2)
+    # 3.1 adds Not for critical (1.0 Away let critical messages pass, D-224); 3.2 writes that
+    # as For without critical (D-280).
     assert data["Away"] == {
         **_old("Away"),
         "type": "presence",
         "after_wait": "drop",
-        "not_severities": ["critical"],
+        "severities": ["passive", "info", "warning"],
     }
     assert data["Away short"]["type"] == "presence" and data["Away short"]["max_wait"] == 30
     others = ("Escalate", "Remind", "Night", "Backup", "Digest")

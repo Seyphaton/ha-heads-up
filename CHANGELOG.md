@@ -20,6 +20,10 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - The inbox channel (`channels: [inbox]`): a stored item per message and person, with a timeline, read state and the end of the message. Reminders and escalations add a timeline entry. Policies treat it like every other channel, Presence included, and a person's recipient profile can switch it off. Items are kept for 12 months, at most 2000 per person. Settings: the severities to keep a copy of (the mirror: messages that push, popup, mail or the banner delivered to a person, kept as read history, shown in the view Everything of the card), months to keep inbox items (1 to 36), a switch for whether a reminder marks a read item unread again, and Clear inbox. Diagnostics list the inbox counts per person and no text. The card `custom:heads-up-inbox-card` shows the viewing user's own inbox in three sizes (small tile, medium card, large list) and six designs, with Mark all read, expandable rows with a timeline, Delete, and a `titles_only` option for shared screens. `sensor.heads_up_inbox_<person>` counts a person's unread items, with `needs_action` and `unread_critical` as attributes and never any text.
 - A Quiet hours policy can be limited to channels (push, popup, speech, Persistent Notification, mail). With none selected it covers every channel except the banner, as before.
 
+### Changed
+
+- The policy form no longer has Not for severities and From watch rule. Leave a severity out of For instead. A policy for one watch rule now applies to the tag `rule`; to send one rule's messages through a policy, name the policy in the rule's policy field. The update moves your existing policies over and keeps a backup of them.
+
 ### Fixed
 
 - The help text of the mail subject showed an error in the action form.
