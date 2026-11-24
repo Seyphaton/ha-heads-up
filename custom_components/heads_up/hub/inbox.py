@@ -34,6 +34,9 @@ from ..storage import inbox_store
 _LOGGER = logging.getLogger(__name__)
 
 TEXT_FIELDS = ("title", "text", "icon", "color", "image", "source", "tag")
+# A Sent item (Phase 23, D-265) lives under the sender with this prefix, so a message to oneself
+# keeps its inbox item and its Sent item apart, and nothing that looks up a message ID finds it.
+SENT_PREFIX = "sent:"
 DAYS_PER_MONTH = 30.4375
 
 
@@ -70,6 +73,9 @@ class InboxItem:
     timeline: list[dict[str, str]] = field(default_factory=list)
     reminders: int = 0
     copy: bool = False  # history of what another channel delivered (D-275): read, never counted
+    sender: str | None = None  # person entity ID of who wrote it (D-265); never a name
+    sent: bool = False  # the sender's own copy: no read state, never counted (D-265)
+    recipients: list[str] = field(default_factory=list)  # a Sent item only
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -91,6 +97,9 @@ class InboxItem:
             "timeline": [dict(entry) for entry in self.timeline],
             "reminders": self.reminders,
             "copy": self.copy,
+            "sender": self.sender,
+            "sent": self.sent,
+            "recipients": list(self.recipients),
         }
 
     @classmethod
@@ -119,6 +128,8 @@ class InboxItem:
         ]
         reason = data.get("resolved_reason")
         reminders = data.get("reminders")
+        sender = data.get("sender")
+        recipients = [r for r in data.get("recipients") or [] if isinstance(r, str)]
         return cls(
             message_id=message_id,
             person=person,
@@ -135,6 +146,9 @@ class InboxItem:
             timeline=timeline[-INBOX_MAX_TIMELINE:],
             reminders=reminders if isinstance(reminders, int) and reminders >= 0 else 0,
             copy=data.get("copy") is True,
+            sender=sender if isinstance(sender, str) else None,
+            sent=data.get("sent") is True,
+            recipients=recipients,
             icon=text_or_none("icon"),
             color=text_or_none("color"),
             image=text_or_none("image"),
@@ -144,13 +158,14 @@ class InboxItem:
 
     @property
     def unread(self) -> bool:
-        return self.read_at is None
+        return self.read_at is None and not self.sent
 
     @property
     def needs_action(self) -> bool:
         """An open critical item nobody acknowledged (D-264)."""
         return (
             not self.copy
+            and not self.sent
             and self.severity == "critical"
             and self.acknowledged_at is None
             and self.resolved_at is None
@@ -181,6 +196,10 @@ class InboxItem:
             "timeline": [dict(entry) for entry in self.timeline],
             "reminders": self.reminders,
             "copy": self.copy,
+            "sender": self.sender,
+            "sent": self.sent,
+            # The recipients' read state is never here: no read receipts (D-265).
+            "recipients": list(self.recipients),
         }
 
 
@@ -349,6 +368,7 @@ class InboxStore:
         item = rows.get(message_id)
         title, text, severity = str(data["title"]), str(data["text"]), str(data["severity"])
         shown = {key: data.get(key) for key in ("icon", "color", "image", "source", "tag")}
+        sender = data.get("sender")
         if item is None:
             item = InboxItem(
                 message_id=message_id,
@@ -367,6 +387,7 @@ class InboxStore:
                 source=shown["source"],
                 tag=shown["tag"],
                 copy=copy,
+                sender=sender,
             )
             rows[message_id] = item
             self._changed()
@@ -389,6 +410,7 @@ class InboxStore:
         item.title, item.text, item.severity = title, text, severity
         for key, value in shown.items():
             setattr(item, key, value)
+        item.sender = sender if sender is not None else item.sender
         if channel and channel not in item.via:
             item.via.append(channel)
         if reopened:
@@ -407,6 +429,35 @@ class InboxStore:
         self._changed()
         return item
 
+    def add_sent(
+        self,
+        sender: str,
+        message_id: str,
+        data: Mapping[str, Any],
+        recipients: list[str],
+        now: datetime,
+    ) -> InboxItem:
+        """The sender's own copy of a message to other people (D-265). It has no read state, is
+        never counted, and is not touched by what happens to the message afterwards."""
+        key = f"{SENT_PREFIX}{message_id}"
+        item = InboxItem(
+            message_id=key,
+            person=sender,
+            title=str(data["title"]),
+            text=str(data["text"]),
+            severity=str(data["severity"]),
+            created=now,
+            updated=now,
+            source=data.get("source"),
+            timeline=[_entry("sent", now, None)],
+            sender=sender,
+            sent=True,
+            recipients=list(recipients),
+        )
+        self._items.setdefault(sender, {})[key] = item
+        self._changed()
+        return item
+
     def add_event(
         self,
         person: str,
@@ -419,7 +470,7 @@ class InboxStore:
         """A reminder or an escalation: one more timeline entry, never a second row. With
         `reminder_unread` it brings a read item back to the unread count."""
         item = self.get(person, message_id)
-        if item is None or item.copy:
+        if item is None or item.copy or item.sent:
             return  # a copy is history: nothing reminds about it
         if kind == "reminder":
             item.reminders += 1
@@ -430,7 +481,7 @@ class InboxStore:
 
     def mark_read(self, person: str, message_id: str, now: datetime) -> bool:
         item = self.get(person, message_id)
-        if item is None or item.read_at is not None:
+        if item is None or item.read_at is not None or item.sent:
             return False
         item.read_at = now
         self._changed()
@@ -439,7 +490,7 @@ class InboxStore:
     def mark_read_all(self, person: str, now: datetime) -> int:
         count = 0
         for item in self._items.get(person, {}).values():
-            if item.read_at is None:
+            if item.read_at is None and not item.sent:
                 item.read_at = now
                 count += 1
         if count:
@@ -553,7 +604,9 @@ class InboxStore:
                 order = sorted(
                     rows.values(),
                     key=lambda i: (
-                        0
+                        -1
+                        if i.sent
+                        else 0
                         if i.copy
                         else 1
                         if i.read_at is not None and i.resolved_at is not None
@@ -618,15 +671,18 @@ class InboxStore:
         *,
         unread_only: bool = False,
         copies: bool = True,
+        sent: bool = False,
         limit: int | None = None,
         offset: int = 0,
     ) -> tuple[list[InboxItem], int]:
         """The latest change first, and how many there are in all. A message that reached two
         persons of one user is listed once. `copies=False` is the view Inbox, the default the view
-        Everything."""
+        Everything. `sent=True` is the view Sent and only that; no other view lists a Sent item."""
         found: dict[str, InboxItem] = {}
         for person in persons:
             for item in self._items.get(person, {}).values():
+                if item.sent != sent:
+                    continue
                 if (unread_only and not item.unread) or (item.copy and not copies):
                     continue
                 known = found.get(item.message_id)
