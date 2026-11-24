@@ -54,7 +54,6 @@ export const STRINGS = {
     intro_where_text: "Channels decide where a message shows up: a banner, a push, a popup, speech, mail, the bell or the inbox.",
     intro_who_text: "Audiences decide who gets it: everyone, the admins, whoever is home or the person who left last.",
     intro_when_text: "Policies decide when: stay quiet at night, repeat what nobody acknowledged, hold small things for one summary.",
-    intro_foot: "Policies are created only in the last step. The channel settings of step 2 are saved when you leave it. You can come back from Settings.",
     channels_foot: "Banner, push, popup and the bell need nothing here. The Channels page changes how each one looks and sounds.",
     mail_service: "Mail notify service",
     mail_service_none: "Not set (mail stays off)",
@@ -154,7 +153,6 @@ export const STRINGS = {
     intro_where_text: "Kanäle bestimmen, wo eine Meldung erscheint: Banner, Push, Popup, Sprache, E-Mail, die Glocke oder der Posteingang.",
     intro_who_text: "Zielgruppen bestimmen, wer sie bekommt: alle, die Admins, wer zu Hause ist oder wer zuletzt gegangen ist.",
     intro_when_text: "Richtlinien bestimmen, wann: nachts leise bleiben, wiederholen, was niemand bestätigt hat, Kleinkram zu einer Zusammenfassung sammeln.",
-    intro_foot: "Richtlinien werden erst im letzten Schritt angelegt. Die Kanaleinstellungen aus Schritt 2 werden beim Verlassen des Schritts gespeichert. Du kannst über die Einstellungen zurückkommen.",
     channels_foot: "Banner, Push, Popup und die Glocke brauchen hier nichts. Auf der Seite Kanäle änderst du, wie jeder aussieht und klingt.",
     mail_service: "Notify-Dienst für E-Mail",
     mail_service_none: "Nicht gesetzt (E-Mail bleibt aus)",
@@ -254,7 +252,6 @@ export const STRINGS = {
     intro_where_text: "Les canaux décident où un message apparaît : bannière, push, fenêtre, voix, courriel, la cloche ou la boîte de réception.",
     intro_who_text: "Les audiences décident qui le reçoit : tout le monde, les admins, ceux qui sont là ou la dernière personne partie.",
     intro_when_text: "Les politiques décident quand : rester calme la nuit, répéter ce que personne n'a confirmé, regrouper les petites choses en un résumé.",
-    intro_foot: "Les politiques ne sont créées qu'à la dernière étape. Les réglages de canaux de l'étape 2 sont enregistrés quand vous la quittez. Vous pouvez revenir depuis les Réglages.",
     channels_foot: "Bannière, push, fenêtre et la cloche n'ont besoin de rien ici. La page Canaux change leur apparence et leur son.",
     mail_service: "Service notify pour le courriel",
     mail_service_none: "Non défini (le courriel reste désactivé)",
@@ -354,7 +351,6 @@ export const STRINGS = {
     intro_where_text: "Los canales deciden dónde aparece un mensaje: banner, push, ventana, voz, correo, la campana o la bandeja de entrada.",
     intro_who_text: "Las audiencias deciden quién lo recibe: todos, los admins, quien está en casa o quien salió el último.",
     intro_when_text: "Las políticas deciden cuándo: callar de noche, repetir lo que nadie confirmó, juntar lo pequeño en un resumen.",
-    intro_foot: "Las políticas se crean solo en el último paso. Los ajustes de canales del paso 2 se guardan al salir de él. Puedes volver desde Ajustes.",
     channels_foot: "Banner, push, ventana y la campana no necesitan nada aquí. La página Canales cambia cómo se ve y suena cada uno.",
     mail_service: "Servicio notify para el correo",
     mail_service_none: "Sin definir (el correo sigue apagado)",
@@ -521,7 +517,6 @@ const CSS = `
 .hu-tour ol.steps li.now .n { background: var(--primary-color); color: var(--text-primary-color, #fff); }
 .hu-tour ol.steps li.done .n { background: var(--success-color, #43a047); color: var(--text-primary-color, #fff); }
 .hu-tour .hint, .hu-overview .hu-tour .hint { display: block; background: none; padding: 0; border-radius: 0; color: var(--secondary-text-color); font-size: 13px; margin: 2px 0 8px; line-height: 1.45; }
-.hu-tour .intro-foot, .hu-overview .hu-tour .intro-foot { display: block; background: var(--secondary-background-color); border-radius: 8px; padding: 10px 12px; margin: 8px 0; color: var(--secondary-text-color); font-size: 13px; }
 .hu-tour .lead { font-size: 16px; }
 .hu-tour .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin: 12px 0; }
 .hu-tour .mini { border: 1px solid var(--divider-color); border-radius: 14px; padding: 12px 14px; background: var(--card-background-color); }
@@ -646,7 +641,7 @@ export async function mount(container, ctx) {
     for (const key of ["where", "who", "when"]) {
       grid.append(el("div", { className: "mini" }, [el("strong", { textContent: t[`intro_${key}`] }), el("span", { textContent: t[`intro_${key}_text`] })]));
     }
-    out.push(grid, el("div", { className: "intro-foot", textContent: t.intro_foot }));
+    out.push(grid);
     out.push(nav(button(t.skip, end, "link"), button(t.next, () => go(1), "primary")));
     return out;
   }

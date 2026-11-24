@@ -103,7 +103,7 @@ describe("welcome", () => {
   it("is a tour of four steps: introduction, channels, audiences, policies", () => {
     expect(STEPS).toEqual(["intro", "channels", "audiences", "policies"]);
     for (const [code, language] of Object.entries(STRINGS)) {
-      for (const key of ["intro_title", "channels_title", "recipients_title", "policies_title", "intro_lead", "intro_foot"]) {
+      for (const key of ["intro_title", "channels_title", "recipients_title", "policies_title", "intro_lead"]) {
         expect(language[key], `${code}.${key}`).toBeTruthy();
       }
       // Each box of step 1 starts with the key word of its page.
