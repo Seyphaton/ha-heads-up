@@ -337,6 +337,7 @@ describe("overview functions", () => {
 
   it("words the status headline for none, one and many", () => {
     expect(liveMeta({ progress: 60 }, t)).toBe("Live activity · 60%");
+    expect(liveMeta({ progress: null }, t)).toBe("Live activity");
     expect(statusHeadline(0, t)).toBe(t.status_clear);
     expect(statusHeadline(1, t)).toBe(t.status_one);
     expect(statusHeadline(3, t)).toBe("3 notifications need you");

@@ -538,7 +538,9 @@ def live_activities(manager: BannerManager) -> list[dict[str, Any]]:
     return [
         {**_item(manager, b), "progress": b.progress_value}
         for b in manager.banners.values()
-        if b.active and b.progress_value is not None
+        # By the setting, not the value: an entity that is not loaded yet at startup leaves the
+        # value empty until it changes, and the phone still shows the bar.
+        if b.active and b.progress
     ]
 
 

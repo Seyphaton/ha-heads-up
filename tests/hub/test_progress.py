@@ -351,3 +351,20 @@ async def test_a_message_without_progress_is_not_a_live_activity(
     client = await hass_ws_client(hass)
     await client.send_json_auto_id({"type": "heads_up/panel_overview"})
     assert (await client.receive_json())["result"]["live_activities"] == []
+
+
+async def test_a_progress_message_is_listed_while_its_entity_has_no_value(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    anna: FakeDevice,
+    hass_ws_client: Any,
+) -> None:
+    # After a restart the entity may not be loaded when the message is read back, so the value
+    # stays empty until the entity changes. The phone still shows the bar, so the list has it.
+    hass.states.async_set(SENSOR, "40")
+    await push(hass, entry, progress=SPEC)
+    entry.runtime_data.banners["m"].progress_value = None
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "heads_up/panel_overview"})
+    (live,) = (await client.receive_json())["result"]["live_activities"]
+    assert live["id"] == "m" and live["progress"] is None
