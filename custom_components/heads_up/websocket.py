@@ -1146,6 +1146,11 @@ def _inbox(
     return manager.hub, manager.hub.resolver.persons_of_user(connection.user.id)
 
 
+def _mail_service(hass: HomeAssistant) -> str:
+    entries = hass.config_entries.async_loaded_entries(DOMAIN)
+    return str(entries[0].options.get(OPT_MAIL_SERVICE) or "") if entries else ""
+
+
 def _messages_on(hass: HomeAssistant) -> bool:
     entries = hass.config_entries.async_loaded_entries(DOMAIN)
     return bool(entries and entries[0].options.get(OPT_INBOX_MESSAGES))
@@ -1291,6 +1296,7 @@ MESSAGE_ERRORS = {
     "messages_off": "Messages between people are switched off",
     "no_person": "Your user is not linked to a person",
     "ambiguous_person": "Your user is linked to more than one person",
+    "mail_off": "No mail service is set on the Channels page",
 }
 
 
@@ -1324,6 +1330,9 @@ async def ws_send_message(
     if len(persons) != 1:
         code = "no_person" if not persons else "ambiguous_person"
         connection.send_error(msg["id"], code, MESSAGE_ERRORS[code])
+        return
+    if "mail" in msg["channels"] and not manager.options.get(OPT_MAIL_SERVICE):
+        connection.send_error(msg["id"], "mail_off", MESSAGE_ERRORS["mail_off"])
         return
     text = msg["text"].strip()
     if not text:
@@ -1361,6 +1370,8 @@ def ws_inbox_recipients(
         channels = [c for c in MESSAGE_CHANNELS if c in profile.channels]
         if "push" in channels and not profile.usable:
             channels.remove("push")  # no phone to push to
+        if "mail" in channels and not profile.mail_address:
+            channels.remove("mail")  # accepts mail but has no address
         people.append(
             {
                 "person": state.entity_id,
@@ -1369,7 +1380,8 @@ def ws_inbox_recipients(
                 "me": state.entity_id in persons,
             }
         )
-    connection.send_result(msg["id"], {"recipients": people})
+    mail = bool(_mail_service(hass))
+    connection.send_result(msg["id"], {"recipients": people, "mail": mail})
 
 
 @websocket_command({vol.Required("type"): "heads_up/inbox_clear"})

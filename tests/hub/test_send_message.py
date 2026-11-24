@@ -114,7 +114,7 @@ async def test_speech_and_mail_are_refused_and_unknown_people_too(
     hass_ws_client: WebSocketGenerator,
 ) -> None:
     client = await hass_ws_client(hass)
-    for channels in (["speak"], ["mail"], ["inbox", "banner"], ["persistent"]):
+    for channels in (["speak"], ["inbox", "banner"], ["persistent"]):
         reply = await send(client, to=[READER], text="hi", channels=channels)
         assert code(reply) == "invalid_format"
     assert code(await send(client, to=["person.ghost"], text="hi")) == "unknown_recipient"
@@ -512,3 +512,94 @@ async def test_the_inbox_and_sent_items_keep_no_title(
     got, mine = inbox.get(READER, mid), inbox.get(ADMIN, f"{SENT_PREFIX}{mid}")
     assert got is not None and got.title == "" and got.icon is None
     assert mine is not None and mine.title == ""
+
+
+# Mail (D-286) --------------------------------------------------------------------------------
+
+
+async def test_mail_is_refused_while_no_mail_service_is_set(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    reply = await send(client, to=[READER], text="hi", channels=["inbox", "mail"])
+    assert code(reply) == "mail_off"
+    assert entry.runtime_data.hub.inbox.items(READER) == []
+
+
+async def test_a_mail_goes_to_a_recipient_with_the_channel_and_an_address(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    from pytest_homeassistant_custom_component.common import async_mock_service
+
+    entry.runtime_data.options["mail_service"] = "smtp_house"
+    mailbox = async_mock_service(hass, "notify", "smtp_house")
+    hass.config_entries.async_add_subentry(
+        entry,
+        ConfigSubentry(
+            data={
+                "person": READER,
+                "channels": ["inbox", "mail"],
+                "channels_v": 2,
+                "mail_address": "reader@example.com",
+            },
+            subentry_type="recipient_profile",
+            title=READER,
+            unique_id=None,
+        ),
+    )
+    await hass.async_block_till_done()
+    client = await hass_ws_client(hass)
+    reply = await send(client, to=[READER, ADMIN], text="Dinner", channels=["inbox", "mail"])
+    await hass.async_block_till_done()
+    assert reply["success"], reply
+    assert [c.data["target"] for c in mailbox] == [["reader@example.com"]]
+    skipped = reply["result"]["skipped"]
+    assert {"person": ADMIN, "channel": "mail", "reason": "channel_not_accepted"} in skipped
+
+
+async def test_the_recipient_list_offers_mail_only_with_a_service_and_an_address(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    off = (await ask(client, "inbox_recipients"))["result"]
+    assert off["mail"] is False
+    hass.config_entries.async_update_entry(entry, options={**entry.options, "mail_service": "smtp"})
+    hass.config_entries.async_add_subentry(
+        entry,
+        ConfigSubentry(
+            data={
+                "person": READER,
+                "channels": ["inbox", "mail"],
+                "channels_v": 2,
+                "mail_address": "reader@example.com",
+            },
+            subentry_type="recipient_profile",
+            title=READER,
+            unique_id=None,
+        ),
+    )
+    hass.config_entries.async_add_subentry(
+        entry,
+        ConfigSubentry(
+            data={"person": NOBODY, "channels": ["inbox", "mail"], "channels_v": 2},
+            subentry_type="recipient_profile",
+            title=NOBODY,
+            unique_id=None,
+        ),
+    )
+    await hass.async_block_till_done()
+    on = (await ask(client, "inbox_recipients"))["result"]
+    by_person = {r["person"]: r["channels"] for r in on["recipients"]}
+    assert on["mail"] is True
+    assert "mail" in by_person[READER]  # accepts mail and has an address
+    assert "mail" not in by_person[NOBODY]  # accepts mail but has no address
+    assert "mail" not in by_person[ADMIN]

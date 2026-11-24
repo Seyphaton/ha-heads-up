@@ -479,6 +479,7 @@ describe("compose rules", () => {
   it("maps an error code to a text key", () => {
     expect(sendError({ code: "rate_limited" })).toBe("error_rate_limited");
     expect(sendError({ code: "messages_off" })).toBe("error_messages_off");
+    expect(sendError({ code: "mail_off" })).toBe("error_mail_off");
     expect(sendError({ code: "anything" })).toBe("error_send");
     expect(sendError(null)).toBe("error_send");
   });
@@ -503,5 +504,17 @@ describe("sender picture (D-285)", () => {
   });
   it("gives a message from a person the Heads Up icon, whatever its severity", () => {
     expect(severityIcon("info", "mdi:message-alert")).toBe("mdi:message-alert");
+  });
+});
+
+describe("send via (D-286)", () => {
+  it("names the channels in words", () => {
+    expect(STRINGS.via).toEqual({ inbox: "Inbox", push: "Push notification", popup: "Popup on screens", mail: "Mail" });
+  });
+  it("has the words in every language", () => {
+    for (const code of ["de", "fr", "es"]) {
+      expect(Object.keys(TRANSLATIONS[code].via).sort(), code).toEqual(["inbox", "mail", "popup", "push"]);
+      expect(TRANSLATIONS[code].error_mail_off, code).toBeTruthy();
+    }
   });
 });

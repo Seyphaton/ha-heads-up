@@ -1853,3 +1853,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - D-284 confirmed: the medium card offers compose through its dialog.
   - A push or popup of a person message looks like a chat message: the title is the sender's name, the sender's picture is the sender icon (`icon_url`, which makes it a communication notification on iOS), and the notification icon is the Heads Up icon (`mdi:message-alert`, the icon of the integration's sensor). The lock screen setting still decides what shows: name and picture follow the same rule as any title and `icon_url` (`full` only for the picture).
   - The inbox card shows the sender's picture (the person entity's `entity_picture`) in the row tile, falling back to the Heads Up icon. The inbox item and the Sent item keep no title (the row says "From <name>" / "To <names>").
+
+## D-286 Messages between people: the channels are named in words and mail is offered (2026-11-24, maintainer)
+- Context: the maintainer asked what "Phone" and "Screens" mean and then asked to rename them and add mail.
+- Decisions (maintainer): the dialog names the channels Inbox, Push notification, Popup on screens and Mail. Mail is offered only while a mail service is set on the Channels page; a call with mail and no service fails with `mail_off`. A mail goes to a recipient whose profile accepts mail and has an address; others are listed as skipped (`channel_not_accepted`, or no address). This replaces "speech and mail are not offered" of D-265 for mail; speech stays out.
+- Build choice (to confirm): a mail uses the Channels page subject and body templates, so with the sender's name as the title the subject reads "info: <name>".

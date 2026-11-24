@@ -23,7 +23,7 @@ const RING_GAP = 5;
 const MOSAIC_CELLS = 4;
 const PAGE = 50;
 const MAX_MESSAGE = 1000; // the server's limit (D-265)
-const MESSAGE_CHANNELS = ["inbox", "push", "popup"];
+const MESSAGE_CHANNELS = ["inbox", "push", "popup", "mail"];
 
 // ---- Strings (D-037, D-071) ----------------------------------------------------------------
 
@@ -59,7 +59,7 @@ const ENGLISH = {
   to_label: "To",
   you: "you",
   send_via: "Send via",
-  via: { inbox: "Inbox", push: "Phone", popup: "Screens" },
+  via: { inbox: "Inbox", push: "Push notification", popup: "Popup on screens", mail: "Mail" },
   message_label: "Message",
   characters: "{n} of {max}",
   send: "Send",
@@ -78,6 +78,7 @@ const ENGLISH = {
   error_send: "The message could not be sent.",
   error_rate_limited: "Too many messages. Wait a moment and try again.",
   error_messages_off: "Messages between people are switched off.",
+  error_mail_off: "No mail service is set on the Channels page.",
   error_no_person: "Your Home Assistant user is not linked to one person.",
   with_channel: "{what}: {channel}",
   ended_because: "Ended: {reason}",
@@ -151,8 +152,9 @@ export const TRANSLATIONS = {
     error_send: "Die Nachricht konnte nicht gesendet werden.",
     error_rate_limited: "Zu viele Nachrichten. Warte einen Moment und versuche es erneut.",
     error_messages_off: "Nachrichten zwischen Personen sind ausgeschaltet.",
+    error_mail_off: "Auf der Kanäle-Seite ist kein Mail-Dienst eingestellt.",
     error_no_person: "Dein Home-Assistant-Benutzer ist nicht mit genau einer Person verknüpft.",
-    via: { inbox: "Posteingang", push: "Handy", popup: "Bildschirme" },
+    via: { inbox: "Posteingang", push: "Push-Benachrichtigung", popup: "Popup auf Bildschirmen", mail: "E-Mail" },
     all_notifications: "Alle Benachrichtigungen",
     unread_n: "{n} ungelesen",
     needs_n: "{n} braucht Aktion",
@@ -246,8 +248,9 @@ export const TRANSLATIONS = {
     error_send: "Le message n'a pas pu être envoyé.",
     error_rate_limited: "Trop de messages. Attends un instant et réessaie.",
     error_messages_off: "Les messages entre personnes sont désactivés.",
+    error_mail_off: "Aucun service de courriel n'est défini sur la page Canaux.",
     error_no_person: "Ton utilisateur Home Assistant n'est pas lié à une seule personne.",
-    via: { inbox: "Boîte de réception", push: "Téléphone", popup: "Écrans" },
+    via: { inbox: "Boîte de réception", push: "Notification push", popup: "Popup sur les écrans", mail: "Courriel" },
     all_notifications: "Toutes les notifications",
     unread_n: "{n} non lu(s)",
     needs_n: "{n} à traiter",
@@ -341,8 +344,9 @@ export const TRANSLATIONS = {
     error_send: "No se pudo enviar el mensaje.",
     error_rate_limited: "Demasiados mensajes. Espera un momento e inténtalo de nuevo.",
     error_messages_off: "Los mensajes entre personas están desactivados.",
+    error_mail_off: "No hay ningún servicio de correo en la página Canales.",
     error_no_person: "Tu usuario de Home Assistant no está vinculado a una sola persona.",
-    via: { inbox: "Bandeja de entrada", push: "Teléfono", popup: "Pantallas" },
+    via: { inbox: "Bandeja de entrada", push: "Notificación push", popup: "Ventana emergente en pantallas", mail: "Correo" },
     all_notifications: "Todas las notificaciones",
     unread_n: "{n} sin leer",
     needs_n: "{n} requiere acción",
@@ -574,7 +578,7 @@ export function composeHints(people, chosen, channels) {
     .filter((hint) => hint.channels.length);
 }
 
-const SEND_ERRORS = ["rate_limited", "messages_off", "no_person"];
+const SEND_ERRORS = ["rate_limited", "messages_off", "no_person", "mail_off"];
 export function sendError(error) {
   return SEND_ERRORS.includes(error?.code) ? `error_${error.code}` : "error_send";
 }
@@ -998,9 +1002,13 @@ class HeadsUpInboxCard extends Base {
     this._composing = { to: [], channels: ["inbox", "push"], text: "", busy: false, error: null, result: null };
     this._recipients = null;
     this._recipientsError = null;
+    this._mailOn = false;
     this._call({ type: "heads_up/inbox_recipients" }).then((result) => {
       if (!this._composing) return;
-      if (result) this._recipients = result.recipients;
+      if (result) {
+        this._recipients = result.recipients;
+        this._mailOn = result.mail === true;
+      }
       else this._recipientsError = "error_send";
       this._renderCompose();
     });
@@ -1077,7 +1085,7 @@ class HeadsUpInboxCard extends Base {
     const hints = composeHints(people ?? [], draft.to, draft.channels).map((hint) =>
       h("div", { class: "hint", text: fill(s.skip_note, { name: hint.name, channels: hint.channels.map((c) => s.via[c]).join(", ") }) }),
     );
-    const via = h("div", { class: "chips2", role: "group", "aria-label": s.send_via }, MESSAGE_CHANNELS.map((c) =>
+    const via = h("div", { class: "chips2", role: "group", "aria-label": s.send_via }, MESSAGE_CHANNELS.filter((c) => c !== "mail" || this._mailOn).map((c) =>
       h("button", {
         class: "pill", "data-key": `via:${c}`, "aria-pressed": String(draft.channels.includes(c)), disabled: c === "inbox" ? true : null,
         onclick: () => {
