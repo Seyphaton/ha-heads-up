@@ -9,6 +9,7 @@ export const STRINGS = {
     status_sub_active: "Acknowledge, snooze or clear them here.",
     live_dismiss: "Dismiss",
     live_meta: "Live activity · {n}%",
+    live_meta_unknown: "Live activity",
     status_clear: "All clear. No warning or critical notification is active.",
     status_one: "1 notification needs you",
     status_many: "{n} notifications need you",
@@ -211,6 +212,7 @@ export const STRINGS = {
     status_sub_active: "Bestätige, stelle zurück oder entferne sie hier.",
     live_dismiss: "Beenden",
     live_meta: "Live-Aktivität · {n} %",
+    live_meta_unknown: "Live-Aktivität",
     status_clear: "Alles ruhig. Keine Warnung und keine kritische Meldung ist aktiv.",
     status_one: "1 Meldung braucht dich",
     status_many: "{n} Meldungen brauchen dich",
@@ -413,6 +415,7 @@ export const STRINGS = {
     status_sub_active: "Acquittez, reportez ou retirez-les ici.",
     live_dismiss: "Terminer",
     live_meta: "Activité en direct · {n} %",
+    live_meta_unknown: "Activité en direct",
     status_clear: "Tout est calme. Aucun avertissement ni message critique n'est actif.",
     status_one: "1 notification a besoin de vous",
     status_many: "{n} notifications ont besoin de vous",
@@ -615,6 +618,7 @@ export const STRINGS = {
     status_sub_active: "Confírmalos, pospónlos o retíralos aquí.",
     live_dismiss: "Terminar",
     live_meta: "Actividad en directo · {n} %",
+    live_meta_unknown: "Actividad en directo",
     status_clear: "Todo en calma. Ningún aviso ni mensaje crítico está activo.",
     status_one: "1 notificación te necesita",
     status_many: "{n} notificaciones te necesitan",
@@ -836,6 +840,7 @@ export function statusHeadline(count, t) {
 
 // "Live activity · 60%": the line under a running job.
 export function liveMeta(item, t) {
+  if (item.progress === null || item.progress === undefined) return t.live_meta_unknown;
   return fill(t.live_meta, { n: item.progress });
 }
 
