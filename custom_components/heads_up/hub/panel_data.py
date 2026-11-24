@@ -530,6 +530,18 @@ def status(manager: BannerManager) -> dict[str, Any]:
     return {"count": len(items), "items": items}
 
 
+def live_activities(manager: BannerManager) -> list[dict[str, Any]]:
+    """Active messages with a progress bar (D-282). On a phone a Live Update or Live Activity of a
+    push-only message has no button to end it, so the Overview lists each with Dismiss. They are
+    not in `status`: a running job does not turn the page red. A watch rule message is left out
+    because it cannot be cleared by hand."""
+    return [
+        {**_item(manager, b), "progress": b.progress_value}
+        for b in manager.banners.values()
+        if b.active and b.progress_value is not None
+    ]
+
+
 def coming_up(manager: BannerManager) -> list[dict[str, Any]]:
     """What is about to happen, earliest first: escalations and reminders due, the next summary
     with the messages waiting for it, and the release of deliveries held by quiet hours. Each
@@ -801,6 +813,7 @@ def overview(hass: HomeAssistant, manager: BannerManager, entry: Any) -> dict[st
             "items": rules,
         },
         "status": _part("status", lambda: status(manager), {"count": 0, "items": []}),
+        "live_activities": _part("live_activities", lambda: live_activities(manager), []),
         "coming_up": _part("coming_up", lambda: coming_up(manager), []),
         "attention": shown,
         "attention_hidden": hidden,
