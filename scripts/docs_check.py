@@ -330,12 +330,58 @@ def check_card_options(files: list[Path]) -> list[str]:
     return errors
 
 
-def _card_configs(node: Any) -> list[dict[str, Any]]:
+INBOX_CARD_JS = ROOT / "custom_components" / "heads_up" / "frontend" / "heads-up-inbox-card.js"
+INBOX_CARD_TYPE = "custom:heads-up-inbox-card"
+
+
+def check_inbox_card_options(files: list[Path]) -> list[str]:
+    """The inbox card's options: CONFIG_KEYS == the "Card option" table of docs/configuration.md,
+    and card examples use no other option."""
+    import yaml
+
+    match = re.search(
+        r"export const CONFIG_KEYS = \[(.*?)\];", INBOX_CARD_JS.read_text(), re.DOTALL
+    )
+    if not match:
+        return [f"{INBOX_CARD_JS.relative_to(ROOT)}: CONFIG_KEYS not found"]
+    in_card = set(re.findall(r'"([a-z_]+)"', match.group(1)))
+    page = (ROOT / "docs" / "configuration.md").read_text(encoding="utf-8")
+    in_docs: set[str] = set()
+    in_table = False
+    for line in page.splitlines():
+        if line.startswith("| Card option"):
+            in_table = True
+        elif in_table and not line.startswith("|"):
+            in_table = False
+        elif in_table and (m := re.match(r"^\| `([a-z_]+)` \|", line)):
+            in_docs.add(m.group(1))
+    errors = []
+    if in_docs != in_card:
+        errors.append(
+            "docs/configuration.md: inbox card options differ from CONFIG_KEYS: "
+            f"missing {sorted(in_card - in_docs)}, extra {sorted(in_docs - in_card)}"
+        )
+    for path in human_docs(files):
+        for block in FENCE_RE.findall(path.read_text(encoding="utf-8")):
+            try:
+                parsed = yaml.safe_load(block)
+            except yaml.YAMLError:
+                continue
+            for card in _card_configs(parsed, INBOX_CARD_TYPE):
+                unknown = set(card) - in_card - {"type"}
+                if unknown:
+                    rel = path.relative_to(ROOT)
+                    names = sorted(unknown)
+                    errors.append(f"{rel}: inbox card example uses unknown options {names}")
+    return errors
+
+
+def _card_configs(node: Any, card_type: str = CARD_TYPE) -> list[dict[str, Any]]:
     if isinstance(node, list):
-        return [c for item in node for c in _card_configs(item)]
+        return [c for item in node for c in _card_configs(item, card_type)]
     if isinstance(node, dict):
-        found = [node] if node.get("type") == CARD_TYPE else []
-        return found + [c for v in node.values() for c in _card_configs(v)]
+        found = [node] if node.get("type") == card_type else []
+        return found + [c for v in node.values() for c in _card_configs(v, card_type)]
     return []
 
 
@@ -384,6 +430,7 @@ def main() -> int:
     panel_errors, panel_examples = check_panel_examples()
     examples += panel_examples
     errors += example_errors + panel_errors + check_field_parity() + check_card_options(files)
+    errors += check_inbox_card_options(files)
     errors += check_style(files) + check_ui_strings() + check_links(files)
     for e in errors:
         print(e)

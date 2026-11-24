@@ -113,3 +113,17 @@ async def test_the_loader_and_the_popup_module_are_served_and_cached(
         response = await client.get(path)
         assert response.status == 200 and marker in await response.text()
         assert "max-age" in response.headers["Cache-Control"]
+
+
+async def test_the_inbox_card_module_is_registered_served_and_removed(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_client: ClientSessionGenerator
+) -> None:
+    integration = await async_get_integration(hass, DOMAIN)
+    digest = hashlib.sha256(frontend.INBOX_CARD_FILE.read_bytes()).hexdigest()[:8]
+    url = f"/heads_up/heads-up-inbox-card.js?v={integration.version}-{digest}"
+    assert url in hass.data[DATA_EXTRA_MODULE_URL].urls
+    response = await (await hass_client()).get("/heads_up/heads-up-inbox-card.js")
+    assert response.status == 200
+    assert 'registry.define("heads-up-inbox-card"' in await response.text()
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    assert url not in hass.data[DATA_EXTRA_MODULE_URL].urls

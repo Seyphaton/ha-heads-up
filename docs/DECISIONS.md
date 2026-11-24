@@ -1759,3 +1759,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - The inbox is in the accepted channels of a person's recipient profile (`PROFILE_CHANNELS`, and on by default in `DEFAULT_PROFILE_CHANNELS`). A person switched off gets no item (`channel_not_accepted`). Profiles saved before the inbox existed have no `channels_v`, so they accept it until saved again; the profile form writes `channels_v` 2.
   - Presence covers the inbox like push, popup and mail: `PRESENCE_PEOPLE_CHANNELS` includes it, so a Presence policy with no channels chosen holds the inbox item of a person who is away, and a policy can name channels to leave it out. This changes no existing behaviour: nothing used the inbox before.
   - Send quietly does not mark the inbox quiet (D-272, confirmed).
+
+## D-274 Inbox card: options and behaviour (2026-11-24, build choices for D-266 and D-269)
+- Context: D-266 fixed the sizes and designs (mockup `docs/dev/mockups/inbox-card.html`); D-269 added `titles_only`. The plan left the option names open. These are the build choices, the smallest set that covers the decisions; change any of them on request.
+- Options of `custom:heads-up-inbox-card`:
+  - `size`: `small`, `medium` or `large` (default `large`).
+  - `design`: for `small`: `number` (default), `ring` or `mosaic`; for `medium`: `tile` (default), `ring` or `split`. Not for `large`.
+  - `titles_only`: default off. On, the card never shows the text of a message, only its title (list rows, details and the dialog). A tile or a medium card still shows the latest unread title, as in the mockup.
+  - No `show_text` option (plan section 4.1 proposed it): the mockup shows the latest unread title on the medium cards, and `titles_only` is the one privacy option.
+- Left out of this card in Phase 22: the views Everything (needs the mirror setting, which comes with the settings step) and Sent, and the pen button (Phase 23). The filter All or Unread, Mark all read, expanding a row (which reads it), Delete and Show more are in.
+- Behaviour: "opened" means a row is expanded, never that the card rendered (plan 4.1). The card always shows the viewing user's own inbox (the commands take no person). A user without a person entity sees an empty card with a hint.

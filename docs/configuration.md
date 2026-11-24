@@ -239,6 +239,27 @@ The person needs no phone and no Home Assistant user. A person's recipient profi
 - Send quietly changes nothing for the inbox: an item has no sound.
 - The inbox has no rate limit and takes no buttons.
 
+The inbox card shows the inbox of the user who is looking at the dashboard. It has no person option: a user sees their own items, an administrator too. A user whose Home Assistant account is not linked to a person sees a short hint instead.
+
+```yaml
+type: custom:heads-up-inbox-card
+size: medium
+design: split
+```
+
+| Card option | Type | Default | Meaning |
+|---|---|---|---|
+| `size` | `small`, `medium` or `large` | `large` | Small is a square tile for a grid of tiles. Medium is a wide card. Large is the list itself. |
+| `design` | `number`, `ring` or `mosaic` for small; `tile`, `ring` or `split` for medium | the first of its size | How the count looks. Not for the large list. Number shows the count big. Ring splits it by severity. Mosaic shows the icons of up to four unread items, and +N from five on. Tile and ring show the latest unread title. Split has the buttons Open and Mark all read. |
+| `titles_only` | boolean | `false` | `true`: the card never shows the text of a message, only its title. Use it on a screen that others can see. |
+
+- Selecting a tile or a medium card opens the list in a window. The large card is the list.
+- The list shows the items that need action first, then the latest change first, grouped by day. The filter switches between All and Unread. Mark all read marks every unread item.
+- Expanding a row marks the item read and shows its text, a picture if the message had one, and its timeline. Delete removes the item from your inbox.
+- A critical item nobody acknowledged is marked Needs action with a symbol and a text, not only a color. An item whose message has ended shows Ended.
+- The colors are the theme colors of the severities. The list loads 50 items and offers Show more.
+- The card follows the language of your Home Assistant user.
+
 The sensor `sensor.heads_up_inbox_<person>` counts the unread items of one person. Its state is that number, and its attributes are `person`, `needs_action` (open critical items nobody acknowledged) and `unread_critical`. The sensor never holds a title or a text, because every user can read entity states. There is one sensor for each person entity, created when the person appears. It is unavailable while the person is missing, and Heads Up removes it after 5 minutes without the person. If you rename a person's entity ID, the inbox follows to the new ID and the old sensor goes away.
 
 ## Severities

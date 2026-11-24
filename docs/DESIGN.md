@@ -19,7 +19,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §26 new Overview (status card, Coming up, reach table, tour in the page, quick shortcuts, Last actions) | built and tested on `release/2.0` (Phase 18, D-244, D-245); checked in the browser pane at desktop and phone width, light and dark; not on real devices |
 | §27 history store (24 months, Activity cards, Clear history) | built and tested on `release/2.0` (Phase 19, D-246); about 7 KB a day measured on a synthetic busy household; push levels used are not recorded |
 | §28 2.1.0 richer push (icon, color, sender icon, subtitle, progress with live updates) | built (D-255 to D-263) |
-| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store, the `inbox` channel, its lifecycle hooks, the WebSocket commands and the sensor are built and tested; card and settings are not built |
+| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store, the `inbox` channel, its lifecycle hooks, the WebSocket commands, the sensor and the card are built and tested; the settings are not built |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -1052,7 +1052,7 @@ Status: built 2026-11-23 on `release/2.1`, including editable built-in audiences
 
 ## 29. Personal inbox (Phase 22, D-264, D-268 to D-271)
 
-Status: built on `release/3.0`: the store, the channel with the lifecycle hooks, the WebSocket commands and the sensor; the card and the settings are not built. Plan: `docs/dev/inbox/PLAN.md`.
+Status: built on `release/3.0`: the store, the channel with the lifecycle hooks, the WebSocket commands, the sensor and the card; the settings (mirror, retention, reminder toggle, Clear inbox) are not built. Plan: `docs/dev/inbox/PLAN.md`.
 
 ### 29.1 Store
 - `hub/inbox.py` `InboxStore`, store `heads_up.inbox` (version 1), one store for all people, layout `{"items": {person entity ID: {message ID: item}}}`. Items are in memory; a change schedules one write after `INBOX_SAVE_DELAY` (60 s), made from a copy in the event loop and serialized in a thread (`serialize_in_event_loop=False`, N-117). Stopping the hub and Home Assistant's final write (`EVENT_HOMEASSISTANT_FINAL_WRITE`) save what is waiting at once. The store file is deleted with the integration.
@@ -1085,3 +1085,11 @@ Status: built on `release/3.0`: the store, the channel with the lifecycle hooks,
 - Added for every person state at setup and for each person that appears later. Unavailable while the person state is missing; the registry entry is removed after `INBOX_PURGE_GRACE` (5 minutes) if the person did not come back. The sensor writes its state on every change of the store and on every state change of its person.
 - A renamed person entity ID moves the inbox (`InboxStore.rename_person`, called from `HubEngine.rename_entity`); the sensor of the new ID is created by the new person state.
 - Tests: `tests/hub/test_inbox_sensor.py`.
+
+### 29.6 Card
+- `custom:heads-up-inbox-card`, module `frontend/heads-up-inbox-card.js` (registered by `frontend.py` like the main card; its own element definition and editor, `whenFrontendReady`, no import from the main card). Options `size`, `design`, `titles_only` (D-274); `CONFIG_KEYS` is compared with the "Card option" table of `docs/configuration.md` by `scripts/docs_check.py`.
+- Data: `heads_up/inbox_subscribe` (state and first page, `resubscribe: false` and its own retry like the main card), `inbox_read`, `inbox_read_all`, `inbox_delete`, `inbox_list` for Show more. The person is never a parameter.
+- Sizes and designs follow D-266 and the mockup: small `number`, `ring`, `mosaic`; medium `tile`, `ring`, `split`; large is the list. A tile or a medium card opens the same list in a dialog appended to `document.body` (Escape and the close button close it, Tab stays inside, focus returns to the opener). Expanding a row reads it; opening or rendering never does.
+- After a rebuild the control that had the focus gets it back (`data-key`, a second try on the next frame because `ha-card` lays out one frame late).
+- Not in this phase: the views Everything and Sent, the pen button (Phase 23), and the mirror copies (they come with the settings step).
+- Checked in the browser pane at phone width, light and dark, with the keyboard; vitest covers the pure functions.

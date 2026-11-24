@@ -1,4 +1,5 @@
-"""Serves the card, the popup loader and the popup module and registers them (N-8, N-9)."""
+"""Serves the card, the inbox card, the popup loader and the popup module and registers them
+(N-8, N-9)."""
 
 from __future__ import annotations
 
@@ -18,10 +19,13 @@ CARD_URL_PATH = "/heads_up/heads-up-card.js"
 CARD_FILE = Path(__file__).parent / "frontend" / "heads-up-card.js"
 LOADER_URL_PATH = "/heads_up/heads-up-loader.js"
 LOADER_FILE = Path(__file__).parent / "frontend" / "heads-up-loader.js"
+INBOX_CARD_URL_PATH = "/heads_up/heads-up-inbox-card.js"
+INBOX_CARD_FILE = Path(__file__).parent / "frontend" / "heads-up-inbox-card.js"
 POPUP_URL_PATH = "/heads_up/heads-up-popup.js"
 POPUP_FILE = Path(__file__).parent / "frontend" / "heads-up-popup.js"
 _ADDED_URL: HassKey[str] = HassKey("heads_up_card_url")
 _ADDED_LOADER: HassKey[str] = HassKey("heads_up_loader_url")
+_ADDED_INBOX: HassKey[str] = HassKey("heads_up_inbox_card_url")
 
 
 async def async_register_card_path(hass: HomeAssistant) -> None:
@@ -34,6 +38,7 @@ async def async_register_card_path(hass: HomeAssistant) -> None:
         [
             StaticPathConfig(CARD_URL_PATH, str(CARD_FILE), cache_headers=True),
             StaticPathConfig(LOADER_URL_PATH, str(LOADER_FILE), cache_headers=True),
+            StaticPathConfig(INBOX_CARD_URL_PATH, str(INBOX_CARD_FILE), cache_headers=True),
             StaticPathConfig(POPUP_URL_PATH, str(POPUP_FILE), cache_headers=True),
         ]
     )
@@ -73,6 +78,9 @@ async def async_add_card(hass: HomeAssistant) -> None:
     loader = await _versioned_url(hass, LOADER_URL_PATH, LOADER_FILE)
     hass.data[_ADDED_LOADER] = loader
     add_extra_js_url(hass, loader)
+    inbox = await _versioned_url(hass, INBOX_CARD_URL_PATH, INBOX_CARD_FILE)
+    hass.data[_ADDED_INBOX] = inbox
+    add_extra_js_url(hass, inbox)
 
 
 async def async_remove_card(hass: HomeAssistant) -> None:
@@ -81,3 +89,5 @@ async def async_remove_card(hass: HomeAssistant) -> None:
         remove_extra_js_url(hass, url)
     if (loader := hass.data.pop(_ADDED_LOADER, None)) is not None:
         remove_extra_js_url(hass, loader)
+    if (inbox := hass.data.pop(_ADDED_INBOX, None)) is not None:
+        remove_extra_js_url(hass, inbox)
