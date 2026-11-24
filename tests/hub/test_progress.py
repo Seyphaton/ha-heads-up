@@ -319,3 +319,35 @@ async def test_the_channel_setting_takes_one_to_three_hundred_seconds(
         reply = await ask(client, "channels_set", push_progress_interval=bad)
         assert not reply["success"]
     assert entry.options["push_progress_interval"] == 300
+
+
+async def test_a_push_only_progress_message_is_listed_on_the_overview_and_dismissed_there(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    anna: FakeDevice,
+    hass_ws_client: Any,
+) -> None:
+    hass.states.async_set(SENSOR, "60")
+    await push(hass, entry, progress=SPEC)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "heads_up/panel_overview"})
+    result = (await client.receive_json())["result"]
+    (live,) = result["live_activities"]
+    assert live["progress"] == 60 and live["can_clear"] is True
+    # A running job does not turn the status card red (D-282).
+    assert result["status"]["count"] == 0
+    await client.send_json_auto_id({"type": "heads_up/panel_clear", "message_id": live["id"]})
+    assert (await client.receive_json())["success"]
+    await settle(hass, entry)
+    assert anna.calls[-1].data["message"] == "clear_notification"
+    await client.send_json_auto_id({"type": "heads_up/panel_overview"})
+    assert (await client.receive_json())["result"]["live_activities"] == []
+
+
+async def test_a_message_without_progress_is_not_a_live_activity(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice, hass_ws_client: Any
+) -> None:
+    await push(hass, entry)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": "heads_up/panel_overview"})
+    assert (await client.receive_json())["result"]["live_activities"] == []

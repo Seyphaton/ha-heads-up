@@ -1734,3 +1734,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Context: "Holds these anyway" was not clear to the maintainer, and the amber warning did not say what happens to critical messages.
 - Decision (maintainer, "On 1. OK"): the setting sits under the sub heading "Interaction with 'Get through' policies", the checkbox is "Ignore 'get through' policies", and when it is on a red text says: "Caution: Critical messages will also be {held, sent quietly, summarized or dropped}. Only enable this if you are aware of the impact." The word follows the policy's action; Summarize says summarized. The stored key `holds_anyway` does not change.
 - In the Quiet hours form the entity picker sits below Quiet from, Quiet until and Days.
+
+## D-282 Live activities at the top of the status card (2026-11-24, maintainer)
+- Context: a Live Update or Live Activity sent only by push has no button to end it on the phone, so it stays up for good.
+- Decision (maintainer, "do it at the same position where you also show critical messages in the first card"): the Overview payload has `live_activities`, every active non-rule message with a progress bar. The status card lists them first, each with Dismiss (`heads_up/panel_clear`, which clears the push tag on every device). They are not in `status`, so the count and the green state do not change.
+- Unverified on real devices: that `clear_notification` ends an iOS Live Activity (HA companion docs say it does; no device was available).

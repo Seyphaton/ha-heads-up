@@ -20,10 +20,12 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ### Changed
 
+- Quiet hours and Summarize: "Holds these anyway" is now "Ignore 'get through' policies" under its own sub heading, with a red caution that says what happens to critical messages. In Quiet hours the entity picker sits below the times and days.
 - The policy form no longer has Not for severities and From watch rule. Leave a severity out of For instead. A policy for one watch rule now applies to the tag `rule`; to send one rule's messages through a policy, name the policy in the rule's policy field. The update moves your existing policies over and keeps a backup of them.
 
 ### Fixed
 
+- A Live Update or Live Activity sent only to phones could not be ended from the phone when the message had no buttons. The Overview now lists every running message with a progress bar at the top of the status card, each with Dismiss.
 - The help text of the mail subject showed an error in the action form.
 
 ## [2.0.0] - 2026-11-22

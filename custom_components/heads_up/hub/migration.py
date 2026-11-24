@@ -283,7 +283,7 @@ def fold_filters(policies: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any
 
 def _left(severities: set[str]) -> list[str]:
     """The severities in their usual order; all four is stored as an empty list (any)."""
-    kept = [s for s in SEVERITIES if s in severities]
+    kept: list[str] = [s for s in SEVERITIES if s in severities]
     return [] if len(kept) == len(SEVERITIES) else kept
 
 
