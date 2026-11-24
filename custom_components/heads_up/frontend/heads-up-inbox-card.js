@@ -515,6 +515,7 @@ ha-card { overflow: hidden; }
 .crit .sub, .sub.crit { color: var(--error-color); font-weight: 600; }
 
 ha-card.compact { height: 100%; }
+ha-card.compact .tap, ha-card.small .tap { height: 100%; }
 .cmp { display: flex; align-items: center; gap: 12px; padding: 0 14px; height: 100%; box-sizing: border-box; overflow: hidden; }
 .cmp .tile { width: 40px; height: 40px; border-radius: 12px; }
 .cmp .tx { flex: 1; min-width: 0; }
@@ -546,7 +547,8 @@ ha-card.small { height: 100%; }
 .Q.crit { background: linear-gradient(160deg, color-mix(in srgb, var(--error-color) 24%, var(--card-background-color)), var(--card-background-color) 78%); }
 .Q .top { display: flex; align-items: flex-start; justify-content: space-between; }
 .QA .n { font-size: 38cqmin; line-height: .85; }
-.QA .n.zero { color: var(--success-color); opacity: .75; }
+.QA.clear { background: color-mix(in srgb, var(--success-color) 14%, var(--card-background-color)); }
+.QA.clear .top ha-icon { --mdc-icon-size: 30cqmin; color: var(--success-color); }
 .Qr { align-items: center; justify-content: center; text-align: center; gap: 2cqmin; }
 .Qr .rg { position: relative; width: 50cqmin; height: 50cqmin; flex: none; }
 .Qr .rg svg { width: 100%; height: 100%; transform: rotate(-90deg); }
@@ -1034,9 +1036,13 @@ class HeadsUpInboxCard extends Base {
   _number() {
     const n = this._stateNumbers();
     const kind = summaryKind(n);
-    return this._square("QA", [
-      // With nothing unread the number is a quiet 0, so this tile differs from the mosaic's check.
-      h("div", { class: "top" }, [this._tileIcon(kind), h("div", { class: `n num ${n.unread ? "" : "zero"}`, text: String(n.unread) })]),
+    // With nothing unread there is no number: a tinted tile with a bare check, so it differs from
+    // the mosaic's boxed check on a plain card.
+    const top = n.unread
+      ? h("div", { class: "top" }, [this._tileIcon(kind), h("div", { class: "n num", text: String(n.unread) })])
+      : h("div", { class: "top" }, [icon("mdi:check-circle-outline")]);
+    return this._square(n.unread ? "QA" : "QA clear", [
+      top,
       h("div", {}, [h("div", { class: "lb", text: STRINGS.inbox }), h("div", { class: "sub", text: summaryText(n, STRINGS) })]),
     ]);
   }
