@@ -1861,3 +1861,8 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 
 ## D-287 Inbox card rows and avatars; the All notifications switch is renamed (2026-11-24, maintainer)
 - Decisions (maintainer): the rows of the inbox list are separated by a thin inset line (theme divider color, so also in dark mode). A message from a person shows that person's entity picture, else the first letter of their name; a message from anything else keeps the icon of its severity. This replaces the Heads Up icon fallback of D-285 in the card (push still uses the Heads Up icon). A sent item shows its one recipient the same way, and the severity icon for several recipients (my choice, to confirm). The setting `inbox_all_notifications` is labelled Add an optional "Show all notifications" section to the inbox (the tab keeps its name All notifications).
+
+## D-288 Release 3.0.0-beta.2 (2026-11-24, maintainer)
+- Context: Phase 23 (messages between people, D-279, D-283 to D-287) is approved.
+- Decision (maintainer, "approved and prepare next beta"): the manifest version is `3.0.0-beta.2` and the CHANGELOG keeps `[Unreleased]`. Nothing is tagged or pushed: the tag `v3.0.0-beta.2`, the push of `release/3.0` and the GitHub pre-release wait for the maintainer's order (D-020).
+- New for an existing setup since beta.1: the setting Add an optional "Show all notifications" section to the inbox keeps its stored name; a new switch `inbox_messages` (off by default, so nothing changes until it is turned on); a new card option `hide_send_button`; the Message Log lists messages between people without their text. No breaking change.
