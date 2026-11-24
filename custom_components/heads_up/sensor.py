@@ -6,20 +6,24 @@ sensor, whose unique ID holds the subentry ID, so renaming the group does not br
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.const import EVENT_STATE_CHANGED
+from homeassistant.core import CALLBACK_TYPE, Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.event import async_call_later
 
-from .const import DOMAIN, GROUP_SUBENTRY, SIGNAL_AUDIENCES
+from .const import DOMAIN, GROUP_SUBENTRY, INBOX_PURGE_GRACE, SIGNAL_AUDIENCES
 from .manager import BannerManager
 
 UNIQUE_MARK = "_group_"
+INBOX_MARK = "_inbox_"
 
 
 async def async_setup_entry(
@@ -41,6 +45,78 @@ async def async_setup_entry(
 
     sync()
     entry.async_on_unload(async_dispatcher_connect(hass, SIGNAL_AUDIENCES, sync))
+    _setup_inbox_sensors(hass, entry, async_add_entities)
+
+
+def _setup_inbox_sensors(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddConfigEntryEntitiesCallback
+) -> None:
+    """One unread-count sensor per person entity (D-264): added when the person appears, and
+    removed when the person has been gone for a while (a reload of the person integration removes
+    and adds the entity again)."""
+    manager: BannerManager = entry.runtime_data
+    if manager.hub is None:
+        return
+    inbox = manager.hub.inbox
+    added: set[str] = set()
+    leaving: dict[str, CALLBACK_TYPE] = {}
+
+    @callback
+    def add(person: str) -> None:
+        if person not in added:
+            added.add(person)
+            state = hass.states.get(person)
+            name = state.attributes.get("friendly_name") if state else None
+            async_add_entities(
+                [InboxSensor(entry, inbox, person, str(name or person.split(".", 1)[1]))]
+            )
+
+    @callback
+    def remove(person: str) -> None:
+        added.discard(person)
+        registry = er.async_get(hass)
+        if found := registry.async_get_entity_id(
+            "sensor", DOMAIN, f"{entry.entry_id}{INBOX_MARK}{person}"
+        ):
+            registry.async_remove(found)
+
+    @callback
+    def person_changed(event: Event[EventStateChangedData]) -> None:
+        person = event.data["entity_id"]
+        if event.data["new_state"] is not None:
+            if (cancel := leaving.pop(person, None)) is not None:
+                cancel()
+            add(person)
+            return
+        if person in leaving or person not in added:
+            return
+
+        @callback
+        def gone(_now: datetime) -> None:
+            leaving.pop(person, None)
+            if hass.states.get(person) is None:
+                remove(person)
+
+        leaving[person] = async_call_later(hass, INBOX_PURGE_GRACE, gone)
+
+    for state in hass.states.async_all("person"):
+        add(state.entity_id)
+    entry.async_on_unload(
+        hass.bus.async_listen(EVENT_STATE_CHANGED, person_changed, event_filter=_is_person)
+    )
+
+    @callback
+    def stop() -> None:
+        for cancel in leaving.values():
+            cancel()
+        leaving.clear()
+
+    entry.async_on_unload(stop)
+
+
+@callback
+def _is_person(data: EventStateChangedData | Any) -> bool:
+    return str(data["entity_id"]).startswith("person.")
 
 
 class ActiveBannersSensor(SensorEntity):
@@ -127,3 +203,68 @@ def group_entity_id(
         or registry.async_generate_entity_id
     )
     return str(generate("sensor", f"Heads Up group {name}"))
+
+
+class InboxSensor(SensorEntity):
+    """The unread count of one person's inbox. Counts only: every user can read entity states,
+    so no title or text is ever here (D-264)."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "inbox"
+    _attr_should_poll = False
+    _attr_icon = "mdi:inbox"
+
+    def __init__(self, entry: ConfigEntry, inbox: Any, person: str, name: str) -> None:
+        self._inbox = inbox
+        self._person = person
+        self._attr_unique_id = f"{entry.entry_id}{INBOX_MARK}{person}"
+        self._attr_translation_placeholders = {"person": name}
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name="Heads Up",
+            entry_type=DeviceEntryType.SERVICE,
+        )
+
+    def _state(self) -> Any:
+        return self.hass.states.get(self._person)
+
+    @property
+    def available(self) -> bool:
+        return self._state() is not None
+
+    @property
+    def native_value(self) -> int:
+        return int(self._inbox.unread_count(self._person))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return {
+            "person": self._person,
+            "needs_action": self._inbox.needs_action(self._person),
+            "unread_critical": self._inbox.unread_critical(self._person),
+        }
+
+    def _name(self) -> str:
+        state = self._state()
+        return str(
+            (state.attributes.get("friendly_name") if state else None)
+            or self._person.split(".", 1)[1]
+        )
+
+    @callback
+    def _changed(self, *_: Any) -> None:
+        self._attr_translation_placeholders = {"person": self._name()}
+        self.async_write_ha_state()
+
+    async def async_added_to_hass(self) -> None:
+        self._attr_translation_placeholders = {"person": self._name()}
+        self.async_on_remove(self._inbox.subscribe(self._changed))
+        person = self._person
+
+        @callback
+        def mine(data: Any) -> bool:
+            return bool(data["entity_id"] == person)
+
+        self.async_on_remove(
+            self.hass.bus.async_listen(EVENT_STATE_CHANGED, self._changed, event_filter=mine)
+        )

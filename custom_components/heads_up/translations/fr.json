@@ -341,6 +341,9 @@
     "sensor": {
       "active_banners": {
         "name": "Bannières actives"
+      },
+      "inbox": {
+        "name": "Boîte de réception {person}"
       }
     }
   },

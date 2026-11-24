@@ -1011,7 +1011,7 @@ class HubEngine:
 
     def rename_entity(self, old: str, new: str) -> int:
         """An entity ID changed: the ledger and held messages follow (D-201)."""
-        changed = self.ledger.rename_entity(old, new)
+        changed = self.ledger.rename_entity(old, new) + self.inbox.rename_person(old, new)
         for kept in self.ledger.held.values():
             moved = kept.rename_entity(old, new)
             changed += moved

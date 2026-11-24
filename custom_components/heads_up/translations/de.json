@@ -341,6 +341,9 @@
     "sensor": {
       "active_banners": {
         "name": "Aktive Banner"
+      },
+      "inbox": {
+        "name": "Posteingang {person}"
       }
     }
   },

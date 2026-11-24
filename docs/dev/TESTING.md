@@ -73,6 +73,7 @@
 | `tests/hub/test_panel_audiences.py` | the six audiences with members and times, switched-off audience, admin only |
 | `tests/hub/test_stats_store.py` | the history store: records, local day, clock change, 24 months, restart, damaged files, a fault, clear, size of 730 busy days |
 | `tests/hub/test_inbox_store.py` | the inbox store (Phase 22): items and read state, reminders and escalations, acknowledge, dismiss, end, counts, retention, the cap of 2000 per person, damaged rows, delayed write, a removed person, restart |
+| `tests/hub/test_inbox_sensor.py` | the unread sensor per person: state and attributes, no text, a person who appears, leaves or comes back, a restart, a renamed person entity ID |
 | `tests/hub/test_inbox_websocket.py` | the inbox commands: own items only (also for an administrator), a user without a person, paging, unread only, read, read all, delete, clear, the live subscription |
 | `tests/hub/test_inbox_channel.py` | the inbox channel (Phase 22): delivery to persons and audiences, no phone needed, update, end, acknowledge, dismiss, snooze, reminders and escalations, the reminder setting, Quiet hours with and without channels, restart, parity for rule messages |
 | `tests/hub/test_stats_recording.py` | what the engine records: created, rule and action sources, deliveries, quiet holds by policy key, acknowledgement time and avoided escalation, reminders, snoozes, dismissals, ends, summaries, a fault does not stop a delivery |

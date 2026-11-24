@@ -472,6 +472,20 @@ class InboxStore:
             # The first entry says how it began; keep it and the latest ones.
             del item.timeline[1 : len(item.timeline) - INBOX_MAX_TIMELINE + 1]
 
+    def rename_person(self, old: str, new: str) -> int:
+        """The person's entity ID changed: the inbox moves with it."""
+        rows = self._items.pop(old, None)
+        if not rows:
+            return 0
+        target = self._items.setdefault(new, {})
+        for message_id, item in rows.items():
+            item.person = new
+            target.setdefault(message_id, item)
+        if cancel := self._gone.pop(old, None):
+            cancel()
+        self._changed()
+        return len(rows)
+
     def delete(self, person: str, message_id: str) -> bool:
         rows = self._items.get(person, {})
         if rows.pop(message_id, None) is None:

@@ -341,6 +341,9 @@
     "sensor": {
       "active_banners": {
         "name": "Avisos activos"
+      },
+      "inbox": {
+        "name": "Bandeja de entrada {person}"
       }
     }
   },

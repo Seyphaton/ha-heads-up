@@ -239,6 +239,8 @@ The person needs no phone and no Home Assistant user. A person's recipient profi
 - Send quietly changes nothing for the inbox: an item has no sound.
 - The inbox has no rate limit and takes no buttons.
 
+The sensor `sensor.heads_up_inbox_<person>` counts the unread items of one person. Its state is that number, and its attributes are `person`, `needs_action` (open critical items nobody acknowledged) and `unread_critical`. The sensor never holds a title or a text, because every user can read entity states. There is one sensor for each person entity, created when the person appears. It is unavailable while the person is missing, and Heads Up removes it after 5 minutes without the person. If you rename a person's entity ID, the inbox follows to the new ID and the old sensor goes away.
+
 ## Severities
 
 The four severities are `passive`, `info`, `warning` and `critical`. Calls, watch rules, policies, events and entity attributes always use these names. A call or a card's YAML may still say `success`, an earlier name: it is read as `passive`. The panel's Severities page lists them in one table with their icon, label, color, push level and popup. Select a severity to change it:
