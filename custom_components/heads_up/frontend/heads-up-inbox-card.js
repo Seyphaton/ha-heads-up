@@ -514,7 +514,9 @@ ha-card { overflow: hidden; }
 .sub { color: var(--secondary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .crit .sub, .sub.crit { color: var(--error-color); font-weight: 600; }
 
-.cmp { display: flex; align-items: center; gap: 14px; padding: 12px 16px; min-height: 56px; }
+ha-card.compact { height: 100%; }
+.cmp { display: flex; align-items: center; gap: 12px; padding: 0 14px; height: 100%; box-sizing: border-box; overflow: hidden; }
+.cmp .tile { width: 40px; height: 40px; border-radius: 12px; }
 .cmp .tx { flex: 1; min-width: 0; }
 .cmp .t1 { font-weight: 600; font-size: 16px; text-transform: none; letter-spacing: 0; color: var(--primary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cmp .sub { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
