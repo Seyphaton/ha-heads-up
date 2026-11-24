@@ -5,6 +5,7 @@ import {
   composeHints,
   personName,
   rowAvatar,
+  rowTitle,
   rowLine,
   sendError,
   showCompose,
@@ -531,5 +532,18 @@ describe("the Inbox toggle explains itself", () => {
   it("has the explanation in every language", () => {
     expect(STRINGS.inbox_always).toBe("Direct messages are always sent to the inbox.");
     for (const code of ["de", "fr", "es"]) expect(TRANSLATIONS[code].inbox_always, code).toBeTruthy();
+  });
+});
+
+describe("row title of a message without a title", () => {
+  const states = { "person.anna": { attributes: { friendly_name: "Anna" } } };
+  it("says who wrote it, instead of repeating the text", () => {
+    expect(rowTitle(item({ title: "", sender: "person.anna" }), states, STRINGS)).toBe("From Anna");
+    expect(rowTitle(item({ title: "", sent: true, recipients: ["person.anna"] }), states, STRINGS)).toBe("To Anna");
+  });
+  it("keeps a title, and falls back to the text for any other message", () => {
+    expect(rowTitle(item({ title: "Washer" }), states, STRINGS)).toBe("Washer");
+    expect(rowTitle(item({ title: "", text: "Hello" }), states, STRINGS)).toBe("Hello");
+    expect(rowTitle(item({ title: "", text: "Hello" }), states, STRINGS, "")).toBe("");
   });
 });

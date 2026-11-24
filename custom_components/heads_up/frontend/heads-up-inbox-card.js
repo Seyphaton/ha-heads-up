@@ -572,6 +572,14 @@ export function rowAvatar(item, states) {
   };
 }
 
+// The title of a row: its own title; a message between people without one says who it is from or to
+// (the text follows as the preview); any other message shows its text.
+// `text` is the text the card may show (empty with `titles_only`).
+export function rowTitle(item, states, strings, text = item.text) {
+  if (item.title) return item.title;
+  return item.sender || item.sent ? rowLine(item, states, strings) : text;
+}
+
 export function canSend(draft) {
   const text = (draft.text ?? "").trim();
   return draft.to.length > 0 && text.length > 0 && text.length <= MAX_MESSAGE;
@@ -1509,8 +1517,8 @@ class HeadsUpInboxCard extends Base {
     const row = h("button", { class: "tap row", "data-key": `row:${item.message_id}`, "aria-expanded": String(open), onclick: () => this._toggle(item) }, [
       this._rowTile(item),
       h("div", { class: "bd" }, [
-        h("div", { class: "ttl2", text: item.title || text }),
-        line ? h("div", { class: "from", text: line }) : null,
+        h("div", { class: "ttl2", text: rowTitle(item, this._hass?.states, s, text) }),
+        item.title && line ? h("div", { class: "from", text: line }) : null,
         !open && text ? h("div", { class: "pv", text }) : null,
         chips.length ? h("div", { class: "chips" }, chips) : null,
       ]),
