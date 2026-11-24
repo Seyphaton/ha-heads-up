@@ -1086,6 +1086,10 @@ Status: built on `release/3.0`: the store, the channel with the lifecycle hooks,
 - A renamed person entity ID moves the inbox (`InboxStore.rename_person`, called from `HubEngine.rename_entity`); the sensor of the new ID is created by the new person state.
 - Tests: `tests/hub/test_inbox_sensor.py`.
 
+### 29.7 Settings
+- Section `inbox` of `hub/settings.SECTIONS` (options screen and panel Settings page, D-122), between speech volume and limits: `inbox_retention_months` (int 1 to 36, default 12; `InboxStore.set_retention` prunes at once when it shrinks and the engine reads it at start) and `inbox_reminder_unread` (bool, default true, read by the channel at each reminder).
+- The panel adds, under that section, a line with what is stored (`InboxStore.info`: items, people, oldest day; also in `settings_get` as `inbox`) and Clear inbox, which calls the admin command `heads_up/inbox_clear_all` (every person's items; `count` and the new `info` come back). Diagnostics carry the same counts per person entity ID and no text.
+
 ### 29.6 Card
 - `custom:heads-up-inbox-card`, module `frontend/heads-up-inbox-card.js` (registered by `frontend.py` like the main card; its own element definition and editor, `whenFrontendReady`, no import from the main card). Options `size`, `design`, `titles_only` (D-274); `CONFIG_KEYS` is compared with the "Card option" table of `docs/configuration.md` by `scripts/docs_check.py`.
 - Data: `heads_up/inbox_subscribe` (state and first page, `resubscribe: false` and its own retry like the main card), `inbox_read`, `inbox_read_all`, `inbox_delete`, `inbox_list` for Show more. The person is never a parameter.

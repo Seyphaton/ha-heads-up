@@ -24,6 +24,7 @@ import {
   headingOf,
   fill,
   historyLine,
+  inboxLine,
   joinDuration,
   problems,
   rangesOf,
@@ -963,7 +964,7 @@ describe("volumeProblems", () => {
 describe("settings wording equals the integration's options screen (D-122)", () => {
   const dir = new URL("../../custom_components/heads_up/", import.meta.url);
   const files = { en: "strings.json", de: "translations/de.json", fr: "translations/fr.json", es: "translations/es.json" };
-  const SECTIONS = ["sidebar", "dismiss", "snooze", "snooze_banner", "snooze_push", "presence", "speech", "speech_volume", "limits", "history"];
+  const SECTIONS = ["sidebar", "dismiss", "snooze", "snooze_banner", "snooze_push", "presence", "speech", "speech_volume", "inbox", "limits", "history"];
 
   for (const [code, file] of Object.entries(files)) {
     it(`uses the same section names, labels and hints in ${code}`, () => {
@@ -1083,6 +1084,9 @@ describe("history in Settings", () => {
     const t = SETTINGS_STRINGS.en;
     expect(historyLine({ days: 12, first: "2026-11-01", last: "2026-11-12", bytes: 84000 }, t)).toBe("12 days, from 2026-11-01 to 2026-11-12, about 82 KB.");
     expect(historyLine({ days: 0 }, t)).toBe(t.history_empty);
+    expect(inboxLine({ items: 12, people: 2, oldest: "2026-10-01T08:00:00+00:00" }, t)).toBe("12 items for 2 people, the oldest from 2026-10-01.");
+    expect(inboxLine({ items: 0, people: 0, oldest: null }, t)).toBe(t.inbox_empty);
+    expect(inboxLine(null, t)).toBe(t.inbox_empty);
     expect(historyLine(null, t)).toBe(t.history_empty);
   });
 

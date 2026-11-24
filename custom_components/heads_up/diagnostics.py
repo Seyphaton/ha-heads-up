@@ -34,6 +34,11 @@ async def async_get_config_entry_diagnostics(
         data["policies"] = [p.name for p in hub.policies.ordered()]
         # The size and the date range of the activity history; the counts themselves stay out.
         data["history"] = hub.stats.info()
+        # How much the inboxes hold, per person and in all; never a title or a text.
+        data["inbox"] = {
+            **hub.inbox.info(),
+            "per_person": {p: len(hub.inbox.items(p)) for p in hub.inbox.people()},
+        }
         data["trace"] = hub.trace.entries(limit=TRACE_ENTRIES)
         # Titles and texts stay out: they are what the household wrote.
         data["recent_messages"] = [

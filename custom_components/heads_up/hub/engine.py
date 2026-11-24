@@ -26,11 +26,13 @@ from ..const import (
     BANNER_NOBODY,
     CHANNEL_BANNER,
     CHANNEL_PERSISTENT,
+    DEFAULT_INBOX_RETENTION_MONTHS,
     DEFAULT_OPTIONS,
     EVENT_DELIVERY_FAILED,
     GLOBAL_SNOOZE_KEY,
     HOLD_AWAY,
     HOLD_QUIET,
+    OPT_INBOX_RETENTION_MONTHS,
     OPT_PRESENCE_DEBOUNCE,
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
@@ -152,6 +154,9 @@ class HubEngine:
         self.usage = AudienceUsage(hass)
         self.stats = StatsStore(hass)
         self.inbox = InboxStore(hass)
+        self.inbox.retention_months = int(
+            options.get(OPT_INBOX_RETENTION_MONTHS, DEFAULT_INBOX_RETENTION_MONTHS)
+        )
         self.resolver = HubResolver(hass, options)
         self.limiter = Limiter(options)
         self.log = ActivityLog(options.get(OPT_TRACE_ENTRIES, DEFAULT_OPTIONS[OPT_TRACE_ENTRIES]))

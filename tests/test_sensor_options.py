@@ -67,6 +67,8 @@ async def test_options_flow_sets_defaults_for_new_banners(
         "default_snooze_options": [900, 3600, 14400],
         "quick_snooze_minutes": 15,
         "disable_ended_buttons": True,
+        "inbox_retention_months": 12,
+        "inbox_reminder_unread": True,
         "rate_per_device_per_minute": 5,
         "rate_total_per_minute": 60,
         "dedupe_seconds": 30,

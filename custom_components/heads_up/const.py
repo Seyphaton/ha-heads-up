@@ -137,7 +137,8 @@ OPT_INBOX_REMINDER_UNREAD: Final = (
 INBOX_KEY: Final = "heads_up.inbox"  # the personal inbox, one store for all people (D-264, D-268)
 INBOX_VERSION: Final = 1
 INBOX_SAVE_DELAY: Final = 60  # seconds, like the history store
-DEFAULT_INBOX_RETENTION_MONTHS: Final = 12  # D-264; a setting comes with the mirror
+DEFAULT_INBOX_RETENTION_MONTHS: Final = 12  # D-264
+OPT_INBOX_RETENTION_MONTHS: Final = "inbox_retention_months"  # 1 to 36
 INBOX_MAX_ITEMS: Final = 2000  # per person, the oldest go first (D-270)
 INBOX_MAX_TIMELINE: Final = 10  # entries on one item: the first and the latest nine
 INBOX_PURGE_GRACE: Final = 300  # seconds a removed person may come back before the inbox is purged
@@ -302,6 +303,8 @@ DEFAULT_OPTIONS: Final = {
     OPT_MAIL_BODY: "{message}",
     OPT_TRACE_ENTRIES: 500,
     OPT_RECENT_MESSAGES: 100,
+    OPT_INBOX_RETENTION_MONTHS: DEFAULT_INBOX_RETENTION_MONTHS,
+    OPT_INBOX_REMINDER_UNREAD: True,
     OPT_RATE_PER_DEVICE: 5,
     OPT_RATE_TOTAL: 60,
     OPT_DEDUPE_SECONDS: 30,

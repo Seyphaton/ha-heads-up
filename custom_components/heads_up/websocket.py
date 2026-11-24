@@ -182,8 +182,27 @@ def ws_settings_get(hass: HomeAssistant, connection: ActiveConnection, msg: dict
             "layout": settings.layout(),
             "install_token": settings.token(manager),
             "welcome_seen": bool(entry.options.get(welcome.OPT_WELCOME_SEEN, False)),
+            "inbox": manager.hub.inbox.info() if manager.hub else None,
         },
     )
+
+
+@websocket_command({vol.Required("type"): "heads_up/inbox_clear_all"})
+@require_admin
+@callback
+def ws_inbox_clear_all(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Clear inbox (Settings): every item of every person. The only inbox command that is not
+    the caller's own, so it is for administrators (D-264)."""
+    if (entry := _entry(hass, connection, msg["id"])) is None:
+        return
+    hub = entry.runtime_data.hub
+    if hub is None:
+        connection.send_error(msg["id"], "hub_off", "The hub is off")
+        return
+    count = hub.inbox.clear()
+    connection.send_result(msg["id"], {"count": count, "info": hub.inbox.info()})
 
 
 @websocket_command(
@@ -1280,6 +1299,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_inbox_read_all,
         ws_inbox_delete,
         ws_inbox_clear,
+        ws_inbox_clear_all,
         ws_snooze,
         ws_unsnooze,
         ws_action,

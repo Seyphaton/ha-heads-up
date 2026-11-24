@@ -20,6 +20,8 @@ from ..const import (
     OPT_DEFAULT_TIMEOUT,
     OPT_DISABLE_ENDED_BUTTONS,
     OPT_EVICT,
+    OPT_INBOX_REMINDER_UNREAD,
+    OPT_INBOX_RETENTION_MONTHS,
     OPT_INSTALL_TOKEN,
     OPT_MAX_BANNERS,
     OPT_PRESENCE_DEBOUNCE,
@@ -72,6 +74,10 @@ SECTIONS: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
         ),
     ),
     (
+        "inbox",
+        ((OPT_INBOX_RETENTION_MONTHS, "int"), (OPT_INBOX_REMINDER_UNREAD, "bool")),
+    ),
+    (
         "limits",
         (
             (OPT_MAX_BANNERS, "int"),
@@ -96,6 +102,7 @@ RANGES: dict[str, tuple[int, int]] = {
     OPT_DEDUPE_SECONDS: (0, 3600),
     OPT_TRACE_ENTRIES: (50, 5000),
     OPT_RECENT_MESSAGES: (10, 1000),
+    OPT_INBOX_RETENTION_MONTHS: (1, 36),
 }
 CHOICES: dict[str, tuple[str, ...]] = {
     OPT_DEFAULT_DISMISS_SCOPE: DISMISS_SCOPES,

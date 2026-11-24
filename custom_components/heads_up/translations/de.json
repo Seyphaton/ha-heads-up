@@ -110,6 +110,17 @@
               "speak_volume_bands": "Bis zu 4 Zeiträume, jeder mit Beginn, Ende und Lautstärke in Prozent. Ein Zeitraum von 22:00 bis 07:00 geht über Mitternacht. Zeiträume dürfen sich nicht überschneiden. Außerhalb aller Zeiträume bleibt die Lautstärke unverändert."
             }
           },
+          "inbox": {
+            "name": "Posteingang",
+            "data": {
+              "inbox_retention_months": "Monate, die Einträge im Posteingang bleiben",
+              "inbox_reminder_unread": "Eine Erinnerung markiert einen gelesenen Eintrag wieder als ungelesen"
+            },
+            "data_description": {
+              "inbox_retention_months": "1–36. Ältere Einträge werden entfernt, und jede Person behält höchstens 2000 Einträge. Der Text eines Eintrags wird im Klartext gespeichert, auch in Sicherungen.",
+              "inbox_reminder_unread": "An: Eine Erinnerung oder Eskalation, die eine Person erreicht, die den Eintrag schon hat, setzt ihn wieder auf ungelesen. Aus: Sie fügt nur eine Zeile zum Verlauf hinzu."
+            }
+          },
           "limits": {
             "name": "Grenzen",
             "data": {

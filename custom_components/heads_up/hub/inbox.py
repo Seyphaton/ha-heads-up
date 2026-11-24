@@ -509,6 +509,12 @@ class InboxStore:
             self._changed()
         return removed
 
+    def set_retention(self, months: int) -> None:
+        """A shorter retention removes the older items now, not at the next daily run."""
+        if months != self.retention_months:
+            self.retention_months = months
+            self.prune(dt_util.utcnow(), months)
+
     def prune(self, now: datetime, months: int) -> int:
         """Drop what is older than the retention, then the oldest over the cap of one person:
         read and resolved items first, then read ones, then the rest."""
@@ -553,6 +559,15 @@ class InboxStore:
             reverse=True,
         )
         return ordered[offset:] if limit is None else ordered[offset : offset + limit]
+
+    def info(self) -> dict[str, Any]:
+        """How much is stored, for the Settings page and diagnostics. Never a title or a text."""
+        every = [i for rows in self._items.values() for i in rows.values()]
+        return {
+            "items": len(every),
+            "people": len(self.people()),
+            "oldest": _iso(min((i.created for i in every), default=None)),
+        }
 
     def people(self) -> list[str]:
         return sorted(p for p, rows in self._items.items() if rows)

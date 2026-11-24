@@ -14,6 +14,7 @@ from homeassistant.helpers.typing import ConfigType
 from .binary_sensor import audience_entity_ids, notify_audiences_changed
 from .const import (
     DOMAIN,
+    OPT_INBOX_RETENTION_MONTHS,
     OPT_INSTALL_TOKEN,
     OPT_RECENT_MESSAGES,
     OPT_TRACE_ENTRIES,
@@ -118,6 +119,7 @@ async def _async_entry_updated(hass: HomeAssistant, entry: HeadsUpConfigEntry) -
         manager.hub.trace.resize(manager.options[OPT_TRACE_ENTRIES])
         manager.hub.log.resize(manager.options[OPT_TRACE_ENTRIES])
         manager.hub.recent.resize(manager.options[OPT_RECENT_MESSAGES])
+        manager.hub.inbox.set_retention(int(manager.options[OPT_INBOX_RETENTION_MONTHS]))
         manager.hub.limiter.configure(manager.options)
         manager.hub.resolver.sync(entry.subentries)
         manager.hub.policies.sync(entry.subentries)

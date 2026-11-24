@@ -230,11 +230,11 @@ data:
 The person needs no phone and no Home Assistant user. A person's recipient profile can switch the inbox off; then the item is skipped for them (`channel_not_accepted`).
 
 - One item per message and person. The same message again, with the same text, adds nothing. New text or a higher severity updates the item and marks it unread.
-- A reminder or an escalation that reaches a person who already has the item adds a timeline entry. It does not make a second item. A reminder marks a read item unread again.
+- A reminder or an escalation that reaches a person who already has the item adds a timeline entry. It does not make a second item. A reminder marks a read item unread again unless the setting A reminder marks a read item unread again is off (see [Settings](settings.md#inbox)).
 - An item is read when the person acknowledges the message or dismisses it for themselves. When the message ends, the item stays and is marked resolved, with the reason (cleared, expired, condition or dismissed). It stays unread until the person reads it.
 - A dismissal for everyone resolves every item of the message. A snooze changes nothing.
 - When Home Assistant starts, items of messages that are no longer active are marked resolved.
-- Items older than 12 months are removed, and a person keeps at most 2000 items, the oldest read and resolved ones first. A person who is removed from Home Assistant loses their items after 5 minutes. Removing the integration deletes them.
+- Items older than the retention (12 months by default, 1 to 36 in Settings) are removed, and a person keeps at most 2000 items, the oldest read and resolved ones first. A person who is removed from Home Assistant loses their items after 5 minutes. Removing the integration deletes them.
 - Policies treat the inbox like every other channel. A Quiet hours policy with the action Wait holds it, Drop skips it, and Summarize holds it. To keep the inbox out of Quiet hours or Presence, choose the other channels under Limit to these channels. A Presence policy holds the inbox item of a person who is away and releases it when they arrive, like a push.
 - Send quietly changes nothing for the inbox: an item has no sound.
 - The inbox has no rate limit and takes no buttons.
