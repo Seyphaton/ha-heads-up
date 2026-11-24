@@ -32,6 +32,7 @@ import {
   laneOf,
   whichText,
   notOverlap,
+  holdsWarning,
   doesText,
   leftOut,
   takenBy,
@@ -577,6 +578,16 @@ describe("2.0 policy fields", () => {
     const t = POLICY_STRINGS.en;
     expect(notOverlap({ ...blankPolicy("quiet_hours"), tags: "a, b", not_tags: "b" }, t)).toEqual(["#b"]);
     expect(notOverlap({ ...blankPolicy("quiet_hours"), tags: "a", not_tags: "b" }, t)).toEqual([]);
+  });
+
+  it("the caution under Ignore 'get through' policies names what happens to critical messages", () => {
+    const t = POLICY_STRINGS.en;
+    const word = (type, action) => holdsWarning({ ...blankPolicy(type), action }, t);
+    expect(word("quiet_hours", "wait")).toBe("Caution: Critical messages will also be held. Only enable this if you are aware of the impact.");
+    expect(word("quiet_hours", "quiet")).toContain("sent quietly");
+    expect(word("quiet_hours", "drop")).toContain("dropped");
+    expect(word("summarize", "quiet")).toContain("summarized");
+    for (const lang of Object.keys(POLICY_STRINGS)) expect(Object.keys(POLICY_STRINGS[lang].holds_what).sort()).toEqual(["drop", "quiet", "summarize", "wait"]);
   });
 
   it("says Which messages in a few words", () => {

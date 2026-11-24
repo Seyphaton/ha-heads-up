@@ -525,7 +525,7 @@ Open the message in the Message Log.
 - `held` with `quiet_hours`: a Quiet hours policy with the action `wait` holds it until the window ends.
 - `skipped` with `quiet_hours`: the action is `drop`, or the delivery was a reminder.
 - `held` with `away`: a Presence policy holds it until the person is in the zone, or out of it, as the person's state or the entity on their recipient profile says. `skipped` with `presence`: the policy drops it. `skipped` with `max_wait_exceeded`: the wait ended first.
-- The Message Log names the policy that held or dropped it. A message passes Quiet hours only for the people a Get through entry covers, and never when the policy has Holds these anyway.
+- The Message Log names the policy that held or dropped it. A message passes Quiet hours only for the people a Get through entry covers, and never when the policy has Ignore 'get through' policies anyway.
 - The window uses the Home Assistant time zone (Settings > System > General).
 
 See [Policies](configuration.md#policies).

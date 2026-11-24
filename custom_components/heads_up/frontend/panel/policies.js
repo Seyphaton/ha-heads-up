@@ -151,9 +151,11 @@ export const STRINGS = {
     faster_every: "Then repeat every (minutes)",
     alongside: "Runs alongside other reminders",
     alongside_hint: "Off: reminders on the same channel share the shortest rhythm, each with its own count.",
-    holds_anyway: "Holds these anyway",
+    holds_heading: "Interaction with 'Get through' policies",
+    holds_anyway: "Ignore 'get through' policies",
     holds_anyway_hint: "No Always gets through entry can get messages past this policy.",
-    holds_anyway_warning: "This also holds back critical messages, for example smoke or leak alarms.",
+    holds_anyway_warning: "Caution: Critical messages will also be {what}. Only enable this if you are aware of the impact.",
+    holds_what: { quiet: "sent quietly", wait: "held", drop: "dropped", summarize: "summarized" },
     covers: "Covers",
     covers_everyone: "Everyone it reaches",
     covers_only: "Only these",
@@ -395,9 +397,11 @@ export const STRINGS = {
     faster_every: "Dann alle (Minuten) wiederholen",
     alongside: "Läuft neben anderen Erinnerungen",
     alongside_hint: "Aus: Erinnerungen auf demselben Kanal teilen sich den kürzesten Rhythmus, jede mit eigener Zählung.",
-    holds_anyway: "Hält sie trotzdem",
+    holds_heading: "Zusammenspiel mit „Kommt durch“-Richtlinien",
+    holds_anyway: "Richtlinien „Kommt durch“ ignorieren",
     holds_anyway_hint: "Kein Eintrag von Kommt immer durch bringt Meldungen an dieser Richtlinie vorbei.",
-    holds_anyway_warning: "Damit werden auch kritische Meldungen zurückgehalten, zum Beispiel Rauch- oder Wasseralarme.",
+    holds_anyway_warning: "Achtung: Auch kritische Meldungen werden {what}. Aktiviere das nur, wenn du die Folgen kennst.",
+    holds_what: { quiet: "leise gesendet", wait: "zurückgehalten", drop: "verworfen", summarize: "zusammengefasst" },
     covers: "Gilt für",
     covers_everyone: "Alle, die sie erreicht",
     covers_only: "Nur diese",
@@ -639,9 +643,11 @@ export const STRINGS = {
     faster_every: "Puis répéter toutes les (minutes)",
     alongside: "Fonctionne à côté des autres rappels",
     alongside_hint: "Désactivé : les rappels d'un même canal partagent le rythme le plus court, chacun avec son propre compte.",
-    holds_anyway: "Les retient quand même",
+    holds_heading: "Interaction avec les politiques « Laisser passer »",
+    holds_anyway: "Ignorer les politiques « Laisser passer »",
     holds_anyway_hint: "Aucune entrée Passe toujours ne fait passer les messages au-delà de cette règle.",
-    holds_anyway_warning: "Cela retient aussi les messages critiques, par exemple les alarmes de fumée ou de fuite.",
+    holds_anyway_warning: "Attention : les messages critiques seront aussi {what}. N'activez ceci que si vous en connaissez l'effet.",
+    holds_what: { quiet: "envoyés discrètement", wait: "retenus", drop: "abandonnés", summarize: "résumés" },
     covers: "Concerne",
     covers_everyone: "Tous ceux qu'il atteint",
     covers_only: "Seulement ceux-ci",
@@ -883,9 +889,11 @@ export const STRINGS = {
     faster_every: "Entonces repetir cada (minutos)",
     alongside: "Funciona junto a otros recordatorios",
     alongside_hint: "Desactivado: los recordatorios de un mismo canal comparten el ritmo más corto, cada uno con su propio recuento.",
-    holds_anyway: "Los retiene igualmente",
+    holds_heading: "Interacción con las políticas «Dejar pasar»",
+    holds_anyway: "Ignorar las políticas «Dejar pasar»",
     holds_anyway_hint: "Ninguna entrada Siempre pasa deja pasar mensajes más allá de esta regla.",
-    holds_anyway_warning: "Esto también retiene los mensajes críticos, por ejemplo alarmas de humo o de fugas.",
+    holds_anyway_warning: "Atención: los mensajes críticos también se {what}. Actívalo solo si conoces el efecto.",
+    holds_what: { quiet: "enviarán en silencio", wait: "retendrán", drop: "descartarán", summarize: "resumirán" },
     covers: "Afecta a",
     covers_everyone: "Todos a quienes llega",
     covers_only: "Solo estos",
@@ -1033,6 +1041,8 @@ const CSS = `
 .hu-page .pol-pill { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 2px 2px 2px 10px; border-radius: 8px; background: var(--card-background-color); border: 1px solid var(--divider-color); }
 .hu-page .pol-pill code { font-size: 12px; overflow-wrap: anywhere; }
 .hu-page .pol-switch-hint { margin-top: 6px; }
+.hu-page .pol-sub { margin: 18px 0 6px; padding-top: 12px; border-top: 1px solid var(--divider-color); font-size: 14px; font-weight: 600; color: var(--primary-text-color); }
+.hu-page .pol-caution { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0 12px; color: var(--error-color, #db4437); }
 .hu-page .pol-warn { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0 12px; padding: 8px 12px; border-radius: 8px; color: var(--warning-color, #ffa600); background: color-mix(in srgb, var(--warning-color, #ffa600) 12%, transparent); border: 1px solid color-mix(in srgb, var(--warning-color, #ffa600) 40%, transparent); font-size: 14px; --mdc-icon-size: 18px; }
 .hu-page .pol-pill .pol-copy { min-height: 32px; padding: 0 10px; font-size: 13px; }
 .hu-page .cl-row { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--divider-color); --mdc-icon-size: 20px; }
@@ -1444,6 +1454,12 @@ export function sentence(values, t, labels = {}) {
     }
   }
   return text + tails(values, t);
+}
+
+// The red caution under "Ignore 'get through' policies": what happens to critical messages then.
+export function holdsWarning(values, t) {
+  const what = t.holds_what[values.type === "summarize" ? "summarize" : values.action] || t.holds_what.quiet;
+  return fill(t.holds_anyway_warning, { what });
 }
 
 // What 2.0 adds to every sentence: Not for tags, Only if, and the type's extras.
@@ -2016,10 +2032,11 @@ export function mount(container, ctx) {
       else peopleBlocks();
     };
     const holdsAnyway = () => {
+      does.append(el("h4", { className: "pol-sub", textContent: t.holds_heading }));
       does.append(ui.checkbox(t.holds_anyway, values.holds_anyway, (on) => { values.holds_anyway = on; again(); }));
       does.append(el("div", { className: "hint", textContent: t.holds_anyway_hint }));
       if (values.holds_anyway) {
-        const warn = el("div", { className: "pol-warn" }, [el("ha-icon", { icon: "mdi:alert-outline" }), el("span", { textContent: t.holds_anyway_warning })]);
+        const warn = el("div", { className: "pol-caution" }, [el("ha-icon", { icon: "mdi:alert-outline" }), el("span", { textContent: holdsWarning(values, t) })]);
         warn.setAttribute("role", "alert");
         does.append(warn);
       }
@@ -2042,12 +2059,12 @@ export function mount(container, ctx) {
         does.append(el("div", { className: "hint", textContent: t.ack_note }));
         break;
       case "quiet_hours":
-        does.append(ui.field(t.quiet_entity, ui.selectInput([{ value: "", label: t.quiet_entity_none }, ...quietEntities(hass, values.quiet_entity).map((id) => ({ value: id, label: id }))], values.quiet_entity, (v) => { values.quiet_entity = v; again(); }), t.quiet_entity_hint));
         if (!values.quiet_entity) {
           does.append(ui.field(t.from, ui.timeInput(values.from_time, (v) => { values.from_time = v; paint(); })));
           does.append(ui.field(t.to, ui.timeInput(values.to_time, (v) => { values.to_time = v; paint(); })));
           does.append(pills(t.days, DAYS.map((d) => ({ value: d, label: t.days_names[d] })), values.days, (list) => { values.days = list; paint(); }));
         }
+        does.append(ui.field(t.quiet_entity, ui.selectInput([{ value: "", label: t.quiet_entity_none }, ...quietEntities(hass, values.quiet_entity).map((id) => ({ value: id, label: id }))], values.quiet_entity, (v) => { values.quiet_entity = v; again(); }), t.quiet_entity_hint));
         does.append(ui.field(t.action, ui.selectInput(["quiet", "wait", "drop"].map((k) => ({ value: k, label: t.actions[k] })), values.action, (v) => { values.action = v; paint(); })));
         channelChips(t.channels_quiet);
         holdsAnyway();

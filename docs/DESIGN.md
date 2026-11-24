@@ -860,7 +860,7 @@ Lane, band and new labels in the four languages; type names and existing labels 
 | covers | Covers | Gilt für | Concerne | Afecta a |
 | covers everyone | Everyone it reaches | Alle, die sie erreicht | Tous ceux qu'il atteint | Todos a quienes llega |
 | covers only | Only these | Nur diese | Seulement ceux-ci | Solo estos |
-| holds anyway | Holds these anyway | Hält sie trotzdem | Les retient quand même | Los retiene igualmente |
+| holds anyway | Ignore 'get through' policies (D-281; was Holds these anyway) | Richtlinien „Kommt durch“ ignorieren | Ignorer les politiques « Laisser passer » | Ignorar las políticas «Dejar pasar» |
 | not for | Not for | Nicht für | Sauf pour | Excepto para |
 | from rule | From watch rule | Von Überwachungsregel | Depuis la règle de surveillance | Desde la regla de vigilancia |
 | faster while | Faster while | Öfter, solange | Plus souvent tant que | Más a menudo mientras |

@@ -423,7 +423,7 @@ A Get through entry lets the messages it fits past quiet hours and summaries. It
 - Quiet hours do not apply to the people and speakers the entry covers. Everyone else gets the message as quiet hours say. One push can ring for the Admins and stay silent for Anna.
 - Several entries add up: each lets its own people through.
 - An entry never passes Presence.
-- A Quiet hours or Summarize policy with Holds these anyway is not passed by any entry.
+- A Quiet hours or Summarize policy with Ignore 'get through' policies on is not passed by any entry.
 
 Example: wake the Admins for leaks at night. Add a Get through entry for the tag `alarm` that covers only the audience Admins. If the leak automation already pushes to the Admins, that is all. If it only creates a banner, add a Deliver policy for the tag `alarm` with a push to Admins.
 
@@ -476,7 +476,7 @@ Between two times of day, or while an entity of your choice is on, deliveries ou
 | Or quiet while this is on | none | A schedule, input boolean or binary sensor. While it is `on`, quiet hours apply and the times and days are not used. A missing or unavailable entity counts as not quiet, so messages go out, and the Overview shows a warning. |
 | During quiet hours | Send quietly | Send quietly: a push is passive and without sound, speech is skipped, a popup is a corner card. Wait: hold the delivery until the window ends, then send it once. Drop: do not deliver. |
 | Limit to these channels | none selected | Push, popup, speech, Persistent Notification or mail. With none selected the policy covers every channel except the banner. Deliveries on a channel you leave out are not held, quieted or dropped by this policy. |
-| Holds these anyway | off | On: no Get through entry lets messages past this policy. |
+| Ignore 'get through' policies | off | On: no Get through entry lets messages past this policy, so critical messages are also held, sent quietly or dropped. |
 
 - Quiet hours apply to every severity. Critical messages get through only with a Get through entry, such as Critical from the introduction.
 - The window follows the wall clock. On the day the clocks change it is one hour shorter or longer. A time that does not exist or occurs twice uses its first occurrence.
@@ -544,7 +544,7 @@ A Summarize policy holds the messages it applies to on every channel, including 
 |---|---|---|
 | Summary every (minutes) | 60 | The summary is sent this many minutes after the first message was held. |
 | Summary at (time of day) | none | Sends one summary each day at this local time instead of by the interval. |
-| Holds these anyway | off | On: Get through entries do not keep messages out of this summary. |
+| Ignore 'get through' policies | off | On: Get through entries do not keep messages out of this summary, so critical messages are summarized too. |
 
 - A message that a Get through entry fits is not held. When an entry starts to fit later, held messages it fits are taken out and delivered as new messages.
 - If two Summarize policies fit a message, the one whose summary is due next holds it.
