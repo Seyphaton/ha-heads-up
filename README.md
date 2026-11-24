@@ -5,7 +5,20 @@
 
 Heads Up is the notification hub for Home Assistant. Your automation makes one call, and Heads Up decides where the message shows up, who gets it and what happens next.
 
-<p><img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/card-severities.png" width="330" alt="The Heads Up card with four banners: a Water leak with an Acknowledge link, Garage door open, Vacuum with a progress bar and an Update available message"> <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/push-live-activity.png" width="470" alt="An iPhone Live Activity for the message Vacuum, Cleaning the ground floor, with a progress bar at 53 percent"></p>
+<p align="center">
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-banner.webp" width="395" alt="Banners on a Home Assistant dashboard: a water leak with an Acknowledge link, a garage door warning, a vacuum with a progress bar and an update message, each with a close button"> 
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-popup.webp" width="395" alt="A Heads Up popup over a Home Assistant dashboard: a warning for Front door, Person detected at 14:32, with a camera picture and the buttons Lights on, Sound alarm and Dismiss">
+</p>
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-push.webp" width="395" alt="Push on iOS and Android: an iPhone notification for Front door with a camera picture and the buttons Lights on, Sound alarm and Ignore, and a Live Activity for a vacuum at 53 percent"> 
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-inbox.webp" width="395" alt="The personal inbox card and a ring card: a critical water leak that needs action, a message from Ben with his initial and a garage door warning, with the tabs Inbox and Sent">
+</p>
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-mail-speech.webp" width="395" alt="Mail and speech: an email about a water leak with an Acknowledge button on a laptop, and a smart speaker saying the same message">
+</p>
+
 
 1. **One call, every channel.** A single `heads_up.notify` reaches phones, dashboard banners, popups, speakers, mail and persistent notifications. Your automation never touches a device or a notify service.
 2. **Notify people, not devices.** Name a person and Heads Up finds their phones. Swap a phone and no automation changes.
@@ -17,11 +30,7 @@ Heads Up is the notification hub for Home Assistant. Your automation makes one c
 8. **A personal inbox.** Each person gets a list that survives restarts, with an unread count, a sensor per person and a card in four sizes. With one more setting the inbox also holds a copy of every notification, whatever the channel.
 9. **Messages between people.** People write short messages to each other from the inbox card. The recipient's profile and your policies still decide what is delivered, and the sender never learns whether a message was read.
 
-<p><img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/push-image-buttons.png" width="330" alt="An iPhone push for Front door, Person detected at 14:32, with a camera picture and the buttons Lights on, Sound alarm and Ignore"> <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/popup-image.png" width="470" alt="A Heads Up popup over a dashboard: a warning for Front door, Person detected at 14:32, with a camera picture and the buttons Lights on, Sound alarm and Dismiss"></p>
-
-<p><img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/inbox-card-sizes.png" width="250" alt="The inbox card as small tiles (a number, a ring, a mosaic), compact one-line tiles in red, yellow, blue and green, and three medium cards"> <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/inbox-card.png" width="250" alt="The inbox card as a list: a critical water leak that needs action, a message from Ben with his initial, a warning, an info and a passive message"> <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/push-person-message.png" width="330" alt="An iPhone push of a message from one person to another: the sender's name as the title, the message text and the Home Assistant icon"></p>
-
-![Your automation makes one call, and Heads Up delivers it by the channels, audiences and policies you set: where the message shows up (banner, push, popup, speech, mail, Persistent Notification), who gets it (everyone, admins, whoever is home, the last one to leave, one person) and when (quiet at night, repeat until acknowledged, escalate, evening summary, send on arrival).](https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/where-who-when.svg)
+<p align="center"><img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/summary-where-who-policy.webp" width="800" alt="Heads Up in one picture: where a message shows up (push, dashboard popups, dashboard banners, personal inbox, email, home speakers), who gets it (individual users, user groups, people by presence) and the policy (reminders, escalations, quiet hours, summaries, fallbacks)"></p>
 
 ## What only Heads Up does
 

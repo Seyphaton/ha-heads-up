@@ -257,6 +257,8 @@ The person needs no phone and no Home Assistant user. A person's recipient profi
 
 With the switch Let people send short messages to each other on (Channels page, Inbox row; off by default), any person can write to other people from the inbox card. The sender is the person linked to the Home Assistant user who is logged in. A user who is linked to no person, or to more than one, cannot send. Nobody can name another sender: the card has no sender field and the actions `notify` and `create_banner` have none.
 
+<img src="images/push-person-message.png" width="450" alt="An iPhone push of a message from one person to another: the sender's name as the title, the message text and the Home Assistant icon">
+
 - The text is plain text, 1 to 1000 characters. The severity is always Info, so a message does not get through Do Not Disturb.
 - The sender picks the channels: inbox (always), push notification, popup on screens and, while a mail service is set on the Channels page, mail. Speech is not offered. A mail goes only to a person whose profile accepts mail and has an address; the mail uses the subject and body templates of the Channels page, with the sender's name as the title. The recipient's accepted channels decide: a channel a person does not accept is skipped for them, the inbox item is still made, and the dialog says so. Quiet hours and the other policies apply as for any message.
 - On push and popup a message reads like a chat message: the title is the sender's name, the sender's picture (the person's `entity_picture`) is the sender icon when the push setting for the lock screen is Full, and the notification icon is the Heads Up icon. On iOS the sender icon makes it a communication notification. Without a picture, no sender icon is sent.
