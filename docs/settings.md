@@ -6,7 +6,7 @@ Settings are the defaults and limits of the integration. A field you leave out o
 
 - Settings > Devices & services > Heads Up > Configure.
 - The Settings page of the panel (see below). It shows the same entries in the same order and wording, and a change in one shows in the other.
-- The channel settings (push levels, popup styles, lock screen text, spoken language, mail and the inbox) are only on the panel's Channels page. The Configure screen does not show them. The Channels page checks them and shows an error under the field, for example for a mail placeholder that does not exist.
+- The channel settings are only on the panel's Channels page: push (levels, lock screen text, Android channel, rate limits), popup styles, speech (language, longest text, repeat pause, engine, volume), mail and the inbox. The Configure screen does not show them. The Channels page checks them and shows an error under the field, for example for a mail placeholder that does not exist.
 
 A change applies at once. Message defaults apply to messages created afterwards; they do not change messages that already exist.
 
@@ -21,9 +21,7 @@ Every block has a heading of its own. Save is enabled only when something change
 | Sidebar panel | The sidebar switch (`show_panel`). |
 | Messages | Dismiss settings (default dismiss scope, default timeout in days, hours, minutes and seconds, the ended-buttons switch) and snooze settings (snoozable by default, default snooze scope). Each card says which channels it applies to. The snooze choices of the banner and the snooze time of push and popup are on the Channels page, in the Banner, Push and Popup rows. |
 | Presence | The presence delay for Last to leave, First home and the Presence policy. |
-| Speech | Longest spoken text, repeat pause and the text-to-speech engine. |
-| Speech volume | Putting the volume back after speaking, a volume per severity and up to 4 time bands. |
-| Limits | Maximum number of stored messages, evicting when full, pushes per device per minute, deliveries per minute for all devices, seconds in which identical updates are ignored. |
+| Limits | Maximum number of stored messages, evicting when full and seconds in which identical updates are ignored. |
 | History | Trace entries kept and recent messages kept. |
 | Identity | The install token, read only. Only in the panel; the options screen shows it at the top. |
 
@@ -64,12 +62,14 @@ These settings belong to the message, not to one channel. They apply to the bann
 
 ## Limits
 
+The two limits for pushes are on the Push row of the Channels page; the others are on the Settings page.
+
 | Setting | Default | Meaning |
 |---|---|---|
 | Maximum number of stored messages (`max_banners`) | 50 (1–200) | How many messages from action calls can exist at once, on any channel. Watch rules do not count. It protects storage and timers, not the phones or the card (the card has `max_items`). It is not a rate limit. |
 | Evict the oldest lowest-severity message when full (`evict`) | on | When off, creating a message beyond the limit fails. `critical` messages are never evicted, so a full house of critical messages fails new calls. An evicted message ends on every channel. |
-| Pushes per device per minute (`rate_per_device_per_minute`) | 5 (1–600) | A push over the cap is skipped and the Message Log says `rate_limited`. Critical messages are never held back. |
-| Deliveries per minute, all devices (`rate_total_per_minute`) | 60 (1–6000) | The same, counted over all devices. |
+| Pushes per device per minute (`rate_per_device_per_minute`, Push row) | 5 (1–600) | A push over the cap is skipped and the Message Log says `rate_limited`. Critical messages are never held back. |
+| Deliveries per minute, all devices (`rate_total_per_minute`, Push row) | 60 (1–6000) | The same, counted over all devices. |
 | Seconds in which identical updates are ignored (`dedupe_seconds`) | 30 (0–3600) | An update with the same content is not sent again to the same recipient within this time (`duplicate`). 0 switches it off. Critical messages are never held back. |
 
 ## Presence
@@ -106,6 +106,8 @@ See [Push notifications](configuration.md#push).
 See [Popups](configuration.md#popup).
 
 ## Speech
+
+These settings are on the Speech row of the Channels page.
 
 | Setting | Default | Meaning |
 |---|---|---|

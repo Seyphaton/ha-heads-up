@@ -84,46 +84,16 @@
               "presence_debounce_seconds": "A person must stay in or out of a zone this long before \"Last to leave\" and \"First home\" change and a Presence policy releases what it holds. 0 reacts at once."
             }
           },
-          "speech": {
-            "name": "Speech",
-            "data": {
-              "speak_max_length": "Spoken text: longest (characters)",
-              "speak_cooldown_seconds": "Spoken text: repeat pause (seconds)",
-              "speak_tts_entity": "Text-to-speech engine"
-            },
-            "data_description": {
-              "speak_max_length": "Longer texts are cut at a word and end with an ellipsis.",
-              "speak_cooldown_seconds": "The same text is not spoken again on the same speaker within this time. 0: always speak.",
-              "speak_tts_entity": "The engine that speaks on media players. Empty: the only text-to-speech entity, if there is exactly one."
-            }
-          },
-          "speech_volume": {
-            "name": "Speech volume",
-            "data": {
-              "speak_restore_volume": "Put the volume back after speaking",
-              "speak_severity_volume": "Volume by severity (percent)",
-              "speak_volume_bands": "Volume by time of day"
-            },
-            "data_description": {
-              "speak_restore_volume": "A speaker whose volume Heads Up changed gets its earlier volume back once the message was said, unless someone changed the volume meanwhile. Sonos speakers keep their volume and say the message at the chosen level. Off: the speaker stays at the speech volume.",
-              "speak_severity_volume": "0–100 per severity. Empty: the time of day decides. A volume in the action call comes first.",
-              "speak_volume_bands": "Up to 4 bands, each with a start, an end and a volume in percent. A band from 22:00 to 07:00 runs over midnight. Bands must not overlap. Outside every band the volume is not changed."
-            }
-          },
           "limits": {
             "name": "Limits",
             "data": {
               "max_banners": "Maximum number of stored messages",
               "evict": "Evict the oldest lowest-severity message when full",
-              "rate_per_device_per_minute": "Pushes per device per minute",
-              "rate_total_per_minute": "Deliveries per minute, all devices",
               "dedupe_seconds": "Seconds in which identical updates are ignored"
             },
             "data_description": {
               "max_banners": "1–200. How many messages from action calls can exist at once, on any channel; watch rules do not count. It protects Home Assistant's storage and timers, not the phones or the card (the card has its own max_items). Critical messages are never evicted.",
               "evict": "When off, creating a message beyond the maximum fails with an error. An evicted message ends on every channel.",
-              "rate_per_device_per_minute": "1–600. A push over the cap is skipped; critical messages are never held back.",
-              "rate_total_per_minute": "1–6000. A push over the cap is skipped; critical messages are never held back.",
               "dedupe_seconds": "0–3600. An update with the same content is not sent again within this time. 0: off."
             }
           },

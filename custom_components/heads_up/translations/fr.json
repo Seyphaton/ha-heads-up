@@ -84,46 +84,16 @@
               "presence_debounce_seconds": "Une personne doit rester dans ou hors d'une zone ce temps avant que « Last to leave » et « First home » changent et qu'une politique de présence libère ce qu'elle retient. 0 réagit tout de suite."
             }
           },
-          "speech": {
-            "name": "Voix",
-            "data": {
-              "speak_max_length": "Texte parlé : longueur maximale (caractères)",
-              "speak_cooldown_seconds": "Texte parlé : pause avant répétition (secondes)",
-              "speak_tts_entity": "Moteur de synthèse vocale"
-            },
-            "data_description": {
-              "speak_max_length": "Les textes plus longs sont coupés à la fin d'un mot et se terminent par des points de suspension.",
-              "speak_cooldown_seconds": "Le même texte n'est pas redit sur le même haut-parleur pendant ce délai. 0 : toujours dire.",
-              "speak_tts_entity": "Le moteur qui parle sur les lecteurs multimédia. Vide : la seule entité de synthèse vocale, s'il n'y en a qu'une."
-            }
-          },
-          "speech_volume": {
-            "name": "Volume de la voix",
-            "data": {
-              "speak_restore_volume": "Remettre le volume après avoir parlé",
-              "speak_severity_volume": "Volume par gravité (pour cent)",
-              "speak_volume_bands": "Volume selon l'heure"
-            },
-            "data_description": {
-              "speak_restore_volume": "Un haut-parleur dont Heads Up a changé le volume retrouve son volume précédent une fois le message dit, sauf si quelqu'un a changé le volume entre-temps. Les haut-parleurs Sonos gardent leur volume et disent le message au niveau choisi. Désactivé : le haut-parleur reste au volume de la voix.",
-              "speak_severity_volume": "0–100 par gravité. Vide : l'heure décide. Un volume dans l'appel d'action passe en premier.",
-              "speak_volume_bands": "Jusqu'à 4 plages, chacune avec un début, une fin et un volume en pour cent. Une plage de 22:00 à 07:00 passe minuit. Les plages ne doivent pas se chevaucher. En dehors de toute plage, le volume ne change pas."
-            }
-          },
           "limits": {
             "name": "Limites",
             "data": {
               "max_banners": "Nombre maximal de messages conservés",
               "evict": "Supprimer le plus ancien message de moindre gravité quand la limite est atteinte",
-              "rate_per_device_per_minute": "Push par appareil et par minute",
-              "rate_total_per_minute": "Livraisons par minute, tous appareils",
               "dedupe_seconds": "Secondes pendant lesquelles les mises à jour identiques sont ignorées"
             },
             "data_description": {
               "max_banners": "1–200. Combien de messages d'appels d'action peuvent exister en même temps, sur tout canal ; les règles de surveillance ne comptent pas. Cela protège le stockage et les minuteries de Home Assistant, pas les téléphones ni la carte (la carte a son propre max_items). Les messages critiques ne sont jamais supprimés.",
               "evict": "Désactivé : créer un message au-delà du maximum échoue avec une erreur. Un message supprimé se termine sur tous les canaux.",
-              "rate_per_device_per_minute": "1–600. Un push au-delà de la limite est ignoré ; les messages critiques ne sont jamais retenus.",
-              "rate_total_per_minute": "1–6000. Un push au-delà de la limite est ignoré ; les messages critiques ne sont jamais retenus.",
               "dedupe_seconds": "0–3600. Une mise à jour au contenu identique n'est pas renvoyée pendant ce délai. 0 : désactivé."
             }
           },

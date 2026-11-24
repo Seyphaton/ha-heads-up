@@ -569,6 +569,14 @@ def ws_severity_display(
         vol.Optional("inbox_retention_months"): vol.All(int, vol.Range(min=1, max=36)),
         vol.Optional("inbox_reminder_unread"): bool,
         vol.Optional("inbox_all_notifications"): bool,
+        **{
+            vol.Optional(key): vol.All(int, vol.Range(min=low, max=high))
+            for key, (low, high) in panel_config.CHANNEL_RANGES.items()
+        },
+        vol.Optional("speak_tts_entity"): vol.Any("", vol.Match(r"^tts\.[a-z0-9_]+$")),
+        vol.Optional("speak_restore_volume"): bool,
+        vol.Optional("speak_volume_bands"): settings.check_bands,
+        vol.Optional("speak_severity_volume"): settings.check_severity_volume,
     }
 )
 @require_admin

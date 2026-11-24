@@ -48,14 +48,6 @@ async def test_get_returns_every_option_the_layout_and_the_token(
         "quick_snooze_minutes": 15,
         "disable_ended_buttons": True,
         "presence_debounce_seconds": 60,
-        "speak_max_length": 200,
-        "speak_cooldown_seconds": 60,
-        "speak_tts_entity": "",
-        "speak_restore_volume": True,
-        "speak_severity_volume": {},
-        "speak_volume_bands": [],
-        "rate_per_device_per_minute": 5,
-        "rate_total_per_minute": 60,
         "dedupe_seconds": 30,
         "trace_entries": 500,
         "recent_messages": 100,
@@ -67,8 +59,6 @@ async def test_get_returns_every_option_the_layout_and_the_token(
         "snooze_banner",
         "snooze_push",
         "presence",
-        "speech",
-        "speech_volume",
         "limits",
         "history",
     ]
@@ -77,7 +67,7 @@ async def test_get_returns_every_option_the_layout_and_the_token(
     assert result["install_token"] == entry.options["install_token"]
 
 
-async def test_the_banner_defaults_and_speech_settings_are_set_in_panel_units(
+async def test_the_banner_defaults_are_set_in_panel_units(
     hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
 ) -> None:
     client = await hass_ws_client(hass)
@@ -89,14 +79,12 @@ async def test_the_banner_defaults_and_speech_settings_are_set_in_panel_units(
         default_dismiss_scope="global",
         default_timeout=3600,
         default_snooze_options=[30, 5],
-        speak_tts_entity="tts.home",
         presence_debounce_seconds=0,
     )
     assert reply["success"]
     assert reply["result"]["options"]["default_snooze_options"] == [5, 30]  # minutes, sorted
     assert entry.options["default_snooze_options"] == [300, 1800]  # stored in seconds
     assert entry.options["default_timeout"] == 3600 and entry.options["max_banners"] == 10
-    assert entry.options["speak_tts_entity"] == "tts.home"
     assert entry.runtime_data.options["max_banners"] == 10  # applied live
 
 
@@ -117,8 +105,6 @@ async def test_values_the_options_screen_would_refuse_are_refused(
         {"default_dismiss_scope": "nobody"},
         {"default_timeout": 366 * 86400},
         {"default_snooze_options": [7]},
-        {"speak_tts_entity": "media_player.kitchen"},
-        {"speak_max_length": 10},
     ):
         reply = await ask(client, "settings_set", **bad)
         assert not reply["success"] and reply["error"]["code"] == "invalid_format", bad
@@ -168,39 +154,3 @@ def test_strings_json_lists_the_sections_and_entries_of_the_layout_in_order() ->
     for name, items in settings.SECTIONS:
         assert list(sections[name]["data"]) == [key for key, _ in items], name
         assert list(sections[name]["data_description"]) == [key for key, _ in items], name
-
-
-async def test_volume_bands_and_severity_volumes_are_set_and_checked(
-    hass: HomeAssistant, entry: MockConfigEntry, hass_ws_client: WebSocketGenerator
-) -> None:
-    client = await hass_ws_client(hass)
-    bands = [
-        {"from": "22:00", "to": "07:00", "volume": 20},
-        {"from": "7:00", "to": "9:30", "volume": 45},
-    ]
-    reply = await ask(
-        client,
-        "settings_set",
-        speak_volume_bands=bands,
-        speak_severity_volume={"critical": 90, "info": None},
-        speak_restore_volume=False,
-    )
-    assert reply["success"], reply
-    assert entry.options["speak_volume_bands"][1] == {"from": "07:00", "to": "09:30", "volume": 45}
-    assert entry.options["speak_severity_volume"] == {"critical": 90}
-    assert entry.options["speak_restore_volume"] is False
-    for bad in (
-        {"speak_volume_bands": [{"from": "08:00", "to": "08:00", "volume": 10}]},
-        {"speak_volume_bands": [{"from": "25:00", "to": "08:00", "volume": 10}]},
-        {"speak_volume_bands": [{"from": "08:00", "to": "09:00", "volume": 101}]},
-        {
-            "speak_volume_bands": [
-                {"from": f"0{i}:00", "to": f"0{i}:30", "volume": 5} for i in range(5)
-            ]
-        },
-        {"speak_volume_bands": [*bands, {"from": "23:00", "to": "23:30", "volume": 5}]},
-        {"speak_severity_volume": {"urgent": 50}},
-        {"speak_severity_volume": {"critical": 150}},
-    ):
-        reply = await ask(client, "settings_set", **bad)
-        assert not reply["success"], bad

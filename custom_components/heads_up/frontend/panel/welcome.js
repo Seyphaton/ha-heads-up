@@ -450,17 +450,15 @@ export function createLabel(n, t) {
   return n === 1 ? t.create_one : fill(t.create_many, { n });
 }
 
-// What leaving step 2 saves, and only what changed: the mail service and global address through
-// `heads_up/channels_set`, the speech engine through `heads_up/settings_set`.
+// What leaving step 2 saves, and only what changed: the mail service and global address, the
+// All notifications switch of the inbox and the speech engine, in one `heads_up/channels_set`.
 export function channelChanges(state, saved) {
-  const calls = [];
-  const mail = {};
-  if (state.mailService !== saved.mailService) mail.mail_service = state.mailService;
-  if (state.mailAddress !== saved.mailAddress) mail.mail_global_address = state.mailAddress;
-  if (Object.keys(mail).length) calls.push({ type: "heads_up/channels_set", ...mail });
-  if (state.inboxAll !== saved.inboxAll) calls.push({ type: "heads_up/channels_set", inbox_all_notifications: state.inboxAll });
-  if (state.ttsEngine !== saved.ttsEngine) calls.push({ type: "heads_up/settings_set", speak_tts_entity: state.ttsEngine });
-  return calls;
+  const own = {};
+  if (state.mailService !== saved.mailService) own.mail_service = state.mailService;
+  if (state.mailAddress !== saved.mailAddress) own.mail_global_address = state.mailAddress;
+  if (state.inboxAll !== saved.inboxAll) own.inbox_all_notifications = state.inboxAll;
+  if (state.ttsEngine !== saved.ttsEngine) own.speak_tts_entity = state.ttsEngine;
+  return Object.keys(own).length ? [{ type: "heads_up/channels_set", ...own }] : [];
 }
 
 export function resultText(result, t) {

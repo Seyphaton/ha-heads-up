@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { countText, initials, peopleText, STRINGS as AUD, usageText } from "../../custom_components/heads_up/frontend/panel/audiences.js";
-import { inboxLine, languageName, languageOptions, problems, settingChanges, settingProblems, STRINGS as CH, stylesText, summaryText, validRetention } from "../../custom_components/heads_up/frontend/panel/channels.js";
+import { CHANNEL_RANGES, inboxLine, languageName, languageOptions, problemText, problems, rangeProblems, settingChanges, settingProblems, STRINGS as CH, stylesText, summaryText, ttsEntities, validRetention, volumeProblems } from "../../custom_components/heads_up/frontend/panel/channels.js";
 import { byAudience, STRINGS as MSG } from "../../custom_components/heads_up/frontend/panel/messages.js";
 
 const sameKeys = (strings) => {
@@ -108,6 +108,72 @@ describe("the Inbox row of the Channels page", () => {
   it("has the same texts in every language", () => {
     for (const code of ["de", "fr", "es"]) {
       for (const key of ["inbox_retention", "inbox_all", "inbox_all_note", "inbox_clear", "inbox_confirm", "bad_retention", "inbox_summary", "inbox_summary_all"]) {
+        expect(CH[code][key], `${code} ${key}`).toBeTruthy();
+      }
+    }
+  });
+});
+
+describe("volumeProblems", () => {
+  const night = { from: "22:00", to: "07:00", volume: 20 };
+
+  it("accepts bands over midnight and severity volumes", () => {
+    expect(volumeProblems({ speak_volume_bands: [night, { from: "07:00", to: "09:00", volume: 50 }], speak_severity_volume: { critical: 80 } })).toEqual([]);
+  });
+
+  it("names empty, overlapping, invalid and too many bands", () => {
+    expect(volumeProblems({ speak_volume_bands: [{ from: "08:00", to: "08:00", volume: 5 }] })).toEqual(["bands_empty"]);
+    expect(volumeProblems({ speak_volume_bands: [night, { from: "06:00", to: "08:00", volume: 5 }] })).toEqual(["bands_overlap"]);
+    expect(volumeProblems({ speak_volume_bands: [{ from: "", to: "08:00", volume: 5 }] })).toEqual(["bands_invalid"]);
+    expect(volumeProblems({ speak_volume_bands: [{ ...night, volume: NaN }] })).toEqual(["bands_invalid"]);
+    const five = [0, 1, 2, 3, 4].map((h) => ({ from: `0${h}:00`, to: `0${h}:30`, volume: 5 }));
+    expect(volumeProblems({ speak_volume_bands: five })).toContain("bands_too_many");
+    expect(volumeProblems({ speak_severity_volume: { critical: 101 } })).toEqual(["severity_volume_invalid"]);
+  });
+});
+
+describe("the speech and push rows of the Channels page", () => {
+  it("lists the tts entities and keeps a stored one that no longer exists", () => {
+    const hass = { states: { "tts.b": {}, "light.x": {}, "tts.a": {} } };
+    expect(ttsEntities(hass, "")).toEqual(["tts.a", "tts.b"]);
+    expect(ttsEntities(hass, "tts.gone")).toEqual(["tts.a", "tts.b", "tts.gone"]);
+    expect(ttsEntities(undefined, "")).toEqual([]);
+  });
+
+  it("has the ranges of the server for the four numbers", () => {
+    expect(CHANNEL_RANGES).toEqual({
+      speak_max_length: [20, 1000],
+      speak_cooldown_seconds: [0, 3600],
+      rate_per_device_per_minute: [1, 600],
+      rate_total_per_minute: [1, 6000],
+    });
+  });
+
+  it("names a number outside its range and words it", () => {
+    expect(rangeProblems({ speak_max_length: 200, rate_total_per_minute: 60 })).toEqual([]);
+    expect(rangeProblems({ speak_max_length: 10 })).toEqual(["range:speak_max_length"]);
+    expect(rangeProblems({ rate_per_device_per_minute: 601 })).toEqual(["range:rate_per_device_per_minute"]);
+    expect(rangeProblems({ speak_cooldown_seconds: 0 })).toEqual([]);
+    expect(rangeProblems({ speak_cooldown_seconds: "" })).toEqual(["range:speak_cooldown_seconds"]);
+    expect(problemText("range:speak_max_length", CH.en)).toBe("Spoken text: longest (characters) must be between 20 and 1000.");
+    expect(problemText("bands_overlap", CH.en)).toBe("Bands must not overlap.");
+  });
+
+  it("puts the range and volume problems into the problems of the page", () => {
+    const base = { push_channel_id: "heads_up" };
+    expect(problems({ ...base, speak_max_length: 5 })).toContain("range:speak_max_length");
+    expect(problems({ ...base, speak_volume_bands: [{ from: "08:00", to: "08:00", volume: 5 }] })).toContain("bands_empty");
+    expect(problems(base)).toEqual([]);
+  });
+
+  it("has the words for the moved settings in every language", () => {
+    const keys = ["speak_max_length", "speak_cooldown_seconds", "speak_tts_entity", "speak_restore_volume", "speak_severity_volume", "speak_volume_bands", "rate_per_device_per_minute", "rate_total_per_minute"];
+    for (const code of ["en", "de", "fr", "es"]) {
+      for (const key of keys) {
+        expect(CH[code][`lbl_${key}`], `${code} ${key}`).toBeTruthy();
+        expect(CH[code][`note_${key}`], `${code} ${key} note`).toBeTruthy();
+      }
+      for (const key of ["band_from", "band_to", "band_volume", "band_add", "band_remove", "bands_invalid", "bands_too_many", "bands_empty", "bands_overlap", "severity_volume_invalid", "tts_auto", "range"]) {
         expect(CH[code][key], `${code} ${key}`).toBeTruthy();
       }
     }

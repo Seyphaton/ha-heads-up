@@ -30,8 +30,6 @@ import {
   sizeText,
   splitDuration,
   STRINGS as SETTINGS_STRINGS,
-  ttsEntities,
-  volumeProblems,
 } from "../../custom_components/heads_up/frontend/panel/settings.js";
 
 describe("panel navigation", () => {
@@ -117,7 +115,7 @@ describe("settings page functions", () => {
   const layout = [
     { name: "dismiss", entries: [{ key: "default_timeout", kind: "duration", range: [0, 31536000] }] },
     { name: "snooze_banner", entries: [{ key: "default_snooze_options", kind: "minutes", choices: [5, 15] }] },
-    { name: "limits", entries: [{ key: "max_banners", kind: "int", range: [1, 200] }, { key: "rate_per_device_per_minute", kind: "int", range: [1, 600] }, { key: "rate_total_per_minute", kind: "int", range: [1, 6000] }, { key: "dedupe_seconds", kind: "int", range: [0, 3600] }] },
+    { name: "limits", entries: [{ key: "max_banners", kind: "int", range: [1, 200] }, { key: "dedupe_seconds", kind: "int", range: [0, 3600] }] },
     { name: "history", entries: [{ key: "trace_entries", kind: "int", range: [50, 5000] }, { key: "recent_messages", kind: "int", range: [10, 1000] }] },
     { name: "sidebar", entries: [{ key: "show_panel", kind: "bool" }] },
   ];
@@ -151,12 +149,6 @@ describe("settings page functions", () => {
     expect(changes({ ...saved, default_snooze_options: [15, 60, 240] }, saved)).toEqual({});
   });
 
-  it("lists the tts entities and keeps a stored one that no longer exists", () => {
-    const hass = { states: { "tts.b": {}, "light.x": {}, "tts.a": {} } };
-    expect(ttsEntities(hass, "")).toEqual(["tts.a", "tts.b"]);
-    expect(ttsEntities(hass, "tts.gone")).toEqual(["tts.a", "tts.b", "tts.gone"]);
-    expect(ttsEntities(undefined, "")).toEqual([]);
-  });
 
   it("finds no problem in the saved values", () => {
     expect(problems(saved, ranges)).toEqual([]);
@@ -174,8 +166,6 @@ describe("settings page functions", () => {
     expect(groups[0].desc).toMatch(/banner, the push and the popup/);
     expect(groups[2].entries.map((e) => e.label)).toEqual([
       "Maximum number of stored messages",
-      "Pushes per device per minute",
-      "Deliveries per minute, all devices",
       "Seconds in which identical updates are ignored",
     ]);
     expect(groups[4].entries[0].hint).toMatch(/^Only administrators/);
@@ -942,28 +932,10 @@ describe("messages functions", () => {
   });
 });
 
-describe("volumeProblems", () => {
-  const night = { from: "22:00", to: "07:00", volume: 20 };
-
-  it("accepts bands over midnight and severity volumes", () => {
-    expect(volumeProblems({ speak_volume_bands: [night, { from: "07:00", to: "09:00", volume: 50 }], speak_severity_volume: { critical: 80 } })).toEqual([]);
-  });
-
-  it("names empty, overlapping, invalid and too many bands", () => {
-    expect(volumeProblems({ speak_volume_bands: [{ from: "08:00", to: "08:00", volume: 5 }] })).toEqual(["bands_empty"]);
-    expect(volumeProblems({ speak_volume_bands: [night, { from: "06:00", to: "08:00", volume: 5 }] })).toEqual(["bands_overlap"]);
-    expect(volumeProblems({ speak_volume_bands: [{ from: "", to: "08:00", volume: 5 }] })).toEqual(["bands_invalid"]);
-    expect(volumeProblems({ speak_volume_bands: [{ ...night, volume: NaN }] })).toEqual(["bands_invalid"]);
-    const five = [0, 1, 2, 3, 4].map((h) => ({ from: `0${h}:00`, to: `0${h}:30`, volume: 5 }));
-    expect(volumeProblems({ speak_volume_bands: five })).toContain("bands_too_many");
-    expect(volumeProblems({ speak_severity_volume: { critical: 101 } })).toEqual(["severity_volume_invalid"]);
-  });
-});
-
 describe("settings wording equals the integration's options screen (D-122)", () => {
   const dir = new URL("../../custom_components/heads_up/", import.meta.url);
   const files = { en: "strings.json", de: "translations/de.json", fr: "translations/fr.json", es: "translations/es.json" };
-  const SECTIONS = ["sidebar", "dismiss", "snooze", "snooze_banner", "snooze_push", "presence", "speech", "speech_volume", "limits", "history"];
+  const SECTIONS = ["sidebar", "dismiss", "snooze", "snooze_banner", "snooze_push", "presence", "limits", "history"];
 
   for (const [code, file] of Object.entries(files)) {
     it(`uses the same section names, labels and hints in ${code}`, () => {

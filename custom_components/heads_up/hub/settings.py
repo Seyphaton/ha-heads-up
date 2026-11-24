@@ -24,16 +24,8 @@ from ..const import (
     OPT_MAX_BANNERS,
     OPT_PRESENCE_DEBOUNCE,
     OPT_QUICK_SNOOZE,
-    OPT_RATE_PER_DEVICE,
-    OPT_RATE_TOTAL,
     OPT_RECENT_MESSAGES,
     OPT_SHOW_PANEL,
-    OPT_SPEAK_COOLDOWN,
-    OPT_SPEAK_MAX_LENGTH,
-    OPT_SPEAK_RESTORE_VOLUME,
-    OPT_SPEAK_SEVERITY_VOLUME,
-    OPT_SPEAK_TTS_ENTITY,
-    OPT_SPEAK_VOLUME_BANDS,
     OPT_TRACE_ENTRIES,
     SEVERITIES,
     SNOOZE_PRESET_MINUTES,
@@ -60,24 +52,10 @@ SECTIONS: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
     ("snooze_push", ((OPT_QUICK_SNOOZE, "int"),)),
     ("presence", ((OPT_PRESENCE_DEBOUNCE, "int"),)),
     (
-        "speech",
-        ((OPT_SPEAK_MAX_LENGTH, "int"), (OPT_SPEAK_COOLDOWN, "int"), (OPT_SPEAK_TTS_ENTITY, "tts")),
-    ),
-    (
-        "speech_volume",
-        (
-            (OPT_SPEAK_RESTORE_VOLUME, "bool"),
-            (OPT_SPEAK_SEVERITY_VOLUME, "severity_percent"),
-            (OPT_SPEAK_VOLUME_BANDS, "bands"),
-        ),
-    ),
-    (
         "limits",
         (
             (OPT_MAX_BANNERS, "int"),
             (OPT_EVICT, "bool"),
-            (OPT_RATE_PER_DEVICE, "int"),
-            (OPT_RATE_TOTAL, "int"),
             (OPT_DEDUPE_SECONDS, "int"),
         ),
     ),
@@ -89,10 +67,6 @@ RANGES: dict[str, tuple[int, int]] = {
     OPT_MAX_BANNERS: (1, 200),
     OPT_QUICK_SNOOZE: (1, 1440),
     OPT_PRESENCE_DEBOUNCE: (0, 600),
-    OPT_SPEAK_MAX_LENGTH: (20, 1000),
-    OPT_SPEAK_COOLDOWN: (0, 3600),
-    OPT_RATE_PER_DEVICE: (1, 600),
-    OPT_RATE_TOTAL: (1, 6000),
     OPT_DEDUPE_SECONDS: (0, 3600),
     OPT_TRACE_ENTRIES: (50, 5000),
     OPT_RECENT_MESSAGES: (10, 1000),
@@ -204,9 +178,6 @@ def schema_fields() -> dict[Any, Any]:
         int, vol.Range(min=0, max=MAX_TIMEOUT_SECONDS)
     )
     fields[vol.Optional(OPT_DEFAULT_SNOOZE_OPTIONS)] = [vol.In(SNOOZE_PRESET_MINUTES)]
-    fields[vol.Optional(OPT_SPEAK_TTS_ENTITY)] = vol.Any("", vol.Match(r"^tts\.[a-z0-9_]+$"))
-    fields[vol.Optional(OPT_SPEAK_VOLUME_BANDS)] = check_bands
-    fields[vol.Optional(OPT_SPEAK_SEVERITY_VOLUME)] = check_severity_volume
     return fields
 
 

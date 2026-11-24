@@ -736,12 +736,12 @@ async def hub_e2e() -> None:
             msg_id = await ws.send({"type": f"heads_up/{command}", **extra})
             reply = await ws.recv(msg_id)
             assert reply["success"], (command, reply)
-        msg_id = await ws.send({"type": "heads_up/settings_get"})
-        options = (await ws.recv(msg_id))["result"]["options"]
-        assert options["rate_per_device_per_minute"] == 5, options
-        msg_id = await ws.send({"type": "heads_up/settings_set", "rate_per_device_per_minute": 7})
-        assert (await ws.recv(msg_id))["result"]["options"]["rate_per_device_per_minute"] == 7
-        msg_id = await ws.send({"type": "heads_up/settings_set", "rate_per_device_per_minute": 5})
+        msg_id = await ws.send({"type": "heads_up/panel_config"})
+        channels = (await ws.recv(msg_id))["result"]["channels"]
+        assert channels["rate_per_device_per_minute"] == 5, channels
+        msg_id = await ws.send({"type": "heads_up/channels_set", "rate_per_device_per_minute": 7})
+        assert (await ws.recv(msg_id))["result"]["rate_per_device_per_minute"] == 7
+        msg_id = await ws.send({"type": "heads_up/channels_set", "rate_per_device_per_minute": 5})
         assert (await ws.recv(msg_id))["success"]
         print("hub e2e ok:", len(trace), "trace entries")
 

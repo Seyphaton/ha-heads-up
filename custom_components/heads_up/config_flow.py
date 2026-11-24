@@ -231,14 +231,7 @@ def _option_field(key: str, kind: str, current: dict[str, Any]) -> tuple[Any, An
                 )
             ),
         )
-    field = (
-        vol.Optional(key, description={"suggested_value": current[key]})
-        if current[key]
-        else vol.Optional(key)
-    )
-    if kind in ("bands", "severity_percent"):
-        return field, ObjectSelector()
-    return field, EntitySelector(EntitySelectorConfig(domain="tts"))
+    raise ValueError(kind)  # every kind of SECTIONS is handled above
 
 
 # The two fixed choices of the rule's Policy dropdown, by language: automatic, none.

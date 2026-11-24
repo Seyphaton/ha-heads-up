@@ -181,9 +181,15 @@ describe("welcome", () => {
     }
   });
 
-  it("saves the speech engine through settings_set, and clears it with an empty value", () => {
-    expect(channelChanges({ ...saved, ttsEngine: "tts.cloud" }, saved)).toEqual([{ type: "heads_up/settings_set", speak_tts_entity: "tts.cloud" }]);
-    expect(channelChanges({ ...saved }, { ...saved, ttsEngine: "tts.cloud" })).toEqual([{ type: "heads_up/settings_set", speak_tts_entity: "" }]);
+  it("saves the speech engine through channels_set, and clears it with an empty value", () => {
+    expect(channelChanges({ ...saved, ttsEngine: "tts.cloud" }, saved)).toEqual([{ type: "heads_up/channels_set", speak_tts_entity: "tts.cloud" }]);
+    expect(channelChanges({ ...saved }, { ...saved, ttsEngine: "tts.cloud" })).toEqual([{ type: "heads_up/channels_set", speak_tts_entity: "" }]);
+  });
+
+  it("sends everything step 2 changed in one call", () => {
+    expect(channelChanges({ ...saved, mailService: "smtp_house", inboxAll: true, ttsEngine: "tts.cloud" }, saved)).toEqual([
+      { type: "heads_up/channels_set", mail_service: "smtp_house", inbox_all_notifications: true, speak_tts_entity: "tts.cloud" },
+    ]);
   });
 
   it("writes the note of Last to leave and First home from the stored time", () => {

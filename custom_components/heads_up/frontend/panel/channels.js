@@ -77,6 +77,34 @@ export const STRINGS = {
     inbox_cleared: "The inbox was cleared.",
     inbox_failed: "Could not clear the inbox: {error}",
     bad_retention: "The retention is a whole number of months from 1 to 36.",
+    lbl_speak_max_length: "Spoken text: longest (characters)",
+    note_speak_max_length: "Longer texts are cut at a word and end with an ellipsis.",
+    lbl_speak_cooldown_seconds: "Spoken text: repeat pause (seconds)",
+    note_speak_cooldown_seconds: "The same text is not spoken again on the same speaker within this time. 0: always speak.",
+    lbl_speak_tts_entity: "Text-to-speech engine",
+    note_speak_tts_entity: "The engine that speaks on media players. Empty: the only text-to-speech entity, if there is exactly one.",
+    lbl_speak_restore_volume: "Put the volume back after speaking",
+    note_speak_restore_volume: "A speaker whose volume Heads Up changed gets its earlier volume back once the message was said, unless someone changed the volume meanwhile. Sonos speakers keep their volume and say the message at the chosen level. Off: the speaker stays at the speech volume.",
+    lbl_speak_severity_volume: "Volume by severity (percent)",
+    note_speak_severity_volume: "0–100 per severity. Empty: the time of day decides. A volume in the action call comes first.",
+    lbl_speak_volume_bands: "Volume by time of day",
+    note_speak_volume_bands: "Up to 4 bands, each with a start, an end and a volume in percent. A band from 22:00 to 07:00 runs over midnight. Bands must not overlap. Outside every band the volume is not changed.",
+    lbl_rate_per_device_per_minute: "Pushes per device per minute",
+    note_rate_per_device_per_minute: "1–600. A push over the cap is skipped; critical messages are never held back.",
+    lbl_rate_total_per_minute: "Deliveries per minute, all devices",
+    note_rate_total_per_minute: "1–6000. A push over the cap is skipped; critical messages are never held back.",
+    tts_auto: "Automatic",
+    range: "{field} must be between {min} and {max}.",
+    band_from: "From",
+    band_to: "To",
+    band_volume: "Volume (%)",
+    band_add: "Add band",
+    band_remove: "Remove",
+    bands_invalid: "Each band needs a start and an end (HH:MM) and a volume from 0 to 100.",
+    bands_too_many: "At most 4 bands.",
+    bands_empty: "A band needs a start different from its end.",
+    bands_overlap: "Bands must not overlap.",
+    severity_volume_invalid: "Give a volume from 0 to 100 for passive, info, warning or critical.",
     mail_intro: "Mail calls a notify service once per recipient with a subject and a body. A person's address is set under Recipients, where Mail must be switched on for them.",
     mail_service: "Notify service",
     mail_service_none: "None (mail is off)",
@@ -165,6 +193,34 @@ export const STRINGS = {
     inbox_cleared: "Der Posteingang wurde geleert.",
     inbox_failed: "Der Posteingang konnte nicht geleert werden: {error}",
     bad_retention: "Die Aufbewahrung ist eine ganze Zahl von Monaten von 1 bis 36.",
+    lbl_speak_max_length: "Gesprochener Text: höchstens (Zeichen)",
+    note_speak_max_length: "Längere Texte werden an einem Wortende gekürzt und enden mit Auslassungspunkten.",
+    lbl_speak_cooldown_seconds: "Gesprochener Text: Wiederholungspause (Sekunden)",
+    note_speak_cooldown_seconds: "Derselbe Text wird auf demselben Lautsprecher innerhalb dieser Zeit nicht noch einmal gesprochen. 0: immer sprechen.",
+    lbl_speak_tts_entity: "Text-zu-Sprache-Engine",
+    note_speak_tts_entity: "Die Engine, die auf Mediaplayern spricht. Leer: die einzige Text-zu-Sprache-Entität, wenn es genau eine gibt.",
+    lbl_speak_restore_volume: "Lautstärke nach dem Sprechen zurücksetzen",
+    note_speak_restore_volume: "Ein Lautsprecher, dessen Lautstärke Heads Up geändert hat, bekommt seine vorherige Lautstärke zurück, sobald die Meldung gesagt ist, außer jemand hat die Lautstärke inzwischen geändert. Sonos-Lautsprecher behalten ihre Lautstärke und sagen die Meldung in der gewählten Lautstärke. Aus: der Lautsprecher bleibt auf der Sprachlautstärke.",
+    lbl_speak_severity_volume: "Lautstärke nach Schweregrad (Prozent)",
+    note_speak_severity_volume: "0–100 pro Schweregrad. Leer: die Uhrzeit entscheidet. Eine Lautstärke im Aktionsaufruf hat Vorrang.",
+    lbl_speak_volume_bands: "Lautstärke nach Uhrzeit",
+    note_speak_volume_bands: "Bis zu 4 Zeiträume, jeder mit Beginn, Ende und Lautstärke in Prozent. Ein Zeitraum von 22:00 bis 07:00 geht über Mitternacht. Zeiträume dürfen sich nicht überschneiden. Außerhalb aller Zeiträume bleibt die Lautstärke unverändert.",
+    lbl_rate_per_device_per_minute: "Pushes pro Gerät und Minute",
+    note_rate_per_device_per_minute: "1–600. Ein Push über dem Limit wird übersprungen; kritische Meldungen werden nie zurückgehalten.",
+    lbl_rate_total_per_minute: "Zustellungen pro Minute, alle Geräte",
+    note_rate_total_per_minute: "1–6000. Ein Push über dem Limit wird übersprungen; kritische Meldungen werden nie zurückgehalten.",
+    tts_auto: "Automatisch",
+    range: "{field} muss zwischen {min} und {max} liegen.",
+    band_from: "Von",
+    band_to: "Bis",
+    band_volume: "Lautstärke (%)",
+    band_add: "Zeitraum hinzufügen",
+    band_remove: "Entfernen",
+    bands_invalid: "Jeder Zeitraum braucht Beginn und Ende (HH:MM) und eine Lautstärke von 0 bis 100.",
+    bands_too_many: "Höchstens 4 Zeiträume.",
+    bands_empty: "Beginn und Ende eines Zeitraums müssen verschieden sein.",
+    bands_overlap: "Zeiträume dürfen sich nicht überschneiden.",
+    severity_volume_invalid: "Gib eine Lautstärke von 0 bis 100 für passive, info, warning oder critical an.",
     mail_intro: "E-Mail ruft einen Benachrichtigungsdienst einmal pro Empfänger mit Betreff und Text auf. Die Adresse einer Person stellst du unter Empfänger ein; dort muss E-Mail für sie aktiviert sein.",
     mail_service: "Benachrichtigungsdienst",
     mail_service_none: "Keiner (E-Mail ist aus)",
@@ -253,6 +309,34 @@ export const STRINGS = {
     inbox_cleared: "La boîte de réception a été vidée.",
     inbox_failed: "Impossible de vider la boîte de réception : {error}",
     bad_retention: "La conservation est un nombre entier de mois de 1 à 36.",
+    lbl_speak_max_length: "Texte parlé : longueur maximale (caractères)",
+    note_speak_max_length: "Les textes plus longs sont coupés à la fin d'un mot et se terminent par des points de suspension.",
+    lbl_speak_cooldown_seconds: "Texte parlé : pause avant répétition (secondes)",
+    note_speak_cooldown_seconds: "Le même texte n'est pas redit sur le même haut-parleur pendant ce délai. 0 : toujours dire.",
+    lbl_speak_tts_entity: "Moteur de synthèse vocale",
+    note_speak_tts_entity: "Le moteur qui parle sur les lecteurs multimédia. Vide : la seule entité de synthèse vocale, s'il n'y en a qu'une.",
+    lbl_speak_restore_volume: "Remettre le volume après avoir parlé",
+    note_speak_restore_volume: "Un haut-parleur dont Heads Up a changé le volume retrouve son volume précédent une fois le message dit, sauf si quelqu'un a changé le volume entre-temps. Les haut-parleurs Sonos gardent leur volume et disent le message au niveau choisi. Désactivé : le haut-parleur reste au volume de la voix.",
+    lbl_speak_severity_volume: "Volume par gravité (pour cent)",
+    note_speak_severity_volume: "0–100 par gravité. Vide : l'heure décide. Un volume dans l'appel d'action passe en premier.",
+    lbl_speak_volume_bands: "Volume selon l'heure",
+    note_speak_volume_bands: "Jusqu'à 4 plages, chacune avec un début, une fin et un volume en pour cent. Une plage de 22:00 à 07:00 passe minuit. Les plages ne doivent pas se chevaucher. En dehors de toute plage, le volume ne change pas.",
+    lbl_rate_per_device_per_minute: "Push par appareil et par minute",
+    note_rate_per_device_per_minute: "1–600. Un push au-delà de la limite est ignoré ; les messages critiques ne sont jamais retenus.",
+    lbl_rate_total_per_minute: "Livraisons par minute, tous appareils",
+    note_rate_total_per_minute: "1–6000. Un push au-delà de la limite est ignoré ; les messages critiques ne sont jamais retenus.",
+    tts_auto: "Automatique",
+    range: "{field} doit être entre {min} et {max}.",
+    band_from: "De",
+    band_to: "À",
+    band_volume: "Volume (%)",
+    band_add: "Ajouter une plage",
+    band_remove: "Retirer",
+    bands_invalid: "Chaque plage a besoin d'un début et d'une fin (HH:MM) et d'un volume de 0 à 100.",
+    bands_too_many: "4 plages au plus.",
+    bands_empty: "Le début et la fin d'une plage doivent être différents.",
+    bands_overlap: "Les plages ne doivent pas se chevaucher.",
+    severity_volume_invalid: "Indiquez un volume de 0 à 100 pour passive, info, warning ou critical.",
     mail_intro: "Le courriel appelle un service de notification une fois par destinataire avec un objet et un corps. L'adresse d'une personne se règle sous Destinataires, où Courriel doit être activé pour elle.",
     mail_service: "Service de notification",
     mail_service_none: "Aucun (courriel désactivé)",
@@ -341,6 +425,34 @@ export const STRINGS = {
     inbox_cleared: "La bandeja de entrada se vació.",
     inbox_failed: "No se pudo vaciar la bandeja de entrada: {error}",
     bad_retention: "La conservación es un número entero de meses de 1 a 36.",
+    lbl_speak_max_length: "Texto hablado: longitud máxima (caracteres)",
+    note_speak_max_length: "Los textos más largos se cortan al final de una palabra y terminan con puntos suspensivos.",
+    lbl_speak_cooldown_seconds: "Texto hablado: pausa de repetición (segundos)",
+    note_speak_cooldown_seconds: "El mismo texto no se repite en el mismo altavoz dentro de este tiempo. 0: hablar siempre.",
+    lbl_speak_tts_entity: "Motor de texto a voz",
+    note_speak_tts_entity: "El motor que habla en los reproductores multimedia. Vacío: la única entidad de texto a voz, si solo hay una.",
+    lbl_speak_restore_volume: "Devolver el volumen después de hablar",
+    note_speak_restore_volume: "Un altavoz cuyo volumen cambió Heads Up recupera su volumen anterior en cuanto se dijo el mensaje, salvo que alguien haya cambiado el volumen mientras tanto. Los altavoces Sonos mantienen su volumen y dicen el mensaje al nivel elegido. Desactivado: el altavoz se queda al volumen de la voz.",
+    lbl_speak_severity_volume: "Volumen por gravedad (por ciento)",
+    note_speak_severity_volume: "0–100 por gravedad. Vacío: decide la hora. Un volumen en la llamada a la acción va primero.",
+    lbl_speak_volume_bands: "Volumen según la hora",
+    note_speak_volume_bands: "Hasta 4 franjas, cada una con inicio, fin y un volumen en por ciento. Una franja de 22:00 a 07:00 pasa la medianoche. Las franjas no deben solaparse. Fuera de toda franja el volumen no cambia.",
+    lbl_rate_per_device_per_minute: "Pushes por dispositivo y minuto",
+    note_rate_per_device_per_minute: "1–600. Un push por encima del límite se omite; los mensajes críticos nunca se retienen.",
+    lbl_rate_total_per_minute: "Entregas por minuto, todos los dispositivos",
+    note_rate_total_per_minute: "1–6000. Un push por encima del límite se omite; los mensajes críticos nunca se retienen.",
+    tts_auto: "Automático",
+    range: "{field} debe estar entre {min} y {max}.",
+    band_from: "Desde",
+    band_to: "Hasta",
+    band_volume: "Volumen (%)",
+    band_add: "Añadir franja",
+    band_remove: "Quitar",
+    bands_invalid: "Cada franja necesita un inicio y un fin (HH:MM) y un volumen de 0 a 100.",
+    bands_too_many: "Como máximo 4 franjas.",
+    bands_empty: "El inicio y el fin de una franja deben ser distintos.",
+    bands_overlap: "Las franjas no deben solaparse.",
+    severity_volume_invalid: "Indica un volumen de 0 a 100 para passive, info, warning o critical.",
     mail_intro: "El correo llama a un servicio de notificación una vez por destinatario con asunto y cuerpo. La dirección de una persona se define en Destinatarios, donde Correo debe estar activado para ella.",
     mail_service: "Servicio de notificación",
     mail_service_none: "Ninguno (correo desactivado)",
@@ -363,9 +475,9 @@ const LOCKSCREENS = ["full", "title_only", "generic"];
 // The channels the page lists, the settings each one owns and its icon.
 const CHANNELS = [
   { key: "banner", icon: "mdi:card-text-outline", keys: [], settings: ["default_snooze_options"] },
-  { key: "push", icon: "mdi:cellphone-message", keys: ["push_lockscreen", "push_channel_id", "push_sticky", "push_severity_look", "push_progress_interval"], settings: ["quick_snooze_minutes"] },
+  { key: "push", icon: "mdi:cellphone-message", keys: ["push_lockscreen", "push_channel_id", "push_sticky", "push_severity_look", "push_progress_interval", "rate_per_device_per_minute", "rate_total_per_minute"], settings: ["quick_snooze_minutes"] },
   { key: "popup", icon: "mdi:dock-window", keys: [], settings: ["quick_snooze_minutes"] },
-  { key: "speech", icon: "mdi:account-voice", keys: ["speak_language"], settings: [] },
+  { key: "speech", icon: "mdi:account-voice", keys: ["speak_language", "speak_max_length", "speak_cooldown_seconds", "speak_tts_entity", "speak_restore_volume", "speak_severity_volume", "speak_volume_bands"], settings: [] },
   { key: "persistent", icon: "mdi:bell-outline", keys: [], settings: [] },
   { key: "mail", icon: "mdi:email-outline", keys: ["mail_service", "mail_global_address", "mail_subject", "mail_body"], settings: [] },
   { key: "inbox", icon: "mdi:inbox-outline", keys: ["inbox_retention_months", "inbox_reminder_unread", "inbox_all_notifications"], settings: [] },
@@ -452,6 +564,10 @@ const PAGE_CSS = `
 .hu-page .ch-chips fieldset { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); column-gap: 12px; margin: 0; }
 .hu-page .ch-chips label.inline { min-height: 40px; }
 .hu-page .ch-sub { font-size: 14px; margin: 4px 0 8px; }
+.hu-page .ch-volumes, .hu-page .ch-bands { display: grid; gap: 4px 12px; }
+.hu-page .ch-volumes { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+.hu-page .ch-volumes .ch-sub, .hu-page .ch-bands .ch-sub { grid-column: 1 / -1; }
+.hu-page .ch-band { display: flex; flex-wrap: wrap; align-items: end; gap: 8px 12px; }
 .hu-page .ch-go { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
 .hu-page .ch-go .hint { margin: 0; }
 .hu-page .ch-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 8px; }
@@ -502,6 +618,89 @@ export function inboxLine(info, t) {
   return fill(t.inbox_info, { items: info.items, people: info.people, oldest: String(info.oldest || "").slice(0, 10) });
 }
 
+
+// The numbers of the speech and push rows and their limits (D-276); the server checks the same.
+export const CHANNEL_RANGES = {
+  speak_max_length: [20, 1000],
+  speak_cooldown_seconds: [0, 3600],
+  rate_per_device_per_minute: [1, 600],
+  rate_total_per_minute: [1, 6000],
+};
+const MAX_BANDS = 4;
+
+export function bandMinutes(band) {
+  const minute = (text) => {
+    const match = /^(\d{1,2}):(\d{2})/.exec(String(text || ""));
+    if (!match || Number(match[1]) > 23 || Number(match[2]) > 59) return null;
+    return Number(match[1]) * 60 + Number(match[2]);
+  };
+  const start = minute(band.from);
+  const end = minute(band.to);
+  if (start === null || end === null) return null;
+  const set = new Set();
+  if (start < end) for (let m = start; m < end; m++) set.add(m);
+  else if (start > end) {
+    for (let m = start; m < 1440; m++) set.add(m);
+    for (let m = 0; m < end; m++) set.add(m);
+  }
+  return set;
+}
+
+// Problems of the speech volume settings, as the error codes of the server (D-217).
+export function volumeProblems(values) {
+  const found = new Set();
+  const bands = values.speak_volume_bands || [];
+  if (bands.length > MAX_BANDS) found.add("bands_too_many");
+  const taken = new Set();
+  for (const band of bands) {
+    const minutes = bandMinutes(band);
+    if (minutes === null || !Number.isInteger(band.volume) || band.volume < 0 || band.volume > 100) {
+      found.add("bands_invalid");
+      continue;
+    }
+    if (minutes.size === 0) found.add("bands_empty");
+    for (const m of minutes) {
+      if (taken.has(m)) {
+        found.add("bands_overlap");
+        break;
+      }
+    }
+    for (const m of minutes) taken.add(m);
+  }
+  for (const value of Object.values(values.speak_severity_volume || {})) {
+    if (!Number.isInteger(value) || value < 0 || value > 100) found.add("severity_volume_invalid");
+  }
+  return [...found];
+}
+
+// The numbers outside their range, as "range:<key>" for the page to word.
+export function rangeProblems(values) {
+  const found = [];
+  for (const [key, [min, max]] of Object.entries(CHANNEL_RANGES)) {
+    if (values[key] === undefined) continue;
+    const n = values[key];
+    if (!Number.isInteger(n) || n < min || n > max) found.push(`range:${key}`);
+  }
+  return found;
+}
+
+// The text-to-speech entities of this Home Assistant, plus the saved one if it is gone.
+export function ttsEntities(hass, current) {
+  const ids = Object.keys(hass?.states || {}).filter((id) => id.startsWith("tts.")).sort();
+  if (current && !ids.includes(current)) ids.push(current);
+  return ids;
+}
+
+// A problem code in words: a number out of its range, or a code of the server.
+export function problemText(code, t) {
+  if (code.startsWith("range:")) {
+    const key = code.slice(6);
+    const [min, max] = CHANNEL_RANGES[key];
+    return fill(t.range, { field: t[`lbl_${key}`], min, max });
+  }
+  return t[code] || code;
+}
+
 export function problems(values) {
   const found = [];
   if (values.inbox_retention_months !== undefined && !validRetention(values.inbox_retention_months)) found.push("bad_retention");
@@ -510,6 +709,7 @@ export function problems(values) {
   if (values.mail_subject !== undefined && !validMailTemplate(values.mail_subject, 200)) found.push("bad_mail_subject");
   if (values.mail_body !== undefined && !validMailTemplate(values.mail_body, 2000)) found.push("bad_mail_body");
   if (String(values.mail_global_address ?? "").trim().length > 254) found.push("bad_mail_address");
+  found.push(...rangeProblems(values), ...volumeProblems(values));
   return found;
 }
 
@@ -582,7 +782,7 @@ export function mount(container, ctx) {
       save.disabled = found.length > 0 || !dirty;
       bar.classList.toggle("dirty", dirty);
       status.className = found.length ? "hint problems" : "hint ok";
-      status.textContent = found.length ? found.map((c) => t[c]).join(" ") : message || (dirty ? t.valid : "");
+      status.textContent = found.length ? found.map((c) => problemText(c, t)).join(" ") : message || (dirty ? t.valid : "");
     };
     paint();
   }
@@ -638,6 +838,10 @@ export function mount(container, ctx) {
       box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.sticky, values.push_sticky, (on) => { values.push_sticky = on; paint(); })]));
       box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.severity_look, values.push_severity_look, (on) => { values.push_severity_look = on; paint(); })]), hint(t.severity_look_note));
       box.append(ui.field(t.progress_interval, ui.numberInput(values.push_progress_interval, (v) => { values.push_progress_interval = Number.isNaN(v) ? "" : v; paint(); }, { min: 1, max: 300, step: 1 })), hint(t.progress_interval_note));
+      for (const key of ["rate_per_device_per_minute", "rate_total_per_minute"]) {
+        const [min, max] = CHANNEL_RANGES[key];
+        box.append(ui.field(t[`lbl_${key}`], ui.numberInput(values[key], (v) => { values[key] = Number.isNaN(v) ? "" : v; paint(); }, { min, max, step: 1 })), hint(t[`note_${key}`]));
+      }
       box.append(hint(t.channel_id_note), hint(t.buttons_note));
     } else if (key === "speech") {
       if (languages?.length) {
@@ -647,6 +851,57 @@ export function mount(container, ctx) {
         box.append(ui.field(t.language, ui.textInput(values.speak_language, (v) => { values.speak_language = v; paint(); }, { placeholder: hass?.config?.language || "", spellcheck: false, autocapitalize: "off" }), t.no_engine_languages));
       }
       box.append(hint(t.speech_note));
+      for (const key of ["speak_max_length", "speak_cooldown_seconds"]) {
+        const [min, max] = CHANNEL_RANGES[key];
+        box.append(ui.field(t[`lbl_${key}`], ui.numberInput(values[key], (v) => { values[key] = Number.isNaN(v) ? "" : v; paint(); }, { min, max, step: 1 })), hint(t[`note_${key}`]));
+      }
+      const engines = [{ value: "", label: t.tts_auto }, ...ttsEntities(hass, values.speak_tts_entity).map((id) => ({ value: id, label: id }))];
+      box.append(ui.field(t.lbl_speak_tts_entity, ui.selectInput(engines, values.speak_tts_entity || "", (v) => { values.speak_tts_entity = v; paint(); })), hint(t.note_speak_tts_entity));
+      box.append(el("div", { className: "tl-wide" }, [ui.checkbox(t.lbl_speak_restore_volume, values.speak_restore_volume, (on) => { values.speak_restore_volume = on; paint(); })]), hint(t.note_speak_restore_volume));
+      // One number per severity; empty means no volume for it (D-217).
+      const perSeverity = el("div", { className: "tl-wide ch-volumes" }, [el("div", { className: "ch-sub", textContent: t.lbl_speak_severity_volume })]);
+      for (const severity of SEVERITY_ORDER) {
+        const current = (values.speak_severity_volume || {})[severity];
+        perSeverity.append(ui.field(t.severities[severity], ui.numberInput(current ?? "", (v) => {
+          const next = { ...(values.speak_severity_volume || {}) };
+          if (Number.isNaN(v)) delete next[severity];
+          else next[severity] = v;
+          values.speak_severity_volume = next;
+          paint();
+        }, { min: 0, max: 100, step: 1 })));
+      }
+      box.append(perSeverity, hint(t.note_speak_severity_volume));
+      // Up to four bands of the day, each with a start, an end and a volume (D-217).
+      const bandsBox = el("div", { className: "tl-wide ch-bands" }, [el("div", { className: "ch-sub", textContent: t.lbl_speak_volume_bands })]);
+      const bands = values.speak_volume_bands || [];
+      bands.forEach((band, index) => {
+        const row = el("div", { className: "ch-band" });
+        const edit = (name, v) => {
+          const next = bands.map((b) => ({ ...b }));
+          next[index][name] = v;
+          values.speak_volume_bands = next;
+          paint();
+        };
+        row.append(ui.field(t.band_from, ui.timeInput(band.from, (v) => edit("from", v))), ui.field(t.band_to, ui.timeInput(band.to, (v) => edit("to", v))));
+        row.append(ui.field(t.band_volume, ui.numberInput(band.volume ?? "", (v) => edit("volume", Number.isNaN(v) ? "" : v), { min: 0, max: 100, step: 1 })));
+        const remove = el("button", { type: "button", textContent: t.band_remove });
+        remove.setAttribute("aria-label", `${t.band_remove} ${index + 1}`);
+        remove.addEventListener("click", () => {
+          values.speak_volume_bands = bands.filter((_, i) => i !== index);
+          render();
+        });
+        row.append(remove);
+        bandsBox.append(row);
+      });
+      if (bands.length < MAX_BANDS) {
+        const add = el("button", { type: "button", textContent: t.band_add });
+        add.addEventListener("click", () => {
+          values.speak_volume_bands = [...bands, { from: "22:00", to: "07:00", volume: 30 }];
+          render();
+        });
+        bandsBox.append(add);
+      }
+      box.append(bandsBox, hint(t.note_speak_volume_bands));
     } else {
       const services = [...(data.choices?.notify_services || [])];
       if (values.mail_service && !services.includes(values.mail_service)) services.push(values.mail_service);

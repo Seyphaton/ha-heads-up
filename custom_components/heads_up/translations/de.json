@@ -84,46 +84,16 @@
               "presence_debounce_seconds": "Eine Person muss so lange in oder außerhalb einer Zone bleiben, bevor sich \"Last to leave\" und \"First home\" ändern und eine Anwesenheitsrichtlinie freigibt, was sie zurückhält. 0 reagiert sofort."
             }
           },
-          "speech": {
-            "name": "Sprache",
-            "data": {
-              "speak_max_length": "Gesprochener Text: höchstens (Zeichen)",
-              "speak_cooldown_seconds": "Gesprochener Text: Wiederholungspause (Sekunden)",
-              "speak_tts_entity": "Text-zu-Sprache-Engine"
-            },
-            "data_description": {
-              "speak_max_length": "Längere Texte werden an einem Wortende gekürzt und enden mit Auslassungspunkten.",
-              "speak_cooldown_seconds": "Derselbe Text wird auf demselben Lautsprecher innerhalb dieser Zeit nicht noch einmal gesprochen. 0: immer sprechen.",
-              "speak_tts_entity": "Die Engine, die auf Mediaplayern spricht. Leer: die einzige Text-zu-Sprache-Entität, wenn es genau eine gibt."
-            }
-          },
-          "speech_volume": {
-            "name": "Lautstärke der Sprache",
-            "data": {
-              "speak_restore_volume": "Lautstärke nach dem Sprechen zurücksetzen",
-              "speak_severity_volume": "Lautstärke nach Schweregrad (Prozent)",
-              "speak_volume_bands": "Lautstärke nach Uhrzeit"
-            },
-            "data_description": {
-              "speak_restore_volume": "Ein Lautsprecher, dessen Lautstärke Heads Up geändert hat, bekommt seine vorherige Lautstärke zurück, sobald die Meldung gesagt ist, außer jemand hat die Lautstärke inzwischen geändert. Sonos-Lautsprecher behalten ihre Lautstärke und sagen die Meldung in der gewählten Lautstärke. Aus: der Lautsprecher bleibt auf der Sprachlautstärke.",
-              "speak_severity_volume": "0–100 pro Schweregrad. Leer: die Uhrzeit entscheidet. Eine Lautstärke im Aktionsaufruf hat Vorrang.",
-              "speak_volume_bands": "Bis zu 4 Zeiträume, jeder mit Beginn, Ende und Lautstärke in Prozent. Ein Zeitraum von 22:00 bis 07:00 geht über Mitternacht. Zeiträume dürfen sich nicht überschneiden. Außerhalb aller Zeiträume bleibt die Lautstärke unverändert."
-            }
-          },
           "limits": {
             "name": "Grenzen",
             "data": {
               "max_banners": "Maximale Anzahl gespeicherter Meldungen",
               "evict": "Älteste Meldung mit der niedrigsten Dringlichkeit entfernen, wenn voll",
-              "rate_per_device_per_minute": "Pushes pro Gerät und Minute",
-              "rate_total_per_minute": "Zustellungen pro Minute, alle Geräte",
               "dedupe_seconds": "Sekunden, in denen gleiche Aktualisierungen ignoriert werden"
             },
             "data_description": {
               "max_banners": "1–200. Wie viele Meldungen aus Aktionsaufrufen gleichzeitig bestehen können, auf jedem Kanal; Überwachungsregeln zählen nicht. Es schützt Speicher und Timer von Home Assistant, nicht die Telefone oder die Karte (die Karte hat ihr eigenes max_items). Kritische Meldungen werden nie entfernt.",
               "evict": "Wenn aus, schlägt das Erstellen einer Meldung über dem Maximum mit einem Fehler fehl. Eine entfernte Meldung endet auf jedem Kanal.",
-              "rate_per_device_per_minute": "1–600. Ein Push über dem Limit wird übersprungen; kritische Meldungen werden nie zurückgehalten.",
-              "rate_total_per_minute": "1–6000. Ein Push über dem Limit wird übersprungen; kritische Meldungen werden nie zurückgehalten.",
               "dedupe_seconds": "0–3600. Eine Aktualisierung mit gleichem Inhalt wird in dieser Zeit nicht erneut gesendet. 0: aus."
             }
           },

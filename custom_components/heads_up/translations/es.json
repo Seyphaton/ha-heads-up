@@ -84,46 +84,16 @@
               "presence_debounce_seconds": "Una persona debe estar dentro o fuera de una zona este tiempo antes de que cambien \"Last to leave\" y \"First home\" y una política de presencia libere lo que retiene. 0 reacciona al instante."
             }
           },
-          "speech": {
-            "name": "Voz",
-            "data": {
-              "speak_max_length": "Texto hablado: longitud máxima (caracteres)",
-              "speak_cooldown_seconds": "Texto hablado: pausa de repetición (segundos)",
-              "speak_tts_entity": "Motor de texto a voz"
-            },
-            "data_description": {
-              "speak_max_length": "Los textos más largos se cortan al final de una palabra y terminan con puntos suspensivos.",
-              "speak_cooldown_seconds": "El mismo texto no se repite en el mismo altavoz dentro de este tiempo. 0: hablar siempre.",
-              "speak_tts_entity": "El motor que habla en los reproductores multimedia. Vacío: la única entidad de texto a voz, si solo hay una."
-            }
-          },
-          "speech_volume": {
-            "name": "Volumen de la voz",
-            "data": {
-              "speak_restore_volume": "Devolver el volumen después de hablar",
-              "speak_severity_volume": "Volumen por gravedad (por ciento)",
-              "speak_volume_bands": "Volumen según la hora"
-            },
-            "data_description": {
-              "speak_restore_volume": "Un altavoz cuyo volumen cambió Heads Up recupera su volumen anterior en cuanto se dijo el mensaje, salvo que alguien haya cambiado el volumen mientras tanto. Los altavoces Sonos mantienen su volumen y dicen el mensaje al nivel elegido. Desactivado: el altavoz se queda al volumen de la voz.",
-              "speak_severity_volume": "0–100 por gravedad. Vacío: decide la hora. Un volumen en la llamada a la acción va primero.",
-              "speak_volume_bands": "Hasta 4 franjas, cada una con inicio, fin y un volumen en por ciento. Una franja de 22:00 a 07:00 pasa la medianoche. Las franjas no deben solaparse. Fuera de toda franja el volumen no cambia."
-            }
-          },
           "limits": {
             "name": "Límites",
             "data": {
               "max_banners": "Número máximo de mensajes guardados",
               "evict": "Eliminar el mensaje más antiguo de menor gravedad cuando se llena",
-              "rate_per_device_per_minute": "Pushes por dispositivo y minuto",
-              "rate_total_per_minute": "Entregas por minuto, todos los dispositivos",
               "dedupe_seconds": "Segundos en que se ignoran las actualizaciones idénticas"
             },
             "data_description": {
               "max_banners": "1–200. Cuántos mensajes de llamadas a la acción pueden existir a la vez, en cualquier canal; las reglas de vigilancia no cuentan. Protege el almacenamiento y los temporizadores de Home Assistant, no los teléfonos ni la tarjeta (la tarjeta tiene su propio max_items). Los mensajes críticos nunca se eliminan.",
               "evict": "Si está desactivado, crear un mensaje por encima del máximo falla con un error. Un mensaje eliminado termina en todos los canales.",
-              "rate_per_device_per_minute": "1–600. Un push por encima del límite se omite; los mensajes críticos nunca se retienen.",
-              "rate_total_per_minute": "1–6000. Un push por encima del límite se omite; los mensajes críticos nunca se retienen.",
               "dedupe_seconds": "0–3600. Una actualización con el mismo contenido no se reenvía durante este tiempo. 0: desactivado."
             }
           },
