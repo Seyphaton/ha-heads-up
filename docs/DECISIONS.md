@@ -1791,6 +1791,11 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - The inbox settings (retention, reminder switch, All notifications, Clear inbox) live on the Inbox row of the Channels page, not on the Settings page or the Configure screen, like the settings of push, popup and mail. The introduction (tour step 2) offers the All notifications switch.
   - Review of the Settings page: the channel-specific settings move to their channel rows now, in their own commit: speech (longest text, repeat pause, engine, restore volume, volume by severity, volume by time of day) to Speech, and the push rate limits (pushes per device and deliveries in total per minute) to Push. They stay: the dismiss and snooze defaults (banner, push and popup together), seconds for identical updates and the maximum of stored messages (every channel), the presence delay (policies and audiences), the trace and recent messages kept (logs), the sidebar switch and the identity. Consequence: the moved settings are no longer on the Configure screen of Home Assistant (channel settings are only on the Channels page, D-164).
 
+## D-277 Inbox card: size `compact` (2026-11-24, maintainer)
+- Context: the maintainer showed a row-shaped tile (icon on the left, title and one line below) and asked for cards in that form factor.
+- Decision (maintainer, "Inbox card only", "like the screenshot"): a fourth size `compact` of the inbox card, no designs. Icon coloured by the severity of the message that matters most (needs action first, then unread; green check when nothing waits), title of that message or "Inbox", second line the summary. Taps open the dialog. Grid options 6 columns, 1 row, minimum 3 columns. The banner card gets no such size.
+- Same text rules as the other sizes: `titles_only` has no effect because no message text is shown.
+
 ## D-280 Policies lose Not for severities and From watch rule (2026-11-24, maintainer)
 - Context: after 2.1.0-beta.3 the maintainer found two filters on the policy form that repeat other fields. Not for severities says the same as For with the other severities. From watch rule came with design AB (D-224) from design D; the maintainer had approved the design as a whole, not this field. Numbers D-280 to D-282 are reserved on `main` for these fixes because `release/3.0` uses D-268 to D-275.
 - Decision (maintainer, "migrate and remove the backend as well"): both fields are removed from the form, the model, the matching, the checker and the strings. Not for tags stays.
@@ -1808,8 +1813,3 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer, "do it at the same position where you also show critical messages in the first card"): the Overview payload has `live_activities`, every active non-rule message with a progress bar. The status card lists them first, each with Dismiss (`heads_up/panel_clear`, which clears the push tag on every device). They are not in `status`, so the count and the green state do not change.
 - Unverified on real devices: that `clear_notification` ends an iOS Live Activity (HA companion docs say it does; no device was available).
 - Same day (maintainer): the severity boxes of the form start with all four checked, the last checked box cannot be unchecked (hint: switch the policy off), and four checked are stored as an empty list. A policy cannot be left with no severity.
-
-## D-277 Inbox card: size `compact` (2026-11-24, maintainer)
-- Context: the maintainer showed a row-shaped tile (icon on the left, title and one line below) and asked for cards in that form factor.
-- Decision (maintainer, "Inbox card only", "like the screenshot"): a fourth size `compact` of the inbox card, no designs. Icon coloured by the severity of the message that matters most (needs action first, then unread; green check when nothing waits), title of that message or "Inbox", second line the summary. Taps open the dialog. Grid options 6 columns, 1 row, minimum 3 columns. The banner card gets no such size.
-- Same text rules as the other sizes: `titles_only` has no effect because no message text is shown.
