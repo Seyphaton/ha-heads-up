@@ -1798,7 +1798,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 
 ## D-278 Release 3.0.0-beta.1 (2026-11-24, maintainer)
 - Context: Phase 22 (personal inbox, D-264 to D-277) is approved. `release/3.0` was cut from `main` at 2.1.0-beta.3 and has `main` merged in (the four fixes, D-280 to D-282).
-- Decision (maintainer, "push and prepare beta.1 for 3.0.0"): the manifest version is `3.0.0-beta.1`, the CHANGELOG keeps `[Unreleased]`, `release/3.0` is pushed. The tag `v3.0.0-beta.1` and the GitHub pre-release wait for a separate order (D-020). Nothing is merged into `main`.
+- Decision (maintainer, "push and prepare beta.1 for 3.0.0"): the manifest version is `3.0.0-beta.1`, the CHANGELOG keeps `[Unreleased]`, `release/3.0` is pushed. The tag `v3.0.0-beta.1` was pushed on 2026-11-24 on a separate order (D-020); the GitHub pre-release is the maintainer's step. Nothing is merged into `main`.
 - No breaking change was added in 3.0 beyond what `main` already carries: the policy migration to entry version 3.2 keeps a backup (D-280). New for an existing setup: one `sensor.heads_up_inbox_<person>` per person, and the speech and push rate settings on their channel rows.
 
 ## D-280 Policies lose Not for severities and From watch rule (2026-11-24, maintainer)

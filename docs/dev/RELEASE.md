@@ -60,7 +60,7 @@ State: `release/2.1` was cut from `main` at 2.0.0 and is merged into `main` (202
 5. Tag `v2.1.0` on `main`, push the tag, create the GitHub release (not a pre-release) with the 2.1.0 section as notes.
 
 ## Releasing 3.0.0
-State: `release/3.0` was cut from `main` at 2.1.0-beta.3 and has `main` merged in. Manifest `3.0.0-beta.1` (D-278); the branch is pushed, the tag `v3.0.0-beta.1` is not. It holds Phase 22 (personal inbox). Phase 23 (messages to other people) is not approved.
+State: `release/3.0` was cut from `main` at 2.1.0-beta.3 and has `main` merged in. Manifest `3.0.0-beta.1` (D-278); the branch and the tag `v3.0.0-beta.1` are pushed. It holds Phase 22 (personal inbox). Phase 23 (messages to other people) is not approved.
 1. Real-device checks (`docs/OPEN_QUESTIONS.md`, inbox section): a push on iOS and Android with the inbox on, the inbox card on a real dashboard (sections and masonry), All notifications with a real speaker. While they are open, release `3.0.0-beta.N` (manifest version, commit, tag, push, on the maintainer's approval).
 2. `v3.0.0-beta.1`, on the maintainer's order: read CI on the pushed branch, `git tag -a v3.0.0-beta.1 -m "3.0.0-beta.1"`, push the tag, create the GitHub pre-release with the `[Unreleased]` section as notes.
 3. Rename `[Unreleased]` to `[3.0.0]` with the date, set `version` to `3.0.0`, `make check`, `make hassfest` and `make dev-smoke` green, push, read CI.
