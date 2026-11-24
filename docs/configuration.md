@@ -266,10 +266,11 @@ design: split
 | `design` | `number`, `ring` or `mosaic` for small; `tile`, `ring` or `split` for medium | the first of its size | How the count looks. Not for the large list. Number shows the count big. Ring splits it by severity. Mosaic shows the icons of up to four unread items, and +N from five on. Tile and ring show the latest unread title. Split has the buttons Open and Mark all read. |
 | `titles_only` | boolean | `false` | `true`: the card never shows the text of a message, only its title. Use it on a screen that others can see. |
 
-- Selecting a tile or a medium card opens the list in a window. The large card is the list.
+- Selecting a tile or a medium card opens the list in a window. The large card is the list. With nothing unread the number tile shows a quiet 0, and the mosaic and the ring show a check mark.
+- The banner card can open the same window with a small button: see `show_inbox_button` in [the card options](actions.md#options). It works without an inbox card on the dashboard.
 - The list shows the items that need action first, then the latest change first, grouped by day. The filter switches between All and Unread. Mark all read marks every unread item.
 - Expanding a row marks the item read and shows its text, a picture if the message had one, and its timeline. Delete removes the item from your inbox.
-- The switch at the top shows the tabs Inbox and All notifications. All notifications adds the copies of the notifications from other channels (see [Inbox](#inbox)); while the switch is off it says how to turn it on.
+- The tabs Inbox and All notifications show only while the switch Show all notifications in the personal inbox is on (see [Inbox](#inbox)); All notifications adds the copies of the notifications from other channels. With the switch off the card shows the inbox alone.
 - A critical item nobody acknowledged is marked Needs action with a symbol and a text, not only a color. An item whose message has ended shows Ended.
 - The colors are the theme colors of the severities. The list loads 50 items and offers Show more.
 - The card follows the language of your Home Assistant user.

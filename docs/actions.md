@@ -732,6 +732,7 @@ The card shows a banner while it is active, not dismissed by you, and not remove
 | `colorize` | `all`, `background`, `icon`, `bar` | `all` | Which parts take the severity color: background, icon and left bar; background only; icon and label only; left bar only. |
 | `colors` | map of severity to color | the colors of the Severities page, else the theme | CSS color or theme variable per severity, for example `critical: "#c62828"`. YAML only: the card editor no longer shows it, because the panel's Severities page sets the colors for every card. A card with `colors` keeps them. |
 | `clear_all` | boolean | `false` | Show a "Clear all" button in the header. |
+| `show_inbox_button` | boolean | `false` | Show a small Open inbox button in the header. It opens your own inbox in a window. The button is part of the header, so it shows only while the card shows; with no banners and no empty message the card is hidden. |
 | `swipe_to_dismiss` | boolean | `false` | Swipe a banner sideways to dismiss it. |
 | `show_snoozed` | boolean | `true` | List your snoozed banners under the card with a Show now button. `false` hides the list. |
 | `show_acknowledged` | boolean | `true` | Show the line "Acknowledged by Anna" under a banner that someone acknowledged. `false` hides the line; the Acknowledge button stays. |

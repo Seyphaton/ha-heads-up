@@ -28,7 +28,6 @@ const PAGE = 50;
 const ENGLISH = {
   inbox: "Inbox",
   all_notifications: "All notifications",
-  copy_hint: "Only messages sent to the inbox are kept. Switch on “Show all notifications in the personal inbox” in the settings of the Inbox channel to see notifications from other channels here too.",
   unread_n: "{n} unread",
   needs_n: "{n} needs action",
   all_caught_up: "All caught up",
@@ -101,7 +100,6 @@ export const TRANSLATIONS = {
   de: {
     inbox: "Posteingang",
     all_notifications: "Alle Benachrichtigungen",
-    copy_hint: "Es werden nur Nachrichten an den Posteingang gespeichert. Schalte „Alle Benachrichtigungen im persönlichen Posteingang zeigen“ in den Einstellungen des Kanals Posteingang ein, um hier auch Benachrichtigungen anderer Kanäle zu sehen.",
     unread_n: "{n} ungelesen",
     needs_n: "{n} braucht Aktion",
     all_caught_up: "Alles gelesen",
@@ -170,7 +168,6 @@ export const TRANSLATIONS = {
   fr: {
     inbox: "Boîte de réception",
     all_notifications: "Toutes les notifications",
-    copy_hint: "Seuls les messages envoyés à la boîte de réception sont conservés. Activez « Afficher toutes les notifications dans la boîte de réception personnelle » dans les réglages du canal Boîte de réception pour voir ici aussi les notifications des autres canaux.",
     unread_n: "{n} non lu(s)",
     needs_n: "{n} à traiter",
     all_caught_up: "Tout est lu",
@@ -239,7 +236,6 @@ export const TRANSLATIONS = {
   es: {
     inbox: "Bandeja de entrada",
     all_notifications: "Todas las notificaciones",
-    copy_hint: "Solo se guardan los mensajes enviados a la bandeja de entrada. Activa «Mostrar todas las notificaciones en la bandeja de entrada personal» en los ajustes del canal Bandeja de entrada para ver aquí también las notificaciones de otros canales.",
     unread_n: "{n} sin leer",
     needs_n: "{n} requiere acción",
     all_caught_up: "Todo leído",
@@ -390,6 +386,12 @@ export function mosaicTiles(items) {
   return [...unread.slice(0, MOSAIC_CELLS - 1).map((item) => ({ item })), { more: unread.length - (MOSAIC_CELLS - 1) }];
 }
 
+// The tabs Inbox and All notifications exist only while All notifications is on; otherwise the
+// card shows the inbox alone.
+export function visibleScope(state, scope) {
+  return state.all_notifications && scope === "all" ? "all" : "inbox";
+}
+
 // The view Inbox shows the real items, the view Everything also the copies (D-275).
 export function scopeItems(items, scope) {
   return scope === "all" ? items : items.filter((i) => !i.copy);
@@ -479,7 +481,7 @@ const icon = (name) => h("ha-icon", { icon: name });
 const CSS_ESCAPE = (value) => String(value).replace(/["\\]/g, "\\$&");
 
 const CSS = `
-:host { display: block; }
+:host { display: block; height: 100%; }
 * { box-sizing: border-box; }
 button { font: inherit; color: inherit; }
 ha-card { overflow: hidden; }
@@ -512,26 +514,28 @@ ha-card { overflow: hidden; }
 .legend i { font-style: normal; display: inline-flex; align-items: center; gap: 4px; }
 .legend i::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
 
-.sq { container-type: inline-size; height: 100%; min-height: 110px; aspect-ratio: 1; }
-.Q { height: 100%; padding: 11cqw; display: flex; flex-direction: column; justify-content: space-between; }
-.Q .tile { width: 24cqw; height: 24cqw; border-radius: 8cqw; --mdc-icon-size: 13cqw; }
-.Q .n { font-size: 30cqw; line-height: .9; }
-.Q .lb { font-size: max(11px, 8.5cqw); font-weight: 600; }
-.Q .sub { font-size: max(10px, 7.5cqw); }
+.sq { container-type: size; width: 100%; aspect-ratio: 1; max-height: 100%; overflow: hidden; }
+ha-card.small { height: 100%; }
+.Q { height: 100%; padding: 11cqmin; display: flex; flex-direction: column; justify-content: space-between; }
+.Q .tile { width: 24cqmin; height: 24cqmin; border-radius: 8cqmin; --mdc-icon-size: 13cqmin; }
+.Q .n { font-size: 30cqmin; line-height: .9; }
+.Q .lb { font-size: max(10px, 8cqmin); font-weight: 600; line-height: 1.2; }
+.Q .sub { font-size: max(9px, 7cqmin); line-height: 1.2; }
 .Q.crit { background: linear-gradient(160deg, color-mix(in srgb, var(--error-color) 24%, var(--card-background-color)), var(--card-background-color) 78%); }
 .Q .top { display: flex; align-items: flex-start; justify-content: space-between; }
-.QA .n { font-size: 38cqw; line-height: .85; }
-.Qr { align-items: center; justify-content: center; text-align: center; gap: 4px; }
-.Qr .rg { position: relative; width: 62cqw; height: 62cqw; }
+.QA .n { font-size: 38cqmin; line-height: .85; }
+.QA .n.zero { color: var(--success-color); opacity: .75; }
+.Qr { align-items: center; justify-content: center; text-align: center; gap: 2cqmin; }
+.Qr .rg { position: relative; width: 50cqmin; height: 50cqmin; flex: none; }
 .Qr .rg svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.Qr .rg .c { position: absolute; inset: 0; display: grid; place-items: center; font-size: 22cqw; --mdc-icon-size: 22cqw; }
+.Qr .rg .c { position: absolute; inset: 0; display: grid; place-items: center; font-size: 18cqmin; --mdc-icon-size: 18cqmin; }
 .Qr .rg .c ha-icon { color: var(--success-color); }
-.Qm .g { display: grid; grid-template-columns: repeat(2, 24cqw); grid-auto-rows: 24cqw; gap: 4cqw; }
-.Qm .g .tile { width: 24cqw; height: 24cqw; border-radius: 7cqw; --mdc-icon-size: 12cqw; }
+.Qm .g { display: grid; grid-template-columns: repeat(2, 24cqmin); grid-auto-rows: 24cqmin; gap: 4cqmin; }
+.Qm .g .tile { width: 24cqmin; height: 24cqmin; border-radius: 7cqmin; --mdc-icon-size: 12cqmin; }
 .Qm .g .tile.crit { box-shadow: 0 0 0 2px var(--card-background-color), 0 0 0 4px var(--error-color); }
-.Qm .g .tile.more { font-size: 9cqw; }
-.Qm .g.one { grid-template-columns: 38cqw; grid-auto-rows: 38cqw; }
-.Qm .g.one .tile { width: 38cqw; height: 38cqw; --mdc-icon-size: 20cqw; border-radius: 11cqw; }
+.Qm .g .tile.more { font-size: 9cqmin; }
+.Qm .g.one { grid-template-columns: 38cqmin; grid-auto-rows: 38cqmin; }
+.Qm .g.one .tile { width: 38cqmin; height: 38cqmin; --mdc-icon-size: 20cqmin; border-radius: 11cqmin; }
 
 .S { display: flex; align-items: stretch; }
 .S .lp { width: 96px; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; color: #fff; background: var(--primary-color); border: 0; cursor: pointer; padding: 0; }
@@ -659,7 +663,7 @@ class HeadsUpInboxCard extends Base {
   getGridOptions() {
     const size = this._config?.size ?? "large";
     if (size === "small") return { columns: 3, rows: 2, min_columns: 3, min_rows: 2 };
-    if (size === "medium") return { columns: 12, rows: 2, min_columns: 6, min_rows: 2 };
+    if (size === "medium") return { columns: 12, rows: "auto", min_columns: 6 };
     return { columns: 12, rows: "auto", min_columns: 6 };
   }
 
@@ -748,12 +752,12 @@ class HeadsUpInboxCard extends Base {
   }
 
   async _showMore() {
-    const all = this._scope === "all";
+    const scope = visibleScope(this._state, this._scope);
     const result = await this._call({
       type: "heads_up/inbox_list",
-      view: all ? "all" : "inbox",
+      view: scope === "all" ? "all" : "inbox",
       limit: PAGE,
-      offset: scopeItems(this._items(), this._scope).length,
+      offset: scopeItems(this._items(), scope).length,
     });
     if (!result) return;
     this._extra = mergePages(this._extra, result.items);
@@ -789,6 +793,7 @@ class HeadsUpInboxCard extends Base {
     this._overlayRoot = null;
     this._dialogBox = null;
     this._render();
+    this._onClosed?.();
     if (restore) this._restoreFocus(this.shadowRoot, this._openerKey);
   }
 
@@ -825,14 +830,28 @@ class HeadsUpInboxCard extends Base {
     else if (this._config.size === "large") body.push(this._listView(false));
     else body.push(this._badge());
     const focus = this._focusKey(root);
-    root.replaceChildren(h("style", { text: CSS }), h("ha-card", {}, body));
+    root.replaceChildren(h("style", { text: CSS }), h("ha-card", { class: this._config.size }, body));
     this._restoreFocus(root, focus);
     if (this._dialog && this._dialogBox) {
       const dialogFocus = this._focusKey(this._overlayRoot);
       this._dialogBox.setAttribute("aria-label", s.inbox);
-      this._dialogBox.replaceChildren(this._listView(true));
+      this._dialogBox.replaceChildren(this._dialogContent());
       this._restoreFocus(this._overlayRoot, dialogFocus);
     }
+  }
+
+  // The list, or the reason there is none yet: loading, a failed load, or a user without a person.
+  _dialogContent() {
+    const s = STRINGS;
+    if (this._loaded && this._state.has_person) return this._listView(true);
+    const text = !this._loaded ? (this._error ? s.load_error : "…") : s.no_person;
+    return h("div", {}, [
+      h("div", { class: "head" }, [
+        h("div", { class: "ttl", text: s.inbox }),
+        h("button", { class: "x", "data-key": "close", "aria-label": s.close, onclick: () => this._closeDialog() }, [icon("mdi:close")]),
+      ]),
+      h("div", { class: "note", role: this._error ? "alert" : null, text }),
+    ]);
   }
 
   // A change of the list rebuilds it; the control the user was on gets the focus back.
@@ -976,7 +995,8 @@ class HeadsUpInboxCard extends Base {
     const n = this._stateNumbers();
     const kind = summaryKind(n);
     return this._square("QA", [
-      h("div", { class: "top" }, [this._tileIcon(kind), n.unread ? h("div", { class: "n num", text: String(n.unread) }) : null]),
+      // With nothing unread the number is a quiet 0, so this tile differs from the mosaic's check.
+      h("div", { class: "top" }, [this._tileIcon(kind), h("div", { class: `n num ${n.unread ? "" : "zero"}`, text: String(n.unread) })]),
       h("div", {}, [h("div", { class: "lb", text: STRINGS.inbox }), h("div", { class: "sub", text: summaryText(n, STRINGS) })]),
     ]);
   }
@@ -1007,18 +1027,23 @@ class HeadsUpInboxCard extends Base {
   _listView(dialog) {
     const s = STRINGS;
     const n = this._stateNumbers();
-    const items = filterItems(scopeItems(this._items(), this._scope), this._filter);
+    const scope = visibleScope(this._state, this._scope);
+    const items = filterItems(scopeItems(this._items(), scope), this._filter);
     const head = h("div", { class: "head" }, [
       h("div", { class: "ttl", text: s.inbox }),
       n.unread ? h("span", { class: `badge ${n.needs_action ? "crit" : ""}`, text: String(n.unread), "aria-label": fill(s.unread_n, { n: n.unread }) }) : null,
       dialog ? h("button", { class: "x", "data-key": "close", "aria-label": s.close, onclick: () => this._closeDialog() }, [icon("mdi:close")]) : null,
     ]);
-    const seg = h("div", { class: "seg", role: "group", "aria-label": s.inbox }, [
-      ["inbox", s.inbox],
-      ["all", s.all_notifications],
-    ].map(([scope, label]) =>
-      h("button", { class: "pill", "data-key": `scope:${scope}`, "aria-pressed": String(this._scope === scope), onclick: () => { this._scope = scope; this._render(); }, text: label }),
-    ));
+    const seg = this._state.all_notifications
+      ? h("div", { class: "tools" }, [
+          h("div", { class: "seg", role: "group", "aria-label": s.inbox }, [
+            ["inbox", s.inbox],
+            ["all", s.all_notifications],
+          ].map(([key, label]) =>
+            h("button", { class: "pill", "data-key": `scope:${key}`, "aria-pressed": String(scope === key), onclick: () => { this._scope = key; this._render(); }, text: label }),
+          )),
+        ])
+      : null;
     const tools = h("div", { class: "tools" }, [
       ...["all", "unread"].map((f) =>
         h("button", { class: "pill", "data-key": `filter:${f}`, "aria-pressed": String(this._filter === f), onclick: () => { this._filter = f; this._render(); }, text: s[`filter_${f}`] }),
@@ -1039,8 +1064,7 @@ class HeadsUpInboxCard extends Base {
       ]);
     }
     const more = this._state.more ? h("button", { class: "link more", "data-key": "more", onclick: () => this._showMore(), text: s.show_more }) : null;
-    const hint = this._scope === "all" && !this._state.all_notifications ? h("div", { class: "note", text: s.copy_hint }) : null;
-    return h("div", {}, [head, h("div", { class: "tools" }, [seg]), tools, hint, body, more]);
+    return h("div", {}, [head, seg, tools, body, more]);
   }
 
   _dayLabel(group) {
@@ -1171,10 +1195,35 @@ export function whenFrontendReady(getRegistry, wait = setTimeout, maxMs = 10000,
   });
 }
 
+// Any card or button of the page can ask for the inbox with this event, also when no inbox card is
+// on the dashboard: a hidden card opens the dialog and removes itself when it is closed. The
+// banner card's Open inbox button uses it.
+const OPEN_EVENT = "heads-up-open-inbox";
+let opened = null;
+
+function openInbox() {
+  if (opened) return;
+  const card = document.createElement("heads-up-inbox-card");
+  card.style.display = "none";
+  card.setConfig({ size: "small" });
+  card.hass = document.querySelector("home-assistant")?.hass;
+  card._onClosed = () => {
+    card.remove();
+    if (opened === card) opened = null;
+  };
+  opened = card;
+  document.body.append(card);
+  card._openDialog();
+}
+
 function registerElements() {
   const registry = window.customElements;
   if (!registry.get("heads-up-inbox-card")) registry.define("heads-up-inbox-card", HeadsUpInboxCard);
   if (!registry.get("heads-up-inbox-card-editor")) registry.define("heads-up-inbox-card-editor", HeadsUpInboxCardEditor);
+  if (!window.__headsUpInboxOpener) {
+    window.__headsUpInboxOpener = true;
+    window.addEventListener(OPEN_EVENT, openInbox);
+  }
   window.customCards = window.customCards || [];
   if (!window.customCards.some((card) => card.type === "heads-up-inbox-card")) {
     window.customCards.push({

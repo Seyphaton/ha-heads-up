@@ -13,6 +13,7 @@ import {
   normalizeConfig,
   retryDelay,
   scopeItems,
+  visibleScope,
   ringSegments,
   setLanguage,
   severityColor,
@@ -248,6 +249,13 @@ describe("the views Inbox and Everything", () => {
     expect(scopeItems(items, "all").map((i) => i.message_id)).toEqual(["real", "copy"]);
   });
 
+  it("has the tabs only while All notifications is on", () => {
+    expect(visibleScope({ all_notifications: true }, "all")).toBe("all");
+    expect(visibleScope({ all_notifications: true }, "inbox")).toBe("inbox");
+    expect(visibleScope({ all_notifications: false }, "all")).toBe("inbox");
+    expect(visibleScope({}, "all")).toBe("inbox");
+  });
+
   it("never counts a copy as unread or as needing action in the mosaic and the tile", () => {
     const copy = item({ message_id: "c", copy: true, unread: false, needs_action: false });
     expect(mosaicTiles([copy])).toEqual([]);
@@ -255,11 +263,10 @@ describe("the views Inbox and Everything", () => {
     expect(severityCounts([copy])).toEqual([]);
   });
 
-  it("has words for the view and the hint in every language", () => {
+  it("has words for the tab in every language", () => {
     for (const code of ["en", "de", "fr", "es"]) {
       setLanguage(code);
       expect(STRINGS.all_notifications).toBeTruthy();
-      expect(STRINGS.copy_hint).toBeTruthy();
     }
   });
 });

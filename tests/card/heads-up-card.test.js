@@ -672,3 +672,21 @@ describe("progress value (D-256)", () => {
     expect([clampPercent(12.5), clampPercent(-1), clampPercent(101)]).toEqual([13, 0, 100]);
   });
 });
+
+describe("the Open inbox button", () => {
+  it("is a config key that is off by default", () => {
+    expect(CONFIG_KEYS).toContain("show_inbox_button");
+    expect(normalizeConfig({}).show_inbox_button).toBe(false);
+    expect(normalizeConfig({ show_inbox_button: true }).show_inbox_button).toBe(true);
+    expect(normalizeConfig({ show_inbox_button: "yes" }).show_inbox_button).toBe(false);
+  });
+
+  it("has its words in every language", () => {
+    for (const code of ["en", "de", "fr", "es"]) {
+      setLanguage(code);
+      expect(STRINGS.open_inbox, code).toBeTruthy();
+      expect(STRINGS.editor.show_inbox_button, code).toBeTruthy();
+    }
+    setLanguage("en");
+  });
+});

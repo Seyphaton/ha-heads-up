@@ -27,6 +27,7 @@ export const CONFIG_KEYS = [
   "colors",
   "colorize",
   "clear_all",
+  "show_inbox_button",
   "swipe_to_dismiss",
   "show_snoozed",
   "show_acknowledged",
@@ -74,6 +75,7 @@ export const STRINGS = {
   duration: { minute: "{n} min", hour: "{n} h", day: "{n} d" },
   clear: "Clear for everyone",
   clear_all: "Clear all",
+  open_inbox: "Open inbox",
   show_more: "Show {n} more",
   show_less: "Show less",
   snoozed: "Snoozed ({n})",
@@ -101,6 +103,7 @@ export const STRINGS = {
     colors: "Severity colors (CSS color or theme variable)",
     colorize: "Colorize",
     clear_all: "Show a Clear all button",
+    show_inbox_button: "Show an Open inbox button",
     swipe_to_dismiss: "Swipe a banner to dismiss it",
     show_snoozed: "List snoozed banners with a Show now button",
     show_acknowledged: "Show who acknowledged a banner",
@@ -148,6 +151,7 @@ export const TRANSLATIONS = {
     },
     "clear": "Für alle entfernen",
     "clear_all": "Alle schließen",
+    "open_inbox": "Posteingang öffnen",
     "show_more": "{n} weitere anzeigen",
     "show_less": "Weniger anzeigen",
     "snoozed": "Zurückgestellt ({n})",
@@ -175,6 +179,7 @@ export const TRANSLATIONS = {
       "colors": "Farben je Dringlichkeit (CSS-Farbe oder Theme-Variable)",
       "colorize": "Einfärben",
       "clear_all": "Schaltfläche „Alle schließen“ zeigen",
+      "show_inbox_button": "Schaltfläche „Posteingang öffnen“ zeigen",
       "swipe_to_dismiss": "Banner durch Wischen schließen",
       "show_snoozed": "Zurückgestellte Banner mit „Jetzt anzeigen“ auflisten",
       "show_acknowledged": "Anzeigen, wer ein Banner bestätigt hat",
@@ -219,6 +224,7 @@ export const TRANSLATIONS = {
     },
     "clear": "Supprimer pour tout le monde",
     "clear_all": "Tout fermer",
+    "open_inbox": "Ouvrir la boîte de réception",
     "show_more": "Afficher {n} de plus",
     "show_less": "Afficher moins",
     "snoozed": "Reportées ({n})",
@@ -246,6 +252,7 @@ export const TRANSLATIONS = {
       "colors": "Couleurs par gravité (couleur CSS ou variable de thème)",
       "colorize": "Colorisation",
       "clear_all": "Afficher un bouton « Tout fermer »",
+      "show_inbox_button": "Afficher un bouton « Ouvrir la boîte de réception »",
       "swipe_to_dismiss": "Fermer une bannière en la faisant glisser",
       "show_snoozed": "Lister les bannières reportées avec un bouton Afficher maintenant",
       "show_acknowledged": "Afficher qui a confirmé une bannière",
@@ -290,6 +297,7 @@ export const TRANSLATIONS = {
     },
     "clear": "Eliminar para todos",
     "clear_all": "Cerrar todos",
+    "open_inbox": "Abrir la bandeja de entrada",
     "show_more": "Mostrar {n} más",
     "show_less": "Mostrar menos",
     "snoozed": "Pospuestos ({n})",
@@ -317,6 +325,7 @@ export const TRANSLATIONS = {
       "colors": "Colores por gravedad (color CSS o variable del tema)",
       "colorize": "Colorear",
       "clear_all": "Mostrar un botón «Cerrar todos»",
+      "show_inbox_button": "Mostrar un botón «Abrir la bandeja de entrada»",
       "swipe_to_dismiss": "Cerrar un aviso deslizándolo",
       "show_snoozed": "Listar los avisos pospuestos con un botón Mostrar ahora",
       "show_acknowledged": "Mostrar quién confirmó un aviso",
@@ -437,6 +446,7 @@ export function normalizeConfig(config) {
     colors: toColors(config.colors),
     colorize,
     clear_all: toBool(config.clear_all),
+    show_inbox_button: toBool(config.show_inbox_button),
     swipe_to_dismiss: toBool(config.swipe_to_dismiss),
     show_snoozed: config.show_snoozed === undefined ? true : toBool(config.show_snoozed),
     show_acknowledged: config.show_acknowledged === undefined ? true : toBool(config.show_acknowledged),
@@ -676,6 +686,13 @@ const STYLE = `
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
     padding: 8px 8px 0 16px; min-height: 40px;
   }
+  .header-actions { display: flex; align-items: center; gap: 4px; }
+  button.icon-button {
+    display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 50%;
+    background: var(--secondary-background-color); color: var(--primary-text-color); cursor: pointer;
+    --mdc-icon-size: 20px;
+  }
+  button.icon-button:focus-visible { outline: 2px solid var(--primary-color); }
   .card-title { font-size: 1.1em; font-weight: 500; color: var(--primary-text-color); }
   .list { display: flex; flex-direction: column; gap: 8px; padding: 8px; }
   .region { display: flex; flex-direction: column; gap: 8px; }
@@ -1321,15 +1338,30 @@ class HeadsUpCard extends Base {
   _header(clearable) {
     const cfg = this._config;
     const showClear = cfg.clear_all && clearable.length > 0;
-    if (cfg.title === "" && !showClear) return null;
+    if (cfg.title === "" && !showClear && !cfg.show_inbox_button) return null;
     const header = el("div", "header");
     header.append(el("div", "card-title", cfg.title));
+    const actions = el("div", "header-actions");
     if (showClear) {
       const b = el("button", "text-button", STRINGS.clear_all);
       b.type = "button";
       b.addEventListener("click", () => this._dismissAll(clearable));
-      header.append(b);
+      actions.append(b);
     }
+    if (cfg.show_inbox_button) {
+      // The inbox module of the integration opens the inbox on this event (heads-up-inbox-card.js).
+      const b = el("button", "icon-button");
+      b.type = "button";
+      b.title = STRINGS.open_inbox;
+      b.setAttribute("aria-label", STRINGS.open_inbox);
+      const icon = document.createElement("ha-icon");
+      icon.setAttribute("icon", "mdi:inbox");
+      icon.setAttribute("aria-hidden", "true");
+      b.append(icon);
+      b.addEventListener("click", () => window.dispatchEvent(new CustomEvent("heads-up-open-inbox")));
+      actions.append(b);
+    }
+    header.append(actions);
     return header;
   }
 
@@ -1480,6 +1512,7 @@ class HeadsUpCardEditor extends Base {
       // Colors are set for every card on the Severities page of the panel (D-222). A card that
       // already has `colors` in its YAML keeps them; the editor no longer offers the field.
       { name: "clear_all", selector: { boolean: {} } },
+      { name: "show_inbox_button", selector: { boolean: {} } },
       { name: "swipe_to_dismiss", selector: { boolean: {} } },
       { name: "show_snoozed", selector: { boolean: {} } },
       { name: "show_acknowledged", selector: { boolean: {} } },
