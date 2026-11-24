@@ -1144,12 +1144,20 @@ def _inbox(
     return manager.hub, manager.hub.resolver.persons_of_user(connection.user.id)
 
 
-def _inbox_state(hub: HubEngine, persons: list[str], limit: int = INBOX_PAGE) -> dict[str, Any]:
+def _messages_on(hass: HomeAssistant) -> bool:
+    entries = hass.config_entries.async_loaded_entries(DOMAIN)
+    return bool(entries and entries[0].options.get(OPT_INBOX_MESSAGES))
+
+
+def _inbox_state(
+    hub: HubEngine, persons: list[str], limit: int = INBOX_PAGE, messages: bool = False
+) -> dict[str, Any]:
     inbox = hub.inbox
     items, total = inbox.items_of(persons, limit=limit)
     return {
         "has_person": bool(persons),
         "all_notifications": hub.inbox_all,
+        "messages": messages,
         "items": [i.to_client() for i in items],
         "total": total,
         "more": total > len(items),
@@ -1163,7 +1171,7 @@ def _inbox_state(hub: HubEngine, persons: list[str], limit: int = INBOX_PAGE) ->
         vol.Optional("limit", default=50): vol.All(int, vol.Range(min=1, max=INBOX_PAGE)),
         vol.Optional("offset", default=0): vol.All(int, vol.Range(min=0)),
         vol.Optional("unread_only", default=False): bool,
-        vol.Optional("view", default="inbox"): vol.In(("inbox", "all")),
+        vol.Optional("view", default="inbox"): vol.In(("inbox", "all", "sent")),
     }
 )
 @callback
@@ -1177,6 +1185,7 @@ def ws_inbox_list(hass: HomeAssistant, connection: ActiveConnection, msg: dict[s
         persons,
         unread_only=msg["unread_only"],
         copies=msg["view"] == "all",
+        sent=msg["view"] == "sent",
         limit=msg["limit"],
         offset=msg["offset"],
     )
@@ -1185,6 +1194,7 @@ def ws_inbox_list(hass: HomeAssistant, connection: ActiveConnection, msg: dict[s
         {
             "has_person": bool(persons),
             "all_notifications": hub.inbox_all,
+            "messages": _messages_on(hass),
             "items": [i.to_client() for i in items],
             "total": total,
             "more": msg["offset"] + len(items) < total,
@@ -1209,7 +1219,9 @@ def ws_inbox_subscribe(
     @callback
     def forward() -> None:
         # Persons are looked up each time: a person may be linked to the user later.
-        state = _inbox_state(hub, hub.resolver.persons_of_user(user_id))
+        state = _inbox_state(
+            hub, hub.resolver.persons_of_user(user_id), messages=_messages_on(hass)
+        )
         digest = repr(state)
         if last and last[0] == digest:
             return  # a change of somebody else's items
@@ -1326,6 +1338,38 @@ async def ws_send_message(
     )
 
 
+@websocket_command({vol.Required("type"): "heads_up/inbox_recipients"})
+@callback
+def ws_inbox_recipients(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Who the caller can write to and the channels each accepts, for the compose dialog. Only
+    what the dialog needs: the person, the name and the channels of a message (D-279)."""
+    if (found := _inbox(hass, connection, msg["id"])) is None:
+        return
+    hub, persons = found
+    if not _messages_on(hass):
+        connection.send_error(msg["id"], "messages_off", MESSAGE_ERRORS["messages_off"])
+        return
+    people = []
+    for state in sorted(hass.states.async_all("person"), key=lambda s: s.entity_id):
+        profile = hub.resolver.profile(state.entity_id)
+        if not profile.enabled:
+            continue
+        channels = [c for c in MESSAGE_CHANNELS if c in profile.channels]
+        if "push" in channels and not profile.usable:
+            channels.remove("push")  # no phone to push to
+        people.append(
+            {
+                "person": state.entity_id,
+                "name": state.name,
+                "channels": channels,
+                "me": state.entity_id in persons,
+            }
+        )
+    connection.send_result(msg["id"], {"recipients": people})
+
+
 @websocket_command({vol.Required("type"): "heads_up/inbox_clear"})
 @callback
 def ws_inbox_clear(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
@@ -1378,6 +1422,7 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_popup_config,
         ws_popup_subscribe,
         ws_send_message,
+        ws_inbox_recipients,
         ws_inbox_list,
         ws_inbox_subscribe,
         ws_inbox_read,

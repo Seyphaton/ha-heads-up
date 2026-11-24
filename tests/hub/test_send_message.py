@@ -8,11 +8,13 @@ from freezegun.api import FrozenDateTimeFactory
 from homeassistant.auth.models import User
 from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.common import MockConfigEntry, async_fire_time_changed
 from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
 from custom_components.heads_up.const import MAX_MESSAGE, MESSAGE_RATE_LIMIT
 from custom_components.heads_up.hub.inbox import SENT_PREFIX
+
+from ..test_restart import restart
 
 ADMIN = "person.admin"
 READER = "person.reader"
@@ -243,3 +245,162 @@ async def test_the_message_log_and_diagnostics_hold_no_text(
     from custom_components.heads_up.diagnostics import async_get_config_entry_diagnostics
 
     assert "a secret plan" not in str(await async_get_config_entry_diagnostics(hass, entry))
+
+
+# The lists: Sent view, flag, recipients (step 3) -------------------------------------------
+
+
+async def ask(client: Any, kind: str, **data: Any) -> dict[str, Any]:
+    await client.send_json_auto_id({"type": f"heads_up/{kind}", **data})
+    return dict(await client.receive_json())
+
+
+async def test_the_sent_view_lists_only_sent_items_and_the_inbox_views_none(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    reply = await send(client, to=[ADMIN, READER], text="Dinner")
+    mid = reply["result"]["id"]
+    sent = (await ask(client, "inbox_list", view="sent"))["result"]
+    assert [i["message_id"] for i in sent["items"]] == [f"{SENT_PREFIX}{mid}"]
+    assert sent["items"][0]["sent"] is True and sent["unread"] == 1  # the item to oneself
+    for view in ("inbox", "all"):
+        listed = (await ask(client, "inbox_list", view=view))["result"]
+        assert [i["message_id"] for i in listed["items"]] == [mid]
+
+
+async def test_the_list_says_whether_messages_are_on(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    assert (await ask(client, "inbox_list"))["result"]["messages"] is True
+
+
+@pytest.mark.parametrize("options", [{}])
+async def test_the_list_says_messages_are_off_by_default(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    assert (await ask(client, "inbox_list"))["result"]["messages"] is False
+
+
+async def test_the_sender_deletes_only_their_sent_item(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    mid = (await send(client, to=[READER], text="Dinner"))["result"]["id"]
+    assert (await ask(client, "inbox_delete", message_id=f"{SENT_PREFIX}{mid}"))["success"]
+    inbox = entry.runtime_data.hub.inbox
+    assert inbox.get(ADMIN, f"{SENT_PREFIX}{mid}") is None
+    assert inbox.get(READER, mid) is not None
+
+
+async def test_the_recipient_never_sees_a_sent_item_or_a_read_receipt(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_access_token: str,
+) -> None:
+    admin = await hass_ws_client(hass)
+    reader = await hass_ws_client(hass, hass_read_only_access_token)
+    mid = (await send(admin, to=[READER], text="Dinner"))["result"]["id"]
+    await ask(reader, "inbox_read", message_id=mid)
+    sent = (await ask(admin, "inbox_list", view="sent"))["result"]["items"][0]
+    assert sent["unread"] is False and sent["read_at"] is None
+    assert [k for k in sent if "read" in k] == ["unread", "read_at"]  # both say nothing
+    theirs = (await ask(reader, "inbox_list", view="sent"))["result"]
+    assert theirs["items"] == []
+
+
+async def test_recipients_are_people_with_an_enabled_profile_and_what_they_accept(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    hass.config_entries.async_add_subentry(
+        entry,
+        ConfigSubentry(
+            data={"person": READER, "channels": ["inbox"], "channels_v": 2},
+            subentry_type="recipient_profile",
+            title=READER,
+            unique_id=None,
+        ),
+    )
+    hass.config_entries.async_add_subentry(
+        entry,
+        ConfigSubentry(
+            data={"person": NOBODY, "enabled": False},
+            subentry_type="recipient_profile",
+            title=NOBODY,
+            unique_id=None,
+        ),
+    )
+    await hass.async_block_till_done()
+    client = await hass_ws_client(hass)
+    reply = await ask(client, "inbox_recipients")
+    by_person = {r["person"]: r for r in reply["result"]["recipients"]}
+    assert set(by_person) == {ADMIN, READER}  # the disabled profile is not offered
+    assert by_person[READER]["channels"] == ["inbox"]
+    assert by_person[ADMIN]["me"] is True and by_person[READER]["me"] is False
+    assert set(by_person[READER]) == {"person", "name", "channels", "me"}
+
+
+@pytest.mark.parametrize("options", [{}])
+async def test_recipients_are_refused_while_messages_are_off(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    assert code(await ask(client, "inbox_recipients")) == "messages_off"
+
+
+# A message between people does not end (step 3) --------------------------------------------
+
+
+async def test_a_person_message_and_its_sent_item_are_never_resolved_by_the_timeout(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+    freezer: FrozenDateTimeFactory,
+) -> None:
+    client = await hass_ws_client(hass)
+    mid = (await send(client, to=[READER], text="Dinner"))["result"]["id"]
+    freezer.tick(timedelta(days=2))
+    async_fire_time_changed(hass)
+    await hass.async_block_till_done()
+    inbox = entry.runtime_data.hub.inbox
+    for person, key in ((READER, mid), (ADMIN, f"{SENT_PREFIX}{mid}")):
+        item = inbox.get(person, key)
+        assert item is not None and item.resolved_at is None
+
+
+async def test_a_restart_does_not_resolve_person_messages_or_sent_items(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    mid = (await send(client, to=[READER], text="Dinner"))["result"]["id"]
+    await restart(hass, entry)
+    inbox = entry.runtime_data.hub.inbox
+    for person, key in ((READER, mid), (ADMIN, f"{SENT_PREFIX}{mid}")):
+        item = inbox.get(person, key)
+        assert item is not None and item.resolved_at is None

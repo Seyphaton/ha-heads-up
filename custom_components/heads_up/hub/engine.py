@@ -684,6 +684,12 @@ class HubEngine:
         banner, kind, reason = transition.banner, transition.kind, transition.reason
         now = dt_util.utcnow()
         people = self.resolver.persons_of_user(transition.user_id) if transition.user_id else []
+        if banner.source == SOURCE_PERSON:
+            # A message between people does not end: closing its popup only reads it (D-279).
+            if kind is Kind.HIDDEN and reason == Reason.DISMISSED:
+                for person in people:
+                    self.inbox.mark_read(person, banner.id, now)
+            return
         if kind is Kind.ACKNOWLEDGED:
             for person in people or [""]:
                 self.inbox.acknowledged(banner.id, person, now)
@@ -701,8 +707,8 @@ class HubEngine:
         now = dt_util.utcnow()
         for person in self.inbox.people():
             for item in self.inbox.items(person):
-                if item.resolved_at is not None:
-                    continue
+                if item.resolved_at is not None or item.sent or item.sender:
+                    continue  # a Sent item or a message between people never ends
                 banner = self.lookup(item.message_id)
                 if banner is None or not banner.active:
                     self.inbox.resolve(item.message_id, "cleared", now)
