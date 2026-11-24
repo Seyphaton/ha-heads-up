@@ -159,6 +159,8 @@ async def test_the_choices_list_what_a_form_can_pick(
     assert {r["name"] for r in choices["registrations"]} == {"Anna's phone", "Ben's phone"}
     assert "Admins" in choices["audience_names"] and "person.anna" in choices["recipients"]["push"]
     assert fake_speakers.announce_player in choices["recipients"]["speak"]
+    # The inbox takes persons too: Test send and the policy form list them for its Recipients.
+    assert "person.anna" in choices["recipients"]["inbox"]
 
 
 async def test_the_config_has_the_entry_id_and_the_channel_settings(

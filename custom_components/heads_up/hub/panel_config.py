@@ -322,7 +322,7 @@ async def editors(hass: HomeAssistant, manager: BannerManager, entry: Any) -> di
         for s in of(RULE_SUBENTRY)
     ]
     known = (
-        {c: hub.recipients.known(c) for c in ("banner", "push", "popup", "speak", "mail")}
+        {c: hub.recipients.known(c) for c in ("banner", "push", "popup", "speak", "mail", "inbox")}
         if hub
         else {}
     )
