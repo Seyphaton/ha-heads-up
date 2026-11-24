@@ -16,7 +16,6 @@ Heads Up is the notification hub for Home Assistant. Your automation makes one c
 7. **One look, every platform.** Live activities, severities, icons, colors, buttons and pictures are set once and applied the same on push, banner and popup, on Android and iOS.
 8. **A personal inbox.** Each person gets a list that survives restarts, with an unread count, a sensor per person and a card in four sizes. With one more setting the inbox also holds a copy of every notification, whatever the channel.
 9. **Messages between people.** People write short messages to each other from the inbox card. The recipient's profile and your policies still decide what is delivered, and the sender never learns whether a message was read.
-10. **Know why it didn't arrive.** The Message Log traces each channel and gives a reason for every skipped delivery, such as "skipped: quiet hours". A test table shows what would happen before you ship.
 
 <p><img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/push-image-buttons.png" width="330" alt="An iPhone push for Front door, Person detected at 14:32, with a camera picture and the buttons Lights on, Sound alarm and Ignore"> <img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/popup-image.png" width="470" alt="A Heads Up popup over a dashboard: a warning for Front door, Person detected at 14:32, with a camera picture and the buttons Lights on, Sound alarm and Dismiss"></p>
 
