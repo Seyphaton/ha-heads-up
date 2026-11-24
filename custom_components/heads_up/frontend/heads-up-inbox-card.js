@@ -79,6 +79,7 @@ const ENGLISH = {
   error_rate_limited: "Too many messages. Wait a moment and try again.",
   error_messages_off: "Messages between people are switched off.",
   error_mail_off: "No mail service is set on the Channels page.",
+  inbox_always: "Direct messages are always sent to the inbox.",
   error_no_person: "Your Home Assistant user is not linked to one person.",
   with_channel: "{what}: {channel}",
   ended_because: "Ended: {reason}",
@@ -153,6 +154,7 @@ export const TRANSLATIONS = {
     error_rate_limited: "Zu viele Nachrichten. Warte einen Moment und versuche es erneut.",
     error_messages_off: "Nachrichten zwischen Personen sind ausgeschaltet.",
     error_mail_off: "Auf der Kanäle-Seite ist kein Mail-Dienst eingestellt.",
+    inbox_always: "Direkte Nachrichten gehen immer in den Posteingang.",
     error_no_person: "Dein Home-Assistant-Benutzer ist nicht mit genau einer Person verknüpft.",
     via: { inbox: "Posteingang", push: "Push-Benachrichtigung", popup: "Popup auf Bildschirmen", mail: "E-Mail" },
     all_notifications: "Alle Benachrichtigungen",
@@ -249,6 +251,7 @@ export const TRANSLATIONS = {
     error_rate_limited: "Trop de messages. Attends un instant et réessaie.",
     error_messages_off: "Les messages entre personnes sont désactivés.",
     error_mail_off: "Aucun service de courriel n'est défini sur la page Canaux.",
+    inbox_always: "Les messages directs vont toujours dans la boîte de réception.",
     error_no_person: "Ton utilisateur Home Assistant n'est pas lié à une seule personne.",
     via: { inbox: "Boîte de réception", push: "Notification push", popup: "Popup sur les écrans", mail: "Courriel" },
     all_notifications: "Toutes les notifications",
@@ -345,6 +348,7 @@ export const TRANSLATIONS = {
     error_rate_limited: "Demasiados mensajes. Espera un momento e inténtalo de nuevo.",
     error_messages_off: "Los mensajes entre personas están desactivados.",
     error_mail_off: "No hay ningún servicio de correo en la página Canales.",
+    inbox_always: "Los mensajes directos siempre van a la bandeja de entrada.",
     error_no_person: "Tu usuario de Home Assistant no está vinculado a una sola persona.",
     via: { inbox: "Bandeja de entrada", push: "Notificación push", popup: "Ventana emergente en pantallas", mail: "Correo" },
     all_notifications: "Todas las notificaciones",
@@ -789,7 +793,8 @@ ha-card.small { height: 100%; }
 .cf { padding-bottom: 16px; }
 .cf .lbl { padding: 10px 16px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--secondary-text-color); font-weight: 600; }
 .chips2 { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px; }
-.pill[disabled] { opacity: .6; cursor: default; }
+.pill[disabled], .pill[aria-disabled="true"] { opacity: .6; cursor: default; }
+.cf .hint.soft { color: var(--secondary-text-color); }
 .cf .hint { padding: 4px 16px 0; font-size: 12px; color: var(--warning-color); }
 .cf textarea { display: block; width: calc(100% - 32px); margin: 0 16px; font: inherit; color: inherit; background: var(--secondary-background-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 10px; resize: vertical; min-height: 96px; }
 .cf textarea:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 1px; }
@@ -1087,8 +1092,15 @@ class HeadsUpInboxCard extends Base {
     );
     const via = h("div", { class: "chips2", role: "group", "aria-label": s.send_via }, MESSAGE_CHANNELS.filter((c) => c !== "mail" || this._mailOn).map((c) =>
       h("button", {
-        class: "pill", "data-key": `via:${c}`, "aria-pressed": String(draft.channels.includes(c)), disabled: c === "inbox" ? true : null,
+        class: "pill", "data-key": `via:${c}`, "aria-pressed": String(draft.channels.includes(c)),
+        "aria-disabled": c === "inbox" ? "true" : null, title: c === "inbox" ? s.inbox_always : null,
         onclick: () => {
+          if (c === "inbox") {
+            // Always on: a click says why instead of doing nothing.
+            draft.inboxNote = true;
+            this._renderCompose();
+            return;
+          }
           draft.channels = draft.channels.includes(c) ? draft.channels.filter((x) => x !== c) : [...draft.channels, c];
           this._renderCompose();
         },
@@ -1110,6 +1122,7 @@ class HeadsUpInboxCard extends Base {
       head,
       h("div", { class: "lbl", text: s.to_label }), who, ...hints,
       h("div", { class: "lbl", text: s.send_via }), via,
+      draft.inboxNote ? h("div", { class: "hint soft", role: "status", text: s.inbox_always }) : null,
       h("div", { class: "lbl", text: s.message_label }), area, counter,
       draft.error ? h("div", { class: "note err", role: "alert", text: s[draft.error] }) : null,
       h("div", { class: "acts" }, [send]),

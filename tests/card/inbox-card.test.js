@@ -518,3 +518,10 @@ describe("send via (D-286)", () => {
     }
   });
 });
+
+describe("the Inbox toggle explains itself", () => {
+  it("has the explanation in every language", () => {
+    expect(STRINGS.inbox_always).toBe("Direct messages are always sent to the inbox.");
+    for (const code of ["de", "fr", "es"]) expect(TRANSLATIONS[code].inbox_always, code).toBeTruthy();
+  });
+});
