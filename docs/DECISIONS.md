@@ -1818,3 +1818,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer, "do it at the same position where you also show critical messages in the first card"): the Overview payload has `live_activities`, every active non-rule message with a progress bar. The status card lists them first, each with Dismiss (`heads_up/panel_clear`, which clears the push tag on every device). They are not in `status`, so the count and the green state do not change.
 - Unverified on real devices: that `clear_notification` ends an iOS Live Activity (HA companion docs say it does; no device was available).
 - Same day (maintainer): the severity boxes of the form start with all four checked, the last checked box cannot be unchecked (hint: switch the policy off), and four checked are stored as an empty list. A policy cannot be left with no severity.
+
+## D-279 Phase 23 gate answers: messages to other people (2026-11-24, maintainer)
+- Context: gate of Phase 23 (`docs/dev/inbox/PLAN.md` section 9, D-265). Answers to AskUserQuestion; nothing built yet.
+- Decisions:
+  - Rate limit: 10 calls per sender per rolling 60 seconds, counted per call, not per recipient. Over the limit the call fails with an error that names the wait.
+  - Sent view: a tab of the card's existing tab row (Inbox | All notifications | Sent). The row shows whenever at least two tabs exist: with `inbox_messages` on, Sent is always a tab, so the row shows even while All notifications is off. With both off the row stays hidden as built.
+  - Compose dialog: recipients are chips of people with a Heads Up profile, and the sender may pick themselves. A chosen channel a recipient does not accept shows a note under their chip before sending (the list data the card already loads carries only what the sender needs: person, name, accepted channels); after sending the dialog lists the skipped channels per person. The server decides and reports.
+  - Message to yourself: treated like any recipient, one inbox item (and push or popup if chosen) plus a Sent entry. The rate limit counts it.
+  - Compose button: medium and large cards show it in the header; compact and small tiles have none and open the dialog, which carries the button in its header. New card option `hide_send_button` (default off, so the button shows); it hides the button in the card and in the dialog (wall tablets).
+  - Switch: admin setting `inbox_messages`, default off, on the Inbox row of the Channels page; tour step 2 offers it beside All notifications, off by default. Off: `heads_up/send_message` is refused and the card shows no compose button and no Sent tab.
