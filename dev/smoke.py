@@ -17,6 +17,9 @@ Run after `make dev-up` + `make dev-onboard`:
   uv run python dev/smoke.py hub_e2e  # bell, duplicates, acknowledge, panel data (H10)
   (restart the container)
   uv run python dev/smoke.py hub_e2e_verify
+  uv run python dev/smoke.py inbox    # the inbox channel and its own-items-only commands (Phase 22)
+  (restart the container)
+  uv run python dev/smoke.py inbox_verify
 """
 
 import asyncio
@@ -422,6 +425,66 @@ async def hub_core_verify() -> None:
         print("clear:", await call(s, admin, "clear_notifications", {"id": "smoke_hub"}))
         assert "smoke_hub" not in [b["id"] for b in await subscribe(await connect(s, user))]
         print("hub core survived the restart")
+
+
+async def inbox_list(ws: WS, **data: Any) -> dict[str, Any]:
+    msg_id = await ws.send({"type": "heads_up/inbox_list", **data})
+    reply = await ws.recv(msg_id)
+    assert reply["success"], reply
+    return dict(reply["result"])
+
+
+async def inbox() -> None:
+    """A message to the inbox of everyone; each user sees only their own item (Phase 22)."""
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        result = await call(
+            s,
+            admin,
+            "notify",
+            {
+                "id": "smoke_inbox",
+                "title": "Inbox smoke",
+                "message": "Kept for each person",
+                "channels": ["inbox"],
+                "audience": "binary_sensor.heads_up_audience_everyone",
+            },
+        )
+        print("notify:", result)
+        assert result["channels"]["inbox"]["sent"] >= 1, result
+        ws_admin, ws_user = await connect(s, admin), await connect(s, user)
+        for ws in (ws_admin, ws_user):
+            state = await inbox_list(ws)
+            mine = [i for i in state["items"] if i["message_id"] == "smoke_inbox"]
+            assert len(mine) == 1 and mine[0]["unread"], state
+            assert len({i["person"] for i in state["items"]}) == 1, state  # only one person's
+        admin_person = (await inbox_list(ws_admin))["items"][0]["person"]
+        user_person = (await inbox_list(ws_user))["items"][0]["person"]
+        assert admin_person != user_person
+        msg_id = await ws_admin.send({"type": "heads_up/inbox_read", "message_id": "smoke_inbox"})
+        assert (await ws_admin.recv(msg_id))["success"]
+        assert (await inbox_list(ws_admin, unread_only=True))["unread"] == 0
+        assert (await inbox_list(ws_user))["unread"] >= 1  # the other person's item is unchanged
+        print("each user sees and changes only their own items")
+
+
+async def inbox_verify() -> None:
+    async with aiohttp.ClientSession() as s:
+        admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        ws_admin, ws_user = await connect(s, admin), await connect(s, user)
+        for ws in (ws_admin, ws_user):
+            items = (await inbox_list(ws))["items"]
+            assert "smoke_inbox" in [i["message_id"] for i in items], items
+        print("clear:", await call(s, admin, "clear_notifications", {"id": "smoke_inbox"}))
+        await asyncio.sleep(0.5)
+        for ws in (ws_admin, ws_user):
+            item = next(
+                i for i in (await inbox_list(ws))["items"] if i["message_id"] == "smoke_inbox"
+            )
+            assert item["resolved"] and item["resolved_reason"] == "cleared", item
+            msg_id = await ws.send({"type": "heads_up/inbox_clear"})
+            assert (await ws.recv(msg_id))["success"]
+        print("the inbox survived the restart, ended with the message, and was cleaned up")
 
 
 SMOKE_POLICY = "Smoke reminder"
@@ -830,5 +893,7 @@ asyncio.run(
         "lanes": lanes,
         "hub_e2e": hub_e2e,
         "hub_e2e_verify": hub_e2e_verify,
+        "inbox": inbox,
+        "inbox_verify": inbox_verify,
     }[sys.argv[1]]()
 )

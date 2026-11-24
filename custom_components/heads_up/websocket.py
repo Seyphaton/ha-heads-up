@@ -40,6 +40,7 @@ from .const import (
 )
 from .frontend import async_popup_url
 from .hub import checker, panel_config, panel_data, panel_test, reach, settings, welcome
+from .hub.engine import HubEngine
 from .hub.identity import GROUP_PREFIX
 from .hub.policies.convert import OPT_CONVERSION_ITEMS
 from .hub.recipients import speaker_entities
@@ -1084,6 +1085,155 @@ async def ws_hub_preview_audience(
     )
 
 
+# The inbox (D-264): the caller's own, whoever the caller is. The person comes from the logged-in
+# user, never from the message, so no command can name another person's items.
+
+INBOX_PAGE = 100
+
+
+def _inbox(
+    hass: HomeAssistant, connection: ActiveConnection, msg_id: int
+) -> tuple[HubEngine, list[str]] | None:
+    if (manager := _manager(hass, connection, msg_id)) is None:
+        return None
+    if manager.hub is None:
+        connection.send_error(msg_id, "hub_off", "The hub is off")
+        return None
+    return manager.hub, manager.hub.resolver.persons_of_user(connection.user.id)
+
+
+def _inbox_state(inbox: Any, persons: list[str], limit: int = INBOX_PAGE) -> dict[str, Any]:
+    items, total = inbox.items_of(persons, limit=limit)
+    return {
+        "has_person": bool(persons),
+        "items": [i.to_client() for i in items],
+        "total": total,
+        "more": total > len(items),
+        **inbox.counts_of(persons),
+    }
+
+
+@websocket_command(
+    {
+        vol.Required("type"): "heads_up/inbox_list",
+        vol.Optional("limit", default=50): vol.All(int, vol.Range(min=1, max=INBOX_PAGE)),
+        vol.Optional("offset", default=0): vol.All(int, vol.Range(min=0)),
+        vol.Optional("unread_only", default=False): bool,
+    }
+)
+@callback
+def ws_inbox_list(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """The caller's inbox items, the latest change first, with the counts."""
+    if (found := _inbox(hass, connection, msg["id"])) is None:
+        return
+    hub, persons = found
+    inbox = hub.inbox
+    items, total = inbox.items_of(
+        persons, unread_only=msg["unread_only"], limit=msg["limit"], offset=msg["offset"]
+    )
+    connection.send_result(
+        msg["id"],
+        {
+            "has_person": bool(persons),
+            "items": [i.to_client() for i in items],
+            "total": total,
+            "more": msg["offset"] + len(items) < total,
+            **inbox.counts_of(persons),
+        },
+    )
+
+
+@websocket_command({vol.Required("type"): "heads_up/inbox_subscribe"})
+@callback
+def ws_inbox_subscribe(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """The caller's counts and first page now, and again after every change of their items."""
+    if (found := _inbox(hass, connection, msg["id"])) is None:
+        return
+    hub, _ = found
+    inbox = hub.inbox
+    user_id = connection.user.id
+    last: list[str] = []
+
+    @callback
+    def forward() -> None:
+        # Persons are looked up each time: a person may be linked to the user later.
+        state = _inbox_state(inbox, hub.resolver.persons_of_user(user_id))
+        digest = repr(state)
+        if last and last[0] == digest:
+            return  # a change of somebody else's items
+        last[:] = [digest]
+        connection.send_event(msg["id"], state)
+
+    connection.subscriptions[msg["id"]] = inbox.subscribe(forward)
+    connection.send_result(msg["id"])
+    forward()
+
+
+@websocket_command(
+    {vol.Required("type"): "heads_up/inbox_read", vol.Required("message_id"): cv.string}
+)
+@callback
+def ws_inbox_read(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """Mark one item read: the person opened it."""
+    if (found := _inbox(hass, connection, msg["id"])) is None:
+        return
+    hub, persons = found
+    inbox = hub.inbox
+    owned = [p for p in persons if inbox.get(p, msg["message_id"]) is not None]
+    if not owned:
+        connection.send_error(msg["id"], "not_found", "No such inbox item")
+        return
+    now = dt_util.utcnow()
+    for person in owned:
+        inbox.mark_read(person, msg["message_id"], now)
+    connection.send_result(msg["id"])
+
+
+@websocket_command({vol.Required("type"): "heads_up/inbox_read_all"})
+@callback
+def ws_inbox_read_all(
+    hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Mark every unread item of the caller read."""
+    if (found := _inbox(hass, connection, msg["id"])) is None:
+        return
+    hub, persons = found
+    inbox = hub.inbox
+    now = dt_util.utcnow()
+    connection.send_result(
+        msg["id"], {"count": sum(inbox.mark_read_all(person, now) for person in persons)}
+    )
+
+
+@websocket_command(
+    {vol.Required("type"): "heads_up/inbox_delete", vol.Required("message_id"): cv.string}
+)
+@callback
+def ws_inbox_delete(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """Remove one item from the caller's inbox."""
+    if (found := _inbox(hass, connection, msg["id"])) is None:
+        return
+    hub, persons = found
+    inbox = hub.inbox
+    if not any([inbox.delete(person, msg["message_id"]) for person in persons]):
+        connection.send_error(msg["id"], "not_found", "No such inbox item")
+        return
+    connection.send_result(msg["id"])
+
+
+@websocket_command({vol.Required("type"): "heads_up/inbox_clear"})
+@callback
+def ws_inbox_clear(hass: HomeAssistant, connection: ActiveConnection, msg: dict[str, Any]) -> None:
+    """Remove every item of the caller. Other people's inboxes are not touched."""
+    if (found := _inbox(hass, connection, msg["id"])) is None:
+        return
+    hub, persons = found
+    inbox = hub.inbox
+    connection.send_result(msg["id"], {"count": sum(inbox.purge_person(p) for p in persons)})
+
+
 @callback
 def async_setup_websocket(hass: HomeAssistant) -> None:
     for command in (
@@ -1124,6 +1274,12 @@ def async_setup_websocket(hass: HomeAssistant) -> None:
         ws_welcome_apply,
         ws_popup_config,
         ws_popup_subscribe,
+        ws_inbox_list,
+        ws_inbox_subscribe,
+        ws_inbox_read,
+        ws_inbox_read_all,
+        ws_inbox_delete,
+        ws_inbox_clear,
         ws_snooze,
         ws_unsnooze,
         ws_action,

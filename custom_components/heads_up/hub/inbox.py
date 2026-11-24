@@ -143,6 +143,41 @@ class InboxItem:
     def unread(self) -> bool:
         return self.read_at is None
 
+    @property
+    def needs_action(self) -> bool:
+        """An open critical item nobody acknowledged (D-264)."""
+        return (
+            self.severity == "critical"
+            and self.acknowledged_at is None
+            and self.resolved_at is None
+        )
+
+    def to_client(self) -> dict[str, Any]:
+        """What the card gets. The internal `source` key stays here."""
+        return {
+            "message_id": self.message_id,
+            "person": self.person,
+            "title": self.title,
+            "text": self.text,
+            "severity": self.severity,
+            "icon": self.icon,
+            "color": self.color,
+            "image": self.image,
+            "tag": self.tag,
+            "created": _iso(self.created),
+            "updated": _iso(self.updated),
+            "unread": self.unread,
+            "read_at": _iso(self.read_at),
+            "acknowledged": self.acknowledged_at is not None,
+            "needs_action": self.needs_action,
+            "resolved": self.resolved_at is not None,
+            "resolved_at": _iso(self.resolved_at),
+            "resolved_reason": self.resolved_reason,
+            "via": list(self.via),
+            "timeline": [dict(entry) for entry in self.timeline],
+            "reminders": self.reminders,
+        }
+
 
 @callback
 def _is_person(data: EventStateChangedData | Mapping[str, Any]) -> bool:
@@ -518,8 +553,41 @@ class InboxStore:
 
     def needs_action(self, person: str) -> int:
         """Open critical items nobody acknowledged for this person (D-264)."""
-        return sum(
-            1
-            for i in self._items.get(person, {}).values()
-            if i.severity == "critical" and i.acknowledged_at is None and i.resolved_at is None
+        return sum(1 for i in self._items.get(person, {}).values() if i.needs_action)
+
+    # Several persons (a user may be linked to more than one) --------------------------------
+
+    def items_of(
+        self,
+        persons: list[str],
+        *,
+        unread_only: bool = False,
+        limit: int | None = None,
+        offset: int = 0,
+    ) -> tuple[list[InboxItem], int]:
+        """The latest change first, and how many there are in all. A message that reached two
+        persons of one user is listed once."""
+        found: dict[str, InboxItem] = {}
+        for person in persons:
+            for item in self._items.get(person, {}).values():
+                if unread_only and not item.unread:
+                    continue
+                known = found.get(item.message_id)
+                if known is None or item.updated > known.updated:
+                    found[item.message_id] = item
+        ordered = sorted(
+            found.values(), key=lambda i: (i.updated, i.created, i.message_id), reverse=True
         )
+        page = ordered[offset:] if limit is None else ordered[offset : offset + limit]
+        return page, len(ordered)
+
+    def counts_of(self, persons: list[str]) -> dict[str, int]:
+        """Unread, needing action and unread critical, over the items of these persons."""
+        items = {i.message_id: i for p in persons for i in self._items.get(p, {}).values()}
+        return {
+            "unread": sum(1 for i in items.values() if i.unread),
+            "needs_action": sum(1 for i in items.values() if i.needs_action),
+            "unread_critical": sum(
+                1 for i in items.values() if i.unread and i.severity == "critical"
+            ),
+        }

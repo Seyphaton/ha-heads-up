@@ -19,7 +19,7 @@ Living design document: requirements and architecture. Decisions are referenced 
 | §26 new Overview (status card, Coming up, reach table, tour in the page, quick shortcuts, Last actions) | built and tested on `release/2.0` (Phase 18, D-244, D-245); checked in the browser pane at desktop and phone width, light and dark; not on real devices |
 | §27 history store (24 months, Activity cards, Clear history) | built and tested on `release/2.0` (Phase 19, D-246); about 7 KB a day measured on a synthetic busy household; push levels used are not recorded |
 | §28 2.1.0 richer push (icon, color, sender icon, subtitle, progress with live updates) | built (D-255 to D-263) |
-| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store, the `inbox` channel and its lifecycle hooks are built and tested; commands, sensor, card and settings are not built |
+| §29 personal inbox | in progress on `release/3.0` (Phase 22): the store, the `inbox` channel, its lifecycle hooks and the WebSocket commands are built and tested; sensor, card and settings are not built |
 | §8 frontend (card, editor, serving the JS file) | implemented; pure functions tested with vitest, behaviour checked on the dev HA (Phases 4 and 7) |
 | Human docs | README and five pages in `docs/`: `setup.md` (install, first message, card, panel, upgrading, uninstalling), `actions.md` (actions, watch rules, card), `configuration.md`, `settings.md`, `examples.md` (examples, FAQ, troubleshooting, limitations) (D-164) |
 | Packaging, release, CI run | icon, CI jobs (HA 2026.10.4, HA 2026.9.4, card), HACS and hassfest validation, `docs/dev/RELEASE.md`; the repository is public, CI was reported green on `main` (maintainer, 2026-10-26, `docs/OPEN_QUESTIONS.md`), the README has screenshots (`docs/images`); versions 0.1.0 to 0.4.0 are tagged, the last stable version is 0.4.0 |
@@ -1052,7 +1052,7 @@ Status: built 2026-11-23 on `release/2.1`, including editable built-in audiences
 
 ## 29. Personal inbox (Phase 22, D-264, D-268 to D-271)
 
-Status: steps 2 and 3 built on `release/3.0` (the store, and the channel with the lifecycle hooks); the WebSocket commands, sensor, card and settings are not built. Plan: `docs/dev/inbox/PLAN.md`.
+Status: built on `release/3.0`: the store, the channel with the lifecycle hooks and the WebSocket commands; the sensor, card and settings are not built. Plan: `docs/dev/inbox/PLAN.md`.
 
 ### 29.1 Store
 - `hub/inbox.py` `InboxStore`, store `heads_up.inbox` (version 1), one store for all people, layout `{"items": {person entity ID: {message ID: item}}}`. Items are in memory; a change schedules one write after `INBOX_SAVE_DELAY` (60 s), made from a copy in the event loop and serialized in a thread (`serialize_in_event_loop=False`, N-117). Stopping the hub and Home Assistant's final write (`EVENT_HOMEASSISTANT_FINAL_WRITE`) save what is waiting at once. The store file is deleted with the integration.
@@ -1073,3 +1073,9 @@ Status: steps 2 and 3 built on `release/3.0` (the store, and the channel with th
 - The engine applies the lifecycle from the transitions (`HubEngine._inbox_transition`): acknowledged, dismissed by a user, ended (reasons `cleared`, `expired`, `condition`, `dismissed`). A dismissal for everyone also reads the dismisser's item (the transition carries the user). At start, items of messages that are not active are resolved (`_resolve_gone_inbox_items`).
 - Policies: the inbox follows every policy like any channel (D-268). Quiet hours can name channels (D-271); Presence covers push, popup, mail, inbox and speech (`PRESENCE_PEOPLE_CHANNELS` includes the inbox, so a policy with no channels chosen holds it too, D-273); Summarize holds whole messages, so the inbox too.
 - Not rate limited (`Limiter.push_allowed` is push only); `NOT_REPEATED_ON_UPDATE` does not list it. The Overview reach table has an Inbox row (state `shown`).
+
+### 29.4 WebSocket commands
+- All six are for any logged-in user and work on the caller's own items only. The persons come from `connection.user` (`HubResolver.persons_of_user`); no command has a person field (an extra key is refused as `invalid_format`), and an administrator gets no more than anyone else.
+- `heads_up/inbox_list` (`limit` 1 to 100, default 50; `offset`; `unread_only`): `items` (the latest change first), `total`, `more`, `has_person`, `unread`, `needs_action`, `unread_critical`. `heads_up/inbox_subscribe`: the same state without the paging fields, as an event now and after every change of the caller's items (an event only when the state differs). Items are `InboxItem.to_client()`: the internal `source` key is not sent.
+- `inbox_read` (`message_id`; a second read is not an error), `inbox_read_all` (`count`), `inbox_delete` (`message_id`) and `inbox_clear` (`count`, only the caller's items). An unknown `message_id`, or one that is another person's, is `not_found`. A user without a person entity gets an empty list and `count: 0`.
+- Tests: `tests/hub/test_inbox_websocket.py`; `make dev-smoke` has the phases `inbox` and `inbox_verify` (two users, a restart, the end of the message).
