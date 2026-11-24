@@ -64,8 +64,8 @@ dev-smoke:      ## end-to-end check against dev HA (see dev/smoke.py; restarts t
 	uv run python dev/smoke.py hub_core_verify
 	uv run python dev/smoke.py policies_verify
 	uv run python dev/smoke.py hub_e2e_verify
-	uv run python dev/smoke.py inbox_verify
 	uv run python dev/smoke.py messages_verify
+	uv run python dev/smoke.py inbox_verify
 
 dev-down:
 	$(COMPOSE) down

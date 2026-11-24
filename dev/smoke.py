@@ -535,10 +535,19 @@ async def messages_verify() -> None:
     async with aiohttp.ClientSession() as s:
         admin, user = await token(s, "ADMIN"), await token(s, "USER")
         ws_admin, ws_user = await connect(s, admin), await connect(s, user)
-        assert [i["text"] for i in (await inbox_list(ws_admin))["items"]] == ["Smoke message"]
-        assert len((await inbox_list(ws_user, view="sent"))["items"]) == 1
-        for ws in (ws_admin, ws_user):
-            assert (await ws_call(ws, type="heads_up/inbox_clear"))["success"]
+        # Other phases leave items of their own; only this phase's message is checked.
+        texts = [i["text"] for i in (await inbox_list(ws_admin))["items"]]
+        assert texts.count("Smoke message") == 1, texts
+        sent = [i["text"] for i in (await inbox_list(ws_user, view="sent"))["items"]]
+        assert sent == ["Smoke message"], sent
+        # Only this phase's items go: the inbox phases keep theirs until inbox_verify.
+        for ws, view in ((ws_admin, "inbox"), (ws_user, "sent")):
+            for item in (await inbox_list(ws, view=view))["items"]:
+                if item["text"] == "Smoke message":
+                    reply = await ws_call(
+                        ws, type="heads_up/inbox_delete", message_id=item["message_id"]
+                    )
+                    assert reply["success"], reply
         assert (await ws_call(ws_admin, type="heads_up/channels_set", inbox_messages=False))[
             "success"
         ]
@@ -549,10 +558,32 @@ SMOKE_POLICY = "Smoke reminder"
 SMOKE_POLICY_ID = "switch.heads_up_policy_smoke_reminder"  # a call names a policy by its switch
 
 
+SMOKE_POLICY_NAMES = ("Smoke reminder", "Smoke night", "Smoke digest", "Smoke alarms")
+
+
+async def drop_smoke_policies(s: aiohttp.ClientSession, admin: str, names: tuple[str, ...]) -> None:
+    """Delete leftover smoke policies by name. A policy of an earlier run that is still there (or
+    was switched off) makes the next run's forms answer "duplicate" and the checker see nothing."""
+    ws = await connect(s, admin)
+    eid = await entry_id(s, admin)
+    msg_id = await ws.send({"type": "heads_up/panel_config"})
+    for policy in (await ws.recv(msg_id))["result"]["policies"]:
+        if policy["name"] in names:
+            msg_id = await ws.send(
+                {
+                    "type": "config_entries/subentries/delete",
+                    "entry_id": eid,
+                    "subentry_id": policy["subentry_id"],
+                }
+            )
+            assert (await ws.recv(msg_id))["success"]
+
+
 async def policies() -> None:
     """A reminder policy added through the real subentry flow, used by a message, acknowledged."""
     async with aiohttp.ClientSession() as s:
         admin, user = await token(s, "ADMIN"), await token(s, "USER")
+        await drop_smoke_policies(s, admin, SMOKE_POLICY_NAMES)
         headers = {"Authorization": f"Bearer {admin}"}
         eid = await entry_id(s, admin)
         r = await s.post(
@@ -626,6 +657,7 @@ async def lanes() -> None:
 
     async with aiohttp.ClientSession() as s:
         admin = await token(s, "ADMIN")
+        await drop_smoke_policies(s, admin, ("Smoke alarms",))
         headers = {"Authorization": f"Bearer {admin}"}
         eid = await entry_id(s, admin)
         r = await s.post(
@@ -753,7 +785,8 @@ async def policies_verify() -> None:
         data = {"id": "smoke_policy", "message": "Policy", "timeout": 0, "policy": SMOKE_POLICY_ID}
         await call(s, admin, "notify", {**data, "channels": ["banner"]})
         print("clear:", await call(s, admin, "clear_notifications", {"id": "smoke_policy"}))
-        print("policies survived the restart")
+        await drop_smoke_policies(s, admin, SMOKE_POLICY_NAMES)
+        print("policies survived the restart and the smoke policies were removed")
 
 
 async def persistent_ids(ws: WS) -> list[str]:
