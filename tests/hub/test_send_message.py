@@ -444,3 +444,71 @@ async def test_the_panel_message_log_lists_the_message_without_its_text(
     reply = await ask(client, "panel_messages")
     assert "a secret plan" not in str(reply)
     assert mid in str(reply)  # it is listed, only the text is left out
+
+
+# The look of a person message (D-285) -------------------------------------------------------
+
+PICTURE = "/api/image/serve/abc/512x512"
+
+
+async def test_a_push_reads_like_a_chat_message_from_the_sender(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_user: User,
+    hass_admin_user: User,
+    mobile_app_device: Any,
+) -> None:
+    from .test_push_payload import sent
+
+    hass.states.async_set(
+        ADMIN,
+        "home",
+        {"user_id": hass_admin_user.id, "friendly_name": "Anna", "entity_picture": PICTURE},
+    )
+    phone = await mobile_app_device(
+        "Reader phone", user_id=hass_read_only_user.id, person_entity_id=READER
+    )
+    entry.runtime_data.options["push_lockscreen"] = "full"
+    client = await hass_ws_client(hass)
+    reply = await send(client, to=[READER], text="Dinner is ready", channels=["inbox", "push"])
+    assert reply["success"], reply
+    payload = sent(phone)
+    assert payload["title"] == "Anna" and payload["message"] == "Dinner is ready"
+    assert payload["data"]["icon_url"] == PICTURE
+    assert payload["data"]["notification_icon"] == "mdi:message-alert"
+
+
+async def test_a_sender_without_a_picture_sends_no_icon_url(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+    hass_read_only_user: User,
+    mobile_app_device: Any,
+) -> None:
+    from .test_push_payload import sent
+
+    phone = await mobile_app_device(
+        "Reader phone", user_id=hass_read_only_user.id, person_entity_id=READER
+    )
+    entry.runtime_data.options["push_lockscreen"] = "full"
+    client = await hass_ws_client(hass)
+    await send(client, to=[READER], text="hi", channels=["inbox", "push"])
+    data = sent(phone)["data"]
+    assert "icon_url" not in data and data["notification_icon"] == "mdi:message-alert"
+
+
+async def test_the_inbox_and_sent_items_keep_no_title(
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    people: None,
+    hass_ws_client: WebSocketGenerator,
+) -> None:
+    client = await hass_ws_client(hass)
+    mid = (await send(client, to=[READER], text="hi"))["result"]["id"]
+    inbox = entry.runtime_data.hub.inbox
+    got, mine = inbox.get(READER, mid), inbox.get(ADMIN, f"{SENT_PREFIX}{mid}")
+    assert got is not None and got.title == "" and got.icon is None
+    assert mine is not None and mine.title == ""

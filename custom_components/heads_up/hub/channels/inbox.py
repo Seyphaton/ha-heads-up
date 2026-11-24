@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 
 from homeassistant.util import dt as dt_util
 
-from ...const import OPT_INBOX_REMINDER_UNREAD
+from ...const import OPT_INBOX_REMINDER_UNREAD, SOURCE_PERSON
 from ...models import Banner
 from .base import Capabilities, Outcome, Result, Target
 
@@ -28,11 +28,13 @@ def item_fields(message: Banner) -> dict[str, str | None]:
     """What an inbox item keeps of a message; the mirror uses the same (D-275)."""
     from ..engine import source_key  # the engine imports the channels
 
+    # A message between people shows who wrote it in the row, not as a title (D-285).
+    person = message.source == SOURCE_PERSON
     return {
-        "title": message.title or "",
+        "title": "" if person else message.title or "",
         "text": message.message,
         "severity": message.severity,
-        "icon": message.icon,
+        "icon": None if person else message.icon,
         "color": message.color,
         "image": message.image,
         "source": source_key(message),

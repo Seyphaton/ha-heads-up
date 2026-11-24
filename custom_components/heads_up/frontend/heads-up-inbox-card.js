@@ -550,6 +550,17 @@ export function rowLine(item, states, strings) {
   return item.sender ? fill(strings.from_name, { name: personName(states, item.sender) }) : "";
 }
 
+// The picture of the person who wrote a received message: an http(s) address or a path of this
+// instance, else none and the row shows the Heads Up icon (D-285).
+export function rowPicture(item, states) {
+  if (item.sent || !item.sender) return null;
+  const picture = states?.[item.sender]?.attributes?.entity_picture;
+  return typeof picture === "string" && /^(\/|https?:\/\/)/.test(picture) ? picture : null;
+}
+
+// The icon of a message between people, in the tile and as the fallback of the picture.
+export const PERSON_ICON = "mdi:message-alert";
+
 export function canSend(draft) {
   const text = (draft.text ?? "").trim();
   return draft.to.length > 0 && text.length > 0 && text.length <= MAX_MESSAGE;
@@ -768,6 +779,8 @@ ha-card.small { height: 100%; }
 .empty .tile { margin: 0 auto 10px; width: 56px; height: 56px; --mdc-icon-size: 28px; }
 .note { padding: 16px; color: var(--secondary-text-color); }
 .more { display: block; margin: 0 auto 12px; }
+.tile.pic { overflow: hidden; }
+.tile.pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .row .from { font-size: 12px; color: var(--secondary-text-color); font-weight: 600; }
 .cf { padding-bottom: 16px; }
 .cf .lbl { padding: 10px 16px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--secondary-text-color); font-weight: 600; }
@@ -1468,7 +1481,7 @@ class HeadsUpInboxCard extends Base {
       item.resolved ? h("span", { class: "chip", text: s.chip_resolved }) : null,
     ].filter(Boolean);
     const row = h("button", { class: "tap row", "data-key": `row:${item.message_id}`, "aria-expanded": String(open), onclick: () => this._toggle(item) }, [
-      h("div", { class: "tile", style: `--c:${severityColor(item.severity)}` }, [icon(severityIcon(item.severity, item.icon))]),
+      this._rowTile(item),
       h("div", { class: "bd" }, [
         h("div", { class: "ttl2", text: item.title || text }),
         line ? h("div", { class: "from", text: line }) : null,
@@ -1482,6 +1495,26 @@ class HeadsUpInboxCard extends Base {
     ]);
     const detail = open ? this._detail(item, text) : null;
     return h("div", { class: `item ${item.unread ? "" : "read"} ${open ? "open" : ""} ${item.needs_action ? "needs" : ""}` }, [row, detail]);
+  }
+
+  // A message between people shows the sender's picture, else the Heads Up icon; any other item
+  // the icon of its severity.
+  _rowTile(item) {
+    const person = item.sender || item.sent;
+    const picture = rowPicture(item, this._hass?.states);
+    const fallback = icon(person ? PERSON_ICON : severityIcon(item.severity, item.icon));
+    const tile = h("div", { class: `tile ${picture ? "pic" : ""}`, style: `--c:${severityColor(item.severity)}` }, [fallback]);
+    if (picture) {
+      const image = h("img", { alt: "", loading: "lazy", hidden: true });
+      image.addEventListener("load", () => {
+        image.removeAttribute("hidden");
+        fallback.remove();
+      });
+      image.addEventListener("error", () => image.remove());
+      image.src = picture;
+      tile.append(image);
+    }
+    return tile;
   }
 
   _detail(item, text) {

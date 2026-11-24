@@ -1846,3 +1846,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - After sending, the dialog shows "Message sent" and, per person, the channels that were not delivered; Done returns to the card on the Sent tab.
   - Escape leaves the compose view first and closes the dialog on the second press. A draft is not kept.
   - Received items show "From <name>", sent items "To <names>", from the person entity's friendly name; no pictures yet (listed in `docs/OPEN_QUESTIONS.md` with the other later tiers).
+
+## D-285 Phase 23 review answers: sender look, picture, several persons (2026-11-24, maintainer)
+- Context: the maintainer asked how a user can be linked to two persons ("Person HASS = Person Heads Up"). Home Assistant's person storage refuses a second person for the same user (`person/__init__.py`, "User already taken", checked in the installed source); only persons defined in YAML are not checked there. So the case is rare and the refusal of D-283 stays as the safe default; no "send as" choice.
+- Decisions (maintainer):
+  - D-284 confirmed: the medium card offers compose through its dialog.
+  - A push or popup of a person message looks like a chat message: the title is the sender's name, the sender's picture is the sender icon (`icon_url`, which makes it a communication notification on iOS), and the notification icon is the Heads Up icon (`mdi:message-alert`, the icon of the integration's sensor). The lock screen setting still decides what shows: name and picture follow the same rule as any title and `icon_url` (`full` only for the picture).
+  - The inbox card shows the sender's picture (the person entity's `entity_picture`) in the row tile, falling back to the Heads Up icon. The inbox item and the Sent item keep no title (the row says "From <name>" / "To <names>").

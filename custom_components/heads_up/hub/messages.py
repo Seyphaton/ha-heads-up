@@ -17,6 +17,7 @@ from ..const import (
     CHANNEL_BANNER,
     MESSAGE_RATE_LIMIT,
     MESSAGE_RATE_WINDOW,
+    PERSON_MESSAGE_ICON,
     SOURCE_PERSON,
 )
 from .channels.inbox import item_fields
@@ -24,6 +25,11 @@ from .channels.inbox import item_fields
 if TYPE_CHECKING:
     from ..manager import BannerManager
     from .engine import HubEngine
+
+
+def _is_picture(value: Any) -> bool:
+    """An address the phone can load: an http(s) URL or a path of this instance."""
+    return isinstance(value, str) and value.startswith(("/", "http://", "https://"))
 
 
 class MessageLimiter:
@@ -55,6 +61,10 @@ async def send(
 ) -> dict[str, Any]:
     """Create the message, deliver it, and keep the sender's copy. Returns what was skipped."""
     people = list(dict.fromkeys(to))
+    # A chat look on push and popup (D-285): the sender's name as title and picture as sender icon.
+    state = manager.hass.states.get(sender)
+    name = str(state.attributes.get("friendly_name") or state.name) if state else sender
+    picture = state.attributes.get("entity_picture") if state else None
     chosen = list(dict.fromkeys(["inbox", *channels]))
     result = manager.create(
         {
@@ -64,6 +74,9 @@ async def send(
             "targets": {channel: {"recipients": people} for channel in chosen},
             "source": SOURCE_PERSON,
             "sender": sender,
+            "title": name,
+            "icon": PERSON_MESSAGE_ICON,
+            "icon_url": picture if _is_picture(picture) else None,
             # A message between people is never a card banner, so it needs no dismissal there.
             "dismissible": True,
         }

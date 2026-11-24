@@ -4,6 +4,7 @@ import {
   canSend,
   composeHints,
   personName,
+  rowPicture,
   rowLine,
   sendError,
   showCompose,
@@ -480,5 +481,27 @@ describe("compose rules", () => {
     expect(sendError({ code: "messages_off" })).toBe("error_messages_off");
     expect(sendError({ code: "anything" })).toBe("error_send");
     expect(sendError(null)).toBe("error_send");
+  });
+});
+
+describe("sender picture (D-285)", () => {
+  const states = {
+    "person.anna": { attributes: { friendly_name: "Anna", entity_picture: "/api/image/serve/a/512x512" } },
+    "person.ben": { attributes: { friendly_name: "Ben" } },
+  };
+  it("is the picture of the person who wrote the message", () => {
+    expect(rowPicture(item({ sender: "person.anna" }), states)).toBe("/api/image/serve/a/512x512");
+  });
+  it("is none without a sender, without a picture and for a sent item", () => {
+    expect(rowPicture(item({ sender: null }), states)).toBe(null);
+    expect(rowPicture(item({ sender: "person.ben" }), states)).toBe(null);
+    expect(rowPicture(item({ sent: true, sender: "person.anna" }), states)).toBe(null);
+  });
+  it("takes only a path or an http address", () => {
+    const odd = { "person.x": { attributes: { entity_picture: "javascript:alert(1)" } } };
+    expect(rowPicture(item({ sender: "person.x" }), odd)).toBe(null);
+  });
+  it("gives a message from a person the Heads Up icon, whatever its severity", () => {
+    expect(severityIcon("info", "mdi:message-alert")).toBe("mdi:message-alert");
   });
 });

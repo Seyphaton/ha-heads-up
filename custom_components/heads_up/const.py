@@ -147,6 +147,8 @@ MESSAGE_RATE_LIMIT: Final = 10
 MESSAGE_RATE_WINDOW: Final = 60
 MESSAGE_MAX_RECIPIENTS: Final = 20
 MESSAGE_CHANNELS: Final = ("inbox", "push", "popup")
+# The icon of a message between people on push and in the card: the integration's own (D-285).
+PERSON_MESSAGE_ICON: Final = "mdi:message-alert"
 INBOX_MAX_ITEMS: Final = 2000  # per person, the oldest go first (D-270)
 INBOX_MAX_TIMELINE: Final = 10  # entries on one item: the first and the latest nine
 INBOX_PURGE_GRACE: Final = 300  # seconds a removed person may come back before the inbox is purged
