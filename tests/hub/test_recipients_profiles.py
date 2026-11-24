@@ -36,7 +36,7 @@ async def test_every_person_has_a_profile_with_the_detected_devices(
     assert profile.devices[0].service == phone.notify_service
     assert profile.devices[0].service_found is True
     assert profile.primary == phone.device_id
-    assert profile.channels == ("banner", "push", "popup")
+    assert profile.channels == ("banner", "push", "popup", "inbox")
     assert profile.customized is False
 
 
@@ -88,6 +88,7 @@ async def test_a_manual_device_is_added_and_a_detected_one_removed(
         removed_devices=[old.device_id],
         primary=spare.device_id,
         channels=["push"],
+        channels_v=2,  # saved by the form after the inbox existed
     )
     await hass.async_block_till_done()
     profile = resolver(entry).profile("person.anna")

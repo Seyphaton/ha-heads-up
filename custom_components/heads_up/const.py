@@ -112,8 +112,8 @@ PRESENCE_WHEN: Final = ("not_in", "in")
 PRESENCE_WHO: Final = ("nobody", "somebody")
 PRESENCE_THEN: Final = ("hold", "drop")
 AFTER_WAIT: Final = ("send", "drop")
-PRESENCE_PEOPLE_CHANNELS: Final = ("push", "popup", "mail")
-PRESENCE_CHANNELS: Final = ("push", "popup", "mail", "speak")
+PRESENCE_PEOPLE_CHANNELS: Final = ("push", "popup", "mail", "inbox")
+PRESENCE_CHANNELS: Final = ("push", "popup", "mail", "inbox", "speak")
 POLICY_CHANNELS: Final = (
     "push",
     "popup",
@@ -182,8 +182,10 @@ PROFILE_CHANNELS: Final = (
     "push",
     "popup",
     "mail",
+    "inbox",
 )  # channels a person's profile can accept
-DEFAULT_PROFILE_CHANNELS: Final = ("banner", "push", "popup")  # mail is opt-in per person (D-129)
+DEFAULT_PROFILE_CHANNELS: Final = ("banner", "push", "popup", "inbox")  # mail is opt-in (D-129)
+PROFILE_CHANNELS_VERSION: Final = 2  # a profile saved before the inbox existed accepts it (D-273)
 MAIL_GLOBAL: Final = "Global address"  # the recipient name of the shared mail address (D-129)
 MAIL_GLOBAL_KEY: Final = "mail:global"  # its ledger key
 MAIL_PLACEHOLDERS: Final = ("severity", "title", "message", "person", "person_id", "id", "tag")

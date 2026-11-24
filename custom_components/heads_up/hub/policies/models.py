@@ -182,7 +182,7 @@ class Policy:
 
 
 def presence_channels(policy: Policy) -> tuple[str, ...]:
-    """The channels a Presence policy covers; none chosen means push, popup and mail (1.0)."""
+    """The channels a Presence policy covers; none chosen means push, popup, mail and inbox."""
     return policy.channels or PRESENCE_PEOPLE_CHANNELS
 
 

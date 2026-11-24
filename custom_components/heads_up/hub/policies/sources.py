@@ -21,7 +21,7 @@ from .models import Policy
 
 CHANNELS_FROM = ("policy", "call", "failed")
 TARGETS_FROM = ("policy", "call")
-PEOPLE_CHANNELS = ("push", "popup", "mail")  # these take an audience or persons
+PEOPLE_CHANNELS = ("push", "popup", "mail", "inbox")  # these take an audience or persons
 PEOPLE_KEY = "people"  # the target of every people channel when the channels come from the call
 SPEAK_KEY = "speak"  # the speakers, when the channels come from the call
 

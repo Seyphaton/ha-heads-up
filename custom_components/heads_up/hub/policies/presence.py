@@ -1,11 +1,11 @@
 """Presence: hold or drop a delivery by where people are (D-212, was Away, D-081).
 
-Push, popup and mail are checked per recipient: "the recipient is (not) in the zone". Speech is
-checked for the household: "nobody / somebody of an audience is in the zone". Then the delivery
-is held until that changes, or dropped. Unknown presence is sent at once (fail safe, D-080), the
-banner is never held and a reminder is never held. "Home" may come from a person's home entity
-(D-220), and any other zone from an entity on the person's recipient profile (D-229);
-without one, the person state counts.
+Push, popup, mail and inbox are checked per recipient: "the recipient is (not) in the zone".
+Speech is checked for the household: "nobody / somebody of an audience is in the zone". Then
+the delivery is held until that changes, or dropped. Unknown presence is sent at once (fail
+safe, D-080), the banner is never held and a reminder is never held. "Home" may come from a
+person's home entity (D-220), and any other zone from an entity on the person's recipient
+profile (D-229); without one, the person state counts.
 
 A 1.0 Away policy reads as Presence with its 1.0 behaviour: push, popup and mail, the recipient
 not in Home, hold, and the delivery dropped when the wait ends. Unlike 1.0 Away, a recipient named

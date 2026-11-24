@@ -24,6 +24,7 @@ from ..const import (
     GROUP_SUBENTRY,
     HOME_ZONE,
     PROFILE_CHANNELS,
+    PROFILE_CHANNELS_VERSION,
     PROFILE_SUBENTRY,
 )
 
@@ -165,6 +166,8 @@ def parse_profile(subentry: ConfigSubentry) -> StoredProfile | None:
     channels = tuple(
         c for c in data.get("channels", DEFAULT_PROFILE_CHANNELS) if c in PROFILE_CHANNELS
     )
+    if int(data.get("channels_v") or 1) < PROFILE_CHANNELS_VERSION and "inbox" not in channels:
+        channels += ("inbox",)  # saved before the inbox existed: it is on until the person says no
     return StoredProfile(
         person=str(data["person"]),
         manual=tuple(data.get("devices", ())),

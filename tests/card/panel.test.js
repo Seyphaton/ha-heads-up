@@ -1034,7 +1034,7 @@ describe("recipient labels", () => {
 });
 
 describe("recipient profile enabled switch", () => {
-  const base = { devices: [], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "" };
+  const base = { devices: [], removed: [], primary: "", channels: ["banner", "push", "popup", "inbox"], mail_address: "" };
 
   it("reads enabled from the profile and treats a missing value as on", () => {
     expect(profileValues({ ...base, enabled: false }).enabled).toBe(false);
@@ -1043,8 +1043,8 @@ describe("recipient profile enabled switch", () => {
   });
 
   it("is not a default profile when it is off, so it is stored", () => {
-    expect(isDefault({ manual: [], removed: [], primary: "", mail_address: "", channels: ["banner", "push", "popup"], enabled: true })).toBe(true);
-    expect(isDefault({ manual: [], removed: [], primary: "", mail_address: "", channels: ["banner", "push", "popup"], enabled: false })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", mail_address: "", channels: ["banner", "push", "popup", "inbox"], enabled: true })).toBe(true);
+    expect(isDefault({ manual: [], removed: [], primary: "", mail_address: "", channels: ["banner", "push", "popup", "inbox"], enabled: false })).toBe(false);
   });
 
   it("sends enabled only when it is off", () => {

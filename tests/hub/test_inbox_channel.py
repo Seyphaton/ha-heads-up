@@ -2,6 +2,7 @@
 
 import pytest
 from freezegun.api import FrozenDateTimeFactory
+from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -37,6 +38,11 @@ async def inbox_only(
     hass: HomeAssistant, entry: MockConfigEntry, to: dict | None = None, **kw: object
 ) -> None:
     await send(hass, entry, channels=["inbox"], to=to or TO_ANNA, **kw)
+
+
+@pytest.fixture
+def options() -> dict[str, int]:
+    return {"presence_debounce_seconds": 0}
 
 
 @pytest.fixture(autouse=True)
@@ -380,3 +386,92 @@ async def test_quiet_hours_with_send_quietly_do_not_mark_the_inbox_quiet(
     )
     (row,) = [r for r in result["rows"] if r["channel"] == "inbox"]
     assert row["result"] == "sent" and row.get("note") != "quiet"
+
+
+# Per person on or off, like every channel (D-273) ------------------------------------------
+
+
+def profile(hass: HomeAssistant, entry: MockConfigEntry, person: str, **data: object) -> None:
+    hass.config_entries.async_add_subentry(
+        entry,
+        ConfigSubentry(
+            data={"person": person, **data},
+            subentry_type="recipient_profile",
+            title=person,
+            unique_id=None,
+        ),
+    )
+
+
+async def test_a_person_without_a_profile_accepts_the_inbox(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(ANNA, "home", {"user_id": "anna-id"})
+    assert "inbox" in entry.runtime_data.hub.resolver.profile(ANNA).channels
+
+
+async def test_a_profile_saved_before_the_inbox_existed_accepts_it(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(ANNA, "home", {"user_id": "anna-id"})
+    profile(hass, entry, ANNA, channels=["banner", "push", "popup"])  # no `channels_v`
+    await hass.async_block_till_done()
+    await inbox_only(hass, entry)
+    assert inbox(entry).get(ANNA, "m") is not None
+
+
+async def test_a_person_who_switched_the_inbox_off_gets_no_item(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(ANNA, "home", {"user_id": "anna-id"})
+    profile(hass, entry, ANNA, channels=["banner", "push", "popup"], channels_v=2)
+    await hass.async_block_till_done()
+    await inbox_only(hass, entry)
+    assert inbox(entry).get(ANNA, "m") is None
+    assert any(
+        e["channel"] == "inbox" and e.get("reason") == "channel_not_accepted" for e in trace(entry)
+    )
+
+
+async def test_a_person_who_switched_the_inbox_on_gets_items(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(ANNA, "home", {"user_id": "anna-id"})
+    profile(hass, entry, ANNA, channels=["banner", "inbox"], channels_v=2)
+    await hass.async_block_till_done()
+    await inbox_only(hass, entry)
+    assert inbox(entry).get(ANNA, "m") is not None
+
+
+# Presence applies to the inbox like to the other channels (D-273) ---------------------------
+
+
+async def test_a_presence_policy_holds_the_inbox_of_a_person_who_is_away(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(ANNA, "not_home", {"user_id": "anna-id"})
+    await add_policy(hass, entry, "Away", type="presence")
+    await inbox_only(hass, entry, severity="warning")
+    assert inbox(entry).get(ANNA, "m") is None
+    hass.states.async_set(ANNA, "home", {"user_id": "anna-id"})
+    await settle(hass, entry)
+    await hass.async_block_till_done()
+    assert inbox(entry).get(ANNA, "m") is not None
+
+
+async def test_a_presence_policy_for_other_channels_leaves_the_inbox_alone(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(ANNA, "not_home", {"user_id": "anna-id"})
+    await add_policy(hass, entry, "Away", type="presence", channels=["push"])
+    await inbox_only(hass, entry, severity="warning")
+    assert inbox(entry).get(ANNA, "m") is not None
+
+
+async def test_a_presence_policy_can_drop_the_inbox_item(
+    hass: HomeAssistant, entry: MockConfigEntry
+) -> None:
+    hass.states.async_set(ANNA, "not_home", {"user_id": "anna-id"})
+    await add_policy(hass, entry, "Away", type="presence", presence_then="drop")
+    await inbox_only(hass, entry, severity="warning")
+    assert inbox(entry).get(ANNA, "m") is None

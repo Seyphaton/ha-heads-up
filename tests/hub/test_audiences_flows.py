@@ -165,6 +165,7 @@ async def test_add_a_recipient_profile(
     assert dict(sub.data) == {
         "person": "person.anna",
         "channels": ["push", "popup"],
+        "channels_v": 2,
         "devices": [spare.device_id],
         "primary": spare.device_id,
     }

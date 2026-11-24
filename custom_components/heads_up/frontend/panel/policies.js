@@ -65,7 +65,7 @@ export const STRINGS = {
     targets_from: "Recipients come from",
     cf: { policy: "This policy (the channels below)", call: "The call (the same channels)", failed: "The call, only the channels that reached nobody" },
     tf: { policy: "This policy (the recipients below)", call: "The call (the same recipients)" },
-    people_target: "People: push, popup and mail",
+    people_target: "People: push, popup, mail and inbox",
     speakers_target: "Speakers: speech",
     tf_call_hint: "The people and speakers the call named receive it on the channels above.",
     same_empty: "The call reached nobody because the audience was empty, so the same recipients are empty too. Use Delivery failed, or give other recipients.",
@@ -89,7 +89,7 @@ export const STRINGS = {
     enabled_hint: "A disabled policy is never used, not even when a call names it.",
     sec_when: "Which messages",
     sec_does: "What it does",
-    type_desc: {"get_through": "Lets the messages it fits past quiet hours and summaries for the people it covers. It sends nothing itself: it only changes how a message arrives for people who get it anyway. To reach other people too, add a Deliver policy.", "escalation": "If nobody acknowledges within the time, the message is also delivered on the channels and to the targets you choose.", "reminder": "While nobody acknowledges, the message is repeated at an interval, up to a maximum.", "quiet_hours": "Between two times of day, deliveries outside the dashboard are sent quietly, held until the end or dropped.", "presence": "Holds or drops a delivery by where people are: for each recipient on push, popup and mail, for the household on speakers.", "fallback": "If the first delivery reached nobody, the message is delivered somewhere else: on other channels, or to other people on the same channels.", "summarize": "Matching messages are held on every channel, the banner included, and one summary is sent instead.", "deliver": "Matching messages are also delivered at once to the audience and channels you choose."},
+    type_desc: {"get_through": "Lets the messages it fits past quiet hours and summaries for the people it covers. It sends nothing itself: it only changes how a message arrives for people who get it anyway. To reach other people too, add a Deliver policy.", "escalation": "If nobody acknowledges within the time, the message is also delivered on the channels and to the targets you choose.", "reminder": "While nobody acknowledges, the message is repeated at an interval, up to a maximum.", "quiet_hours": "Between two times of day, deliveries outside the dashboard are sent quietly, held until the end or dropped.", "presence": "Holds or drops a delivery by where people are: for each recipient on push, popup, mail and inbox, for the household on speakers.", "fallback": "If the first delivery reached nobody, the message is delivered somewhere else: on other channels, or to other people on the same channels.", "summarize": "Matching messages are held on every channel, the banner included, and one summary is sent instead.", "deliver": "Matching messages are also delivered at once to the audience and channels you choose."},
     apply_label: "Attaches to messages",
     apply_auto: "Automatically",
     apply_auto_hint: "Every message whose severity and tag match gets this policy. An empty list matches any.",
@@ -231,7 +231,7 @@ export const STRINGS = {
     s_reminder: "{applies}: while nobody acknowledges, the notification is repeated every {n} min, at most {m} times{channels}.",
     s_quiet_hours: "{applies}: between {from} and {to}{days}, deliveries outside the dashboard are {action}{channels}.",
     s_away: "{applies}: a person who is not home gets it when they arrive{wait}.",
-    s_presence_people: "{who} who {where} {zone}: push, popup and mail are {then}",
+    s_presence_people: "{who} who {where} {zone}: push, popup, mail and inbox are {then}",
     s_presence_speak: "speech while {who} of {audience} is in {zone} is {then}",
     w_recipient: "a recipient",
     w_in: "is in",
@@ -243,9 +243,9 @@ export const STRINGS = {
     everyone: "everyone",
     nobody: "nobody",
     somebody: "somebody",
-    presence_channels: "Channels it covers (none selected: push, popup, mail)",
+    presence_channels: "Channels it covers (none selected: push, popup, mail, inbox)",
     zone: "Zone",
-    presence_when: "Push, popup, mail: when the recipient",
+    presence_when: "Push, popup, mail, inbox: when the recipient",
     household_who: "Speech: when",
     household_audience: "of this audience is in the zone",
     presence_then: "Then",
@@ -312,7 +312,7 @@ export const STRINGS = {
     targets_from: "Empfänger stammen aus",
     cf: { policy: "Diese Richtlinie (die Kanäle unten)", call: "Der Aufruf (dieselben Kanäle)", failed: "Der Aufruf, nur die Kanäle, die niemanden erreicht haben" },
     tf: { policy: "Diese Richtlinie (die Empfänger unten)", call: "Der Aufruf (dieselben Empfänger)" },
-    people_target: "Personen: Push, Popup und E-Mail",
+    people_target: "Personen: Push, Popup, E-Mail und Posteingang",
     speakers_target: "Lautsprecher: Sprache",
     tf_call_hint: "Die Personen und Lautsprecher, die der Aufruf nannte, erhalten es auf den Kanälen oben.",
     same_empty: "Der Aufruf hat niemanden erreicht, weil die Zielgruppe leer war; dieselben Empfänger sind also auch leer. Nimm Zustellung fehlgeschlagen oder gib andere Empfänger an.",
@@ -336,7 +336,7 @@ export const STRINGS = {
     enabled_hint: "Eine deaktivierte Richtlinie wird nie genutzt, auch nicht, wenn ein Aufruf sie nennt.",
     sec_when: "Welche Meldungen",
     sec_does: "Was sie tut",
-    type_desc: {"get_through": "Lässt die passenden Meldungen für die erfassten Leute an Ruhezeit und Zusammenfassung vorbei. Sendet selbst nichts: Der Eintrag ändert nur, wie eine Meldung bei den Leuten ankommt, die sie ohnehin bekommen. Sollen weitere Leute sie bekommen, ergänze eine Richtlinie Zustellen.", "escalation": "Bestätigt niemand innerhalb der Zeit, wird die Meldung zusätzlich auf den gewählten Kanälen und an die gewählten Ziele zugestellt.", "reminder": "Solange niemand bestätigt, wird die Meldung in einem Abstand wiederholt, höchstens so oft wie eingestellt.", "quiet_hours": "Zwischen zwei Uhrzeiten werden Zustellungen außerhalb des Dashboards leise gesendet, bis zum Ende zurückgehalten oder verworfen.", "presence": "Hält eine Zustellung zurück oder verwirft sie, je nachdem wo Personen sind: für jeden Empfänger bei Push, Popup und Mail, für den Haushalt bei Lautsprechern.", "fallback": "Hat die erste Zustellung niemanden erreicht, wird die Meldung anderswo zugestellt: auf anderen Kanälen oder an andere Personen auf denselben Kanälen.", "summarize": "Passende Meldungen werden auf jedem Kanal zurückgehalten, auch im Banner, und stattdessen wird eine Zusammenfassung gesendet.", "deliver": "Passende Meldungen werden zusätzlich sofort an die gewählte Zielgruppe auf den gewählten Kanälen zugestellt."},
+    type_desc: {"get_through": "Lässt die passenden Meldungen für die erfassten Leute an Ruhezeit und Zusammenfassung vorbei. Sendet selbst nichts: Der Eintrag ändert nur, wie eine Meldung bei den Leuten ankommt, die sie ohnehin bekommen. Sollen weitere Leute sie bekommen, ergänze eine Richtlinie Zustellen.", "escalation": "Bestätigt niemand innerhalb der Zeit, wird die Meldung zusätzlich auf den gewählten Kanälen und an die gewählten Ziele zugestellt.", "reminder": "Solange niemand bestätigt, wird die Meldung in einem Abstand wiederholt, höchstens so oft wie eingestellt.", "quiet_hours": "Zwischen zwei Uhrzeiten werden Zustellungen außerhalb des Dashboards leise gesendet, bis zum Ende zurückgehalten oder verworfen.", "presence": "Hält eine Zustellung zurück oder verwirft sie, je nachdem wo Personen sind: für jeden Empfänger bei Push, Popup, Mail und Posteingang, für den Haushalt bei Lautsprechern.", "fallback": "Hat die erste Zustellung niemanden erreicht, wird die Meldung anderswo zugestellt: auf anderen Kanälen oder an andere Personen auf denselben Kanälen.", "summarize": "Passende Meldungen werden auf jedem Kanal zurückgehalten, auch im Banner, und stattdessen wird eine Zusammenfassung gesendet.", "deliver": "Passende Meldungen werden zusätzlich sofort an die gewählte Zielgruppe auf den gewählten Kanälen zugestellt."},
     apply_label: "Gilt für Meldungen",
     apply_auto: "Automatisch",
     apply_auto_hint: "Jede Meldung, deren Schweregrad und Tag passen, bekommt diese Richtlinie. Eine leere Liste passt auf alles.",
@@ -478,7 +478,7 @@ export const STRINGS = {
     s_reminder: "{applies}: solange niemand bestätigt, wird die Benachrichtigung alle {n} Min. wiederholt, höchstens {m} Mal{channels}.",
     s_quiet_hours: "{applies}: zwischen {from} und {to}{days} werden Zustellungen außerhalb des Dashboards {action}{channels}.",
     s_away: "{applies}: wer nicht zu Hause ist, bekommt sie bei der Ankunft{wait}.",
-    s_presence_people: "{who}, der {where} {zone} ist: Push, Popup und Mail werden {then}",
+    s_presence_people: "{who}, der {where} {zone} ist: Push, Popup, Mail und Posteingang werden {then}",
     s_presence_speak: "Sprache, solange {who} von {audience} in {zone} ist, wird {then}",
     w_recipient: "Ein Empfänger",
     w_in: "in",
@@ -490,9 +490,9 @@ export const STRINGS = {
     everyone: "allen",
     nobody: "niemand",
     somebody: "jemand",
-    presence_channels: "Abgedeckte Kanäle (keiner gewählt: Push, Popup, Mail)",
+    presence_channels: "Abgedeckte Kanäle (keiner gewählt: Push, Popup, Mail, Posteingang)",
     zone: "Zone",
-    presence_when: "Push, Popup, Mail: wenn der Empfänger",
+    presence_when: "Push, Popup, Mail, Posteingang: wenn der Empfänger",
     household_who: "Sprache: wenn",
     household_audience: "dieser Zielgruppe in der Zone ist",
     presence_then: "Dann",
@@ -559,7 +559,7 @@ export const STRINGS = {
     targets_from: "Les destinataires viennent de",
     cf: { policy: "Cette politique (les canaux ci-dessous)", call: "L'appel (les mêmes canaux)", failed: "L'appel, seulement les canaux qui n'ont atteint personne" },
     tf: { policy: "Cette politique (les destinataires ci-dessous)", call: "L'appel (les mêmes destinataires)" },
-    people_target: "Personnes : push, fenêtre et courriel",
+    people_target: "Personnes : push, fenêtre, courriel et boîte de réception",
     speakers_target: "Haut-parleurs : voix",
     tf_call_hint: "Les personnes et haut-parleurs que l'appel a nommés le reçoivent sur les canaux ci-dessus.",
     same_empty: "L'appel n'a atteint personne parce que l'audience était vide ; les mêmes destinataires sont donc vides aussi. Utilisez Échec de l'envoi, ou donnez d'autres destinataires.",
@@ -583,7 +583,7 @@ export const STRINGS = {
     enabled_hint: "Une politique désactivée n'est jamais utilisée, même si un appel la nomme.",
     sec_when: "Quels messages",
     sec_does: "Ce qu'elle fait",
-    type_desc: {"get_through": "Fait passer les messages qu'elle concerne au-delà des heures calmes et des résumés pour les personnes concernées. N'envoie rien elle-même : elle change seulement la façon dont un message arrive chez ceux qui le reçoivent de toute façon. Pour joindre d'autres personnes, ajoutez une règle Livrer.", "escalation": "Si personne ne confirme dans le délai, le message est aussi remis sur les canaux et aux cibles que vous choisissez.", "reminder": "Tant que personne ne confirme, le message est répété à intervalle régulier, jusqu'à un maximum.", "quiet_hours": "Entre deux heures de la journée, les remises hors tableau de bord sont envoyées discrètement, retenues jusqu'à la fin ou abandonnées.", "presence": "Retient ou abandonne une livraison selon où se trouvent les personnes : pour chaque destinataire sur push, popup et courriel, pour le foyer sur les haut-parleurs.", "fallback": "Si la première remise n'a joint personne, le message est remis ailleurs : sur d'autres canaux, ou à d'autres personnes sur les mêmes canaux.", "summarize": "Les messages correspondants sont retenus sur chaque canal, bannière comprise, et un seul résumé est envoyé à la place.", "deliver": "Les messages correspondants sont aussi remis tout de suite à l'audience et sur les canaux que vous choisissez."},
+    type_desc: {"get_through": "Fait passer les messages qu'elle concerne au-delà des heures calmes et des résumés pour les personnes concernées. N'envoie rien elle-même : elle change seulement la façon dont un message arrive chez ceux qui le reçoivent de toute façon. Pour joindre d'autres personnes, ajoutez une règle Livrer.", "escalation": "Si personne ne confirme dans le délai, le message est aussi remis sur les canaux et aux cibles que vous choisissez.", "reminder": "Tant que personne ne confirme, le message est répété à intervalle régulier, jusqu'à un maximum.", "quiet_hours": "Entre deux heures de la journée, les remises hors tableau de bord sont envoyées discrètement, retenues jusqu'à la fin ou abandonnées.", "presence": "Retient ou abandonne une livraison selon où se trouvent les personnes : pour chaque destinataire sur push, popup, courriel et boîte de réception, pour le foyer sur les haut-parleurs.", "fallback": "Si la première remise n'a joint personne, le message est remis ailleurs : sur d'autres canaux, ou à d'autres personnes sur les mêmes canaux.", "summarize": "Les messages correspondants sont retenus sur chaque canal, bannière comprise, et un seul résumé est envoyé à la place.", "deliver": "Les messages correspondants sont aussi remis tout de suite à l'audience et sur les canaux que vous choisissez."},
     apply_label: "S'applique aux messages",
     apply_auto: "Automatiquement",
     apply_auto_hint: "Chaque message dont la gravité et l'étiquette correspondent reçoit cette politique. Une liste vide correspond à tout.",
@@ -725,7 +725,7 @@ export const STRINGS = {
     s_reminder: "{applies} : tant que personne ne confirme, la notification est répétée toutes les {n} min, au plus {m} fois{channels}.",
     s_quiet_hours: "{applies} : entre {from} et {to}{days}, les livraisons hors tableau de bord sont {action}{channels}.",
     s_away: "{applies} : une personne qui n'est pas à la maison le reçoit à son arrivée{wait}.",
-    s_presence_people: "{who} qui {where} {zone} : push, popup et courriel sont {then}",
+    s_presence_people: "{who} qui {where} {zone} : push, popup, courriel et boîte de réception sont {then}",
     s_presence_speak: "la voix, tant que {who} de {audience} est dans {zone}, est {then}",
     w_recipient: "Un destinataire",
     w_in: "est dans",
@@ -737,9 +737,9 @@ export const STRINGS = {
     everyone: "tout le monde",
     nobody: "personne",
     somebody: "quelqu'un",
-    presence_channels: "Canaux couverts (aucun choisi : push, popup, courriel)",
+    presence_channels: "Canaux couverts (aucun choisi : push, popup, courriel, boîte de réception)",
     zone: "Zone",
-    presence_when: "Push, popup, courriel : quand le destinataire",
+    presence_when: "Push, popup, courriel, boîte de réception : quand le destinataire",
     household_who: "Voix : quand",
     household_audience: "de cette audience est dans la zone",
     presence_then: "Ensuite",
@@ -806,7 +806,7 @@ export const STRINGS = {
     targets_from: "Los destinatarios vienen de",
     cf: { policy: "Esta política (los canales de abajo)", call: "La llamada (los mismos canales)", failed: "La llamada, solo los canales que no llegaron a nadie" },
     tf: { policy: "Esta política (los destinatarios de abajo)", call: "La llamada (los mismos destinatarios)" },
-    people_target: "Personas: push, ventana y correo",
+    people_target: "Personas: push, ventana, correo y bandeja de entrada",
     speakers_target: "Altavoces: voz",
     tf_call_hint: "Las personas y altavoces que nombró la llamada lo reciben por los canales de arriba.",
     same_empty: "La llamada no llegó a nadie porque la audiencia estaba vacía, así que los mismos destinatarios también están vacíos. Usa Falló el envío o indica otros destinatarios.",
@@ -830,7 +830,7 @@ export const STRINGS = {
     enabled_hint: "Una política desactivada nunca se usa, ni siquiera si una llamada la nombra.",
     sec_when: "Qué mensajes",
     sec_does: "Qué hace",
-    type_desc: {"get_through": "Deja pasar los mensajes que encaja más allá de las horas de silencio y los resúmenes para las personas afectadas. No envía nada: solo cambia cómo llega un mensaje a quienes lo reciben igualmente. Para llegar a otras personas, añade una regla Entregar.", "escalation": "Si nadie confirma en el tiempo, el mensaje se entrega también por los canales y a los destinos que elijas.", "reminder": "Mientras nadie confirma, el mensaje se repite a intervalos, hasta un máximo.", "quiet_hours": "Entre dos horas del día, las entregas fuera del panel se envían en silencio, se retienen hasta el final o se descartan.", "presence": "Retiene o descarta una entrega según dónde está la gente: para cada destinatario en push, ventana y correo, para el hogar en los altavoces.", "fallback": "Si la primera entrega no llegó a nadie, el mensaje se entrega en otro sitio: por otros canales o a otras personas por los mismos canales.", "summarize": "Los mensajes que coinciden se retienen en todos los canales, el aviso incluido, y se envía un solo resumen.", "deliver": "Los mensajes que coinciden también se entregan al instante a la audiencia y por los canales que elijas."},
+    type_desc: {"get_through": "Deja pasar los mensajes que encaja más allá de las horas de silencio y los resúmenes para las personas afectadas. No envía nada: solo cambia cómo llega un mensaje a quienes lo reciben igualmente. Para llegar a otras personas, añade una regla Entregar.", "escalation": "Si nadie confirma en el tiempo, el mensaje se entrega también por los canales y a los destinos que elijas.", "reminder": "Mientras nadie confirma, el mensaje se repite a intervalos, hasta un máximo.", "quiet_hours": "Entre dos horas del día, las entregas fuera del panel se envían en silencio, se retienen hasta el final o se descartan.", "presence": "Retiene o descarta una entrega según dónde está la gente: para cada destinatario en push, ventana, correo y bandeja de entrada, para el hogar en los altavoces.", "fallback": "Si la primera entrega no llegó a nadie, el mensaje se entrega en otro sitio: por otros canales o a otras personas por los mismos canales.", "summarize": "Los mensajes que coinciden se retienen en todos los canales, el aviso incluido, y se envía un solo resumen.", "deliver": "Los mensajes que coinciden también se entregan al instante a la audiencia y por los canales que elijas."},
     apply_label: "Se aplica a los mensajes",
     apply_auto: "Automáticamente",
     apply_auto_hint: "Cada mensaje cuya gravedad y etiqueta coinciden recibe esta política. Una lista vacía coincide con todo.",
@@ -972,7 +972,7 @@ export const STRINGS = {
     s_reminder: "{applies}: mientras nadie confirme, la notificación se repite cada {n} min, como máximo {m} veces{channels}.",
     s_quiet_hours: "{applies}: entre {from} y {to}{days}, las entregas fuera del panel se {action}{channels}.",
     s_away: "{applies}: quien no está en casa lo recibe al llegar{wait}.",
-    s_presence_people: "{who} que {where} {zone}: push, ventana y correo se {then}",
+    s_presence_people: "{who} que {where} {zone}: push, ventana, correo y bandeja de entrada se {then}",
     s_presence_speak: "la voz, mientras {who} de {audience} esté en {zone}, se {then}",
     w_recipient: "Un destinatario",
     w_in: "está en",
@@ -984,9 +984,9 @@ export const STRINGS = {
     everyone: "todos",
     nobody: "nadie",
     somebody: "alguien",
-    presence_channels: "Canales que cubre (ninguno elegido: push, ventana, correo)",
+    presence_channels: "Canales que cubre (ninguno elegido: push, ventana, correo, bandeja de entrada)",
     zone: "Zona",
-    presence_when: "Push, ventana, correo: cuando el destinatario",
+    presence_when: "Push, ventana, correo, bandeja de entrada: cuando el destinatario",
     household_who: "Voz: cuando",
     household_audience: "de esta audiencia está en la zona",
     presence_then: "Entonces",
@@ -1118,8 +1118,8 @@ const LANES = [
 ];
 const TYPES = LANES.flatMap((lane) => lane.types);
 const CALM = LANES[0].types;
-const PRESENCE_CHANNELS = ["push", "popup", "mail", "speak"];
-const PEOPLE_CHANNELS = ["push", "popup", "mail"];
+const PRESENCE_CHANNELS = ["push", "popup", "mail", "inbox", "speak"];
+const PEOPLE_CHANNELS = ["push", "popup", "mail", "inbox"];
 const SEVERITIES = ["passive", "info", "warning", "critical"];
 const DAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const POLICY_CHANNELS = ["push", "popup", "speak", "persistent", "mail", "inbox"];
@@ -1326,7 +1326,7 @@ export function toFlowData(values) {
     case "presence": {
       Object.assign(data, { max_wait: values.max_wait || 0, after_wait: values.after_wait || "send" });
       const covered = PRESENCE_CHANNELS.filter((c) => values.channels.includes(c));
-      if (covered.length && !(covered.length === 3 && PEOPLE_CHANNELS.every((c) => covered.includes(c)))) data.channels = covered;
+      if (covered.length && !(covered.length === PEOPLE_CHANNELS.length && PEOPLE_CHANNELS.every((c) => covered.includes(c)))) data.channels = covered;
       else delete data.channels;
       const defaults = { zone: "zone.home", presence_when: "not_in", household_who: "nobody", household_audience: "", presence_then: "hold" };
       for (const [key, value] of Object.entries(defaults)) if ((values[key] || value) !== value) data[key] = values[key];

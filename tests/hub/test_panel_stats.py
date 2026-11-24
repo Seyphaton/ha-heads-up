@@ -3,6 +3,8 @@
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
+import pytest
+from freezegun.api import FrozenDateTimeFactory
 from homeassistant.core import HomeAssistant
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.typing import WebSocketGenerator
@@ -10,6 +12,13 @@ from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 from custom_components.heads_up.hub.stats import StatsReader, StatsStore
 
 from ..test_rules import add_rule
+
+
+@pytest.fixture(autouse=True)
+def midday(freezer: FrozenDateTimeFactory) -> None:
+    """The tests count one day; a real clock close to midnight would split it in two."""
+    freezer.move_to("2026-11-20 12:00:00+00:00")
+
 
 NOW = datetime(2026, 11, 21, 18, 30, tzinfo=UTC)  # a Saturday
 

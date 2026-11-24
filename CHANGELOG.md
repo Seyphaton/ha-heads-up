@@ -17,7 +17,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - The watch rule form has the same Visual editor and YAML editor switch.
 - Built-in audiences can be edited in place on the Audiences page: leave out named people, and limit At home, Not home, Last to leave and First home to named people. Reset to default restores the original. Policies, actions, watch rules and the audience sensors follow the edit.
 - Examples for the color, the sender icon and a progress bar in the field help and in the examples page.
-- The inbox channel (`channels: [inbox]`): a stored item per message and person, with a timeline, read state and the end of the message. Reminders and escalations add a timeline entry. Policies treat it like every other channel. Items are kept for 12 months, at most 2000 per person.
+- The inbox channel (`channels: [inbox]`): a stored item per message and person, with a timeline, read state and the end of the message. Reminders and escalations add a timeline entry. Policies treat it like every other channel, Presence included, and a person's recipient profile can switch it off. Items are kept for 12 months, at most 2000 per person.
 - A Quiet hours policy can be limited to channels (push, popup, speech, Persistent Notification, mail). With none selected it covers every channel except the banner, as before.
 
 ### Fixed

@@ -32,6 +32,7 @@ export const STRINGS = {
     channel_push: "Push",
     channel_popup: "Popup",
     channel_mail: "Mail",
+    channel_inbox: "Inbox",
     mail_address: "Mail address",
     mail_address_hint: "Where this person's mail goes. Mail also has to be switched on in the accepted channels. Without an address, mail to this person fails.",
     zone_home: "Home",
@@ -87,6 +88,7 @@ export const STRINGS = {
     channel_push: "Push",
     channel_popup: "Popup",
     channel_mail: "E-Mail",
+    channel_inbox: "Posteingang",
     mail_address: "E-Mail-Adresse",
     mail_address_hint: "Wohin die Mail dieser Person geht. E-Mail muss auch bei den angenommenen Kanälen aktiviert sein. Ohne Adresse scheitert Mail an diese Person.",
     zone_home: "Zuhause",
@@ -142,6 +144,7 @@ export const STRINGS = {
     channel_push: "Push",
     channel_popup: "Fenêtre",
     channel_mail: "Courriel",
+    channel_inbox: "Boîte de réception",
     mail_address: "Adresse de courriel",
     mail_address_hint: "Où va le courriel de cette personne. Courriel doit aussi être activé dans les canaux acceptés. Sans adresse, le courriel à cette personne échoue.",
     zone_home: "Maison",
@@ -197,6 +200,7 @@ export const STRINGS = {
     channel_push: "Push",
     channel_popup: "Ventana",
     channel_mail: "Correo",
+    channel_inbox: "Bandeja de entrada",
     mail_address: "Dirección de correo",
     mail_address_hint: "A dónde va el correo de esta persona. Correo también debe estar activado en los canales aceptados. Sin dirección, el correo a esta persona falla.",
     zone_home: "Casa",
@@ -224,8 +228,8 @@ export const STRINGS = {
 };
 
 // The channels a profile can accept, in the order of the list.
-export const PROFILE_CHANNELS = ["banner", "push", "popup", "mail"];
-const DEFAULT_CHANNELS = ["banner", "push", "popup"]; // mail is opt-in per person
+export const PROFILE_CHANNELS = ["banner", "push", "popup", "mail", "inbox"];
+const DEFAULT_CHANNELS = ["banner", "push", "popup", "inbox"]; // mail is opt-in per person
 
 // Up to two initials of a name: the round mark in front of a person's row.
 export function initials(name) {
@@ -355,7 +359,7 @@ export function channelState(profile, channel) {
 const PEOPLE_CSS = `
 .hu-page .rec-initial { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--primary-color); color: var(--text-primary-color, #fff); font-size: 12px; font-weight: 600; }
 .hu-page .tl-list { margin-bottom: 16px; }
-.hu-page .tl-list.people { --tl-cols: minmax(0, 1.4fr) minmax(0, 1fr) repeat(4, 64px); }
+.hu-page .tl-list.people { --tl-cols: minmax(0, 1.4fr) minmax(0, 1fr) repeat(5, 64px); }
 .hu-page .tl-list.groups { --tl-cols: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
 .hu-page .tl-title { margin: 8px 16px 4px; }
 .hu-page .tl-list > .hint { margin: 0 16px 8px; }

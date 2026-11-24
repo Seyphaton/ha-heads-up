@@ -3,6 +3,7 @@
 from datetime import timedelta
 from typing import Any
 
+import pytest
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
@@ -23,6 +24,12 @@ from .policy_support import (
     send,
     wait,
 )
+
+
+@pytest.fixture(autouse=True)
+def midday(freezer: FrozenDateTimeFactory) -> None:
+    """The tests count one day; a real clock close to midnight would split it in two."""
+    freezer.move_to("2026-11-20 12:00:00+00:00")
 
 
 def today(entry: MockConfigEntry) -> dict[str, Any]:

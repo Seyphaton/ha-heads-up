@@ -102,6 +102,7 @@ async def test_profiles_show_devices_badges_primary_and_what_was_changed(
             data={
                 "person": "person.anna",
                 "channels": ["banner", "push"],
+                "channels_v": 2,
                 "primary": phone.device_id,
             },
             subentry_type="recipient_profile",

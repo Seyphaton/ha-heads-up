@@ -227,7 +227,7 @@ data:
   recipients: [person.anna]
 ```
 
-The person needs no phone and no Home Assistant user.
+The person needs no phone and no Home Assistant user. A person's recipient profile can switch the inbox off; then the item is skipped for them (`channel_not_accepted`).
 
 - One item per message and person. The same message again, with the same text, adds nothing. New text or a higher severity updates the item and marks it unread.
 - A reminder or an escalation that reaches a person who already has the item adds a timeline entry. It does not make a second item. A reminder marks a read item unread again.
@@ -235,7 +235,7 @@ The person needs no phone and no Home Assistant user.
 - A dismissal for everyone resolves every item of the message. A snooze changes nothing.
 - When Home Assistant starts, items of messages that are no longer active are marked resolved.
 - Items older than 12 months are removed, and a person keeps at most 2000 items, the oldest read and resolved ones first. A person who is removed from Home Assistant loses their items after 5 minutes. Removing the integration deletes them.
-- Policies treat the inbox like every other channel. A Quiet hours policy with the action Wait holds it, Drop skips it, and Summarize holds it. To keep the inbox out of Quiet hours, choose the other channels under Limit to these channels. The Presence policy covers push, popup, mail and speech, not the inbox.
+- Policies treat the inbox like every other channel. A Quiet hours policy with the action Wait holds it, Drop skips it, and Summarize holds it. To keep the inbox out of Quiet hours or Presence, choose the other channels under Limit to these channels. A Presence policy holds the inbox item of a person who is away and releases it when they arrive, like a push.
 - Send quietly changes nothing for the inbox: an item has no sound.
 - The inbox has no rate limit and takes no buttons.
 
@@ -283,13 +283,13 @@ Every person has a recipient profile without any setup. Their Companion app devi
 - Added devices: a Companion device that was not found, added by name.
 - Removed devices: a detected device to leave out; you can bring it back.
 - Primary device: listed first. A push still goes to every device of the person.
-- Accepted channels: banner, push and popup by default. A channel you remove is skipped for that person. Mail is off until you add it.
+- Accepted channels: banner, push, popup and inbox by default. A channel you remove is skipped for that person. Mail is off until you add it.
 - Mail address: where mail to this person goes.
 - Where this person is: by default, where Home Assistant says the person is. For Home that is the person's state `home`; for another zone, the zone the person entity is in. For any zone you can choose an input boolean or binary sensor instead: the person counts as in that zone while it is `on`. Use it when the location comes from a rule of your own, for example a template binary sensor that also checks the alarm. Zones without a choice keep Home Assistant's location. It applies to At home, Not home, Last to leave, First home, audiences by zone and the Presence policy. An unavailable entity counts as unknown presence. In Home Assistant's own form the entity for Home is "Home from" and the others are "Other zones from", one `zone.work: binary_sensor.anna_at_work` per line.
 
 <img src="images/recipient-location.png" width="600" alt="Where this person is: Home follows Home Assistant and is in the zone now; Work follows input_boolean.admin_at_work, which is off now">
 
-The panel lists each person with a column per channel (Banner, Push, Popup, Mail): a tick when the person accepts the channel and it can work, a dash when the profile does not accept it, and a warning mark when it is accepted but cannot work (push without a usable device, popup without a Home Assistant user, mail without an address). Point at the mark for the reason. On a narrow screen the phones and channels are written under the name, for example "Push: !". A person who receives nothing is greyed out with a "disabled" badge. Select a person to open their settings under the row: devices, added and removed devices, the primary device, a missing notify service, the missing Home Assistant user, the mail address, where the person is and the accepted channels. A profile that equals the detected devices is not stored. A person with no usable device is skipped on push (`no_usable_device`). A renamed device keeps working: the service is worked out from the device's current name each time.
+The panel lists each person with a column per channel (Banner, Push, Popup, Mail, Inbox): a tick when the person accepts the channel and it can work, a dash when the profile does not accept it, and a warning mark when it is accepted but cannot work (push without a usable device, popup without a Home Assistant user, mail without an address). Point at the mark for the reason. On a narrow screen the phones and channels are written under the name, for example "Push: !". A person who receives nothing is greyed out with a "disabled" badge. Select a person to open their settings under the row: devices, added and removed devices, the primary device, a missing notify service, the missing Home Assistant user, the mail address, where the person is and the accepted channels. A profile that equals the detected devices is not stored. A person with no usable device is skipped on push (`no_usable_device`). A renamed device keeps working: the service is worked out from the device's current name each time.
 
 Speaker groups are named sets of speakers, Assist satellites and areas for speech. Every group is a sensor, and a call names the group by the entity ID of that sensor, for example `sensor.heads_up_group_ground_floor`. The sensor shows how many speakers reach the group now. The panel lists each group with that ID and the number of speakers; select a group to change it, and Add opens a new group under the list. An area stands for the speakers and satellites assigned to it in Home Assistant, and a call names an area by its area ID.
 
@@ -461,19 +461,19 @@ Between two times of day, or while an entity of your choice is on, deliveries ou
 
 ### Presence
 
-Holds or drops a delivery depending on where people are. Push, popup and mail are checked for each recipient. Speech is checked for the household.
+Holds or drops a delivery depending on where people are. Push, popup, mail and inbox are checked for each recipient. Speech is checked for the household.
 
 | Field | Default | Meaning |
 |---|---|---|
-| Channels it covers | push, popup, mail | Add Speak for speakers. The banner is never held. |
+| Channels it covers | push, popup, mail, inbox | Add Speak for speakers. The banner is never held. |
 | Zone | Home | The zone that is checked. If a person's recipient profile names an entity for this zone, that entity counts instead of Home Assistant's location. |
-| Push, popup, mail: when the recipient | is not in the zone | Or: is in the zone. |
+| Push, popup, mail, inbox: when the recipient | is not in the zone | Or: is in the zone. |
 | Speech: when … of this audience is in the zone | nobody, everyone | Nobody or somebody, of everyone or of a list of persons. |
 | Then | Hold until that changes | Or: Drop. |
 | Wait at most (minutes) | 0 | For Hold. 0 means as long as the message lives. |
 | When the wait ends | Send anyway | Or: Drop (`max_wait_exceeded`). |
 
-- For push, popup and mail, Presence checks every recipient: members of an audience and persons the call lists by name.
+- For push, popup, mail and inbox, Presence checks every recipient: members of an audience and persons the call lists by name.
 - Presence applies to every severity. To let critical messages through, set Not for severities to Critical.
 - Get through entries never pass Presence. Reminders are not checked.
 - Unknown presence is never held: the delivery goes out at once. For speech, people whose presence is unknown do not count.

@@ -132,7 +132,7 @@ describe("recipient editor", () => {
   const profile = {
     person: "person.anna",
     primary: "",
-    channels: ["banner", "push", "popup"],
+    channels: ["banner", "push", "popup", "inbox"],
     removed: [],
     devices: [
       { device_id: "d1", name: "Phone", service_found: true, source: "detected" },
@@ -141,20 +141,21 @@ describe("recipient editor", () => {
   };
 
   it("starts from what the profile changes", () => {
-    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "", home_entity: "", zone_entities: {}, enabled: true });
+    expect(profileValues(profile)).toEqual({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup", "inbox"], mail_address: "", home_entity: "", zone_entities: {}, enabled: true });
     expect(profileValues({ ...profile, home_entity: "binary_sensor.anna_home" }).home_entity).toBe("binary_sensor.anna_home");
   });
 
   it("needs no stored profile when nothing differs from the detected devices", () => {
-    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"] })).toBe(true);
-    expect(isDefault({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup"] })).toBe(false);
-    expect(isDefault({ manual: [], removed: [], primary: "d1", channels: ["banner", "push", "popup"] })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup", "inbox"] })).toBe(true);
+    expect(isDefault({ manual: ["d2"], removed: [], primary: "", channels: ["banner", "push", "popup", "inbox"] })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "d1", channels: ["banner", "push", "popup", "inbox"] })).toBe(false);
     expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push"] })).toBe(false);
-    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup", "mail"] })).toBe(false);
-    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], mail_address: "a@b.c" })).toBe(false);
-    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], home_entity: "input_boolean.x" })).toBe(false);
-    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], zone_entities: { "zone.work": "" } })).toBe(true);
-    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"], zone_entities: { "zone.work": "binary_sensor.w" } })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup"] })).toBe(false); // the inbox is off
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup", "mail", "inbox"] })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup", "inbox"], mail_address: "a@b.c" })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup", "inbox"], home_entity: "input_boolean.x" })).toBe(false);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup", "inbox"], zone_entities: { "zone.work": "" } })).toBe(true);
+    expect(isDefault({ manual: [], removed: [], primary: "", channels: ["banner", "push", "popup", "inbox"], zone_entities: { "zone.work": "binary_sensor.w" } })).toBe(false);
   });
 
   it("stores only the zones that have an entity", () => {
@@ -314,7 +315,7 @@ describe("policy editor", () => {
     expect(sentence({ ...blankPolicy("quiet_hours"), channels: ["push", "popup"] }, t)).toContain("sent quietly, only on");
     expect(sentence({ ...blankPolicy("quiet_hours"), quiet_entity: "schedule.night", action: "wait" }, t)).toBe("Every message: while schedule.night is on, deliveries outside the dashboard are held until the end.");
     expect(sentence({ ...blankPolicy("reminder"), channels: ["push"] }, t)).toBe("Every message: while nobody acknowledges, the notification is repeated every 30 min, at most 3 times, only on Push.");
-    expect(sentence({ ...blankPolicy("presence"), max_wait: 30 }, t)).toBe("Every message: a recipient who is not in Home: push, popup and mail are held until that changes, for at most 30 min, then sent anyway.");
+    expect(sentence({ ...blankPolicy("presence"), max_wait: 30 }, t)).toBe("Every message: a recipient who is not in Home: push, popup, mail and inbox are held until that changes, for at most 30 min, then sent anyway.");
     expect(sentence({ ...blankPolicy("presence"), channels: ["speak"], presence_then: "drop" }, t)).toBe("Every message: speech while nobody of everyone is in Home is dropped.");
     expect(sentence({ ...blankPolicy("fallback"), when: "both", channels: ["persistent"] }, t)).toBe("Every message: if the audience is empty or delivery fails, it is sent on Persistent Notification instead.");
     expect(sentence({ ...blankPolicy("deliver"), severities: ["critical"], channels: ["push"] }, t)).toBe("Messages with severity Critical: it is also sent at once on Push.");
@@ -603,10 +604,10 @@ describe("2.0 policy fields", () => {
 });
 
 describe("recipients list channel states", () => {
-  const anna = { channels: ["banner", "push", "popup", "mail"], devices: [{ service_found: true }], user: true, mail_address: "a@example.com" };
+  const anna = { channels: ["banner", "push", "popup", "mail", "inbox"], devices: [{ service_found: true }], user: true, mail_address: "a@example.com" };
 
   it("lists the channels in the order of the table", () => {
-    expect(PROFILE_CHANNELS).toEqual(["banner", "push", "popup", "mail"]);
+    expect(PROFILE_CHANNELS).toEqual(["banner", "push", "popup", "mail", "inbox"]);
   });
 
   it("is on for an accepted channel that can work", () => {

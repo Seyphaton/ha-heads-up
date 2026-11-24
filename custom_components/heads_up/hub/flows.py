@@ -51,6 +51,7 @@ from ..const import (
     PRESENCE_WHEN,
     PRESENCE_WHO,
     PROFILE_CHANNELS,
+    PROFILE_CHANNELS_VERSION,
     PROFILE_SUBENTRY,
     QUIET_ACTIONS,
     RULE_SUBENTRY,
@@ -358,6 +359,7 @@ class RecipientProfileSubentryFlow(_HubFlow):
         data: dict[str, Any] = {
             "person": self._person(user_input, own),
             "channels": list(user_input["channels"]),
+            "channels_v": PROFILE_CHANNELS_VERSION,
         }
         if not user_input.get("enabled", True):
             data["enabled"] = False
