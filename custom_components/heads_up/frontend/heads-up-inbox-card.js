@@ -5,7 +5,7 @@
 export const SIZES = ["compact", "small", "medium", "large"];
 export const DESIGNS = { small: ["number", "ring", "mosaic"], medium: ["tile", "ring", "split"], large: [], compact: [] };
 // Read by scripts/docs_check.py to keep docs/configuration.md in step with the card.
-export const CONFIG_KEYS = ["size", "design", "titles_only"];
+export const CONFIG_KEYS = ["size", "design", "titles_only", "hide_send_button"];
 const SEVERITIES = ["critical", "warning", "info", "passive"];
 const SEVERITY_COLOR = {
   critical: "var(--error-color)",
@@ -22,6 +22,8 @@ const SEVERITY_ICON = {
 const RING_GAP = 5;
 const MOSAIC_CELLS = 4;
 const PAGE = 50;
+const MAX_MESSAGE = 1000; // the server's limit (D-265)
+const MESSAGE_CHANNELS = ["inbox", "push", "popup"];
 
 // ---- Strings (D-037, D-071) ----------------------------------------------------------------
 
@@ -52,6 +54,31 @@ const ENGLISH = {
   chip_needs_action: "Needs action",
   chip_resolved: "Ended",
   unread_label: "Unread",
+  sent_tab: "Sent",
+  new_message: "New message",
+  to_label: "To",
+  you: "you",
+  send_via: "Send via",
+  via: { inbox: "Inbox", push: "Phone", popup: "Screens" },
+  message_label: "Message",
+  characters: "{n} of {max}",
+  send: "Send",
+  back: "Back",
+  done: "Done",
+  loading_people: "Loading people…",
+  pick_one: "Choose at least one person.",
+  no_inbox_for_you: "Nobody to write to yet.",
+  from_name: "From {name}",
+  to_names: "To {names}",
+  skip_note: "{name}: no {channels}",
+  sent_ok: "Message sent",
+  not_delivered: "{name}: not delivered by {channels}",
+  nothing_sent: "Nothing sent yet",
+  sent_here: "Messages you send show up here.",
+  error_send: "The message could not be sent.",
+  error_rate_limited: "Too many messages. Wait a moment and try again.",
+  error_messages_off: "Messages between people are switched off.",
+  error_no_person: "Your Home Assistant user is not linked to one person.",
   with_channel: "{what}: {channel}",
   ended_because: "Ended: {reason}",
   timeline: {
@@ -83,6 +110,7 @@ const ENGLISH = {
     size: "Size",
     design: "Design",
     titles_only: "Show titles only, never the text",
+    hide_send_button: "Hide the button that writes a message",
     size_compact: "Compact tile",
     size_small: "Small tile",
     size_medium: "Medium card",
@@ -100,6 +128,31 @@ export const STRINGS = structuredClone(ENGLISH);
 export const TRANSLATIONS = {
   de: {
     inbox: "Posteingang",
+    sent_tab: "Gesendet",
+    new_message: "Neue Nachricht",
+    to_label: "An",
+    you: "du",
+    send_via: "Senden über",
+    message_label: "Nachricht",
+    characters: "{n} von {max}",
+    send: "Senden",
+    back: "Zurück",
+    done: "Fertig",
+    loading_people: "Personen werden geladen…",
+    pick_one: "Wähle mindestens eine Person.",
+    no_inbox_for_you: "Noch niemand, dem du schreiben kannst.",
+    from_name: "Von {name}",
+    to_names: "An {names}",
+    skip_note: "{name}: kein {channels}",
+    sent_ok: "Nachricht gesendet",
+    not_delivered: "{name}: nicht zugestellt über {channels}",
+    nothing_sent: "Noch nichts gesendet",
+    sent_here: "Nachrichten, die du sendest, erscheinen hier.",
+    error_send: "Die Nachricht konnte nicht gesendet werden.",
+    error_rate_limited: "Zu viele Nachrichten. Warte einen Moment und versuche es erneut.",
+    error_messages_off: "Nachrichten zwischen Personen sind ausgeschaltet.",
+    error_no_person: "Dein Home-Assistant-Benutzer ist nicht mit genau einer Person verknüpft.",
+    via: { inbox: "Posteingang", push: "Handy", popup: "Bildschirme" },
     all_notifications: "Alle Benachrichtigungen",
     unread_n: "{n} ungelesen",
     needs_n: "{n} braucht Aktion",
@@ -156,6 +209,7 @@ export const TRANSLATIONS = {
       size: "Größe",
       design: "Darstellung",
       titles_only: "Nur Titel zeigen, nie den Text",
+      hide_send_button: "Die Schaltfläche zum Schreiben einer Nachricht ausblenden",
       size_compact: "Kompakte Kachel",
       size_small: "Kleine Kachel",
       size_medium: "Mittlere Karte",
@@ -169,6 +223,31 @@ export const TRANSLATIONS = {
   },
   fr: {
     inbox: "Boîte de réception",
+    sent_tab: "Envoyés",
+    new_message: "Nouveau message",
+    to_label: "À",
+    you: "toi",
+    send_via: "Envoyer par",
+    message_label: "Message",
+    characters: "{n} sur {max}",
+    send: "Envoyer",
+    back: "Retour",
+    done: "Terminé",
+    loading_people: "Chargement des personnes…",
+    pick_one: "Choisis au moins une personne.",
+    no_inbox_for_you: "Personne à qui écrire pour l'instant.",
+    from_name: "De {name}",
+    to_names: "À {names}",
+    skip_note: "{name} : pas de {channels}",
+    sent_ok: "Message envoyé",
+    not_delivered: "{name} : non remis par {channels}",
+    nothing_sent: "Rien d'envoyé pour l'instant",
+    sent_here: "Les messages que tu envoies apparaissent ici.",
+    error_send: "Le message n'a pas pu être envoyé.",
+    error_rate_limited: "Trop de messages. Attends un instant et réessaie.",
+    error_messages_off: "Les messages entre personnes sont désactivés.",
+    error_no_person: "Ton utilisateur Home Assistant n'est pas lié à une seule personne.",
+    via: { inbox: "Boîte de réception", push: "Téléphone", popup: "Écrans" },
     all_notifications: "Toutes les notifications",
     unread_n: "{n} non lu(s)",
     needs_n: "{n} à traiter",
@@ -225,6 +304,7 @@ export const TRANSLATIONS = {
       size: "Taille",
       design: "Présentation",
       titles_only: "Afficher seulement les titres, jamais le texte",
+      hide_send_button: "Masquer le bouton pour écrire un message",
       size_compact: "Tuile compacte",
       size_small: "Petite tuile",
       size_medium: "Carte moyenne",
@@ -238,6 +318,31 @@ export const TRANSLATIONS = {
   },
   es: {
     inbox: "Bandeja de entrada",
+    sent_tab: "Enviados",
+    new_message: "Mensaje nuevo",
+    to_label: "Para",
+    you: "tú",
+    send_via: "Enviar por",
+    message_label: "Mensaje",
+    characters: "{n} de {max}",
+    send: "Enviar",
+    back: "Atrás",
+    done: "Listo",
+    loading_people: "Cargando personas…",
+    pick_one: "Elige al menos una persona.",
+    no_inbox_for_you: "Todavía no hay nadie a quien escribir.",
+    from_name: "De {name}",
+    to_names: "Para {names}",
+    skip_note: "{name}: sin {channels}",
+    sent_ok: "Mensaje enviado",
+    not_delivered: "{name}: no entregado por {channels}",
+    nothing_sent: "Todavía no has enviado nada",
+    sent_here: "Los mensajes que envíes aparecerán aquí.",
+    error_send: "No se pudo enviar el mensaje.",
+    error_rate_limited: "Demasiados mensajes. Espera un momento e inténtalo de nuevo.",
+    error_messages_off: "Los mensajes entre personas están desactivados.",
+    error_no_person: "Tu usuario de Home Assistant no está vinculado a una sola persona.",
+    via: { inbox: "Bandeja de entrada", push: "Teléfono", popup: "Pantallas" },
     all_notifications: "Todas las notificaciones",
     unread_n: "{n} sin leer",
     needs_n: "{n} requiere acción",
@@ -294,6 +399,7 @@ export const TRANSLATIONS = {
       size: "Tamaño",
       design: "Diseño",
       titles_only: "Mostrar solo los títulos, nunca el texto",
+      hide_send_button: "Ocultar el botón para escribir un mensaje",
       size_compact: "Ficha compacta",
       size_small: "Ficha pequeña",
       size_medium: "Tarjeta mediana",
@@ -343,7 +449,12 @@ export function normalizeConfig(config) {
       );
     }
   }
-  return { size, design: config.design || allowed[0] || "", titles_only: config.titles_only === true };
+  return {
+    size,
+    design: config.design || allowed[0] || "",
+    titles_only: config.titles_only === true,
+    hide_send_button: config.hide_send_button === true,
+  };
 }
 
 export function summaryKind({ unread, needs_action: needs }) {
@@ -402,15 +513,59 @@ export function mosaicTiles(items) {
   return [...unread.slice(0, MOSAIC_CELLS - 1).map((item) => ({ item })), { more: unread.length - (MOSAIC_CELLS - 1) }];
 }
 
-// The tabs Inbox and All notifications exist only while All notifications is on; otherwise the
-// card shows the inbox alone.
-export function visibleScope(state, scope) {
-  return state.all_notifications && scope === "all" ? "all" : "inbox";
+// The tab row: Inbox, then All notifications while that switch is on, then Sent while messages
+// are on (D-279). With one tab the card shows the inbox alone and no row.
+export function visibleTabs(state) {
+  const tabs = ["inbox"];
+  if (state.all_notifications) tabs.push("all");
+  if (state.messages && state.has_person !== false) tabs.push("sent");
+  return tabs;
 }
 
-// The view Inbox shows the real items, the view Everything also the copies (D-275).
+export function visibleScope(state, scope) {
+  return visibleTabs(state).includes(scope) ? scope : "inbox";
+}
+
+// The view Inbox shows the real items, All notifications also the copies (D-275); Sent shows only
+// the sender's own copies and no other view shows them.
 export function scopeItems(items, scope) {
-  return scope === "all" ? items : items.filter((i) => !i.copy);
+  if (scope === "sent") return items.filter((i) => i.sent);
+  const own = items.filter((i) => !i.sent);
+  return scope === "all" ? own : own.filter((i) => !i.copy);
+}
+
+// ---- messages between people ----
+
+export function showCompose(state, config) {
+  return Boolean(state.messages) && state.has_person !== false && !config.hide_send_button;
+}
+
+export function personName(states, id) {
+  return states?.[id]?.attributes?.friendly_name || String(id).split(".").slice(1).join(".") || String(id);
+}
+
+// "From Anna" on a received item, "To Anna, Ben" on a sent one (D-265).
+export function rowLine(item, states, strings) {
+  if (item.sent) return fill(strings.to_names, { names: (item.recipients ?? []).map((id) => personName(states, id)).join(", ") });
+  return item.sender ? fill(strings.from_name, { name: personName(states, item.sender) }) : "";
+}
+
+export function canSend(draft) {
+  const text = (draft.text ?? "").trim();
+  return draft.to.length > 0 && text.length > 0 && text.length <= MAX_MESSAGE;
+}
+
+// The channels each chosen person does not accept, so the dialog can say so before sending.
+export function composeHints(people, chosen, channels) {
+  return people
+    .filter((p) => chosen.includes(p.person))
+    .map((p) => ({ person: p.person, name: p.name, channels: channels.filter((c) => !p.channels.includes(c)) }))
+    .filter((hint) => hint.channels.length);
+}
+
+const SEND_ERRORS = ["rate_limited", "messages_off", "no_person"];
+export function sendError(error) {
+  return SEND_ERRORS.includes(error?.code) ? `error_${error.code}` : "error_send";
 }
 
 export function filterItems(items, filter) {
@@ -613,6 +768,17 @@ ha-card.small { height: 100%; }
 .empty .tile { margin: 0 auto 10px; width: 56px; height: 56px; --mdc-icon-size: 28px; }
 .note { padding: 16px; color: var(--secondary-text-color); }
 .more { display: block; margin: 0 auto 12px; }
+.row .from { font-size: 12px; color: var(--secondary-text-color); font-weight: 600; }
+.cf { padding-bottom: 16px; }
+.cf .lbl { padding: 10px 16px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--secondary-text-color); font-weight: 600; }
+.chips2 { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px; }
+.pill[disabled] { opacity: .6; cursor: default; }
+.cf .hint { padding: 4px 16px 0; font-size: 12px; color: var(--warning-color); }
+.cf textarea { display: block; width: calc(100% - 32px); margin: 0 16px; font: inherit; color: inherit; background: var(--secondary-background-color); border: 1px solid var(--divider-color); border-radius: 12px; padding: 10px; resize: vertical; min-height: 96px; }
+.cf textarea:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 1px; }
+.cf .count { padding: 2px 16px 0; text-align: end; font-size: 11px; color: var(--secondary-text-color); }
+.cf .acts { display: flex; justify-content: flex-end; padding: 12px 16px 0; }
+.note.err { color: var(--error-color); }
 
 .scrim { position: fixed; inset: 0; background: rgba(8,10,14,.55); z-index: 9; display: grid; place-items: center; padding: 16px; }
 .dialog { width: min(480px, 100%); max-height: 88vh; overflow: auto; background: var(--card-background-color); color: var(--primary-text-color); border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,.45); }
@@ -635,6 +801,11 @@ class HeadsUpInboxCard extends Base {
     this._state = { items: [], unread: 0, needs_action: 0, unread_critical: 0, has_person: true, more: false, all_notifications: false };
     this._scope = "inbox";
     this._extra = [];
+    this._sentItems = [];
+    this._sentMore = false;
+    this._composing = null; // the draft while the compose view is open (D-279)
+    this._recipients = null;
+    this._recipientsError = null;
     this._filter = "all";
     this._open = new Set();
     this._dialog = false;
@@ -734,6 +905,7 @@ class HeadsUpInboxCard extends Base {
         this._state = event;
         this._extra = [];
         this._render();
+        if (visibleScope(event, this._scope) === "sent") this._loadSent();
       },
       { type: "heads_up/inbox_subscribe" },
       { resubscribe: false },
@@ -773,21 +945,171 @@ class HeadsUpInboxCard extends Base {
   _delete(item) {
     this._open.delete(item.message_id);
     this._extra = this._extra.filter((i) => i.message_id !== item.message_id);
-    this._call({ type: "heads_up/inbox_delete", message_id: item.message_id });
+    this._sentItems = this._sentItems.filter((i) => i.message_id !== item.message_id);
+    this._call({ type: "heads_up/inbox_delete", message_id: item.message_id }).then(() => {
+      if (item.sent) this._loadSent();
+    });
   }
 
   async _showMore() {
     const scope = visibleScope(this._state, this._scope);
+    const sent = scope === "sent";
     const result = await this._call({
       type: "heads_up/inbox_list",
-      view: scope === "all" ? "all" : "inbox",
+      view: scope,
       limit: PAGE,
-      offset: scopeItems(this._items(), scope).length,
+      offset: scopeItems(sent ? this._sentItems : this._items(), scope).length,
     });
     if (!result) return;
-    this._extra = mergePages(this._extra, result.items);
-    this._state = { ...this._state, more: result.more };
+    if (sent) {
+      this._sentItems = mergePages(this._sentItems, result.items);
+      this._sentMore = result.more;
+    } else {
+      this._extra = mergePages(this._extra, result.items);
+      this._state = { ...this._state, more: result.more };
+    }
     this._render();
+  }
+
+  async _loadSent() {
+    const result = await this._call({ type: "heads_up/inbox_list", view: "sent", limit: PAGE });
+    if (!result) return;
+    this._sentItems = result.items;
+    this._sentMore = result.more;
+    this._render();
+  }
+
+  // ---- compose (D-265, D-279) ----
+
+  _openCompose() {
+    this._composing = { to: [], channels: ["inbox", "push"], text: "", busy: false, error: null, result: null };
+    this._recipients = null;
+    this._recipientsError = null;
+    this._call({ type: "heads_up/inbox_recipients" }).then((result) => {
+      if (!this._composing) return;
+      if (result) this._recipients = result.recipients;
+      else this._recipientsError = "error_send";
+      this._renderCompose();
+    });
+    if (!this._dialog) this._openDialog();
+    this._renderCompose();
+  }
+
+  _closeCompose(toSent = false) {
+    this._composing = null;
+    if (toSent) {
+      this._scope = "sent";
+      this._loadSent();
+    }
+    this._render();
+    this._restoreFocus(this._overlayRoot ?? this.shadowRoot, "compose");
+  }
+
+  async _send() {
+    const draft = this._composing;
+    if (!draft || draft.busy || !canSend(draft)) return;
+    draft.busy = true;
+    draft.error = null;
+    this._renderCompose();
+    try {
+      draft.result = await this._hass.callWS({
+        type: "heads_up/send_message",
+        to: draft.to,
+        text: draft.text.trim(),
+        channels: draft.channels,
+      });
+      this._loadSent();
+    } catch (error) {
+      draft.error = sendError(error);
+    }
+    draft.busy = false;
+    if (this._composing === draft) this._renderCompose();
+  }
+
+  _renderCompose() {
+    if (!this._dialogBox || !this._composing) return;
+    const focus = this._focusKey(this._overlayRoot);
+    this._dialogBox.setAttribute("aria-label", STRINGS.new_message);
+    this._dialogBox.replaceChildren(this._composeView());
+    this._restoreFocus(this._overlayRoot, focus);
+  }
+
+  _composeView() {
+    const s = STRINGS;
+    const draft = this._composing;
+    const states = this._hass?.states;
+    const head = h("div", { class: "head" }, [
+      h("button", { class: "x", "data-key": "back", "aria-label": s.back, onclick: () => this._closeCompose() }, [icon("mdi:arrow-left")]),
+      h("div", { class: "ttl", text: s.new_message }),
+      h("button", { class: "x", "data-key": "close", "aria-label": s.close, onclick: () => this._closeDialog() }, [icon("mdi:close")]),
+    ]);
+    if (draft.result) return h("div", {}, [head, this._composeDone(draft.result)]);
+    const people = this._recipients;
+    let who;
+    if (this._recipientsError) who = h("div", { class: "note", role: "alert", text: s[this._recipientsError] });
+    else if (people === null) who = h("div", { class: "note", text: s.loading_people });
+    else if (!people.length) who = h("div", { class: "note", text: s.no_inbox_for_you });
+    else {
+      who = h("div", { class: "chips2", role: "group", "aria-label": s.to_label }, people.map((p) =>
+        h("button", {
+          class: "pill", "data-key": `to:${p.person}`, "aria-pressed": String(draft.to.includes(p.person)),
+          onclick: () => {
+            draft.to = draft.to.includes(p.person) ? draft.to.filter((x) => x !== p.person) : [...draft.to, p.person];
+            this._renderCompose();
+          },
+          text: p.me ? `${p.name} (${s.you})` : p.name,
+        }),
+      ));
+    }
+    const hints = composeHints(people ?? [], draft.to, draft.channels).map((hint) =>
+      h("div", { class: "hint", text: fill(s.skip_note, { name: hint.name, channels: hint.channels.map((c) => s.via[c]).join(", ") }) }),
+    );
+    const via = h("div", { class: "chips2", role: "group", "aria-label": s.send_via }, MESSAGE_CHANNELS.map((c) =>
+      h("button", {
+        class: "pill", "data-key": `via:${c}`, "aria-pressed": String(draft.channels.includes(c)), disabled: c === "inbox" ? true : null,
+        onclick: () => {
+          draft.channels = draft.channels.includes(c) ? draft.channels.filter((x) => x !== c) : [...draft.channels, c];
+          this._renderCompose();
+        },
+        text: s.via[c],
+      }),
+    ));
+    const counter = h("div", { class: "count", text: fill(s.characters, { n: draft.text.length, max: MAX_MESSAGE }) });
+    const send = h("button", { class: "btn", "data-key": "send", disabled: canSend(draft) && !draft.busy ? null : true, onclick: () => this._send(), text: s.send });
+    const area = h("textarea", {
+      "data-key": "text", rows: "4", maxlength: String(MAX_MESSAGE), "aria-label": s.message_label,
+      oninput: (event) => {
+        draft.text = event.target.value;
+        counter.textContent = fill(s.characters, { n: draft.text.length, max: MAX_MESSAGE });
+        send.toggleAttribute("disabled", !canSend(draft) || draft.busy);
+      },
+    });
+    area.value = draft.text;
+    return h("div", { class: "cf" }, [
+      head,
+      h("div", { class: "lbl", text: s.to_label }), who, ...hints,
+      h("div", { class: "lbl", text: s.send_via }), via,
+      h("div", { class: "lbl", text: s.message_label }), area, counter,
+      draft.error ? h("div", { class: "note err", role: "alert", text: s[draft.error] }) : null,
+      h("div", { class: "acts" }, [send]),
+    ]);
+  }
+
+  _composeDone(result) {
+    const s = STRINGS;
+    const names = Object.fromEntries((this._recipients ?? []).map((p) => [p.person, p.name]));
+    const skipped = new Map();
+    for (const row of result.skipped ?? []) {
+      skipped.set(row.person, [...(skipped.get(row.person) ?? []), s.via[row.channel] ?? row.channel]);
+    }
+    const lines = [...skipped].map(([person, channels]) =>
+      h("div", { class: "hint", text: fill(s.not_delivered, { name: names[person] ?? personName(this._hass?.states, person), channels: channels.join(", ") }) }),
+    );
+    return h("div", { class: "cf" }, [
+      h("div", { class: "note", role: "status", text: s.sent_ok }),
+      ...lines,
+      h("div", { class: "acts" }, [h("button", { class: "btn", "data-key": "done", onclick: () => this._closeCompose(true), text: s.done })]),
+    ]);
   }
 
   // ---- dialog ----
@@ -812,6 +1134,7 @@ class HeadsUpInboxCard extends Base {
   _closeDialog(restore = true) {
     if (!this._dialog) return;
     this._dialog = false;
+    this._composing = null;
     document.removeEventListener("keydown", this._onKey, true);
     this._overlay?.remove();
     this._overlay = null;
@@ -826,9 +1149,10 @@ class HeadsUpInboxCard extends Base {
     if (!this._dialog) return;
     if (event.key === "Escape") {
       event.stopPropagation();
-      this._closeDialog();
+      if (this._composing) this._closeCompose();
+      else this._closeDialog();
     } else if (event.key === "Tab") {
-      const nodes = [...this._overlayRoot.querySelectorAll("button:not([disabled])")];
+      const nodes = [...this._overlayRoot.querySelectorAll("button:not([disabled]), textarea")];
       if (!nodes.length) return;
       const active = this._overlayRoot.activeElement;
       const last = nodes[nodes.length - 1];
@@ -857,7 +1181,7 @@ class HeadsUpInboxCard extends Base {
     const focus = this._focusKey(root);
     root.replaceChildren(h("style", { text: CSS }), h("ha-card", { class: this._config.size }, body));
     this._restoreFocus(root, focus);
-    if (this._dialog && this._dialogBox) {
+    if (this._dialog && this._dialogBox && !this._composing) {
       const dialogFocus = this._focusKey(this._overlayRoot);
       this._dialogBox.setAttribute("aria-label", s.inbox);
       this._dialogBox.replaceChildren(this._dialogContent());
@@ -1074,23 +1398,35 @@ class HeadsUpInboxCard extends Base {
     const s = STRINGS;
     const n = this._stateNumbers();
     const scope = visibleScope(this._state, this._scope);
-    const items = filterItems(scopeItems(this._items(), scope), this._filter);
+    const sent = scope === "sent";
+    const items = filterItems(scopeItems(sent ? this._sentItems : this._items(), scope), sent ? "all" : this._filter);
     const head = h("div", { class: "head" }, [
       h("div", { class: "ttl", text: s.inbox }),
+      showCompose(this._state, this._config)
+        ? h("button", { class: "x", "data-key": "compose", "aria-label": s.new_message, onclick: () => this._openCompose() }, [icon("mdi:pencil-plus")])
+        : null,
       n.unread ? h("span", { class: `badge ${n.needs_action ? "crit" : ""}`, text: String(n.unread), "aria-label": fill(s.unread_n, { n: n.unread }) }) : null,
       dialog ? h("button", { class: "x", "data-key": "close", "aria-label": s.close, onclick: () => this._closeDialog() }, [icon("mdi:close")]) : null,
     ]);
-    const seg = this._state.all_notifications
-      ? h("div", { class: "tools" }, [
-          h("div", { class: "seg", role: "group", "aria-label": s.inbox }, [
-            ["inbox", s.inbox],
-            ["all", s.all_notifications],
-          ].map(([key, label]) =>
-            h("button", { class: "pill", "data-key": `scope:${key}`, "aria-pressed": String(scope === key), onclick: () => { this._scope = key; this._render(); }, text: label }),
-          )),
-        ])
-      : null;
-    const tools = h("div", { class: "tools" }, [
+    const tabs = visibleTabs(this._state);
+    const labels = { inbox: s.inbox, all: s.all_notifications, sent: s.sent_tab };
+    const seg =
+      tabs.length > 1
+        ? h("div", { class: "tools" }, [
+            h("div", { class: "seg", role: "group", "aria-label": s.inbox }, tabs.map((key) =>
+              h("button", {
+                class: "pill", "data-key": `scope:${key}`, "aria-pressed": String(scope === key),
+                onclick: () => {
+                  this._scope = key;
+                  if (key === "sent") this._loadSent();
+                  this._render();
+                },
+                text: labels[key],
+              }),
+            )),
+          ])
+        : null;
+    const tools = sent ? null : h("div", { class: "tools" }, [
       ...["all", "unread"].map((f) =>
         h("button", { class: "pill", "data-key": `filter:${f}`, "aria-pressed": String(this._filter === f), onclick: () => { this._filter = f; this._render(); }, text: s[`filter_${f}`] }),
       ),
@@ -1105,11 +1441,11 @@ class HeadsUpInboxCard extends Base {
       const unread = this._filter === "unread";
       body = h("div", { class: "empty" }, [
         h("div", { class: "tile ok" }, [icon("mdi:check")]),
-        h("div", {}, [h("b", { text: unread ? s.nothing_unread : s.nothing_yet })]),
-        h("div", { text: unread ? s.caught_up_message : s.new_messages_show }),
+        h("div", {}, [h("b", { text: sent ? s.nothing_sent : unread ? s.nothing_unread : s.nothing_yet })]),
+        h("div", { text: sent ? s.sent_here : unread ? s.caught_up_message : s.new_messages_show }),
       ]);
     }
-    const more = this._state.more ? h("button", { class: "link more", "data-key": "more", onclick: () => this._showMore(), text: s.show_more }) : null;
+    const more = (sent ? this._sentMore : this._state.more) ? h("button", { class: "link more", "data-key": "more", onclick: () => this._showMore(), text: s.show_more }) : null;
     return h("div", {}, [head, seg, tools, body, more]);
   }
 
@@ -1124,6 +1460,7 @@ class HeadsUpInboxCard extends Base {
     const s = STRINGS;
     const open = this._open.has(item.message_id);
     const text = visibleText(item, this._config);
+    const line = rowLine(item, this._hass?.states, s);
     const via = item.copy ? item.via.map((c) => h("span", { class: "chip", text: s.channels[c] ?? c })) : [];
     const chips = [
       ...via,
@@ -1134,6 +1471,7 @@ class HeadsUpInboxCard extends Base {
       h("div", { class: "tile", style: `--c:${severityColor(item.severity)}` }, [icon(severityIcon(item.severity, item.icon))]),
       h("div", { class: "bd" }, [
         h("div", { class: "ttl2", text: item.title || text }),
+        line ? h("div", { class: "from", text: line }) : null,
         !open && text ? h("div", { class: "pv", text }) : null,
         chips.length ? h("div", { class: "chips" }, chips) : null,
       ]),
@@ -1196,6 +1534,7 @@ class HeadsUpInboxCardEditor extends Base {
       schema.push({ name: "design", selector: { select: { mode: "dropdown", options: DESIGNS[size].map((v) => ({ value: v, label: t[`design_${v}`] })) } } });
     }
     schema.push({ name: "titles_only", selector: { boolean: {} } });
+    schema.push({ name: "hide_send_button", selector: { boolean: {} } });
     return schema;
   }
 

@@ -1837,3 +1837,12 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
   - At most 20 recipients per call; the same person twice counts once; `inbox` is always added to the chosen channels.
   - The result is `{id, channels, skipped}`; `skipped` lists `{person, channel, reason}`, for example `channel_not_accepted`. A delivery held by a policy (quiet hours) shows only in the `channels` counts.
   - The message is a banner record with source `person` and no banner channel, so the usual timeout ends it and then marks the recipient's item resolved (step 3 decides how the card shows that for person messages).
+
+## D-284 Phase 23 step 4: build choices for the compose dialog (2026-11-24, to confirm)
+- Context: D-279 puts the compose button in the header of medium and large cards. The medium card has no header (a tile, ring or split with a number), and the tile itself is one tap target that opens the dialog, so a second button inside it would nest buttons.
+- Choices (Claude, for the maintainer to confirm):
+  - The large card has the button in its list header. Compact, small and medium cards open the dialog, which has it in its header, as D-279 says for the tiles. Compose is always a dialog.
+  - The compose view replaces the list inside the dialog: back arrow, "To" chips (yourself shown as "(you)"), "Send via" (Inbox always on and disabled, Phone and Screens toggles, default Inbox and Phone), a text area with a character counter, Send. A note under the chips says what a chosen person does not accept; the people list comes from `heads_up/inbox_recipients`, which gives person, name, accepted channels and "me", and leaves out people whose profile is disabled and the Phone channel for people with no usable device.
+  - After sending, the dialog shows "Message sent" and, per person, the channels that were not delivered; Done returns to the card on the Sent tab.
+  - Escape leaves the compose view first and closes the dialog on the second press. A draft is not kept.
+  - Received items show "From <name>", sent items "To <names>", from the person entity's friendly name; no pictures yet (listed in `docs/OPEN_QUESTIONS.md` with the other later tiers).

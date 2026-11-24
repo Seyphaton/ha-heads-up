@@ -1,6 +1,13 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
   CONFIG_KEYS,
+  canSend,
+  composeHints,
+  personName,
+  rowLine,
+  sendError,
+  showCompose,
+  visibleTabs,
   DESIGNS,
   STRINGS,
   TRANSLATIONS,
@@ -44,12 +51,12 @@ const item = (over = {}) => ({
 afterEach(() => setLanguage("en"));
 
 describe("config", () => {
-  it("has size, design and titles_only", () => {
-    expect(CONFIG_KEYS).toEqual(["size", "design", "titles_only"]);
+  it("has size, design, titles_only and hide_send_button", () => {
+    expect(CONFIG_KEYS).toEqual(["size", "design", "titles_only", "hide_send_button"]);
   });
 
   it("defaults to the large list", () => {
-    expect(normalizeConfig({})).toEqual({ size: "large", design: "", titles_only: false });
+    expect(normalizeConfig({})).toEqual({ size: "large", design: "", titles_only: false, hide_send_button: false });
   });
 
   it("takes the first design of a small or medium card as the default", () => {
@@ -355,7 +362,12 @@ describe("registration", () => {
 
 describe("compact tile (D-277)", () => {
   it("is a size without designs", () => {
-    expect(normalizeConfig({ size: "compact" })).toEqual({ size: "compact", design: "", titles_only: false });
+    expect(normalizeConfig({ size: "compact" })).toEqual({
+      size: "compact",
+      design: "",
+      titles_only: false,
+      hide_send_button: false,
+    });
     expect(() => normalizeConfig({ size: "compact", design: "tile" })).toThrow(/design/);
   });
 
@@ -382,5 +394,91 @@ describe("compact tile (D-277)", () => {
   it("falls back to the inbox title when the unread message has none", () => {
     const tile = compactTile({ unread: 1, needs_action: 0 }, [item({ title: "" })]);
     expect(tile.title).toBe(STRINGS.inbox);
+  });
+});
+
+// ---- Messages between people (Phase 23, D-265, D-279) ----
+
+describe("tabs", () => {
+  it("is the inbox alone while neither All notifications nor messages are on", () => {
+    expect(visibleTabs({})).toEqual(["inbox"]);
+  });
+  it("adds All notifications and Sent in this order", () => {
+    expect(visibleTabs({ all_notifications: true, messages: true })).toEqual(["inbox", "all", "sent"]);
+    expect(visibleTabs({ messages: true })).toEqual(["inbox", "sent"]);
+    expect(visibleTabs({ all_notifications: true })).toEqual(["inbox", "all"]);
+  });
+  it("shows the Sent tab for a user without a person never (no person, no messages)", () => {
+    expect(visibleTabs({ messages: true, has_person: false })).toEqual(["inbox"]);
+  });
+  it("keeps a chosen tab only while it exists", () => {
+    expect(visibleScope({ messages: true }, "sent")).toBe("sent");
+    expect(visibleScope({ messages: false }, "sent")).toBe("inbox");
+    expect(visibleScope({ messages: true }, "all")).toBe("inbox");
+  });
+  it("lists sent items in Sent and nowhere else", () => {
+    const items = [item({ message_id: "a" }), item({ message_id: "s", sent: true })];
+    expect(scopeItems(items, "sent").map((i) => i.message_id)).toEqual(["s"]);
+    expect(scopeItems(items, "inbox").map((i) => i.message_id)).toEqual(["a"]);
+    expect(scopeItems(items, "all").map((i) => i.message_id)).toEqual(["a"]);
+  });
+});
+
+describe("compose button", () => {
+  it("shows with messages on and a person", () => {
+    expect(showCompose({ messages: true, has_person: true }, { hide_send_button: false })).toBe(true);
+  });
+  it("is hidden by hide_send_button, with messages off and without a person", () => {
+    expect(showCompose({ messages: true, has_person: true }, { hide_send_button: true })).toBe(false);
+    expect(showCompose({ messages: false, has_person: true }, { hide_send_button: false })).toBe(false);
+    expect(showCompose({ messages: true, has_person: false }, { hide_send_button: false })).toBe(false);
+  });
+  it("is a config option", () => {
+    expect(CONFIG_KEYS).toContain("hide_send_button");
+    expect(normalizeConfig({ hide_send_button: true }).hide_send_button).toBe(true);
+    expect(normalizeConfig({ hide_send_button: "yes" }).hide_send_button).toBe(false);
+  });
+});
+
+describe("names and lines", () => {
+  const states = { "person.anna": { attributes: { friendly_name: "Anna" } }, "person.ben": { attributes: {} } };
+  it("uses the friendly name, else the id without the domain", () => {
+    expect(personName(states, "person.anna")).toBe("Anna");
+    expect(personName(states, "person.ben")).toBe("ben");
+    expect(personName(states, "person.gone")).toBe("gone");
+  });
+  it("says From for a received item and To for a sent one", () => {
+    expect(rowLine(item({ sender: "person.anna" }), states, STRINGS)).toBe("From Anna");
+    expect(rowLine(item({ sent: true, recipients: ["person.anna", "person.ben"] }), states, STRINGS)).toBe("To Anna, ben");
+  });
+  it("says nothing for an item without a sender", () => {
+    expect(rowLine(item({ sender: null }), states, STRINGS)).toBe("");
+  });
+});
+
+describe("compose rules", () => {
+  const people = [
+    { person: "person.anna", name: "Anna", channels: ["inbox", "push", "popup"], me: false },
+    { person: "person.ben", name: "Ben", channels: ["inbox"], me: false },
+  ];
+  it("needs a person and a text of at most 1000 characters", () => {
+    expect(canSend({ to: ["person.anna"], text: "hi" })).toBe(true);
+    expect(canSend({ to: [], text: "hi" })).toBe(false);
+    expect(canSend({ to: ["person.anna"], text: "   " })).toBe(false);
+    expect(canSend({ to: ["person.anna"], text: "x".repeat(1001) })).toBe(false);
+    expect(canSend({ to: ["person.anna"], text: "x".repeat(1000) })).toBe(true);
+  });
+  it("hints at what a chosen recipient does not accept", () => {
+    const hints = composeHints(people, ["person.anna", "person.ben"], ["inbox", "push", "popup"]);
+    expect(hints).toEqual([{ person: "person.ben", name: "Ben", channels: ["push", "popup"] }]);
+  });
+  it("has no hint when everyone accepts", () => {
+    expect(composeHints(people, ["person.anna"], ["inbox", "push"])).toEqual([]);
+  });
+  it("maps an error code to a text key", () => {
+    expect(sendError({ code: "rate_limited" })).toBe("error_rate_limited");
+    expect(sendError({ code: "messages_off" })).toBe("error_messages_off");
+    expect(sendError({ code: "anything" })).toBe("error_send");
+    expect(sendError(null)).toBe("error_send");
   });
 });

@@ -265,6 +265,7 @@ design: split
 | `size` | `compact`, `small`, `medium` or `large` | `large` | Compact is one row: an icon, the title of the message that matters most and a line with the count. Small is a square tile for a grid of tiles. Medium is a wide card. Large is the list itself. |
 | `design` | `number`, `ring` or `mosaic` for small; `tile`, `ring` or `split` for medium | the first of its size | How the count looks. Not for the large list. Number shows the count big. Ring splits it by severity. Mosaic shows the icons of up to four unread items, and +N from five on. Tile and ring show the latest unread title. Split has the buttons Open and Mark all read. |
 | `titles_only` | boolean | `false` | `true`: the card never shows the text of a message, only its title. Use it on a screen that others can see. |
+| `hide_send_button` | boolean | `false` | `true`: the card and its dialog show no button for writing a message. The button appears only while messages between people are switched on. Use it on a wall tablet. |
 
 - Selecting a tile or a medium card opens the list in a window. The large card is the list. With nothing unread the number tile shows a quiet 0, and the mosaic and the ring show a check mark.
 - The banner card can open the same window with a small button: see `show_inbox_button` in [the card options](actions.md#options). It works without an inbox card on the dashboard.
