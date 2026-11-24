@@ -279,7 +279,7 @@ You can rename a policy, an audience, a speaker group, a watch rule or a person 
 
 A policy adds behaviour to messages without changing the automation that sends them. The types are Summarize, Quiet hours, Presence, Get through, Deliver, Escalation, Reminder and Fallback. Add one with New policy on the panel's Policies page or under Settings > Devices & services > Heads Up > Add policy.
 
-Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, `not_severities`, `not_tags`, `rules` and the fields of its type. A row on the Policies page opens the entity ID with a Copy button. A new policy shows the ID it gets when you save.
+Every policy is also a switch entity. Its attributes show what it does: `type`, `apply`, `severities`, `tags`, `not_tags` and the fields of its type. A row on the Policies page opens the entity ID with a Copy button. A new policy shows the ID it gets when you save.
 
 Renaming a policy changes only its name. Its entity ID, the watch rules that use it, the messages that are running and their escalations, reminders and held summaries stay as they were. Deleting a policy ends its timers. A new policy with the same name is a different policy, and a rule or message that used the deleted one is listed under Needs attention until you choose another.
 
@@ -306,8 +306,7 @@ A policy attaches to messages automatically or manually, chosen in the editor un
 
 - Automatically: a message gets the policy when it fits all of these. An empty list matches everything.
   - Severities and tags: the severity is in the first list and the tag in the second. A message without a tag matches only a policy whose tag list is empty. Messages from watch rules have the tag `rule`.
-  - Not for severities and Not for tags: a message with one of these never gets the policy, even when the lists above match. The editor warns when Not for repeats something from the lists above.
-  - From watch rule: only messages of the chosen watch rules get the policy.
+  - Not for tags: a message with one of these tags never gets the policy, even when the lists above match. The editor warns when Not for repeats a tag from the lists above.
 - Manually: the policy has no lists and never attaches by itself. Only a call or a watch rule that names it in the `policy` field gets it. Get through entries can be manual too.
 
 Only if limits a policy, automatic or manual, to the time a condition holds, for example "while `input_boolean.guests` is off". It has the shape of the `condition` of `heads_up.notify`. Heads Up checks it each time the policy would act. When the condition turns false, deliveries the policy holds are released. When it turns true, a Get through entry releases what quiet hours hold for its people and takes its messages out of summaries. If Heads Up cannot read the state, for example because the device is offline, Summarize, Quiet hours and Presence do nothing, and the other types still act.
@@ -446,7 +445,7 @@ Holds or drops a delivery depending on where people are. Push, popup and mail ar
 | When the wait ends | Send anyway | Or: Drop (`max_wait_exceeded`). |
 
 - For push, popup and mail, Presence checks every recipient: members of an audience and persons the call lists by name.
-- Presence applies to every severity. To let critical messages through, set Not for severities to Critical.
+- Presence applies to every severity. To let critical messages through, leave Critical out of the severities.
 - Get through entries never pass Presence. Reminders are not checked.
 - Unknown presence is never held: the delivery goes out at once. For speech, people whose presence is unknown do not count.
 - A change of presence counts after the presence delay in Settings (60 seconds by default), so a short flip at the zone edge releases nothing. With the delay at 0 it counts at once.
@@ -480,7 +479,7 @@ A call names the channels of its first delivery. A Deliver policy adds channels 
 - Someone who already has the message on that channel from the call is not notified a second time. Several Deliver policies add up.
 - Quiet hours, Presence and Get through act on it like on any delivery.
 - A message held for a summary gets no Deliver; the people Deliver would add get the summary instead.
-- A watch rule message gets it when the policy applies to the tag `rule` or names the rule under From watch rule.
+- A watch rule message gets it when the policy applies to the tag `rule`, or when the rule names the policy in its policy field.
 
 ### Summarize
 

@@ -18,6 +18,10 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - Built-in audiences can be edited in place on the Audiences page: leave out named people, and limit At home, Not home, Last to leave and First home to named people. Reset to default restores the original. Policies, actions, watch rules and the audience sensors follow the edit.
 - Examples for the color, the sender icon and a progress bar in the field help and in the examples page.
 
+### Changed
+
+- The policy form no longer has Not for severities and From watch rule. Leave a severity out of For instead. A policy for one watch rule now applies to the tag `rule`; to send one rule's messages through a policy, name the policy in the rule's policy field. The update moves your existing policies over and keeps a backup of them.
+
 ### Fixed
 
 - The help text of the mail subject showed an error in the action form.

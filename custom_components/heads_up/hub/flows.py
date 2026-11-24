@@ -53,7 +53,6 @@ from ..const import (
     PROFILE_CHANNELS,
     PROFILE_SUBENTRY,
     QUIET_ACTIONS,
-    RULE_SUBENTRY,
     SEVERITIES,
     WEEKDAYS,
     ZONE_KINDS,
@@ -445,23 +444,8 @@ class PolicySubentryFlow(_HubFlow):
             vol.Optional("tags"): SelectSelector(
                 SelectSelectorConfig(options=[], custom_value=True, multiple=True)
             ),
-            vol.Optional("not_severities"): SelectSelector(
-                SelectSelectorConfig(
-                    options=list(SEVERITIES), multiple=True, translation_key="severity"
-                )
-            ),
             vol.Optional("not_tags"): SelectSelector(
                 SelectSelectorConfig(options=[], custom_value=True, multiple=True)
-            ),
-            vol.Optional("rules"): SelectSelector(
-                SelectSelectorConfig(
-                    options=[
-                        SelectOptionDict(value=s.subentry_id, label=s.title)
-                        for s in self._get_entry().subentries.values()
-                        if s.subentry_type == RULE_SUBENTRY
-                    ],
-                    multiple=True,
-                )
             ),
             # The condition of `notify` (D-216): an entity with operator and state, or a template.
             vol.Optional("only_if"): ObjectSelector(),
@@ -674,10 +658,9 @@ class PolicySubentryFlow(_HubFlow):
             "tags": [] if manual else list(user_input.get("tags") or []),
             "enabled": bool(user_input.get("enabled", True)),
         }
-        # Not for and From watch rule: stored only when set (DESIGN §25.4).
-        for key in ("not_severities", "not_tags", "rules"):
-            if not manual and (values := list(user_input.get(key) or [])):
-                data[key] = values
+        # Not for tags: stored only when set (DESIGN §25.4).
+        if not manual and (values := list(user_input.get("not_tags") or [])):
+            data["not_tags"] = values
         if isinstance(user_input.get("only_if"), dict) and user_input["only_if"]:
             data["only_if"] = dict(user_input["only_if"])
         kind = user_input["type"]

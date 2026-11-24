@@ -41,6 +41,7 @@ from .const import (
 from .frontend import async_popup_url
 from .hub import checker, panel_config, panel_data, panel_test, reach, settings, welcome
 from .hub.identity import GROUP_PREFIX
+from .hub.migration import fold_back
 from .hub.policies.convert import OPT_CONVERSION_ITEMS
 from .hub.recipients import speaker_entities
 from .manager import BannerManager, HeadsUpError
@@ -721,6 +722,12 @@ def ws_conversion_item(
             # Take back what the conversion wrote: its Not for values and its links.
             for item in found:
                 for key, values in (item.get("added") or {}).items():
+                    if key == "not_severities":
+                        # Not for severities is gone (D-280): the conversion's severities go
+                        # back into For, where an empty list means any.
+                        if data.get("severities"):
+                            data["severities"] = fold_back(data["severities"], values)
+                        continue
                     kept = [v for v in data.get(key) or [] if v not in values]
                     if kept:
                         data[key] = kept

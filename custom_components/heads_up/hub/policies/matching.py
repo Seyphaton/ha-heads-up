@@ -1,53 +1,47 @@
 """Which policies apply to a message (DESIGN §25.3, D-224).
 
 An automatic policy fits when the message severity is among its severities and its tag among its
-tags (an empty list means any), neither is in Not for, a watch-rule message comes from one of its
-rules (when it names rules), and no policy it links to fits while that one is enabled (links come
-only from the 1.x conversion, §25.6). Every fitting policy acts; there is no order and no mode.
-A manual policy never applies by itself. The call's `policy` field names policies (manual or
-automatic, used whatever their filters say), is omitted to use every automatic policy that fits,
-or is `none`. A list names several; `automatic` in the list adds the fitting automatic policies
-(D-184). Only if (D-216) is checked by the engine at each step, not here.
+tags (an empty list means any), the tag is not in Not for tags, and no policy it links to fits
+while that one is enabled (links come only from the 1.x conversion, §25.6). Every fitting policy
+acts; there is no order and no mode. A manual policy never applies by itself. The call's `policy`
+field names policies (manual or automatic, used whatever their filters say), is omitted to use
+every automatic policy that fits, or is `none`. A list names several; `automatic` in the list
+adds the fitting automatic policies (D-184). Only if (D-216) is checked by the engine at each
+step, not here.
 """
 
 from __future__ import annotations
 
 from collections.abc import Mapping
 
-from ...const import POLICY_AUTOMATIC, POLICY_NONE, RULE_ID_PREFIX
+from ...const import POLICY_AUTOMATIC, POLICY_NONE
 from ...models import Banner
 from .models import Policy
 
 
-def matches_for(policy: Policy, severity: str, tag: str | None, message_id: str = "") -> bool:
-    """For alone: severities, tags and the watch-rule source."""
+def matches_for(policy: Policy, severity: str, tag: str | None) -> bool:
+    """For alone: severities and tags."""
     if policy.severities and severity not in policy.severities:
         return False
-    if policy.tags and tag not in policy.tags:
-        return False
-    if policy.rules:
-        rule = message_id[len(RULE_ID_PREFIX) :] if message_id.startswith(RULE_ID_PREFIX) else None
-        if rule not in policy.rules:
-            return False
-    return True
+    return not (policy.tags and tag not in policy.tags)
 
 
-def matches(policy: Policy, severity: str, tag: str | None, message_id: str = "") -> bool:
-    """For and Not for; links are checked by `fits`."""
-    if severity in policy.not_severities or (tag is not None and tag in policy.not_tags):
+def matches(policy: Policy, severity: str, tag: str | None) -> bool:
+    """For and Not for tags; links are checked by `fits`."""
+    if tag is not None and tag in policy.not_tags:
         return False
-    return matches_for(policy, severity, tag, message_id)
+    return matches_for(policy, severity, tag)
 
 
 def applies(policy: Policy, severity: str, tag: str | None) -> bool:
-    """An automatic policy by severity and tag alone (no message ID: watch-rule filters fail)."""
+    """An automatic policy by severity and tag."""
     return policy.apply != "manual" and matches(policy, severity, tag)
 
 
 def fits(policy: Policy, message: Banner, by_id: Mapping[str, Policy]) -> bool:
     if policy.apply == "manual":
         return False
-    if not matches(policy, message.severity, message.tag, message.id):
+    if not matches(policy, message.severity, message.tag):
         return False
     for linked_id in policy.links:
         linked = by_id.get(linked_id)
@@ -57,7 +51,7 @@ def fits(policy: Policy, message: Banner, by_id: Mapping[str, Policy]) -> bool:
         if (
             linked is not None
             and linked.enabled
-            and matches_for(linked, message.severity, message.tag, message.id)
+            and matches_for(linked, message.severity, message.tag)
         ):
             return False
     return True
@@ -97,9 +91,7 @@ def duplicate_of(policies: list[Policy], candidate: Policy) -> Policy | None:
             and other.type == candidate.type
             and other.severities == candidate.severities
             and other.tags == candidate.tags
-            and other.not_severities == candidate.not_severities
             and other.not_tags == candidate.not_tags
-            and other.rules == candidate.rules
             and other.trigger == candidate.trigger
         ):
             return other

@@ -32,7 +32,7 @@ async def test_a_new_setup_stores_no_levels_and_uses_the_new_defaults(hass: Home
 
 async def test_an_existing_setup_keeps_the_levels_it_had(hass: HomeAssistant) -> None:
     entry = await setup(hass, version=2, minor_version=2, options={})
-    assert (entry.version, entry.minor_version) == (3, 1)
+    assert (entry.version, entry.minor_version) == (3, 2)
     assert entry.options["push_levels"] == PUSH_LEVELS_1_0
 
 
