@@ -18,14 +18,14 @@ Heads Up is the notification hub for Home Assistant. Your automation makes one c
 9. **Messages between people.** People write short messages to each other from the inbox card. The recipient's profile and your policies still decide what is delivered, and the sender never learns whether a message was read.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-banner.webp" width="200" alt="Banners on a Home Assistant dashboard: a water leak with an Acknowledge link, a garage door warning, a vacuum with a progress bar and an update message, each with a close button">
-<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-popup.webp" width="200" alt="A Heads Up popup over a Home Assistant dashboard: a warning for Front door, Person detected at 14:32, with a camera picture and the buttons Lights on, Sound alarm and Dismiss">
-<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-push.webp" width="200" alt="Push on iOS and Android: an iPhone notification for Front door with a camera picture and the buttons Lights on, Sound alarm and Ignore, and a Live Activity for a vacuum at 53 percent">
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-banner.webp" width="220" alt="Banners on a Home Assistant dashboard: a water leak with an Acknowledge link, a garage door warning, a vacuum with a progress bar and an update message, each with a close button">
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-popup.webp" width="220" alt="A Heads Up popup over a Home Assistant dashboard: a warning for Front door, Person detected at 14:32, with a camera picture and the buttons Lights on, Sound alarm and Dismiss">
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-push.webp" width="220" alt="Push on iOS and Android: an iPhone notification for Front door with a camera picture and the buttons Lights on, Sound alarm and Ignore, and a Live Activity for a vacuum at 53 percent">
 </p>
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-inbox.webp" width="200" alt="The personal inbox card and a ring card: a critical water leak that needs action, a message from Ben with his initial and a garage door warning, with the tabs Inbox and Sent">
-<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-mail-speech.webp" width="200" alt="Mail and speech: an email about a water leak with an Acknowledge button on a laptop, and a smart speaker saying the same message">
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-inbox.webp" width="220" alt="The personal inbox card and a ring card: a critical water leak that needs action, a message from Ben with his initial and a garage door warning, with the tabs Inbox and Sent">
+<img src="https://raw.githubusercontent.com/Seyphaton/ha-heads-up/main/docs/images/channel-mail-speech.webp" width="220" alt="Mail and speech: an email about a water leak with an Acknowledge button on a laptop, and a smart speaker saying the same message">
 </p>
 
 ## What only Heads Up does
