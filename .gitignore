@@ -32,3 +32,6 @@ CLAUDE.local.md
 # Generated dev HA test credentials
 dev/dev-credentials.env
 .venv-ha/
+
+# Release zip (scripts/build_release_zip.sh)
+dist/

@@ -1,4 +1,4 @@
-.PHONY: setup test test-card lint format typecheck hassfest docs-check check dev-up dev-onboard dev-smoke dev-down dev-reset dev-logs
+.PHONY: release-zip setup test test-card lint format typecheck hassfest docs-check check dev-up dev-onboard dev-smoke dev-down dev-reset dev-logs
 
 COMPOSE = docker compose -f dev/docker-compose.yml
 
@@ -25,6 +25,9 @@ typecheck:
 
 hassfest:       ## validate manifest/translations with HA's hassfest image (amd64 only; emulated on arm64)
 	docker run --rm --platform linux/amd64 -v "$(CURDIR)":/github/workspace ghcr.io/home-assistant/hassfest
+
+release-zip:    ## build dist/heads_up.zip (the release asset hacs.json points at)
+	scripts/build_release_zip.sh
 
 docs-check:     ## banned words, placeholders, example validation, field parity
 	uv run python scripts/docs_check.py

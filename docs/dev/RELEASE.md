@@ -66,6 +66,12 @@ State: `release/3.0` was cut from `main` at 2.1.0-beta.3 and has `main` merged i
 3. Rename `[Unreleased]` to `[3.0.0]` with the date, set `version` to `3.0.0`, `make check`, `make hassfest` and `make dev-smoke` green, push, read CI.
 4. Merge `release/3.0` into `main` and push `main`, only on the maintainer's order. Tag `v3.0.0` on `main`, push the tag, create the GitHub release (not a pre-release).
 
+## Release asset (from 3.0.1, D-291)
+`hacs.json` sets `zip_release` with `filename` `heads_up.zip`, so every release needs that asset; without it an install of that version fails. The workflow `.github/workflows/release.yml` builds it with `scripts/build_release_zip.sh` (also `make release-zip`, output `dist/heads_up.zip`) and uploads it when a release is published; it fails if `manifest.json` does not match the tag.
+- After publishing a release: open its Actions run `Release asset` and check that `heads_up.zip` is listed among the release assets.
+- A release that has no asset (or an old one): Actions > Release asset > Run workflow > enter the tag.
+- `v3.0.0` has no asset and stays as it is; the counter starts with `v3.0.1`.
+
 ## Default HACS list (optional)
 Custom-repository installs work without this. For the default list (N-54): the repository is public, the HACS Action and hassfest pass without ignores, a full GitHub release exists. Then fork `hacs/default`, create a branch from `master`, add `Seyphaton/ha-heads-up` to the file `integration` in alphabetical order, and open a pull request from a personal account with the template filled in.
 

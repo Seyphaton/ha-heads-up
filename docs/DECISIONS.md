@@ -1876,3 +1876,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 ## D-290 Release 3.0.0 (2026-11-25, maintainer)
 - Context: `release/3.0` is merged into `main` (D-278, D-288); 2.1.0 was never released, so 3.0.0 carries its features.
 - Decision (maintainer, "add it to the CHANGELOG as 3.0.0, prepare 3.0.0 release tag and push"): the CHANGELOG `[Unreleased]` section is replaced by `[3.0.0] - 2026-11-25`, written as short release notes against 2.0.0 (the detailed list stays in git history); the manifest version is `3.0.0`; after `make check`, `make hassfest`, `make dev-smoke` and CI, the tag `v3.0.0` is created on `main` and pushed. The GitHub release is the maintainer's step, with the `[3.0.0]` section as notes.
+
+## D-291 Release asset heads_up.zip for the download counter, released as 3.0.1 (2026-11-25, maintainer)
+- Context: the download counter showed `-`. It reads `assets[].download_count` of the latest GitHub release, and `v3.0.0` has no asset; GitHub's source archives are not counted. The maintainer states that the Home Assistant Marketplace replaced HACS (hacs.xyz banner agrees, N-121).
+- Decisions (maintainer): `hacs.json` gets `zip_release: true` and `filename: heads_up.zip` (the `homeassistant` minimum stays); a workflow attaches the zip to every published release; shipped as patch release 3.0.1, `v3.0.0` is not touched; done directly on `main`.
+- Build choice: the zip holds the contents of `custom_components/heads_up/` at its root (checked by the script); the layout rule is not stated on hacs.xyz (N-121), so the first install from the 3.0.1 release must be tried on a test instance before announcing it.
+- Not done: tag, push and GitHub release (D-020, maintainer). The download counter itself may need the repository in the default catalog (`hacs/default`); not verified.
