@@ -2,6 +2,16 @@
 
 All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions: [SemVer](https://semver.org/). Only releases are listed; the 1.0.0 pre-releases are summarized under 1.0.0, and the 2.1.0 and 3.0.0 pre-releases under 3.0.0.
 
+## [3.0.1] - 2026-11-25
+
+### Before you upgrade
+
+- Nothing you need to act on. The integration itself is unchanged.
+
+### Changed
+
+- Each release now ships a `heads_up.zip` file with the integration, and Home Assistant downloads that file. GitHub counts its downloads, so the download counter works from this release on.
+
 ## [3.0.0] - 2026-11-25
 
 ### Before you upgrade
