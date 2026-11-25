@@ -465,7 +465,9 @@ async def inbox() -> None:
         assert admin_person != user_person
         msg_id = await ws_admin.send({"type": "heads_up/inbox_read", "message_id": "smoke_inbox"})
         assert (await ws_admin.recv(msg_id))["success"]
-        assert (await inbox_list(ws_admin, unread_only=True))["unread"] == 0
+        # Other phases and earlier runs leave items of their own: only this item is checked.
+        unread = (await inbox_list(ws_admin, unread_only=True))["items"]
+        assert "smoke_inbox" not in [i["message_id"] for i in unread], unread
         assert (await inbox_list(ws_user))["unread"] >= 1  # the other person's item is unchanged
         print("each user sees and changes only their own items")
 

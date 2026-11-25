@@ -1,40 +1,37 @@
 # Changelog
 
-All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions: [SemVer](https://semver.org/). Only releases are listed; the 1.0.0 pre-releases are summarized under 1.0.0.
+All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions: [SemVer](https://semver.org/). Only releases are listed; the 1.0.0 pre-releases are summarized under 1.0.0, and the 2.1.0 and 3.0.0 pre-releases under 3.0.0.
 
-## [Unreleased]
+## [3.0.0] - 2026-11-25
+
+### Before you upgrade
+
+- Nothing you need to act on. New features are optional or off by default.
+- The policy form no longer has "Not for severities" and "From watch rule". The first start converts your policies so they behave as before and keeps a backup. See [Upgrading](docs/setup.md#upgrading).
 
 ### Added
 
-- `color`, `subtitle` and `icon_url` (a sender icon) on `notify`, `create_banner`, `push` and watch rules. The banner and the popup show the color, the subtitle under the title and the sender picture in place of the icon. On a push they become the Companion keys for Android and iOS, so one field serves both. The subtitle and the sender icon go out only when the lock screen setting is `full`.
-- `icon` is also the push's status bar icon on Android and its sender icon on iOS.
-- `progress` (an entity, with `min` and `max`) on `notify`, `create_banner` and watch rules: a progress bar on the banner and the popup that follows the entity, and on a push a Live Update (Android 16 and later) or Live Activity (iOS 17.2 and later) that is updated in place. Older devices show the plain message. The iOS Live Activity has no image and no buttons.
-- Progress updates are not dropped by the push limits per minute. The Channels page has "Seconds between two progress updates" (1 to 300, default 5), a message can set its own `progress.interval`, `progress.value` takes a number instead of an entity, and `progress.auto_update: false` stops the automatic updates so you move the bar by calling the action again with the same `id`.
-- Channels page: "Use severity icon & color for push notifications", off by default. On, a push without its own `icon` or `color` uses those of its severity. On iOS an icon makes the push a communication notification, and a message without a title is sent with the title `Heads Up`.
-- The color field takes `#rrggbb` or the red, green and blue list of the color picker in the action form, and the watch rule form and Test send have a color input with a picker.
-- The watch rule form in the panel edits buttons (up to 3, with text, key, close, red text, unlocked phone and an action) and the tap action. Before, they could only be set in the YAML of the form on the integration page.
-- Test send has every field of `notify` in collapsible sections, including the new look fields, progress, buttons, tap action, snooze choices and a lifetime for the test message. A switch at the top right changes between the Visual editor and the YAML editor, which replaces the separate paste section at the bottom.
-- The watch rule form has the same Visual editor and YAML editor switch.
-- Built-in audiences can be edited in place on the Audiences page: leave out named people, and limit At home, Not home, Last to leave and First home to named people. Reset to default restores the original. Policies, actions, watch rules and the audience sensors follow the edit.
-- Examples for the color, the sender icon and a progress bar in the field help and in the examples page.
-- The speech settings (longest text, repeat pause, engine, volume put back, volume by severity and by time of day) are now on the Speech row of the Channels page, and the two push rate limits on the Push row. They are no longer on the Settings page or the Configure screen of Home Assistant. Their values and their option names are unchanged.
-- The inbox channel (`channels: [inbox]`): a stored item per message and person, with a timeline, read state and the end of the message. Reminders and escalations add a timeline entry. Policies treat it like every other channel, Presence included, and a person's recipient profile can switch it off. Items are kept for 12 months, at most 2000 per person. Settings on the Inbox row of the Channels page: Add an optional "Show all notifications" section to the inbox (off by default; the notifications that push, popup, mail, the banner or a speaker delivered are kept as read history in the tab All notifications of the card), months to keep inbox items (1 to 36), a switch for whether a reminder marks a read item unread again, and Clear inbox. The introduction offers the switch. The banner card has an optional Open inbox button (`show_inbox_button`, off by default) that opens the inbox window on any dashboard. Diagnostics list the inbox counts per person and no text. The card `custom:heads-up-inbox-card` shows the viewing user's own inbox in four sizes (compact row, small tile, medium card, large list) and six designs, with Mark all read, expandable rows with a timeline, Delete, and a `titles_only` option for shared screens. `sensor.heads_up_inbox_<person>` counts a person's unread items, with `needs_action` and `unread_critical` as attributes and never any text.
-- Messages between people: with the switch Let people send short messages to each other (Channels page, Inbox row, off by default), a person writes to other people from the inbox card. The sender comes from the logged-in user, never from the call. The text is plain, up to 1000 characters, always with the severity Info. On push and popup the message has the sender's name as title and the sender's picture as sender icon. The sender picks inbox, push notification, popup on screens and, if a mail service is set, mail; what each recipient accepts and your policies still decide. The sender gets a Sent tab with no read receipts, and each person can send 10 messages per minute. The card option `hide_send_button` hides the button.
-- A Quiet hours policy can be limited to channels (push, popup, speech, Persistent Notification, mail). With none selected it covers every channel except the banner, as before.
+- Personal inbox and messaging:
+  - Each person gets their own list of messages that survives restarts, with an unread count.
+  - A new inbox card shows it on a dashboard in four sizes.
+  - With one switch (off by default), people write short messages to each other from the card. They choose where it goes: inbox, push, popup on screens or mail.
+  - On a phone a message reads like a chat message, with the sender's name and picture.
+  - The sender gets a Sent list and never learns whether a message was read.
+- Richer push notifications:
+  - Icon, color, subtitle and sender picture work the same on Android and iOS.
+  - Banners and popups show them too, so a message looks alike on the phone and the dashboard.
+  - An optional setting (off by default) gives each push the icon and color of its severity.
+- Progress bars and Live Activities: a bar follows any entity on banners, popups and phones. On phones it is a Live Update (Android 16 and later) or a Live Activity (iOS 17.2 and later), updated in place, and the Overview lists running ones with a Dismiss button.
+- Easier editing in the panel: Test send shows every field with a color picker and a Visual or YAML switch, the watch rule form edits buttons and the tap action, and built-in audiences can be edited, for example to leave one person out of "At home".
+- Quiet hours for chosen channels: limit a quiet-hours policy to the channels you pick.
 
 ### Changed
 
-- Quiet hours and Summarize: "Holds these anyway" is now "Ignore 'get through' policies" under its own sub heading, with a red caution that says what happens to critical messages. In Quiet hours the entity picker sits below the times and days.
-- The policy form shows all four severities checked for a new policy, and the last one cannot be unchecked: switch the policy off instead. The policy form no longer has Not for severities and From watch rule. Leave a severity out of For instead. A policy for one watch rule now applies to the tag `rule`; to send one rule's messages through a policy, name the policy in the rule's policy field. The update moves your existing policies over and keeps a backup of them.
-
-### Changed
-
-- Quiet hours and Summarize: "Holds these anyway" is now "Ignore 'get through' policies" under its own sub heading, with a red caution that says what happens to critical messages. In Quiet hours the entity picker sits below the times and days.
-- The policy form shows all four severities checked for a new policy, and the last one cannot be unchecked: switch the policy off instead. The policy form no longer has Not for severities and From watch rule. Leave a severity out of For instead. A policy for one watch rule now applies to the tag `rule`; to send one rule's messages through a policy, name the policy in the rule's policy field. The update moves your existing policies over and keeps a backup of them.
+- The speech settings and the push limits moved to the Speech and Push rows of the Channels page. Their values are kept.
 
 ### Fixed
 
-- A Live Update or Live Activity sent only to phones could not be ended from the phone when the message had no buttons. The Overview now lists every running message with a progress bar at the top of the status card, each with Dismiss.
+- A Live Update or Live Activity sent only to phones could not be ended from the phone. The Overview now lists it with a Dismiss button.
 - The help text of the mail subject showed an error in the action form.
 
 ## [2.0.0] - 2026-11-22
