@@ -111,6 +111,13 @@ async def add_mobile_app_device(
     return FakeDevice(device_name, device_id, user_id, entry, tracker.entity_id, service, calls)
 
 
+def as_android(hass: HomeAssistant, device: FakeDevice) -> None:
+    """Turn a fake registration (iOS by default) into an Android one."""
+    hass.config_entries.async_update_entry(
+        device.entry, data={**device.entry.data, "os_name": "Android", "manufacturer": "Google"}
+    )
+
+
 def set_person(
     hass: HomeAssistant,
     entity_id: str,

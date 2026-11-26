@@ -12,6 +12,7 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 ### Fixed
 
 - A message with a progress bar now shows its `color` on the iOS Live Activity: the icon and the bar on the Lock Screen take it. Restart Home Assistant after the update.
+- Heads Up recognizes an Apple device by its manufacturer, so an iPad or a Mac gets the same push settings as an iPhone, whatever system name it reports.
 
 ## [3.0.1] - 2026-11-25
 

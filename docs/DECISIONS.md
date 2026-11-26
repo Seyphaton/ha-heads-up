@@ -1901,3 +1901,9 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Build choice (reported to the maintainer, who then ordered commit and push): such a push no longer carries `color`. iOS reads `color` as the background behind the icon of a plain notification, so the same value as glyph and background would hide the icon, for example on a device without Live Activities. Android and pushes without progress are unchanged.
 - Parity (rule 9): one push channel, tested for an action and a watch rule.
 
+## D-295 One push call on every platform (2026-11-26, maintainer)
+- Context: after D-294 the maintainer set the bar: Heads Up unifies Android and iOS calls, and the user should not care or even know which platform a device runs. The push channel took only the system name `iOS` as Apple; any other value got the Android keys.
+- Decision (maintainer): meet that bar. A field or setting never asks for the platform; the push channel maps it per device.
+- Build: the platform comes from the registration's `manufacturer`, as in Core (N-125): `Apple` is iOS, anything else Android. This covers iPad and Mac without knowing the system name they report. Used for the payload and for the clear-before-update of an iOS critical push.
+- Decision (maintainer, "NO"): Heads Up adds no icon of its own to an iOS push only to make a color visible. On iOS `color` shows only behind an icon (N-112), so a push without an icon and without `progress` shows no color there. The user docs say so (`docs/actions.md`).
+

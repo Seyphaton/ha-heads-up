@@ -9,7 +9,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.heads_up.const import DOMAIN
 
 from .conftest import AddDevice
-from .helpers import FakeDevice, set_person, settle
+from .helpers import FakeDevice, as_android, set_person, settle
 
 
 async def push(hass: HomeAssistant, entry: MockConfigEntry, **data: Any) -> dict[str, Any]:
@@ -89,9 +89,7 @@ async def android(hass: HomeAssistant, mobile_app_device: AddDevice) -> FakeDevi
     phone = await mobile_app_device(
         "Anna's tablet", user_id="anna-id", person_entity_id="person.anna"
     )
-    hass.config_entries.async_update_entry(
-        phone.entry, data={**phone.entry.data, "os_name": "Android"}
-    )
+    as_android(hass, phone)
     return phone
 
 
@@ -113,6 +111,33 @@ async def test_critical_is_an_alert_on_ios_and_an_alarm_on_android(
     assert droid["importance"] == "max"
     assert droid["priority"] == "high" and droid["ttl"] == 0
     assert "sound" not in droid["push"]  # the iOS critical sound is not sent to Android
+
+
+async def test_one_call_shows_the_color_on_both_platforms(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice, android: FakeDevice
+) -> None:
+    await push(hass, entry, color="#03a9f4", progress={"value": 40})
+    assert sent(anna)["data"]["notification_icon_color"] == "#03a9f4"
+    assert sent(android)["data"]["color"] == "#03a9f4"
+
+
+@pytest.mark.parametrize("os_name", ["iOS", "iPadOS", "macOS", "another name"])
+async def test_every_apple_device_gets_the_ios_keys(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice, os_name: str
+) -> None:
+    # Core tells Apple devices by the manufacturer; the system name is free text (N-125).
+    hass.config_entries.async_update_entry(anna.entry, data={**anna.entry.data, "os_name": os_name})
+    entry.runtime_data.options["push_levels"] = CRITICAL_ON
+    await push(
+        hass, entry, severity="critical", color="#03a9f4", progress={"value": 40}, snooze="user"
+    )
+    data = sent(anna)["data"]
+    assert data["notification_icon_color"] == "#03a9f4"
+    assert data["push"]["sound"]["critical"] == 1
+    assert "priority" not in data and "alert_once" not in data
+    # An iOS critical notification cannot be replaced: it is cleared first (N-62).
+    await push(hass, entry, severity="critical", message="Again")
+    assert [c.data["message"] for c in anna.calls][-2:] == ["clear_notification", "Again"]
 
 
 async def test_android_time_sensitive_is_delivered_at_once_on_its_own_channel(
@@ -213,9 +238,7 @@ async def test_android_buttons_are_clipped_to_three_and_the_trace_says_so(
     phone = await mobile_app_device(
         "Anna's phone", user_id="anna-id", person_entity_id="person.anna"
     )
-    hass.config_entries.async_update_entry(
-        phone.entry, data={**phone.entry.data, "os_name": "Android"}
-    )
+    as_android(hass, phone)
     await push(
         hass,
         entry,

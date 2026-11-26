@@ -10,7 +10,7 @@ from custom_components.heads_up.const import DOMAIN
 from ..test_rules import USER, add_rule, rule_id, set_state
 from ..test_rules_flow import WINDOW, _submit
 from .conftest import AddDevice
-from .helpers import FakeDevice, set_person
+from .helpers import FakeDevice, as_android, set_person
 from .test_push_payload import push, sent
 
 PICTURE = "/local/icons/door.png"
@@ -48,9 +48,7 @@ async def test_the_subtitle_is_subtitle_on_ios_and_subject_on_android(
     await push(hass, entry, title="Door", subtitle="Front")
     assert sent(anna)["data"]["subtitle"] == "Front"
     assert "subject" not in sent(anna)["data"]
-    hass.config_entries.async_update_entry(
-        anna.entry, data={**anna.entry.data, "os_name": "Android"}
-    )
+    as_android(hass, anna)
     await push(hass, entry, id="m2", title="Door", subtitle="Front")
     assert sent(anna)["data"]["subject"] == "Front"
     assert "subtitle" not in sent(anna)["data"]
@@ -66,9 +64,7 @@ async def test_an_ios_icon_without_a_title_gets_a_sender_name(
 async def test_an_android_icon_without_a_title_keeps_no_title(
     hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
 ) -> None:
-    hass.config_entries.async_update_entry(
-        anna.entry, data={**anna.entry.data, "os_name": "Android"}
-    )
+    as_android(hass, anna)
     await push(hass, entry, icon="mdi:door")
     assert "title" not in sent(anna)
 

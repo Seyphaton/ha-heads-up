@@ -14,7 +14,7 @@ from custom_components.heads_up.progress import percent
 
 from ..test_rules import USER, add_rule, rule_id
 from .conftest import AddDevice
-from .helpers import FakeDevice, set_person, settle
+from .helpers import FakeDevice, as_android, set_person, settle
 from .policy_support import add_policy
 from .test_panel_editors import ask
 from .test_push_payload import push, sent
@@ -73,9 +73,7 @@ async def test_the_first_push_has_the_bar_and_a_title(
 async def test_android_updates_do_not_ring_again(
     hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
 ) -> None:
-    hass.config_entries.async_update_entry(
-        anna.entry, data={**anna.entry.data, "os_name": "Android"}
-    )
+    as_android(hass, anna)
     hass.states.async_set(SENSOR, "10")
     await push(hass, entry, progress=SPEC)
     assert sent(anna)["data"]["alert_once"] is True
@@ -104,9 +102,7 @@ async def test_ios_live_activity_takes_the_severity_color(
 async def test_android_live_update_keeps_color_only(
     hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
 ) -> None:
-    hass.config_entries.async_update_entry(
-        anna.entry, data={**anna.entry.data, "os_name": "Android"}
-    )
+    as_android(hass, anna)
     await push(hass, entry, color="#03a9f4", progress={"value": 40})
     data = sent(anna)["data"]
     assert data["color"] == "#03a9f4"

@@ -165,6 +165,7 @@
 - Left out on purpose: timeout (a timed `clear_notification` would give iOS the same behaviour; not chosen), persistent, lock screen visibility (Android `secret` hides the whole notification; not chosen), vibration, LED, Android Auto, spoken push, iOS badge, `alert_once`, `presentation_options`.
 - Automatic live mode (`live: auto`, tag, title, chip text and clearing set by Heads Up) was offered on top of the entity-bound progress and not chosen.
 - No percentage fallback for devices without Live Updates or Live Activities (live only).
+- Not checked on a device: an iPad or a Mac after D-295.
 - Not checked on a device: the icon and bar color of an iOS Live Activity, and whether an update with a new color changes a running one (D-294, N-124).
 - The push channel cannot tell which devices support live updates; unchecked on a real device.
 - iOS sender icon needs a title: what to send for a message without one is open.

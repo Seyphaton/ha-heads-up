@@ -664,6 +664,7 @@ Presence audiences read the person state (`None`, `unknown` and `unavailable` co
 
 ### 23.8 Channels (D-090, D-091, D-092)
 - Push: legacy `notify.mobile_app_*` services only (N-61); tag `hu-<install token>-<message id>`; clear with `clear_notification`; severity maps to passive, normal, time-sensitive (iOS critical is a policy opt-in); buttons are the message's own, then Dismiss and Snooze when allowed, and Acknowledge when an escalation or reminder policy applies; button ids `hu:<message>:<recipient>:<action>` (the action event is never relied on for the tag or other data, N-79); Snooze uses the first snooze option; swiping a push away changes nothing.
+- One call, every platform (D-295): no field or setting asks for the device's platform. The push channel decides per device, from the registration's manufacturer (`Apple` is iOS, anything else Android, `platform_of`, N-125).
 - Popup: global loader under 1 KB, lazy popup code; corner card up to warning, centered modal for critical; one at a time.
 - Speak: announce when the player's state shows the `MEDIA_ANNOUNCE` feature (N-75), else the current volume; no volume changes, no all-clear; text is `tts_message`, else the title or the message, shortened.
 - Persistent notification: `persistent_notification.create` and `dismiss` with an id derived from the message.

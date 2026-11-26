@@ -12,6 +12,7 @@ from __future__ import annotations
 import logging
 import re
 import time
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.core import Event, HomeAssistant, callback
@@ -84,6 +85,12 @@ def parse_button_id(value: str) -> tuple[str, str, str] | None:
 
 def tag_for(token: str, message_id: str) -> str:
     return f"hu-{token}-{message_id}"
+
+
+def platform_of(registration: Mapping[str, Any]) -> str:
+    """`ios` for every Apple device, else `android`. Core tells them apart by the manufacturer
+    too; `os_name` is free text (N-125)."""
+    return "ios" if registration.get("manufacturer") == "Apple" else "android"
 
 
 class PushChannel:
@@ -273,8 +280,7 @@ class PushChannel:
         registration = self._registration(target)
         if registration is None:
             return Outcome(Result.FAILED, "device_missing")
-        platform = str(registration.get("os_name", "")).lower()
-        platform = "ios" if platform == "ios" else "android"
+        platform = platform_of(registration)
         service = notify_service(str(registration.get("device_name", "")))
         payload, note = self.payload(message, target, platform)
         outcome = await self._call(target, service, payload)
@@ -285,7 +291,7 @@ class PushChannel:
     async def update(self, message: Banner, target: Target) -> Outcome:
         # iOS critical notifications cannot be replaced: clear first, then send (N-62).
         registration = self._registration(target)
-        ios = registration is not None and str(registration.get("os_name", "")).lower() == "ios"
+        ios = registration is not None and platform_of(registration) == "ios"
         if ios and self.level_for(message, target) == "critical":
             token = self._token()
             await self.clear(message.id, target, tag_for(token, message.id))
