@@ -1,0 +1,15 @@
+{
+  "primary_blue": "#0052CC",
+  "electric_blue": "#008BFF",
+  "cyan": "#00B4FF",
+  "deep_navy": "#0A1D3C",
+  "midnight": "#031124",
+  "ice": "#B9EFFF",
+  "white": "#FFFFFF",
+  "surface": "#E6F4FF",
+  "subtle": "#F5FAFF",
+  "success": "#22C55E",
+  "warning": "#F59E0B",
+  "alert": "#EF4444",
+  "info": "#885CF6"
+}
