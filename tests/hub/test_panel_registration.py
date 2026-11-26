@@ -35,7 +35,7 @@ async def test_switching_it_on_adds_an_admin_only_entry_without_a_restart(
     await switch(hass, entry, True)
     found = panel(hass)
     assert found is not None
-    assert found.sidebar_title == "Heads Up" and found.sidebar_icon == "mdi:bell-ring-outline"
+    assert found.sidebar_title == "Heads Up" and found.sidebar_icon == "heads_up:logo"
     assert found.require_admin is True and found.component_name == "custom"
 
 

@@ -1,5 +1,5 @@
-"""Serves the card, the inbox card, the popup loader and the popup module and registers them
-(N-8, N-9)."""
+"""Serves the card, the inbox card, the sidebar icon, the popup loader and the popup module and
+registers them (N-8, N-9)."""
 
 from __future__ import annotations
 
@@ -15,6 +15,8 @@ from homeassistant.util.hass_dict import HassKey
 from .const import DOMAIN
 from .hub.panel import async_register_panel_paths
 
+ICONS_URL_PATH = "/heads_up/heads-up-icons.js"
+ICONS_FILE = Path(__file__).parent / "frontend" / "heads-up-icons.js"
 CARD_URL_PATH = "/heads_up/heads-up-card.js"
 CARD_FILE = Path(__file__).parent / "frontend" / "heads-up-card.js"
 LOADER_URL_PATH = "/heads_up/heads-up-loader.js"
@@ -23,6 +25,7 @@ INBOX_CARD_URL_PATH = "/heads_up/heads-up-inbox-card.js"
 INBOX_CARD_FILE = Path(__file__).parent / "frontend" / "heads-up-inbox-card.js"
 POPUP_URL_PATH = "/heads_up/heads-up-popup.js"
 POPUP_FILE = Path(__file__).parent / "frontend" / "heads-up-popup.js"
+_ADDED_ICONS: HassKey[str] = HassKey("heads_up_icons_url")
 _ADDED_URL: HassKey[str] = HassKey("heads_up_card_url")
 _ADDED_LOADER: HassKey[str] = HassKey("heads_up_loader_url")
 _ADDED_INBOX: HassKey[str] = HassKey("heads_up_inbox_card_url")
@@ -36,6 +39,7 @@ async def async_register_card_path(hass: HomeAssistant) -> None:
     """
     await hass.http.async_register_static_paths(
         [
+            StaticPathConfig(ICONS_URL_PATH, str(ICONS_FILE), cache_headers=True),
             StaticPathConfig(CARD_URL_PATH, str(CARD_FILE), cache_headers=True),
             StaticPathConfig(LOADER_URL_PATH, str(LOADER_FILE), cache_headers=True),
             StaticPathConfig(INBOX_CARD_URL_PATH, str(INBOX_CARD_FILE), cache_headers=True),
@@ -70,6 +74,10 @@ async def async_popup_url(hass: HomeAssistant) -> str:
 
 
 async def async_add_card(hass: HomeAssistant) -> None:
+    # First: an `ha-icon` drawn before its icon set exists stays empty until a reload (N-123).
+    icons = await _versioned_url(hass, ICONS_URL_PATH, ICONS_FILE)
+    hass.data[_ADDED_ICONS] = icons
+    add_extra_js_url(hass, icons)
     url = await async_card_url(hass)
     hass.data[_ADDED_URL] = url
     add_extra_js_url(hass, url)
@@ -85,6 +93,8 @@ async def async_add_card(hass: HomeAssistant) -> None:
 
 async def async_remove_card(hass: HomeAssistant) -> None:
     # Remove the URL that was added, not a recomputed one: the file may have changed since.
+    if (icons := hass.data.pop(_ADDED_ICONS, None)) is not None:
+        remove_extra_js_url(hass, icons)
     if (url := hass.data.pop(_ADDED_URL, None)) is not None:
         remove_extra_js_url(hass, url)
     if (loader := hass.data.pop(_ADDED_LOADER, None)) is not None:

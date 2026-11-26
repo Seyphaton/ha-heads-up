@@ -2,6 +2,13 @@
 
 All notable changes are listed here. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versions: [SemVer](https://semver.org/). Only releases are listed; the 1.0.0 pre-releases are summarized under 1.0.0, and the 2.1.0 and 3.0.0 pre-releases under 3.0.0.
 
+## [Unreleased]
+
+### Changed
+
+- Heads Up has a new icon, a house with a bell, in a light and a dark version. Your browser can keep showing the old icon for up to 7 days.
+- The Heads Up entry in the sidebar shows the same house and bell. Restart Home Assistant after the update, then reload the page.
+
 ## [3.0.1] - 2026-11-25
 
 ### Before you upgrade

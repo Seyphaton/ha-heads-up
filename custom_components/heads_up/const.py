@@ -234,7 +234,7 @@ PUSH_LEVELS_1_0: Final = {
 OPT_SHOW_PANEL: Final = "show_panel"
 PANEL_URL_PATH: Final = "heads-up"
 PANEL_TITLE: Final = "Heads Up"
-PANEL_ICON: Final = "mdi:bell-ring-outline"
+PANEL_ICON: Final = "heads_up:logo"  # drawn by frontend/heads-up-icons.js
 # Popup settings (D-090, D-115): how a popup looks per severity. Edited in the panel (H9c).
 OPT_POPUP_STYLES: Final = "popup_styles"
 # `card` is the corner card at the bottom right; the other corners and the centred window are the

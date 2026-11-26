@@ -1,6 +1,7 @@
 """Serving the card module (N-8, N-9, D-021)."""
 
 import hashlib
+import runpy
 from pathlib import Path
 
 import pytest
@@ -11,7 +12,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.typing import ClientSessionGenerator
 
 from custom_components.heads_up import frontend
-from custom_components.heads_up.const import DOMAIN
+from custom_components.heads_up.const import DOMAIN, PANEL_ICON
 from custom_components.heads_up.frontend import CARD_FILE
 
 
@@ -127,3 +128,26 @@ async def test_the_inbox_card_module_is_registered_served_and_removed(
     assert 'registry.define("heads-up-inbox-card"' in await response.text()
     assert await hass.config_entries.async_unload(entry.entry_id)
     assert url not in hass.data[DATA_EXTRA_MODULE_URL].urls
+
+
+async def test_the_sidebar_icon_module_is_registered_served_and_removed(
+    hass: HomeAssistant, entry: MockConfigEntry, hass_client: ClientSessionGenerator
+) -> None:
+    integration = await async_get_integration(hass, DOMAIN)
+    digest = hashlib.sha256(frontend.ICONS_FILE.read_bytes()).hexdigest()[:8]
+    url = f"/heads_up/heads-up-icons.js?v={integration.version}-{digest}"
+    assert url in hass.data[DATA_EXTRA_MODULE_URL].urls
+    response = await (await hass_client()).get("/heads_up/heads-up-icons.js")
+    assert response.status == 200
+    # The icon set the panel's sidebar entry names (N-123).
+    prefix, name = PANEL_ICON.split(":")
+    body = await response.text()
+    assert f"window.customIcons.{prefix} = {{" in body and f'name: "{name}"' in body
+    assert await hass.config_entries.async_unload(entry.entry_id)
+    assert url not in hass.data[DATA_EXTRA_MODULE_URL].urls
+
+
+def test_the_sidebar_icon_module_matches_the_brand_source() -> None:
+    script = Path(__file__).parents[1] / "scripts" / "make_sidebar_icon.py"
+    built = runpy.run_path(str(script))["build"]()
+    assert frontend.ICONS_FILE.read_text(encoding="utf-8") == built
