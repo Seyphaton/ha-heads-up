@@ -1043,6 +1043,7 @@ Status: built 2026-11-23 on `release/2.1`, including editable built-in audiences
 
 ### 28.2 Progress and live updates
 - `progress: {entity_id, min, max}`; the value is scaled to 0..max. Heads Up sets `live_update`, the tag and the title, updates when the entity changes and clears the push when the message ends. Devices without Live Updates or Live Activities show the plain message.
+- iOS color (D-294): a Live Activity does not read `color` (N-124), so a progress push to iOS carries `notification_icon_color` and `progress_bar_color` and no `color`.
 
 ### 28.3 Not in 2.1.0
 - Timeout, persistent, lock screen visibility, vibration, LED, Android Auto, spoken push, badge, `alert_once`, presentation options (D-255).

@@ -1894,3 +1894,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Sidebar (maintainer, "Use new symbol"): the panel's sidebar entry shows `heads_up:logo` in place of `mdi:bell-ring-outline`. `frontend/heads-up-icons.js` registers the icon set on every page, as its own module because the popup loader has a 1 KB limit; it is added before the other modules. `scripts/make_sidebar_icon.py` generates it from the package's `monochrome_black.svg` (strokes turned into one filled path on a 24x24 grid); a test fails when file and source differ. Needs a restart (new static path).
 - Not replaced: the entity icons and the push notification symbol of a message between people stay `mdi:` icons; they never showed the old image.
 - README summary picture (maintainer): `docs/images/summary-where-who-policy.webp` is replaced by the supplied picture (1670x941, saved from the pasted copy), whose header tile shows the new icon. The README text and alt text are unchanged.
+
+## D-294 iOS Live Activity colors (2026-11-26, maintainer)
+- Context: the maintainer saw that the color does not work on the iOS Live Activity. The Companion page lists `color` for Android only; an iOS Live Activity takes `notification_icon_color` and `progress_bar_color` (N-124).
+- Decision (maintainer, supplied fix): a push with a progress bar to iOS carries both keys with the message's color, or the severity's when `push_severity_look` gives one. No new field.
+- Build choice (reported to the maintainer, who then ordered commit and push): such a push no longer carries `color`. iOS reads `color` as the background behind the icon of a plain notification, so the same value as glyph and background would hide the icon, for example on a device without Live Activities. Android and pushes without progress are unchanged.
+- Parity (rule 9): one push channel, tested for an action and a watch rule.
+

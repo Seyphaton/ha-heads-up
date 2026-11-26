@@ -97,7 +97,7 @@ data:
     value: 45
 ```
 
-`auto_update: false` next to an `entity_id` does the same with the entity's value at the time of the call. The iOS Live Activity shows the title, message, bar and icon. It has no image and no buttons, so put those on a message without `progress`.
+`auto_update: false` next to an `entity_id` does the same with the entity's value at the time of the call. The iOS Live Activity shows the title, message, bar and icon. It has no image and no buttons, so put those on a message without `progress`. A `color` (`#rrggbb`) colors its icon and bar on the Lock Screen.
 
 ### A spoken message
 

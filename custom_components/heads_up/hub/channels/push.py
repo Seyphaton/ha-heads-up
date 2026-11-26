@@ -181,6 +181,13 @@ class PushChannel:
             data["live_update"] = True
             data["progress"] = message.progress_value
             data["progress_max"] = 100
+            if ios and color:
+                # A Live Activity does not read `color`; its icon and bar take these keys (N-124).
+                data["notification_icon_color"] = color
+                data["progress_bar_color"] = color
+                # A plain notification reads `color` as the background behind the icon, which
+                # would hide a glyph of the same color.
+                del data["color"]
             if not ios:
                 data["alert_once"] = True  # an update must not ring again
             title = title or "Heads Up"

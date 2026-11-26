@@ -15,6 +15,7 @@ from custom_components.heads_up.progress import percent
 from ..test_rules import USER, add_rule, rule_id
 from .conftest import AddDevice
 from .helpers import FakeDevice, set_person, settle
+from .policy_support import add_policy
 from .test_panel_editors import ask
 from .test_push_payload import push, sent
 
@@ -78,6 +79,73 @@ async def test_android_updates_do_not_ring_again(
     hass.states.async_set(SENSOR, "10")
     await push(hass, entry, progress=SPEC)
     assert sent(anna)["data"]["alert_once"] is True
+
+
+async def test_ios_live_activity_gets_its_color_keys(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    # A Live Activity does not read `color`. A plain notification reads it as the background
+    # behind the icon, so it must not carry the same value as the glyph (N-124).
+    await push(hass, entry, color="#03a9f4", progress={"value": 40})
+    data = sent(anna)["data"]
+    assert data["notification_icon_color"] == data["progress_bar_color"] == "#03a9f4"
+    assert "color" not in data
+
+
+async def test_ios_live_activity_takes_the_severity_color(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    entry.runtime_data.options["push_severity_look"] = True
+    entry.runtime_data.options["severity_display"] = {"warning": {"color": "#ff9800"}}
+    await push(hass, entry, severity="warning", progress={"value": 40})
+    assert sent(anna)["data"]["notification_icon_color"] == "#ff9800"
+
+
+async def test_android_live_update_keeps_color_only(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    hass.config_entries.async_update_entry(
+        anna.entry, data={**anna.entry.data, "os_name": "Android"}
+    )
+    await push(hass, entry, color="#03a9f4", progress={"value": 40})
+    data = sent(anna)["data"]
+    assert data["color"] == "#03a9f4"
+    assert not {"notification_icon_color", "progress_bar_color"} & set(data)
+
+
+@pytest.mark.parametrize(
+    "fields", [{"color": "#03a9f4"}, {"progress": {"value": 40}}], ids=["no bar", "no color"]
+)
+async def test_ios_gets_no_live_color_keys_without_both(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice, fields: dict[str, Any]
+) -> None:
+    await push(hass, entry, **fields)
+    data = sent(anna)["data"]
+    assert not {"notification_icon_color", "progress_bar_color"} & set(data)
+    assert data.get("color") == fields.get("color")
+
+
+async def test_a_watch_rule_colors_the_ios_live_activity(
+    hass: HomeAssistant, entry: MockConfigEntry, anna: FakeDevice
+) -> None:
+    from ..test_rules import set_state
+
+    await add_policy(
+        hass,
+        entry,
+        "To the phone",
+        type="deliver",
+        channels=["push"],
+        targets={"push": {"recipients": ["person.anna"]}},
+    )
+    hass.states.async_set(SENSOR, "30")
+    await set_state(hass, "off")
+    add_rule(hass, entry, progress=SPEC, color="#03a9f4")
+    await hass.async_block_till_done()
+    await set_state(hass, "on")
+    await settle(hass, entry)
+    data = sent(anna)["data"]
+    assert data["notification_icon_color"] == data["progress_bar_color"] == "#03a9f4"
 
 
 async def test_a_message_without_progress_has_no_live_keys(

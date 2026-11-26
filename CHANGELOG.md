@@ -9,6 +9,10 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 - Heads Up has a new icon, a house with a bell, in a light and a dark version. Your browser can keep showing the old icon for up to 7 days.
 - The Heads Up entry in the sidebar shows the same house and bell. Restart Home Assistant after the update, then reload the page.
 
+### Fixed
+
+- A message with a progress bar now shows its `color` on the iOS Live Activity: the icon and the bar on the Lock Screen take it. Restart Home Assistant after the update.
+
 ## [3.0.1] - 2026-11-25
 
 ### Before you upgrade
