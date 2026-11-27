@@ -1930,4 +1930,6 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decision (maintainer, "prepare 3.0.2-beta.1 not a real release"): the next version is a patch version, first as a pre-release. No action, field, setting or card option is added or changed (DESIGN §13: additions are minor versions). 3.1.0 stays proposed for the push icon setting (D-293, not approved).
 - Done: manifest `3.0.2-beta.1`; the CHANGELOG keeps `[Unreleased]`, now with "Before you upgrade" naming the effect of D-295.
 - Then (maintainer, "Commit and push the tag"): committed and pushed to `main`; the tag `v3.0.2-beta.1` follows once CI is green on that commit.
+- Then `v3.0.2-beta.2` was created on GitHub on the commit of beta.1. Its manifest still says `3.0.2-beta.1`, so the `Release asset` build failed and the pre-release has no `heads_up.zip`. The upload step of the beta.1 release had failed too.
+- Then (maintainer, "Create a new beta tag for beta.3 and update manifest accordingly"): manifest `3.0.2-beta.3`, no other change to the integration. The old tags stay.
 - Not done: the GitHub pre-release (maintainer's step). 3.0.2 itself is not prepared.
