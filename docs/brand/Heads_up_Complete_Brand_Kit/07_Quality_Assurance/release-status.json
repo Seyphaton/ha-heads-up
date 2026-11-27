@@ -1,0 +1,9 @@
+{
+  "delivery_status": "ASSEMBLED_RELEASE_CANDIDATE",
+  "automated_asset_validation": "PASS",
+  "final_design_review": "PENDING",
+  "final_product_review": "PENDING",
+  "production_certified": false,
+  "reason_for_handoff": "User requested ZIP download of the current build.",
+  "svg_fidelity": "Luminous SVGs are disclosed reconstructions, not pixel-identical to approved raster masters."
+}

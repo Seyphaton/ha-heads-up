@@ -1,0 +1,15 @@
+:root {
+  --heads-up-primary-blue: #0052CC;
+  --heads-up-electric-blue: #008BFF;
+  --heads-up-cyan: #00B4FF;
+  --heads-up-deep-navy: #0A1D3C;
+  --heads-up-midnight: #031124;
+  --heads-up-ice: #B9EFFF;
+  --heads-up-white: #FFFFFF;
+  --heads-up-surface: #E6F4FF;
+  --heads-up-subtle: #F5FAFF;
+  --heads-up-success: #22C55E;
+  --heads-up-warning: #F59E0B;
+  --heads-up-alert: #EF4444;
+  --heads-up-info: #885CF6;
+}

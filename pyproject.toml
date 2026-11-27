@@ -32,6 +32,9 @@ markers = [
 [tool.ruff]
 target-version = "py314"
 line-length = 100
+# The brand kit is kept byte-identical; its scripts are reference files, also for pre-commit.
+extend-exclude = ["docs/brand"]
+force-exclude = true
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "ASYNC", "RUF", "SIM", "PTH"]

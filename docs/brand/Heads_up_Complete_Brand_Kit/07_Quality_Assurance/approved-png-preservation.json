@@ -1,0 +1,977 @@
+{
+  "files": [
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-16.png",
+      "destination": "02_Icons/Main/main_16.png",
+      "sha256": "cee2f12987620c23d67f032d8151f06535f15b94e884d5cd40cc1752ad8b46a6",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-20.png",
+      "destination": "02_Icons/Main/main_20.png",
+      "sha256": "4c5892cbbd381d7636034c679ca56aa2185bc9e2ba0fd1cb745aa4927fe85711",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-24.png",
+      "destination": "02_Icons/Main/main_24.png",
+      "sha256": "c38e15ac765142b4a6d553ef7e7482cd5e0276b8d8288cba7c8f86050afb484c",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-32.png",
+      "destination": "02_Icons/Main/main_32.png",
+      "sha256": "24a6fdd24757f4092803f123e9b1e1d1665fe71a0c9f736aeab89f32e80eee77",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-40.png",
+      "destination": "02_Icons/Main/main_40.png",
+      "sha256": "41945d52cbe8b3f5682449e59ad5e9288ff408cdaefbfa3d244dc06b2c465ae5",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-48.png",
+      "destination": "02_Icons/Main/main_48.png",
+      "sha256": "6d1f428ff7dc578719c42bcb1a285fadb742f6d13911dd3dc6b67d91f1901794",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-57.png",
+      "destination": "02_Icons/Main/main_57.png",
+      "sha256": "7eec6ac7b6aa5ab8a77db8ad055703a0f559546bbdf6b433ae98cf7d8b78ce52",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-60.png",
+      "destination": "02_Icons/Main/main_60.png",
+      "sha256": "8d338bfa93237b2f7ff06df001b85920baa377ed4ac1cdf6336d79fd0d93bfc0",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-64.png",
+      "destination": "02_Icons/Main/main_64.png",
+      "sha256": "ccf8009415666226562a9b20efbc0c589056da5664787029487df96bb4e912c2",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-72.png",
+      "destination": "02_Icons/Main/main_72.png",
+      "sha256": "213e0eb4e66048eafa14b916a1af74af9ee400cb45e0563bf5aceda42ee1a181",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-76.png",
+      "destination": "02_Icons/Main/main_76.png",
+      "sha256": "59a6b6f7cd8206d5d804e54597cc92b6d24db3e6fb32f3d7c7085f3d5d68bc12",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-80.png",
+      "destination": "02_Icons/Main/main_80.png",
+      "sha256": "2977a50ddee49c9ca3f7794ba5fd41fd8f3f3d625d66bb27f05bcd622b8b545b",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-87.png",
+      "destination": "02_Icons/Main/main_87.png",
+      "sha256": "6821bcb21d629cc1379c3415ae22f182131de730a72edecc47e35a2e563e5341",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-96.png",
+      "destination": "02_Icons/Main/main_96.png",
+      "sha256": "158cfd6dc5d82e4d47a7af33f2a11474c4f9514407501181766960610494cefa",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-114.png",
+      "destination": "02_Icons/Main/main_114.png",
+      "sha256": "690e46276c8c9239d239edf77b92004f244f51a2ccc7d4798b20934b7d1ecc9c",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-120.png",
+      "destination": "02_Icons/Main/main_120.png",
+      "sha256": "cd25666d52b7d3bb44a6bf42a1bd0be06b12901d170e86254aa17e9f8005c029",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-128.png",
+      "destination": "02_Icons/Main/main_128.png",
+      "sha256": "b7a21c7e29858d25edab7cc3694ae82c1a7d5e6960c6c4df0543dd35ed8c08ba",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-144.png",
+      "destination": "02_Icons/Main/main_144.png",
+      "sha256": "a9d86178da7f1ef03e38e185842b829728e070b4c945b80195918bb1fe0a6529",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-152.png",
+      "destination": "02_Icons/Main/main_152.png",
+      "sha256": "22f253cfb693b58725c7c1126396b7f8a9cec7f363a3462c6038a0baca114978",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-167.png",
+      "destination": "02_Icons/Main/main_167.png",
+      "sha256": "d74d6f2caf6a02961492548d9ff247985fdff5adec61ec1a318ac9c0f31669ce",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-180.png",
+      "destination": "02_Icons/Main/main_180.png",
+      "sha256": "db5fe92c29b3d52667e9ae97cf4c8350842062063b90c469d3fb810182b60ec1",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-192.png",
+      "destination": "02_Icons/Main/main_192.png",
+      "sha256": "e2247ba978a67b823185ed0184f333d24425e3dd245e1e3137507b7bf80c61a4",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-256.png",
+      "destination": "02_Icons/Main/main_256.png",
+      "sha256": "8e087dbb1dae03bc18d4966db61b25a03a2d2c3c3ae184ae8fae5d2a81ed0e15",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-384.png",
+      "destination": "02_Icons/Main/main_384.png",
+      "sha256": "b1cdddfdf5a272722bd44eb8cb575d3ef27ef99325091138949bb9d700b3ba21",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-512.png",
+      "destination": "02_Icons/Main/main_512.png",
+      "sha256": "e7cc104e445ba28c6da80036b433836e56fc3883e6ffd050e6628be133cf42ed",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-1024.png",
+      "destination": "02_Icons/Main/main_1024.png",
+      "sha256": "d0a5d4d5db2dcf5742eb08a0c5f42b9222e3936b5622bc54db2f69aa0a9e9b0e",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Main/heads-up-main-2048.png",
+      "destination": "02_Icons/Main/main_2048.png",
+      "sha256": "4a52c9174d1dadf7b85e8f8d326662f3b1b6a7eac2561680cac6096a579a3ae5",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-16.png",
+      "destination": "02_Icons/Main/Circle/main_circle_16.png",
+      "sha256": "c5cb56e42949a4db1f806067c174ab82a31bf0314cb5c0e07c4b5dea75c9f5b3",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-20.png",
+      "destination": "02_Icons/Main/Circle/main_circle_20.png",
+      "sha256": "fe19008bcbe6940105d8de8a78c139ade8b0e4d22800c437850d6ecb58c69fc4",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-24.png",
+      "destination": "02_Icons/Main/Circle/main_circle_24.png",
+      "sha256": "de86cb5ca5ed945b0d26ad65fb23ed6be9181fd6793668dc196beb72c8a5eb04",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-32.png",
+      "destination": "02_Icons/Main/Circle/main_circle_32.png",
+      "sha256": "da16446b9e81db4b6075376a8ce7ec5f6cb6fa95520231f22cd7c9ebd940f582",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-40.png",
+      "destination": "02_Icons/Main/Circle/main_circle_40.png",
+      "sha256": "6900d658304de00025201c619d80164b2fd043d3bef97f9063a9924106fe413c",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-48.png",
+      "destination": "02_Icons/Main/Circle/main_circle_48.png",
+      "sha256": "bba9f76da2caf572bc026cedf8bc064c57c1b31607cffb5318b608bee22e2046",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-57.png",
+      "destination": "02_Icons/Main/Circle/main_circle_57.png",
+      "sha256": "94d18482489c9933d46746610d36179a383c12b803f57b19a88776c147e45810",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-60.png",
+      "destination": "02_Icons/Main/Circle/main_circle_60.png",
+      "sha256": "320371e2637610ede4e0a1814f6113701988c46ec7e929c294400d8d782c193d",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-64.png",
+      "destination": "02_Icons/Main/Circle/main_circle_64.png",
+      "sha256": "315af8b29831239875a2f886cbd908a1f03aec93c2b21335f136a12877191494",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-72.png",
+      "destination": "02_Icons/Main/Circle/main_circle_72.png",
+      "sha256": "1d015958aa690da023d2412a4772da824be5eb95020b6783751668e2286b8a79",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-76.png",
+      "destination": "02_Icons/Main/Circle/main_circle_76.png",
+      "sha256": "02d7d9d28dd3b06682b023859e5074a9964a3841e8bd8a4c27628e86d81fae33",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-80.png",
+      "destination": "02_Icons/Main/Circle/main_circle_80.png",
+      "sha256": "3e7d6868e85a371970780e65ea1fd59c9966ece106d2901d8d752e3b2a603ef2",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-87.png",
+      "destination": "02_Icons/Main/Circle/main_circle_87.png",
+      "sha256": "358b04d83b985329eaa15ce4dfa3a773b4048e9e3edbbe679a1eb37043239810",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-96.png",
+      "destination": "02_Icons/Main/Circle/main_circle_96.png",
+      "sha256": "d7f62d2a26b0dbe5ec549e496f71bd9d3bcc73187e9638e5d5d51261c26508b6",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-114.png",
+      "destination": "02_Icons/Main/Circle/main_circle_114.png",
+      "sha256": "5a2d189686b73ec0c60d8b61788e8bb67df04914a947651bba12288288d61608",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-120.png",
+      "destination": "02_Icons/Main/Circle/main_circle_120.png",
+      "sha256": "edc188978f2cfd5eed4f2318378e6eb428c63cc002c42e81af9a1e4e7d3fd710",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-128.png",
+      "destination": "02_Icons/Main/Circle/main_circle_128.png",
+      "sha256": "35196ca8dc35e6659d1070a128a32936017d9ef312aeee3d48c0abe4bbc4a077",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-144.png",
+      "destination": "02_Icons/Main/Circle/main_circle_144.png",
+      "sha256": "e5ac6f52052b53074a510f1df3b0b494b9d70ced473a357baa32f5b771e322b7",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-152.png",
+      "destination": "02_Icons/Main/Circle/main_circle_152.png",
+      "sha256": "cb9199895ef1a083d714f146efc5a81f8c88fb144594f8bd1cd77ac243395ee9",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-167.png",
+      "destination": "02_Icons/Main/Circle/main_circle_167.png",
+      "sha256": "6a015e684e18f91a2573665bf728dcd125a3f80f657c4ca2015923aa4e4dd651",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-180.png",
+      "destination": "02_Icons/Main/Circle/main_circle_180.png",
+      "sha256": "5c093e949a510e90f5f4a85782bf9c606e50f3c122a10da26f97969694c11c44",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-192.png",
+      "destination": "02_Icons/Main/Circle/main_circle_192.png",
+      "sha256": "3f8f05d372b825fc6c89c18cd2b8940ae95d2855695fa74c47c51f67bd516e86",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-256.png",
+      "destination": "02_Icons/Main/Circle/main_circle_256.png",
+      "sha256": "b3d608379f3b9ed78d68722a3b0055fbcc5f91c1afe5ba0826c89d26fa6e4169",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-384.png",
+      "destination": "02_Icons/Main/Circle/main_circle_384.png",
+      "sha256": "3ed58e228427bd29b2a9921c8f50eb631f47a779b070f3fc8caa922384602359",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-512.png",
+      "destination": "02_Icons/Main/Circle/main_circle_512.png",
+      "sha256": "e8763fafcfe3619a74f1472a6a606fccd16721f79d25feb6c58f17c6aa4387de",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-1024.png",
+      "destination": "02_Icons/Main/Circle/main_circle_1024.png",
+      "sha256": "be58a89a02bd22776878a9c740130dcfa4fb0084f87a978d83bdeac8332fd968",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Main/heads-up-main-circle-2048.png",
+      "destination": "02_Icons/Main/Circle/main_circle_2048.png",
+      "sha256": "dafdb7979535e2db0c6b73533632aad457ab2b883d96d7e335a2e38f10b85cf0",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-16.png",
+      "destination": "02_Icons/Warning/warning_16.png",
+      "sha256": "3c2773d5b2ebcbbd18898438cea5d0b544e570a88f6de2b3275a35fde7283147",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-20.png",
+      "destination": "02_Icons/Warning/warning_20.png",
+      "sha256": "df682c1afef44079d7e1fef1261c3ca644a843b288b094a16983d06db01ae421",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-24.png",
+      "destination": "02_Icons/Warning/warning_24.png",
+      "sha256": "c408a98fdb00dd8d8913ca6140b18feda80179fe30983b8ebba5d670cfc5910c",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-32.png",
+      "destination": "02_Icons/Warning/warning_32.png",
+      "sha256": "f7eb192ca25e902a106c404f011a6650cb5e81af55b9949739c1976d78380141",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-40.png",
+      "destination": "02_Icons/Warning/warning_40.png",
+      "sha256": "d375e0d8e6c9b0520aec5f4caf0add23f40be2c3a9ab8be6ef4dedfe5aa446c5",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-48.png",
+      "destination": "02_Icons/Warning/warning_48.png",
+      "sha256": "c4d4299ccc03024b5e5922ae228eae7e41ae24665edcf27aecb3e7a72ff5381f",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-57.png",
+      "destination": "02_Icons/Warning/warning_57.png",
+      "sha256": "3359f345e29bf0370e222542f4e1f61e91e41cd702b9fbcfb20e6d4620b22d43",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-60.png",
+      "destination": "02_Icons/Warning/warning_60.png",
+      "sha256": "7712af586ac72b27f7099d2afe6c3e7948803664976a11371538ec32f0ef4f80",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-64.png",
+      "destination": "02_Icons/Warning/warning_64.png",
+      "sha256": "b195ad390d10c26fedcb9b24c8c102f9b4f621a147b89974f06253b7d9a72d33",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-72.png",
+      "destination": "02_Icons/Warning/warning_72.png",
+      "sha256": "800c9c1657a9136f9d1e9828493ce4ddd8db0bc2230c0a0d87ed519e691531b7",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-76.png",
+      "destination": "02_Icons/Warning/warning_76.png",
+      "sha256": "1972dbcc655f6a8f036add05bc68b9f60b681e5aae458268faa4f566cef1905e",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-80.png",
+      "destination": "02_Icons/Warning/warning_80.png",
+      "sha256": "4f87c0475248b59407bf634ea5cbce314e2eb03019235838b2a4fb0da6dacefa",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-87.png",
+      "destination": "02_Icons/Warning/warning_87.png",
+      "sha256": "0e06d5111fb6604ff5b624e75983bbdf42d5eb25b09f928fa449ad2a0897ce81",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-96.png",
+      "destination": "02_Icons/Warning/warning_96.png",
+      "sha256": "afa35b0d7797bf1496b4fa3eb435f18bfd407aeeada798d2a415931403bba8e5",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-114.png",
+      "destination": "02_Icons/Warning/warning_114.png",
+      "sha256": "e896e8619513e6ba927b762c7d7e5c87df0fbb3a90c8304a403ea78830284600",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-120.png",
+      "destination": "02_Icons/Warning/warning_120.png",
+      "sha256": "79de86ca39386bf705e1d819962d244825b7d481008d88bbb4c6dc4c0a9f5265",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-128.png",
+      "destination": "02_Icons/Warning/warning_128.png",
+      "sha256": "828ac064b3f2355a5b301c03fb0bb7cb69073f1969f545ce1ebffa32beecd4e2",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-144.png",
+      "destination": "02_Icons/Warning/warning_144.png",
+      "sha256": "39e4dfcfb14189422c4f8379d46cc6935bebae50f931f0f027d6552e896423c0",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-152.png",
+      "destination": "02_Icons/Warning/warning_152.png",
+      "sha256": "64853d15d3ea793ca89bd6da5cce2c89cbf1c4f843507e4c4d5763d32f663ede",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-167.png",
+      "destination": "02_Icons/Warning/warning_167.png",
+      "sha256": "9a099c7a2ddd6ba6f35a286c0bb88ad4e9b0b4f532df56a1e9030362c37866de",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-180.png",
+      "destination": "02_Icons/Warning/warning_180.png",
+      "sha256": "e31c74f50a110c3650da1eb393233c9b014769a921a12c700df843d6864202a7",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-192.png",
+      "destination": "02_Icons/Warning/warning_192.png",
+      "sha256": "3be848bbf6f0fea93f0c161fe1a0c137ecafb0f95903a6fd2f4170653d381a9e",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-256.png",
+      "destination": "02_Icons/Warning/warning_256.png",
+      "sha256": "48df8c448ce225830ca144fe7efa2ed03d4656057ae642c3dec9245d864480fc",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-384.png",
+      "destination": "02_Icons/Warning/warning_384.png",
+      "sha256": "2a22a7fc086808dfc916851c67a0970b9381ddb7b2d23f1b1efeb50a2c24b386",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-512.png",
+      "destination": "02_Icons/Warning/warning_512.png",
+      "sha256": "c5b62f584818efad2eda56b3f9d5c3ea632b9958bb2ae288701d91dc634ced3e",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-1024.png",
+      "destination": "02_Icons/Warning/warning_1024.png",
+      "sha256": "81471c6e53fd7ec8683953a38050ca9da1410978008cb0c2f48faf87e7c40dc8",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Warning/heads-up-warning-2048.png",
+      "destination": "02_Icons/Warning/warning_2048.png",
+      "sha256": "de0687490d3b34f15b01333bb3bb337b3b5bc881197ef657fd12944f66e14484",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-16.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_16.png",
+      "sha256": "db647d7b3afe97c3038594319a8aa54ca1ba89c83196d3e9683bb6866360e7f0",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-20.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_20.png",
+      "sha256": "27a39b6d88d2fda4675ef5f1aa54965bfd54ac10b80be171432a9318d7285964",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-24.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_24.png",
+      "sha256": "059bd7e8cb839f21dba2f6f57bc6712951dbf8b0f9a407f7d91a45e6c52a4e7b",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-32.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_32.png",
+      "sha256": "925d08d3ab02de9f90911b38cfb695aeb87c481dc1645903354e6ae9fb8d68ec",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-40.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_40.png",
+      "sha256": "cb54f1f588cb5eb2a55d7691ec4de90c2539fceafc9d10470408d0da76735c6c",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-48.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_48.png",
+      "sha256": "acfeea91a3fc721bede5f097dbb7c43c7355de6a43c68f8a50343b8dcbce6d76",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-57.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_57.png",
+      "sha256": "e1c926f29078169986b75eb6d61a8ac5610d23bb8bfb6018384c8af3f9b138b0",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-60.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_60.png",
+      "sha256": "332855df6b81e834f7a8b600a47baaa2cea6af9cdd26aa600ec05e3cd94af8ec",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-64.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_64.png",
+      "sha256": "35e91a54e67a6ee83aa0dc7e53f84dd3922e318ffb11789eceeba7408b1bd5fc",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-72.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_72.png",
+      "sha256": "3a5a562f6fd5fcf1adc269c716a894a7de54939ec19860fe5c770184c0bbf717",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-76.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_76.png",
+      "sha256": "15436b729fc422a974d9c5f4d837d892fdbf3ea07cc0181c3f9c8297c9db5d41",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-80.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_80.png",
+      "sha256": "e7f88507a529cd07b1c527556d01eecd4cbb04b760b23724d0b768148b89d21f",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-87.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_87.png",
+      "sha256": "9af8c2d92464025643345221e63aab4b4b4e9e2a9112086b04a84031bd798994",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-96.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_96.png",
+      "sha256": "444d71ca667e23054fede6cbd6260dc4882ea58789e71c4e79aad573446cc9ed",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-114.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_114.png",
+      "sha256": "b47e943de7b5d9f432f97c0c609de3f00af496b0acb7bcb88c2aca8ca6a6dedf",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-120.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_120.png",
+      "sha256": "93660ef71d4326648aceaa44f7338c46dd91e0db130cc1db016e2af7add389a2",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-128.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_128.png",
+      "sha256": "56d90bd971eb4c452d290deeee49db9434934267428bbac0d1aee1c8bfbc54a3",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-144.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_144.png",
+      "sha256": "027b2a0f785b097decd1c8a973d46b36fcf7db14df0cca0d43534d4e6c8bf2e1",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-152.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_152.png",
+      "sha256": "f6d86144abd8354df06fe58adcb42561b7ffacf1389387e55c153534d2249624",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-167.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_167.png",
+      "sha256": "737265b933acacc85077a267fc1704064b23bd3aebd97294c08d801ba564aaad",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-180.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_180.png",
+      "sha256": "bbdb7bc1a91f46b234f2a15007957bd013d3af99dcbc4bee55ba99714de69b24",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-192.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_192.png",
+      "sha256": "4cf33630ec4037ec26067c4f36a9633585daf21ad8a847e100dcbc3a1ae472ff",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-256.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_256.png",
+      "sha256": "88ed7a981eeb2e5f244b8a70302b684ee6cedf78e3f0f0624319156f565b863e",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-384.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_384.png",
+      "sha256": "9f6f00cf7a7574f34f054f36fffffa1fbf92d7507846831d839a630d739777d3",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-512.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_512.png",
+      "sha256": "5e890e3a693e2dbbe9db4a27fb6fcfd85e86136476208f8c65d0df2f589e9086",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-1024.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_1024.png",
+      "sha256": "e7ce746383d08168957ec3fb3806faecc651f9ead5ae48af99adc92008721254",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Warning/heads-up-warning-circle-2048.png",
+      "destination": "02_Icons/Warning/Circle/warning_circle_2048.png",
+      "sha256": "1a49129f64b2d6bd93007700ffac31d283cf0e4be355a8b745216d77a41d95bf",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-16.png",
+      "destination": "02_Icons/Critical/critical_16.png",
+      "sha256": "2ae07e3aae7e1ed3e05316615742ee3f53f5be99b01adf4868e74a79171b9314",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-20.png",
+      "destination": "02_Icons/Critical/critical_20.png",
+      "sha256": "a737bd4622af943c396764144f37fed385ed2f3fab9ea6c74a08e83ddad338b6",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-24.png",
+      "destination": "02_Icons/Critical/critical_24.png",
+      "sha256": "0befdf66e704d4ca2e6371f2ec4d320697e8c34a3c2527fd980d3bb45905d017",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-32.png",
+      "destination": "02_Icons/Critical/critical_32.png",
+      "sha256": "c217ac22ec3ae24f240eb7ae72caefaf006b75922963197280c4cbcfc86305ac",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-40.png",
+      "destination": "02_Icons/Critical/critical_40.png",
+      "sha256": "3ee809ae63ff28ba0c7dc14e64c486a0ee46b18c49319c84e977258b34e60bbd",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-48.png",
+      "destination": "02_Icons/Critical/critical_48.png",
+      "sha256": "4fb347171b415a3e05983768ff4f279c165e6b978f9c2d6bc6497e1c4fd03b71",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-57.png",
+      "destination": "02_Icons/Critical/critical_57.png",
+      "sha256": "2c47bf809c09fefe1ec43060d12ff7b6d7ea1fb91609716ea59a01bcac46041f",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-60.png",
+      "destination": "02_Icons/Critical/critical_60.png",
+      "sha256": "8ed0a834d176944258022a2920553159990967e32a7e7c3f8c4f68db83702460",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-64.png",
+      "destination": "02_Icons/Critical/critical_64.png",
+      "sha256": "6c474941fde163e8cac04d0c80c8f55347c95d3cf630536195b1313a975d4506",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-72.png",
+      "destination": "02_Icons/Critical/critical_72.png",
+      "sha256": "d596b6aba361e4faef6da99d035ebd437c36b03e2aaae6fb2f094341d69b2845",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-76.png",
+      "destination": "02_Icons/Critical/critical_76.png",
+      "sha256": "08987a18d1abb0401591d48357320526f57b32afc5818a39a629960c2c3775ba",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-80.png",
+      "destination": "02_Icons/Critical/critical_80.png",
+      "sha256": "8915524e9dfe31308453434da9904a07ebde11b167502dae81973dc63521ff6b",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-87.png",
+      "destination": "02_Icons/Critical/critical_87.png",
+      "sha256": "4af65b447c9e2dbad92d3528e37fc58337100afe94295001d6656364d6c3b763",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-96.png",
+      "destination": "02_Icons/Critical/critical_96.png",
+      "sha256": "54c66ea2a3761fffd2240c536fd1fdc0dbda6f81dd2d2ea3cd6b0d0d8c4be20e",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-114.png",
+      "destination": "02_Icons/Critical/critical_114.png",
+      "sha256": "86537ed608ee4bce9bd6af5cedf1bdb666679cfb8eaa2a6aa0d0dd9b895305b8",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-120.png",
+      "destination": "02_Icons/Critical/critical_120.png",
+      "sha256": "5d21b79c477ec4ef8aca7cd28acb94b5dc0039a5b16add893ba2386d9ed6b53b",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-128.png",
+      "destination": "02_Icons/Critical/critical_128.png",
+      "sha256": "b4c1b324c69b51e4cab5d04c1e1b9c9bf26fc483684694df7b3f20dafe787bc4",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-144.png",
+      "destination": "02_Icons/Critical/critical_144.png",
+      "sha256": "aa361a789af13f28cc03c0b691be5b5c64a038675ea82d121e4b904bfdc2e7d4",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-152.png",
+      "destination": "02_Icons/Critical/critical_152.png",
+      "sha256": "440659530b1e2abc5f2b8be5ae0a55bd42eff35551a26bb8d0dab4526e8f9504",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-167.png",
+      "destination": "02_Icons/Critical/critical_167.png",
+      "sha256": "d5ae847996b1db8670a62e8e688faab10cf2bd784698abc68354c20cec142d77",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-180.png",
+      "destination": "02_Icons/Critical/critical_180.png",
+      "sha256": "5a0befcd5c3fe9a1965665f028eea19be355e14a543fa2f7a34a22541e24b6df",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-192.png",
+      "destination": "02_Icons/Critical/critical_192.png",
+      "sha256": "511a734a4d0c36b4212f19a743b14bd70eff4a39585ace8533343296fe291439",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-256.png",
+      "destination": "02_Icons/Critical/critical_256.png",
+      "sha256": "00b8a71f9eb3634d7e936b6b96b937a8a7a7d240abcf3723e2fd1d5f0668f034",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-384.png",
+      "destination": "02_Icons/Critical/critical_384.png",
+      "sha256": "f5ab9983953c5c23fd32974903d8c64cd2d6be2146a4d2cbec782c7692b3268b",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-512.png",
+      "destination": "02_Icons/Critical/critical_512.png",
+      "sha256": "ae5727ebfdf94d5d45602baeaeed6480632d751e9d4924135697b71f1610d96c",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-1024.png",
+      "destination": "02_Icons/Critical/critical_1024.png",
+      "sha256": "031b98db3835864e36b4638985e517b50d3e686c391e0f7fe4cc71ec2e76b433",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Rounded-Square/Critical/heads-up-critical-2048.png",
+      "destination": "02_Icons/Critical/critical_2048.png",
+      "sha256": "1c5a596449c81c576913d0079469dbf840b760fd85407a9469f12d7bd5cecb2a",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-16.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_16.png",
+      "sha256": "53891ad5eebb20e12e3c60926cf2e922a4d8a979afed4b7ec79e5918024830b7",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-20.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_20.png",
+      "sha256": "30a7839b4d619d19ea2df6ee3a20d720d87ed6e93f54c517c0715e95e7596fdc",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-24.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_24.png",
+      "sha256": "3271c8e925d3ccae71a5de29dd8076f8acd9b391b4a1acd2f67e967ecd22217a",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-32.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_32.png",
+      "sha256": "03c291f92dbd1feec2d3c172e104ffbc0a28af2a8b38b16c0e4f3614fd213879",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-40.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_40.png",
+      "sha256": "73c45d83029d33d32a83e5883a77c6a06298a07b0c51b4f11e3c7f8fd74a9903",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-48.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_48.png",
+      "sha256": "3efcc9cc9fc55044a82d558d31dac4e10d8fa27b9fb8ef2b44aac04383d3de8d",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-57.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_57.png",
+      "sha256": "d8391c7d73a8110e7c8d3a02e262b6c52738451a83cba4eaef739aad2a9ed3bf",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-60.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_60.png",
+      "sha256": "5862c96ba83ab7a6748cba6bb02baf7af069cff144ff268604b68e3547802190",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-64.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_64.png",
+      "sha256": "58cf61846d85e02af068c413ba8af402f1e1a4910a59c13f51edd6309bfac09c",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-72.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_72.png",
+      "sha256": "ea293a7f769bd2398c2fcd9452b1c7f55a8e810c45591b5e5724da61984168a1",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-76.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_76.png",
+      "sha256": "8444cc88fa23cb163765ac7ecc9a587465aa6a82b3627b575bb54ddf871a8dbe",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-80.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_80.png",
+      "sha256": "9b6670082427b7d548bf404eed5eb560b3c5b2ca9d7e7e7ab88f08a69210c128",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-87.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_87.png",
+      "sha256": "9c85072eb84abe6b089b87540acd68e91de399be6215f94b4987ea1d1669d0e4",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-96.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_96.png",
+      "sha256": "cadd8044eb212d489d6c0ae473d7ec1fa12c06e58f2789e77245d19696349800",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-114.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_114.png",
+      "sha256": "ef653ad9988df6cc4acaf3630ee985aa2070cbe3eb8e0b596acf0c285cc43372",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-120.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_120.png",
+      "sha256": "7cb54626583ff02cd07c581a91fed6de55626cec945b35dbfab3d3a05dfad644",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-128.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_128.png",
+      "sha256": "2225d71e40d2967b57611e20e6ca53cde6d30b1aed9ccc630c1f23653e86350b",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-144.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_144.png",
+      "sha256": "3e33aa6e967a97f6cb387fa9f27ff5a877cbbd7c755c7648c297df8e5ee2bd38",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-152.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_152.png",
+      "sha256": "0d76fdb308471938c6699c6175ab36a2741264e51bd922514e71887daf2334b5",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-167.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_167.png",
+      "sha256": "3dcc521a69eb688b0ebbcaaeae5d2307efddfabd363ce6c0b882f8aa9b154090",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-180.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_180.png",
+      "sha256": "ddfc804110d8dcb9a78706942512d8652f2213fd15eebc1d9ae94520cc8e84c8",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-192.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_192.png",
+      "sha256": "fe4a3a9fb32b22900f6bd29b4a5fb5e6a749a9afbe8e4a240f45c669cd53201d",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-256.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_256.png",
+      "sha256": "e5b3a5605076f6c4cbeabfca42a2acc3b798ad5d95c39d3c664a8764cee3a0c0",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-384.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_384.png",
+      "sha256": "33124d24df46953c84d1491328d8adc378a2c28b577e0b7f186da0882bc85434",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-512.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_512.png",
+      "sha256": "b5bbbe6680d4a1b915cab3ec9603f17daa11de1d36fea739541972a8f57d77e6",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-1024.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_1024.png",
+      "sha256": "014a64a25753e46dda345c7dde4369dacb1971c6c82ea8def798f2f854207695",
+      "byte_identical": true
+    },
+    {
+      "source": "01_Icons/Circle/Critical/heads-up-critical-circle-2048.png",
+      "destination": "02_Icons/Critical/Circle/critical_circle_2048.png",
+      "sha256": "c02701977a36edefbdd7236f866e2b40932b3446112dd873d11538071da51fa9",
+      "byte_identical": true
+    }
+  ],
+  "all_byte_identical": true
+}

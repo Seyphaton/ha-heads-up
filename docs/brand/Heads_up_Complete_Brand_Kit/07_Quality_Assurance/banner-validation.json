@@ -1,0 +1,29 @@
+{
+  "source_file": "heads-up-banner-supplied-original-1774x887.png",
+  "source_sha256": "7c477c4c1e6bc5b7fec4367dfb092266e0545fb27006e629cb72fd782d4900f0",
+  "source_dimensions": [
+    1774,
+    887
+  ],
+  "changed_pixels_native": 121848,
+  "change_bounds_xyxy_native": [
+    209,
+    234,
+    569,
+    597
+  ],
+  "declared_icon_region_xyxy": [
+    203,
+    230,
+    575,
+    602
+  ],
+  "changes_outside_declared_icon_region": 0,
+  "title_subtitle_underline_curves_unchanged_outside_icon_region": true,
+  "delivery_dimensions": [
+    1280,
+    640
+  ],
+  "resize": "Lanczos, original 2:1 canvas; no layout changes",
+  "source_supplied_separately_from_original_zip": true
+}

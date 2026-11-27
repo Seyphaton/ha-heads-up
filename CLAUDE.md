@@ -35,7 +35,7 @@ Standalone: no knowledge of any caller. Everything in English: code, comments, d
 - `scripts/docs_check.py` — docs checks
 - `.claude/rules/` — path-scoped rules
 - `docs/DESIGN.md` (requirements + design), `docs/DECISIONS.md`, `docs/OPEN_QUESTIONS.md`
-- `docs/brand/` — brand package as supplied (reference, do not edit); the integration's icons in `custom_components/heads_up/brand/` are copies from it (D-292)
+- `docs/brand/` — brand package as supplied (reference, do not edit); the integration's icons in `custom_components/heads_up/brand/` are copies from it (D-292, D-296)
 - `docs/dev/` — PHASE_PROMPT, STATE, HA_API_NOTES, DEV_ENVIRONMENT, TESTING, RELEASE
 - `docs/dev/hub/` — notification hub design set (README, ROADMAP, work package briefs, decision index, UI spec, test plan); `docs/dev/mockups/` — standalone panel mockup
 - `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md`, `docs/*.md` user pages — human docs

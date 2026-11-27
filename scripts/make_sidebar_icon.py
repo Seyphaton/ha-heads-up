@@ -1,37 +1,38 @@
 """Generate custom_components/heads_up/frontend/heads-up-icons.js (no dependencies).
 
-Home Assistant draws an icon as one filled path. The brand mark is drawn with round strokes, so
-this turns the strokes of the black monochrome SVG from the brand package into outlines on a
-24x24 grid. Run: `python scripts/make_sidebar_icon.py`.
+Home Assistant draws an icon as one path, filled with the nonzero rule. The brand mark is three
+filled outlines in the black monochrome SVG of the brand kit, drawn there with the even-odd rule.
+This moves them onto a 24x24 grid and turns every hole against its outline, so both rules give the
+same picture. Run: `python scripts/make_sidebar_icon.py`.
 """
 
 from __future__ import annotations
 
-import math
 import re
 from itertools import pairwise
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = (
-    ROOT / "docs/brand/heads_up_brand_package/icons/transparent"
-    "/monochrome_black/monochrome_black.svg"
+    ROOT / "docs/brand/Heads_up_Complete_Brand_Kit/02_Icons/Monochrome-Black/monochrome_black.svg"
 )
 OUT = ROOT / "custom_components/heads_up/frontend/heads-up-icons.js"
 GRID = 24.0
 CONTENT = 21.5  # the longer side of the mark on the grid
-PIECE = 1.0  # longest straight piece of a curve, in source units
-SMOOTH = math.radians(20)  # a smaller turn needs no round join
+PARTS = ("house", "bell", "clapper")
+SAMPLES = 16  # points per curve, for the size and direction of an outline
 
 Point = tuple[float, float]
-Line = tuple[list[Point], bool]  # points, closed
+Segment = list[Point]  # one point: a line; three points: a cubic curve
+Outline = tuple[Point, list[Segment]]  # start, segments; every outline is closed
 
 
-def flatten(d: str) -> list[Line]:
-    """Polylines of a path that uses the absolute commands M, L, C, Q and Z."""
+def parse(d: str) -> list[Outline]:
+    """Closed outlines of a path that uses the absolute commands M, L, C and Z."""
     tokens = re.findall(r"[A-Za-z]|-?\d*\.?\d+", d)
-    lines: list[Line] = []
-    points: list[Point] = []
+    outlines: list[Outline] = []
+    start: Point | None = None
+    segments: list[Segment] = []
     command = ""
     index = 0
 
@@ -46,126 +47,103 @@ def flatten(d: str) -> list[Line]:
             command = tokens[index]
             index += 1
             if command == "Z":
-                lines.append((points, True))
-                points = []
+                if start is None:
+                    raise ValueError("Z without an outline")
+                if segments[-1][-1] != start:
+                    segments.append([start])
+                outlines.append((start, segments))
+                start, segments = None, []
                 continue
-        if command == "M":
-            if points:
-                lines.append((points, False))
-            points = [take()]
+        if command == "M" and start is None:
+            start = take()
             command = "L"
         elif command == "L":
-            points.append(take())
-        elif command in ("C", "Q"):
-            control = [points[-1], *(take() for _ in range(3 if command == "C" else 2))]
-            steps = math.ceil(sum(math.dist(a, b) for a, b in pairwise(control)) / PIECE)
-            for step in range(1, steps + 1):
-                row = control
-                t = step / steps
-                while len(row) > 1:
-                    row = [
-                        (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
-                        for a, b in pairwise(row)
-                    ]
-                points.append(row[0])
+            segments.append([take()])
+        elif command == "C":
+            segments.append([take(), take(), take()])
         else:
             raise ValueError(f"unsupported path command {command!r}")
-    if points:
-        lines.append((points, False))
-    return lines
+    if start is not None:
+        raise ValueError("open outline")
+    return outlines
+
+
+def flatten(outline: Outline) -> list[Point]:
+    start, segments = outline
+    points = [start]
+    for segment in segments:
+        control = [points[-1], *segment]
+        for step in range(1, SAMPLES + 1):
+            row = control
+            t = step / SAMPLES
+            while len(row) > 1:
+                row = [
+                    (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t) for a, b in pairwise(row)
+                ]
+            points.append(row[0])
+    return points
+
+
+def area(points: list[Point]) -> float:
+    """Signed area; the sign is the direction of the outline."""
+    return sum(a[0] * b[1] - b[0] * a[1] for a, b in pairwise(points)) / 2
+
+
+def contains(points: list[Point], point: Point) -> bool:
+    x, y = point
+    inside = False
+    for (ax, ay), (bx, by) in pairwise(points):
+        if (ay > y) != (by > y) and x < ax + (y - ay) / (by - ay) * (bx - ax):
+            inside = not inside
+    return inside
+
+
+def reverse(outline: Outline) -> Outline:
+    start, segments = outline
+    ends = [start, *(segment[-1] for segment in segments)]
+    turned = [[*segment[-2::-1], ends[index]] for index, segment in enumerate(segments)]
+    return ends[-1], turned[::-1]
+
+
+def orient(outlines: list[Outline]) -> list[Outline]:
+    """Outlines at an even depth run one way, the holes in them the other way."""
+    flat = [flatten(outline) for outline in outlines]
+    result = []
+    for index, outline in enumerate(outlines):
+        depth = sum(contains(other, outline[0]) for i, other in enumerate(flat) if i != index)
+        wanted = 1 if depth % 2 == 0 else -1
+        result.append(outline if area(flat[index]) * wanted > 0 else reverse(outline))
+    return result
 
 
 def num(value: float) -> str:
     return f"{value:.2f}".rstrip("0").rstrip(".")
 
 
-def xy(point: Point) -> str:
-    return f"{num(point[0])} {num(point[1])}"
-
-
-def arc(radius: float, end: Point) -> str:
-    return f"A{num(radius)} {num(radius)} 0 0 0 {xy(end)}"
-
-
-def side(points: list[Point], radius: float, closed: bool) -> list[str]:
-    """Path commands along one side of a polyline, starting with the first offset point."""
-    pairs = list(pairwise([*points, *points[:1]] if closed else points))
-    normals: list[Point] = []
-    for a, b in pairs:
-        length = math.dist(a, b)
-        normals.append((-(b[1] - a[1]) / length, (b[0] - a[0]) / length))
-
-    def shift(point: Point, normal: Point) -> Point:
-        return (point[0] + normal[0] * radius, point[1] + normal[1] * radius)
-
-    out = ["M" + xy(shift(pairs[0][0], normals[0]))]
-    for index, ((_, end), normal) in enumerate(zip(pairs, normals, strict=True)):
-        out.append("L" + xy(shift(end, normal)))
-        if index == len(pairs) - 1 and not closed:
-            break
-        after = normals[(index + 1) % len(pairs)]
-        cross = normal[0] * after[1] - normal[1] * after[0]
-        turn = math.atan2(cross, normal[0] * after[0] + normal[1] * after[1])
-        if abs(turn) < SMOOTH:
-            out.append("L" + xy(shift(end, after)))
-        elif turn < 0:  # outer side: round join
-            out.append(arc(radius, shift(end, after)))
-        else:  # inner side: through the corner, covered by the nonzero fill rule
-            out.append("L" + xy(end))
-            out.append("L" + xy(shift(end, after)))
-    return out
-
-
-def outline(points: list[Point], radius: float, closed: bool) -> str:
-    if closed:  # two rings with opposite direction leave the inside empty
-        return "".join([*side(points, radius, True), "Z", *side(points[::-1], radius, True), "Z"])
-    forward = side(points, radius, False)
-    back = side(points[::-1], radius, False)
-    start = back[0][1:]
-    end_cap = f"A{num(radius)} {num(radius)} 0 0 0 {start}"
-    first = forward[0][1:]
-    start_cap = f"A{num(radius)} {num(radius)} 0 0 0 {first}"
-    return "".join([*forward, end_cap, *back[1:], start_cap, "Z"])
-
-
-def clean(points: list[Point], closed: bool) -> list[Point]:
-    kept = [points[0]]
-    for point in points[1:]:
-        if math.dist(point, kept[-1]) > 1e-3:
-            kept.append(point)
-    if closed and math.dist(kept[0], kept[-1]) <= 1e-3:
-        kept.pop()
-    return kept
-
-
 def build() -> str:
     svg = SOURCE.read_text(encoding="utf-8")
-    strokes = [
-        (flatten(d), float(width))
-        for d, width in re.findall(r'<path d="([^"]+)"[^>]*?stroke-width="([\d.]+)"', svg)
-    ]
-    if not strokes:
-        raise ValueError(f"no stroked paths in {SOURCE}")
-    edges = [
-        (x - width / 2, y - width / 2, x + width / 2, y + width / 2)
-        for lines, width in strokes
-        for points, _ in lines
-        for x, y in points
-    ]
-    left, top = min(e[0] for e in edges), min(e[1] for e in edges)
-    right, bottom = max(e[2] for e in edges), max(e[3] for e in edges)
+    paths = dict(re.findall(r'<path id="([a-z]+)" d="([^"]+)"', svg))
+    missing = [part for part in PARTS if part not in paths]
+    if missing:
+        raise ValueError(f"no path {missing} in {SOURCE}")
+    outlines = orient([outline for part in PARTS for outline in parse(paths[part])])
+
+    points = [point for outline in outlines for point in flatten(outline)]
+    left, top = min(x for x, _ in points), min(y for _, y in points)
+    right, bottom = max(x for x, _ in points), max(y for _, y in points)
     scale = CONTENT / max(right - left, bottom - top)
     dx = (GRID - (right - left) * scale) / 2 - left * scale
     dy = (GRID - (bottom - top) * scale) / 2 - top * scale
 
+    def xy(point: Point) -> str:
+        return f"{num(point[0] * scale + dx)} {num(point[1] * scale + dy)}"
+
     path = "".join(
-        outline(
-            clean([(x * scale + dx, y * scale + dy) for x, y in points], closed),
-            width * scale / 2,
-            closed,
-        )
-        for lines, width in strokes
-        for points, closed in lines
+        "M"
+        + xy(start)
+        + "".join(("C" if len(s) == 3 else "L") + " ".join(xy(p) for p in s) for s in segments)
+        + "Z"
+        for start, segments in outlines
     )
     return f"""// Heads Up sidebar icon `heads_up:logo`, the one-color brand mark.
 // Generated by scripts/make_sidebar_icon.py. Do not edit.

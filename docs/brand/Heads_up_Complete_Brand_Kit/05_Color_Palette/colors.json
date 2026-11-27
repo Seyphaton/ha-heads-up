@@ -1,0 +1,1257 @@
+{
+  "product_name": "Heads up",
+  "original_tokens": {
+    "primary_blue": "#0052CC",
+    "electric_blue": "#008BFF",
+    "cyan": "#00B4FF",
+    "deep_navy": "#0A1D3C",
+    "midnight": "#031124",
+    "ice": "#B9EFFF",
+    "white": "#FFFFFF",
+    "surface": "#E6F4FF",
+    "subtle": "#F5FAFF",
+    "success": "#22C55E",
+    "warning": "#F59E0B",
+    "alert": "#EF4444",
+    "info": "#885CF6"
+  },
+  "added_severity_tokens": {
+    "warning_orange": "#FFAC12",
+    "dark_amber": "#482000",
+    "light_amber": "#FFE39A",
+    "warning_accent": "#F59E0B",
+    "critical_red": "#FF3042",
+    "dark_red": "#B9001C",
+    "light_red": "#FFF9F8",
+    "critical_accent": "#EF4444"
+  },
+  "definitions": [
+    {
+      "name": "primary_blue",
+      "hex": "#0052CC",
+      "rgb": [
+        0,
+        82,
+        204
+      ],
+      "hsl": {
+        "h": 215.88,
+        "s": 100.0,
+        "l": 40.0
+      },
+      "intended_usage": "Original Flat Blue background.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "electric_blue",
+      "hex": "#008BFF",
+      "rgb": [
+        0,
+        139,
+        255
+      ],
+      "hsl": {
+        "h": 207.29,
+        "s": 100.0,
+        "l": 50.0
+      },
+      "intended_usage": "Original supporting electric-blue brand token.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "cyan",
+      "hex": "#00B4FF",
+      "rgb": [
+        0,
+        180,
+        255
+      ],
+      "hsl": {
+        "h": 197.65,
+        "s": 100.0,
+        "l": 50.0
+      },
+      "intended_usage": "Original cyan accent and Transparent Light gradient endpoint.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "deep_navy",
+      "hex": "#0A1D3C",
+      "rgb": [
+        10,
+        29,
+        60
+      ],
+      "hsl": {
+        "h": 217.2,
+        "s": 71.43,
+        "l": 13.73
+      },
+      "intended_usage": "Original Flat Navy background.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "midnight",
+      "hex": "#031124",
+      "rgb": [
+        3,
+        17,
+        36
+      ],
+      "hsl": {
+        "h": 214.55,
+        "s": 84.62,
+        "l": 7.65
+      },
+      "intended_usage": "Original Dark gradient stop and manifest surface.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "ice",
+      "hex": "#B9EFFF",
+      "rgb": [
+        185,
+        239,
+        255
+      ],
+      "hsl": {
+        "h": 193.71,
+        "s": 100.0,
+        "l": 86.27
+      },
+      "intended_usage": "Original light-blue supporting tone.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "white",
+      "hex": "#FFFFFF",
+      "rgb": [
+        255,
+        255,
+        255
+      ],
+      "hsl": {
+        "h": 0.0,
+        "s": 0.0,
+        "l": 100.0
+      },
+      "intended_usage": "Original white foreground and flat surface.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "surface",
+      "hex": "#E6F4FF",
+      "rgb": [
+        230,
+        244,
+        255
+      ],
+      "hsl": {
+        "h": 206.4,
+        "s": 100.0,
+        "l": 95.1
+      },
+      "intended_usage": "Original supporting light surface.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "subtle",
+      "hex": "#F5FAFF",
+      "rgb": [
+        245,
+        250,
+        255
+      ],
+      "hsl": {
+        "h": 210.0,
+        "s": 100.0,
+        "l": 98.04
+      },
+      "intended_usage": "Original subtle light surface.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "success",
+      "hex": "#22C55E",
+      "rgb": [
+        34,
+        197,
+        94
+      ],
+      "hsl": {
+        "h": 142.09,
+        "s": 70.56,
+        "l": 45.29
+      },
+      "intended_usage": "Original semantic success token.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "warning",
+      "hex": "#F59E0B",
+      "rgb": [
+        245,
+        158,
+        11
+      ],
+      "hsl": {
+        "h": 37.69,
+        "s": 92.13,
+        "l": 50.2
+      },
+      "intended_usage": "Original semantic warning token; unchanged.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "alert",
+      "hex": "#EF4444",
+      "rgb": [
+        239,
+        68,
+        68
+      ],
+      "hsl": {
+        "h": 0.0,
+        "s": 84.24,
+        "l": 60.2
+      },
+      "intended_usage": "Original semantic alert token; unchanged.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "info",
+      "hex": "#885CF6",
+      "rgb": [
+        136,
+        92,
+        246
+      ],
+      "hsl": {
+        "h": 257.14,
+        "s": 89.53,
+        "l": 66.27
+      },
+      "intended_usage": "Original semantic information token.",
+      "origin": "original colors.json"
+    },
+    {
+      "name": "source_svg_03d5ff",
+      "hex": "#03D5FF",
+      "rgb": [
+        3,
+        213,
+        255
+      ],
+      "hsl": {
+        "h": 190.0,
+        "s": 100.0,
+        "l": 50.59
+      },
+      "intended_usage": "Original SVG paint; used in icons/bright/bright.svg, icons/dark/dark.svg, icons/flat_blue/flat_blue.svg, icons/flat_navy/flat_navy.svg, icons/flat_white/flat_white.svg, icons/main/main.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_0068c6",
+      "hex": "#0068C6",
+      "rgb": [
+        0,
+        104,
+        198
+      ],
+      "hsl": {
+        "h": 208.48,
+        "s": 100.0,
+        "l": 38.82
+      },
+      "intended_usage": "Original SVG paint; used in icons/bright/bright.svg, icons/dark/dark.svg, icons/flat_blue/flat_blue.svg, icons/flat_navy/flat_navy.svg, icons/flat_white/flat_white.svg, icons/main/main.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_031a3c",
+      "hex": "#031A3C",
+      "rgb": [
+        3,
+        26,
+        60
+      ],
+      "hsl": {
+        "h": 215.79,
+        "s": 90.48,
+        "l": 12.35
+      },
+      "intended_usage": "Original SVG paint; used in icons/bright/bright.svg, icons/dark/dark.svg, icons/flat_blue/flat_blue.svg, icons/flat_navy/flat_navy.svg, icons/flat_white/flat_white.svg, icons/main/main.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_008cff",
+      "hex": "#008CFF",
+      "rgb": [
+        0,
+        140,
+        255
+      ],
+      "hsl": {
+        "h": 207.06,
+        "s": 100.0,
+        "l": 50.0
+      },
+      "intended_usage": "Original SVG paint; used in icons/bright/bright.svg, icons/dark/dark.svg, icons/flat_blue/flat_blue.svg, icons/flat_navy/flat_navy.svg, icons/flat_white/flat_white.svg, icons/main/main.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_24f0f4",
+      "hex": "#24F0F4",
+      "rgb": [
+        36,
+        240,
+        244
+      ],
+      "hsl": {
+        "h": 181.15,
+        "s": 90.43,
+        "l": 54.9
+      },
+      "intended_usage": "Original SVG paint; used in icons/bright/bright.svg, icons/dark/dark.svg, icons/flat_blue/flat_blue.svg, icons/flat_navy/flat_navy.svg, icons/flat_white/flat_white.svg, icons/main/main.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_00c6f4",
+      "hex": "#00C6F4",
+      "rgb": [
+        0,
+        198,
+        244
+      ],
+      "hsl": {
+        "h": 191.31,
+        "s": 100.0,
+        "l": 47.84
+      },
+      "intended_usage": "Original SVG paint; used in icons/bright/bright.svg, icons/dark/dark.svg, icons/flat_blue/flat_blue.svg, icons/flat_navy/flat_navy.svg, icons/flat_white/flat_white.svg, icons/main/main.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_17456a",
+      "hex": "#17456A",
+      "rgb": [
+        23,
+        69,
+        106
+      ],
+      "hsl": {
+        "h": 206.75,
+        "s": 64.34,
+        "l": 25.29
+      },
+      "intended_usage": "Original SVG paint; used in icons/bright/bright.svg, icons/dark/dark.svg, icons/flat_blue/flat_blue.svg, icons/flat_navy/flat_navy.svg, icons/flat_white/flat_white.svg, icons/main/main.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_061126",
+      "hex": "#061126",
+      "rgb": [
+        6,
+        17,
+        38
+      ],
+      "hsl": {
+        "h": 219.38,
+        "s": 72.73,
+        "l": 8.63
+      },
+      "intended_usage": "Original SVG paint; used in icons/bright/bright.svg, icons/dark/dark.svg, icons/flat_blue/flat_blue.svg, icons/flat_navy/flat_navy.svg, icons/flat_white/flat_white.svg, icons/main/main.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_c8f4ff",
+      "hex": "#C8F4FF",
+      "rgb": [
+        200,
+        244,
+        255
+      ],
+      "hsl": {
+        "h": 192.0,
+        "s": 100.0,
+        "l": 89.22
+      },
+      "intended_usage": "Original SVG paint; used in icons/dark/dark.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_28baff",
+      "hex": "#28BAFF",
+      "rgb": [
+        40,
+        186,
+        255
+      ],
+      "hsl": {
+        "h": 199.26,
+        "s": 100.0,
+        "l": 57.84
+      },
+      "intended_usage": "Original SVG paint; used in icons/dark/dark.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_0079e6",
+      "hex": "#0079E6",
+      "rgb": [
+        0,
+        121,
+        230
+      ],
+      "hsl": {
+        "h": 208.43,
+        "s": 100.0,
+        "l": 45.1
+      },
+      "intended_usage": "Original SVG paint; used in icons/flat_white/flat_white.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_70e4ff",
+      "hex": "#70E4FF",
+      "rgb": [
+        112,
+        228,
+        255
+      ],
+      "hsl": {
+        "h": 191.33,
+        "s": 100.0,
+        "l": 71.96
+      },
+      "intended_usage": "Original SVG paint; used in icons/main/main.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_071b36",
+      "hex": "#071B36",
+      "rgb": [
+        7,
+        27,
+        54
+      ],
+      "hsl": {
+        "h": 214.47,
+        "s": 77.05,
+        "l": 11.96
+      },
+      "intended_usage": "Original SVG paint; used in icons/transparent/monochrome_black/monochrome_black.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_67dfff",
+      "hex": "#67DFFF",
+      "rgb": [
+        103,
+        223,
+        255
+      ],
+      "hsl": {
+        "h": 192.63,
+        "s": 100.0,
+        "l": 70.2
+      },
+      "intended_usage": "Original SVG paint; used in icons/transparent/on_dark/on_dark.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "source_svg_0074dc",
+      "hex": "#0074DC",
+      "rgb": [
+        0,
+        116,
+        220
+      ],
+      "hsl": {
+        "h": 208.36,
+        "s": 100.0,
+        "l": 43.14
+      },
+      "intended_usage": "Original SVG paint; used in icons/transparent/on_light/on_light.svg.",
+      "origin": "original SVG literal"
+    },
+    {
+      "name": "warning_orange",
+      "hex": "#FFAC12",
+      "rgb": [
+        255,
+        172,
+        18
+      ],
+      "hsl": {
+        "h": 38.99,
+        "s": 100.0,
+        "l": 53.53
+      },
+      "intended_usage": "Approved Warning badge gradient endpoint.",
+      "origin": "approved severity badge or retained semantic token"
+    },
+    {
+      "name": "dark_amber",
+      "hex": "#482000",
+      "rgb": [
+        72,
+        32,
+        0
+      ],
+      "hsl": {
+        "h": 26.67,
+        "s": 100.0,
+        "l": 14.12
+      },
+      "intended_usage": "Approved Warning exclamation mark and dot.",
+      "origin": "approved severity badge or retained semantic token"
+    },
+    {
+      "name": "light_amber",
+      "hex": "#FFE39A",
+      "rgb": [
+        255,
+        227,
+        154
+      ],
+      "hsl": {
+        "h": 43.37,
+        "s": 100.0,
+        "l": 80.2
+      },
+      "intended_usage": "Approved Warning badge gradient start.",
+      "origin": "approved severity badge or retained semantic token"
+    },
+    {
+      "name": "warning_accent",
+      "hex": "#F59E0B",
+      "rgb": [
+        245,
+        158,
+        11
+      ],
+      "hsl": {
+        "h": 37.69,
+        "s": 92.13,
+        "l": 50.2
+      },
+      "intended_usage": "Existing warning semantic token reused for the extended palette.",
+      "origin": "approved severity badge or retained semantic token"
+    },
+    {
+      "name": "critical_red",
+      "hex": "#FF3042",
+      "rgb": [
+        255,
+        48,
+        66
+      ],
+      "hsl": {
+        "h": 354.78,
+        "s": 100.0,
+        "l": 59.41
+      },
+      "intended_usage": "Approved Critical badge gradient start.",
+      "origin": "approved severity badge or retained semantic token"
+    },
+    {
+      "name": "dark_red",
+      "hex": "#B9001C",
+      "rgb": [
+        185,
+        0,
+        28
+      ],
+      "hsl": {
+        "h": 350.92,
+        "s": 100.0,
+        "l": 36.27
+      },
+      "intended_usage": "Approved Critical badge gradient endpoint.",
+      "origin": "approved severity badge or retained semantic token"
+    },
+    {
+      "name": "light_red",
+      "hex": "#FFF9F8",
+      "rgb": [
+        255,
+        249,
+        248
+      ],
+      "hsl": {
+        "h": 8.57,
+        "s": 100.0,
+        "l": 98.63
+      },
+      "intended_usage": "Approved Critical badge border, exclamation mark and dot.",
+      "origin": "approved severity badge or retained semantic token"
+    },
+    {
+      "name": "critical_accent",
+      "hex": "#EF4444",
+      "rgb": [
+        239,
+        68,
+        68
+      ],
+      "hsl": {
+        "h": 0.0,
+        "s": 84.24,
+        "l": 60.2
+      },
+      "intended_usage": "Existing alert semantic token reused for the extended palette.",
+      "origin": "approved severity badge or retained semantic token"
+    }
+  ],
+  "original_svg_gradients": {
+    "icons/bright/bright.svg": [
+      {
+        "id": "bgMain",
+        "attributes": {
+          "id": "bgMain",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#03D5FF"
+          },
+          {
+            "offset": ".28",
+            "stop-color": "#0068C6"
+          },
+          {
+            "offset": ".65",
+            "stop-color": "#031A3C"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#008CFF"
+          }
+        ]
+      },
+      {
+        "id": "bgBright",
+        "attributes": {
+          "id": "bgBright",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#24F0F4"
+          },
+          {
+            "offset": ".48",
+            "stop-color": "#008CFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#00C6F4"
+          }
+        ]
+      },
+      {
+        "id": "bgDark",
+        "attributes": {
+          "id": "bgDark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#17456A"
+          },
+          {
+            "offset": ".55",
+            "stop-color": "#031124"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#061126"
+          }
+        ]
+      },
+      {
+        "id": "mark",
+        "attributes": {
+          "id": "mark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#FFFFFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#FFFFFF"
+          }
+        ]
+      }
+    ],
+    "icons/dark/dark.svg": [
+      {
+        "id": "bgMain",
+        "attributes": {
+          "id": "bgMain",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#03D5FF"
+          },
+          {
+            "offset": ".28",
+            "stop-color": "#0068C6"
+          },
+          {
+            "offset": ".65",
+            "stop-color": "#031A3C"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#008CFF"
+          }
+        ]
+      },
+      {
+        "id": "bgBright",
+        "attributes": {
+          "id": "bgBright",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#24F0F4"
+          },
+          {
+            "offset": ".48",
+            "stop-color": "#008CFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#00C6F4"
+          }
+        ]
+      },
+      {
+        "id": "bgDark",
+        "attributes": {
+          "id": "bgDark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#17456A"
+          },
+          {
+            "offset": ".55",
+            "stop-color": "#031124"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#061126"
+          }
+        ]
+      },
+      {
+        "id": "mark",
+        "attributes": {
+          "id": "mark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#C8F4FF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#28BAFF"
+          }
+        ]
+      }
+    ],
+    "icons/flat_blue/flat_blue.svg": [
+      {
+        "id": "bgMain",
+        "attributes": {
+          "id": "bgMain",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#03D5FF"
+          },
+          {
+            "offset": ".28",
+            "stop-color": "#0068C6"
+          },
+          {
+            "offset": ".65",
+            "stop-color": "#031A3C"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#008CFF"
+          }
+        ]
+      },
+      {
+        "id": "bgBright",
+        "attributes": {
+          "id": "bgBright",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#24F0F4"
+          },
+          {
+            "offset": ".48",
+            "stop-color": "#008CFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#00C6F4"
+          }
+        ]
+      },
+      {
+        "id": "bgDark",
+        "attributes": {
+          "id": "bgDark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#17456A"
+          },
+          {
+            "offset": ".55",
+            "stop-color": "#031124"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#061126"
+          }
+        ]
+      },
+      {
+        "id": "mark",
+        "attributes": {
+          "id": "mark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#FFFFFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#FFFFFF"
+          }
+        ]
+      }
+    ],
+    "icons/flat_navy/flat_navy.svg": [
+      {
+        "id": "bgMain",
+        "attributes": {
+          "id": "bgMain",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#03D5FF"
+          },
+          {
+            "offset": ".28",
+            "stop-color": "#0068C6"
+          },
+          {
+            "offset": ".65",
+            "stop-color": "#031A3C"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#008CFF"
+          }
+        ]
+      },
+      {
+        "id": "bgBright",
+        "attributes": {
+          "id": "bgBright",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#24F0F4"
+          },
+          {
+            "offset": ".48",
+            "stop-color": "#008CFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#00C6F4"
+          }
+        ]
+      },
+      {
+        "id": "bgDark",
+        "attributes": {
+          "id": "bgDark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#17456A"
+          },
+          {
+            "offset": ".55",
+            "stop-color": "#031124"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#061126"
+          }
+        ]
+      },
+      {
+        "id": "mark",
+        "attributes": {
+          "id": "mark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#FFFFFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#FFFFFF"
+          }
+        ]
+      }
+    ],
+    "icons/flat_white/flat_white.svg": [
+      {
+        "id": "bgMain",
+        "attributes": {
+          "id": "bgMain",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#03D5FF"
+          },
+          {
+            "offset": ".28",
+            "stop-color": "#0068C6"
+          },
+          {
+            "offset": ".65",
+            "stop-color": "#031A3C"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#008CFF"
+          }
+        ]
+      },
+      {
+        "id": "bgBright",
+        "attributes": {
+          "id": "bgBright",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#24F0F4"
+          },
+          {
+            "offset": ".48",
+            "stop-color": "#008CFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#00C6F4"
+          }
+        ]
+      },
+      {
+        "id": "bgDark",
+        "attributes": {
+          "id": "bgDark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#17456A"
+          },
+          {
+            "offset": ".55",
+            "stop-color": "#031124"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#061126"
+          }
+        ]
+      },
+      {
+        "id": "mark",
+        "attributes": {
+          "id": "mark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#0079E6"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#0079E6"
+          }
+        ]
+      }
+    ],
+    "icons/main/main.svg": [
+      {
+        "id": "bgMain",
+        "attributes": {
+          "id": "bgMain",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#03D5FF"
+          },
+          {
+            "offset": ".28",
+            "stop-color": "#0068C6"
+          },
+          {
+            "offset": ".65",
+            "stop-color": "#031A3C"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#008CFF"
+          }
+        ]
+      },
+      {
+        "id": "bgBright",
+        "attributes": {
+          "id": "bgBright",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#24F0F4"
+          },
+          {
+            "offset": ".48",
+            "stop-color": "#008CFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#00C6F4"
+          }
+        ]
+      },
+      {
+        "id": "bgDark",
+        "attributes": {
+          "id": "bgDark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#17456A"
+          },
+          {
+            "offset": ".55",
+            "stop-color": "#031124"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#061126"
+          }
+        ]
+      },
+      {
+        "id": "mark",
+        "attributes": {
+          "id": "mark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#FFFFFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#70E4FF"
+          }
+        ]
+      }
+    ],
+    "icons/transparent/monochrome_black/monochrome_black.svg": [
+      {
+        "id": "mark",
+        "attributes": {
+          "id": "mark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#071B36"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#071B36"
+          }
+        ]
+      }
+    ],
+    "icons/transparent/monochrome_white/monochrome_white.svg": [
+      {
+        "id": "mark",
+        "attributes": {
+          "id": "mark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#FFFFFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#FFFFFF"
+          }
+        ]
+      }
+    ],
+    "icons/transparent/on_dark/on_dark.svg": [
+      {
+        "id": "mark",
+        "attributes": {
+          "id": "mark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#FFFFFF"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#67DFFF"
+          }
+        ]
+      }
+    ],
+    "icons/transparent/on_light/on_light.svg": [
+      {
+        "id": "mark",
+        "attributes": {
+          "id": "mark",
+          "x1": "0",
+          "y1": "0",
+          "x2": "1",
+          "y2": "1"
+        },
+        "stops": [
+          {
+            "stop-color": "#0074DC"
+          },
+          {
+            "offset": "1",
+            "stop-color": "#00B4FF"
+          }
+        ]
+      }
+    ]
+  },
+  "note": "Original tokens and source SVG stop definitions are preserved. Approved luminous raster surfaces contain continuous color fields. Reconstructed vector gradient stops are in the SVGs and build sources."
+}

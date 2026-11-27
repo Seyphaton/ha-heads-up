@@ -1900,7 +1900,7 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Decisions (maintainer): one choice list instead of a second setting next to `push_severity_look`; a user's own picture is given by an upload that fills a URL or path field; all implications are planned and weighed before any build.
 - Later the same session (maintainer): the setting is for push only. Banners, popups and the inbox keep their severity symbols, so the earlier idea of a second list for them is dropped. The choices include the severity icon, the Home Assistant default and a custom picture. The maintainer raised colored picture variants for warning and critical.
 - Then (maintainer): four choices: Home Assistant (default), severity icon and color, Heads Up logo, custom picture. The red and orange logo pictures come from a new brand kit that the maintainer uploads; the tinted mockup is not used.
-- Open: the new brand kit, device checks, phase approval.
+- Open: device checks, phase approval. The new kit arrived on 2026-11-27 (D-296); its warning and critical pictures carry a triangle and an octagon badge.
 
 ## D-294 iOS Live Activity colors (2026-11-26, maintainer)
 - Context: the maintainer saw that the color does not work on the iOS Live Activity. The Companion page lists `color` for Android only; an iOS Live Activity takes `notification_icon_color` and `progress_bar_color` (N-124).
@@ -1914,3 +1914,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Build: the platform comes from the registration's `manufacturer`, as in Core (N-125): `Apple` is iOS, anything else Android. This covers iPad and Mac without knowing the system name they report. Used for the payload and for the clear-before-update of an iOS critical push.
 - Decision (maintainer, "NO"): Heads Up adds no icon of its own to an iOS push only to make a color visible. On iOS `color` shows only behind an icon (N-112), so a push without an icon and without `progress` shows no color there. The user docs say so (`docs/actions.md`).
 
+## D-296 Brand kit replaced by the complete kit (2026-11-27, maintainer)
+- Context: the maintainer supplied a second kit (twelve variants including warning and critical, circle versions, banners, favicons, QA reports) and asked to check it and, if complete and correct, to replace the existing kit.
+- Check result: 1784 files; every raster decodes, icon sizes match their names, each variant has the 27 stated sizes as PNG and identical lossless WebP plus one SVG; the SVGs parse and have no scripts or external references; the 1783 manifest hashes match. The old package's 307 files all have a counterpart in `09_Compatibility/`, and its originals are in `08_Source_Reference/`.
+- Notes, not corrected: the kit calls itself a release candidate with design and product review pending; banner and guidelines write "Heads up", the integration writes "Heads Up"; the house and bell are redrawn, with small tracing irregularities visible at large sizes; the 2048 px warning, critical and main PNGs are upscaled from 1088 px; the updated banner has a 1 px seam at the bottom edge of the icon tile.
+- Placement: `docs/brand/Heads_up_Complete_Brand_Kit/`, the supplied folder byte-identical (without `.DS_Store`). `docs/brand/heads_up_brand_package/` is removed, including the two banners added under D-292; they remain in git history.
+- Committed whole on the maintainer's order (about 95 MB in the git history), then pushed to `main` on the maintainer's order; no tag, no release.
+- Integration icons: same mapping as D-292 (`icon` from Main, `dark_icon` from Dark, 256 and 512 px).
+- Sidebar icon: the kit's SVGs are filled outlines, so `scripts/make_sidebar_icon.py` now moves them onto the 24x24 grid and turns the holes for the nonzero fill rule, instead of outlining strokes.
+- `pyproject.toml`: ruff skips `docs/brand`, also when pre-commit passes the files, so the kit's scripts stay unchanged. Nothing runs them.
+- Not changed: product name, README summary picture (its drawn icon is the previous one), color values in the UI.

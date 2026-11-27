@@ -1,0 +1,1517 @@
+[
+  {
+    "original": "icons/main/main_72.png",
+    "canonical": "02_Icons/Main/main_72.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_72.png"
+  },
+  {
+    "original": "icons/main/main_167.png",
+    "canonical": "02_Icons/Main/main_167.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_167.png"
+  },
+  {
+    "original": "icons/main/main_180.png",
+    "canonical": "02_Icons/Main/main_180.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_180.png"
+  },
+  {
+    "original": "icons/main/main.svg",
+    "canonical": "02_Icons/Main/main.svg",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main.svg"
+  },
+  {
+    "original": "icons/main/main_512.png",
+    "canonical": "02_Icons/Main/main_512.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_512.png"
+  },
+  {
+    "original": "icons/main/main_76.png",
+    "canonical": "02_Icons/Main/main_76.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_76.png"
+  },
+  {
+    "original": "icons/main/main_152.png",
+    "canonical": "02_Icons/Main/main_152.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_152.png"
+  },
+  {
+    "original": "icons/main/main_16.png",
+    "canonical": "02_Icons/Main/main_16.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_16.png"
+  },
+  {
+    "original": "icons/main/main_96.png",
+    "canonical": "02_Icons/Main/main_96.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_96.png"
+  },
+  {
+    "original": "icons/main/main_87.png",
+    "canonical": "02_Icons/Main/main_87.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_87.png"
+  },
+  {
+    "original": "icons/main/main_1024.webp",
+    "canonical": "02_Icons/Main/main_1024.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_1024.webp"
+  },
+  {
+    "original": "icons/main/main_20.png",
+    "canonical": "02_Icons/Main/main_20.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_20.png"
+  },
+  {
+    "original": "icons/main/main_384.png",
+    "canonical": "02_Icons/Main/main_384.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_384.png"
+  },
+  {
+    "original": "icons/main/main_80.png",
+    "canonical": "02_Icons/Main/main_80.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_80.png"
+  },
+  {
+    "original": "icons/main/main_120.png",
+    "canonical": "02_Icons/Main/main_120.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_120.png"
+  },
+  {
+    "original": "icons/main/main_2048.png",
+    "canonical": "02_Icons/Main/main_2048.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_2048.png"
+  },
+  {
+    "original": "icons/main/main_64.png",
+    "canonical": "02_Icons/Main/main_64.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_64.png"
+  },
+  {
+    "original": "icons/main/main_192.png",
+    "canonical": "02_Icons/Main/main_192.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_192.png"
+  },
+  {
+    "original": "icons/main/main_60.png",
+    "canonical": "02_Icons/Main/main_60.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_60.png"
+  },
+  {
+    "original": "icons/main/main_40.png",
+    "canonical": "02_Icons/Main/main_40.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_40.png"
+  },
+  {
+    "original": "icons/main/main_32.png",
+    "canonical": "02_Icons/Main/main_32.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_32.png"
+  },
+  {
+    "original": "icons/main/main_256.png",
+    "canonical": "02_Icons/Main/main_256.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_256.png"
+  },
+  {
+    "original": "icons/main/main_57.png",
+    "canonical": "02_Icons/Main/main_57.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_57.png"
+  },
+  {
+    "original": "icons/main/main_144.png",
+    "canonical": "02_Icons/Main/main_144.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_144.png"
+  },
+  {
+    "original": "icons/main/main_114.png",
+    "canonical": "02_Icons/Main/main_114.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_114.png"
+  },
+  {
+    "original": "icons/main/main_48.png",
+    "canonical": "02_Icons/Main/main_48.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_48.png"
+  },
+  {
+    "original": "icons/main/main_1024.png",
+    "canonical": "02_Icons/Main/main_1024.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_1024.png"
+  },
+  {
+    "original": "icons/main/main_192.webp",
+    "canonical": "02_Icons/Main/main_192.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_192.webp"
+  },
+  {
+    "original": "icons/main/main_24.png",
+    "canonical": "02_Icons/Main/main_24.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_24.png"
+  },
+  {
+    "original": "icons/main/main_512.webp",
+    "canonical": "02_Icons/Main/main_512.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_512.webp"
+  },
+  {
+    "original": "icons/main/main_128.png",
+    "canonical": "02_Icons/Main/main_128.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/main/main_128.png"
+  },
+  {
+    "original": "icons/bright/bright_192.png",
+    "canonical": "02_Icons/Bright/bright_192.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_192.png"
+  },
+  {
+    "original": "icons/bright/bright_1024.webp",
+    "canonical": "02_Icons/Bright/bright_1024.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_1024.webp"
+  },
+  {
+    "original": "icons/bright/bright_16.png",
+    "canonical": "02_Icons/Bright/bright_16.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_16.png"
+  },
+  {
+    "original": "icons/bright/bright_48.png",
+    "canonical": "02_Icons/Bright/bright_48.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_48.png"
+  },
+  {
+    "original": "icons/bright/bright_32.png",
+    "canonical": "02_Icons/Bright/bright_32.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_32.png"
+  },
+  {
+    "original": "icons/bright/bright_512.webp",
+    "canonical": "02_Icons/Bright/bright_512.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_512.webp"
+  },
+  {
+    "original": "icons/bright/bright_57.png",
+    "canonical": "02_Icons/Bright/bright_57.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_57.png"
+  },
+  {
+    "original": "icons/bright/bright_256.png",
+    "canonical": "02_Icons/Bright/bright_256.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_256.png"
+  },
+  {
+    "original": "icons/bright/bright_384.png",
+    "canonical": "02_Icons/Bright/bright_384.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_384.png"
+  },
+  {
+    "original": "icons/bright/bright_144.png",
+    "canonical": "02_Icons/Bright/bright_144.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_144.png"
+  },
+  {
+    "original": "icons/bright/bright_87.png",
+    "canonical": "02_Icons/Bright/bright_87.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_87.png"
+  },
+  {
+    "original": "icons/bright/bright_114.png",
+    "canonical": "02_Icons/Bright/bright_114.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_114.png"
+  },
+  {
+    "original": "icons/bright/bright.svg",
+    "canonical": "02_Icons/Bright/bright.svg",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright.svg"
+  },
+  {
+    "original": "icons/bright/bright_152.png",
+    "canonical": "02_Icons/Bright/bright_152.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_152.png"
+  },
+  {
+    "original": "icons/bright/bright_40.png",
+    "canonical": "02_Icons/Bright/bright_40.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_40.png"
+  },
+  {
+    "original": "icons/bright/bright_120.png",
+    "canonical": "02_Icons/Bright/bright_120.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_120.png"
+  },
+  {
+    "original": "icons/bright/bright_192.webp",
+    "canonical": "02_Icons/Bright/bright_192.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_192.webp"
+  },
+  {
+    "original": "icons/bright/bright_60.png",
+    "canonical": "02_Icons/Bright/bright_60.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_60.png"
+  },
+  {
+    "original": "icons/bright/bright_167.png",
+    "canonical": "02_Icons/Bright/bright_167.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_167.png"
+  },
+  {
+    "original": "icons/bright/bright_80.png",
+    "canonical": "02_Icons/Bright/bright_80.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_80.png"
+  },
+  {
+    "original": "icons/bright/bright_64.png",
+    "canonical": "02_Icons/Bright/bright_64.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_64.png"
+  },
+  {
+    "original": "icons/bright/bright_96.png",
+    "canonical": "02_Icons/Bright/bright_96.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_96.png"
+  },
+  {
+    "original": "icons/bright/bright_512.png",
+    "canonical": "02_Icons/Bright/bright_512.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_512.png"
+  },
+  {
+    "original": "icons/bright/bright_180.png",
+    "canonical": "02_Icons/Bright/bright_180.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_180.png"
+  },
+  {
+    "original": "icons/bright/bright_72.png",
+    "canonical": "02_Icons/Bright/bright_72.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_72.png"
+  },
+  {
+    "original": "icons/bright/bright_128.png",
+    "canonical": "02_Icons/Bright/bright_128.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_128.png"
+  },
+  {
+    "original": "icons/bright/bright_2048.png",
+    "canonical": "02_Icons/Bright/bright_2048.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_2048.png"
+  },
+  {
+    "original": "icons/bright/bright_1024.png",
+    "canonical": "02_Icons/Bright/bright_1024.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_1024.png"
+  },
+  {
+    "original": "icons/bright/bright_24.png",
+    "canonical": "02_Icons/Bright/bright_24.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_24.png"
+  },
+  {
+    "original": "icons/bright/bright_76.png",
+    "canonical": "02_Icons/Bright/bright_76.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_76.png"
+  },
+  {
+    "original": "icons/bright/bright_20.png",
+    "canonical": "02_Icons/Bright/bright_20.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/bright/bright_20.png"
+  },
+  {
+    "original": "icons/dark/dark_96.png",
+    "canonical": "02_Icons/Dark/dark_96.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_96.png"
+  },
+  {
+    "original": "icons/dark/dark_1024.webp",
+    "canonical": "02_Icons/Dark/dark_1024.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_1024.webp"
+  },
+  {
+    "original": "icons/dark/dark_24.png",
+    "canonical": "02_Icons/Dark/dark_24.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_24.png"
+  },
+  {
+    "original": "icons/dark/dark_384.png",
+    "canonical": "02_Icons/Dark/dark_384.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_384.png"
+  },
+  {
+    "original": "icons/dark/dark_192.webp",
+    "canonical": "02_Icons/Dark/dark_192.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_192.webp"
+  },
+  {
+    "original": "icons/dark/dark_114.png",
+    "canonical": "02_Icons/Dark/dark_114.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_114.png"
+  },
+  {
+    "original": "icons/dark/dark_20.png",
+    "canonical": "02_Icons/Dark/dark_20.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_20.png"
+  },
+  {
+    "original": "icons/dark/dark_180.png",
+    "canonical": "02_Icons/Dark/dark_180.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_180.png"
+  },
+  {
+    "original": "icons/dark/dark_1024.png",
+    "canonical": "02_Icons/Dark/dark_1024.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_1024.png"
+  },
+  {
+    "original": "icons/dark/dark_72.png",
+    "canonical": "02_Icons/Dark/dark_72.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_72.png"
+  },
+  {
+    "original": "icons/dark/dark_48.png",
+    "canonical": "02_Icons/Dark/dark_48.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_48.png"
+  },
+  {
+    "original": "icons/dark/dark_57.png",
+    "canonical": "02_Icons/Dark/dark_57.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_57.png"
+  },
+  {
+    "original": "icons/dark/dark_120.png",
+    "canonical": "02_Icons/Dark/dark_120.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_120.png"
+  },
+  {
+    "original": "icons/dark/dark_152.png",
+    "canonical": "02_Icons/Dark/dark_152.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_152.png"
+  },
+  {
+    "original": "icons/dark/dark.svg",
+    "canonical": "02_Icons/Dark/dark.svg",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark.svg"
+  },
+  {
+    "original": "icons/dark/dark_144.png",
+    "canonical": "02_Icons/Dark/dark_144.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_144.png"
+  },
+  {
+    "original": "icons/dark/dark_512.webp",
+    "canonical": "02_Icons/Dark/dark_512.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_512.webp"
+  },
+  {
+    "original": "icons/dark/dark_192.png",
+    "canonical": "02_Icons/Dark/dark_192.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_192.png"
+  },
+  {
+    "original": "icons/dark/dark_167.png",
+    "canonical": "02_Icons/Dark/dark_167.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_167.png"
+  },
+  {
+    "original": "icons/dark/dark_80.png",
+    "canonical": "02_Icons/Dark/dark_80.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_80.png"
+  },
+  {
+    "original": "icons/dark/dark_512.png",
+    "canonical": "02_Icons/Dark/dark_512.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_512.png"
+  },
+  {
+    "original": "icons/dark/dark_60.png",
+    "canonical": "02_Icons/Dark/dark_60.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_60.png"
+  },
+  {
+    "original": "icons/dark/dark_128.png",
+    "canonical": "02_Icons/Dark/dark_128.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_128.png"
+  },
+  {
+    "original": "icons/dark/dark_76.png",
+    "canonical": "02_Icons/Dark/dark_76.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_76.png"
+  },
+  {
+    "original": "icons/dark/dark_256.png",
+    "canonical": "02_Icons/Dark/dark_256.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_256.png"
+  },
+  {
+    "original": "icons/dark/dark_87.png",
+    "canonical": "02_Icons/Dark/dark_87.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_87.png"
+  },
+  {
+    "original": "icons/dark/dark_40.png",
+    "canonical": "02_Icons/Dark/dark_40.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_40.png"
+  },
+  {
+    "original": "icons/dark/dark_32.png",
+    "canonical": "02_Icons/Dark/dark_32.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_32.png"
+  },
+  {
+    "original": "icons/dark/dark_16.png",
+    "canonical": "02_Icons/Dark/dark_16.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_16.png"
+  },
+  {
+    "original": "icons/dark/dark_64.png",
+    "canonical": "02_Icons/Dark/dark_64.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_64.png"
+  },
+  {
+    "original": "icons/dark/dark_2048.png",
+    "canonical": "02_Icons/Dark/dark_2048.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/dark/dark_2048.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_120.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_120.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_120.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_32.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_32.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_32.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_1024.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_1024.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_1024.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_192.webp",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_192.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_192.webp"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_64.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_64.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_64.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_512.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_512.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_512.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_24.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_24.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_24.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_144.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_144.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_144.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_76.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_76.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_76.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_48.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_48.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_48.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_114.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_114.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_114.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_87.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_87.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_87.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_167.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_167.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_167.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_20.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_20.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_20.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_512.webp",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_512.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_512.webp"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_16.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_16.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_16.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_256.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_256.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_256.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_96.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_96.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_96.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_80.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_80.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_80.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_72.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_72.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_72.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_2048.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_2048.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_2048.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_180.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_180.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_180.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_60.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_60.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_60.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_40.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_40.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_40.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_1024.webp",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_1024.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_1024.webp"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_192.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_192.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_192.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_152.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_152.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_152.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_57.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_57.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_57.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue.svg",
+    "canonical": "02_Icons/Flat-Blue/flat_blue.svg",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue.svg"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_128.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_128.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_128.png"
+  },
+  {
+    "original": "icons/flat_blue/flat_blue_384.png",
+    "canonical": "02_Icons/Flat-Blue/flat_blue_384.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_blue/flat_blue_384.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_57.png",
+    "canonical": "02_Icons/Flat-White/flat_white_57.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_57.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_2048.png",
+    "canonical": "02_Icons/Flat-White/flat_white_2048.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_2048.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_144.png",
+    "canonical": "02_Icons/Flat-White/flat_white_144.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_144.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_64.png",
+    "canonical": "02_Icons/Flat-White/flat_white_64.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_64.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_128.png",
+    "canonical": "02_Icons/Flat-White/flat_white_128.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_128.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_512.png",
+    "canonical": "02_Icons/Flat-White/flat_white_512.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_512.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_152.png",
+    "canonical": "02_Icons/Flat-White/flat_white_152.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_152.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_48.png",
+    "canonical": "02_Icons/Flat-White/flat_white_48.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_48.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_40.png",
+    "canonical": "02_Icons/Flat-White/flat_white_40.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_40.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_120.png",
+    "canonical": "02_Icons/Flat-White/flat_white_120.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_120.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_80.png",
+    "canonical": "02_Icons/Flat-White/flat_white_80.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_80.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_167.png",
+    "canonical": "02_Icons/Flat-White/flat_white_167.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_167.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_384.png",
+    "canonical": "02_Icons/Flat-White/flat_white_384.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_384.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_256.png",
+    "canonical": "02_Icons/Flat-White/flat_white_256.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_256.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_512.webp",
+    "canonical": "02_Icons/Flat-White/flat_white_512.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_512.webp"
+  },
+  {
+    "original": "icons/flat_white/flat_white_16.png",
+    "canonical": "02_Icons/Flat-White/flat_white_16.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_16.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_87.png",
+    "canonical": "02_Icons/Flat-White/flat_white_87.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_87.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_24.png",
+    "canonical": "02_Icons/Flat-White/flat_white_24.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_24.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_60.png",
+    "canonical": "02_Icons/Flat-White/flat_white_60.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_60.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_1024.png",
+    "canonical": "02_Icons/Flat-White/flat_white_1024.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_1024.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_72.png",
+    "canonical": "02_Icons/Flat-White/flat_white_72.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_72.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_1024.webp",
+    "canonical": "02_Icons/Flat-White/flat_white_1024.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_1024.webp"
+  },
+  {
+    "original": "icons/flat_white/flat_white_192.webp",
+    "canonical": "02_Icons/Flat-White/flat_white_192.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_192.webp"
+  },
+  {
+    "original": "icons/flat_white/flat_white_192.png",
+    "canonical": "02_Icons/Flat-White/flat_white_192.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_192.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_180.png",
+    "canonical": "02_Icons/Flat-White/flat_white_180.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_180.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_76.png",
+    "canonical": "02_Icons/Flat-White/flat_white_76.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_76.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_32.png",
+    "canonical": "02_Icons/Flat-White/flat_white_32.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_32.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_20.png",
+    "canonical": "02_Icons/Flat-White/flat_white_20.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_20.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white_96.png",
+    "canonical": "02_Icons/Flat-White/flat_white_96.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_96.png"
+  },
+  {
+    "original": "icons/flat_white/flat_white.svg",
+    "canonical": "02_Icons/Flat-White/flat_white.svg",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white.svg"
+  },
+  {
+    "original": "icons/flat_white/flat_white_114.png",
+    "canonical": "02_Icons/Flat-White/flat_white_114.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_white/flat_white_114.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_384.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_384.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_384.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_64.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_64.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_64.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_32.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_32.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_32.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy.svg",
+    "canonical": "02_Icons/Flat-Navy/flat_navy.svg",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy.svg"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_57.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_57.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_57.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_87.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_87.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_87.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_128.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_128.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_128.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_72.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_72.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_72.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_24.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_24.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_24.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_48.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_48.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_48.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_120.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_120.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_120.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_76.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_76.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_76.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_1024.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_1024.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_1024.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_60.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_60.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_60.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_256.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_256.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_256.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_2048.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_2048.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_2048.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_80.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_80.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_80.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_512.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_512.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_512.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_512.webp",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_512.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_512.webp"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_192.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_192.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_192.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_96.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_96.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_96.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_180.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_180.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_180.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_40.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_40.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_40.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_192.webp",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_192.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_192.webp"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_1024.webp",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_1024.webp",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_1024.webp"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_20.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_20.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_20.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_167.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_167.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_167.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_16.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_16.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_16.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_144.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_144.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_144.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_114.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_114.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_114.png"
+  },
+  {
+    "original": "icons/flat_navy/flat_navy_152.png",
+    "canonical": "02_Icons/Flat-Navy/flat_navy_152.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/flat_navy/flat_navy_152.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light.svg",
+    "canonical": "02_Icons/Transparent-Light/on_light.svg",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light.svg"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_40.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_40.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_40.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_20.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_20.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_20.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_1024.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_1024.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_1024.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_96.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_96.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_96.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_180.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_180.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_180.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_32.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_32.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_32.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_48.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_48.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_48.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_24.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_24.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_24.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_80.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_80.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_80.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_114.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_114.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_114.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_57.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_57.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_57.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_256.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_256.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_256.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_144.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_144.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_144.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_120.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_120.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_120.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_64.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_64.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_64.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_87.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_87.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_87.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_384.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_384.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_384.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_152.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_152.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_152.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_16.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_16.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_16.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_167.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_167.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_167.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_512.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_512.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_512.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_192.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_192.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_192.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_76.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_76.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_76.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_60.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_60.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_60.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_128.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_128.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_128.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_2048.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_2048.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_2048.png"
+  },
+  {
+    "original": "icons/transparent/on_light/on_light_72.png",
+    "canonical": "02_Icons/Transparent-Light/on_light_72.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_light/on_light_72.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_384.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_384.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_384.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_76.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_76.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_76.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_87.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_87.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_87.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_24.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_24.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_24.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_40.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_40.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_40.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_72.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_72.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_72.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_512.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_512.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_512.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_57.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_57.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_57.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_64.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_64.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_64.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_192.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_192.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_192.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_120.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_120.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_120.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark.svg",
+    "canonical": "02_Icons/Transparent-Dark/on_dark.svg",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark.svg"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_16.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_16.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_16.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_180.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_180.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_180.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_152.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_152.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_152.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_1024.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_1024.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_1024.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_80.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_80.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_80.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_144.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_144.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_144.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_2048.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_2048.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_2048.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_114.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_114.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_114.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_32.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_32.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_32.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_60.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_60.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_60.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_96.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_96.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_96.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_167.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_167.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_167.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_128.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_128.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_128.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_20.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_20.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_20.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_256.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_256.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_256.png"
+  },
+  {
+    "original": "icons/transparent/on_dark/on_dark_48.png",
+    "canonical": "02_Icons/Transparent-Dark/on_dark_48.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/on_dark/on_dark_48.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_120.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_120.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_120.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_87.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_87.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_87.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_192.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_192.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_192.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_114.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_114.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_114.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_384.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_384.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_384.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_40.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_40.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_40.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_24.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_24.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_24.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_20.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_20.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_20.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_2048.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_2048.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_2048.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_144.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_144.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_144.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_180.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_180.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_180.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_96.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_96.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_96.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_256.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_256.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_256.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_64.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_64.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_64.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_16.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_16.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_16.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_152.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_152.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_152.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_80.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_80.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_80.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_167.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_167.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_167.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_76.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_76.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_76.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_72.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_72.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_72.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_60.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_60.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_60.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_1024.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_1024.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_1024.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_57.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_57.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_57.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black.svg",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black.svg",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black.svg"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_128.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_128.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_128.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_512.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_512.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_512.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_32.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_32.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_32.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_black/monochrome_black_48.png",
+    "canonical": "02_Icons/Monochrome-Black/monochrome_black_48.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_black/monochrome_black_48.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_16.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_16.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_16.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_80.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_80.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_80.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_256.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_256.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_256.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_180.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_180.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_180.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_1024.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_1024.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_1024.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_20.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_20.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_20.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_32.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_32.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_32.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_2048.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_2048.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_2048.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_57.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_57.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_57.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_167.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_167.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_167.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_40.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_40.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_40.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_64.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_64.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_64.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_152.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_152.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_152.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_512.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_512.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_512.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_114.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_114.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_114.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_144.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_144.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_144.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_192.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_192.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_192.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_76.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_76.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_76.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_120.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_120.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_120.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_48.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_48.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_48.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_60.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_60.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_60.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_384.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_384.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_384.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_128.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_128.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_128.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_87.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_87.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_87.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_72.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_72.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_72.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_24.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_24.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_24.png"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white.svg",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white.svg",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white.svg"
+  },
+  {
+    "original": "icons/transparent/monochrome_white/monochrome_white_96.png",
+    "canonical": "02_Icons/Monochrome-White/monochrome_white_96.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/icons/transparent/monochrome_white/monochrome_white_96.png"
+  },
+  {
+    "original": "favicons/favicon-16.png",
+    "canonical": "03_Favicons/favicon-16.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/favicons/favicon-16.png"
+  },
+  {
+    "original": "favicons/favicon.ico",
+    "canonical": "03_Favicons/favicon.ico",
+    "compatibility": "09_Compatibility/heads_up_brand_package/favicons/favicon.ico"
+  },
+  {
+    "original": "favicons/favicon-64.png",
+    "canonical": "03_Favicons/favicon-64.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/favicons/favicon-64.png"
+  },
+  {
+    "original": "favicons/favicon-32.png",
+    "canonical": "03_Favicons/favicon-32.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/favicons/favicon-32.png"
+  },
+  {
+    "original": "favicons/favicon-48.png",
+    "canonical": "03_Favicons/favicon-48.png",
+    "compatibility": "09_Compatibility/heads_up_brand_package/favicons/favicon-48.png"
+  }
+]

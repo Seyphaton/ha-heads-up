@@ -319,7 +319,7 @@ Status: Python tests implemented (121, files listed in `docs/dev/TESTING.md`); c
 
 ## 12. Packaging, CI, versioning, runbook
 
-- Public GitHub repo (D-020); layout `custom_components/heads_up/` with `brand/` inside it (`icon.png`, `icon@2x.png` and their `dark_` forms, N-47, N-122; source package in `docs/brand/`, D-292), `hacs.json` `{name: "Heads Up", homeassistant: "2026.9.0"}` (N-18, N-19).
+- Public GitHub repo (D-020); layout `custom_components/heads_up/` with `brand/` inside it (`icon.png`, `icon@2x.png` and their `dark_` forms, N-47, N-122; source kit in `docs/brand/`, D-292, D-296), `hacs.json` `{name: "Heads Up", homeassistant: "2026.9.0"}` (N-18, N-19).
 - manifest: `domain`, `name`, `version`, `documentation`, `issue_tracker`, `codeowners`, `config_flow: true`, `integration_type: service`, `iot_class: local_push`, `dependencies: [frontend, http, person]`, `single_config_entry: true` (verified, N-27).
 - SemVer; CHANGELOG (Keep a Changelog); GitHub releases, not only tags (N-18).
 - CI (D-027): `ci.yml` runs ruff, mypy, pytest (HA 2026.10.4 and 2026.9.4), vitest and docs-check; `validate.yml` runs hassfest and the HACS action, also daily and on demand (D-051).
