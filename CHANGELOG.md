@@ -4,6 +4,11 @@ All notable changes are listed here. Format: [Keep a Changelog](https://keepacha
 
 ## [Unreleased]
 
+### Before you upgrade
+
+- Nothing you need to set up. No action, field or setting changes.
+- An Apple device that reports a system name other than `iOS`, which can be an iPad or a Mac, now gets the iOS push settings. A push with the critical level then arrives there as an iOS critical alert.
+
 ### Changed
 
 - Heads Up has a new icon, a house with a bell, in a light and a dark version. Your browser can keep showing the old icon for up to 7 days.

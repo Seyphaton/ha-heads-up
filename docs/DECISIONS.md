@@ -1924,3 +1924,10 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Sidebar icon: the kit's SVGs are filled outlines, so `scripts/make_sidebar_icon.py` now moves them onto the 24x24 grid and turns the holes for the nonzero fill rule, instead of outlining strokes.
 - `pyproject.toml`: ruff skips `docs/brand`, also when pre-commit passes the files, so the kit's scripts stay unchanged. Nothing runs them.
 - Not changed: product name, README summary picture (its drawn icon is the previous one), color values in the UI.
+
+## D-297 3.0.2-beta.1 prepared (2026-11-27, maintainer)
+- Context: since 3.0.1 `main` holds the new icon (D-292, D-296) and two push fixes (D-294, D-295). The maintainer asked whether this is 3.1.0 or 3.0.2.
+- Decision (maintainer, "prepare 3.0.2-beta.1 not a real release"): the next version is a patch version, first as a pre-release. No action, field, setting or card option is added or changed (DESIGN §13: additions are minor versions). 3.1.0 stays proposed for the push icon setting (D-293, not approved).
+- Done: manifest `3.0.2-beta.1`; the CHANGELOG keeps `[Unreleased]`, now with "Before you upgrade" naming the effect of D-295.
+- Then (maintainer, "Commit and push the tag"): committed and pushed to `main`; the tag `v3.0.2-beta.1` follows once CI is green on that commit.
+- Not done: the GitHub pre-release (maintainer's step). 3.0.2 itself is not prepared.
