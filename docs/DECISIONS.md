@@ -1895,6 +1895,13 @@ ADR-style log. Each entry: decision, alternatives, consequences. All entries dat
 - Not replaced: the entity icons and the push notification symbol of a message between people stay `mdi:` icons; they never showed the old image.
 - README summary picture (maintainer): `docs/images/summary-where-who-policy.webp` is replaced by the supplied picture (1670x941, saved from the pasted copy), whose header tile shows the new icon. The README text and alt text are unchanged.
 
+## D-293 Default notification icon: planning (2026-11-26, maintainer)
+- Context: the maintainer asked to plan and critically review a setting for the default notification icon: none, the Heads Up icon, or an uploaded picture. Nothing is built and no phase is approved.
+- Decisions (maintainer): one choice list instead of a second setting next to `push_severity_look`; a user's own picture is given by an upload that fills a URL or path field; all implications are planned and weighed before any build.
+- Later the same session (maintainer): the setting is for push only. Banners, popups and the inbox keep their severity symbols, so the earlier idea of a second list for them is dropped. The choices include the severity icon, the Home Assistant default and a custom picture. The maintainer raised colored picture variants for warning and critical.
+- Then (maintainer): four choices: Home Assistant (default), severity icon and color, Heads Up logo, custom picture. The red and orange logo pictures come from a new brand kit that the maintainer uploads; the tinted mockup is not used.
+- Open: the new brand kit, device checks, phase approval.
+
 ## D-294 iOS Live Activity colors (2026-11-26, maintainer)
 - Context: the maintainer saw that the color does not work on the iOS Live Activity. The Companion page lists `color` for Android only; an iOS Live Activity takes `notification_icon_color` and `progress_bar_color` (N-124).
 - Decision (maintainer, supplied fix): a push with a progress bar to iOS carries both keys with the message's color, or the severity's when `push_severity_look` gives one. No new field.
